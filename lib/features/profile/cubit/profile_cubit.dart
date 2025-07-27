@@ -2,6 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_truck_length_model.dart';
+import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
@@ -24,7 +26,8 @@ part 'profile_state.dart';
 class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _repo;
   final VpCreationRepository _vprepository;
-  ProfileCubit(this._repo,this._vprepository): super(ProfileState());
+  final KavachRepository kavachRepository;
+  ProfileCubit(this._repo,this._vprepository,this.kavachRepository): super(ProfileState());
 
   // Save Has Blue ID
   Future<void> saveHasShowBluePopup(bool value) async {
@@ -289,6 +292,19 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
     if (result is Error) {
       _setTruckTypeUIState(UIState.error(result.type));
+    }
+  }
+
+   // Fetch truck length 
+   Future<void> fetchTruckLengths(String type) async {
+    emit(state.copyWith(truckTypeUIState: UIState.loading()));
+    final result = await kavachRepository.fetchTruckLengths(type);
+    if (result is Success<List<TruckLengthModel>>) {
+      emit(state.copyWith(truckLengths: UIState.success(result.value)));
+    } else if (result is Error<List<TruckLengthModel>>) {
+      emit(state.copyWith(truckLengths: UIState.error(result.type)));
+    } else {
+      emit(state.copyWith(truckLengths: UIState.error(GenericError())));
     }
   }
 

@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/views/widgets/gps_notification_type_sheet.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
@@ -100,7 +101,8 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<GpsNotificationTypesSheetCubit>(create: (_) => locator<GpsNotificationTypesSheetCubit>()),
         BlocProvider<DriverProfileCubit>(create: (_) => locator<DriverProfileCubit>()),
         BlocProvider<DriverLoadDetailsCubit>(create: (_) => locator<DriverLoadDetailsCubit>()),
-      ],
+        BlocProvider<GpsVehicleCubit>(create: (_) => locator<GpsVehicleCubit>()),
+       ],
       child: child,
     );
   }

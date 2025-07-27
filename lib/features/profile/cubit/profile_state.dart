@@ -15,6 +15,7 @@ class ProfileState extends Equatable {
   final bool showSuccessKyc;
   final String? blueId;
   final UIState<List<TruckTypeModel>>? truckTypeUIState;
+  final UIState<List<TruckLengthModel>>? truckLengths;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -30,6 +31,7 @@ class ProfileState extends Equatable {
     this.driverState,
     this.customerSettingsState,
     this.truckTypeUIState,
+    this.truckLengths,
   });
 
   ProfileState copyWith({
@@ -46,6 +48,7 @@ class ProfileState extends Equatable {
     UIState<PaginatedDriverList>? driverState,
     UIState<bool>? deleteVehicleState,
     UIState<List<TruckTypeModel>>? truckTypeUIState,
+    UIState<List<TruckLengthModel>>? truckLengths,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -63,6 +66,7 @@ class ProfileState extends Equatable {
       createVehicleState: createVehicleState ?? this.createVehicleState,
       vehicleState: vehicleState ?? this.vehicleState,
       truckTypeUIState: truckTypeUIState ?? this.truckTypeUIState,
+      truckLengths: truckLengths ?? this.truckLengths,
       driverState: driverState ?? this.driverState,
       customerSettingsState: customerSettingsState ?? this.customerSettingsState,
     );
@@ -80,6 +84,7 @@ class ProfileState extends Equatable {
     blueId,
     createAddressState,
     truckTypeUIState,
+    truckLengths,
     createVehicleState,
     vehicleState,
     driverState,
