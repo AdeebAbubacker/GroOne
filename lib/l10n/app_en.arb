@@ -1025,12 +1025,13 @@
   "editDriver" : "Edit Driver",
   "driverName" : "Driver Name",
   "licenseExpiryDate" : "License Expry Date",
-  "dateOdBirth" : "Date of birth"
-
-
-
-
-
+  "dateOdBirth" : "Date of birth",
+  "vehicleAddedSuccess": "Vehicle added successfully!", 
+  "vehicleUpdatedSuccessfully": "Vehicle updated successfully",
+  "driverAddedSuccess": "Driver added successfully!", 
+  "driverUpdatedSuccessfully": "Driver updated successfully",
+  "vehicleDeletedSuccessfully": "Vehicle deleted successfully", 
+  "driverDeletedSuccessfully": "Driver deleted successfully"  
 
 
 

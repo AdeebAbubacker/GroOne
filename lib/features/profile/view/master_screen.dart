@@ -163,7 +163,7 @@ class _MasterScreenState extends State<MasterScreen>
             if (context.mounted) {
               Navigator.of(context).pop(); // close dialog
               ToastMessages.success(
-                message: context.appText.addressDeletedSuccessfully,
+                message: context.appText.vehicleDeletedSuccessfully,
               );
             }
           } else if (result is Error) {
@@ -201,7 +201,7 @@ class _MasterScreenState extends State<MasterScreen>
             if (context.mounted) {
               Navigator.of(context).pop();
               ToastMessages.success(
-                message: context.appText.addressDeletedSuccessfully,
+                message: context.appText.driverDeletedSuccessfully,
               );
             }
           } else if (result is Error) {
@@ -454,6 +454,9 @@ class _MasterScreenState extends State<MasterScreen>
             ),
           );
         }
+        
+      ///Active vehicle
+       final List<VehicleDetailsData> filteredVehicleList = vehicleList.where((v) => v.status == 1).toList();
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -462,22 +465,23 @@ class _MasterScreenState extends State<MasterScreen>
               20.height,
               if (role == 2) AppSearchBar(searchController: searchController),
               20.height,
+              
+                      
               ListView.builder(
                 shrinkWrap: true,
-                itemCount: vehicleList.length,
+                itemCount: filteredVehicleList.length,
                 itemBuilder: (context, index) {
-                 VehicleDetailsData vehicleDetailsData = vehicleList[index];
+                  VehicleDetailsData vehicleDetailsData = filteredVehicleList[index];
                   print("Vehicle id ${vehicleDetailsData.vehicleId}");
                   return masterVehicleInfoWidget(
-                     name: vehicleDetailsData.modelNumber,
-                  phone:  vehicleDetailsData.ownerName,
-                  onEdit: () {
-                     showAddVehiclePopup(context,vehcile: vehicleDetailsData);
-                  },
-                    onDelete:
-                        () => deletePopUpForVehicle(context, vehicleDetailsData.vehicleId),
-                  
-                  context: context);
+                    name: vehicleDetailsData.modelNumber,
+                    phone: vehicleDetailsData.ownerName ?? 'N/A',
+                    onEdit: () {
+                      showAddVehiclePopup(context, vehcile: vehicleDetailsData);
+                    },
+                    onDelete: () => deletePopUpForVehicle(context, vehicleDetailsData.vehicleId),
+                    context: context,
+                  );
                 },
               ).expand(),
               AppButton(
@@ -1247,8 +1251,8 @@ class _MasterScreenState extends State<MasterScreen>
                   ToastMessages.success(
                     message:
                         isEdit
-                            ? context.appText.addressUpdatedSuccessfully
-                            : context.appText.addressAddedSuccess,
+                            ? context.appText.vehicleUpdatedSuccessfully
+                            : context.appText.vehicleAddedSuccess,
                   );
                 } else {
                   ToastMessages.error(
@@ -1485,8 +1489,8 @@ String? selectedDoB = driver?.dateOfBirth != null
                   ToastMessages.success(
                     message:
                         isEdit
-                            ? context.appText.addressUpdatedSuccessfully
-                            : context.appText.addressAddedSuccess,
+                            ? context.appText.driverUpdatedSuccessfully
+                            : context.appText.driverAddedSuccess,
                   );
                 } else {
                   ToastMessages.error(
