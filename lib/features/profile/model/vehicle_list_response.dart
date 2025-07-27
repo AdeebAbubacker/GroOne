@@ -5,12 +5,12 @@ class PaginatedVehicleList {
         required this.pageMeta,
     });
 
-    final List<VehicleData> data;
+    final List<VehicleDetailsData> data;
     final int total;
     final PageMeta? pageMeta;
 
     PaginatedVehicleList copyWith({
-        List<VehicleData>? data,
+        List<VehicleDetailsData>? data,
         int? total,
         PageMeta? pageMeta,
     }) {
@@ -23,7 +23,7 @@ class PaginatedVehicleList {
 
     factory PaginatedVehicleList.fromJson(Map<String, dynamic> json){ 
         return PaginatedVehicleList(
-            data: json["data"] == null ? [] : List<VehicleData>.from(json["data"]!.map((x) => VehicleData.fromJson(x))),
+            data: json["data"] == null ? [] : List<VehicleDetailsData>.from(json["data"]!.map((x) => VehicleDetailsData.fromJson(x))),
             total: json["total"] ?? 0,
             pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
         );
@@ -31,8 +31,8 @@ class PaginatedVehicleList {
 
 }
 
-class VehicleData {
-    VehicleData({
+class VehicleDetailsData {
+    VehicleDetailsData({
         required this.vehicleId,
         required this.customerId,
         required this.truckNo,
@@ -68,7 +68,7 @@ class VehicleData {
     final dynamic updatedAt;
     final dynamic deletedAt;
 
-    VehicleData copyWith({
+    VehicleDetailsData copyWith({
         String? vehicleId,
         String? customerId,
         String? truckNo,
@@ -86,7 +86,7 @@ class VehicleData {
         dynamic? updatedAt,
         dynamic? deletedAt,
     }) {
-        return VehicleData(
+        return VehicleDetailsData(
             vehicleId: vehicleId ?? this.vehicleId,
             customerId: customerId ?? this.customerId,
             truckNo: truckNo ?? this.truckNo,
@@ -106,8 +106,8 @@ class VehicleData {
         );
     }
 
-    factory VehicleData.fromJson(Map<String, dynamic> json){ 
-        return VehicleData(
+    factory VehicleDetailsData.fromJson(Map<String, dynamic> json){ 
+        return VehicleDetailsData(
             vehicleId: json["vehicleId"] ?? "",
             customerId: json["customerId"] ?? "",
             truckNo: json["truckNo"] ?? "",

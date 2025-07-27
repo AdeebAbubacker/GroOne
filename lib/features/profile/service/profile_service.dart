@@ -18,6 +18,7 @@ import 'package:gro_one_app/features/profile/model/blue_membership_response.dart
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_updated_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -347,6 +348,24 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+ 
+   /// update vehicle
+  Future<Result<VehicleNewModel>> updateVehicle({required String vehicleId, required VehicleRequest request}) async {
+    try {
+      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/vehicle/${vehicleId}";
+      final response = await _apiService.put(url, body: request.toJson());
+      if (response is Success) {
+        final loads = VehicleNewModel.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
 
   /// Delete vehicle
   Future<Result<bool>> deleteVehicle({
@@ -404,7 +423,25 @@ class ProfileService {
     }
   }
 
-   /// fetch Driver
+  /// update driver
+  Future<Result<DriverNewModel>> updateDriver({required String driverId, required DriverRequest request}) async {
+    try {
+      final url = "https://gro-uatapi.letsgro.co/customer/api/v1/drivers/${driverId}";
+      final response = await _apiService.patch(url, body: request.toJson());
+      if (response is Success) {
+        final loads = DriverNewModel.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+/// fetch Driver
  Future<Result<PaginatedDriverList>> fetchDriver({required String customerId}) async {
   try {
     final url = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";

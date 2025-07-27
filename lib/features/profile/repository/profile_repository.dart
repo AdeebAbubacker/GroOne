@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/profile/model/blue_membership_response.dart
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_updated_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -146,6 +147,15 @@ class ProfileRepository {
     }
   }
 
+    /// update vehicle
+  Future<Result<VehicleNewModel>> updateVehicle({required String vehicleId, required VehicleRequest request}) async {
+    try {
+      return await _profileService.updateVehicle(vehicleId: vehicleId, request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
   /// Get Vehicle
   Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId}) async {
     try {
@@ -168,7 +178,7 @@ Future<Result<bool>> deleteVehicle({
   }
 }
 
-  /// create new vehicle
+  /// create new driver
   Future<Result<DriverNewModel>> createDriver({required DriverRequest request}) async {
     try {
       return await _profileService.createDriver(request: request);
@@ -176,6 +186,16 @@ Future<Result<bool>> deleteVehicle({
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+   /// update driver
+  Future<Result<DriverNewModel>> updateDriver({required String driverId, required DriverRequest request}) async {
+    try {
+      return await _profileService.updateDriver(driverId: driverId, request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 
 
   /// Get Driver

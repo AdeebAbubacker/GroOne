@@ -11,8 +11,10 @@ import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
+import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -435,15 +437,16 @@ class _MasterScreenState extends State<MasterScreen>
                 shrinkWrap: true,
                 itemCount: vehicleList.length,
                 itemBuilder: (context, index) {
-                  final vehicle = vehicleList[index];
-                  print("Vehicle id ${vehicle.vehicleId}");
+                 VehicleDetailsData vehicleDetailsData = vehicleList[index];
+                  print("Vehicle id ${vehicleDetailsData.vehicleId}");
                   return masterVehicleInfoWidget(
-                     name: vehicle.truckNo,
-                  phone:  vehicle.ownerName,
+                     name: vehicleDetailsData.modelNumber,
+                  phone:  vehicleDetailsData.ownerName,
                   onEdit: () {
+                     showAddVehiclePopup(context,vehcile: vehicleDetailsData);
                   },
                     onDelete:
-                        () => deletePopUpForVehicle(context, vehicle.vehicleId),
+                        () => deletePopUpForVehicle(context, vehicleDetailsData.vehicleId),
                   
                   );
                 },
@@ -520,12 +523,12 @@ class _MasterScreenState extends State<MasterScreen>
             ListView.builder(
               itemCount: driverList.length,
               itemBuilder: (context, index) {
-                final driver = driverList[index];
+               DriverDetailsData driver = driverList[index];
                 return masterDriverInfoWidget(
                   name: driver.name,
                   phone: driver.mobile,
                   onEdit: () {
-                    showAddDriverPopup(context);
+                    showAddDriverPopup(context,driver: driver);
                   },
                   onDelete: () => deletePopUpForDriver(context, driver.driverId),
                 );
@@ -996,7 +999,7 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
-  void showAddVehiclePopup(BuildContext context, {VehicleData? vehcile}) {
+  void showAddVehiclePopup(BuildContext context, {VehicleDetailsData? vehcile}) {
    
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
@@ -1182,7 +1185,7 @@ class _MasterScreenState extends State<MasterScreen>
             );
 
             if (isEdit) {
-              // await profileCubit.updateAddress(addressId: address.preferedAddressId, request: request);
+             await profileCubit.updateVehicle(vehicleId: vehcile.vehicleId, request: request);
             } else {
               await profileCubit.createVehicle(request: request);
             }
@@ -1210,25 +1213,25 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
-  void showAddDriverPopup(BuildContext context, {VehicleData? vehcile}) {
+  void showAddDriverPopup(BuildContext context, {DriverDetailsData? driver}) {
     final formKey = GlobalKey<FormState>();
-    final isEdit = vehcile != null;
+    final isEdit = driver != null;
 
-    final nameController = TextEditingController();
+    final nameController = TextEditingController(text: driver?.name ?? "");
     final licenseNumberController = TextEditingController();
     final mobileController = TextEditingController();
     final emailController = TextEditingController();
     final addressController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
+      text: driver?.companyDetails?.companyName ?? '',
     );
     final cityController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
+      text: driver?.companyDetails?.companyName ?? '',
     );
     final stateController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
+      text: driver?.companyDetails?.companyName ?? '',
     );
     final pinCodeController = TextEditingController(
-      text: vehcile?.vehicleId ?? '',
+      text: driver?.companyDetails?.companyName?? '',
     );
 
     AppDialog.show(
@@ -1364,7 +1367,7 @@ class _MasterScreenState extends State<MasterScreen>
             dateOfBirth:"1990-01-01T00:00:00.000Z",
           );
             if (isEdit) {
-              // await profileCubit.updateAddress(addressId: address.preferedAddressId, request: request);
+               await profileCubit.updateDriver(driverId: driver.driverId, request: request);
             } else {
               await profileCubit.createDriver(request: request);
             }

@@ -264,6 +264,20 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
+   // Update Driver
+  Future<void> updateVehicle({required String vehicleId, required VehicleRequest request}) async {
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.updateVehicle(vehicleId: vehicleId,request: request.copyWith(customerId: userId));
+    if (result is Success<VehicleNewModel>) {
+      _setCreateVehicleUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateVehicleUIState(UIState.error(result.type));
+    }
+  }
+ 
+
    // Fetch vehicle from api call
   void _setFetchVehicleUIState(UIState<PaginatedVehicleList>? uiState){
     emit(state.copyWith(vehicleState: uiState));
@@ -328,7 +342,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
 
-    // Create New vehicle from api call
+    // Create New driver from api call
   void _setCreateDriverUIState(UIState<DriverNewModel>? uiState){
     emit(state.copyWith(createDriverState: uiState));
   }
@@ -344,7 +358,20 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setCreateDriverUIState(UIState.error(result.type));
     }
   }
+ 
+  // Update Driver
+  Future<void> updateDriver({required String driverId, required DriverRequest request}) async {
+    userId = await _repo.getUserId();
 
+    dynamic result = await _repo.updateDriver(driverId: driverId,request: request.copyWith(customerId: userId));
+    if (result is Success<DriverNewModel>) {
+      _setCreateDriverUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateDriverUIState(UIState.error(result.type));
+    }
+  }
+ 
   // Fetch deriver from api call
   void _setFetchDriverUIState(UIState<PaginatedDriverList>? uiState){
     emit(state.copyWith(driverState: uiState));
@@ -364,7 +391,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-
+  
   Future<Result<void>> deleteDriver({required String driverId}) async {
 
     Result<void> result = await _repo.deleteDriver(driverId: driverId);
