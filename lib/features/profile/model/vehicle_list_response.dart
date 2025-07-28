@@ -172,7 +172,6 @@
 
 // }
 
-
 class PaginatedVehicleList {
     PaginatedVehicleList({
         required this.data,
@@ -182,12 +181,12 @@ class PaginatedVehicleList {
 
     final List<VehicleDetailsData> data;
     final int total;
-    final VehiclePageMeta? pageMeta;
+    final PageMeta? pageMeta;
 
     PaginatedVehicleList copyWith({
         List<VehicleDetailsData>? data,
         int? total,
-        VehiclePageMeta? pageMeta,
+        PageMeta? pageMeta,
     }) {
         return PaginatedVehicleList(
             data: data ?? this.data,
@@ -200,7 +199,7 @@ class PaginatedVehicleList {
         return PaginatedVehicleList(
             data: json["data"] == null ? [] : List<VehicleDetailsData>.from(json["data"]!.map((x) => VehicleDetailsData.fromJson(x))),
             total: json["total"] ?? 0,
-            pageMeta: json["pageMeta"] == null ? null : VehiclePageMeta.fromJson(json["pageMeta"]),
+            pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
         );
     }
 
@@ -304,8 +303,8 @@ class VehicleDetailsData {
 
 }
 
-class VehiclePageMeta {
-    VehiclePageMeta({
+class PageMeta {
+    PageMeta({
         required this.page,
         required this.pageCount,
         required this.nextPage,
@@ -313,20 +312,20 @@ class VehiclePageMeta {
         required this.total,
     });
 
-    final String page;
+    final int page;
     final int pageCount;
-    final String nextPage;
-    final String pageSize;
+    final int nextPage;
+    final int pageSize;
     final int total;
 
-    VehiclePageMeta copyWith({
-        String? page,
+    PageMeta copyWith({
+        int? page,
         int? pageCount,
-        String? nextPage,
-        String? pageSize,
+        int? nextPage,
+        int? pageSize,
         int? total,
     }) {
-        return VehiclePageMeta(
+        return PageMeta(
             page: page ?? this.page,
             pageCount: pageCount ?? this.pageCount,
             nextPage: nextPage ?? this.nextPage,
@@ -335,12 +334,12 @@ class VehiclePageMeta {
         );
     }
 
-    factory VehiclePageMeta.fromJson(Map<String, dynamic> json){ 
-        return VehiclePageMeta(
-            page: json["page"] ?? "",
+    factory PageMeta.fromJson(Map<String, dynamic> json){ 
+        return PageMeta(
+            page: json["page"] ?? 0,
             pageCount: json["pageCount"] ?? 0,
-            nextPage: json["nextPage"] ?? "",
-            pageSize: json["pageSize"] ?? "",
+            nextPage: json["nextPage"] ?? 0,
+            pageSize: json["pageSize"] ?? 0,
             total: json["total"] ?? 0,
         );
     }

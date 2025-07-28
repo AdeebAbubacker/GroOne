@@ -457,7 +457,7 @@ class KavachService {
       final fields = {
         'userId': userId,
         'fileType': 'rc_book',
-        'documentType': 'rc_document',
+        'documentType': 'vp_document',
       };
 
       final result = await _apiService.multipart(

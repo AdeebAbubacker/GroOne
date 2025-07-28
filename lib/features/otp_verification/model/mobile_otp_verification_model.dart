@@ -75,10 +75,10 @@ class KongToken {
 
     factory KongToken.fromJson(Map<String, dynamic> json){ 
         return KongToken(
-            expiresIn: json["expires_in"] ?? 0,
-            tokenType: json["token_type"] ?? "",
-            refreshToken: json["refresh_token"] ?? "",
-            accessToken: json["access_token"] ?? "",
+            expiresIn: json["expiresIn"] ?? 0,
+            tokenType: json["tokenType"] ?? "",
+            refreshToken: json["refreshToken"] ?? "",
+            accessToken: json["accessToken"] ?? "",
         );
     }
 
