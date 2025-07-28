@@ -988,24 +988,8 @@
   "showMarkerLabel": "Show Marker Label",
   "showMarkerCluster": "Show Marker Cluster",
   "vehicleListSort": "Vehicle List Sort",
-  "vehicleIconSize": "Vehicle Icon Size"
-
-
-
-
+  "vehicleIconSize": "Vehicle Icon Size",
   "failedToDownloadDocuments":"Failed to download the document",
   "notVerified" : "not verified"
-
-
-
-
-
-
-
-
-
-
-
-
 
 }
