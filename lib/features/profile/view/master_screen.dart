@@ -42,6 +42,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -269,7 +270,7 @@ class _MasterScreenState extends State<MasterScreen>
       backgroundColor: Colors.grey.shade100,
       appBar: CommonAppBar(
         scrolledUnderElevation: 0,
-        backgroundColor: role == 1 ? AppColors.white : Colors.transparent,
+        backgroundColor:  Colors.transparent,
         title: Text(
           context.appText.masters,
           style: AppTextStyle.textBlackColor18w500,
@@ -277,8 +278,8 @@ class _MasterScreenState extends State<MasterScreen>
       ),
 
       body:
-          role == 2
-              ? Column(
+   
+               Column(
                 children: [
                   Container(
                     margin: const EdgeInsets.symmetric(
@@ -322,19 +323,19 @@ class _MasterScreenState extends State<MasterScreen>
                     child: TabBarView(
                       controller: _tabController,
                       children: [
-                        buildAddressTab(role ?? 0),
-                        buildVehicleTab(role ?? 0),
-                        buildDriverTab(role ?? 0),
+                        buildAddressTab(),
+                        buildVehicleTab(),
+                        buildDriverTab(),
                       ],
                     ),
                   ),
                 ],
               )
-              : buildAddressTab(role ?? 0),
+              
     );
   }
 
-  Widget buildAddressTab(int role) {
+  Widget buildAddressTab() {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         final uiState = state.addressState;
@@ -384,10 +385,8 @@ class _MasterScreenState extends State<MasterScreen>
           child: Column(
             children: [
               20.height,
-              if (role == 2) ...[
                 AppSearchBar(searchController: searchController),
                 20.height,
-              ],
               ListView.builder(
                 itemBuilder: (context, index) {
                   var address = addressList[index];
@@ -442,7 +441,7 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
-  Widget buildVehicleTab(int role) {
+  Widget buildVehicleTab() {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
         final uiState = state.vehicleState;
@@ -490,7 +489,7 @@ class _MasterScreenState extends State<MasterScreen>
           child: Column(
             children: [
               20.height,
-              if (role == 2) AppSearchBar(searchController: searchController),
+            AppSearchBar(searchController: searchController),
               20.height,
               
                       
@@ -503,6 +502,7 @@ class _MasterScreenState extends State<MasterScreen>
                   return masterVehicleInfoWidget(
                     name: vehicleDetailsData.modelNumber,
                     phone: vehicleDetailsData.ownerName ?? 'N/A',
+                    driverStatus: vehicleDetailsData.status,
                     onEdit: () {
                       showAddVehiclePopup(context, vehcile: vehicleDetailsData);
                     },
@@ -527,7 +527,7 @@ class _MasterScreenState extends State<MasterScreen>
   }
   return number;
 }
-   Widget buildDriverTab(int role) {
+   Widget buildDriverTab() {
   return BlocBuilder<ProfileCubit, ProfileState>(
     builder: (context, state) {
       final uiState = state.driverState;
@@ -576,10 +576,9 @@ class _MasterScreenState extends State<MasterScreen>
         child: Column(
           children: [
             20.height,
-            if (role == 2) ...[
-              AppSearchBar(searchController: searchController),
-              20.height,
-            ],
+            AppSearchBar(searchController: searchController),
+            20.height,
+      
             ListView.builder(
               itemCount: driverList.length,
               itemBuilder: (context, index) {
@@ -724,7 +723,7 @@ class _MasterScreenState extends State<MasterScreen>
               backgroundColor: Colors.blue.shade50,
               child: SvgPicture.asset( AppIcons.svg.truckSteering)
             ),
-            const SizedBox(width: 10),
+            10.width,
 
             // Name, Verified and Phone Number
             Expanded(
@@ -740,11 +739,11 @@ class _MasterScreenState extends State<MasterScreen>
                           fontSize: 16,
                         ),
                       ),
-                      const SizedBox(width: 6),
+                      6.width,
                      SvgPicture.asset( AppIcons.svg.tick)
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  4.height,
                   Text(
                     phone,
                     style: const TextStyle(
@@ -766,47 +765,40 @@ class _MasterScreenState extends State<MasterScreen>
               ),
               child: Text(
                 driverStatus == 1 ?context.appText.active : context.appText.inactive,
-                style: TextStyle(
-                  color:driverStatus==1? Colors.green: Colors.red,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
+                 style:  AppTextStyle.body.copyWith(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                        color:driverStatus==1? Color(0XFF0E6027): Color(0XFFE31B25),
+                      ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        16.height,
         
         // Action Buttons
-        Row(
+         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: onDelete,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.red),
-                  foregroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text("Delete"),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: onEdit,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.blue),
-                  foregroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text("Edit"),
-              ),
-            ),
+            AppButton(
+              buttonHeight: commonButtonHeight2,
+              style: AppButtonStyle.logout,
+              isLoading: false,
+              onPressed: onDelete,
+              title: context.appText.delete,
+              textStyle: TextStyle(color: Colors.red),
+            ).expand(),
+            16.width,
+
+            // Yes Button
+            AppButton(
+              buttonHeight: commonButtonHeight2,
+              style: AppButtonStyle.outline,
+              isLoading: false,
+              onPressed: onEdit,
+              title: context.appText.edit,
+            ).expand(),
+
           ],
         ),
       ],
@@ -817,6 +809,7 @@ class _MasterScreenState extends State<MasterScreen>
  Widget masterVehicleInfoWidget({
   required String name,
   required String phone,
+  required int driverStatus,
   required VoidCallback onEdit,
   required VoidCallback onDelete,
   required BuildContext context,
@@ -839,6 +832,8 @@ class _MasterScreenState extends State<MasterScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
+         mainAxisAlignment: MainAxisAlignment.start,
+         crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Profile Icon
             CircleAvatar(
@@ -846,27 +841,29 @@ class _MasterScreenState extends State<MasterScreen>
               backgroundColor: Colors.blue.shade50,
               child: SvgPicture.asset( AppIcons.svg.truck,color: AppColors.primaryColor)
             ),
-            const SizedBox(width: 10),
+            10.width,
 
             // Name, Verified and Phone Number
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  4.height,
                   Row(
                     children: [
                       Text(
                         name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                        ),
+                        style: AppTextStyle.body.copyWith(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                        color: AppColors.textBlackDetailColor,
                       ),
-                      const SizedBox(width: 6),
+                      ),
+                      6.width,
                       SvgPicture.asset( AppIcons.svg.tick)
                     ],
                   ),
-                  const SizedBox(height: 4),
+                  4.height,
                   Text(
                     phone,
                     style: const TextStyle(
@@ -888,47 +885,40 @@ class _MasterScreenState extends State<MasterScreen>
               ),
               child: Text(
                 context.appText.active,
-                style: TextStyle(
-                  color: Colors.green,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
-                ),
+                style: AppTextStyle.body.copyWith(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 12,
+                        color:driverStatus==1? Color(0XFF0E6027): Color(0XFFE31B25),
+                      ),
               ),
             ),
           ],
         ),
-        const SizedBox(height: 16),
+        16.height,
 
         // Action Buttons
-        Row(
+       Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: onDelete,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.red),
-                  foregroundColor: Colors.red,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(context.appText.delete),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: onEdit,
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.blue),
-                  foregroundColor: Colors.blue,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: Text(context.appText.edit),
-              ),
-            ),
+            AppButton(
+              buttonHeight: commonButtonHeight2,
+              style: AppButtonStyle.logout,
+              isLoading: false,
+              onPressed: onDelete,
+              title: context.appText.delete,
+              textStyle: TextStyle(color: Colors.red),
+            ).expand(),
+            16.width,
+
+            // Yes Button
+            AppButton(
+              buttonHeight: commonButtonHeight2,
+              style: AppButtonStyle.outline,
+              isLoading: false,
+              onPressed: onEdit,
+              title: context.appText.edit,
+            ).expand(),
+
           ],
         ),
       ],
@@ -1063,7 +1053,7 @@ class _MasterScreenState extends State<MasterScreen>
     final isEdit = vehcile != null;
 
     final truckNumberController = TextEditingController(text: vehcile?.truckNo ?? '');
-    final truckMakeModelController = TextEditingController();
+    final truckMakeModelController = TextEditingController(text: vehcile?.modelNumber ?? '');
     final rcNumberController = TextEditingController();
     final capacityController = TextEditingController(text: vehcile?.tonnage ?? '');
 
@@ -1130,7 +1120,7 @@ class _MasterScreenState extends State<MasterScreen>
                         }
                       },
                     ),
-                    
+                     16.height,
                     // TrucK Type
                  BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
                   builder: (context, state) {
@@ -1163,7 +1153,7 @@ class _MasterScreenState extends State<MasterScreen>
                           },
                           validator: (val) => val == null ? "Select Truck Type" : null,
                         ),
-                     const SizedBox(height: 16),
+                     16.height,
                     AppDropdown(
                       labelText: context.appText.truckLength,
                       dropdownValue: truckLengthDropdownValue,
@@ -1203,12 +1193,12 @@ class _MasterScreenState extends State<MasterScreen>
               },
             ),
               16.height,
-                    _buildTextField(
-                      context,
-                      capacityController,
-                      context.appText.capacity,
-                      alphabetWithSpaceRegex,
-                    ),
+                  AppTextField(
+                validator: (value)=> Validator.fieldRequired(value),
+                controller: capacityController,
+                labelText: context.appText.capacity,
+                hintText: "2",
+              ),
                    16.height,   
                  Builder(
                       builder: (context) {
@@ -1323,25 +1313,13 @@ class _MasterScreenState extends State<MasterScreen>
     ? DateFormat('dd/MM/yyyy').format(driver!.licenseExpiryDate!)
     : null;
 
-String? selectedDoB = driver?.dateOfBirth != null
-    ? DateFormat('dd/MM/yyyy').format(driver!.dateOfBirth!)
-    : null;
+    String? selectedDoB = driver?.dateOfBirth != null
+        ? DateFormat('dd/MM/yyyy').format(driver!.dateOfBirth!)
+        : null;
     final nameController = TextEditingController(text: driver?.name ?? "");
     final licenseNumberController = TextEditingController(text: driver?.licenseNumber ?? "");
     final mobileController = TextEditingController(text: driver?.mobile?.replaceFirst('+91', '') ?? "",);
     final emailController = TextEditingController(text: driver?.email ?? "");
-    final addressController = TextEditingController(
-      text: driver?.companyDetails?.companyName ?? '',
-    );
-    final cityController = TextEditingController(
-      text: driver?.companyDetails?.companyName ?? '',
-    );
-    final stateController = TextEditingController(
-      text: driver?.companyDetails?.companyName ?? '',
-    );
-    final pinCodeController = TextEditingController(
-      text: driver?.companyDetails?.companyName?? '',
-    );
     final localVehicleDocList = <Map<String, dynamic>>[];
 
     if (driver?.licenseDocLink != null && driver!.licenseDocLink!.isNotEmpty) {
@@ -1355,32 +1333,23 @@ String? selectedDoB = driver?.dateOfBirth != null
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
-       builder: (BuildContext context, void Function(void Function()) setState) {
-        // final localVehicleDocList = <Map<String, dynamic>>[];
-
-        // final licenseDoc = createFileFromLink(driver?.licenseDocLink ?? '');
-        // if (licenseDoc != null) {
-        //   localVehicleDocList.add(licenseDoc);
-        // }
-
-   
+       builder: (BuildContext context, void Function(void Function()) setState) {   
       final vehicleDocUpload = context.watch<ProfileCubit>().state.vehicleDocUpload;
       final isUploading = vehicleDocUpload?.status == Status.LOADING;
-      // Use a local flag to run this logic only once
     
 
-    if (!isInitialized && driver?.licenseDocLink?.isNotEmpty == true) {
-  final doc = createFileFromLink(driver!.licenseDocLink!);
-  if (doc != null) {
-    localVehicleDocList
-      ..clear()
-      ..add(doc);
-    vehicleDocList
-      ..clear()
-      ..add(doc);
-  }
-  isInitialized = true;
-}
+      if (!isInitialized && driver?.licenseDocLink?.isNotEmpty == true) {
+                final doc = createFileFromLink(driver!.licenseDocLink!);
+                if (doc != null) {
+                  localVehicleDocList
+                    ..clear()
+                    ..add(doc);
+                  vehicleDocList
+                    ..clear()
+                    ..add(doc);
+                }
+                isInitialized = true;
+              }
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -1403,6 +1372,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                     nameController,
                     context.appText.driverName,
                     alphanumericWithSpaceRegex,
+                    
                   ),
                   16.height,
                   _buildTextField(
@@ -1479,6 +1449,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                     }
                   },
                 ),
+                 16.height,
                     AppTextField(
                     validator: Validator.phone,
                     controller: mobileController,
