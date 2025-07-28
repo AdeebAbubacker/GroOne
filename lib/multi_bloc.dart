@@ -7,6 +7,9 @@ import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/views/widgets/gps_notification_type_sheet.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
@@ -19,7 +22,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/loa
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
-import 'package:gro_one_app/features/profile/bloc/profile_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
@@ -57,7 +59,6 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<LoginBloc>(create: (_) => locator<LoginBloc>()),
         BlocProvider<OtpBloc>(create: (_) => locator<OtpBloc>()),
         BlocProvider<KycCubit>(create: (_) => locator<KycCubit>()),
-        BlocProvider<ProfileBloc>(create: (_) => locator<ProfileBloc>()),
         BlocProvider<LoadPostingBloc>(create: (_) => locator<LoadPostingBloc>()),
         BlocProvider<LoadTruckTypeBloc>(create: (_) => locator<LoadTruckTypeBloc>()),
         BlocProvider<LoadCommodityBloc>(create: (_) => locator<LoadCommodityBloc>()),
@@ -95,6 +96,8 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
         BlocProvider<GpsNotificationCubit>(create: (_) => locator<GpsNotificationCubit>()),
         BlocProvider<GpsGeofenceMapCubit>(create: (_) => locator<GpsGeofenceMapCubit>()),
+        BlocProvider<GpsParkingModeCubit>(create: (_) => locator<GpsParkingModeCubit>()),
+        BlocProvider<GpsNotificationTypesSheetCubit>(create: (_) => locator<GpsNotificationTypesSheetCubit>()),
         BlocProvider<DriverProfileCubit>(create: (_) => locator<DriverProfileCubit>()),
         BlocProvider<DriverLoadDetailsCubit>(create: (_) => locator<DriverLoadDetailsCubit>()),
       ],

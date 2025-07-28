@@ -71,7 +71,7 @@ class AnalyticsService {
           // Additional specific parameters
         },
       );
-      CustomLog.info(this, "Logged event: with event name $eventName");
+      CustomLog.info(this, "Logged event: with event name $eventName. \nParameters: $parameters");
     } catch(exception){
       CustomLog.error(this, "Impossible to Log Event - eventName: $eventName", exception);
     }

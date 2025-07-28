@@ -36,6 +36,7 @@ class ApiUrls {
   static String get _loadTracking => "/load-tracking";
   static String get _tracking => "/tracking";
   static String get _paymentBroker => "/payment-broker";
+  static String get _loadSettlement => "/load-settlement";
 
   /// Base URL
   static String get _baseUrl => _fetchUrl;
@@ -52,12 +53,14 @@ class ApiUrls {
   static final String  updateProfile = "$_customerBaseUrl/profile-image/";
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
   static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
+  static final String  deleteDocument = "$_fetchUrl$_document$_path$_v1/documents/";
 
   /// Onboarding
   static final String sendEmailOtp = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/send";
   static final String emailOTPCodeVerification = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/verify";
   static final String termsAndConditions = "$_fetchUrl$_customer$_path$_v1/metadata/terms-and-conditions";
   static final String privacyPolicy = "$_fetchUrl$_customer$_path$_v1/metadata/privacy-policies";
+  static final String refreshToken = "$_fetchUrl$_customer$_path$_v1$_auth/refresh-token";
 
 
   /// VP Endpoints
@@ -128,9 +131,9 @@ class ApiUrls {
   static final String  getLoads = "$baseUrl$_loadDiscovery$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
-  static final String  damage = "$_loadBaseUrl/damage";
-  static final String  updateDamage = "$_loadBaseUrl/damage/";
-  static final String  deleteDamage = "$_loadBaseUrl/damage/";
+  static final String  damage = "$_baseUrl$_loadSettlement$_path$_v1/damage";
+  static final String  updateDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
+  static final String  deleteDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
   static final String  submitPod = "$_loadBaseUrl/pod";
 
   /// Settlement
@@ -212,4 +215,22 @@ class ApiUrls {
       "$_gpsBase/tc_geofences?__include=area&__include=attributes&__limit=10000&user_id=$userId&device_id=$deviceId";
   static String gpsFetchNotifications(String userId, int days, int limit) =>
       "$_gpsBase/last_500_user_events?days=$days&limit=$limit&user_id=$userId";
+  static const String gpsFetchParkingMode = "$_gpsBase/parking_mode";
+  static String gpsUpdateParkingMode(int id) => "$_gpsBase/parking_mode/$id";
+  static const String getDeprecatedNotificationStatus = "$_gpsBase/get_deprecated_notification_status";
+  static const String updateDeprecatedNotificationStatus = "$_gpsBase/update_deprecated_notification_status";
+  static String gpsUpdateNotificationToggle(int id) => "$_gpsBase/user_config/$id";
+
+
+  /// profile
+  static final String getMembershipBenefit = "$_baseUrl$_customer$_path$_v1/metadata/membership-benefit";
+  static final String createAddress = "$_baseUrl$_customer$_path$_v1/address/";
+  static final String updateAddress = "$_baseUrl$_customer$_path$_v1/address/";
+  static final String deleteAddress = "$_baseUrl$_customer$_path$_v1/address/";
+  static final String getAddress = "$_baseUrl$_customer$_path$_v1/address/";
+  static final String setPrimaryAddress = "$_baseUrl$_customer$_path$_v1/address/is-default/";
+  static final String getKycDocuments = "$_baseUrl$_customer$_path$_v1/kyc/";
+  static final String getCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
+  static final String updateCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
+  static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
 }

@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/path_replay_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/path_replay_state.dart';
+import 'package:gro_one_app/features/gps_feature/helpers/gps_map_helper.dart';
 
 import '../../../data/network/api_service.dart';
 import '../../../dependency_injection/locator.dart';
-import '../cubit/path_replay_cubit.dart';
-import '../cubit/path_replay_state.dart';
 import '../repository/path_replay_repository.dart';
 import '../service/path_replay_service.dart';
 
@@ -16,6 +17,7 @@ class PathReplayScreen extends StatelessWidget {
   final Map<String, dynamic> queryParams;
   final String? vehicleNumber;
   final String? routeType;
+  final bool showBottomSheet;
 
   const PathReplayScreen({
     super.key,
@@ -23,6 +25,7 @@ class PathReplayScreen extends StatelessWidget {
     required this.queryParams,
     this.vehicleNumber,
     this.routeType,
+    this.showBottomSheet = true,
   });
 
   @override
@@ -73,6 +76,7 @@ class PathReplayScreen extends StatelessWidget {
         vehicleNumber:
             vehicleNumber ?? queryParams['vehicleNumber']?.toString() ?? '',
         routeType: routeType,
+        showBottomSheet: showBottomSheet,
       ),
     );
   }
@@ -81,11 +85,13 @@ class PathReplayScreen extends StatelessWidget {
 class PathReplayView extends StatelessWidget {
   final String vehicleNumber;
   final String routeType;
+  final bool showBottomSheet;
 
   const PathReplayView({
     super.key,
     required this.vehicleNumber,
     required this.routeType,
+    required this.showBottomSheet,
   });
 
   @override
@@ -325,6 +331,9 @@ class PathReplayView extends StatelessWidget {
   }
 
   Widget _buildBottomStatsPanel(BuildContext context, PathReplayState state) {
+    // Don't show bottom panel if showBottomSheet is false
+    if (!showBottomSheet) return const SizedBox.shrink();
+
     final hasData =
         state.pathType == 'ignition'
             ? state.tripPathPositions.isNotEmpty
@@ -649,7 +658,59 @@ class PathReplayMapWidget extends StatefulWidget {
 }
 
 class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
-  final Completer<GoogleMapController> _mapController = Completer();
+  final Completer<GoogleMapController> _mapController =
+      GpsMapHelper.createMapController();
+
+  Set<Marker> _directionArrows = {};
+  bool _arrowsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDirectionArrows();
+  }
+
+  @override
+  void didUpdateWidget(PathReplayMapWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.state != widget.state) {
+      _loadDirectionArrows();
+    }
+  }
+
+  Future<void> _loadDirectionArrows() async {
+    if (widget.state.pathType == 'ignition' ||
+        widget.state.pathType == 'daily') {
+      final pathPoints =
+          widget.state.pathType == 'ignition'
+              ? widget.state.tripPathPositions
+                  .map((pos) => LatLng(pos.latitude!, pos.longitude!))
+                  .toList()
+              : widget.state.pathPositions
+                  .map((pos) => LatLng(pos.latitude!, pos.longitude!))
+                  .toList();
+
+      if (pathPoints.length > 1) {
+        final arrows = await GpsMapHelper.createDirectionArrows(
+          points: pathPoints,
+          polylineId: 'pathReplay',
+          arrowSpacing: 3,
+        );
+
+        if (mounted) {
+          setState(() {
+            _directionArrows = arrows;
+            _arrowsLoaded = true;
+          });
+        }
+      }
+    } else {
+      setState(() {
+        _directionArrows = {};
+        _arrowsLoaded = true;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -680,6 +741,7 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
 
     final markers = <Marker>{};
 
+    // Add vehicle marker
     if (currentPosition != null) {
       if (widget.state.pathType == 'ignition' ||
           widget.state.pathType == 'daily') {
@@ -723,23 +785,39 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
       }
     }
 
-    final polyline = Polyline(
-      polylineId: const PolylineId('pathReplay'),
-      color: Colors.blueAccent,
-      width: 5,
-      points: pathPoints,
-    );
+    // Add direction arrows and stop markers for ignition and daily paths
+    // Direction arrows (azure markers) show the direction of travel along the polyline
+    // Stop markers (orange markers) show locations where the vehicle stopped
+    if (widget.state.pathType == 'ignition' ||
+        widget.state.pathType == 'daily') {
+      // Add pre-loaded direction arrows
+      if (_arrowsLoaded) {
+        markers.addAll(_directionArrows);
+      }
 
-    return GoogleMap(
-      initialCameraPosition: CameraPosition(
+      // Add stop markers
+      final stopMarkers = GpsMapHelper.createStopMarkers(
+        pathPositions:
+            widget.state.pathType == 'ignition'
+                ? widget.state.tripPathPositions
+                : widget.state.pathPositions,
+      );
+      markers.addAll(stopMarkers);
+    }
+
+    final polyline = GpsMapHelper.createPathPolyline(points: pathPoints);
+
+    return GpsMapHelper.createGpsMap(
+      initialCameraPosition: GpsMapHelper.createCameraPosition(
         target: currentPosition ?? const LatLng(20.5937, 78.9629),
         zoom: 14.0,
       ),
       polylines: {polyline},
       markers: markers,
       onMapCreated: (controller) {
-        _mapController.complete(controller);
-        _handleMapCreated(controller);
+        GpsMapHelper.handleMapCreated(controller, _mapController, () {
+          _handleMapCreated(controller);
+        });
       },
     );
   }

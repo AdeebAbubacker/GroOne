@@ -9,7 +9,8 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_parking_mode_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_settings_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -20,7 +21,9 @@ import 'package:gro_one_app/utils/app_route.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
+import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
+import '../repository/gps_repository.dart';
 import 'gps_notification_screen.dart';
 import '../../../features/login/repository/user_information_repository.dart';
 import 'gps_order/gps_models_screen.dart';
@@ -337,38 +340,6 @@ class _GpsHomeContent extends StatelessWidget {
         },
       ),
       _MenuItem(
-        context.appText.foi,
-        Icons.my_location_outlined,
-        AppConstants.primaryColor,
-        () {},
-      ),
-      _MenuItem(
-        context.appText.immobilise,
-        Icons.flash_off_outlined,
-        AppConstants.primaryColor,
-        () {
-          final Map<String, dynamic> queryParams = {
-            "start": "2025-07-02T18:30:00.000Z", // convertedDateFrom
-            "end": "2025-07-03T18:29:00.000Z", // convertedDateTo
-            "timezone_offset": "0", // "0" for UTC
-            "inputs": {}, // empty map
-            "device_ids": 44, // Example device ID as list
-            "fwd_variable": 0.0, // Same as Java
-          };
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (_) => PathReplayScreen(
-                    token: AppConstants.token ?? '',
-                    queryParams: queryParams,
-                  ),
-            ),
-          );
-        },
-      ),
-      _MenuItem(
         context.appText.vehicleShareUpdate,
         Icons.share_outlined,
         AppConstants.primaryColor,
@@ -383,22 +354,28 @@ class _GpsHomeContent extends StatelessWidget {
         () {},
       ),
       _MenuItem(
-        context.appText.faq,
-        Icons.help_outline,
-        AppConstants.primaryColor,
-        () {},
-      ),
-      _MenuItem(
         context.appText.settings,
         Icons.settings_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          Navigator.push(
+            context,
+            commonRoute(
+              BlocProvider(
+                create: (_) => GpsSettingsCubit(locator<GpsRepository>()),
+                child: GpsSettingsScreen(),
+              ),
+            ),
+          );
+        },
       ),
       _MenuItem(
         context.appText.reports,
         Icons.assessment_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          context.push(AppRouteName.gpsReports);
+        },
       ),
       _MenuItem(
         context.appText.orders,
@@ -408,6 +385,22 @@ class _GpsHomeContent extends StatelessWidget {
           Navigator.push(
             context,
             commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+          );
+        },
+      ),
+      _MenuItem(
+        context.appText.parking,
+        Icons.local_parking,
+        AppConstants.primaryColor,
+        () {
+          Navigator.push(
+            context,
+            commonRoute(
+              BlocProvider.value(
+                value: locator<VehicleListCubit>()..loadVehicleData(),
+                child: GpsParkingModeScreen(),
+              ),
+            ),
           );
         },
       ),

@@ -47,33 +47,40 @@ bool _shouldEnableButton(DriverLoadDetails? load) {
   if (load == null) return false;
 
   final currentStatus = load.loadStatusId ?? 0;
+  final documents = load.loadDocument ?? [];
+
+  // ✅ Status 4: Check if Memo document is uploaded
+  if (currentStatus == 4) {
+    final memoUploaded = load.loadMemoDetails != null;
+    return memoUploaded;
+  }
 
   if (currentStatus == 5) {
-    final isConsentGiven = load.driverConsent == 1;
+   // final isConsentGiven = load.driverConsent == 1;
 
     final nestedDocuments = load.loadDocument ?? [];
-    final documents = nestedDocuments.expand((list) => list).toList();
+    //final documents = nestedDocuments.expand((list) => list).toList();
 
     // normalized lower-case required docs exactly matching API string values
     const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
 
-    final uploadedTypes = documents
+    final uploadedTypes = nestedDocuments
       .where((doc) => doc.status == 1)
       .map((doc) => doc.documentDetails?.documentType?.toLowerCase().trim() ?? '')
       .toSet();
 
     final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
 
-    return isConsentGiven && allRequiredDocsUploaded;
+    return  allRequiredDocsUploaded;
   }
 
   if (currentStatus == 6) {
     final nestedDocuments = load.loadDocument ?? [];
-    final documents = nestedDocuments.expand((list) => list).toList();
+    //final documents = nestedDocuments.expand((list) => list).toList();
 
     const podDocTypes = ['proof of document']; 
 
-    final podDocExists = documents.any((doc) {
+    final podDocExists = nestedDocuments.any((doc) {
       final docType = doc.documentDetails?.documentType?.toLowerCase() ?? '';
       final title = doc.documentDetails?.title?.toLowerCase() ?? '';
       return (podDocTypes.contains(docType) || title.contains('pod')) && doc.status == 1;
@@ -89,15 +96,27 @@ void _validateButtonStateOnInit() {
   final statusId = widget.driverLoadDetails.loadStatusId;
   
   final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
-  final documents = nestedDocuments.expand((list) => list).toList();
+ // final documents = nestedDocuments.expand((list) => list).toList();
+
+  final currentStatus = widget.driverLoadDetails.loadStatusId ?? 0;
+  final documents = widget.driverLoadDetails.loadDocument ?? [];
+
+  // ✅ Status 4: Check if Memo document is uploaded
+  if (currentStatus == 4) {
+    final memoUploaded = widget.driverLoadDetails.loadMemoDetails != null;
+    setState(() {
+      _isButtonEnabled = memoUploaded;
+    });
+    return;
+  }
 
   if (statusId == 5) {
-    final isSimConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+    //final isSimConsentGiven = widget.driverLoadDetails.driverConsent == 1;
 
     // Required document types for status 5 (Loading)
     const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
 
-    final uploadedTypes = documents
+    final uploadedTypes = nestedDocuments
         .where((doc) => doc.status == 1)
         .map((doc) => (doc.documentDetails?.documentType ?? '').toLowerCase().trim())
         .where((type) => type.isNotEmpty)
@@ -106,7 +125,7 @@ void _validateButtonStateOnInit() {
     final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
 
     setState(() {
-      _isButtonEnabled = isSimConsentGiven && allRequiredDocsUploaded;
+      _isButtonEnabled =  allRequiredDocsUploaded;
     });
     return;
   }
@@ -115,7 +134,7 @@ void _validateButtonStateOnInit() {
   if (statusId == 6) {
     const podDocType = 'proof of document';
 
-    final podDocExists = documents.any((doc) {
+    final podDocExists = nestedDocuments.any((doc) {
       final docType = (doc.documentDetails?.documentType ?? '').toLowerCase().trim();
       final title = (doc.documentDetails?.title ?? '').toLowerCase().trim();
       return (docType == podDocType || title.contains('pod')) && doc.status == 1;
@@ -259,7 +278,7 @@ void _validateButtonStateOnInit() {
                   iconSvg: AppIcons.svg.package,
                 ),
                 detailWidget(
-                  text: "${widget.driverLoadDetails.weightage?.value} Tonn",
+                  text: "${widget.driverLoadDetails.weight?.value} Tonn",
                   iconSvg: AppIcons.svg.weight,
                 ),
               ],
@@ -291,21 +310,33 @@ void _validateButtonStateOnInit() {
                   ),
                 ),
                 10.width,
-                DriverLoadHelper.loadStatusButtonWidget(
+
+                DriverLoadHelper.homeloadStatusButtonWidget(
                      enable: _isButtonEnabled,
                       statusId: widget.driverLoadDetails.loadStatusId,
                       onPressed: () {
+                        if (widget.driverLoadDetails.loadStatusId == 4 && widget.driverLoadDetails.loadMemoDetails == null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DriverLoadsLocationDetailsScreen(
+                            loadId:widget.driverLoadDetails.loadId,
+                          ),
+                        ),
+                      );
+                      return;
+                    }
                         //Check for sim consent and trip doc
                         if (widget.driverLoadDetails.loadStatusId == 5) {
-                          final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+                          //final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
                          final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
-                        final documents = nestedDocuments.expand((list) => list).toList();
+                      //  final documents = nestedDocuments.expand((list) => list).toList();
                         const requiredDocs = [
                           'lorry receipt',
                           'eway bill',
                           'material invoice',
                         ];
-                        final uploadedTypes = documents
+                        final uploadedTypes = nestedDocuments
                             .where((doc) => doc.status == 1)
                             .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
                             .toSet();
@@ -319,21 +350,21 @@ void _validateButtonStateOnInit() {
                             ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
                             return;
                           }
-                          if (!isConsentGiven) {
-                            setState(() {
-                                _isButtonEnabled = false;
-                              });
-                             ToastMessages.error(message: 'Please ensure SIM consent is given');
-                            return;
-                          }
+                          // if (!isConsentGiven) {
+                          //   setState(() {
+                          //       _isButtonEnabled = false;
+                          //     });
+                          //    ToastMessages.error(message: 'Please ensure SIM consent is given');
+                          //   return;
+                          // }
                         }
                         
                         // Check for Pod Doc
                             if (widget.driverLoadDetails?.loadStatusId == 6) {
                             final nestedDocuments = widget.driverLoadDetails?.loadDocument ?? [];
-                            final documents = nestedDocuments.expand((list) => list).toList();
+                          //  final documents = nestedDocuments.expand((list) => list).toList();
 
-                            final podDocExists = documents.any((doc) =>
+                            final podDocExists = nestedDocuments.any((doc) =>
                                 (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
                                 doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
                                 doc.status == 1);
@@ -353,6 +384,8 @@ void _validateButtonStateOnInit() {
                       },
                     ).expand(),
 
+        
+        
          ],
             ),
           ],

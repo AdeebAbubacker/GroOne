@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+
+import '../../../utils/app_icons.dart';
 
 class LpMyAccount extends StatelessWidget {
   final Customer? customerDetail;
@@ -26,7 +30,21 @@ class LpMyAccount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.myAccount),
+      appBar: CommonAppBar(title: context.appText.profile, actions: [
+        IconButton(
+          onPressed: () {
+            commonSupportDialog(context, message: context.appText.toEditProfileContactCustomerSupport);
+          },
+          icon: Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(5),
+            child: SvgPicture.asset(
+              AppIcons.svg.support,
+              width: 25,
+            ),
+          ),
+        ),
+      ],),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(commonSafeAreaPadding),
