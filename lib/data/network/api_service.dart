@@ -3,14 +3,17 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:go_router/go_router.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 
 class ApiService {
   final Duration _timeout = const Duration(
@@ -379,7 +382,7 @@ class ApiService {
       final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
 
       if (refreshToken == null || refreshToken.isEmpty) {
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+        await _logoutAndNavigateToLogin();
         return;
       }
 
@@ -390,7 +393,6 @@ class ApiService {
         },
       );
 
-
       if (response.statusCode == 200 && response.data['data'] != null) {
         final data = response.data['data'];
         final newAccessToken = data['access_token'];
@@ -399,10 +401,19 @@ class ApiService {
         await _secureSharedPrefs.saveKey(AppString.sessionKey.accessToken, newAccessToken);
         await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
       } else {
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+        await _logoutAndNavigateToLogin();
       }
     } catch (e) {
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+      await _logoutAndNavigateToLogin();
+    }
+  }
+
+
+  Future<void> _logoutAndNavigateToLogin() async {
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+
+    if (appContext.mounted) {
+      appContext.pushReplacement(AppRouteName.chooseLanguage);
     }
   }
 

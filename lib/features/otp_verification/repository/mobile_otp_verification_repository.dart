@@ -21,7 +21,6 @@ class MobileOtpVerificationRepository {
       if (result is Success<MobileOtpVerificationModel?>) {
         if (result.value != null) {
           dynamic saveUserResult;
-          if (result.value?.tempFlg == false) {
             saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
             if (saveUserResult is Success) {
               return result;
@@ -29,9 +28,6 @@ class MobileOtpVerificationRepository {
             if (saveUserResult is Error) {
               return Error(saveUserResult.type);
             }
-          } else {
-            return result;
-          }
         }
       }
       if (result is Error) {
