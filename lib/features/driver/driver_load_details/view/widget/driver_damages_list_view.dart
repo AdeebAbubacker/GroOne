@@ -28,7 +28,7 @@ class _DriverDamagesListViewState extends State<DriverDamagesListView> {
   Widget build(BuildContext context) {
     return BlocBuilder<DriverLoadDetailsCubit, DriverLoadDetailsState>(
       builder: (context, state) {
-        final damageList = state.damageListUIState?.data?.data!.data;
+        final damageList = state.damageListUIState?.data!.data;
 
         if (state.uploadDamageUIState == true && damageList != null && damageList.isNotEmpty) {
           return Column(

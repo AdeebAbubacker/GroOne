@@ -241,7 +241,7 @@ class LoadDetailsWidget extends StatelessWidget {
 
                             buildAttachmentView(context,loadDetails?.loadId,state),
 
-                            if((loadDetails?.loadStatusId??0)>=LoadStatus.unloading.index )
+                            if((loadDetails?.loadStatusId??0)>=7 )
                             ...[
                               20.height,
                               _buildAdableSectionHeader(

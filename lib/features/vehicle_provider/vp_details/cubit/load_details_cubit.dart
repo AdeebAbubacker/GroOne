@@ -68,7 +68,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
     if(status==7){
       final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-      final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==8,);
+      final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==331,);
       final uploadOtherDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==309,);
 
       final updatedDocument = currentList[podDocumentIndex].copyWith(
