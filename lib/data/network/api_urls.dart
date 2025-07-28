@@ -232,12 +232,9 @@ class ApiUrls {
   static final String getKycDocuments = "$_baseUrl$_customer$_path$_v1/kyc/";
   static final String getCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
   static final String updateCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
-<<<<<<< HEAD
   static final String getVehicleList = "$_baseUrl$_customer$_path$_v1/vehicle/";
   static final String deleteVehicle = "$_baseUrl$_customer$_path$_v1/vehicle/status/";
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
 
-=======
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
->>>>>>> ae412394e721487fd5529dbb17d83304d96a78a7
 }

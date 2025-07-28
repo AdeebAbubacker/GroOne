@@ -7,12 +7,12 @@ class PaginatedVehicleList {
 
     final List<VehicleDetailsData> data;
     final int total;
-    final PageMeta? pageMeta;
+    final VehiclePageMeta? Vehicle;
 
     PaginatedVehicleList copyWith({
         List<VehicleDetailsData>? data,
         int? total,
-        PageMeta? pageMeta,
+        VehiclePageMeta? pageMeta,
     }) {
         return PaginatedVehicleList(
             data: data ?? this.data,
@@ -25,7 +25,7 @@ class PaginatedVehicleList {
         return PaginatedVehicleList(
             data: json["data"] == null ? [] : List<VehicleDetailsData>.from(json["data"]!.map((x) => VehicleDetailsData.fromJson(x))),
             total: json["total"] ?? 0,
-            pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+            pageMeta: json["pageMeta"] == null ? null : VehiclePageMeta.fromJson(json["pageMeta"]),
         );
     }
 
@@ -129,8 +129,8 @@ class VehicleDetailsData {
 
 }
 
-class PageMeta {
-    PageMeta({
+class VehiclePageMeta {
+    VehiclePageMeta({
         required this.page,
         required this.pageCount,
         required this.nextPage,
@@ -144,14 +144,14 @@ class PageMeta {
     final int pageSize;
     final int total;
 
-    PageMeta copyWith({
+    VehiclePageMeta copyWith({
         int? page,
         int? pageCount,
         dynamic? nextPage,
         int? pageSize,
         int? total,
     }) {
-        return PageMeta(
+        return VehiclePageMeta(
             page: page ?? this.page,
             pageCount: pageCount ?? this.pageCount,
             nextPage: nextPage ?? this.nextPage,
@@ -160,8 +160,8 @@ class PageMeta {
         );
     }
 
-    factory PageMeta.fromJson(Map<String, dynamic> json){ 
-        return PageMeta(
+    factory VehiclePageMeta.fromJson(Map<String, dynamic> json){ 
+        return VehiclePageMeta(
             page: json["page"] ?? 0,
             pageCount: json["pageCount"] ?? 0,
             nextPage: json["nextPage"],
