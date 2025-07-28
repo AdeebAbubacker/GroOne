@@ -12,14 +12,9 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-import '../../dependency_injection/locator.dart';
 import '../../utils/app_route.dart';
 import '../en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
-import '../gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
-import '../gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import '../gps_feature/views/gps_home_screen.dart';
-import '../gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
-import '../login/repository/user_information_repository.dart';
 
 class OurValueAddedServicesWidget extends StatefulWidget {
   const OurValueAddedServicesWidget({super.key});
@@ -90,67 +85,73 @@ class _OurValueAddedServicesWidgetState
                       title: context.appText.gps,
                       imageString: AppImage.png.gps,
                       onClick: () async {
+                        Navigator.push(
+                          context,
+                          commonRoute(GpsHomeScreen()),
+
+                          //commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+                        );
                         // Check KYC status before navigating
-                        final userRepository =
-                            locator<UserInformationRepository>();
-                        final customerId = await userRepository.getUserID();
+                        // final userRepository =
+                        //     locator<UserInformationRepository>();
+                        // final customerId = await userRepository.getUserID();
 
-                        if (customerId != null && customerId.isNotEmpty) {
-                          // Create a temporary cubit to check KYC
-                          final kycCheckCubit = GpsKycCheckCubit(
-                            locator<GpsOrderApiRepository>(),
-                          );
+                        // if (customerId != null && customerId.isNotEmpty) {
+                        //   // Create a temporary cubit to check KYC
+                        //   final kycCheckCubit = GpsKycCheckCubit(
+                        //     locator<GpsOrderApiRepository>(),
+                        //   );
 
-                          // Show loading dialog
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (BuildContext context) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            },
-                          );
+                        //   // Show loading dialog
+                        //   showDialog(
+                        //     context: context,
+                        //     barrierDismissible: false,
+                        //     builder: (BuildContext context) {
+                        //       return const Center(
+                        //         child: CircularProgressIndicator(),
+                        //       );
+                        //     },
+                        //   );
 
-                          // Check KYC documents
-                          await kycCheckCubit.checkKycDocuments(customerId);
+                        //   // Check KYC documents
+                        //   await kycCheckCubit.checkKycDocuments(customerId);
 
-                          // Close loading dialog
-                          if (context.mounted) {
-                            Navigator.of(context).pop();
-                          }
+                        //   // Close loading dialog
+                        //   if (context.mounted) {
+                        //     Navigator.of(context).pop();
+                        //   }
 
-                          // Navigate based on KYC status
-                          if (context.mounted) {
-                            if (kycCheckCubit.state.hasKycDocuments &&
-                                kycCheckCubit.state.kycData != null) {
-                              // KYC done - show GPS home screen
-                              Navigator.push(
-                                context,
-                                commonRoute(GpsHomeScreen()),
-                                //commonRoute(GpsOrderBenefitsAndOrderListScreen()),
-                                
-                              );
-                            } else {
-                              // KYC not done - show benefits screen
-                              Navigator.push(
-                                context,
-                                commonRoute(
-                                  GpsOrderBenefitsAndOrderListScreen(),
-                                ),
-                              );
-                            }
-                          }
+                        //   // Navigate based on KYC status
+                        //   if (context.mounted) {
+                        //     if (kycCheckCubit.state.hasKycDocuments &&
+                        //         kycCheckCubit.state.kycData != null) {
+                        //       // KYC done - show GPS home screen
+                        //       Navigator.push(
+                        //         context,
+                        //         commonRoute(GpsHomeScreen()),
+                        //         //commonRoute(GpsOrderBenefitsAndOrderListScreen()),
 
-                          // Dispose the temporary cubit
-                          kycCheckCubit.close();
-                        } else {
-                          // Fallback to benefits screen if customer ID not available
-                          Navigator.push(
-                            context,
-                            commonRoute(GpsOrderBenefitsAndOrderListScreen()),
-                          );
-                        }
+                        //       );
+                        //     } else {
+                        //       // KYC not done - show benefits screen
+                        //       Navigator.push(
+                        //         context,
+                        //         commonRoute(
+                        //           GpsOrderBenefitsAndOrderListScreen(),
+                        //         ),
+                        //       );
+                        //     }
+                        //   }
+
+                        //   // Dispose the temporary cubit
+                        //   kycCheckCubit.close();
+                        // } else {
+                        //   // Fallback to benefits screen if customer ID not available
+                        //   Navigator.push(
+                        //     context,
+                        //     commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+                        //   );
+                        // }
                       },
                     ),
                     15.width,

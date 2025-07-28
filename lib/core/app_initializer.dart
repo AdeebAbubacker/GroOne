@@ -1,26 +1,29 @@
-
 import 'dart:io';
 
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gro_one_app/core/firebase_options.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:gro_one_app/service/firebase_secondary_service.dart';
 
 import '../features/gps_feature/helper/gps_session_manager.dart';
 
-
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    FlutterLocalNotificationsPlugin();
 
-FlutterLocalNotificationsPlugin();
 /// --- App Initialization Function ---
 Future<void> initializeApp() async {
   // Firebase Initialization
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   debugPrint("Firebase Initialized");
+
+  // Firebase Secondary App Initialization
+  await FirebaseService.initializeSecondaryApp();
+  debugPrint("Firebase Secondary App Initialized");
 
   // Crashlytics
   FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
@@ -33,7 +36,7 @@ Future<void> initializeApp() async {
 
   // Local Notifications Setup
   const AndroidInitializationSettings androidInitSettings =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
+      AndroidInitializationSettings('@mipmap/ic_launcher');
 
   const InitializationSettings initSettings = InitializationSettings(
     android: androidInitSettings,
@@ -49,7 +52,9 @@ Future<void> initializeApp() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   // Load Environment Variables
-  await dotenv.load(fileName: kDebugMode ? "./assets/env/.env.dev" : "./assets/env/.env.dev");
+  await dotenv.load(
+    fileName: kDebugMode ? "./assets/env/.env.dev" : "./assets/env/.env.dev",
+  );
 
   // Dependency Injection
   initLocator();
@@ -85,9 +90,12 @@ Future<void> _handleFirebaseMessage(RemoteMessage message) async {
       notificationDetails,
     );
   } catch (e, stack) {
-    FirebaseCrashlytics.instance.recordError(e, stack, reason: 'Error showing notification');
+    FirebaseCrashlytics.instance.recordError(
+      e,
+      stack,
+      reason: 'Error showing notification',
+    );
   }
-
 }
 
 Future<void> requestAndroidNotificationPermission() async {
@@ -108,9 +116,4 @@ Future<void> requestAndroidNotificationPermission() async {
       sound: true,
     );
   }
-
-
 }
-
-
-

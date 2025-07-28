@@ -21,6 +21,7 @@ import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/app_share_helper.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 // Cubit for selected vehicle state
@@ -2121,15 +2122,22 @@ class PlayRouteBottomSheet extends StatelessWidget {
     GpsCombinedVehicleData vehicle,
     String routeType,
   ) {
-    // Get current date for query parameters
-    final now = DateTime.now();
-    DateTime startDate;
-    DateTime endDate;
+    // Show date range picker for custom date selection
+    _showDateRangePicker(context, vehicle, routeType);
+  }
 
-    // Set different date ranges based on route type
+  void _showDateRangePicker(
+    BuildContext context,
+    GpsCombinedVehicleData vehicle,
+    String routeType,
+  ) {
+    DateTime? startDate;
+    DateTime? endDate;
+
+    // Set default date ranges based on route type
+    final now = DateTime.now();
     switch (routeType) {
       case 'ignition':
-        // For ignition path, get data from last ignition on time or last 24 hours
         if (vehicle.lastIgnitionOnFixTime != null &&
             vehicle.lastIgnitionOnFixTime!.isNotEmpty) {
           try {
@@ -2145,18 +2153,46 @@ class PlayRouteBottomSheet extends StatelessWidget {
         }
         break;
       case 'daily':
-        // For daily path, get today's data
         startDate = DateTime(now.year, now.month, now.day);
         endDate = now;
         break;
       case 'replay':
       default:
-        // For path replay, get last 7 days of data
         startDate = now.subtract(const Duration(days: 7));
         endDate = now;
         break;
     }
 
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder:
+          (context) => DateRangePickerBottomSheet(
+            vehicle: vehicle,
+            routeType: routeType,
+            initialStartDate: startDate!,
+            initialEndDate: endDate!,
+            onDateRangeSelected: (selectedStartDate, selectedEndDate) {
+              _navigateToPathReplayWithDates(
+                context,
+                vehicle,
+                routeType,
+                selectedStartDate,
+                selectedEndDate,
+              );
+            },
+          ),
+    );
+  }
+
+  void _navigateToPathReplayWithDates(
+    BuildContext context,
+    GpsCombinedVehicleData vehicle,
+    String routeType,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
     final Map<String, dynamic> queryParams = {
       "start": startDate.toUtc().toIso8601String(),
       "end": endDate.toUtc().toIso8601String(),
@@ -2181,6 +2217,489 @@ class PlayRouteBottomSheet extends StatelessWidget {
               routeType: routeType,
               showBottomSheet: showBottomSheet,
             ),
+      ),
+    );
+  }
+}
+
+/// A bottom sheet widget that allows users to select a custom date range for path replay.
+///
+/// This widget provides:
+/// - Date picker for start and end dates
+/// - Quick selection buttons for common date ranges (Today, Last 7 Days, Last 30 Days)
+/// - Date range validation and warnings for large ranges
+/// - Automatic navigation to path replay screen with selected dates
+class DateRangePickerBottomSheet extends StatefulWidget {
+  final GpsCombinedVehicleData vehicle;
+  final String routeType;
+  final DateTime initialStartDate;
+  final DateTime initialEndDate;
+  final Function(DateTime, DateTime) onDateRangeSelected;
+
+  const DateRangePickerBottomSheet({
+    super.key,
+    required this.vehicle,
+    required this.routeType,
+    required this.initialStartDate,
+    required this.initialEndDate,
+    required this.onDateRangeSelected,
+  });
+
+  @override
+  State<DateRangePickerBottomSheet> createState() =>
+      _DateRangePickerBottomSheetState();
+}
+
+class _DateRangePickerBottomSheetState
+    extends State<DateRangePickerBottomSheet> {
+  late DateTime startDate;
+  late DateTime endDate;
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    startDate = widget.initialStartDate;
+    endDate = widget.initialEndDate;
+    _updateControllers();
+  }
+
+  void _updateControllers() {
+    startDateController.text = _formatDate(startDate);
+    endDateController.text = _formatDate(endDate);
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('dd MMM yyyy').format(date);
+  }
+
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isStartDate ? startDate : endDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.blue,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: Colors.blue),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isStartDate) {
+          startDate = picked;
+          // Ensure end date is not before start date
+          if (endDate.isBefore(startDate)) {
+            endDate = startDate;
+          }
+        } else {
+          endDate = picked;
+          // Ensure start date is not after end date
+          if (startDate.isAfter(endDate)) {
+            startDate = endDate;
+          }
+        }
+        _updateControllers();
+      });
+    }
+  }
+
+  String _getRouteTypeTitle() {
+    switch (widget.routeType) {
+      case 'ignition':
+        return 'Ignition Path';
+      case 'daily':
+        return 'Daily Path';
+      case 'replay':
+        return 'Path Replay';
+      default:
+        return 'Route';
+    }
+  }
+
+  String _getRouteTypeDescription() {
+    switch (widget.routeType) {
+      case 'ignition':
+        return 'View the vehicle path from ignition start time';
+      case 'daily':
+        return 'View today\'s complete vehicle path';
+      case 'replay':
+        return 'View vehicle path for selected date range';
+      default:
+        return 'View vehicle path';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getRouteTypeTitle(),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _getRouteTypeDescription(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Status indicator (green dot)
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Date range selection
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                // Start Date
+                _buildDateField(
+                  label: 'Start Date',
+                  controller: startDateController,
+                  onTap: () => _selectDate(context, true),
+                ),
+                const SizedBox(height: 16),
+                // End Date
+                _buildDateField(
+                  label: 'End Date',
+                  controller: endDateController,
+                  onTap: () => _selectDate(context, false),
+                ),
+                const SizedBox(height: 20),
+                // Quick date range buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: _QuickDateButton(
+                        label: 'Today',
+                        onTap: () {
+                          final now = DateTime.now();
+                          setState(() {
+                            startDate = DateTime(now.year, now.month, now.day);
+                            endDate = now;
+                            _updateControllers();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _QuickDateButton(
+                        label: 'Last 7 Days',
+                        onTap: () {
+                          final now = DateTime.now();
+                          setState(() {
+                            startDate = now.subtract(const Duration(days: 6));
+                            endDate = now;
+                            _updateControllers();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _QuickDateButton(
+                        label: 'Last 30 Days',
+                        onTap: () {
+                          final now = DateTime.now();
+                          setState(() {
+                            startDate = now.subtract(const Duration(days: 29));
+                            endDate = now;
+                            _updateControllers();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Date range indicator
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.green.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        color: Colors.green[700],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Selected Range: ${_formatDate(startDate)} to ${_formatDate(endDate)} (${endDate.difference(startDate).inDays + 1} days)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Helper text
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.blue.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.blue[700],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Select a date range to view the vehicle path. The path will show all movements and stops during this period.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue[700],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.grey[600],
+                          side: BorderSide(color: Colors.grey[300]!),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Validate date range
+                          final daysDifference =
+                              endDate.difference(startDate).inDays;
+                          if (daysDifference > 30) {
+                            // Show warning for large date ranges
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: const Text('Large Date Range'),
+                                    content: Text(
+                                      'You have selected a date range of $daysDifference days. This may take longer to load and could impact performance. Do you want to continue?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                          widget.onDateRangeSelected(
+                                            startDate,
+                                            endDate,
+                                          );
+                                        },
+                                        child: const Text('Continue'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          } else {
+                            Navigator.pop(context);
+                            widget.onDateRangeSelected(startDate, endDate);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text(
+                          'View Path',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required TextEditingController controller,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today, color: Colors.blue[600], size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    controller.text,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: Colors.grey[600], size: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    startDateController.dispose();
+    endDateController.dispose();
+    super.dispose();
+  }
+}
+
+class _QuickDateButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _QuickDateButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.grey[100],
+        foregroundColor: Colors.blue[700],
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: Colors.grey[300]!),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
       ),
     );
   }
