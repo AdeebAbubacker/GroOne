@@ -7,6 +7,8 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_truck_length_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
@@ -32,8 +34,9 @@ part 'profile_state.dart';
 class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _repo;
   final VpCreationRepository _vprepository;
+  final LpHomeRepository _lpHomeRepository;
   final KavachRepository kavachRepository;
-  ProfileCubit(this._repo,this._vprepository,this.kavachRepository): super(ProfileState());
+  ProfileCubit(this._repo,this._vprepository,this._lpHomeRepository,this.kavachRepository): super(ProfileState());
 
   // Save Has Blue ID
   Future<void> saveHasShowBluePopup(bool value) async {
@@ -287,11 +290,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(vehicleState: uiState));
   }
 
-  Future<void> fetchVehicle({bool isLoading = true}) async {
+  Future<void> fetchVehicle({bool isLoading = true,String? search}) async {
     if(isLoading) _setFetchVehicleUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchVehicle(userId: userId ?? '');
+    dynamic result = await _repo.fetchVehicle(userId: userId ?? '',search: search);
     if (result is Success<PaginatedVehicleList>) {
       _setFetchVehicleUIState(UIState.success(result.value));
     }
@@ -301,13 +304,13 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
    // Fetch Truck type Api Call
-  void _setTruckTypeUIState(UIState<List<TruckTypeModel>>? uiState){
+  void _setTruckTypeUIState(UIState<List<LoadTruckTypeListModel>>? uiState){
     emit(state.copyWith(truckTypeUIState: uiState));
   }
   Future<void> fetchTruckType() async {
     _setTruckTypeUIState(UIState.loading());
-    Result result = await _vprepository.getTruckTypeData();
-    if (result is Success<List<TruckTypeModel>>) {
+    Result result = await _lpHomeRepository.getTruckTypeData();
+    if (result is Success<List<LoadTruckTypeListModel>>) {
       _setTruckTypeUIState(UIState.success(result.value));
     }
     if (result is Error) {

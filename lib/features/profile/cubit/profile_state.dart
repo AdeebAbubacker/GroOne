@@ -15,7 +15,7 @@ class ProfileState extends Equatable {
   final UIState<CustomerSettingsResponse>? customerSettingsState;
   final bool showSuccessKyc;
   final String? blueId;
-  final UIState<List<TruckTypeModel>>? truckTypeUIState;
+  final UIState<List<LoadTruckTypeListModel>>? truckTypeUIState;
   final UIState<List<TruckLengthModel>>? truckLengths;
   final UIState<KavachVehicleDocumentUploadModel>? vehicleDocUpload;
   final UIState<KavachVehicleDocumentUploadModel>? licenseDocUpload;
@@ -55,7 +55,7 @@ class ProfileState extends Equatable {
     UIState<PaginatedVehicleList>? vehicleState,
     UIState<PaginatedDriverList>? driverState,
     UIState<bool>? deleteVehicleState,
-    UIState<List<TruckTypeModel>>? truckTypeUIState,
+    UIState<List<LoadTruckTypeListModel>>? truckTypeUIState,
     UIState<List<TruckLengthModel>>? truckLengths,
     UIState<KavachVehicleDocumentUploadModel>? vehicleDocUpload,
     UIState<KavachVehicleDocumentUploadModel>? licenseDocUpload,

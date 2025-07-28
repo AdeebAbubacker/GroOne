@@ -161,9 +161,9 @@ class ProfileRepository {
   }
 
   /// Get Vehicle
-  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId}) async {
+  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId,String? search}) async {
     try {
-      return await _profileService.fetchVehicle(userId: userId);
+      return await _profileService.fetchVehicle(userId: userId,search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

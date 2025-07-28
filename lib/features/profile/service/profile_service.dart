@@ -316,9 +316,12 @@ class ProfileService {
 //-----------------------------
 
   /// fetch vehicle
-  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId}) async {
+  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId,String? search}) async {
     try {
-      final url = ApiUrls.getVehicleList+userId;
+      final baseUrl = '${ApiUrls.getVehicleList}$userId';
+      final url = (search != null && search.trim().isNotEmpty)
+          ? '$baseUrl?search=$search'
+          : baseUrl;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = PaginatedVehicleList.fromJson(response.value);

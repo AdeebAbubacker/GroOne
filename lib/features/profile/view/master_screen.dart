@@ -67,12 +67,18 @@ class _MasterScreenState extends State<MasterScreen>
   final MultiSelectController<String> acceptableCommoditiesController = MultiSelectController<String>();
   List<String> selectedCommodities = [];
   late TabController _tabController;
-  final searchController = TextEditingController();
+  final vehicleSearchController = TextEditingController();
   String? selectedTruckType;
   String? selectedTruckLength;
   String? truckLengthDropdownValue;
   bool showValidationErrors = false;
   List<Map<String, dynamic>> vehicleDocList = [];
+
+  void _addControllerListeners() {  
+    vehicleSearchController.addListener(() {
+      profileCubit.fetchVehicle(search: vehicleSearchController.text);
+    });    
+  }
   @override
   void initState() {
     initFunction();
@@ -93,6 +99,7 @@ class _MasterScreenState extends State<MasterScreen>
     profileCubit.fetchUserRole();
     gpsVehicleCubit.fetchTruckTypes();
     gpsVehicleCubit.fetchCommodities();
+    _addControllerListeners();
   }
 
   void disposeFunction() => frameCallback(() {
@@ -278,7 +285,6 @@ class _MasterScreenState extends State<MasterScreen>
       ),
 
       body:
-   
                Column(
                 children: [
                   Container(
@@ -385,7 +391,7 @@ class _MasterScreenState extends State<MasterScreen>
           child: Column(
             children: [
               20.height,
-                AppSearchBar(searchController: searchController),
+                AppSearchBar(searchController: vehicleSearchController),
                 20.height,
               ListView.builder(
                 itemBuilder: (context, index) {
@@ -489,7 +495,7 @@ class _MasterScreenState extends State<MasterScreen>
           child: Column(
             children: [
               20.height,
-            AppSearchBar(searchController: searchController),
+            AppSearchBar(searchController: vehicleSearchController),
               20.height,
               
                       
@@ -576,8 +582,8 @@ class _MasterScreenState extends State<MasterScreen>
         child: Column(
           children: [
             20.height,
-            AppSearchBar(searchController: searchController),
-            20.height,
+            AppSearchBar(searchController: vehicleSearchController),
+              20.height,
       
             ListView.builder(
               itemCount: driverList.length,
@@ -1289,7 +1295,7 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
  
- Map<String, dynamic>? createFileFromLink(String url) {
+  Map<String, dynamic>? createFileFromLink(String url) {
   if (url.trim().isEmpty) return null;
 
   final uri = Uri.parse(url);

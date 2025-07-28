@@ -546,7 +546,7 @@ void initLocator() {
       ),
     );
     locator.registerLazySingleton(
-      () => ProfileCubit(locator<ProfileRepository>(), locator<VpCreationRepository>(),locator<KavachRepository>(),),
+      () => ProfileCubit(locator<ProfileRepository>(), locator<VpCreationRepository>(),locator<LpHomeRepository>(),locator<KavachRepository>(),),
     );
     locator.registerLazySingleton(
       () => LpCreateAccountCubit(locator<LpCreateRepository>()),
