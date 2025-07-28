@@ -42,13 +42,10 @@ class GpsHomeScreen extends StatelessWidget {
 
 class _GpsHomeContent extends StatelessWidget {
   void _handleBackNavigation(BuildContext context) {
-    print('🔙 GPS Home: Back button tapped - starting navigation');
-    
     // Make navigation synchronous to avoid issues with onLeadingTap
     try {
       _navigateBackSynchronously(context);
     } catch (e) {
-      print('🔙 GPS Home: Error in _handleBackNavigation: $e');
       // Fallback: try to pop or navigate to default route
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
@@ -70,24 +67,21 @@ class _GpsHomeContent extends StatelessWidget {
       // If we can't pop, try to navigate to the appropriate dashboard
       _getUserRoleAndNavigate(context);
     } catch (e) {
-      print('🔙 GPS Home: Error in _navigateBackSynchronously: $e');
       // Final fallback: try to go to default route
       try {
         if (context.mounted) {
           context.go(AppRouteName.lpBottomNavigationBar);
         }
       } catch (fallbackError) {
-        print('🔙 GPS Home: Fallback navigation also failed: $fallbackError');
+        // Handle fallback error silently
       }
     }
   }
 
   Future<void> _getUserRoleAndNavigate(BuildContext context) async {
-    print('🔙 GPS Home: Getting user role for navigation');
     try {
       final userRepository = locator<UserInformationRepository>();
       final userRole = await userRepository.getUserRole();
-      print('🔙 GPS Home: User role: $userRole');
       String targetRoute;
       if (userRole == 1 || userRole == 3) {
         targetRoute = AppRouteName.lpBottomNavigationBar;
@@ -96,14 +90,10 @@ class _GpsHomeContent extends StatelessWidget {
       } else {
         targetRoute = AppRouteName.lpBottomNavigationBar;
       }
-      print('🔙 GPS Home: Navigating to: $targetRoute');
       if (context.mounted) {
         context.go(targetRoute);
-      } else {
-        print('🔙 GPS Home: Context not mounted, cannot navigate');
       }
     } catch (e) {
-      print('🔙 GPS Home: Error during navigation: $e');
       // Fallback to default navigation
       if (context.mounted) {
         context.go(AppRouteName.lpBottomNavigationBar);

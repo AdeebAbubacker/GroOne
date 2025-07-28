@@ -226,7 +226,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     
     // Only refresh if not already loading
     if (billingState is! GpsBillingAddressLoading) {
-      print('🔄 GPS Checkout: Refreshing billing addresses while preserving selection');
       gpsBillingAddressCubit.fetchGpsBillingAddresses().then((_) {
         // Restore billing selection if it was previously selected
         if (currentBillingSelection != null && mounted) {
@@ -241,7 +240,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
     }
     
     if (shippingState is! GpsShippingAddressLoading) {
-      print('🔄 GPS Checkout: Refreshing shipping addresses while preserving selection');
       gpsShippingAddressCubit.fetchGpsShippingAddresses().then((_) {
         // Restore shipping selection if it was previously selected
         if (currentShippingSelection != null && mounted) {
@@ -310,8 +308,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
 
     // If no previous data, clear address selections
     if (!hasPreviousData) {
-      print('🔄 GPS Checkout: Fresh order detected, clearing address selections');
-      
       // Clear billing address selection but preserve loaded addresses
       if (gpsBillingAddressCubit.state is GpsBillingAddressSelected) {
         gpsBillingAddressCubit.clearGpsBillingAddressSelection();
@@ -326,10 +322,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
       setState(() {
         shippingSameAsBilling = false;
       });
-      
-      print('🔄 GPS Checkout: Address selections cleared for fresh order');
-    } else {
-      print('🔄 GPS Checkout: Previous data detected, preserving address selections');
     }
   }
 
@@ -499,7 +491,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen> with Wi
           
           // Navigate to summary screen with order data
           if (context.mounted) {
-            print("Navigating to GpsOrderSummaryScreen");
             Navigator.of(context).push(
               commonRoute(
                 GpsOrderSummaryScreen(

@@ -129,7 +129,6 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
   }
 
   void _fetchTransactions() {
-    print('🔄 _fetchTransactions called');
     if (fromDate != null && toDate != null && mounted) {
       // Double-check date range before fetching
       final difference = toDate!.difference(fromDate!).inDays;
@@ -140,10 +139,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
         return;
       }
       
-      print('✅ Calling cubit.fetchTransactions');
       _cubit.fetchTransactions(fromDate: fromDate!, toDate: toDate!);
-    } else {
-      print('❌ Cannot fetch: fromDate=$fromDate, toDate=$toDate, mounted=$mounted');
     }
   }
 

@@ -520,13 +520,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     String state = '';
     String postalCode = '';
 
-    print('Parsing address: $addressString');
-
     try {
       // Split by commas and clean up
       List<String> parts =
           addressString.split(',').map((part) => part.trim()).toList();
-      print('Address parts: $parts');
 
       if (parts.length >= 3) {
         // Try to extract postal code from the last part (format: "Country - PostalCode")
@@ -561,10 +558,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       print('Error parsing address: $e');
     }
 
-    print(
-      'Parsed address - City: $city, State: $state, PostalCode: $postalCode',
-    );
-
     return {'city': city, 'state': state, 'postalCode': postalCode};
   }
 
@@ -598,12 +591,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
       // Create billing address
       final billingAddressParts = _parseAddress(widget.billingAddress.addr1);
-      print(
-        'Billing address - Original: city=${widget.billingAddress.city}, state=${widget.billingAddress.state}, pincode=${widget.billingAddress.pincode}',
-      );
-      print(
-        'Billing address - Parsed: city=${billingAddressParts['city']}, state=${billingAddressParts['state']}, postalCode=${billingAddressParts['postalCode']}',
-      );
       final billingAddress = GpsOrderAddress(
         addressLine1: widget.billingAddress.addressName,
         addressLine2: widget.billingAddress.addr1,
@@ -625,12 +612,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
       // Create shipping address
       final shippingAddressParts = _parseAddress(widget.shippingAddress.addr1);
-      print(
-        'Shipping address - Original: city=${widget.shippingAddress.city}, state=${widget.shippingAddress.state}, pincode=${widget.shippingAddress.pincode}',
-      );
-      print(
-        'Shipping address - Parsed: city=${shippingAddressParts['city']}, state=${shippingAddressParts['state']}, postalCode=${shippingAddressParts['postalCode']}',
-      );
       final shippingAddress = GpsOrderAddress(
         addressLine1: widget.shippingAddress.addressName,
         addressLine2: widget.shippingAddress.addr1,
@@ -742,52 +723,29 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             await Future.delayed(Duration(milliseconds: 100));
             
             if (currentContext.mounted) {
-              print('🔄 GPS Order Success: Attempting GoRouter navigation');
-              print('🔄 GPS Order Success: Target route: ${AppRouteName.gps}');
-              print('🔄 GPS Order Success: Current route: ${GoRouter.of(currentContext).routerDelegate.currentConfiguration.uri}');
-              
               try {
                 // Try multiple navigation approaches
-                print('🔄 GPS Order Success: Trying GoRouter.go()...');
                 GoRouter.of(currentContext).go(AppRouteName.gps);
-                print('🔄 GPS Order Success: GoRouter.go() successful');
               } catch (e) {
-                print('❌ GPS Order Success: GoRouter.go() failed: $e');
-                
                 try {
-                  print('🔄 GPS Order Success: Trying context.go()...');
                   currentContext.go(AppRouteName.gps);
-                  print('🔄 GPS Order Success: context.go() successful');
                 } catch (fallbackError) {
-                  print('❌ GPS Order Success: context.go() failed: $fallbackError');
-                  
                   try {
-                    print('🔄 GPS Order Success: Trying Navigator.pushNamedAndRemoveUntil()...');
                     Navigator.of(currentContext).pushNamedAndRemoveUntil(
                       AppRouteName.gps,
                       (route) => false,
                     );
-                    print('🔄 GPS Order Success: Navigator.pushNamedAndRemoveUntil() successful');
                   } catch (navigatorError) {
-                    print('❌ GPS Order Success: Navigator.pushNamedAndRemoveUntil() failed: $navigatorError');
-                    
                     try {
-                      print('🔄 GPS Order Success: Trying Navigator.pushAndRemoveUntil()...');
                       Navigator.of(currentContext).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (context) => GpsHomeScreen()),
                         (route) => false,
                       );
-                      print('🔄 GPS Order Success: Navigator.pushAndRemoveUntil() successful');
                     } catch (pushError) {
-                      print('❌ GPS Order Success: Navigator.pushAndRemoveUntil() failed: $pushError');
-                      
                       // Last resort: Try to navigate to a different route
                       try {
-                        print('🔄 GPS Order Success: Trying fallback to lpBottomNavigationBar...');
                         currentContext.go(AppRouteName.lpBottomNavigationBar);
-                        print('🔄 GPS Order Success: Fallback navigation successful');
                       } catch (lastResortError) {
-                        print('❌ GPS Order Success: All navigation methods failed: $lastResortError');
                         ToastMessages.error(
                           message: 'Navigation failed. Please try again.',
                         );
@@ -796,8 +754,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   }
                 }
               }
-            } else {
-              print('❌ GPS Order Success: Context not mounted after dialog close');
             }
           });
         },

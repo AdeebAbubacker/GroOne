@@ -140,16 +140,11 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                               previous.aadhaarSendOtpState !=
                               current.aadhaarSendOtpState,
                       listener: (context, state) {
-                        print(
-                          '🔍 GPS Aadhaar Send OTP State changed: ${state.aadhaarSendOtpState?.status}',
-                        );
                         if (state.aadhaarSendOtpState?.status ==
                             Status.SUCCESS) {
-                          print('🔍 GPS Showing OTP bottom sheet');
                           _showOtpBottomSheet(context, cubit);
                         }
                         if (state.aadhaarSendOtpState?.status == Status.ERROR) {
-                          print('🔍 GPS Aadhaar Send OTP failed');
                           final error = state.aadhaarSendOtpState?.errorType;
                           ToastMessages.error(
                             message: getErrorMsg(
@@ -162,10 +157,6 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         onPressed:
                             (state.isAadhaarValid && !state.isAadhaarVerified)
                                 ? () {
-                                  print('🔍 GPS Get OTP button pressed');
-                                  print(
-                                    '🔍 GPS Current aadhaar: "${state.aadhaar}"',
-                                  );
                                   cubit.sendAadhaarOtp();
                                 }
                                 : () {},
@@ -485,11 +476,7 @@ class _GpsOtpVerificationBottomSheetState
                   (previous, current) =>
                       previous.aadhaarVerifyOtpState?.status != current.aadhaarVerifyOtpState?.status,
               listener: (context, state) {
-                print(
-                  '🔍 GPS OTP Verification State changed: ${state.aadhaarVerifyOtpState?.status}',
-                );
                 if (state.aadhaarVerifyOtpState?.status == Status.SUCCESS) {
-                  print('🔍 GPS OTP verification successful, closing bottom sheet');
                   // Close bottom sheet immediately
                   Navigator.of(context).pop();
                   // Show success message after closing
@@ -502,7 +489,6 @@ class _GpsOtpVerificationBottomSheetState
                   });
                 }
                 if (state.aadhaarVerifyOtpState?.status == Status.ERROR) {
-                  print('🔍 GPS OTP verification failed');
                   final error = state.aadhaarVerifyOtpState?.errorType;
                   ToastMessages.error(
                     message: getErrorMsg(errorType: error ?? GenericError()),

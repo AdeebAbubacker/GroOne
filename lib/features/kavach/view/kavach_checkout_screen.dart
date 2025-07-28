@@ -354,8 +354,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             builder: (_) => const Center(child: CircularProgressIndicator()),
           );
         } else if (state is KavachOrderSuccess) {
-          print("KavachOrderSuccess triggered - Order ID: ${state.orderId}");
-          
           // Dismiss loading dialog first
           if (Navigator.canPop(context)) {
             Navigator.of(context).pop();
@@ -366,7 +364,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           
           // Navigate to summary screen with order data
           if (context.mounted) {
-            print("Navigating to KavachSummaryScreen");
             Navigator.of(context).push(
               commonRoute(
                 KavachSummaryScreen(
@@ -1206,9 +1203,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             // For referral orders, use the employee ID as per documentation
             // In a real implementation, this should be fetched from an API based on the referral code
             createdEmpUserId = 52864; // Employee ID for referral code GDP00584
-            print("Kavach Order: Referral order detected - createdEmpId: $createdEmpId, createdEmpUserId: $createdEmpUserId");
-          } else {
-            print("Kavach Order: Direct order detected - createdEmpId: null, createdEmpUserId: $createdEmpUserId");
           }
 
           final request = KavachOrderRequest(
@@ -1259,7 +1253,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             }).toList(),
           );
 
-          print("Submitting Kavach order...");
           kavachOrderBloc.add(KavachSubmitOrder(request));
         } else {
           ToastMessages.alert(message: context.appText.completeAllFields);
