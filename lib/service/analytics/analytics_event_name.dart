@@ -25,6 +25,7 @@ class AnalyticEventName {
   static const String ONBOARD_VP_FORM_SUBMITTED = "onboard_vp_form_submitted";
   // Lp
   static const String ONBOARD_LP_FORM_SUBMITTED = "onboard_lp_form_submitted";
+  static const String CREATE_LOAD = "create_load";
   // Kyc
   static const String AADHAAR_VERIFICATION_SUCCESS = "aadhaar_verification_success";
   static const String AADHAAR_VERIFICATION_FAILED = "aadhaar_verification_failed";

@@ -506,7 +506,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
 
       },
       builder: (context, state) {
-        if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data.isNotEmpty) {
+        if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data!.data.isNotEmpty) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -515,9 +515,9 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
               ListView.separated(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: state.damageListUIState!.data!.data.length,
+                itemCount: state.damageListUIState!.data!.data!.data.length,
                 itemBuilder: (context, index) {
-                  final data = state.damageListUIState!.data!.data[index];
+                  final data = state.damageListUIState!.data!.data!.data[index];
                   return damageRecordCard(
                     context: context,
                     imageUrl: data.image??[],

@@ -306,12 +306,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     /// upload document = > Create Document = > Map Document with load
     try {
       uploadLoadingStatus(index, null);
-      Result result = await _loadDetailsRepository.uploadDocument(
-          file, fileType);
+      Result result = await _loadDetailsRepository.uploadDocument(file, fileType);
       if (result is Success<UploadDamageFileModel>) {
         ///Create Document
-        await createDocument(title ?? "", documentTypeId ?? 1, result.value)
-            .then((value) async {
+        await createDocument(title ?? "", documentTypeId ?? 1, result.value).then((value) async {
           if (value != null) {
             /// Map document with load
             await saveDocument(value, loadId).then((value) {

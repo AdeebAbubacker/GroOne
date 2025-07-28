@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
@@ -10,7 +11,9 @@ import 'package:gro_one_app/features/driver/driver_load_details/model/driver_loa
 import 'package:gro_one_app/features/driver/driver_load_details/repository/driver_loads_details_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
@@ -36,9 +39,10 @@ part 'driver_load_details_state.dart';
 class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   final DriverLoadsDetailsRepository _repository;
   final LoadDetailsRepository _loadDetailsRepository;
+   final LpLoadRepository _lpLoadRepository;
   final UserInformationRepository _userInformationRepository;
 
-  DriverLoadDetailsCubit(this._loadDetailsRepository, this._repository,this._userInformationRepository) : super(DriverLoadDetailsState(  tripDocumentList: documentTypeList));
+  DriverLoadDetailsCubit(this._loadDetailsRepository, this._repository, this._lpLoadRepository,this._userInformationRepository) : super(DriverLoadDetailsState(  tripDocumentList: documentTypeList));
 
 
   // Updates the UI state related to loading LP loads by ID.
@@ -53,7 +57,12 @@ Future<void> getDriverLoadsById({required String loadId}) async {
   Result result = await _repository.fetchDriversLoadById(loadId: loadId);
 
   if (result is Success<DriverLoadDetailsModel>) {
-    _setLoadByIdUIState(UIState.success(result.value)); 
+      emit(state.copyWith(
+          locationDistance: getDistance(
+              result.value.data?.loadRoute?.pickUpLatlon ?? "0",
+              result.value.data?.loadRoute?.dropLatlon ?? "0"),
+          lpLoadById: UIState.success(result.value),
+          loadStatusId:result.value.data?.loadStatusId ));
     setTripDocuments(result.value.data!.loadDocument);
   } else if (result is Error) {
     _setLoadByIdUIState(UIState.error(result.type));
@@ -346,6 +355,37 @@ Future<void> getDriverLoadsById({required String loadId}) async {
       return document == null;
     } catch (e) {
       return true;
+    }
+  }
+ 
+    String getDistance(String pickUpLatLong, dropLatLong) {
+    final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
+    final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
+    double distanceInMeters = Geolocator.distanceBetween(
+      pickupLatLng.latitude,
+      pickupLatLng.longitude,
+      dropLatLng.latitude,
+      dropLatLng.longitude,
+    );
+    return (distanceInMeters / 1000).toStringAsFixed(2);
+  }
+  
+  // Updates the UI state related to tracking distance.
+  void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
+    emit(state.copyWith(trackingDistance: uiState));
+  }
+
+
+  // Lp load tracking distance
+  Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
+    _setTrackingDistanceState(UIState.loading());
+
+    Result result = await _lpLoadRepository.getTrackingDistance(request: request);
+
+    if (result is Success<TrackingDistanceResponse>) {
+      _setTrackingDistanceState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setTrackingDistanceState(UIState.error(result.type));
     }
   }
 

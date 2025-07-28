@@ -17,6 +17,7 @@ class PathReplayScreen extends StatelessWidget {
   final Map<String, dynamic> queryParams;
   final String? vehicleNumber;
   final String? routeType;
+  final bool showBottomSheet;
 
   const PathReplayScreen({
     super.key,
@@ -24,6 +25,7 @@ class PathReplayScreen extends StatelessWidget {
     required this.queryParams,
     this.vehicleNumber,
     this.routeType,
+    this.showBottomSheet = true,
   });
 
   @override
@@ -74,6 +76,7 @@ class PathReplayScreen extends StatelessWidget {
         vehicleNumber:
             vehicleNumber ?? queryParams['vehicleNumber']?.toString() ?? '',
         routeType: routeType,
+        showBottomSheet: showBottomSheet,
       ),
     );
   }
@@ -82,11 +85,13 @@ class PathReplayScreen extends StatelessWidget {
 class PathReplayView extends StatelessWidget {
   final String vehicleNumber;
   final String routeType;
+  final bool showBottomSheet;
 
   const PathReplayView({
     super.key,
     required this.vehicleNumber,
     required this.routeType,
+    required this.showBottomSheet,
   });
 
   @override
@@ -326,6 +331,9 @@ class PathReplayView extends StatelessWidget {
   }
 
   Widget _buildBottomStatsPanel(BuildContext context, PathReplayState state) {
+    // Don't show bottom panel if showBottomSheet is false
+    if (!showBottomSheet) return const SizedBox.shrink();
+
     final hasData =
         state.pathType == 'ignition'
             ? state.tripPathPositions.isNotEmpty
@@ -653,6 +661,57 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
   final Completer<GoogleMapController> _mapController =
       GpsMapHelper.createMapController();
 
+  Set<Marker> _directionArrows = {};
+  bool _arrowsLoaded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDirectionArrows();
+  }
+
+  @override
+  void didUpdateWidget(PathReplayMapWidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.state != widget.state) {
+      _loadDirectionArrows();
+    }
+  }
+
+  Future<void> _loadDirectionArrows() async {
+    if (widget.state.pathType == 'ignition' ||
+        widget.state.pathType == 'daily') {
+      final pathPoints =
+          widget.state.pathType == 'ignition'
+              ? widget.state.tripPathPositions
+                  .map((pos) => LatLng(pos.latitude!, pos.longitude!))
+                  .toList()
+              : widget.state.pathPositions
+                  .map((pos) => LatLng(pos.latitude!, pos.longitude!))
+                  .toList();
+
+      if (pathPoints.length > 1) {
+        final arrows = await GpsMapHelper.createDirectionArrows(
+          points: pathPoints,
+          polylineId: 'pathReplay',
+          arrowSpacing: 3,
+        );
+
+        if (mounted) {
+          setState(() {
+            _directionArrows = arrows;
+            _arrowsLoaded = true;
+          });
+        }
+      }
+    } else {
+      setState(() {
+        _directionArrows = {};
+        _arrowsLoaded = true;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<PathReplayCubit, PathReplayState>(
@@ -682,6 +741,7 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
 
     final markers = <Marker>{};
 
+    // Add vehicle marker
     if (currentPosition != null) {
       if (widget.state.pathType == 'ignition' ||
           widget.state.pathType == 'daily') {
@@ -723,6 +783,26 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
           ),
         );
       }
+    }
+
+    // Add direction arrows and stop markers for ignition and daily paths
+    // Direction arrows (azure markers) show the direction of travel along the polyline
+    // Stop markers (orange markers) show locations where the vehicle stopped
+    if (widget.state.pathType == 'ignition' ||
+        widget.state.pathType == 'daily') {
+      // Add pre-loaded direction arrows
+      if (_arrowsLoaded) {
+        markers.addAll(_directionArrows);
+      }
+
+      // Add stop markers
+      final stopMarkers = GpsMapHelper.createStopMarkers(
+        pathPositions:
+            widget.state.pathType == 'ignition'
+                ? widget.state.tripPathPositions
+                : widget.state.pathPositions,
+      );
+      markers.addAll(stopMarkers);
     }
 
     final polyline = GpsMapHelper.createPathPolyline(points: pathPoints);

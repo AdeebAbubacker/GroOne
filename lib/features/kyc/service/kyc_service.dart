@@ -4,6 +4,7 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
@@ -11,6 +12,8 @@ import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
+import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
@@ -300,6 +303,44 @@ class KycService {
       final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter});
       if (result is Success) {
         final data = CityModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+
+  /// Create Document Service
+  Future<Result<CreateDocumentModel>> createDocument(CreateDocumentApiRequest request) async {
+    try {
+      final url = ApiUrls.createDocument;
+      final result = await _apiService.post(url, body: request.toJson());
+      if (result is Success) {
+        final data = CreateDocumentModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+
+  /// Delete Document Service
+  Future<Result<DeleteDocumentModel>> deleteDocument(String documentId) async {
+    try {
+      final url = ApiUrls.deleteDocument;
+      final result = await _apiService.delete(url+documentId);
+      if (result is Success) {
+        final data = DeleteDocumentModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);

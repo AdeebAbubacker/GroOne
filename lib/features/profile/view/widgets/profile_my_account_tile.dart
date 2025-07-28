@@ -12,25 +12,17 @@ class ProfileMyAccountTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 13),
-        child: Row(
-          children: [
-            SvgPicture.asset(imageString, height: 20, width: 20),
-            const SizedBox(width: 10),
-            Text(
-              text,
-              style: showArrow
-                  ? AppTextStyle.blackColor14w400
-                  : AppTextStyle.blackColor14w400.copyWith(color: Colors.red),
-            ),
-            const Spacer(),
-            if (showArrow)
-               Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.greyIconColor),
-          ],
+    return SizedBox(
+      height: 40,
+      child: ListTile(
+        minLeadingWidth: 0,
+        onTap: onTap,
+        leading: SvgPicture.asset(imageString, height: 20, width: 20),
+        title:  Text(
+          text,
+            style : AppTextStyle.body3.copyWith(color: showArrow ? AppColors.black : AppColors.red)
         ),
+        trailing: showArrow ? Icon(Icons.arrow_forward_ios, size: 12, color: AppColors.greyIconColor) : null,
       ),
     );
   }

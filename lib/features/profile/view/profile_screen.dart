@@ -37,6 +37,8 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
+import 'routes_screen.dart';
+
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -70,6 +72,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
   void initFunction() => frameCallback(() async {
     profileCubit.fetchProfileDetail();
     appVersion = await appVersionInfo();
+    await kycCubit.fetchUserRole();
     setState(() {});
     debugPrint("user id ${lpHomeLocator.userId}");
   });
@@ -107,7 +110,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.profile),
+      appBar: CommonAppBar(title: context.appText.profile, scrolledUnderElevation: 0),
       body: RefreshIndicator(
         onRefresh: () async => initFunction(),
         child: SafeArea(
@@ -220,25 +223,27 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
 
           ProfileMyAccountTile(
             imageString: AppImage.svg.master,
-            text: "Master",
+            text: context.appText.masters,
             onTap: () {
               Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
             },
           ),
           commonDivider(),
-
-          ProfileMyAccountTile(
-            imageString: AppImage.svg.routes,
-            text: "Routes",
-            onTap: () {
-              ///todo - routes to be done later
-            },
-          ),
-          commonDivider(),
+          if(kycCubit.userRole == 1)
+            ...[
+              ProfileMyAccountTile(
+                imageString: AppImage.svg.routes,
+                text: context.appText.routes,
+                onTap: () {
+                  Navigator.of(context).push(commonRoute(RouteScreen(), isForward: true));
+                },
+              ),
+              commonDivider(),
+            ],
 
           ProfileMyAccountTile(
             imageString: AppImage.svg.myDocuments,
-            text: "My Documents",
+            text: context.appText.myDocuments,
             onTap: () {
               Navigator.of(context).push(commonRoute(MyDocumentScreen(), isForward: true));
             },
@@ -267,7 +272,8 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             imageString: AppImage.svg.support,
             text: context.appText.support,
             onTap: () {
-              Navigator.of(context).push(commonRoute(LpSupport(), isForward: true));
+              Navigator.pushReplacement(context, commonRoute(LpBottomNavigation()));
+              LpBottomNavigation.selectedIndexNotifier.value = 2;
             },
           ),
           commonDivider(),

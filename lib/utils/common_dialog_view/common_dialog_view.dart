@@ -23,6 +23,7 @@ class CommonDialogView extends StatefulWidget {
   final String? onSingleButtonText;
   final TextStyle? headingTextStyle;
   final TextStyle? messageTextStyle;
+  final ButtonStyle? yesButtonTextStyle;
   final Widget? child;
   final void Function()? onTapSingleButton;
   final void Function()? afterDismiss;
@@ -48,6 +49,7 @@ class CommonDialogView extends StatefulWidget {
     this.crossAxisAlignment,
     this.headingTextStyle,
     this.messageTextStyle,
+    this.yesButtonTextStyle,
   });
 
   @override
@@ -138,6 +140,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
             // Yes Button
             AppButton(
               buttonHeight: commonButtonHeight2,
+              style: widget.yesButtonTextStyle ?? AppButtonStyle.primary,
               isLoading: widget.yesButtonLoading,
               onPressed: widget.onClickYesButton ?? (){},
               title: widget.yesButtonText ?? context.appText.yes,
