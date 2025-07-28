@@ -75,19 +75,19 @@ class KongToken {
 
     factory KongToken.fromJson(Map<String, dynamic> json){ 
         return KongToken(
-            expiresIn: json["expiresIn"] ?? 0,
-            tokenType: json["tokenType"] ?? "",
-            refreshToken: json["refreshToken"] ?? "",
-            accessToken: json["accessToken"] ?? "",
+            expiresIn: json["expires_in"] ?? 0,
+            tokenType: json["token_type"] ?? "",
+            refreshToken: json["refresh_token"] ?? "",
+            accessToken: json["access_token"] ?? "",
         );
     }
 
     Map<String, dynamic> toJson() {
         return {
-            "expiresIn": expiresIn,
-            "tokenType": tokenType,
-            "refreshToken": refreshToken,
-            "accessToken": accessToken,
+            "expires_in": expiresIn,
+            "token_type": tokenType,
+            "refresh_token": refreshToken,
+            "access_token": accessToken,
         };
     }
 

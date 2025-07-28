@@ -36,6 +36,7 @@ import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../payments/view/payments_screen.dart';
 import '../../models/gps_document_models.dart';
+import '../gps_home_screen.dart';
 
 class GpsOrderSummaryScreen extends StatefulWidget {
   final List<GpsProduct> products;
@@ -483,7 +484,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.appText.total, style: AppTextStyle.blackColor14w400),
-              Text('₹${KavachHelper.formatCurrency(totalAmount)}', style: AppTextStyle.primaryColor16w900),
+              Text('₹${KavachHelper.formatCurrency(totalAmount.round())}', style: AppTextStyle.primaryColor16w900),
             ],
           ),
           15.width,
@@ -736,29 +737,63 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           Navigator.of(currentContext).pop();
           
           // Use a post-frame callback to ensure dialog is fully closed
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            // Add a small delay to ensure dialog is fully closed
+            await Future.delayed(Duration(milliseconds: 100));
+            
             if (currentContext.mounted) {
               print('🔄 GPS Order Success: Attempting GoRouter navigation');
-              print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
+              print('🔄 GPS Order Success: Target route: ${AppRouteName.gps}');
+              print('🔄 GPS Order Success: Current route: ${GoRouter.of(currentContext).routerDelegate.currentConfiguration.uri}');
               
               try {
-                // Use GoRouter navigation
-                GoRouter.of(currentContext).go(AppRouteName.gpsOrderBenefits);
-                print('🔄 GPS Order Success: GoRouter navigation called successfully');
+                // Try multiple navigation approaches
+                print('🔄 GPS Order Success: Trying GoRouter.go()...');
+                GoRouter.of(currentContext).go(AppRouteName.gps);
+                print('🔄 GPS Order Success: GoRouter.go() successful');
               } catch (e) {
-                print('❌ GPS Order Success: Navigation error: $e');
+                print('❌ GPS Order Success: GoRouter.go() failed: $e');
                 
-                // Fallback: Try with context.go
                 try {
-                  currentContext.go(AppRouteName.gpsOrderBenefits);
-                  print('🔄 GPS Order Success: Fallback navigation successful');
+                  print('🔄 GPS Order Success: Trying context.go()...');
+                  currentContext.go(AppRouteName.gps);
+                  print('🔄 GPS Order Success: context.go() successful');
                 } catch (fallbackError) {
-                  print('❌ GPS Order Success: Fallback navigation also failed: $fallbackError');
+                  print('❌ GPS Order Success: context.go() failed: $fallbackError');
                   
-                  // Final fallback: Show error message
-                  ToastMessages.error(
-                    message: 'Navigation failed. Please try again.',
-                  );
+                  try {
+                    print('🔄 GPS Order Success: Trying Navigator.pushNamedAndRemoveUntil()...');
+                    Navigator.of(currentContext).pushNamedAndRemoveUntil(
+                      AppRouteName.gps,
+                      (route) => false,
+                    );
+                    print('🔄 GPS Order Success: Navigator.pushNamedAndRemoveUntil() successful');
+                  } catch (navigatorError) {
+                    print('❌ GPS Order Success: Navigator.pushNamedAndRemoveUntil() failed: $navigatorError');
+                    
+                    try {
+                      print('🔄 GPS Order Success: Trying Navigator.pushAndRemoveUntil()...');
+                      Navigator.of(currentContext).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => GpsHomeScreen()),
+                        (route) => false,
+                      );
+                      print('🔄 GPS Order Success: Navigator.pushAndRemoveUntil() successful');
+                    } catch (pushError) {
+                      print('❌ GPS Order Success: Navigator.pushAndRemoveUntil() failed: $pushError');
+                      
+                      // Last resort: Try to navigate to a different route
+                      try {
+                        print('🔄 GPS Order Success: Trying fallback to lpBottomNavigationBar...');
+                        currentContext.go(AppRouteName.lpBottomNavigationBar);
+                        print('🔄 GPS Order Success: Fallback navigation successful');
+                      } catch (lastResortError) {
+                        print('❌ GPS Order Success: All navigation methods failed: $lastResortError');
+                        ToastMessages.error(
+                          message: 'Navigation failed. Please try again.',
+                        );
+                      }
+                    }
+                  }
                 }
               }
             } else {

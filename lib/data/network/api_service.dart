@@ -33,13 +33,24 @@ class ApiService {
       'Accept': 'application/json',
     };
     try {
-     // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
 
+      // Enhanced debugging for token retrieval
+      CustomLog.debug(this, "🔐 Token retrieval attempt:");
+      CustomLog.debug(this, "🔐 Raw token value: '$refreshToken'");
+      CustomLog.debug(this, "🔐 Token is null: ${refreshToken == null}");
+      CustomLog.debug(this, "🔐 Token is empty: ${refreshToken?.isEmpty}");
+      CustomLog.debug(this, "🔐 Token length: ${refreshToken?.length}");
+
       if (refreshToken != null && refreshToken.isNotEmpty) {
-        headers['Authorization'] = 'Bearer $refreshToken';
+        final authHeader = 'Bearer $refreshToken';
+        headers['Authorization'] = authHeader;
+        CustomLog.debug(this, "🔐 Using token for API call: $refreshToken");
+        CustomLog.debug(this, "🔐 Authorization header set: $authHeader");
+        CustomLog.debug(this, "🔐 Full headers: $headers");
       } else {
-        CustomLog.debug(this, "Authorization token : $refreshToken");
+        CustomLog.debug(this, "🔐 No token found - cannot authenticate");
+        CustomLog.debug(this, "🔐 Headers without auth: $headers");
       }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
@@ -52,6 +63,22 @@ class ApiService {
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
     // await _cacheManager.clearAll();
+  }
+
+  /// Check if token is available
+  Future<bool> hasValidToken() async {
+    try {
+      String? token = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
+      final hasToken = token != null && token.isNotEmpty;
+      CustomLog.debug(this, "🔐 Token availability check: $hasToken");
+      if (hasToken) {
+        CustomLog.debug(this, "🔐 Token value: '${token!.substring(0, 10)}...'");
+      }
+      return hasToken;
+    } catch (e) {
+      CustomLog.error(this, "Error checking token availability", e);
+      return false;
+    }
   }
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
@@ -367,11 +394,26 @@ class ApiService {
   /// Handle unauthorized error by clearing invalid token
   Future<void> _handleUnauthorizedError() async {
     try {
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+      // Get current token for debugging
+      String? currentToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
       CustomLog.debug(
         this,
-        "Cleared invalid token due to 401 Unauthorized error",
+        "🔐 401 Unauthorized error - Current token: '${currentToken?.substring(0, 10)}...'",
       );
+      
+      // Only clear token if it exists (to avoid clearing on timing issues)
+      if (currentToken != null && currentToken.isNotEmpty) {
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+        CustomLog.debug(
+          this,
+          "🔐 Cleared invalid token due to 401 Unauthorized error",
+        );
+      } else {
+        CustomLog.debug(
+          this,
+          "🔐 401 Unauthorized error but no token found - likely timing issue",
+        );
+      }
     } catch (e) {
       CustomLog.error(this, "Error clearing invalid token", e);
     }

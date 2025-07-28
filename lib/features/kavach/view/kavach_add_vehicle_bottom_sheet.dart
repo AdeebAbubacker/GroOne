@@ -48,6 +48,12 @@ class _KavachAddVehicleBottomSheetState
   bool isVerified = false;
   bool showValidationErrors = false;
 
+  // Add FocusNode for capacity field
+  final FocusNode capacityFocusNode = FocusNode();
+  
+  // Add ScrollController to dismiss keyboard on scroll
+  final ScrollController scrollController = ScrollController();
+
   List<Map<String, dynamic>> vehicleDocList = []; // Add this at state level
 
   final MultiSelectController<String> acceptableCommoditiesController =
@@ -65,7 +71,28 @@ class _KavachAddVehicleBottomSheetState
     kavachAddNewVehicleCubit.resetVehicleVerification();
     kavachAddNewVehicleCubit.fetchCommodities();
     kavachAddNewVehicleCubit.fetchTruckTypes();
+    
+    // Add listener to capacity FocusNode to dismiss keyboard when focus is lost
+    capacityFocusNode.addListener(() {
+      if (!capacityFocusNode.hasFocus) {
+        // Dismiss keyboard when capacity field loses focus
+        FocusScope.of(context).unfocus();
+      }
+    });
+    
+    // Add listener to ScrollController to dismiss keyboard when scrolling
+    scrollController.addListener(() {
+      FocusScope.of(context).unfocus();
+    });
+    
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    capacityFocusNode.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 
   Future<Result<bool>> _uploadGSTDocumentApiCall(
@@ -101,6 +128,7 @@ class _KavachAddVehicleBottomSheetState
       body: SizedBox(
         height: MediaQuery.of(context).size.height * 0.55,
         child: SingleChildScrollView(
+          controller: scrollController,
           child: Form(
             key: formKey,
             child: Column(
@@ -245,78 +273,88 @@ class _KavachAddVehicleBottomSheetState
                       children: [
                         /// Truck Type Dropdown
                         if (state.truckTypes.status == Status.SUCCESS)
-                          AppDropdown(
-                            labelText: context.appText.truckType,
-                            dropdownValue: truckTypeDropdownValue,
-                            dropDownList:
-                                state.truckTypes.data!
-                                    .map(
-                                      (type) => DropdownMenuItem(
-                                        value: type,
-                                        child: Text(type),
-                                      ),
-                                    )
-                                    .toList(),
-                            hintText: context.appText.selectTruckType,
-                            mandatoryStar: true,
-                            onChanged: (selected) {
-                              setState(() {
-                                truckTypeDropdownValue = selected;
-                                truckLengthDropdownValue = null;
-                              });
-                              cubit.fetchTruckLengths(selected!);
+                          GestureDetector(
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
                             },
-                            validator:
-                                (value) =>
-                                    value == null || value.isEmpty
-                                        ? context.appText.pleaseSelectTruckType
-                                        : null,
+                            child: AppDropdown(
+                              labelText: context.appText.truckType,
+                              dropdownValue: truckTypeDropdownValue,
+                              dropDownList:
+                                  state.truckTypes.data!
+                                      .map(
+                                        (type) => DropdownMenuItem(
+                                          value: type,
+                                          child: Text(type),
+                                        ),
+                                      )
+                                      .toList(),
+                              hintText: context.appText.selectTruckType,
+                              mandatoryStar: true,
+                              onChanged: (selected) {
+                                setState(() {
+                                  truckTypeDropdownValue = selected;
+                                  truckLengthDropdownValue = null;
+                                });
+                                cubit.fetchTruckLengths(selected!);
+                              },
+                              validator:
+                                  (value) =>
+                                      value == null || value.isEmpty
+                                          ? context.appText.pleaseSelectTruckType
+                                          : null,
+                            ),
                           ),
 
                         15.height,
 
                         /// Truck Length Dropdown
                         if (state.truckLengths.status == Status.SUCCESS)
-                          AppDropdown(
-                            labelText: context.appText.truckLength,
-                            dropdownValue: truckLengthDropdownValue,
-                            dropDownList:
-                                state.truckLengths.data!
-                                    .map(
-                                      (e) => DropdownMenuItem(
-                                        value: e.subType,
-                                        child: Text(e.subType),
-                                      ),
-                                    )
-                                    .toList(),
-                            hintText: context.appText.truckLength,
-                            mandatoryStar: true,
-                            onChanged: (selected) {
-                              setState(() {
-                                truckLengthDropdownValue = selected;
-
-                                final selectedModel = state.truckLengths.data!
-                                    .firstWhere(
-                                      (e) => e.subType == selected,
-                                      orElse:
-                                          () => TruckLengthModel(
-                                            id: 0,
-                                            type: '',
-                                            subType: '',
-                                          ),
-                                    );
-
-                                selectedTruckTypeId = selectedModel.id;
-                              });
+                          GestureDetector(
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
                             },
+                            child: AppDropdown(
+                              labelText: context.appText.truckLength,
+                              dropdownValue: truckLengthDropdownValue,
+                              dropDownList:
+                                  state.truckLengths.data!
+                                      .map(
+                                        (e) => DropdownMenuItem(
+                                          value: e.subType,
+                                          child: Text(e.subType),
+                                        ),
+                                      )
+                                      .toList(),
+                              hintText: context.appText.truckLength,
+                              mandatoryStar: true,
+                              onChanged: (selected) {
+                                setState(() {
+                                  truckLengthDropdownValue = selected;
 
-                            validator:
-                                (value) =>
-                                    value == null || value.isEmpty
-                                        ? context
-                                            .appText
-                                            .pleaseSelectTruckLength
-                                        : null,
+                                  final selectedModel = state.truckLengths.data!
+                                      .firstWhere(
+                                        (e) => e.subType == selected,
+                                        orElse:
+                                            () => TruckLengthModel(
+                                              id: 0,
+                                              type: '',
+                                              subType: '',
+                                            ),
+                                      );
+
+                                  selectedTruckTypeId = selectedModel.id;
+                                });
+                              },
+
+                              validator:
+                                  (value) =>
+                                      value == null || value.isEmpty
+                                          ? context
+                                              .appText
+                                              .pleaseSelectTruckLength
+                                          : null,
+                            ),
                           ),
                       ],
                     );
@@ -331,6 +369,7 @@ class _KavachAddVehicleBottomSheetState
                   mandatoryStar: true,
                   keyboardType: TextInputType.number,
                   maxLength: 10,
+                  currentFocus: capacityFocusNode,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   validator:
                       (value) => Validator.positiveNumber(
@@ -368,8 +407,14 @@ class _KavachAddVehicleBottomSheetState
                         mandatoryStar: true,
                         controller: acceptableCommoditiesController,
                         items: items,
+                        onTap: () {
+                          // Dismiss keyboard when tapping on commodities dropdown
+                          FocusScope.of(context).unfocus();
+                        },
                         onSelectionChange: (selected) {
                           // Selected commodities handled
+                          // Dismiss keyboard when selection changes
+                          FocusScope.of(context).unfocus();
                         },
                         validator:
                             (value) =>
