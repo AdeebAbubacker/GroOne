@@ -1292,7 +1292,7 @@ class _MasterScreenState extends State<MasterScreen>
                     message:
                         isEdit
                             ? context.appText.vehicleUpdatedSuccessfully
-                            : context.appText.vehicleAddedSuccess,
+                            : context.appText.vehicleAddedSuccessfully,
                   );
                 } else {
                   ToastMessages.error(

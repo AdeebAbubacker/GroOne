@@ -5,11 +5,11 @@ class DriverUpdatedResponse {
     });
 
     final String message;
-    final Data? data;
+    final DriverUpdatedData? data;
 
     DriverUpdatedResponse copyWith({
         String? message,
-        Data? data,
+        DriverUpdatedData? data,
     }) {
         return DriverUpdatedResponse(
             message: message ?? this.message,
@@ -20,14 +20,14 @@ class DriverUpdatedResponse {
     factory DriverUpdatedResponse.fromJson(Map<String, dynamic> json){ 
         return DriverUpdatedResponse(
             message: json["message"] ?? "",
-            data: json["data"] == null ? null : Data.fromJson(json["data"]),
+            data: json["data"] == null ? null : DriverUpdatedData.fromJson(json["data"]),
         );
     }
 
 }
 
-class Data {
-    Data({
+class DriverUpdatedData {
+    DriverUpdatedData({
         required this.driverId,
         required this.name,
         required this.mobile,
@@ -61,7 +61,7 @@ class Data {
     final String communicationPreference;
     final CompanyDetails? companyDetails;
 
-    Data copyWith({
+    DriverUpdatedData copyWith({
         String? driverId,
         String? name,
         String? mobile,
@@ -78,7 +78,7 @@ class Data {
         String? communicationPreference,
         CompanyDetails? companyDetails,
     }) {
-        return Data(
+        return DriverUpdatedData(
             driverId: driverId ?? this.driverId,
             name: name ?? this.name,
             mobile: mobile ?? this.mobile,
@@ -97,8 +97,8 @@ class Data {
         );
     }
 
-    factory Data.fromJson(Map<String, dynamic> json){ 
-        return Data(
+    factory DriverUpdatedData.fromJson(Map<String, dynamic> json){ 
+        return DriverUpdatedData(
             driverId: json["driverId"] ?? "",
             name: json["name"] ?? "",
             mobile: json["mobile"] ?? "",

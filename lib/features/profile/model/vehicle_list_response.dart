@@ -1,3 +1,178 @@
+// class PaginatedVehicleList {
+//     PaginatedVehicleList({
+//         required this.data,
+//         required this.total,
+//         required this.pageMeta,
+//     });
+
+//     final List<VehicleDetailsData> data;
+//     final int total;
+//     final VehiclePageMeta? Vehicle;
+
+//     PaginatedVehicleList copyWith({
+//         List<VehicleDetailsData>? data,
+//         int? total,
+//         VehiclePageMeta? pageMeta,
+//     }) {
+//         return PaginatedVehicleList(
+//             data: data ?? this.data,
+//             total: total ?? this.total,
+//             pageMeta: pageMeta ?? this.pageMeta,
+//         );
+//     }
+
+//     factory PaginatedVehicleList.fromJson(Map<String, dynamic> json){ 
+//         return PaginatedVehicleList(
+//             data: json["data"] == null ? [] : List<VehicleDetailsData>.from(json["data"]!.map((x) => VehicleDetailsData.fromJson(x))),
+//             total: json["total"] ?? 0,
+//             pageMeta: json["pageMeta"] == null ? null : VehiclePageMeta.fromJson(json["pageMeta"]),
+//         );
+//     }
+
+// }
+
+// class VehicleDetailsData {
+//     VehicleDetailsData({
+//         required this.vehicleId,
+//         required this.customerId,
+//         required this.truckNo,
+//         required this.ownerName,
+//         required this.registrationDate,
+//         required this.tonnage,
+//         required this.truckTypeId,
+//         required this.modelNumber,
+//         required this.insurancePolicyNumber,
+//         required this.insuranceValidityDate,
+//         required this.fcExpiryDate,
+//         required this.pucExpiryDate,
+//         required this.status,
+//         required this.createdAt,
+//         required this.updatedAt,
+//         required this.deletedAt,
+//     });
+
+//     final String vehicleId;
+//     final String customerId;
+//     final String truckNo;
+//     final String ownerName;
+//     final DateTime? registrationDate;
+//     final String tonnage;
+//     final int truckTypeId;
+//     final String modelNumber;
+//     final String insurancePolicyNumber;
+//     final DateTime? insuranceValidityDate;
+//     final DateTime? fcExpiryDate;
+//     final DateTime? pucExpiryDate;
+//     final int status;
+//     final DateTime? createdAt;
+//     final dynamic updatedAt;
+//     final dynamic deletedAt;
+
+//     VehicleDetailsData copyWith({
+//         String? vehicleId,
+//         String? customerId,
+//         String? truckNo,
+//         String? ownerName,
+//         DateTime? registrationDate,
+//         String? tonnage,
+//         int? truckTypeId,
+//         String? modelNumber,
+//         String? insurancePolicyNumber,
+//         DateTime? insuranceValidityDate,
+//         DateTime? fcExpiryDate,
+//         DateTime? pucExpiryDate,
+//         int? status,
+//         DateTime? createdAt,
+//         dynamic? updatedAt,
+//         dynamic? deletedAt,
+//     }) {
+//         return VehicleDetailsData(
+//             vehicleId: vehicleId ?? this.vehicleId,
+//             customerId: customerId ?? this.customerId,
+//             truckNo: truckNo ?? this.truckNo,
+//             ownerName: ownerName ?? this.ownerName,
+//             registrationDate: registrationDate ?? this.registrationDate,
+//             tonnage: tonnage ?? this.tonnage,
+//             truckTypeId: truckTypeId ?? this.truckTypeId,
+//             modelNumber: modelNumber ?? this.modelNumber,
+//             insurancePolicyNumber: insurancePolicyNumber ?? this.insurancePolicyNumber,
+//             insuranceValidityDate: insuranceValidityDate ?? this.insuranceValidityDate,
+//             fcExpiryDate: fcExpiryDate ?? this.fcExpiryDate,
+//             pucExpiryDate: pucExpiryDate ?? this.pucExpiryDate,
+//             status: status ?? this.status,
+//             createdAt: createdAt ?? this.createdAt,
+//             updatedAt: updatedAt ?? this.updatedAt,
+//             deletedAt: deletedAt ?? this.deletedAt,
+//         );
+//     }
+
+//     factory VehicleDetailsData.fromJson(Map<String, dynamic> json){ 
+//         return VehicleDetailsData(
+//             vehicleId: json["vehicleId"] ?? "",
+//             customerId: json["customerId"] ?? "",
+//             truckNo: json["truckNo"] ?? "",
+//             ownerName: json["ownerName"] ?? "",
+//             registrationDate: DateTime.tryParse(json["registrationDate"] ?? ""),
+//             tonnage: json["tonnage"] ?? "",
+//             truckTypeId: json["truckTypeId"] ?? 0,
+//             modelNumber: json["modelNumber"] ?? "",
+//             insurancePolicyNumber: json["insurancePolicyNumber"] ?? "",
+//             insuranceValidityDate: DateTime.tryParse(json["insuranceValidityDate"] ?? ""),
+//             fcExpiryDate: DateTime.tryParse(json["fcExpiryDate"] ?? ""),
+//             pucExpiryDate: DateTime.tryParse(json["pucExpiryDate"] ?? ""),
+//             status: json["status"] ?? 0,
+//             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+//             updatedAt: json["updatedAt"],
+//             deletedAt: json["deletedAt"],
+//         );
+//     }
+
+// }
+
+// class VehiclePageMeta {
+//     VehiclePageMeta({
+//         required this.page,
+//         required this.pageCount,
+//         required this.nextPage,
+//         required this.pageSize,
+//         required this.total,
+//     });
+
+//     final int page;
+//     final int pageCount;
+//     final dynamic nextPage;
+//     final int pageSize;
+//     final int total;
+
+//     VehiclePageMeta copyWith({
+//         int? page,
+//         int? pageCount,
+//         dynamic? nextPage,
+//         int? pageSize,
+//         int? total,
+//     }) {
+//         return VehiclePageMeta(
+//             page: page ?? this.page,
+//             pageCount: pageCount ?? this.pageCount,
+//             nextPage: nextPage ?? this.nextPage,
+//             pageSize: pageSize ?? this.pageSize,
+//             total: total ?? this.total,
+//         );
+//     }
+
+//     factory VehiclePageMeta.fromJson(Map<String, dynamic> json){ 
+//         return VehiclePageMeta(
+//             page: json["page"] ?? 0,
+//             pageCount: json["pageCount"] ?? 0,
+//             nextPage: json["nextPage"],
+//             pageSize: json["pageSize"] ?? 0,
+//             total: json["total"] ?? 0,
+//         );
+//     }
+
+// }
+
+
 class PaginatedVehicleList {
     PaginatedVehicleList({
         required this.data,
@@ -7,7 +182,7 @@ class PaginatedVehicleList {
 
     final List<VehicleDetailsData> data;
     final int total;
-    final VehiclePageMeta? Vehicle;
+    final VehiclePageMeta? pageMeta;
 
     PaginatedVehicleList copyWith({
         List<VehicleDetailsData>? data,
@@ -65,7 +240,7 @@ class VehicleDetailsData {
     final DateTime? pucExpiryDate;
     final int status;
     final DateTime? createdAt;
-    final dynamic updatedAt;
+    final DateTime? updatedAt;
     final dynamic deletedAt;
 
     VehicleDetailsData copyWith({
@@ -83,7 +258,7 @@ class VehicleDetailsData {
         DateTime? pucExpiryDate,
         int? status,
         DateTime? createdAt,
-        dynamic? updatedAt,
+        DateTime? updatedAt,
         dynamic? deletedAt,
     }) {
         return VehicleDetailsData(
@@ -122,7 +297,7 @@ class VehicleDetailsData {
             pucExpiryDate: DateTime.tryParse(json["pucExpiryDate"] ?? ""),
             status: json["status"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: json["updatedAt"],
+            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
             deletedAt: json["deletedAt"],
         );
     }
@@ -138,17 +313,17 @@ class VehiclePageMeta {
         required this.total,
     });
 
-    final int page;
+    final String page;
     final int pageCount;
-    final dynamic nextPage;
-    final int pageSize;
+    final String nextPage;
+    final String pageSize;
     final int total;
 
     VehiclePageMeta copyWith({
-        int? page,
+        String? page,
         int? pageCount,
-        dynamic? nextPage,
-        int? pageSize,
+        String? nextPage,
+        String? pageSize,
         int? total,
     }) {
         return VehiclePageMeta(
@@ -162,10 +337,10 @@ class VehiclePageMeta {
 
     factory VehiclePageMeta.fromJson(Map<String, dynamic> json){ 
         return VehiclePageMeta(
-            page: json["page"] ?? 0,
+            page: json["page"] ?? "",
             pageCount: json["pageCount"] ?? 0,
-            nextPage: json["nextPage"],
-            pageSize: json["pageSize"] ?? 0,
+            nextPage: json["nextPage"] ?? "",
+            pageSize: json["pageSize"] ?? "",
             total: json["total"] ?? 0,
         );
     }

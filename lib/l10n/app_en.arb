@@ -1032,23 +1032,25 @@
   "issueCategory" : "Issue Category",
   "title" : "Title",
   "vehicleIconSize": "Vehicle Icon Size",
-
-
-
-
-
+  "editVehicle": "Edit Vehicle",
+  "vehicleUpdatedSuccessfully" : "Vehicle updated successfully",
+  "vehicleAddedSuccessfully" : "Vehicle added successfully", 
+  "licenseExpiryDate" : "License Expiry Date",
+  "dateOdBirth" : "DOB",
   "failedToDownloadDocuments":"Failed to download the document",
   "proofOfDelivery":"Proof of Delivery",
   "damagesAndShortageDocument":"Damages and Shortages",
   "unloadingCharges":"Unloading Charges",
   "loadingCharges":"Loading Charges",
   "detentions":"detentions",
-  "days":"Days"
-
-
-
-
-
+  "days":"Days",
+   "editDriver" : "Edit Driver",
+   "driverName" : "Driver Name",
+   "vehicleDeletedSuccessfully" : "Vehicle Deleted Successfully",
+   "driverDeletedSuccessfully" : "Driver Deleted Successfully",
+   "addNewDriver" : "Add Driver",
+    "driverUpdatedSuccessfully" : "Driver Updated Successfully",
+    "driverAddedSuccess" :    "Driver added successfully"
 
 
 
