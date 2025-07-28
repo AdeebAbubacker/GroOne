@@ -104,8 +104,9 @@ enum DocumentFileType {
   lorryReceipt('lorry_receipt'),
   ewayBill('eway_bill'),
   materialInvoice('material_invoice'),
-  proofOfDocument('Proof_of_document'),
-  uploadOtherDocument('upload_other_document');
+  proofOfDelivery('proof_of_delivery'),
+  uploadOtherDocument('upload_other_document'),
+  damageAndShortage('damages_and_shortages');
 
 
   final String value;

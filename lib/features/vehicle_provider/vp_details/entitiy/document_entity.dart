@@ -76,11 +76,11 @@ List<DocumentEntity> documentTypeList=[
     documentType: navigatorKey.currentState?.context.appText.materialInvoice,
   ),
   DocumentEntity(
-    documentTypeId: 8,
-    fileType: DocumentFileType.proofOfDocument.name,
+    documentTypeId: 331,
+    fileType: DocumentFileType.proofOfDelivery.name,
     title:navigatorKey.currentState?.context.appText.uploadPOD,
     visible: false,
-    documentType: navigatorKey.currentState?.context.appText.pod,
+    documentType: navigatorKey.currentState?.context.appText.proofOfDelivery,
   ),
 
   DocumentEntity(
@@ -90,5 +90,13 @@ List<DocumentEntity> documentTypeList=[
     visible: true,
     documentType: navigatorKey.currentState?.context.appText.uploadOtherDocuments,
   ),
-
 ];
+
+
+final damageDocumentEntity=  DocumentEntity(
+  documentTypeId: 9,
+  fileType: DocumentFileType.damageAndShortage.name,
+  title:navigatorKey.currentState?.context.appText.damageAndShortage,
+  visible: true,
+  documentType: navigatorKey.currentState?.context.appText.damagesAndShortageDocument,
+);

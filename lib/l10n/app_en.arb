@@ -1028,5 +1028,31 @@
   "createNewTicket" : "Create New Ticket",
   "addNewTicket" : "add New Ticket",
   "issueCategory" : "Issue Category",
-  "title" : "Title"
+  "title" : "Title",
+  "vehicleIconSize": "Vehicle Icon Size",
+
+
+
+
+
+  "failedToDownloadDocuments":"Failed to download the document",
+  "proofOfDelivery":"Proof of Delivery",
+  "damagesAndShortageDocument":"Damages and Shortages",
+  "unloadingCharges":"Unloading Charges",
+  "loadingCharges":"Loading Charges",
+  "detentions":"detentions",
+  "days":"Days"
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

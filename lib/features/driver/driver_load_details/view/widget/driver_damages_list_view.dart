@@ -28,7 +28,7 @@ class _DriverDamagesListViewState extends State<DriverDamagesListView> {
   Widget build(BuildContext context) {
     return BlocBuilder<DriverLoadDetailsCubit, DriverLoadDetailsState>(
       builder: (context, state) {
-        final damageList = state.damageListUIState?.data?.data!.data;
+        final damageList = state.damageListUIState?.data!.data;
 
         if (state.uploadDamageUIState == true && damageList != null && damageList.isNotEmpty) {
           return Column(
@@ -63,7 +63,7 @@ class _DriverDamagesListViewState extends State<DriverDamagesListView> {
                             bottomLeft: Radius.circular(8),
                           ),
                           child: CachedNetworkImage(
-                            imageUrl: item.image.first ?? '',
+                            imageUrl: item.image?.first ?? '',
                             width: 100,
                             height: 100,
                           ),

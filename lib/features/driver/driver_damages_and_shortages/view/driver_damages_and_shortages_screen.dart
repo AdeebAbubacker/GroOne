@@ -506,7 +506,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
 
       },
       builder: (context, state) {
-        if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data!.data.isNotEmpty) {
+        if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data.isNotEmpty) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -515,17 +515,17 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
               ListView.separated(
                 shrinkWrap: true,
                 physics: NeverScrollableScrollPhysics(),
-                itemCount: state.damageListUIState!.data!.data!.data.length,
+                itemCount: state.damageListUIState!.data!.data.length,
                 itemBuilder: (context, index) {
-                  final data = state.damageListUIState!.data!.data!.data[index];
+                  final data = state.damageListUIState!.data!.data[index];
                   return damageRecordCard(
                     context: context,
-                    imageUrl: data.image,
-                    itemName: data.itemName,
+                    imageUrl: data.image??[],
+                    itemName: data.itemName??"",
                     quantity:  data.quantity.toString(),
-                    description:  data.description,
+                    description:  data.description??"",
                     onDelete: () async {
-                      await cubit.deleteDamage(data.damageId);
+                      await cubit.deleteDamage(data.damageId??"");
                       final status = state.deleteDamageUIState?.status;
                       if (status == Status.SUCCESS) {
                         cubit.resetDeleteDamageUIState();
@@ -542,12 +542,12 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
                       initFunction();
                     },
                     onEdit: () {
-                      itemNameTextController.text = data.itemName;
+                      itemNameTextController.text = data.itemName??"";
                       quantityTextController.text = data.quantity.toString();
-                      descriptionTextController.text = data.description;
-                      updateDamageFileList = data.image;
+                      descriptionTextController.text = data.description??"";
+                      updateDamageFileList = data.image??[];
                       cubit.setIsUpdateDamage(true);
-                      cubit.setDamageId(data.damageId);
+                      cubit.setDamageId(data.damageId??"");
                       setState(() {});
                     }
                   );
