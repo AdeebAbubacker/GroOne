@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -15,6 +16,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_cre
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -52,7 +54,7 @@ class LoadSummaryScreen extends StatefulWidget {
   State<LoadSummaryScreen> createState() => _LoadSummaryScreenState();
 }
 
-class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
+class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
 
   final loadPostingBloc = locator<LoadPostingBloc>();
   final lpHomeCubit = locator<LPHomeCubit>();
@@ -126,6 +128,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
       expectedDeliveryDateTime: sendDateAndTimeInApi ?? "",
     );
     await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
+
   }
 
 
@@ -302,6 +305,7 @@ class _LoadSummaryScreenState extends State<LoadSummaryScreen> {
                 hideCloseButton: true,
                 onSingleButtonText: context.appText.continueText,
                 onTapSingleButton: () {
+                  analyticsHelper.logEvent(AnalyticEventName.CREATE_LOAD, widget.apiRequest.toJson());
                   Navigator.of(context).pop(true);
                   Navigator.of(context).pop(true);
                 },
