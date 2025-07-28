@@ -1057,7 +1057,7 @@ class _MasterScreenState extends State<MasterScreen>
    
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
-
+    bool isActive = vehcile != null ? (vehcile.status == 1) : true;
     final truckNumberController = TextEditingController(text: vehcile?.truckNo ?? '');
     final truckMakeModelController = TextEditingController(text: vehcile?.modelNumber ?? '');
     final rcNumberController = TextEditingController();
@@ -1242,7 +1242,21 @@ class _MasterScreenState extends State<MasterScreen>
                    
                  
                     16.height,
-                   
+                     /// Active Switch
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(context.appText.active),
+                    Switch(
+                      value: isActive,
+                      onChanged: (val) {
+                        setState(() {
+                         isActive = val;
+                        });
+                      },
+                    ),
+                  ],
+                ),
                     20.height,
                   ],
                 ),
