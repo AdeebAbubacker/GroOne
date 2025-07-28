@@ -44,3 +44,33 @@ class GpsGeofenceError extends GpsGeofenceState {
   @override
   List<Object?> get props => [message];
 }
+
+class GpsGeofenceLatLngLoaded extends GpsGeofenceState {
+  final LatLng location;
+  const GpsGeofenceLatLngLoaded(this.location);
+
+  @override
+  List<Object?> get props => [location];
+}
+
+class GpsGeofenceAutoCompleteLoaded extends GpsGeofenceState {
+  final AutoCompleteModel autoCompleteData;
+
+  const GpsGeofenceAutoCompleteLoaded(this.autoCompleteData);
+
+  @override
+  List<Object?> get props => [autoCompleteData];
+}
+
+class GpsGeofenceVerifyLocationLoaded extends GpsGeofenceState {
+  final VerifyLocationModel verifyLocationData;
+
+  const GpsGeofenceVerifyLocationLoaded(this.verifyLocationData);
+
+  @override
+  List<Object?> get props => [verifyLocationData];
+}
+
+class GpsGeofenceMapInitial extends GpsGeofenceState {}
+
+class GpsGeofenceMapLoading extends GpsGeofenceState {}

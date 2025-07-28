@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../data/model/result.dart';
 import '../../../utils/custom_log.dart';
 import '../../load_provider/lp_home/api_request/verify_location_api_request.dart';
@@ -131,17 +132,6 @@ class GpsRepository {
     }
   }
 
-  /// Get Verify Location data from repository
-  Future<Result<VerifyLocationModel>> getVerifyLocationData(
-    VerifyLocationApiRequest request,
-  ) async {
-    try {
-      return await _service.fetchVerifyLocationData(request);
-    } catch (e) {
-      CustomLog.error(this, "Failed to verify location", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
 
   Future<Result<List<GpsNotificationModel>>> fetchNotifications() async {
     try {
@@ -240,4 +230,9 @@ class GpsRepository {
 
     return await _service.updateNotificationToggle(payload, token, 41065);
   }
+
+  Future<Result<LatLng>> fetchLatLngFromPlaceId(String placeId) async {
+    return await _service.fetchLatLngFromPlaceId(placeId);
+  }
+
 }

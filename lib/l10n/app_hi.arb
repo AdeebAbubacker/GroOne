@@ -407,7 +407,7 @@
   "trackMyVehicles": "मेरे वाहन ट्रैक करें",
   "buyNewGps": "नया जीपीएस खरीदें",
   "expiryAlert": "समाप्ति चेतावनी",
-  "devicesExpiringSoon": "डिवाइस जल्द ही समाप्त हो रहे हैं",
+  "devicesExpiringSoon": "उपकरणों की समय सीमा समाप्त हो गई हैं",
   "renewPlan": "योजना नवीनीकरण",
   "getVehicle": "वाहन प्राप्त करें",
   "totalVehicle": "कुल वाहन",
@@ -950,7 +950,7 @@
   "renewDescription": "अपनी सदस्यता नवीनीकृत करें और अगले 365 दिनों के लिए निर्बाध सेवा का आनंद लें",
   "contactCustomerSupport": "ग्राहक सहायता से संपर्क करें",
   "expired": "समाप्त हो गई",
-  "daysLeft": "दिन शेष"
+  "daysLeft": "दिन शेष",
   "vehicleIconSize": "वाहन आइकन आकार",
   "editVehicleInfo": "वाहन जानकारी संपादित करें",
   "notVerified" : "सत्यापित नहीं है"

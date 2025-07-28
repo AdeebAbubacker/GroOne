@@ -289,7 +289,7 @@
   "trackMyVehicles": "Track My Vehicles",
   "buyNewGps": "Buy New GPS",
   "expiryAlert": "Expiry Alert",
-  "devicesExpiringSoon": "Devices is Expiring Soon",
+  "devicesExpiringSoon": "Devices are Expired",
   "renewPlan": "Renew Plan",
   "getVehicle": "Get Vehicle",
   "totalVehicle": "Total Vehicle",
@@ -993,18 +993,7 @@
   "renewDescription": "Renew Your Subscription & Enjoy Uninterrupted service for the next 365 days",
   "contactCustomerSupport": "Contact Customer Support",
   "expired": "Expired",
-  "daysLeft": "days left"
-
-
-
-
-
-
-
-
-
-
-
+  "daysLeft": "days left",
   "vehicleIconSize": "Vehicle Icon Size",
   "vehicleIconSize": "Vehicle Icon Size",
   "myDocuments": "My Documents",

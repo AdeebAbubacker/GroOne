@@ -83,12 +83,38 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
       body: BlocBuilder<VehicleListCubit, VehicleListState>(
         builder: (context, state) {
           _allVehicles = state.vehicleDataState?.data ?? [];
-          _filteredVehicles =
-              _allVehicles.where((vehicle) {
-                final query = searchController.text.toLowerCase();
-                return vehicle.vehicleNumber?.toLowerCase().contains(query) ??
-                    false;
-              }).toList();
+
+          // _filteredVehicles = _allVehicles.where((vehicle) {
+          //   final query = searchController.text.toLowerCase();
+          //   final matchesSearch = vehicle.vehicleNumber?.toLowerCase().contains(query) ?? false;
+          //   final hasValidDate = vehicle.subscriptionExpiryDate != null;
+          //   return matchesSearch && hasValidDate;
+          // }).toList();
+          _filteredVehicles = _allVehicles
+              .where((vehicle) {
+            final query = searchController.text.toLowerCase();
+            final matchesSearch = vehicle.vehicleNumber?.toLowerCase().contains(query) ?? false;
+            final hasValidDate = vehicle.subscriptionExpiryDate != null;
+            return matchesSearch && hasValidDate;
+          })
+              .toList();
+
+// Sort: Expired first, then by ascending days left
+          _filteredVehicles.sort((a, b) {
+            final aDays = _calculateDaysLeft(a.subscriptionExpiryDate);
+            final bDays = _calculateDaysLeft(b.subscriptionExpiryDate);
+
+            if (aDays == null && bDays == null) return 0;
+            if (aDays == null) return 1;
+            if (bDays == null) return -1;
+
+            if (aDays < 0 && bDays >= 0) return -1;
+            if (aDays >= 0 && bDays < 0) return 1;
+
+            return aDays.compareTo(bDays); // ascending
+          });
+
+
 
           final expiringCount =
               _allVehicles.where((vehicle) {
@@ -98,7 +124,8 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
                 return daysLeft != null && daysLeft <= 30;
               }).length;
 
-          for(var vehicle in _allVehicles){
+          for(var vehicle in _filteredVehicles){
+            debugPrint('Total Vehicles ${_filteredVehicles.length}');
             debugPrint('vehicle: ${vehicle.vehicleNumber}, expiry: ${vehicle.subscriptionExpiryDate}');
           }
 
