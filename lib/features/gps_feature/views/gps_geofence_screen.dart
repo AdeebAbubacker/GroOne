@@ -427,7 +427,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                         child: ListTile(
                           title: Text(
                             '${item.name} (${_getFormattedValue(item)})',
-                            style: AppTextStyle.h6,
+                            style: AppTextStyle.h5,
                           ),
                           trailing: Switch(
                             value: isEnabled,
