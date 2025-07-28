@@ -13,9 +13,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class ApiService {
-  final Duration _timeout = const Duration(
-    seconds: 30,
-  ); // General timeout for all requests
+  final Duration _timeout = const Duration(seconds: 30); // General timeout for all requests
   final Dio _dio;
   final SecuredSharedPreferences _secureSharedPrefs;
   // late DioCacheManager _cacheManager;
@@ -27,6 +25,7 @@ class ApiService {
     _dio.options.receiveTimeout = _timeout;
   }
 
+
   /// Header
   Future<Map<String, String>> _getHeaders({bool isMultipart = false}) async {
     Map<String, String> headers = {
@@ -34,9 +33,7 @@ class ApiService {
       'Accept': 'application/json',
     };
     try {
-     // String? refreshToken = await _secureSharedPrefs.get("Hcwu7y5KMPvOAeYMYdJFDGNYLlidH7ln");
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
-
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
       } else {
@@ -45,7 +42,6 @@ class ApiService {
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
     }
-
     return headers;
   }
 
@@ -56,6 +52,8 @@ class ApiService {
     CustomLog.info(this, "Cache cleared successfully");
     // await _cacheManager.clearAll();
   }
+
+
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
@@ -87,27 +85,15 @@ class ApiService {
   }
 
   /// Post
-  Future<Result<dynamic>> post(
-    String url, {
-    dynamic body,
-    Map<String, dynamic>? queryParams,
-        Map<String, String>? customHeaders
-  }) async {
+  Future<Result<dynamic>> post(String url, {dynamic body, Map<String, dynamic>? queryParams, Map<String, String>? customHeaders}) async {
     Object prettyBodyString;
     if (queryParams != null) {
-      prettyBodyString = const JsonEncoder.withIndent(
-        '  ',
-      ).convert(queryParams);
+      prettyBodyString = const JsonEncoder.withIndent('  ').convert(queryParams);
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
-    final headers = customHeaders ?? await _getHeaders();
-
-    CustomLog.debug(
-      this,
-      "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString",
-    );
+    CustomLog.debug(this, "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString");
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -133,28 +119,18 @@ class ApiService {
     }
   }
 
+
   /// Put
-  Future<Result<dynamic>> put(
-    String url, {
-    dynamic body,
-    Map<String, dynamic>? queryParams,
-        Map<String, String>? customHeaders
-  }) async {
+  Future<Result<dynamic>> put(String url, {dynamic body, Map<String, dynamic>? queryParams, Map<String, String>? customHeaders}) async {
     Object prettyBodyString;
     if (queryParams != null) {
-      prettyBodyString = const JsonEncoder.withIndent(
-        '  ',
-      ).convert(queryParams);
+      prettyBodyString = const JsonEncoder.withIndent('  ').convert(queryParams);
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
 
-    CustomLog.debug(
-      this,
-      "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString \nHeader: $prettyHeader",
-    );
-    final headers = customHeaders ?? await _getHeaders();
+    CustomLog.debug(this, "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString \nHeader: $prettyHeader");
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -182,24 +158,14 @@ class ApiService {
 
 
   /// Patch
-  Future<Result<dynamic>> patch(
-    String url, {
-    dynamic body,
-    Map<String, dynamic>? queryParams,
-        Map<String, String>? customHeaders
-  }) async {
+  Future<Result<dynamic>> patch(String url, {dynamic body, Map<String, dynamic>? queryParams, Map<String, String>? customHeaders}) async {
     Object prettyBodyString;
     if (queryParams != null) {
-      prettyBodyString = const JsonEncoder.withIndent(
-        '  ',
-      ).convert(queryParams);
+      prettyBodyString = const JsonEncoder.withIndent('  ').convert(queryParams);
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
-    CustomLog.debug(
-      this,
-      "\nMethod: patch \nURL: $url \nRequest: $prettyBodyString",
-    );
+    CustomLog.debug(this, "\nMethod: patch \nURL: $url \nRequest: $prettyBodyString");
     final headers = customHeaders ?? await _getHeaders();
     try {
       if (!HasInternetConnection.isInternet) {
@@ -251,25 +217,14 @@ class ApiService {
   }
 
   /// Multi parts
-  Future<Result<dynamic>> multipart(
-    String url,
-    dynamic files, {
-    Map<String, String>? fields,
-    String? pathName,
-    Map<String, String>? customHeaders,
-  }) async {
+  Future<Result<dynamic>> multipart(String url, dynamic files, {Map<String, String>? fields, String? pathName, Map<String, String>? customHeaders}) async {
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
       await clearCache();
-      final prettyFieldsString = const JsonEncoder.withIndent(
-        '  ',
-      ).convert(fields);
-      CustomLog.debug(
-        this,
-        "\nMethod : Multipart \nURL : $url \nPath name : $pathName \nFiles : $files \nFields : $prettyFieldsString",
-      );
+      final prettyFieldsString = const JsonEncoder.withIndent('  ').convert(fields);
+      CustomLog.debug(this, "\nMethod : Multipart \nURL : $url \nPath name : $pathName \nFiles : $files \nFields : $prettyFieldsString",);
       FormData formData = FormData();
 
       // Handling file upload (single or multiple)
@@ -327,15 +282,11 @@ class ApiService {
     }
   }
 
+
   /// Handle Body Response
   Future<Result<dynamic>> _handleBodyResponse(Response response) async {
-    final prettyBodyString = const JsonEncoder.withIndent(
-      '  ',
-    ).convert(response.data);
-    CustomLog.debug(
-      this,
-      "\nResponse status code: ${response.statusCode}, \nResponse data: ${response.data}",
-    );
+    final prettyBodyString = const JsonEncoder.withIndent('  ',).convert(response.data);
+    CustomLog.debug(this, "\nResponse status code: ${response.statusCode}, \nResponse data: ${response.data}");
     try {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return Success(response.data);
@@ -377,25 +328,22 @@ class ApiService {
   Future<void> _handleUnauthorizedError() async {
     try {
       final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
-
       if (refreshToken == null || refreshToken.isEmpty) {
         await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
         return;
       }
 
-      final response = await Dio().post(
+      final response = await _dio.post(
         ApiUrls.refreshToken,
         data: {
           "refresh_token": refreshToken,
         },
       );
 
-
       if (response.statusCode == 200 && response.data['data'] != null) {
         final data = response.data['data'];
         final newAccessToken = data['access_token'];
         final newRefreshToken = data['refresh_token'];
-
         await _secureSharedPrefs.saveKey(AppString.sessionKey.accessToken, newAccessToken);
         await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
       } else {
@@ -429,14 +377,12 @@ class ApiService {
   String jsonToQueryParams(Map<String, dynamic> json) {
     String stringQueryParams = "";
     try {
-      return json.entries
-          .map((e) {
+      return json.entries.map((e) {
             final key = Uri.encodeComponent(e.key);
             final value = Uri.decodeComponent(e.value.toString());
             stringQueryParams = '$key=$value';
             return stringQueryParams;
-          })
-          .join('&');
+          }).join('&');
     } catch (e) {
       CustomLog.error(
         this,
@@ -461,10 +407,7 @@ class ApiService {
   }
 
   /// Get Response Result Status
-  Future<Result<T>> getResponseStatus<T>(
-    dynamic result,
-    T Function(dynamic) fromJson,
-  ) async {
+  Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {
     if (result[SUCCESS] == true || result[STATUS] == true) {
       final data = fromJson(result);
       return Success(data);
