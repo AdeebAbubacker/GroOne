@@ -354,8 +354,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             builder: (_) => const Center(child: CircularProgressIndicator()),
           );
         } else if (state is KavachOrderSuccess) {
-          print("KavachOrderSuccess triggered - Order ID: ${state.orderId}");
-          
           // Dismiss loading dialog first
           if (Navigator.canPop(context)) {
             Navigator.of(context).pop();
@@ -366,7 +364,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           
           // Navigate to summary screen with order data
           if (context.mounted) {
-            print("Navigating to KavachSummaryScreen");
             Navigator.of(context).push(
               commonRoute(
                 KavachSummaryScreen(
@@ -1157,6 +1154,31 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           return;
         }
 
+        // Validate that all vehicle numbers are unique across all products
+        final allVehicleNumbers = <String>[];
+        final duplicateVehicles = <String>[];
+        
+        vehicleControllersPerProduct.forEach((productId, controllers) {
+          for (var controller in controllers) {
+            final vehicleNumber = controller.text.trim();
+            if (vehicleNumber.isNotEmpty) {
+              if (allVehicleNumbers.contains(vehicleNumber)) {
+                duplicateVehicles.add(vehicleNumber);
+              } else {
+                allVehicleNumbers.add(vehicleNumber);
+              }
+            }
+          }
+        });
+        
+        if (duplicateVehicles.isNotEmpty) {
+          final uniqueDuplicates = duplicateVehicles.toSet().toList();
+          ToastMessages.alert(
+            message: 'Duplicate vehicle numbers found: ${uniqueDuplicates.join(', ')}. Please use unique vehicle numbers for each product.',
+          );
+          return;
+        }
+
         // If all validations pass, create order
         if (shippingState is KavachCheckoutShippingAddressSelected &&
             billingState is KavachCheckoutBillingAddressSelected) {
@@ -1174,11 +1196,13 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
 
           // Determine if referral code is provided and extract employee details
           String? createdEmpId;
-          int createdEmpUserId = 1234; // Default value
+          int createdEmpUserId = 1234; // Default value for direct orders
           
           if (referralCodeController.text.trim().isNotEmpty) {
             createdEmpId = referralCodeController.text.trim();
-            createdEmpUserId = 52864; // This should be fetched based on referral code
+            // For referral orders, use the employee ID as per documentation
+            // In a real implementation, this should be fetched from an API based on the referral code
+            createdEmpUserId = 52864; // Employee ID for referral code GDP00584
           }
 
           final request = KavachOrderRequest(
@@ -1229,7 +1253,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             }).toList(),
           );
 
-          print("Submitting Kavach order...");
           kavachOrderBloc.add(KavachSubmitOrder(request));
         } else {
           ToastMessages.alert(message: context.appText.completeAllFields);

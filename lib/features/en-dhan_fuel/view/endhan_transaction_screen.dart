@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -128,7 +129,6 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
   }
 
   void _fetchTransactions() {
-    print('🔄 _fetchTransactions called');
     if (fromDate != null && toDate != null && mounted) {
       // Double-check date range before fetching
       final difference = toDate!.difference(fromDate!).inDays;
@@ -139,10 +139,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
         return;
       }
       
-      print('✅ Calling cubit.fetchTransactions');
       _cubit.fetchTransactions(fromDate: fromDate!, toDate: toDate!);
-    } else {
-      print('❌ Cannot fetch: fromDate=$fromDate, toDate=$toDate, mounted=$mounted');
     }
   }
 
@@ -248,13 +245,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                           controller: fromDateController,
                           readOnly: true,
                           labelText: context.appText.fromDate,
-                          decoration: kavachInputDecoration(
-                            // suffixIcon: Icon(
-                            //   Icons.calendar_today,
-                            //   color: AppColors.chevronGreyColor,
-                            //   size: 20,
-                            // ),
-                          ),
+                          decoration: kavachInputDecoration(),
                           onTextFieldTap: () => _selectDate(context, true),
                         ),
                       ),
@@ -265,25 +256,17 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                           controller: toDateController,
                           readOnly: true,
                           labelText: context.appText.toDate,
+                          decoration: kavachInputDecoration(),
                           onTextFieldTap: () => _selectDate(context, false),
                         ),
                       ),
                       10.width,
                       // Apply Button
-                      SizedBox(
-                        width: 100,
-                        child: ElevatedButton(
-                          onPressed: _fetchTransactions,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primaryColor,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                          ),
-                          child: Text(context.appText.apply),
-                        ),
-                      ),
+                      AppButton(
+                        onPressed: _fetchTransactions,
+                        title: context.appText.apply,
+                        style: AppButtonStyle.primary,
+                      ).expand(),
                     ],
                   ),
                   8.height,

@@ -1,9 +1,12 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../data/model/result.dart';
 import '../../../../utils/custom_log.dart';
+import '../../../load_provider/lp_home/model/auto_complete_model.dart';
+import '../../../load_provider/lp_home/model/verify_location.dart';
 import '../../models/gps_geofence_model.dart';
 import '../../repository/gps_login_repository.dart';
 import '../../repository/gps_repository.dart';
@@ -195,4 +198,50 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
     _hasLoadedData = false; // Reset the guard flag
     await loadGeofences();
   }
+
+  Future<void> fetchAutoComplete(String input) async {
+    if (_isClosed) return;
+
+    emit(GpsGeofenceLoading());
+
+    final result = await _repository.getAutoCompleteData(input);
+
+    if (_isClosed) return;
+    if (result is Success<AutoCompleteModel>) {
+      final predictions = result.value.predictions;
+      if (predictions.isNotEmpty) {
+        emit(GpsGeofenceAutoCompleteLoaded(result.value));
+      } else {
+        emit(GpsGeofenceError("No suggestions found."));
+      }
+    } else if (result is Error<AutoCompleteModel>) {
+      final errorType = result.type;
+      emit(GpsGeofenceError(
+          errorType is ErrorWithMessage ? errorType.message : "Autocomplete failed"));
+    }
+  }
+
+  Future<void> fetchLatLngForPlace(String placeId) async {
+    if (_isClosed) return;
+
+    emit(GpsGeofenceLoading());
+
+    final result = await _repository.fetchLatLngFromPlaceId(placeId);
+
+    if (result is Success<LatLng>) {
+      emit(GpsGeofenceLatLngLoaded(result.value));
+    } else if (result is Error<LatLng>) {
+      final err = result.type;
+      emit(GpsGeofenceError(
+        err is ErrorWithMessage ? err.message : "Failed to get location.",
+      ));
+    }
+  }
+
+  void resetAutoCompleteState() {
+    if (!_isClosed) {
+      emit(GpsGeofenceMapInitial());
+    }
+  }
+
 }

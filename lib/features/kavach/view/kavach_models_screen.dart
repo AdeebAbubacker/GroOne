@@ -425,7 +425,6 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                         shippingBloc.add(ClearKavachShippingAddress());
                       } catch (e) {
                         // Handle any errors if blocs are not available
-                        print('Error clearing address blocs: $e');
                       }
                     }
                     

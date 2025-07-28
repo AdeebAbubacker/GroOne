@@ -6,11 +6,14 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/model/gps_mobile_config_model.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_parking_mode_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_settings_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_subscription_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -25,6 +28,8 @@ import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../repository/gps_repository.dart';
 import 'gps_notification_screen.dart';
+import '../../../features/login/repository/user_information_repository.dart';
+import 'gps_order/gps_models_screen.dart';
 
 class GpsHomeScreen extends StatelessWidget {
   const GpsHomeScreen({super.key});
@@ -39,6 +44,66 @@ class GpsHomeScreen extends StatelessWidget {
 }
 
 class _GpsHomeContent extends StatelessWidget {
+  void _handleBackNavigation(BuildContext context) {
+    // Make navigation synchronous to avoid issues with onLeadingTap
+    try {
+      _navigateBackSynchronously(context);
+    } catch (e) {
+      // Fallback: try to pop or navigate to default route
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+      } else {
+        context.go(AppRouteName.lpBottomNavigationBar);
+      }
+    }
+  }
+
+  void _navigateBackSynchronously(BuildContext context) {
+    // Try multiple navigation approaches
+    try {
+      // First, try to pop
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+        return;
+      }
+      
+      // If we can't pop, try to navigate to the appropriate dashboard
+      _getUserRoleAndNavigate(context);
+    } catch (e) {
+      // Final fallback: try to go to default route
+      try {
+        if (context.mounted) {
+          context.go(AppRouteName.lpBottomNavigationBar);
+        }
+      } catch (fallbackError) {
+        // Handle fallback error silently
+      }
+    }
+  }
+
+  Future<void> _getUserRoleAndNavigate(BuildContext context) async {
+    try {
+      final userRepository = locator<UserInformationRepository>();
+      final userRole = await userRepository.getUserRole();
+      String targetRoute;
+      if (userRole == 1 || userRole == 3) {
+        targetRoute = AppRouteName.lpBottomNavigationBar;
+      } else if (userRole == 2) {
+        targetRoute = AppRouteName.vpBottomNavigationBar;
+      } else {
+        targetRoute = AppRouteName.lpBottomNavigationBar;
+      }
+      if (context.mounted) {
+        context.go(targetRoute);
+      }
+    } catch (e) {
+      // Fallback to default navigation
+      if (context.mounted) {
+        context.go(AppRouteName.lpBottomNavigationBar);
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final GpsLoginCubit gpsLoginCubit = locator<GpsLoginCubit>();
@@ -86,7 +151,9 @@ class _GpsHomeContent extends StatelessWidget {
                 Icons.arrow_back,
                 color: AppConstants.textPrimaryColor,
               ),
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                _handleBackNavigation(context);
+              },
             ),
             title: Text(
               context.appText.gpsHome,
@@ -277,7 +344,17 @@ class _GpsHomeContent extends StatelessWidget {
         context.appText.subscription,
         Icons.credit_card_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          Navigator.push(
+            context,
+            commonRoute(
+              BlocProvider.value(
+                value: locator<VehicleListCubit>()..loadVehicleData(),
+                child: GpsSubscriptionsScreen(),
+              ),
+            ),
+          );
+        },
       ),
       _MenuItem(
         context.appText.settings,
@@ -462,7 +539,12 @@ class _GpsHomeContent extends StatelessWidget {
       height: 48,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       child: ElevatedButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            commonRoute(GpsModelsScreen()),
+          );
+        },
         style: ElevatedButton.styleFrom(
           backgroundColor: AppConstants.primaryColor,
           shape: RoundedRectangleBorder(

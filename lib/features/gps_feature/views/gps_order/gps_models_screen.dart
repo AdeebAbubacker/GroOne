@@ -43,7 +43,6 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       _gpsProductsCubit = locator<GpsProductsCubit>();
       _gpsProductsCubit.fetchGpsProducts();
     } catch (e) {
-      print('Error getting GpsProductsCubit: $e');
       // Fallback: create a new instance directly
       final repository = locator<GpsOrderApiRepository>();
       _gpsProductsCubit = GpsProductsCubit(repository);
@@ -236,7 +235,6 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
     // Handle result from checkout screen
     if (result != null) {
-      print('GPS Models: Received result from checkout: $result');
       
       // Clear search text when returning from checkout (Add More or other navigation)
       searchController.clear();
@@ -248,11 +246,9 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         if (result.containsKey('quantities')) {
           final quantities = result['quantities'] as Map<String, int>;
           _gpsProductsCubit.updateQuantities(quantities);
-          print('GPS Models: Updated quantities: $quantities');
         } else if (result is Map<String, int>) {
           // Handle old format (just quantities)
           _gpsProductsCubit.updateQuantities(result);
-          print('GPS Models: Updated quantities (old format): $result');
         }
 
         // Store vehicle selections for next navigation
@@ -265,9 +261,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
                 (value as List<dynamic>).map((item) => item.toString()).toList(),
               ),
             );
-            print('GPS Models: Stored vehicle selections: $_previousVehicleSelection');
           } catch (e) {
-            print('Error parsing vehicle selections: $e');
             _previousVehicleSelection = null;
           }
         }
@@ -275,22 +269,18 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         // Store form data for next navigation
         if (result.containsKey('referralCode')) {
           _previousReferralCode = result['referralCode'] as String?;
-          print('GPS Models: Stored referral code: $_previousReferralCode');
         }
 
         if (result.containsKey('shippingSameAsBilling')) {
           _previousShippingSameAsBilling = result['shippingSameAsBilling'] as bool?;
-          print('GPS Models: Stored shipping same as billing: $_previousShippingSameAsBilling');
         }
 
         if (result.containsKey('shippingPersonInCharge')) {
           _previousShippingPersonInCharge = result['shippingPersonInCharge'] as String?;
-          print('GPS Models: Stored shipping person in charge: $_previousShippingPersonInCharge');
         }
 
         if (result.containsKey('shippingPersonContactNo')) {
           _previousShippingPersonContactNo = result['shippingPersonContactNo'] as String?;
-          print('GPS Models: Stored shipping person contact no: $_previousShippingPersonContactNo');
         }
       }
     } else {

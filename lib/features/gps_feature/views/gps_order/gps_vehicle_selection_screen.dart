@@ -243,18 +243,12 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
             Expanded(
               child: BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
                 builder: (context, state) {
-                  print('🔍 UI State: ${state.vehicles.status}, data: ${state.vehicles.data?.length ?? 0}');
-                  
                   if (state.vehicles.status == Status.LOADING) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state.vehicles.status == Status.ERROR) {
                     return Center(child: Text(context.appText.failedToLoadVehicles));
                   } else if (state.vehicles.status == Status.SUCCESS) {
                     final vehicles = state.vehicles.data ?? [];
-                    print('🔍 UI received ${vehicles.length} vehicles');
-                    if (vehicles.isNotEmpty) {
-                      print('🔍 First vehicle: ${vehicles.first.truckNo}');
-                    }
                     
                     final searchText = searchController.text.toLowerCase();
                     final filteredVehicles = vehicles.where((vehicle) {
@@ -263,8 +257,6 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                         vehicle.rcNumber.toLowerCase().contains(searchText) ||
                         vehicle.tonnage.toLowerCase().contains(searchText);
                     }).toList();
-                    
-                    print('🔍 Filtered vehicles: ${filteredVehicles.length}');
                     
                     if (filteredVehicles.isEmpty) {
                       return Center(
@@ -660,14 +652,11 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                         // Get user ID from repository (it's a UUID string, not an integer)
                         final userInfoRepo = locator<UserInformationRepository>();
                         final userIDString = await userInfoRepo.getUserID();
-                        print('🔍 User ID from repository: $userIDString');
                         
                         if (userIDString == null || userIDString.isEmpty) {
                           ToastMessages.error(message: context.appText.userIdNotFoundPleaseLoginAgain);
                           return;
                         }
-                        
-                        print('🔍 Using User ID as string: $userIDString');
                         final selectedCommoditiesIds =
                             acceptableCommoditiesController.selectedItems
                                 .map((idStr) => int.tryParse(idStr.value))

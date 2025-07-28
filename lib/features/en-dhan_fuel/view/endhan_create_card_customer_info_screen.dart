@@ -351,17 +351,17 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             controller: TextEditingController(text: state.mobile),
                             readOnly: true,
                             keyboardType: TextInputType.phone,
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return context.appText.mobileNumberRequired;
-                              }
-                              // Basic mobile number validation for Indian numbers
-                              final mobileRegex = indianMobileNumberRegex;
-                              if (!mobileRegex.hasMatch(value.trim())) {
-                                return context.appText.validMobileNumber;
-                              }
-                              return null;
-                            },
+                            // validator: (value) {
+                            //   if (value == null || value.trim().isEmpty) {
+                            //     return context.appText.mobileNumberRequired;
+                            //   }
+                            //   // Basic mobile number validation for Indian numbers
+                            //   final mobileRegex = indianMobileNumberRegex;
+                            //   if (!mobileRegex.hasMatch(value.trim())) {
+                            //     return context.appText.validMobileNumber;
+                            //   }
+                            //   return null;
+                            // },
                             decoration: commonInputDecoration(
                               hintText: '+91 9876987654',
                               fillColor: AppColors.disabledFieldBackgroundColor,
@@ -400,6 +400,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             ),
                           ),
                           16.height,
+
+                          // email  id feild
                           AppTextField(
                             labelText: '${context.appText.emailAddress} *',
                             hintText: 'example@email.com',
@@ -422,6 +424,33 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               focusColor: AppColors.disabledFieldBackgroundColor,
                             ),
                           ),
+
+                          16.height,
+                          //pincode feild
+                           AppTextField(
+                            labelText: 'Pincode *',
+                            hintText: 'Enter pincode',
+                            controller: pincodeController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 6,
+                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Pincode is required';
+                              }
+                              // Pincode validation for India (6 digits, only numbers)
+                              final pincodeRegex = indianPincodeRegex;
+                              if (!pincodeRegex.hasMatch(value.trim())) {
+                                return 'Please enter a valid 6-digit pincode';
+                              }
+                              if (value.trim().length != 6) {
+                                return 'Pincode must be exactly 6 digits';
+                              }
+                              return null;
+                            },
+                          ),
+                          
+
                           16.height,
                           // Zonal Office Dropdown
                           ZonalOfficeAutoCompleteTextField(
@@ -558,29 +587,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             },
                           ),
                           16.height,
-                          AppTextField(
-                            labelText: 'Pincode *',
-                            hintText: 'Enter pincode',
-                            controller: pincodeController,
-                            keyboardType: TextInputType.number,
-                            maxLength: 6,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Pincode is required';
-                              }
-                              // Pincode validation for India (6 digits, only numbers)
-                              final pincodeRegex = indianPincodeRegex;
-                              if (!pincodeRegex.hasMatch(value.trim())) {
-                                return 'Please enter a valid 6-digit pincode';
-                              }
-                              if (value.trim().length != 6) {
-                                return 'Pincode must be exactly 6 digits';
-                              }
-                              return null;
-                            },
-                          ),
-                          16.height,
+                      
                           EnDhanReferralAutoCompleteTextField(
                             controller: referralCodeController,
                             labelText: 'Referral Code (Optional)',
