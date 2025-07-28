@@ -36,6 +36,7 @@ class ApiUrls {
   static String get _loadTracking => "/load-tracking";
   static String get _tracking => "/tracking";
   static String get _paymentBroker => "/payment-broker";
+  static String get _loadSettlement => "/load-settlement";
 
   /// Base URL
   static String get _baseUrl => _fetchUrl;
@@ -130,9 +131,9 @@ class ApiUrls {
   static final String  getLoads = "$baseUrl$_loadDiscovery$_path$_v1$_load$_customer/";
   static final String  loadDetail = "$_loadBaseUrl$_load/";
   static final String  updateLoad = "$_loadBaseUrl/";
-  static final String damage = "$_baseUrl$_settlement$_path$_v1/damage/";
-  static final String updateDamage = "$_baseUrl$_settlement$_path$_v1/damage/";
-  static final String deleteDamage = "$_baseUrl$_settlement$_path$_v1/damage/";
+  static final String  damage = "$_baseUrl$_loadSettlement$_path$_v1/damage";
+  static final String  updateDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
+  static final String  deleteDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
   static final String  submitPod = "$_loadBaseUrl/pod";
 
   /// Settlement
@@ -231,8 +232,12 @@ class ApiUrls {
   static final String getKycDocuments = "$_baseUrl$_customer$_path$_v1/kyc/";
   static final String getCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
   static final String updateCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
+<<<<<<< HEAD
   static final String getVehicleList = "$_baseUrl$_customer$_path$_v1/vehicle/";
   static final String deleteVehicle = "$_baseUrl$_customer$_path$_v1/vehicle/status/";
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
 
+=======
+  static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
+>>>>>>> ae412394e721487fd5529dbb17d83304d96a78a7
 }

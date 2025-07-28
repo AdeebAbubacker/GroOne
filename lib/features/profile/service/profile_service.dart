@@ -22,6 +22,7 @@ import 'package:gro_one_app/features/profile/model/customer_settings_response.da
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_updated_response.dart';
+import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -534,6 +535,24 @@ class ProfileService {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+  /// fetch FAQ
+  Future<Result<FaqResponse>> fetchFaq() async {
+    try {
+      final url = ApiUrls.getFaq;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = FaqResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
 
   /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {

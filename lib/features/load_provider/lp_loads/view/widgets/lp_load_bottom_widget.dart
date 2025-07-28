@@ -542,7 +542,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                       if(widget.loadStatus.index >= LoadStatus.unloading.index)
                         ...[
                           FeedbackWidget(loadId: widget.loadItem.loadId),
-                           if(widget.loadItem.loadApproval?.damageAndShortagesApproved == true)
+                           if(widget.loadItem.loadApproval?.damageAndShortagesApproved == true && widget.loadItem.damageShortage!.isNotEmpty)
                              ...[
                                15.height,
                                Text(context.appText.damagesAndShortages, style: AppTextStyle.h4),
@@ -591,7 +591,9 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                     if(context.mounted) showAdvancePaymentDialog(context,widget.loadItem, '');
                   }
                 },
-              )
+              ),
+            if(widget.loadStatus == LoadStatus.completed)
+              AppButton(onPressed: () {}, title: context.appText.tripSettlement).paddingSymmetric(horizontal: 10, vertical: 10)
           ],
         ),
       ),

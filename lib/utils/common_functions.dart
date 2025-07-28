@@ -562,9 +562,9 @@ void commonSupportDialog(BuildContext context, {String? message}) {
   AppDialog.show(
     context,
     child: CommonDialogView(
-      heading: "Call Customer Support",
-      message: message ?? "Contact our Customer support agent",
-      onSingleButtonText: "Call",
+      heading: context.appText.callCustomerSupport,
+      message: message ?? context.appText.contactCustomerSupport,
+      onSingleButtonText: context.appText.call,
       onTapSingleButton: () async {
         await callRedirect("1800 208 8800");
       },

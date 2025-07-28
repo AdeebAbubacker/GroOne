@@ -77,7 +77,7 @@ class _LpSettingState extends State<LpSetting> {
               20.height,
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [context.appText.english, context.appText.english, context.appText.english].map<Widget>((lang) {
+                children: [context.appText.english, context.appText.tamil, context.appText.hindi].map<Widget>((lang) {
                   final selected = settings?.language.toLowerCase() == lang.toLowerCase();
                   return languageRadio(lang, selected);
                 }).toList(),
@@ -128,7 +128,6 @@ class _LpSettingState extends State<LpSetting> {
             profileCubit.updateCustomerSettings(request: UpdateSettingsRequest(language: text));
             setState(() {});
           }),
-          10.width,
           Text(text, style: AppTextStyle.blackColor14w400),
         ],
       ),

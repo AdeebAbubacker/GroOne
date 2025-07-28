@@ -989,6 +989,7 @@
   "showMarkerCluster": "Show Marker Cluster",
   "vehicleListSort": "Vehicle List Sort",
   "vehicleIconSize": "Vehicle Icon Size",
+  "vehicleIconSize": "Vehicle Icon Size",
   "myDocuments": "My Documents",
   "benefitsOfMembership": "Benefits of Membership",
   "delete": "Delete",
@@ -1017,21 +1018,40 @@
   "hindi": "Hindi",
   "tamil": "Tamil",
   "toEditProfileContactCustomerSupport": "To edit your profile, contact our Customer support agent",
+  "vehicleIconSize": "Vehicle Icon Size",
   "failedToDownloadDocuments":"Failed to download the document",
   "notVerified" : "not verified",
-  "addNewDriver": "Add New Driver",
-  "editVehicle" : "Edit Vehicle",
-  "addNewVehicle": "Add New Vehicle",
-  "editDriver" : "Edit Driver",
-  "driverName" : "Driver Name",
-  "licenseExpiryDate" : "License Expry Date",
-  "dateOdBirth" : "Date of birth",
-  "vehicleAddedSuccess": "Vehicle added successfully!", 
-  "vehicleUpdatedSuccessfully": "Vehicle updated successfully",
-  "driverAddedSuccess": "Driver added successfully!", 
-  "driverUpdatedSuccessfully": "Driver updated successfully",
-  "vehicleDeletedSuccessfully": "Vehicle deleted successfully", 
-  "driverDeletedSuccessfully": "Driver deleted successfully"  
+  "notVerified" : "not verified",
+  "uploadedOn" : "Uploaded on",
+  "contactCustomerSupport" : "Contact our Customer support agent",
+  "tripSettlement" : "Trip Settlement",
+  "tickets" : "Tickets",
+  "faqs" : "FAQ's",
+  "createNewTicket" : "Create New Ticket",
+  "addNewTicket" : "add New Ticket",
+  "issueCategory" : "Issue Category",
+  "title" : "Title",
+  "vehicleIconSize": "Vehicle Icon Size",
+
+
+
+
+
+  "failedToDownloadDocuments":"Failed to download the document",
+  "proofOfDelivery":"Proof of Delivery",
+  "damagesAndShortageDocument":"Damages and Shortages",
+  "unloadingCharges":"Unloading Charges",
+  "loadingCharges":"Loading Charges",
+  "detentions":"detentions",
+  "days":"Days"
+
+
+
+
+
+
+
+
 
 
 

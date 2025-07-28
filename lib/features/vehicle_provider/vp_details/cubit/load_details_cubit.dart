@@ -68,7 +68,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
     if(status==7){
       final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-      final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==8,);
+      final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==331,);
       final uploadOtherDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==309,);
 
       final updatedDocument = currentList[podDocumentIndex].copyWith(
@@ -94,7 +94,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
               result.value.data?.loadRoute?.pickUpLatlon ?? "0",
               result.value.data?.loadRoute?.dropLatlon ?? "0"),
           loadDetailsUIState: UIState.success(result.value)));
-
+      getAllDamagesImages(getFromDetails: true);
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
 
       /// SET TRIP DOCUMENT
@@ -254,11 +254,14 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setDamageListUIState(UIState<GetDamageListModel>? uiState){
     emit(state.copyWith(damageListUIState: uiState));
   }
+
+
   Future<void> fetchDamageList(String loadId) async {
     _setDamageListUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getDamageListData(loadId);
     if (result is Success<GetDamageListModel>) {
       _setDamageListUIState(UIState.success(result.value));
+      getAllDamagesImages();
     }
     if (result is Error) {
       _setDamageListUIState(UIState.error(result.type));
@@ -270,16 +273,17 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
+
   Future<void> uploadDamageFile(File file) async {
     _setUploadDamageFileUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
+
     if (result is Success<UploadDamageFileModel>) {
-      /// We need to call here
-      /// create document
-      // createDocument(title, documentTypeId, uploadImage);
+
       _setUploadDamageFileUIState(UIState.success(result.value));
     }
     if (result is Error) {
+
       _setUploadDamageFileUIState(UIState.error(result.type));
     }
   }
@@ -395,8 +399,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
 
-
-
   Future<CreateDocumentResponse?> createDocument(String title,
       int documentTypeId, UploadDamageFileModel uploadImage) async {
     try {
@@ -421,8 +423,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
               errorType: value.type
           ));
         }
-
-
         return null;
       },);
     } catch (e) {
@@ -449,15 +449,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
-  Future viewDocument(String documentId, int index) async {
+  Future downloadDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
-
       return await _loadDetailsRepository.viewDocument(
         documentId: documentId,
       ).then((result) {
         if (result is Success<ViewDocumentResponse>) {
-
           downloadAndOpenFile(result.value.filePath ?? "",
               originalFileName: result.value.originalFilename);
           uploadLoadingStatus(index, null);
@@ -470,6 +468,31 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       uploadLoadingStatus(index, null);
       return null;
     }
+  }
+
+
+  Future<ViewDocumentResponse?> fetchDocumentById(String documentId) async {
+   return _loadDetailsRepository.viewDocument(
+      documentId: documentId,
+    ).then((result) => (result is Success<ViewDocumentResponse>) ? result.value:null);
+  }
+
+
+  Future getAllDamagesImages({bool getFromDetails=false})async{
+    List<DamageReport> damageListData=  getFromDetails ? List.from(state.loadDetailsUIState?.data?.data?.damageShortage??[]):List.from(state.damageListUIState?.data?.data??[]);
+   List<String> imageList=[];
+   for(int i=0;i<(damageListData.length);i++){
+     final getDamageData= damageListData[i];
+     if((getDamageData.image??[]).isEmpty){
+       return;
+     }
+     String typeId=getDamageData.image!.first;
+     await fetchDocumentById(typeId).then((value) {
+       imageList.add(value?.filePath??"");
+       },);}
+       emit(state.copyWith(
+     allDamageImageList: imageList
+    ));
   }
 
 
