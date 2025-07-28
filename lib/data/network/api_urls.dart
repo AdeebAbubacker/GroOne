@@ -220,6 +220,8 @@ class ApiUrls {
   static const String getDeprecatedNotificationStatus = "$_gpsBase/get_deprecated_notification_status";
   static const String updateDeprecatedNotificationStatus = "$_gpsBase/update_deprecated_notification_status";
   static String gpsUpdateNotificationToggle(int id) => "$_gpsBase/user_config/$id";
+  static const String gpsGetUserId = "$_gpsBase/tc_users";
+  static final String gpsGetPlace = "$_mapBaseUrl/place";
 
 
   /// profile
@@ -237,4 +239,5 @@ class ApiUrls {
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
 
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
+
 }
