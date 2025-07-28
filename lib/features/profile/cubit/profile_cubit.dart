@@ -433,6 +433,19 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
+  Future<void> uploadLicenseDoc(File file) async {
+  emit(state.copyWith(licenseDocUpload: UIState.loading()));
+  final result = await _repo.getUploadLicenseData(file);
+  if (result is Success<KavachVehicleDocumentUploadModel>) {
+    emit(state.copyWith(licenseDocUpload: UIState.success(result.value)));
+  } else if (result is Error<KavachVehicleDocumentUploadModel>) {
+    emit(state.copyWith(licenseDocUpload: UIState.error(result.type)));
+  } else {
+    emit(state.copyWith(licenseDocUpload: UIState.error(GenericError())));
+  }
+}
+
+
   // Reset State
   void resetState(){
     emit(state.copyWith(

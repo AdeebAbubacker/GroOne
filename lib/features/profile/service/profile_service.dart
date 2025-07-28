@@ -1,10 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
@@ -474,7 +476,61 @@ class ProfileService {
     }
   }
 
- 
+  Future<Result<KavachVehicleDocumentUploadModel>> uploadLicenseData(File file) async {
+    try {
+      // Get user ID from secure storage
+      final userId = await _securedSharedPref.get(AppString.sessionKey.userId);
+      if (userId == null || userId.isEmpty) {
+        CustomLog.error(this, "User ID not found in secure storage", null);
+        return Error(ErrorWithMessage(message: 'User ID not found'));
+      }
+
+      final url = ApiUrls.documentUpload;
+
+      // Prepare form fields with required parameters
+      final fields = {
+        'userId': userId,
+        'fileType': 'driving_license',
+        'documentType': 'vp_document',
+      };
+
+      final result = await _apiService.multipart(
+        url,
+        file,
+        pathName: "file",
+        fields: fields,
+      );
+
+      if (result is Success) {
+        CustomLog.debug(this, "Upload API raw response: ${result.value}");
+        
+        try {
+          final responseData = result.value;
+          
+          if (responseData is Map<String, dynamic>) {
+            CustomLog.debug(this, "Response keys: ${responseData.keys.toList()}");
+            CustomLog.debug(this, "Response URL: ${responseData['url']}");
+            
+            // The API response is directly the document upload data
+            final documentResponse = KavachVehicleDocumentUploadModel.fromJson(responseData);
+            CustomLog.debug(this, "Successfully parsed document upload response");
+            return Success(documentResponse);
+          } else {
+            CustomLog.error(this, "Invalid upload response format - expected Map, got ${responseData.runtimeType}", null);
+            return Error(DeserializationError());
+          }
+        } catch (e) {
+          CustomLog.error(this, "Failed to parse upload response", e);
+          return Error(DeserializationError());
+        }
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Upload error", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 
   /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {

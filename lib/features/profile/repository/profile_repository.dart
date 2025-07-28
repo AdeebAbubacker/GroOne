@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
@@ -218,6 +221,16 @@ Future<Result<bool>> deleteVehicle({
       return Error(ErrorWithMessage(message: e.toString()));
     }
   } 
+
+  Future<Result<KavachVehicleDocumentUploadModel>> getUploadLicenseData(File file) async {
+    try {
+      return await _profileService.uploadLicenseData(file);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch GST upload data in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+ 
   /// fetch customer settings
   Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({required String userId}) async {
     try {

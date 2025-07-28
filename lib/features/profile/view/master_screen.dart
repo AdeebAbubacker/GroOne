@@ -161,7 +161,7 @@ class _MasterScreenState extends State<MasterScreen>
 
           if (result is Success) {
             if (context.mounted) {
-              Navigator.of(context).pop(); // close dialog
+              Navigator.of(context).pop(); 
               ToastMessages.success(
                 message: context.appText.vehicleDeletedSuccessfully,
               );
@@ -212,7 +212,8 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
   
-   Future<Result<bool>> _uploadGSTDocumentApiCall(
+   /// Upload RC book
+   Future<Result<bool>> _uploadRCBookCall(
     BuildContext context,
     List<Map<String, dynamic>> multiFilesList,
   ) async {
@@ -235,6 +236,32 @@ class _MasterScreenState extends State<MasterScreen>
     }
     return Error(GenericError());
   }
+
+  /// Upload License Copy
+   Future<Result<bool>> _uploadLicenseCopy(
+    BuildContext context,
+    List<Map<String, dynamic>> multiFilesList,
+  ) async {
+    final cubit = context.read<ProfileCubit>();
+    await cubit.uploadLicenseDoc(File(multiFilesList.first['path']));
+    final status = cubit.state.vehicleDocUpload!.status;
+
+    if (status == Status.SUCCESS) {
+      final url = cubit.state.vehicleDocUpload!.data?.data?.url ?? '';
+      if (url.isNotEmpty) {
+        multiFilesList.first['path'] = url;
+        ToastMessages.success(message: 'File uploaded successfully');
+        return Success(true);
+      }
+    } else if (status == Status.ERROR) {
+      final errorType = cubit.state.vehicleDocUpload!.errorType;
+      ToastMessages.error(
+        message: getErrorMsg(errorType: errorType ?? GenericError()),
+      );
+    }
+    return Error(GenericError());
+  }
+
   @override
   Widget build(BuildContext context) {
     int? role = profileCubit.userRole;
@@ -557,6 +584,7 @@ class _MasterScreenState extends State<MasterScreen>
               itemCount: driverList.length,
               itemBuilder: (context, index) {
                DriverDetailsData driver = driverList[index];
+               
                 return masterDriverInfoWidget(
                   name: driver.name,
                   phone: driver.mobile,
@@ -1039,6 +1067,8 @@ class _MasterScreenState extends State<MasterScreen>
     final rcNumberController = TextEditingController();
     final capacityController = TextEditingController(text: vehcile?.tonnage ?? '');
 
+   
+
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
@@ -1090,7 +1120,7 @@ class _MasterScreenState extends State<MasterScreen>
                       isSingleFile: true,
                       isLoading: isUploading,
                       thenUploadFileToSever: () async {
-                        final result = await _uploadGSTDocumentApiCall(context, localVehicleDocList);
+                        final result = await _uploadRCBookCall(context, localVehicleDocList);
                         if (result is Success) {
                           setState(() {
                             // Update the persistent vehicleDocList field in State class as well if needed
@@ -1268,6 +1298,23 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
+ 
+ Map<String, dynamic>? createFileFromLink(String url) {
+  if (url.trim().isEmpty) return null;
+
+  final uri = Uri.parse(url);
+  if (uri.pathSegments.isEmpty) return null;
+
+  final fileName = uri.pathSegments.last;
+  final extension = fileName.split('.').last;
+
+  return {
+    "fileName": fileName,
+    "path": url,
+    "extension": extension,
+  };
+}
+
 
   void showAddDriverPopup(BuildContext context, {DriverDetailsData? driver}) {
     final formKey = GlobalKey<FormState>();
@@ -1295,16 +1342,46 @@ String? selectedDoB = driver?.dateOfBirth != null
     final pinCodeController = TextEditingController(
       text: driver?.companyDetails?.companyName?? '',
     );
+    final localVehicleDocList = <Map<String, dynamic>>[];
+
+    if (driver?.licenseDocLink != null && driver!.licenseDocLink!.isNotEmpty) {
+      final doc = createFileFromLink(driver.licenseDocLink!);
+      if (doc != null) {
+        localVehicleDocList.add(doc);
+      }
+    }
+    bool isInitialized = false;
     bool isActive = driver != null ? (driver.driverStatus == 1) : true;
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
        builder: (BuildContext context, void Function(void Function()) setState) {
-        List<Map<String, dynamic>> localVehicleDocList = List.from(vehicleDocList);
-        
+        // final localVehicleDocList = <Map<String, dynamic>>[];
 
+        // final licenseDoc = createFileFromLink(driver?.licenseDocLink ?? '');
+        // if (licenseDoc != null) {
+        //   localVehicleDocList.add(licenseDoc);
+        // }
+
+   
       final vehicleDocUpload = context.watch<ProfileCubit>().state.vehicleDocUpload;
       final isUploading = vehicleDocUpload?.status == Status.LOADING;
+      // Use a local flag to run this logic only once
+    
+
+    if (!isInitialized && driver?.licenseDocLink?.isNotEmpty == true) {
+  final doc = createFileFromLink(driver!.licenseDocLink!);
+  if (doc != null) {
+    localVehicleDocList
+      ..clear()
+      ..add(doc);
+    vehicleDocList
+      ..clear()
+      ..add(doc);
+  }
+  isInitialized = true;
+}
+
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -1392,7 +1469,7 @@ String? selectedDoB = driver?.dateOfBirth != null
                   isSingleFile: true,
                   isLoading: isUploading,
                   thenUploadFileToSever: () async {
-                    final result = await _uploadGSTDocumentApiCall(context, localVehicleDocList);
+                    final result = await _uploadLicenseCopy(context, localVehicleDocList);
                     if (result is Success) {
                       setState(() {
                         // Update the persistent vehicleDocList field in State class as well if needed
@@ -1464,7 +1541,8 @@ String? selectedDoB = driver?.dateOfBirth != null
                   ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                       .format(DateFormat('dd/MM/yyyy').parse(selectedDoB!))
                   : null;
-                 final rcDocLink = vehicleDocList.isNotEmpty ? vehicleDocList.first['path'] : ''; 
+                final rcDocLink = localVehicleDocList.isNotEmpty ? localVehicleDocList.first['path'] : '';
+
                 final request = DriverRequest(
                 customerId: profileCubit.userId ?? "",
                 name: nameController.text,
