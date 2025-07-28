@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -48,6 +49,8 @@ class ApiService {
     return headers;
   }
 
+
+
   /// Clear Cache
   Future<void> clearCache() async {
     CustomLog.info(this, "Cache cleared successfully");
@@ -58,9 +61,6 @@ class ApiService {
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
     CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
-      if (HasInternetConnection.isInternet != true) {
-        return Error(InternetNetworkError());
-      }
       await clearCache();
 
       final headers = customHeaders ?? await _getHeaders();
@@ -113,6 +113,7 @@ class ApiService {
         return Error(InternetNetworkError());
       }
       await clearCache();
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.post(
         url,
         data: body,
@@ -159,6 +160,7 @@ class ApiService {
         return Error(InternetNetworkError());
       }
       await clearCache();
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.put(
         url,
         data: body,
@@ -224,16 +226,17 @@ class ApiService {
   }
 
   // Delete
-  Future<Result<dynamic>> delete(String url) async {
-    CustomLog.debug(this, "Method: Delete, URL: $url");
+  Future<Result<dynamic>> delete(String url, {Map<String, String>? customHeaders}) async {
+    CustomLog.debug(this, "Method: Delete, \nURL: $url");
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
+      final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.delete(
         url,
         options: Options(
-          headers: await _getHeaders(),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),
@@ -253,6 +256,7 @@ class ApiService {
     dynamic files, {
     Map<String, String>? fields,
     String? pathName,
+    Map<String, String>? customHeaders,
   }) async {
     try {
       if (!HasInternetConnection.isInternet) {
@@ -304,11 +308,12 @@ class ApiService {
       if (fields != null && fields.isNotEmpty) {
         formData.fields.addAll(fields.entries);
       }
+      final headers = customHeaders ?? await _getHeaders(isMultipart: true);
       final response = await _dio.post(
         url,
         data: formData,
         options: Options(
-          headers: await _getHeaders(isMultipart: true),
+          headers: headers,
           sendTimeout: _timeout,
           receiveTimeout: _timeout,
         ),
@@ -371,13 +376,33 @@ class ApiService {
   /// Handle unauthorized error by clearing invalid token
   Future<void> _handleUnauthorizedError() async {
     try {
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
-      CustomLog.debug(
-        this,
-        "Cleared invalid token due to 401 Unauthorized error",
+      final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
+
+      if (refreshToken == null || refreshToken.isEmpty) {
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+        return;
+      }
+
+      final response = await Dio().post(
+        ApiUrls.refreshToken,
+        data: {
+          "refresh_token": refreshToken,
+        },
       );
+
+
+      if (response.statusCode == 200 && response.data['data'] != null) {
+        final data = response.data['data'];
+        final newAccessToken = data['access_token'];
+        final newRefreshToken = data['refresh_token'];
+
+        await _secureSharedPrefs.saveKey(AppString.sessionKey.accessToken, newAccessToken);
+        await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
+      } else {
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+      }
     } catch (e) {
-      CustomLog.error(this, "Error clearing invalid token", e);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
     }
   }
 

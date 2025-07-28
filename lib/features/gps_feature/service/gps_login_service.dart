@@ -433,10 +433,6 @@ class GpsLoginService {
     required String token,
   }) async {
     try {
-      final dio = Dio();
-      dio.options.connectTimeout = const Duration(seconds: 30);
-      dio.options.receiveTimeout = const Duration(seconds: 30);
-
       final headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -445,32 +441,33 @@ class GpsLoginService {
 
       CustomLog.info(this, "Making $method request to: $url");
 
-      Response response;
+      Result<dynamic> result;
       if (method == 'GET') {
-        response = await dio.get(
+        result = await _apiService.get(
           url,
-          queryParameters: queryParams,
-          options: Options(headers: headers),
+          queryParams: queryParams,
+          customHeaders: headers,
         );
       } else if (method == 'POST') {
-        response = await dio.post(
+        result = await _apiService.post(
           url,
-          data: body,
-          queryParameters: queryParams,
-          options: Options(headers: headers),
+          body: body,
+          queryParams: queryParams,
+          customHeaders: headers,
         );
       } else {
         throw Exception('Unsupported HTTP method: $method');
       }
 
-      CustomLog.info(
-        this,
-        "Request successful, status: ${response.statusCode}",
-      );
-      return Success(response.data);
-    } on DioException catch (e) {
-      CustomLog.error(this, "Error making authenticated request to $url", e);
-      return Error(GenericError());
+      if (result is Success) {
+        CustomLog.info(
+          this,
+          "Request successful",
+        );
+        return result;
+      } else {
+        return result;
+      }
     } catch (e) {
       CustomLog.error(this, "Error making authenticated request to $url", e);
       return Error(GenericError());

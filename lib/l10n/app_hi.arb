@@ -951,4 +951,8 @@
   "contactCustomerSupport": "ग्राहक सहायता से संपर्क करें",
   "expired": "समाप्त हो गई",
   "daysLeft": "दिन शेष"
+  "vehicleIconSize": "वाहन आइकन आकार",
+  "editVehicleInfo": "वाहन जानकारी संपादित करें",
+  "notVerified" : "सत्यापित नहीं है"
+
 }

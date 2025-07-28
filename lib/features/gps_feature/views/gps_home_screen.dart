@@ -293,21 +293,18 @@ class _GpsHomeContent extends StatelessWidget {
         },
       ),
       _MenuItem(
-        context.appText.faq,
-        Icons.help_outline,
-        AppConstants.primaryColor,
-        () {},
-      ),
-      _MenuItem(
         context.appText.settings,
         Icons.settings_outlined,
         AppConstants.primaryColor,
         () {
           Navigator.push(
             context,
-            commonRoute(BlocProvider(
+            commonRoute(
+              BlocProvider(
                 create: (_) => GpsSettingsCubit(locator<GpsRepository>()),
-                child: GpsSettingsScreen())),
+                child: GpsSettingsScreen(),
+              ),
+            ),
           );
         },
       ),
@@ -315,7 +312,9 @@ class _GpsHomeContent extends StatelessWidget {
         context.appText.reports,
         Icons.assessment_outlined,
         AppConstants.primaryColor,
-        () {},
+        () {
+          context.push(AppRouteName.gpsReports);
+        },
       ),
       _MenuItem(
         context.appText.orders,
@@ -332,12 +331,17 @@ class _GpsHomeContent extends StatelessWidget {
         context.appText.parking,
         Icons.local_parking,
         AppConstants.primaryColor,
-            () {
-          Navigator.push(context, commonRoute( BlocProvider.value(
-            value: locator<VehicleListCubit>()..loadVehicleData(),
-            child: GpsParkingModeScreen(),
-          ),));
-            },
+        () {
+          Navigator.push(
+            context,
+            commonRoute(
+              BlocProvider.value(
+                value: locator<VehicleListCubit>()..loadVehicleData(),
+                child: GpsParkingModeScreen(),
+              ),
+            ),
+          );
+        },
       ),
     ];
     return GridView.builder(

@@ -2,10 +2,18 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
+import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
+import 'package:gro_one_app/features/profile/model/address_response.dart';
+import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
+import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
+import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
+import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
@@ -60,6 +68,97 @@ class ProfileRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+  /// Get Documents
+  Future<Result<KycDocumentResponse>> fetchDocuments({required String userId}) async {
+    try {
+      return await _profileService.fetchDocuments(userId: userId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Get Membership Benefit
+  Future<Result<BlueMemberShipResponse>> fetchMembershipBenefit() async {
+    try {
+      return await _profileService.fetchMembershipBenefit();
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Get Address
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
+    try {
+      return await _profileService.fetchAddress(userId: userId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// set primary address
+  Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({required String addressId}) async {
+    try {
+      return await _profileService.setPrimaryAddress(addressId: addressId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// create new address
+  Future<Result<CustomerAddress>> createAddress({required AddressRequest request}) async {
+    try {
+      return await _profileService.createAddress(request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// update address
+  Future<Result<CustomerAddress>> updateAddress({required String addressId, required AddressRequest request}) async {
+    try {
+      return await _profileService.updateAddress(addressId: addressId, request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// delete address
+  Future<Result<void>> deleteAddress({required String addressId}) async {
+    try {
+      return await _profileService.deleteAddress(addressId: addressId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// fetch customer settings
+  Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({required String userId}) async {
+    try {
+      return await _profileService.fetchCustomerSettings(userId: userId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// update customer settings
+  Future<Result<void>> updateCustomerSettings({required String userId, required UpdateSettingsRequest request}) async {
+    try {
+      return await _profileService.updateCustomerSettings(userId: userId, request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Get Address
+  Future<Result<FaqResponse>> fetchFaq() async {
+    try {
+      return await _profileService.fetchFaq();
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 
 
   /// LogOut Repo
