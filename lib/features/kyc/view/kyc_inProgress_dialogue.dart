@@ -11,20 +11,26 @@ class KycInProgressDialogue extends StatelessWidget {
   final Function() onPressed;
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(hideDivider: false,body: Column(
+    return Column(
+      mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
-      spacing: 10,
       children: [
-        Center(child: SvgPicture.asset(AppImage.svg.kycPending)),
-        Text("KYC InProgress",style: AppTextStyle.orangeTextColor26w700,),
-        Text("You can post only one load while your KYC is in progress. Please contact admin for further assistance.",style: AppTextStyle.textDarkGreyColor14w400),
         20.height,
+        SvgPicture.asset(AppImage.svg.kycPending, width: 150),
+        30.height,
+        Text("KYC InProgress",style: AppTextStyle.orangeTextColor26w700),
+        10.height,
+        Text("You can post only one load while your KYC is in progress. Please contact admin for further assistance.",
+          textAlign: TextAlign.center,
+          style: AppTextStyle.bodyGreyColor,
+        ),
+        40.height,
         AppButton(
           onPressed: onPressed,
           title: "Continue",
         )
 
       ],
-    ));
+    );
   }
 }
