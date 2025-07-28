@@ -989,6 +989,7 @@
   "showMarkerCluster": "Show Marker Cluster",
   "vehicleListSort": "Vehicle List Sort",
   "vehicleIconSize": "Vehicle Icon Size",
+  "vehicleIconSize": "Vehicle Icon Size",
   "myDocuments": "My Documents",
   "benefitsOfMembership": "Benefits of Membership",
   "delete": "Delete",
@@ -1017,6 +1018,7 @@
   "toEditProfileContactCustomerSupport": "To edit your profile, contact our Customer support agent",
   "failedToDownloadDocuments":"Failed to download the document",
   "notVerified" : "not verified",
+  "notVerified" : "not verified",
   "uploadedOn" : "Uploaded on",
   "contactCustomerSupport" : "Contact our Customer support agent",
   "tripSettlement" : "Trip Settlement",
@@ -1026,15 +1028,4 @@
   "addNewTicket" : "add New Ticket",
   "issueCategory" : "Issue Category",
   "title" : "Title"
-
-
-
-
-
-
-
-
-
-
-
 }
