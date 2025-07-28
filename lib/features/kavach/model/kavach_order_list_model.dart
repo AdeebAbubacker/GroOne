@@ -66,6 +66,26 @@ class KavachOrderListService {
   }
 }
 
+class KavachOrderListVehicle {
+  final String vehicleNumber;
+  final String? deviceUniqueNumber;
+  final String? devicePhoneNumber;
+
+  KavachOrderListVehicle({
+    required this.vehicleNumber,
+    this.deviceUniqueNumber,
+    this.devicePhoneNumber,
+  });
+
+  factory KavachOrderListVehicle.fromJson(Map<String, dynamic> json) {
+    return KavachOrderListVehicle(
+      vehicleNumber: json['vehicle_number'] ?? '',
+      deviceUniqueNumber: json['device_unique_number'],
+      devicePhoneNumber: json['device_phone_number'],
+    );
+  }
+}
+
 class KavachOrderListItem {
   final String id;
   final String itemType;
@@ -77,6 +97,7 @@ class KavachOrderListItem {
   final String totalGstAmt;
   final KavachOrderListProduct? product;
   final KavachOrderListService? service;
+  final List<KavachOrderListVehicle> vehicles;
 
   KavachOrderListItem({
     required this.id,
@@ -89,6 +110,7 @@ class KavachOrderListItem {
     required this.totalGstAmt,
     this.product,
     this.service,
+    required this.vehicles,
   });
 
   factory KavachOrderListItem.fromJson(Map<String, dynamic> json) {
@@ -107,6 +129,9 @@ class KavachOrderListItem {
       service: json['service'] != null
           ? KavachOrderListService.fromJson(json['service'])
           : null,
+      vehicles: (json['vehicles'] as List<dynamic>?)
+          ?.map((e) => KavachOrderListVehicle.fromJson(e))
+          .toList() ?? [],
     );
   }
 }

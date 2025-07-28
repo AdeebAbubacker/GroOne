@@ -21,13 +21,17 @@ class MobileOtpVerificationRepository {
       if (result is Success<MobileOtpVerificationModel?>) {
         if (result.value != null) {
           dynamic saveUserResult;
-            saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
-            if (saveUserResult is Success) {
-              return result;
-            }
-            if (saveUserResult is Error) {
-              return Error(saveUserResult.type);
-            }
+          // Always save token from login API response, regardless of tempFlg
+          saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
+          if (saveUserResult is Success) {
+            // Add a small delay to ensure token is properly stored
+            await Future.delayed(Duration(milliseconds: 100));
+            print('🔐 Login successful - Token saved and ready for API calls');
+            return result;
+          }
+          if (saveUserResult is Error) {
+            return Error(saveUserResult.type);
+          }
         }
       }
       if (result is Error) {

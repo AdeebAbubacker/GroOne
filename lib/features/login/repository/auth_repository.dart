@@ -92,9 +92,17 @@ class AuthRepository {
 
       // Verify token was saved
       String? savedToken = await _securedSharedPref.get(AppString.sessionKey.accessToken);
-      CustomLog.debug(this, "Token saved successfully: ${savedToken != null && savedToken.isNotEmpty ? 'Yes' : 'No'}");
+      CustomLog.debug(this, "🔐 Token saved successfully: ${savedToken != null && savedToken.isNotEmpty ? 'Yes' : 'No'}");
+      CustomLog.debug(this, "🔐 Saved token value: '${savedToken?.substring(0, 10)}...'");
+      
+      // Double-check token storage
       await _securedSharedPref.saveKey(AppString.sessionKey.accessToken, accessToken);
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, refreshToken);
+      
+      // Final verification
+      String? finalToken = await _securedSharedPref.get(AppString.sessionKey.accessToken);
+      CustomLog.debug(this, "🔐 Final token verification: ${finalToken != null && finalToken.isNotEmpty ? 'Success' : 'Failed'}");
+      CustomLog.debug(this, "🔐 Final token value: '${finalToken?.substring(0, 10)}...'");
 
       CustomLog.debug(this, "🔐 Login successful - Access Token stored: ${accessToken.isNotEmpty ? 'Yes' : 'No'}");
       CustomLog.debug(this, "🔐 Stored token value: '$accessToken'");

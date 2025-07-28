@@ -428,8 +428,8 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     }
 
   bool isPODUploaded(List<DocumentEntity> tripDocumentList) {
-  // Just check if the POD document (TypeId 331) is uploaded successfully
-  const podTypeId = 331;
+  // Just check if the POD document (TypeId 8) is uploaded successfully
+  const podTypeId = 8;
 
   final presentTypeIds = tripDocumentList
       .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
