@@ -84,10 +84,10 @@ class KongToken {
 
     Map<String, dynamic> toJson() {
         return {
-            "expiresIn": expiresIn,
-            "tokenType": tokenType,
-            "refreshToken": refreshToken,
-            "accessToken": accessToken,
+            "expires_in": expiresIn,
+            "token_type": tokenType,
+            "refresh_token": refreshToken,
+            "access_token": accessToken,
         };
     }
 

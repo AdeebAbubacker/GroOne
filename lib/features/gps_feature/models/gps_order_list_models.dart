@@ -143,6 +143,26 @@ class GpsOrderItem {
   }
 }
 
+class GpsOrderVehicle {
+  final String vehicleNumber;
+  final String? deviceUniqueNumber;
+  final String? devicePhoneNumber;
+
+  GpsOrderVehicle({
+    required this.vehicleNumber,
+    this.deviceUniqueNumber,
+    this.devicePhoneNumber,
+  });
+
+  factory GpsOrderVehicle.fromJson(Map<String, dynamic> json) {
+    return GpsOrderVehicle(
+      vehicleNumber: json['vehicle_number'] ?? '',
+      deviceUniqueNumber: json['device_unique_number'],
+      devicePhoneNumber: json['device_phone_number'],
+    );
+  }
+}
+
 class GpsOrderLineItem {
   final String id;
   final String itemType;
@@ -154,6 +174,7 @@ class GpsOrderLineItem {
   final String totalGstAmt;
   final GpsOrderProduct product;
   final dynamic service;
+  final List<GpsOrderVehicle> vehicles;
 
   GpsOrderLineItem({
     required this.id,
@@ -166,6 +187,7 @@ class GpsOrderLineItem {
     required this.totalGstAmt,
     required this.product,
     this.service,
+    required this.vehicles,
   });
 
   factory GpsOrderLineItem.fromJson(Map<String, dynamic> json) {
@@ -180,6 +202,9 @@ class GpsOrderLineItem {
       totalGstAmt: json['total_gst_amt'] ?? '',
       product: GpsOrderProduct.fromJson(json['product'] ?? {}),
       service: json['service'],
+      vehicles: (json['vehicles'] as List<dynamic>?)
+          ?.map((e) => GpsOrderVehicle.fromJson(e))
+          .toList() ?? [],
     );
   }
 }

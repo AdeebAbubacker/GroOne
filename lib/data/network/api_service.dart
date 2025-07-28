@@ -34,10 +34,23 @@ class ApiService {
     };
     try {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
+
+      // Enhanced debugging for token retrieval
+      CustomLog.debug(this, "🔐 Token retrieval attempt:");
+      CustomLog.debug(this, "🔐 Raw token value: '$refreshToken'");
+      CustomLog.debug(this, "🔐 Token is null: ${refreshToken == null}");
+      CustomLog.debug(this, "🔐 Token is empty: ${refreshToken?.isEmpty}");
+      CustomLog.debug(this, "🔐 Token length: ${refreshToken?.length}");
+
       if (refreshToken != null && refreshToken.isNotEmpty) {
-        headers['Authorization'] = 'Bearer $refreshToken';
+        final authHeader = 'Bearer $refreshToken';
+        headers['Authorization'] = authHeader;
+        CustomLog.debug(this, "🔐 Using token for API call: $refreshToken");
+        CustomLog.debug(this, "🔐 Authorization header set: $authHeader");
+        CustomLog.debug(this, "🔐 Full headers: $headers");
       } else {
-        CustomLog.debug(this, "Authorization token : $refreshToken");
+        CustomLog.debug(this, "🔐 No token found - cannot authenticate");
+        CustomLog.debug(this, "🔐 Headers without auth: $headers");
       }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
@@ -53,7 +66,21 @@ class ApiService {
     // await _cacheManager.clearAll();
   }
 
-
+  /// Check if token is available
+  Future<bool> hasValidToken() async {
+    try {
+      String? token = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
+      final hasToken = token != null && token.isNotEmpty;
+      CustomLog.debug(this, "🔐 Token availability check: $hasToken");
+      if (hasToken) {
+        CustomLog.debug(this, "🔐 Token value: '${token!.substring(0, 10)}...'");
+      }
+      return hasToken;
+    } catch (e) {
+      CustomLog.error(this, "Error checking token availability", e);
+      return false;
+    }
+  }
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
