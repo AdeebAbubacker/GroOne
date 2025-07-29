@@ -53,12 +53,17 @@ class EditVehicleInfoScreen extends StatelessWidget {
           extraInfoState.status == Status.SUCCESS &&
           extraInfoState.data != null) {
         vehicleExtraInfoList = extraInfoState.data;
-        if (vehicle != null && vehicleExtraInfoList != null) {
-          selectedVehicleExtraInfo = vehicleExtraInfoList.firstWhere(
-            (extraInfo) =>
-                extraInfo.deviceId.toString() == vehicle.deviceId.toString(),
-            orElse: () => vehicleExtraInfoList!.first,
-          );
+        if (vehicle != null &&
+            vehicleExtraInfoList != null &&
+            vehicleExtraInfoList.isNotEmpty) {
+          try {
+            selectedVehicleExtraInfo = vehicleExtraInfoList.firstWhere(
+              (extraInfo) =>
+                  extraInfo.deviceId.toString() == vehicle.deviceId.toString(),
+            );
+          } catch (e) {
+            selectedVehicleExtraInfo = vehicleExtraInfoList.first;
+          }
         }
       }
 
@@ -132,7 +137,7 @@ class EditVehicleInfoView extends StatelessWidget {
     BuildContext context,
     EditVehicleInfoLoaded state,
   ) {
-    String subscriptionExpiryDate = 'N/A'; // Default value
+    String subscriptionExpiryDate = 'N/A';
 
     if (state.selectedVehicleExtraInfo?.subscriptionExpiryDate != null) {
       try {
@@ -141,9 +146,10 @@ class EditVehicleInfoView extends StatelessWidget {
         );
         subscriptionExpiryDate = DateFormat('dd-MM-yyyy').format(parsedDate);
       } catch (e) {
-        subscriptionExpiryDate = 'Invalid date'; // Or keep 'N/A'
+        subscriptionExpiryDate = 'Invalid date';
       }
     }
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.blue.shade50,
@@ -212,6 +218,194 @@ class EditVehicleInfoView extends StatelessWidget {
   }
 
   Widget _buildFormSection(BuildContext context, EditVehicleInfoLoaded state) {
+    return Column(
+      children: [
+        SizedBox(height: AppConstants.defaultPadding),
+
+        // Vehicle Number - always show
+        _buildTextField(
+          context: context,
+          label: 'Vehicle Number',
+          value: state.vehicleNumber ?? '',
+          field: 'vehicleNumber',
+        ),
+
+        // Plate Number - always show
+        _buildTextField(
+          context: context,
+          label: 'Plate Number',
+          value: state.plateNumber ?? '',
+          field: 'plateNumber',
+        ),
+
+        // Chassis Number - always show
+        _buildTextField(
+          context: context,
+          label: 'Chassis Number',
+          value: state.chassisNumber ?? '',
+          field: 'chassisNumber',
+        ),
+
+        // Brand Dropdown - always show
+        _buildBrandDropdown(context, state),
+
+        // Model Dropdown - always show
+        _buildModelDropdown(context, state),
+
+        // Date Added - always show
+        _buildDateField(
+          context: context,
+          label: 'Date Added',
+          value:
+              state.dateAdded != null
+                  ? DateFormat('dd-MM-yyyy HH:mm').format(state.dateAdded!)
+                  : '',
+          onTap: () => _pickDateTime(context),
+        ),
+
+        // Insurance Expiry Date - always show
+        _buildDateField(
+          context: context,
+          label: 'Insurance Exp Date',
+          value: _formatDateString(state.insuranceExpDate),
+          onTap: () => _pickDate(context, 'insuranceExpDate'),
+        ),
+
+        // Pollution Expiry Date - always show
+        _buildDateField(
+          context: context,
+          label: 'Pollution Exp Date',
+          value: _formatDateString(state.pollutionExpDate),
+          onTap: () => _pickDate(context, 'pollutionExpDate'),
+        ),
+
+        // Fitness Expiry Date - always show
+        _buildDateField(
+          context: context,
+          label: 'Fitness Expiry Date',
+          value: _formatDateString(state.fitnessExpDate),
+          onTap: () => _pickDate(context, 'fitnessExpDate'),
+        ),
+
+        SizedBox(height: AppConstants.largePadding),
+        _buildActionButtons(context),
+        SizedBox(height: AppConstants.smallPadding),
+        Divider(height: 50),
+
+        // File Upload Sections - always show
+        fileUploadRow(
+          url: state.registrationCertificate,
+          label: 'Registration Certificate',
+          onView: () => _onViewFile(context, state.registrationCertificate),
+          onUpload: () => _onUploadFile(context, 'registrationCertificate'),
+        ),
+
+        fileUploadRow(
+          url: state.insuranceImage,
+          label: 'Insurance Image',
+          onView: () => _onViewFile(context, state.insuranceImage),
+          onUpload:
+              () => _onUploadFile(context, 'insuranceImage', imageOnly: true),
+        ),
+
+        fileUploadRow(
+          url: state.pollutionImage,
+          label: 'Pollution Image',
+          onView: () => _onViewFile(context, state.pollutionImage),
+          onUpload:
+              () => _onUploadFile(context, 'pollutionImage', imageOnly: true),
+        ),
+
+        fileUploadRow(
+          url: state.fitnessCertificate,
+          label: 'Fitness Certificate Image',
+          onView: () => _onViewFile(context, state.fitnessCertificate),
+          onUpload:
+              () =>
+                  _onUploadFile(context, 'fitnessCertificate', imageOnly: true),
+        ),
+
+        SizedBox(height: AppConstants.largePadding),
+      ],
+    );
+  }
+
+  String _formatDateString(String? dateString) {
+    if (dateString == null || dateString.isEmpty) {
+      return '';
+    }
+
+    try {
+      final date = DateTime.parse(dateString);
+      return DateFormat('dd-MM-yyyy').format(date);
+    } catch (e) {
+      return dateString; // Return original if parsing fails
+    }
+  }
+
+  bool _hasValue(String? value) {
+    return value != null && value.trim().isNotEmpty;
+  }
+
+  Widget _buildTextField({
+    required BuildContext context,
+    required String label,
+    required String value,
+    required String field,
+  }) {
+    return Column(
+      children: [
+        AppTextField(
+          controller: TextEditingController(text: value),
+          labelText: label,
+          onChanged: (newValue) {
+            context.read<EditVehicleInfoBloc>().add(
+              UpdateTextField(field: field, value: newValue),
+            );
+          },
+        ),
+        SizedBox(height: AppConstants.smallPadding),
+      ],
+    );
+  }
+
+  Widget _buildDateField({
+    required BuildContext context,
+    required String label,
+    required String value,
+    required VoidCallback onTap,
+  }) {
+    String displayValue = value;
+
+    // Try to format the date if it's a valid date string
+    try {
+      final date = DateTime.parse(value);
+      displayValue = DateFormat('dd-MM-yyyy').format(date);
+    } catch (e) {
+      // Keep original value if parsing fails
+    }
+
+    return Column(
+      children: [
+        AppTextField(
+          controller: TextEditingController(text: displayValue),
+          labelText: label,
+          readOnly: true,
+          onTextFieldTap: onTap,
+          decoration: commonInputDecoration(
+            suffixIcon: Icons.calendar_today,
+            iconPadding: 0,
+          ),
+        ),
+        SizedBox(height: AppConstants.smallPadding),
+      ],
+    );
+  }
+
+  Widget _buildBrandDropdown(
+    BuildContext context,
+    EditVehicleInfoLoaded state,
+  ) {
     final List<String> brands = [
       "Aston Martin",
       "Audi",
@@ -249,8 +443,51 @@ class EditVehicleInfoView extends StatelessWidget {
       "Toyota",
       "Volkswagen",
       "Volvo",
+      "Ashok Leyland",
+      "Bajaj",
+      "Chevrolet",
+      "Daewoo",
+      "Dodge",
+      "Eicher",
+      "Foton",
+      "General Motors",
+      "Hero",
+      "Hindustan Motors",
+      "International",
+      "Kia",
+      "Leyland",
+      "MG",
+      "Opel",
+      "Peugeot",
+      "Piaggio",
+      "Royal Enfield",
+      "Suzuki",
+      "TVS",
+      "Yamaha",
+      "Other",
     ];
 
+    String? selectedBrand = _getValidDropdownValue(state.selectedBrand, brands);
+
+    return Column(
+      children: [
+        AppDropdown(
+          dropdownValue: selectedBrand,
+          dropDownList: _createDropdownItems(brands),
+          labelText: 'Brand',
+          onChanged: (String? value) {
+            context.read<EditVehicleInfoBloc>().add(UpdateBrand(brand: value));
+          },
+        ),
+        SizedBox(height: AppConstants.smallPadding),
+      ],
+    );
+  }
+
+  Widget _buildModelDropdown(
+    BuildContext context,
+    EditVehicleInfoLoaded state,
+  ) {
     final List<String> models = [
       "DB11",
       "Rapide",
@@ -282,12 +519,6 @@ class EditVehicleInfoView extends StatelessWidget {
       "X6",
       "Z4",
       "i8",
-      "Rolls-Royce",
-      "Skoda",
-      "Tata",
-      "Toyota",
-      "Volkswagen",
-      "Volvo",
       "Bentayga",
       "Continental",
       "Flying Spur",
@@ -484,52 +715,15 @@ class EditVehicleInfoView extends StatelessWidget {
       "V90 Cross Country",
       "XC60",
       "XC90",
+      "Other",
     ];
+
+    String? selectedModel = _getValidDropdownValue(state.selectedModel, models);
 
     return Column(
       children: [
-        SizedBox(height: AppConstants.defaultPadding),
-        AppTextField(
-          controller: TextEditingController(text: state.vehicleNumber),
-          labelText: 'Vehicle Number',
-          onChanged: (value) {
-            context.read<EditVehicleInfoBloc>().add(
-              UpdateTextField(field: 'vehicleNumber', value: value),
-            );
-          },
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        AppTextField(
-          controller: TextEditingController(text: state.plateNumber),
-          labelText: 'Plate Number',
-          onChanged: (value) {
-            context.read<EditVehicleInfoBloc>().add(
-              UpdateTextField(field: 'plateNumber', value: value),
-            );
-          },
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        AppTextField(
-          controller: TextEditingController(text: state.chassisNumber),
-          labelText: 'Chassis Number',
-          onChanged: (value) {
-            context.read<EditVehicleInfoBloc>().add(
-              UpdateTextField(field: 'chassisNumber', value: value),
-            );
-          },
-        ),
-        SizedBox(height: AppConstants.smallPadding),
         AppDropdown(
-          dropdownValue: state.selectedBrand,
-          dropDownList: _createDropdownItems(brands),
-          labelText: 'Brand',
-          onChanged: (String? value) {
-            context.read<EditVehicleInfoBloc>().add(UpdateBrand(brand: value));
-          },
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        AppDropdown(
-          dropdownValue: state.selectedModel,
+          dropdownValue: selectedModel,
           dropDownList: _createDropdownItems(models),
           labelText: 'Model',
           onChanged: (String? value) {
@@ -537,87 +731,31 @@ class EditVehicleInfoView extends StatelessWidget {
           },
         ),
         SizedBox(height: AppConstants.smallPadding),
-        AppTextField(
-          controller: TextEditingController(text: state.dateAdded?.toString()),
-          labelText: 'Date Added',
-          readOnly: true,
-          onTextFieldTap: () => _pickDateTime(context),
-          decoration: commonInputDecoration(
-            suffixIcon: Icons.calendar_today,
-            iconPadding: 0,
-          ),
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        AppTextField(
-          controller: TextEditingController(text: state.insuranceExpDate),
-          labelText: 'Insurance Exp Date',
-          readOnly: true,
-          onTextFieldTap: () => _pickDate(context, 'insuranceExpDate'),
-          decoration: commonInputDecoration(
-            suffixIcon: Icons.calendar_today,
-            iconPadding: 0,
-          ),
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        AppTextField(
-          controller: TextEditingController(text: state.pollutionExpDate),
-          labelText: 'Pollution Exp Date',
-          readOnly: true,
-          onTextFieldTap: () => _pickDate(context, 'pollutionExpDate'),
-          decoration: commonInputDecoration(
-            suffixIcon: Icons.calendar_today,
-            iconPadding: 0,
-          ),
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        AppTextField(
-          controller: TextEditingController(text: state.fitnessExpDate),
-          labelText: 'Fitness Expiry Date',
-          readOnly: true,
-          onTextFieldTap: () => _pickDate(context, 'fitnessExpDate'),
-          decoration: commonInputDecoration(
-            suffixIcon: Icons.calendar_today,
-            iconPadding: 0,
-          ),
-        ),
-        SizedBox(height: AppConstants.largePadding),
-        _buildActionButtons(context),
-        SizedBox(height: AppConstants.smallPadding),
-        Divider(height: 50),
-        fileUploadRow(
-          url: state.registrationCertificate,
-          label: 'Registration Certificate',
-          onView: () => _onViewFile(context, state.registrationCertificate),
-          onUpload: () => _onUploadFile(context, 'registrationCertificate'),
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        fileUploadRow(
-          url: state.insuranceImage,
-          label: 'Insurance Image',
-          onView: () => _onViewFile(context, state.insuranceImage),
-          onUpload:
-              () => _onUploadFile(context, 'insuranceImage', imageOnly: true),
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        fileUploadRow(
-          url: state.pollutionImage,
-          label: 'Pollution Image',
-          onView: () => _onViewFile(context, state.pollutionImage),
-          onUpload:
-              () => _onUploadFile(context, 'pollutionImage', imageOnly: true),
-        ),
-        SizedBox(height: AppConstants.smallPadding),
-        fileUploadRow(
-          url: state.fitnessCertificate,
-          label: 'Fitness Certificate Image',
-          onView: () => _onViewFile(context, state.fitnessCertificate),
-          onUpload:
-              () =>
-                  _onUploadFile(context, 'fitnessCertificate', imageOnly: true),
-        ),
-        SizedBox(height: AppConstants.largePadding),
       ],
     );
+  }
+
+  String? _getValidDropdownValue(String? value, List<String> options) {
+    if (value == null || value.trim().isEmpty) {
+      return null; // Return null for empty values to show placeholder
+    }
+
+    value = value.trim();
+
+    // Try exact match first
+    if (options.contains(value)) {
+      return value;
+    }
+
+    // Try case-insensitive match
+    for (String option in options) {
+      if (option.toLowerCase() == value.toLowerCase()) {
+        return option;
+      }
+    }
+
+    // If no match found, return null to show placeholder
+    return null;
   }
 
   List<DropdownMenuItem<String>> _createDropdownItems(List<String> items) {

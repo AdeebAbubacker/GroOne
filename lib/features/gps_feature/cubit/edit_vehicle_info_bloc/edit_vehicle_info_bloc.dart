@@ -43,11 +43,154 @@ class EditVehicleInfoBloc
   ) {
     if (state is EditVehicleInfoLoaded) {
       final currentState = state as EditVehicleInfoLoaded;
+
+      print('🔍 Initializing EditVehicleInfo with:');
+      print('🔍 Vehicle: ${event.vehicle?.vehicleNumber}');
+      print(
+        '🔍 SelectedVehicleExtraInfo: ${event.selectedVehicleExtraInfo?.vehicleRegistrationNumber}',
+      );
+
+      // Extract data from vehicle and extra info
+      String? vehicleNumber = event.vehicle?.vehicleNumber;
+      String? plateNumber;
+      String? chassisNumber;
+      String? selectedBrand;
+      String? selectedModel;
+      DateTime? dateAdded;
+      String? insuranceExpDate;
+      String? pollutionExpDate;
+      String? fitnessExpDate;
+      String? registrationCertificate;
+      String? insuranceImage;
+      String? pollutionImage;
+      String? fitnessCertificate;
+
+      // Get data from extra info if available
+      if (event.selectedVehicleExtraInfo != null) {
+        final extraInfo = event.selectedVehicleExtraInfo!;
+        print('🔍 ExtraInfo data:');
+        print(
+          '🔍 - vehicleRegistrationNumber: ${extraInfo.vehicleRegistrationNumber}',
+        );
+        print('🔍 - plateNumber: ${extraInfo.plateNumber}');
+        print('🔍 - chasisNumber: ${extraInfo.chasisNumber}');
+        print('🔍 - vehicleBrand: ${extraInfo.vehicleBrand}');
+        print('🔍 - vehicleModel: ${extraInfo.vehicleModel}');
+        print('🔍 - insuranceExpiryDate: ${extraInfo.insuranceExpiryDate}');
+        print('🔍 - pollutionExpiryDate: ${extraInfo.pollutionExpiryDate}');
+        print('🔍 - fitnessExpiryDate: ${extraInfo.fitnessExpiryDate}');
+
+        vehicleNumber =
+            extraInfo.vehicleRegistrationNumber?.toString() ?? vehicleNumber;
+        plateNumber = extraInfo.plateNumber?.toString();
+        chassisNumber = extraInfo.chasisNumber?.toString();
+        selectedBrand = extraInfo.vehicleBrand?.toString();
+        selectedModel = extraInfo.vehicleModel?.toString();
+
+        print('🔍 Extracted brand: "$selectedBrand"');
+        print('🔍 Extracted model: "$selectedModel"');
+
+        insuranceExpDate = extraInfo.insuranceExpiryDate?.toString();
+        pollutionExpDate = extraInfo.pollutionExpiryDate?.toString();
+        fitnessExpDate = extraInfo.fitnessExpiryDate?.toString();
+        registrationCertificate =
+            extraInfo.vehicleRegCertificateUrl?.toString();
+        insuranceImage = extraInfo.insuranceUpload?.toString();
+        pollutionImage = extraInfo.pollutionCertificateUpload?.toString();
+        fitnessCertificate = extraInfo.fitnessCertificateUrl?.toString();
+
+        // Parse dateAdded if available
+        if (extraInfo.dateAdded != null) {
+          try {
+            dateAdded = DateTime.parse(extraInfo.dateAdded.toString());
+            print('🔍 Parsed dateAdded: $dateAdded');
+          } catch (e) {
+            print(
+              '🔍 Failed to parse extraInfo.dateAdded: ${extraInfo.dateAdded}',
+            );
+            // If parsing fails, try to parse from vehicle data
+            if (event.vehicle?.dateAdded != null) {
+              try {
+                dateAdded = DateTime.parse(event.vehicle!.dateAdded!);
+                print('🔍 Parsed vehicle.dateAdded: $dateAdded');
+              } catch (e) {
+                print(
+                  '🔍 Failed to parse vehicle.dateAdded: ${event.vehicle!.dateAdded}',
+                );
+                // If both fail, use current date
+                dateAdded = DateTime.now();
+              }
+            }
+          }
+        } else if (event.vehicle?.dateAdded != null) {
+          try {
+            dateAdded = DateTime.parse(event.vehicle!.dateAdded!);
+            print('🔍 Parsed vehicle.dateAdded: $dateAdded');
+          } catch (e) {
+            print(
+              '🔍 Failed to parse vehicle.dateAdded: ${event.vehicle!.dateAdded}',
+            );
+            dateAdded = DateTime.now();
+          }
+        }
+
+        // Parse expiry dates if they are in string format
+        if (insuranceExpDate != null && insuranceExpDate.isNotEmpty) {
+          try {
+            // Try to parse as ISO date first
+            DateTime.parse(insuranceExpDate);
+          } catch (e) {
+            // If it's not a valid ISO date, keep as is (might be formatted)
+            // The UI will handle the display formatting
+          }
+        }
+
+        if (pollutionExpDate != null && pollutionExpDate.isNotEmpty) {
+          try {
+            DateTime.parse(pollutionExpDate);
+          } catch (e) {
+            // Keep as is for UI formatting
+          }
+        }
+
+        if (fitnessExpDate != null && fitnessExpDate.isNotEmpty) {
+          try {
+            DateTime.parse(fitnessExpDate);
+          } catch (e) {
+            // Keep as is for UI formatting
+          }
+        }
+      }
+
+      print('🔍 Final state values:');
+      print('🔍 - vehicleNumber: $vehicleNumber');
+      print('🔍 - plateNumber: $plateNumber');
+      print('🔍 - chassisNumber: $chassisNumber');
+      print('🔍 - selectedBrand: $selectedBrand');
+      print('🔍 - selectedModel: $selectedModel');
+      print('🔍 - dateAdded: $dateAdded');
+      print('🔍 - insuranceExpDate: $insuranceExpDate');
+      print('🔍 - pollutionExpDate: $pollutionExpDate');
+      print('🔍 - fitnessExpDate: $fitnessExpDate');
+
       emit(
         currentState.copyWith(
           vehicle: event.vehicle,
           vehicleExtraInfoList: event.vehicleExtraInfoList,
           selectedVehicleExtraInfo: event.selectedVehicleExtraInfo,
+          vehicleNumber: vehicleNumber,
+          plateNumber: plateNumber,
+          chassisNumber: chassisNumber,
+          selectedBrand: selectedBrand,
+          selectedModel: selectedModel,
+          dateAdded: dateAdded,
+          insuranceExpDate: insuranceExpDate,
+          pollutionExpDate: pollutionExpDate,
+          fitnessExpDate: fitnessExpDate,
+          registrationCertificate: registrationCertificate,
+          insuranceImage: insuranceImage,
+          pollutionImage: pollutionImage,
+          fitnessCertificate: fitnessCertificate,
           isLoading: false,
         ),
       );
