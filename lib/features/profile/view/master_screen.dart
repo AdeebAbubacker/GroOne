@@ -20,7 +20,9 @@ import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/view/widgets/master_dialogue_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -102,6 +104,7 @@ class _MasterScreenState extends State<MasterScreen>
     profileCubit.fetchUserRole();
     gpsVehicleCubit.fetchTruckTypes();
     gpsVehicleCubit.fetchCommodities();
+    vpCreationCubit.fetchTruckType();
   }
 
   void disposeFunction() => frameCallback(() {
@@ -1191,7 +1194,7 @@ class _MasterScreenState extends State<MasterScreen>
     final truckMakeModelController = TextEditingController(text: vehcile?.modelNumber ?? '');
     final rcNumberController = TextEditingController();
     final capacityController = TextEditingController(text: vehcile?.tonnage ?? '');
-
+    TruckTypeModel? selectedTruckType;
    
 
     MasterDialogueWidget.show(
@@ -1260,79 +1263,45 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                      16.height,
                     // TrucK Type
-                 BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
-                  builder: (context, state) {
-                    final truckTypesUI = state.truckTypes;
-                    final truckLengthsUI = state.truckLengths;
-          
-                    if (truckTypesUI == null || truckTypesUI.status == Status.LOADING) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    if (truckTypesUI.status == Status.ERROR) {
-                      return Text("Error loading truck types");
-                    }
-                    final truckTypes = truckTypesUI.data ?? [];
-          
-                    return Column(
-                      children: [
-                        AppDropdown(
-                          enabled: isVehicleVerified ? true : false,
+                   BlocBuilder<VpCreateAccountCubit, VpCreateAccountState>(
+                builder: (context, state) {
+                  final truckTypeUIState = state.truckTypeUIState;
+
+                  if (truckTypeUIState == null || truckTypeUIState.status == Status.LOADING) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (truckTypeUIState.status == Status.ERROR) {
+                    return const Text("Error loading truck types");
+                  }
+
+                  final truckTypeList = truckTypeUIState.data ?? [];
+
+                            return AppDropdown(
+                          enabled: isVehicleVerified,
                           labelText: context.appText.truckType,
-                          dropdownValue: selectedTruckType,
-                          dropDownList: truckTypes.map((e) => DropdownMenuItem(
-                                value: e,
-                                child: Text(e),
-                              )).toList(),
+                          dropdownValue: selectedTruckType == null
+                              ? null
+                              : "${selectedTruckType!.type} - ${selectedTruckType!.subType}",
+                          dropDownList: truckTypeList.map((truckType) {
+                            final label = "${truckType.type} - ${truckType.subType}";
+                            return DropdownMenuItem<String>(
+                              value: label,
+                              child: Text(label),
+                            );
+                          }).toList(),
                           onChanged: (val) {
                             setState(() {
-                              selectedTruckType = val;
-                              truckLengthDropdownValue = null; // reset truck length on type change
+                              selectedTruckType = truckTypeList.firstWhere(
+                                (e) => "${e.type} - ${e.subType}" == val,
+                              );
                             });
-                            context.read<GpsVehicleCubit>().fetchTruckLengths(val!);
                           },
                           validator: (val) => val == null ? "Select Truck Type" : null,
-                        ),
-                     16.height,
-                    AppDropdown(
-                      enabled: isVehicleVerified ? true : false,
-                      labelText: context.appText.truckLength,
-                      dropdownValue: truckLengthDropdownValue,
-                      dropDownList: (truckLengthsUI != null &&
-                              truckLengthsUI.status == Status.SUCCESS &&
-                              truckLengthsUI.data != null)
-                          ? truckLengthsUI.data!.map((e) => DropdownMenuItem(
-                                value: e.subType,
-                                child: Text(e.subType),
-                              )).toList()
-                          : [],
-                      hintText: context.appText.pleaseSelectTruckLength,
-                      mandatoryStar: true,
-                    
-                      onChanged: (val) {
-                        if (truckLengthsUI != null && truckLengthsUI.status == Status.SUCCESS) {
-                          setState(() {
-                            truckLengthDropdownValue = val;
-                          });
-                        }
-                      },
-                      validator: (val) =>
-                          val == null || val.isEmpty ? "Select Truck Length" : null,
-                    ),
-                    if (truckLengthsUI != null && truckLengthsUI.status == Status.LOADING)
-                      const Padding(
-                        padding: EdgeInsets.only(top: 8.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    if (truckLengthsUI != null && truckLengthsUI.status == Status.ERROR)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text("Error loading truck lengths"),
-                      ),
-                  ],
-                );
-              },
-            ),
-              16.height,
+                        );
+                    },
+                  ),
+                  16.height,
                   AppTextField(
                     readOnly: isVehicleVerified ? false : true,
                     validator: (value)=> Validator.fieldRequired(value),
@@ -1406,7 +1375,7 @@ class _MasterScreenState extends State<MasterScreen>
                     rcNumber: rcNumberController.text.trim(),
                     rcDocLink: rcDocLink,
                     tonnage: capacityController.text.trim(),
-                    truckTypeId: int.tryParse(selectedTruckType ?? '') ?? 0,
+                    truckTypeId: selectedTruckType?.id ?? 1,
                     truckMakeAndModel: truckMakeModelController.text.trim(),
                     acceptableCommodities: selectedCommodities.map(int.parse).toList(),
                     truckLength: int.tryParse(selectedTruckLength ?? '') ?? 0,
