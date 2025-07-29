@@ -59,7 +59,6 @@ class VpHomeScreen extends StatefulWidget {
 
 class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
-  // ProfileDetailModel? profileResponse;
    VpMyLoadResponse? vpMyLoadResponse;
    final profileCubit = locator<ProfileCubit>();
    final lpHomeBloc = locator<LpHomeBloc>();
@@ -101,9 +100,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
   });
 
 
-  void disposeFunction() => frameCallback(() {
+  void disposeFunction() => frameCallback(() {});
 
-  });
 
   // Store Kyc Status Event
   void logKycStatusEvent(int kycFlag){
@@ -123,7 +121,13 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
        context,
        child: CommonDialogView(
          hideCloseButton: true,
-         child: BlueMembershipDialogView(blueId: blueId),
+         child: BlueMembershipDialogView(
+             blueId: blueId,
+             afterDismiss: (){
+               var parameters = {"blueId": blueId};
+               analyticsHelper.logEvent(AnalyticEventName.VP_BLUE_MEMBERSHIP_ID, parameters);
+             }
+         ),
        ),
      );
    });

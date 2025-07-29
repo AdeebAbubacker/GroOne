@@ -22,10 +22,18 @@ class AnalyticEventName {
   static const String ONBOARD_OTP_FAILED = "onboard_otp_failed";
   static const String ONBOARD_ROLE_SELECTED = "onboard_role_selected";
   // vp
+  static const String VP_HOME = "Vp_home";
+  static const String VP_MY_LOAD = "vp_my_load";
   static const String ONBOARD_VP_FORM_SUBMITTED = "onboard_vp_form_submitted";
+  static const String ACCEPT_LOAD = "accept_load";
+  static const String VP_BLUE_MEMBERSHIP_ID = "vp_blue_membership_id";
+
   // Lp
+  static const String LP_HOME = "lp_home";
+  static const String LP_MY_LOAD = "lp_my_load";
   static const String ONBOARD_LP_FORM_SUBMITTED = "onboard_lp_form_submitted";
   static const String CREATE_LOAD = "create_load";
+  static const String LP_BLUE_MEMBERSHIP_ID = "lp_blue_membership_id";
   // Kyc
   static const String AADHAAR_VERIFICATION_SUCCESS = "aadhaar_verification_success";
   static const String AADHAAR_VERIFICATION_FAILED = "aadhaar_verification_failed";

@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -318,6 +319,10 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
         hideCloseButton: true,
         child: BlueMembershipDialogView(
           blueId: blueId,
+          afterDismiss: (){
+            var parameters = {"blueId": blueId};
+            analyticsHelper.logEvent(AnalyticEventName.LP_BLUE_MEMBERSHIP_ID, parameters);
+          }
         ),
       ),
     );
