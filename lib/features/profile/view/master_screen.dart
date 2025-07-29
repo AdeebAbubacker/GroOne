@@ -957,10 +957,10 @@ class _MasterScreenState extends State<MasterScreen>
               final status = s?.status;
           
               if (status == Status.SUCCESS) {
-                 ToastMessages.success(message: "vehicle reg no is verified");
+                 ToastMessages.success(message: context.appText.vehicleRegNoVerified);
                   onVerificationResult(true);
               } else if (status == Status.ERROR) {
-                 ToastMessages.error(message: "This vehicle reg no already excist");
+                 ToastMessages.error(message: context.appText.vehicleRegNoAlreadyExcist);
                   onVerificationResult(false);
               }
             },
@@ -1015,7 +1015,7 @@ class _MasterScreenState extends State<MasterScreen>
               final status = s?.status;
           
               if (status == Status.SUCCESS) {
-                ToastMessages.success(message:  "License no verified");
+                ToastMessages.success(message:  context.appText.licenseNoVerified);
                 onVerificationResult(true);
                  
               } else if (status == Status.ERROR) {
@@ -1381,7 +1381,6 @@ class _MasterScreenState extends State<MasterScreen>
                     truckTypeId: selectedTruckType?.id ?? 1,
                     truckMakeAndModel: truckMakeModelController.text.trim(),
                    // acceptableCommodities: selectedCommodities.map(int.parse).toList(),
-
                     vehicleStatus: 1,
                 );
           
