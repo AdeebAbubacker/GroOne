@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
@@ -43,8 +44,7 @@ class VpAllLoadsScreen extends StatefulWidget {
   State<VpAllLoadsScreen> createState() => _VpAllLoadsScreenState();
 }
 
-class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
-    with TickerProviderStateMixin {
+class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProviderStateMixin {
 
   late TabController _tabController;
   final ScrollController _tabScrollController = ScrollController();
@@ -246,10 +246,8 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         } else if (state is VpLoadLoaded) {
           if (state.loads.isEmpty) {
-            return VpHelper.withSliverRefresh(
-                child: Center(child: Text(context.appText.noLoadsFound)),
-                _onPullToRefresh);
-
+            _onPullToRefresh;
+            return genericErrorWidget(error: NotFoundError());
           }
           return VpHelper.withRefreshIndicator(
               child: ListView.builder(
@@ -258,18 +256,13 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                 itemCount: state.loads.length,
                 itemBuilder: (context, index) {
                   if (_tabController.index == 0) {
-                    return VpAllLoadAvailableLoadWidget(
-                      onBack: () =>  _onPullToRefresh(),
-                        data: state.loads[index]
-                    ).paddingSymmetric(vertical: 7);
+                    return VpAllLoadAvailableLoadWidget(onBack: () =>  _onPullToRefresh(), data: state.loads[index]).paddingSymmetric(vertical: 7);
                   } else if (_tabController.index == 1) {
                     return GestureDetector(
                       onTap: () async {
-                      await  context.push(AppRouteName.loadDetailsScreen,extra: {
-                          "loadId":state.loads[index].id
-                        }).then((value) {
+                      await  context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":state.loads[index].id}).then((value) {
                         _onPullToRefresh();
-                        },);
+                      });
                       },
                       child: VpAllLoadMyLoadWidget(
                         data: state.loads[index],
@@ -277,22 +270,18 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                           _onPullToRefresh();
                         },
                         onClickAssignDriver: () async {
-                         await context.push(AppRouteName.loadDetailsScreen,extra: {
-                            "loadId":state.loads[index].id
-                          }).then((value) {
+                         await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":state.loads[index].id}).then((value) {
                            _onPullToRefresh();
-                          },);
+                          });
                         },
                       ).paddingSymmetric(vertical: 7),
                     );
                   } else {
                     return GestureDetector(
                       onTap: () async {
-                        await context.push(AppRouteName.loadDetailsScreen,extra: {
-                          "loadId":state.loads[index].id
-                        }).then((value) {
+                        await context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":state.loads[index].id}).then((value) {
                           _onPullToRefresh();
-                        },);
+                        });
                       },
                       child: VpAllLoadMyLoadWidget(
                         data: state.loads[index],
@@ -301,24 +290,21 @@ class _VpAllLoadsScreenState extends State<VpAllLoadsScreen>
                           _onPullToRefresh();
                         },
                         onClickAssignDriver: () async {
-                         await context.push(AppRouteName.loadDetailsScreen,extra: {
-                            "loadId":state.loads[index].id
-                          }).then((value) {
+                         await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":state.loads[index].id}).then((value) {
                            _onPullToRefresh();
-                         },);
+                         });
                         },
                       ).paddingSymmetric(vertical: 7),
                     );
                   }
                 },
               ),
-              _onPullToRefresh);
+              _onPullToRefresh,
+          );
 
 
         } else if (state is VpLoadError) {
-          return VpHelper.withSliverRefresh(
-              _onPullToRefresh,
-            child: Center(child: Text(state.message)));
+          return VpHelper.withSliverRefresh(_onPullToRefresh, child: Center(child: Text(state.message)));
         } else {
           return const SizedBox.shrink();
         }

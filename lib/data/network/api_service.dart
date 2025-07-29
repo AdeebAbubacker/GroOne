@@ -37,23 +37,9 @@ class ApiService {
     };
     try {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
-
-      // Enhanced debugging for token retrieval
-      CustomLog.debug(this, "🔐 Token retrieval attempt:");
-      CustomLog.debug(this, "🔐 Raw token value: '$refreshToken'");
-      CustomLog.debug(this, "🔐 Token is null: ${refreshToken == null}");
-      CustomLog.debug(this, "🔐 Token is empty: ${refreshToken?.isEmpty}");
-      CustomLog.debug(this, "🔐 Token length: ${refreshToken?.length}");
-
       if (refreshToken != null && refreshToken.isNotEmpty) {
         final authHeader = 'Bearer $refreshToken';
         headers['Authorization'] = authHeader;
-        CustomLog.debug(this, "🔐 Using token for API call: $refreshToken");
-        CustomLog.debug(this, "🔐 Authorization header set: $authHeader");
-        CustomLog.debug(this, "🔐 Full headers: $headers");
-      } else {
-        CustomLog.debug(this, "🔐 No token found - cannot authenticate");
-        CustomLog.debug(this, "🔐 Headers without auth: $headers");
       }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
@@ -62,12 +48,6 @@ class ApiService {
   }
 
 
-
-  /// Clear Cache
-  Future<void> clearCache() async {
-    CustomLog.info(this, "Cache cleared successfully");
-    // await _cacheManager.clearAll();
-  }
 
   /// Check if token is available
   Future<bool> hasValidToken() async {
@@ -89,21 +69,16 @@ class ApiService {
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
     CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
-      await clearCache();
-
       final headers = customHeaders ?? await _getHeaders();
-
       final response = await _dio.get(
         url,
         queryParameters: queryParams,
         cancelToken: cancelToken,
-        // options: buildConfigurableCacheOptions(
-        //   options: Options(headers: headers),
-        //   maxAge: const Duration(minutes: 30),
-        //   maxStale: const Duration(days: 1),
-        //   forceRefresh: forceRefresh,
-        // ),
-        options: Options(headers: headers),
+        options: Options(
+            headers: headers,
+            sendTimeout: _timeout,
+            receiveTimeout: _timeout
+        ),
       );
       return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
@@ -128,7 +103,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      await clearCache();
       final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.post(
         url,
@@ -165,7 +139,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      await clearCache();
       final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.put(
         url,
@@ -201,7 +174,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      await clearCache();
       final response = await _dio.patch(
         url,
         data: body,
@@ -252,7 +224,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      await clearCache();
       final prettyFieldsString = const JsonEncoder.withIndent('  ').convert(fields);
       CustomLog.debug(this, "\nMethod : Multipart \nURL : $url \nPath name : $pathName \nFiles : $files \nFields : $prettyFieldsString",);
       FormData formData = FormData();
@@ -387,7 +358,6 @@ class ApiService {
 
   Future<void> _logoutAndNavigateToLogin() async {
     await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
-
     if (appContext.mounted) {
       appContext.pushReplacement(AppRouteName.chooseLanguage);
     }
@@ -395,11 +365,7 @@ class ApiService {
 
   /// Handle Dio Error
   Future<Result<dynamic>> _handleDioError(DioException error) async {
-    CustomLog.error(
-      this,
-      "DIO HTTP call error,Status Code : ${error.response?.statusCode} response : ${error.response}",
-      error,
-    );
+    CustomLog.error(this, "DIO HTTP call error,Status Code : ${error.response?.statusCode} response : ${error.response}", error);
     switch (error.type) {
       case DioExceptionType.badResponse:
         return await _handleHttpError(error.response);
@@ -412,38 +378,7 @@ class ApiService {
     }
   }
 
-  /// Json to Query Params
-  String jsonToQueryParams(Map<String, dynamic> json) {
-    String stringQueryParams = "";
-    try {
-      return json.entries.map((e) {
-            final key = Uri.encodeComponent(e.key);
-            final value = Uri.decodeComponent(e.value.toString());
-            stringQueryParams = '$key=$value';
-            return stringQueryParams;
-          }).join('&');
-    } catch (e) {
-      CustomLog.error(
-        this,
-        "QueryParams : $stringQueryParams,\nRun type : ${stringQueryParams.runtimeType}",
-        e,
-      );
-      return stringQueryParams;
-    }
-  }
 
-  ///
-  String decodeQueryParams(String queryString) {
-    return Uri.splitQueryString(queryString).entries
-        .map((e) {
-          final key = e.key;
-          final value = Uri.decodeComponent(
-            e.value,
-          ); // Decode percent-encoded values
-          return '$key = $value';
-        })
-        .join('\n');
-  }
 
   /// Get Response Result Status
   Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {

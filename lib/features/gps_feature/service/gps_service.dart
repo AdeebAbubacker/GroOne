@@ -1,10 +1,9 @@
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
 import '../../../data/network/api_urls.dart';
 import '../../../utils/custom_log.dart';
-import '../../load_provider/lp_home/api_request/verify_location_api_request.dart';
 import '../../load_provider/lp_home/model/auto_complete_model.dart';
-import '../../load_provider/lp_home/model/verify_location.dart';
 import '../model/gps_user_details_model.dart';
 import '../models/gps_geofence_model.dart';
 import '../models/gps_notification_model.dart';
@@ -12,13 +11,12 @@ import '../models/gps_parking_model.dart';
 
 class GpsService {
   final ApiService _apiService;
-
   GpsService(this._apiService);
 
   Future<Result<int?>> getUserId(String token) async {
     try {
       final response = await _apiService.get(
-        'https://api.letsgro.co/api/v1/auth/tc_users',
+        ApiUrls.gpsGetUserId,
         customHeaders: {'Authorization': token},
       );
 
@@ -166,10 +164,16 @@ class GpsService {
         queryParams: {"input": input},
       );
       if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-          (data) => AutoCompleteModel.fromJson(data),
-        );
+        // return await _apiService.getResponseStatus(
+        //   response.value,
+        //   (data) => AutoCompleteModel.fromJson(data),
+        // );
+        try {
+          final parsed = AutoCompleteModel.fromJson(response.value);
+          return Success(parsed);
+        } catch (e) {
+          return Error(DeserializationError());
+        }
       } else if (response is Error) {
         return Error(response.type);
       } else {
@@ -180,30 +184,6 @@ class GpsService {
       return Error(DeserializationError());
     }
   }
-
-  /// Fetch Verify Location
-  Future<Result<VerifyLocationModel>> fetchVerifyLocationData(
-    VerifyLocationApiRequest request,
-  ) async {
-    try {
-      final url = ApiUrls.verifyLocation;
-      final response = await _apiService.post(url, body: request.toJson());
-      if (response is Success) {
-        return await _apiService.getResponseStatus(
-          response.value,
-          (data) => VerifyLocationModel.fromJson(data),
-        );
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch (e) {
-      CustomLog.error(this, "Failed to fetch verify location data", e);
-      return Error(DeserializationError());
-    }
-  }
-
 
   Future<Result<List<GpsNotificationModel>>> fetchNotifications({
     required String token,
@@ -409,8 +389,6 @@ class GpsService {
 
       if (response is Success) {
         final value = response.value;
-
-        // 👇 Inline fix for string status
         if (value is Map<String, dynamic> && value['status'] == 'success') {
           value['status'] = true;
         }
@@ -448,7 +426,28 @@ class GpsService {
     }
   }
 
+  Future<Result<LatLng>> fetchLatLngFromPlaceId(String placeId) async {
+    try {
+      final url = ApiUrls.gpsGetPlace;
+      final response = await _apiService.get(
+        url,
+        queryParams: {"placeId": placeId},
+      );
 
+      if (response is Success) {
+        final data = response.value;
+        final location = data["result"]["geometry"]["location"];
+        final lat = location["lat"];
+        final lng = location["lng"];
+        return Success(LatLng(lat, lng));
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch LatLng from placeId", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 
 
 
