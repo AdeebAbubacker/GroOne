@@ -517,8 +517,8 @@ class _MasterScreenState extends State<MasterScreen>
                 itemBuilder: (context, index) {
                   final vehicleDetailsData = filteredVehicleList[index];
                   return masterVehicleInfoWidget(
-                    name: vehicleDetailsData.modelNumber,
-                    phone: vehicleDetailsData.ownerName ?? 'N/A',
+                    name: vehicleDetailsData.truckNo,
+                    phone: vehicleDetailsData.companyName ?? '',
                     driverStatus: vehicleDetailsData.status,
                     onEdit: () => showAddVehiclePopup(context, vehcile: vehicleDetailsData),
                     onDelete: () => deletePopUpForVehicle(context, vehicleDetailsData.vehicleId),
@@ -957,7 +957,7 @@ class _MasterScreenState extends State<MasterScreen>
               final status = s?.status;
           
               if (status == Status.SUCCESS) {
-                 ToastMessages.success(message: "This vehicle reg no is verified");
+                 ToastMessages.success(message: "vehicle reg no is verified");
                   onVerificationResult(true);
               } else if (status == Status.ERROR) {
                  ToastMessages.error(message: "This vehicle reg no already excist");
@@ -1015,11 +1015,14 @@ class _MasterScreenState extends State<MasterScreen>
               final status = s?.status;
           
               if (status == Status.SUCCESS) {
-                 ToastMessages.success(message: "License verified");
-                 onVerificationResult(true);
+                ToastMessages.success(message:  "License no verified");
+                onVerificationResult(true);
+                 
               } else if (status == Status.ERROR) {
-                 ToastMessages.error(message: "License doesnt excist");
-                 onVerificationResult(false);
+             final error = state.licenseVerficationState?.errorType;
+             ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+              onVerificationResult(false);
+
               }
             },
     builder: (context, state) {
@@ -1377,8 +1380,8 @@ class _MasterScreenState extends State<MasterScreen>
                     tonnage: capacityController.text.trim(),
                     truckTypeId: selectedTruckType?.id ?? 1,
                     truckMakeAndModel: truckMakeModelController.text.trim(),
-                    acceptableCommodities: selectedCommodities.map(int.parse).toList(),
-                    truckLength: int.tryParse(selectedTruckLength ?? '') ?? 0,
+                   // acceptableCommodities: selectedCommodities.map(int.parse).toList(),
+
                     vehicleStatus: 1,
                 );
           
