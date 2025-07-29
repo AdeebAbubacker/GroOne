@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -69,17 +70,18 @@ class _MasterScreenState extends State<MasterScreen>
   List<String> selectedCommodities = [];
   late TabController _tabController;
   final vehicleSearchController = TextEditingController();
+  final addressSearchController = TextEditingController();
+  final driverSearchController = TextEditingController();
+  Timer? vehicleSearchDebounce;
+  Timer? addressSearchDebounce;
+  Timer? driverSearchDebounce;
+
   String? selectedTruckType;
   String? selectedTruckLength;
   String? truckLengthDropdownValue;
   bool showValidationErrors = false;
   List<Map<String, dynamic>> vehicleDocList = [];
 
-  void _addControllerListeners() {  
-    vehicleSearchController.addListener(() {
-      profileCubit.fetchVehicle(search: vehicleSearchController.text);
-    });    
-  }
   @override
   void initState() {
     initFunction();
@@ -100,11 +102,16 @@ class _MasterScreenState extends State<MasterScreen>
     profileCubit.fetchUserRole();
     gpsVehicleCubit.fetchTruckTypes();
     gpsVehicleCubit.fetchCommodities();
-    _addControllerListeners();
   }
 
   void disposeFunction() => frameCallback(() {
     _tabController.dispose();
+    vehicleSearchDebounce?.cancel();
+      addressSearchDebounce?.cancel();
+      driverSearchDebounce?.cancel();
+      vehicleSearchController.dispose();
+      addressSearchController.dispose();
+      driverSearchController.dispose();
   });
 
   void deletePopUp(BuildContext context, String addressId) {
@@ -284,9 +291,7 @@ class _MasterScreenState extends State<MasterScreen>
           style: AppTextStyle.textBlackColor18w500,
         ),
       ),
-
-      body:
-               Column(
+      body: Column(
                 children: [
                   Container(
                     margin: const EdgeInsets.symmetric(
@@ -343,278 +348,284 @@ class _MasterScreenState extends State<MasterScreen>
   }
 
   Widget buildAddressTab() {
-    return BlocBuilder<ProfileCubit, ProfileState>(
-      builder: (context, state) {
-        final uiState = state.addressState;
-
-        if (uiState == null || uiState.status == Status.LOADING) {
-          return CircularProgressIndicator().center();
-        }
-
-        if (uiState.status == Status.ERROR) {
-          return genericErrorWidget(error: uiState.errorType);
-        }
-
-        final addressList = uiState.data?.addresses ?? [];
-
-        if (addressList.isEmpty) {
-          return Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Center(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+    return Column(
+      children: [
+        20.height,
+      // Search Bar 
+      AppSearchBar(
+        searchController: addressSearchController,
+        onChanged: (query) {
+          addressSearchDebounce?.cancel();
+          addressSearchDebounce = Timer(const Duration(milliseconds: 300), () {
+            profileCubit.fetchAddress(search: query);
+          });
+        },
+      ).paddingSymmetric(horizontal: 20),
+        Expanded(
+          child: BlocBuilder<ProfileCubit, ProfileState>(
+            builder: (context, state) {
+              final uiState = state.addressState;
+          
+              if (uiState == null || uiState.status == Status.LOADING) {
+                return CircularProgressIndicator().center();
+              }
+          
+              if (uiState.status == Status.ERROR) {
+                return genericErrorWidget(error: uiState.errorType);
+              }
+          
+              final addressList = uiState.data?.addresses ?? [];
+          
+              if (addressList.isEmpty) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
-                    20.height,
-                    Text(
-                      context.appText.noAddressFound,
-                      style: AppTextStyle.h5,
-                    ),
-                    10.height,
-                    Text(
-                      context.appText.startByAddingANewAddress,
-                      style: AppTextStyle.body3,
-                    ),
-                  ],
-                ),
-              ).expand(),
-              AppButton(
-                title: context.appText.addNewAddress,
-                onPressed: () async => showAddAddressPopup(context),
-              ).paddingSymmetric(horizontal: 20, vertical: 10),
-            ],
-          );
-        }
-
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              20.height,
-                AppSearchBar(searchController: vehicleSearchController),
-                20.height,
-              ListView.builder(
-                itemBuilder: (context, index) {
-                  var address = addressList[index];
-                  String fullAddress =
-                      '${address.addr}, ${address.city}, ${address.state}, ${address.pincode}';
-                  return masterInfoWidget(
-                    title: address.addrName.capitalizeFirst,
-                    address: fullAddress,
-                    isPrimary: address.isDefault,
-                    onEdit:
-                        () => showAddAddressPopup(context, address: address),
-                    onDelete:
-                        () => deletePopUp(context, address.preferedAddressId),
-                    onSetPrimary: () async {
-                      await profileCubit.setPrimaryAddress(
-                        addressId: address.preferedAddressId,
-                      );
-
-                      // Check if it succeeded
-                      final primaryState =
-                          profileCubit.state.primaryAddressState;
-                      if (primaryState != null &&
-                          primaryState.status == Status.SUCCESS) {
-                        ToastMessages.success(
-                          message:
-                              context.appText.primaryAddressUpdatedSuccessfully,
-                        ); // optional toast
-                        profileCubit.fetchAddress(
-                          isLoading: false,
-                        ); // silent refresh
-                      } else {
-                        final error = primaryState?.errorType;
-                        ToastMessages.error(
-                          message: getErrorMsg(
-                            errorType: error ?? GenericError(),
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
+                          20.height,
+                          Text(
+                            context.appText.noAddressFound,
+                            style: AppTextStyle.h5,
                           ),
-                        ); // optional toast
-                      }
-                    },
-                  );
-                },
-                itemCount: addressList.length,
-              ).expand(),
-              AppButton(
-                title: context.appText.addNewAddress,
-                onPressed: () async => showAddAddressPopup(context),
-              ).paddingSymmetric(vertical: 10),
-            ],
+                          10.height,
+                          Text(
+                            context.appText.startByAddingANewAddress,
+                            style: AppTextStyle.body3,
+                          ),
+                        ],
+                      ),
+                    ),             
+                  ],
+                );
+              }
+          
+              return ListView.builder(
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      itemBuilder: (context, index) {
+                        var address = addressList[index];
+                        String fullAddress =
+                            '${address.addr}, ${address.city}, ${address.state}, ${address.pincode}';
+                        return masterInfoWidget(
+                          title: address.addrName.capitalizeFirst,
+                          address: fullAddress,
+                          isPrimary: address.isDefault,
+                          onEdit:
+                              () => showAddAddressPopup(context, address: address),
+                          onDelete:
+                              () => deletePopUp(context, address.preferedAddressId),
+                          onSetPrimary: () async {
+                            await profileCubit.setPrimaryAddress(
+                              addressId: address.preferedAddressId,
+                            );
+          
+                            // Check if it succeeded
+                            final primaryState =
+                                profileCubit.state.primaryAddressState;
+                            if (primaryState != null &&
+                                primaryState.status == Status.SUCCESS) {
+                              ToastMessages.success(
+                                message:
+                                    context.appText.primaryAddressUpdatedSuccessfully,
+                              ); // optional toast
+                              profileCubit.fetchAddress(
+                                isLoading: false,
+                              ); // silent refresh
+                            } else {
+                              final error = primaryState?.errorType;
+                              ToastMessages.error(
+                                message: getErrorMsg(
+                                  errorType: error ?? GenericError(),
+                                ),
+                              ); // optional toast
+                            }
+                          },
+                        );
+                      },
+                      itemCount: addressList.length,                            
+              );
+            },
           ),
-        );
-      },
+        ),
+        Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: AppButton(
+          title: context.appText.addNewAddress,
+          onPressed: () => showAddAddressPopup(context),
+        ),
+      ),
+      ],
     );
   }
-
+ 
   Widget buildVehicleTab() {
-    return BlocBuilder<ProfileCubit, ProfileState>(
-      builder: (context, state) {
-        final uiState = state.vehicleState;
+    return Column(
+      children: [
+        20.height,
+        // Search Bar 
+        AppSearchBar(
+          searchController: vehicleSearchController,
+          onChanged: (query) {
+            vehicleSearchDebounce?.cancel();
+            vehicleSearchDebounce = Timer(const Duration(milliseconds: 300), () {
+              profileCubit.fetchVehicle(search: query);
+            });
+          },
+        ).paddingSymmetric(horizontal: 20),
+        Expanded(
+          child: BlocBuilder<ProfileCubit, ProfileState>(
+            builder: (context, state) {
+              final uiState = state.vehicleState;
 
-        if (uiState == null || uiState.status == Status.LOADING) {
-          return const Center(child: CircularProgressIndicator());
-        }
+              if (uiState == null || uiState.status == Status.LOADING) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-        if (uiState.status == Status.ERROR) {
-          return genericErrorWidget(error: uiState.errorType);
-        }
+              if (uiState.status == Status.ERROR) {
+                return genericErrorWidget(error: uiState.errorType);
+              }
 
-        final vehicleList = uiState.data?.data ?? [];
+              final vehicleList = uiState.data?.data ?? [];
+                          final List<VehicleDetailsData> filteredVehicleList =
+                  vehicleList.where((v) => v.status == 1).toList();
 
-        if (vehicleList.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
-                20.height,
-                Text(context.appText.noVehiclesFound, style: AppTextStyle.h5),
-                10.height,
-                Text(
-                  context.appText.startByAddingANewAddress,
-                  style: AppTextStyle.body3,
-                ),
-                20.height,
-                AppButton(
-                  title: context.appText.addNewVehicle,
-                  onPressed: () async {
-                    showAddVehiclePopup(context);
-                  },
-                ),
-              ],
-            ),
-          );
-        }
-        
-      ///Active vehicle
-       final List<VehicleDetailsData> filteredVehicleList = vehicleList.where((v) => v.status == 1).toList();
+              if (filteredVehicleList.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
+                      20.height,
+                      Text(context.appText.noVehiclesFound, style: AppTextStyle.h5),
+                      10.height,
+                      Text(context.appText.startByAddingANewVehicle, style: AppTextStyle.body3),
+                    ],
+                  ),
+                );
+              }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Column(
-            children: [
-              20.height,
-            AppSearchBar(searchController: vehicleSearchController),
-              20.height,
-              
-                      
-              ListView.builder(
-                shrinkWrap: true,
+
+
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
                 itemCount: filteredVehicleList.length,
                 itemBuilder: (context, index) {
-                  VehicleDetailsData vehicleDetailsData = filteredVehicleList[index];
-                  print("Vehicle id ${vehicleDetailsData.vehicleId}");
+                  final vehicleDetailsData = filteredVehicleList[index];
                   return masterVehicleInfoWidget(
                     name: vehicleDetailsData.modelNumber,
                     phone: vehicleDetailsData.ownerName ?? 'N/A',
                     driverStatus: vehicleDetailsData.status,
-                    onEdit: () {
-                      showAddVehiclePopup(context, vehcile: vehicleDetailsData);
-                    },
+                    onEdit: () => showAddVehiclePopup(context, vehcile: vehicleDetailsData),
                     onDelete: () => deletePopUpForVehicle(context, vehicleDetailsData.vehicleId),
                     context: context,
                   );
                 },
-              ).expand(),
-              AppButton(
-                title: context.appText.addNewVehicle,
-                onPressed: () async => showAddVehiclePopup(context),
-              ).paddingSymmetric(vertical: 10),
-            ],
+              );
+            },
           ),
-        );
-      },
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          child: AppButton(
+            title: context.appText.addNewVehicle,
+            onPressed: () => showAddVehiclePopup(context),
+          ),
+        ),
+      ],
     );
   }
- String formatMobileNumber(String number) {
-  if (!number.startsWith("+91") && number.length == 10) {
-    return "+91$number";
+
+  String formatMobileNumber(String number) {
+    if (!number.startsWith("+91") && number.length == 10) {
+      return "+91$number";
+    }
+    return number;
   }
-  return number;
-}
+
    Widget buildDriverTab() {
-  return BlocBuilder<ProfileCubit, ProfileState>(
-    builder: (context, state) {
-      final uiState = state.driverState;
-
-      if (uiState == null || uiState.status == Status.LOADING) {
-        return const Center(child: CircularProgressIndicator());
-      }
-
-      if (uiState.status == Status.ERROR) {
-        return genericErrorWidget(error: uiState.errorType);
-      }
-
-      final driverList = uiState.data?.data ?? [];
-
-      if (driverList.isEmpty) {
-        return Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
-                  20.height,
-                  Text(context.appText.noVehiclesFound, style: AppTextStyle.h5),
-                  10.height,
-                  Text(
-                    context.appText.startByAddingANewAddress,
-                    style: AppTextStyle.body3,
+    return Column(
+      children: [
+        20.height,
+        // Search Bar 
+        AppSearchBar(
+          searchController: driverSearchController,
+          onChanged: (query) {
+            driverSearchDebounce?.cancel();
+            driverSearchDebounce = Timer(const Duration(milliseconds: 300), () {
+              profileCubit.fetchDriver(search: query);
+            });
+          },
+        ).paddingSymmetric(horizontal: 20),
+        Expanded(
+          child: BlocBuilder<ProfileCubit, ProfileState>(
+            builder: (context, state) {
+              final uiState = state.driverState;
+          
+              if (uiState == null || uiState.status == Status.LOADING) {
+                return const Center(child: CircularProgressIndicator());
+              }
+          
+              if (uiState.status == Status.ERROR) {
+                return genericErrorWidget(error: uiState.errorType);
+              }
+          
+              final driverList = uiState.data?.data ?? [];
+          
+              if (driverList.isEmpty) {
+                return Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
+                          20.height,
+                          Text(context.appText.noDriversfound, style: AppTextStyle.h5),
+                          10.height,
+                          Text(
+                            context.appText.startByAddingANewDriver,
+                            style: AppTextStyle.body3,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              }
+          
+              return ListView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                      itemCount: driverList.length,
+                      itemBuilder: (context, index) {
+                      DriverDetailsData driver = driverList[index];                    
+                        return masterDriverInfoWidget(
+                          name: driver.name,
+                          phone: driver.mobile,
+                          driverStatus: driver.driverStatus,
+                          onEdit: () {
+                            showAddDriverPopup(context,driver: driver);
+                          },
+                      
+                          onDelete: () => deletePopUpForDriver(context, driver.driverId),
+                        context: context);
+                        },
+                        );
+                      },
+                    ),
                   ),
-                ],
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                child: AppButton(
+                  title: context.appText.addNewDriver,
+                  onPressed: () => showAddDriverPopup(context),
+                ),
               ),
-            ).expand(),
-            AppButton(
-              title: context.appText.addNewDriver,
-              onPressed: () async {
-                showAddDriverPopup(context);
-              },
-            ).paddingSymmetric(horizontal: 20, vertical: 10),
-          ],
-        );
-      }
-
-      return Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: Column(
-          children: [
-            20.height,
-            AppSearchBar(searchController: vehicleSearchController),
-              20.height,
-      
-            ListView.builder(
-              itemCount: driverList.length,
-              itemBuilder: (context, index) {
-               DriverDetailsData driver = driverList[index];
-               
-                return masterDriverInfoWidget(
-                  name: driver.name,
-                  phone: driver.mobile,
-                  driverStatus: driver.driverStatus,
-                  onEdit: () {
-                    showAddDriverPopup(context,driver: driver);
-                  },
-                  
-                  onDelete: () => deletePopUpForDriver(context, driver.driverId),
-                context: context);
-              },
-            ).expand(),
-            AppButton(
-              title: context.appText.addNewDriver,
-              onPressed: () {
-                showAddDriverPopup(context);
-              },
-            ).paddingSymmetric(vertical: 10),
-          ],
-        ),
-      );
-    },
-  );
-}
+            ],
+          );
+   }
 
   Widget masterInfoWidget({
     required String title,
@@ -698,242 +709,242 @@ class _MasterScreenState extends State<MasterScreen>
   }
   
   Widget masterDriverInfoWidget({
-  required String name,
-  required String phone,
-  required int driverStatus,
-  required VoidCallback onEdit,
-  required VoidCallback onDelete,
-  required BuildContext context,
-}) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    margin: const EdgeInsets.only(bottom: 12),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
-          spreadRadius: 1,
-          blurRadius: 5,
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            // Profile Icon
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.blue.shade50,
-              child: SvgPicture.asset( AppIcons.svg.truckSteering)
-            ),
-            10.width,
+    required String name,
+    required String phone,
+    required int driverStatus,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
+    required BuildContext context,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              // Profile Icon
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.blue.shade50,
+                child: SvgPicture.asset( AppIcons.svg.truckSteering)
+              ),
+              10.width,
 
-            // Name, Verified and Phone Number
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        name,
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16,
+              // Name, Verified and Phone Number
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
-                      ),
-                      6.width,
-                     SvgPicture.asset( AppIcons.svg.tick)
-                    ],
-                  ),
-                  4.height,
-                  Text(
-                    phone,
-                    style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Active Tag
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color:  driverStatus == 1 ? Colors.green.shade100 : Colors.red.shade100,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                driverStatus == 1 ?context.appText.active : context.appText.inactive,
-                 style:  AppTextStyle.body.copyWith(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                        color:driverStatus==1? Color(0XFF0E6027): Color(0XFFE31B25),
-                      ),
-              ),
-            ),
-          ],
-        ),
-        16.height,
-        
-        // Action Buttons
-         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            AppButton(
-              buttonHeight: commonButtonHeight2,
-              style: AppButtonStyle.logout,
-              isLoading: false,
-              onPressed: onDelete,
-              title: context.appText.delete,
-              textStyle: TextStyle(color: Colors.red),
-            ).expand(),
-            16.width,
-
-            // Yes Button
-            AppButton(
-              buttonHeight: commonButtonHeight2,
-              style: AppButtonStyle.outline,
-              isLoading: false,
-              onPressed: onEdit,
-              title: context.appText.edit,
-            ).expand(),
-
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
- Widget masterVehicleInfoWidget({
-  required String name,
-  required String phone,
-  required int driverStatus,
-  required VoidCallback onEdit,
-  required VoidCallback onDelete,
-  required BuildContext context,
-}) {
-  return Container(
-    padding: const EdgeInsets.all(16),
-    margin: const EdgeInsets.only(bottom: 12),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
-          spreadRadius: 1,
-          blurRadius: 5,
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-         mainAxisAlignment: MainAxisAlignment.start,
-         crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Profile Icon
-            CircleAvatar(
-              radius: 20,
-              backgroundColor: Colors.blue.shade50,
-              child: SvgPicture.asset( AppIcons.svg.truck,color: AppColors.primaryColor)
-            ),
-            10.width,
-
-            // Name, Verified and Phone Number
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  4.height,
-                  Row(
-                    children: [
-                      Text(
-                        name,
-                        style: AppTextStyle.body.copyWith(
-                        fontWeight: FontWeight.w500,
-                        fontSize: 15,
-                        color: AppColors.textBlackDetailColor,
-                      ),
-                      ),
-                      6.width,
+                        6.width,
                       SvgPicture.asset( AppIcons.svg.tick)
-                    ],
-                  ),
-                  4.height,
-                  Text(
-                    phone,
-                    style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 14,
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Active Tag
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.green.shade100,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                context.appText.active,
-                style: AppTextStyle.body.copyWith(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                        color:driverStatus==1? Color(0XFF0E6027): Color(0XFFE31B25),
+                    4.height,
+                    Text(
+                      phone,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
                       ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-        16.height,
 
-        // Action Buttons
-       Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            AppButton(
-              buttonHeight: commonButtonHeight2,
-              style: AppButtonStyle.logout,
-              isLoading: false,
-              onPressed: onDelete,
-              title: context.appText.delete,
-              textStyle: TextStyle(color: Colors.red),
-            ).expand(),
-            16.width,
+              // Active Tag
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color:  driverStatus == 1 ? Colors.green.shade100 : Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  driverStatus == 1 ?context.appText.active : context.appText.inactive,
+                  style:  AppTextStyle.body.copyWith(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          color:driverStatus==1? Color(0XFF0E6027): Color(0XFFE31B25),
+                        ),
+                ),
+              ),
+            ],
+          ),
+          16.height,
+          
+          // Action Buttons
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              AppButton(
+                buttonHeight: commonButtonHeight2,
+                style: AppButtonStyle.logout,
+                isLoading: false,
+                onPressed: onDelete,
+                title: context.appText.delete,
+                textStyle: TextStyle(color: Colors.red),
+              ).expand(),
+              16.width,
 
-            // Yes Button
-            AppButton(
-              buttonHeight: commonButtonHeight2,
-              style: AppButtonStyle.outline,
-              isLoading: false,
-              onPressed: onEdit,
-              title: context.appText.edit,
-            ).expand(),
+              // Yes Button
+              AppButton(
+                buttonHeight: commonButtonHeight2,
+                style: AppButtonStyle.outline,
+                isLoading: false,
+                onPressed: onEdit,
+                title: context.appText.edit,
+              ).expand(),
 
-          ],
-        ),
-      ],
-    ),
-  );
-}
- 
- Widget buildVehicleVerificationFieldWidget({required TextEditingController vehicleNoController,required void Function(bool) onVerificationResult,}) {
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget masterVehicleInfoWidget({
+    required String name,
+    required String phone,
+    required int driverStatus,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
+    required BuildContext context,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.1),
+            spreadRadius: 1,
+            blurRadius: 5,
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Profile Icon
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Colors.blue.shade50,
+                child: SvgPicture.asset( AppIcons.svg.truck,color: AppColors.primaryColor)
+              ),
+              10.width,
+
+              // Name, Verified and Phone Number
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    4.height,
+                    Row(
+                      children: [
+                        Text(
+                          name,
+                          style: AppTextStyle.body.copyWith(
+                          fontWeight: FontWeight.w500,
+                          fontSize: 15,
+                          color: AppColors.textBlackDetailColor,
+                        ),
+                        ),
+                        6.width,
+                        SvgPicture.asset( AppIcons.svg.tick)
+                      ],
+                    ),
+                    4.height,
+                    Text(
+                      phone,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+
+              // Active Tag
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.green.shade100,
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  context.appText.active,
+                  style: AppTextStyle.body.copyWith(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          color:driverStatus==1? Color(0XFF0E6027): Color(0XFFE31B25),
+                        ),
+                ),
+              ),
+            ],
+          ),
+          16.height,
+
+          // Action Buttons
+        Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              AppButton(
+                buttonHeight: commonButtonHeight2,
+                style: AppButtonStyle.logout,
+                isLoading: false,
+                onPressed: onDelete,
+                title: context.appText.delete,
+                textStyle: TextStyle(color: Colors.red),
+              ).expand(),
+              16.width,
+
+              // Yes Button
+              AppButton(
+                buttonHeight: commonButtonHeight2,
+                style: AppButtonStyle.outline,
+                isLoading: false,
+                onPressed: onEdit,
+                title: context.appText.edit,
+              ).expand(),
+
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+  
+  Widget buildVehicleVerificationFieldWidget({required TextEditingController vehicleNoController,required void Function(bool) onVerificationResult,}) {
   return BlocConsumer<ProfileCubit, ProfileState>(
     bloc: profileCubit,
     listenWhen: (previous, current) =>
@@ -943,41 +954,38 @@ class _MasterScreenState extends State<MasterScreen>
               final status = s?.status;
           
               if (status == Status.SUCCESS) {
-                 ToastMessages.success(message: "This vehicle verified");
+                 ToastMessages.success(message: "This vehicle reg no is verified");
                   onVerificationResult(true);
               } else if (status == Status.ERROR) {
-                 ToastMessages.error(message: "This vehicle already excist");
+                 ToastMessages.error(message: "This vehicle reg no already excist");
                   onVerificationResult(false);
               }
             },
-    builder: (context, state) {
-      return AppTextField(
-        validator: (value) => Validator.fieldRequired(value),
-        controller: vehicleNoController,
-        labelText: "Vehicle ID",
-        mandatoryStar: true,
-        keyboardType: TextInputType.text,
-        decoration: commonInputDecoration(
-          hintText: "Enter vehicle ID",
-          suffixIcon: Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                (state.vehicleVerificationState?.status == Status.LOADING)
-                    ? "Checking..."
-                    : "Check",
-                style: AppTextStyle.body3.copyWith(
-                  color: AppColors.primaryColor,
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColors.primaryColor,
+          builder: (context, state) {
+            return AppTextField(
+              validator: (value) => Validator.fieldRequired(value),
+              controller: vehicleNoController,
+              labelText: "Vehicle reg no",
+              mandatoryStar: true,
+              keyboardType: TextInputType.text,
+              decoration: commonInputDecoration(
+                hintText: "Enter vehicle reg no",
+                suffixIcon: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      (state.vehicleVerificationState?.status == Status.LOADING)
+                          ? "Verifying..."
+                          : "Verify",
+                      style: AppTextStyle.body3.copyWith(
+                        color: AppColors.primaryColor,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.primaryColor,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              5.width,
-              Icon(Icons.directions_car,
-                  size: 15, color: AppColors.greyIconColor),
-            ],
-          ),
           suffixOnTap: () {
             final String? validation = Validator.fieldRequired(vehicleNoController.text);
             if (validation == null) {
@@ -1000,12 +1008,7 @@ class _MasterScreenState extends State<MasterScreen>
     listenWhen: (previous, current) =>
         previous.licenseVerficationState != current.licenseVerficationState,
     listener: (context, state) {
-              final s = state.licenseVerficationState;
-              print("📡 BlocListener triggered");
-              print("👉 Status: ${s?.status}");
-              print("👉 Data: ${s?.data}");
-              print("👉 Error: ${s?.errorType}");
-          
+              final s = state.licenseVerficationState;          
               final status = s?.status;
           
               if (status == Status.SUCCESS) {
@@ -1030,18 +1033,15 @@ class _MasterScreenState extends State<MasterScreen>
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Text(
-                (state.vehicleVerificationState?.status == Status.LOADING)
-                    ? "Checking..."
-                    : "Check",
-                style: AppTextStyle.body3.copyWith(
-                  color: AppColors.primaryColor,
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColors.primaryColor,
-                ),
-              ),
-              5.width,
-              Icon(Icons.directions_car,
-                  size: 15, color: AppColors.greyIconColor),
+                    (state.licenseVerficationState?.status == Status.LOADING)
+                          ? "Verifying..."
+                          : "Verify",
+                      style: AppTextStyle.body3.copyWith(
+                        color: AppColors.primaryColor,
+                        decoration: TextDecoration.underline,
+                        decorationColor: AppColors.primaryColor,
+                      ),
+                    ),
             ],
           ),
           suffixOnTap: () {
@@ -1717,8 +1717,6 @@ class _MasterScreenState extends State<MasterScreen>
     );
 
   }
-
-
 
   Widget _buildTextField(
     BuildContext context,

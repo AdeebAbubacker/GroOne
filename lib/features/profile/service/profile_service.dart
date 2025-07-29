@@ -192,9 +192,12 @@ class ProfileService {
   }
 
   /// fetch address
-  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search}) async {
     try {
-      final url = ApiUrls.getAddress+userId;
+      final baseUrl = ApiUrls.getAddress+userId;
+      final url = (search != null && search.trim().isNotEmpty)
+          ? '$baseUrl?search=$search'
+          : baseUrl;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = PaginatedAddressList.fromJson(response.value);
@@ -447,9 +450,12 @@ class ProfileService {
   }
 
 /// fetch Driver
- Future<Result<PaginatedDriverList>> fetchDriver({required String customerId}) async {
+ Future<Result<PaginatedDriverList>> fetchDriver({required String customerId,String? search}) async {
   try {
-    final url = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
+    final baseUrl = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
+      final url = (search != null && search.trim().isNotEmpty)
+          ? '$baseUrl?search=$search'
+          : baseUrl;
     final response = await _apiService.get(url);
     if (response is Success) {
       final loads = PaginatedDriverList.fromJson(response.value);
@@ -486,7 +492,7 @@ class ProfileService {
 
  Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
     try {
-      final url = "https://gro-devapi.letsgro.co/customer/api/v1/vehicle/check/vehicle-no/${vehcileId}";
+      final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = VehicleVerificationSuccess.fromJson(response.value);
@@ -505,7 +511,7 @@ class ProfileService {
 
  Future<Result<VehicleVerificationSuccess>> fetchCheckDrivingLicenseExcists({required String licenseId}) async {
     try {
-      final url = "https://gro-devapi.letsgro.co/customer/api/v1/vehicle/check/vehicle-no/${licenseId}";
+      final url = '${ApiUrls.checkLicenseNumber}${licenseId}';
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = VehicleVerificationSuccess.fromJson(response.value);

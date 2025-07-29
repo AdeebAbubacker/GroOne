@@ -1044,13 +1044,16 @@
   "loadingCharges":"Loading Charges",
   "detentions":"detentions",
   "days":"Days",
-   "editDriver" : "Edit Driver",
-   "driverName" : "Driver Name",
-   "vehicleDeletedSuccessfully" : "Vehicle Deleted Successfully",
-   "driverDeletedSuccessfully" : "Driver Deleted Successfully",
-   "addNewDriver" : "Add Driver",
-    "driverUpdatedSuccessfully" : "Driver Updated Successfully",
-    "driverAddedSuccess" :    "Driver added successfully"
+  "editDriver" : "Edit Driver",
+  "driverName" : "Driver Name",
+  "vehicleDeletedSuccessfully" : "Vehicle Deleted Successfully",
+  "driverDeletedSuccessfully" : "Driver Deleted Successfully",
+  "addNewDriver" : "Add Driver",
+  "driverUpdatedSuccessfully" : "Driver Updated Successfully",
+  "driverAddedSuccess" : "Driver added successfully",
+  "startByAddingANewVehicle": "Start by adding a new vehicle.",
+  "startByAddingANewDriver": "Start by adding a new driver.",
+  "noDriversfound": "No drivers found"
 
 
 

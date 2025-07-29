@@ -99,9 +99,9 @@ class ProfileRepository {
   }
 
   /// Get Address
-  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search}) async {
     try {
-      return await _profileService.fetchAddress(userId: userId);
+      return await _profileService.fetchAddress(userId: userId,search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -223,9 +223,9 @@ Future<Result<bool>> deleteVehicle({
 
 
   /// Get Driver
-  Future<Result<PaginatedDriverList>> fetchDriver({required String userId}) async {
+  Future<Result<PaginatedDriverList>> fetchDriver({required String userId,String? search}) async {
     try {
-      return await _profileService.fetchDriver(customerId: userId);
+      return await _profileService.fetchDriver(customerId: userId,search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

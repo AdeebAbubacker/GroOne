@@ -169,11 +169,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(addressState: uiState));
   }
 
-  Future<void> fetchAddress({bool isLoading = true}) async {
+  Future<void> fetchAddress({bool isLoading = true,String? search}) async {
     if(isLoading) _setFetchAddressUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchAddress(userId: userId ?? '');
+    dynamic result = await _repo.fetchAddress(userId: userId ?? '',search: search);
     if (result is Success<PaginatedAddressList>) {
       _setFetchAddressUIState(UIState.success(result.value));
     }
@@ -421,11 +421,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
  
-  Future<void> fetchDriver({bool isLoading = true}) async {
+  Future<void> fetchDriver({bool isLoading = true,String? search}) async {
     if(isLoading) _setFetchDriverUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchDriver(userId: userId ?? '');
+    dynamic result = await _repo.fetchDriver(userId: userId ?? '',search: search);
     if (result is Success<PaginatedDriverList>) {
       _setFetchDriverUIState(UIState.success(result.value));
     }
