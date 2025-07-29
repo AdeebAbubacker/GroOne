@@ -25,98 +25,24 @@ class AuthRepository {
       await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, userData.kongToken?.refreshToken.toString() ?? '',);
       CustomLog.debug(this, "Save user from login saved successfully");
 
-      // Log token information for debugging
-      CustomLog.debug(this, "Saving token from login API - Customer ID: ${userData.customerId}, Role: ${userData.roleId}, TempFlag: ${userData.tempFlg}");
-
-      // Print the raw response data for debugging
-      print("🔐 ===== LOGIN RESPONSE DEBUG =====");
-      print("🔐 Customer ID: ${userData.customerId}");
-      print("🔐 Role ID: ${userData.roleId}");
-      print("🔐 KongToken: ${userData.kongToken?.toJson()}");
-
-      CustomLog.debug(this, "🔐 Raw login response:");
-      CustomLog.debug(this, "🔐 Customer ID: ${userData.customerId}");
-      CustomLog.debug(this, "🔐 Role ID: ${userData.roleId}");
-      CustomLog.debug(this, "🔐 KongToken: ${userData.kongToken?.toJson()}");
-
-      // Specifically check kongToken.access_token
-      if (userData.kongToken != null) {
-        print("🔐 KongToken.access_token: '${userData.kongToken!.accessToken}'");
-        print("🔐 KongToken.access_token length: ${userData.kongToken!.accessToken.length}");
-        print("🔐 KongToken.access_token is empty: ${userData.kongToken!.accessToken.isEmpty}");
-
-        CustomLog.debug(this, "🔐 KongToken.access_token: '${userData.kongToken!.accessToken}'");
-        CustomLog.debug(this, "🔐 KongToken.access_token length: ${userData.kongToken!.accessToken.length}");
-        CustomLog.debug(this, "🔐 KongToken.access_token is empty: ${userData.kongToken!.accessToken.isEmpty}");
-      } else {
-        print("🔐 KongToken is null!");
-        CustomLog.debug(this, "🔐 KongToken is null!");
-      }
-
       // Get the access token from kongToken if available, otherwise use the regular token
       String accessToken = '';
       String refreshToken = '';
-      print("🔐 Token selection process:");
-      print("🔐 KongToken is null: ${userData.kongToken == null}");
-
-      CustomLog.debug(this, "🔐 Token selection process:");
-      CustomLog.debug(this, "🔐 KongToken is null: ${userData.kongToken == null}");
-
-      if (userData.kongToken != null) {
-        print("🔐 KongToken.accessToken is empty: ${userData.kongToken!.accessToken.isEmpty}");
-        print("🔐 KongToken.accessToken length: ${userData.kongToken!.accessToken.length}");
-        CustomLog.debug(this, "🔐 KongToken.accessToken is empty: ${userData.kongToken!.accessToken.isEmpty}");
-        CustomLog.debug(this, "🔐 KongToken.accessToken length: ${userData.kongToken!.accessToken.length}");
-      }
       if (userData.kongToken != null && userData.kongToken!.accessToken.isNotEmpty) {
         accessToken = userData.kongToken!.accessToken;
         refreshToken = userData.kongToken!.refreshToken;
-        print("🔐 SELECTED: access_token from kongToken: '$accessToken'");
-        CustomLog.debug(this, "🔐 SELECTED: access_token from kongToken: '$accessToken'");
+        await _securedSharedPref.saveKey(AppString.sessionKey.accessToken, accessToken);
+        await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, refreshToken);
       } else {
-        print("❌ Save user failed: No token available");
         CustomLog.error(this, "Save user failed", "No token available");
         return Error(LoginAttemptError());
       }
 
       // Save user information
-      print("🔐 Storing user data:");
-      print("🔐 Customer ID to store: '${userData.customerId}'");
-      print("🔐 User Role to store: ${userData.roleId}");
-      print("🔐 Access Token to store: '$accessToken'");
-
       await _securedSharedPref.saveKey(AppString.sessionKey.userId, userData.customerId.toString());
       await _securedSharedPref.saveInt(AppString.sessionKey.userRole, userData.roleId);
-      await _securedSharedPref.saveKey(AppString.sessionKey.accessToken, accessToken);
-      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, refreshToken);
-
-      // Verify token was saved
-      String? savedToken = await _securedSharedPref.get(AppString.sessionKey.accessToken);
-      CustomLog.debug(this, "Token saved successfully: ${savedToken != null && savedToken.isNotEmpty ? 'Yes' : 'No'}");
-      await _securedSharedPref.saveKey(AppString.sessionKey.accessToken, accessToken);
-      await _securedSharedPref.saveKey(AppString.sessionKey.refreshToken, refreshToken);
-
-      CustomLog.debug(this, "🔐 Login successful - Access Token stored: ${accessToken.isNotEmpty ? 'Yes' : 'No'}");
-      CustomLog.debug(this, "🔐 Stored token value: '$accessToken'");
-
-      // Verify token was stored by reading it back
-      String? storedToken = await _securedSharedPref.get(AppString.sessionKey.accessToken);
-      print("🔐 Verification - Read back stored token: '$storedToken'");
-      print("🔐 Verification - Token matches: ${storedToken == accessToken}");
-
-      CustomLog.debug(this, "🔐 Verification - Read back stored token: '$storedToken'");
-      CustomLog.debug(this, "🔐 Verification - Token matches: ${storedToken == accessToken}");
-
-      // Additional verification - check if token can be retrieved for API calls
-      bool tokenIsValid = await hasValidToken();
-      print("🔐 Verification - hasValidToken(): $tokenIsValid");
-      CustomLog.debug(this, "🔐 Verification - hasValidToken(): $tokenIsValid");
-
-      print("🔐 ===== LOGIN RESPONSE DEBUG END =====");
-
       return const Success(true);
     } catch (e) {
-      print("❌ Save user error: $e");
       CustomLog.error(this, "Save Resident user info to preferences error", e);
       return Error(GenericError());
     }
@@ -242,14 +168,7 @@ class AuthRepository {
 
   /// Clear auth & cache
   Future<void> _clearAuthData() async {
-    await _securedSharedPref.deleteKey(AppString.sessionKey.userId);
-    await _securedSharedPref.deleteKey(AppString.sessionKey.userRole);
-    await _securedSharedPref.deleteKey(AppString.sessionKey.accessToken);
-    // await _securedSharedPref.deleteKey(AppString.sessionKey.refreshToken);
-    await _securedSharedPref.deleteKey(AppString.sessionKey.companyTypeId);
-    await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
     await _securedSharedPref.reset();
-    await _apiService.clearCache();
     // await _notificationService.clearBadgeCount();
     // await _notificationService.clearFcmToken();
   }
@@ -270,7 +189,6 @@ class AuthRepository {
     try {
       // Clear only the token, keep user data
       await _securedSharedPref.deleteKey(AppString.sessionKey.accessToken);
-      CustomLog.debug(this, "🔐 Forced re-login - Token cleared, user data preserved");
       return const Success(true);
     } catch (e) {
       CustomLog.error(this, "Force re-login error", e);

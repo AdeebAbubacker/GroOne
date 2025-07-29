@@ -161,35 +161,73 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   Widget _productItem(KavachOrderListItem p, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Image.asset(AppImage.png.kavachProduct, width: 70),
-          8.height,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(p.product?.name ?? '', style: AppTextStyle.h5),
-                Text(
-                  p.product?.part ?? '',
-                  style: AppTextStyle.textGreyColor12w400,
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
             children: [
-              Text('₹${KavachHelper.formatCurrency(p.totalPrice)}', style: AppTextStyle.h5),
-              Text(
-                '${context.appText.qty} - ${p.quantity}',
-                style: AppTextStyle.textGreyColor12w400,
+              Image.asset(AppImage.png.kavachProduct, width: 70),
+              8.height,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(p.product?.name ?? '', style: AppTextStyle.h5),
+                    Text(
+                      p.product?.part ?? '',
+                      style: AppTextStyle.textGreyColor12w400,
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('₹${KavachHelper.formatCurrency(p.totalPrice)}', style: AppTextStyle.h5),
+                  Text(
+                    '${context.appText.qty} - ${p.quantity}',
+                    style: AppTextStyle.textGreyColor12w400,
+                  ),
+                ],
               ),
             ],
           ),
+          // Vehicle information section
+          if (p.vehicles.isNotEmpty) ...[
+            8.height,
+            Row(
+              children: [
+                Icon(
+                  Icons.local_shipping_outlined,
+                  size: 16,
+                  color: AppColors.primaryColor,
+                ),
+                4.width,
+                Expanded(
+                  child: Text(
+                    _formatVehicleNumbers(p.vehicles),
+                    style: AppTextStyle.textBlackColor12w400,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _formatVehicleNumbers(List<KavachOrderListVehicle> vehicles) {
+    if (vehicles.isEmpty) return '';
+    
+    if (vehicles.length <= 2) {
+      return vehicles.map((v) => v.vehicleNumber).join(', ');
+    } else {
+      final firstTwo = vehicles.take(2).map((v) => v.vehicleNumber).join(', ');
+      return '$firstTwo, +${vehicles.length - 2} more';
+    }
   }
 
   Widget _orderTimeline(BuildContext context) {

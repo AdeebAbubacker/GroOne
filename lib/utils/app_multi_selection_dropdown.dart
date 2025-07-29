@@ -19,6 +19,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
   final String? headerText;
   final bool showValidationError;
   final Function(String searchChanged)? onSearchChanged;
+  final VoidCallback? onTap;
 
   const AppMultiSelectionDropdown({
     super.key,
@@ -33,6 +34,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
     this.headerText, 
     this.mandatoryStar = false,
     this.showValidationError = false,
+    this.onTap,
     this.onSearchChanged
   });
 
@@ -50,6 +52,37 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
             ],
           ),
         if (labelText != null) 6.height,
+        Focus(
+          onFocusChange: (hasFocus) {
+            if (!hasFocus) {
+              // Dismiss keyboard when dropdown loses focus
+              FocusScope.of(context).unfocus();
+            }
+          },
+          child: Listener(
+            onPointerDown: (_) {
+              // Dismiss keyboard when tapping on dropdown
+              FocusScope.of(context).unfocus();
+              if (onTap != null) {
+                onTap!();
+              }
+            },
+            child: MultiDropdown<T>(
+              controller: controller,
+              items: items,
+              enabled: true,
+              searchEnabled: true,
+              validator: null, // Disable built-in validator to avoid maroon error text
+              onSelectionChange: onSelectionChange,
+
+              chipDecoration: ChipDecoration(
+                backgroundColor: AppColors.primaryColor,
+                wrap: true,
+                spacing: 10,
+                runSpacing: 6,
+                labelStyle: AppTextStyle.body3WhiteColor,
+                deleteIcon: Icon(Icons.clear, color: Colors.white, size: 18)
+              ),
         MultiDropdown<T>(
           controller: controller,
           items: items,
@@ -67,41 +100,41 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
             deleteIcon: Icon(Icons.clear, color: Colors.white, size: 18)
           ),
 
-          fieldDecoration: FieldDecoration(
-            padding: const EdgeInsets.all(14),
-            hintText: hintText ?? '',
-            hintStyle: AppTextStyle.textFieldHint,
-            prefixIcon: prefixIcon,
-            backgroundColor: AppColors.textFieldFillColor,
-            border: OutlineInputBorder(borderSide: const BorderSide(color: AppColors.borderColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
-            focusedBorder: OutlineInputBorder(borderSide:  BorderSide(color: AppColors.secondaryColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
-            errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 1.5), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
+              fieldDecoration: FieldDecoration(
+                padding: const EdgeInsets.all(14),
+                hintText: hintText ?? '',
+                hintStyle: AppTextStyle.textFieldHint,
+                prefixIcon: prefixIcon,
+                backgroundColor: AppColors.textFieldFillColor,
+                border: OutlineInputBorder(borderSide: const BorderSide(color: AppColors.borderColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
+                focusedBorder: OutlineInputBorder(borderSide:  BorderSide(color: AppColors.secondaryColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
+                errorBorder: OutlineInputBorder(borderSide: const BorderSide(color: Colors.red, width: 1.5), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
+              ),
+
+              dropdownDecoration: DropdownDecoration(
+                elevation: 10,
+                marginTop: 0,
+                maxHeight: 400,
+                backgroundColor: Colors.white,
+                borderRadius: BorderRadius.circular(commonTexFieldRadius),
+                header: headerText != null
+                    ? Text(headerText!, textAlign: TextAlign.start, style: AppTextStyle.body.copyWith(fontWeight: FontWeight.bold))
+                    : null,
+              ),
+
+              dropdownItemDecoration: DropdownItemDecoration(
+                selectedIcon: Icon(Icons.check_box, color: AppColors.primaryColor),
+                disabledIcon: Icon(Icons.lock, color: Colors.grey.shade300),
+              ),
+
+              searchDecoration: SearchFieldDecoration(
+                hintText: "Search",
+                border: OutlineInputBorder(borderSide: const BorderSide(width: 1, color: AppColors.borderColor), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
+                focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppColors.secondaryColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
+              ),
+
+            ),
           ),
-
-          dropdownDecoration: DropdownDecoration(
-            elevation: 10,
-            marginTop: 0,
-            maxHeight: 400,
-            backgroundColor: Colors.white,
-            borderRadius: BorderRadius.circular(commonTexFieldRadius),
-
-            header: headerText != null
-                ? Text(headerText!, textAlign: TextAlign.start, style: AppTextStyle.body.copyWith(fontWeight: FontWeight.bold))
-                : null,
-
-          ),
-
-          dropdownItemDecoration: DropdownItemDecoration(
-            selectedIcon: Icon(Icons.check_box, color: AppColors.primaryColor),
-            disabledIcon: Icon(Icons.lock, color: Colors.grey.shade300),
-          ),
-
-          searchDecoration: SearchFieldDecoration(
-            hintText: "Search",
-            border: OutlineInputBorder(borderSide: const BorderSide(width: 1, color: AppColors.borderColor), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
-            focusedBorder: OutlineInputBorder(borderSide: const BorderSide(color: AppColors.secondaryColor, width: 1), borderRadius: BorderRadius.circular(commonTexFieldRadius)),
-          ),
-
         ),
         // Add custom error text display in red color only when validation is triggered
         if (validator != null && showValidationError)

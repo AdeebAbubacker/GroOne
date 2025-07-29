@@ -573,42 +573,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       objCardDetailsAl: cardDetails,
     );
 
-    print('=== DEBUG: API Request ===');
-    print('Request: ${request.toJson()}');
-    print('=== DEBUG: Request Details ===');
-    print('Customer Name: ${request.customerName}');
-    print('Title: ${request.title}');
-    print('Zonal Office: ${request.zonalOffice}');
-    print('Regional Office: ${request.regionalOffice}');
-    print('Address1: ${request.communicationAddress1}');
-    print('Address2: ${request.communicationAddress2}');
-    print('City: ${request.communicationCityName}');
-    print('Pincode: ${request.communicationPincode}');
-    print('State ID: ${request.communicationStateId}');
-    print('District ID: ${request.communicationDistrictId}');
-    print('Mobile: ${request.communicationMobileNo}');
-    print('Email: ${request.communicationEmailid}');
-    print('PAN: ${request.incomeTaxPan}');
-    print('Number of cards: ${request.objCardDetailsAl.length}');
-    
     Result result = await _repository.createCustomer(request);
 
-    print('=== DEBUG: API Response ===');
-    print('Result Type: ${result.runtimeType}');
-    
     if (result is Success<api_models.EnDhanCustomerCreationResponse>) {
-      print('✅ Success Response:');
-      print('  Success: ${result.value.success}');
-      print('  Message: ${result.value.message}');
-      print('  Data: ${result.value.data}');
       _setCustomerCreationUIState(UIState.success(result.value));
     } else if (result is Error) {
-      print('❌ Error Response:');
-      print('  Error Type: ${result.type.runtimeType}');
-      print('  Error Details: ${result.type.toString()}');
-      if (result.type is ErrorWithMessage) {
-        print('  Error Message: ${(result.type as ErrorWithMessage).message}');
-      }
       _setCustomerCreationUIState(UIState.error(result.type));
     }
   }
@@ -715,38 +684,29 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Fetch vehicle types
   Future<void> fetchVehicleTypes() async {
-    print('🔍 EnDhanCubit.fetchVehicleTypes called');
     if (_isClosed) return;
 
     _setVehicleTypesUIState(UIState.loading());
 
     try {
       final result = await _repository.fetchVehicleTypes();
-      print('📥 Repository result: ${result.runtimeType}');
 
       if (result is Success<api_models.EnDhanVehicleTypeResponse>) {
         final vehicleTypes = result.value.document;
-        print('✅ Vehicle types fetched: ${vehicleTypes.length} types');
-        print('📋 Vehicle types: $vehicleTypes');
-        print('🔍 Before emit - state.vehicleTypes: ${state.vehicleTypes}');
         emit(state.copyWith(vehicleTypes: vehicleTypes));
-        print('🔄 After emit - state.vehicleTypes: ${state.vehicleTypes}');
         debugCubitStatus();
         _setVehicleTypesUIState(UIState.success(result.value));
 
         // Force another emit to ensure UI rebuilds
         Future.delayed(Duration(milliseconds: 100), () {
           if (!_isClosed) {
-            print('🔄 Force emit with vehicle types: $vehicleTypes');
             emit(state.copyWith(vehicleTypes: vehicleTypes));
           }
         });
       } else if (result is Error) {
-        print('❌ Vehicle types fetch failed: ${(result as Error).type}');
         _setVehicleTypesUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('💥 Vehicle types fetch exception: $e');
       _setVehicleTypesUIState(UIState.error(GenericError()));
     }
   }
@@ -755,12 +715,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set Aadhaar number
   void setAadhaar(String value) {
-    print('🔍 setAadhaar called with: "$value", cubit closed: $_isClosed');
     if (!_isClosed) {
       emit(state.copyWith(aadhaar: value));
-      print('🔍 Aadhaar state updated to: "${state.aadhaar}"');
-    } else {
-      print('🔍 Cubit is closed, cannot update Aadhaar state');
     }
   }
 
@@ -817,30 +773,15 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Validate Aadhaar number
   void validateAadhaar(String value) {
-    print('🔍 validateAadhaar called with: "$value", cubit closed: $_isClosed');
     final isValid = _validateAadhaar(value) == null;
-    print('🔍 Aadhaar Validation Debug:');
-    print('  - Input value: "$value"');
-    print('  - Validation result: $isValid');
-    print('  - Error message: ${_validateAadhaar(value)}');
     if (!_isClosed) {
       emit(state.copyWith(isAadhaarValid: isValid));
-      print('🔍 isAadhaarValid updated to: $isValid');
-    } else {
-      print('🔍 Cubit is closed, cannot update validation state');
     }
   }
 
   // Validate PAN number
   void validatePan(String value) {
     final isValid = _validatePan(value) == null;
-    print('🔍 PAN Validation Debug:');
-    print('  - Input value: "$value"');
-    print('  - Length: ${value.length}');
-    print('  - Validation result: $isValid');
-    print('  - Error message: ${_validatePan(value)}');
-    print('  - Current isPanVerified: ${state.isPanVerified}');
-
     if (!_isClosed) {
       emit(state.copyWith(isPanValid: isValid));
     }
@@ -895,37 +836,30 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Update PAN documents list
   void updatePanDocuments(List documents) {
-    print('🔍 updatePanDocuments called with ${documents.length} documents');
-    print('🔍 Documents: $documents');
     final newState = state.copyWith(panDocuments: List.from(documents));
     emit(newState);
-    print('🔍 State updated with ${newState.panDocuments.length} PAN documents');
   }
 
   // Update identity front documents list
   void updateIdentityFrontDocuments(List documents) {
-    print('🔍 updateIdentityFrontDocuments called with ${documents.length} documents');
     final newState = state.copyWith(identityFrontDocuments: List.from(documents));
     emit(newState);
   }
 
   // Update identity back documents list
   void updateIdentityBackDocuments(List documents) {
-    print('🔍 updateIdentityBackDocuments called with ${documents.length} documents');
     final newState = state.copyWith(identityBackDocuments: List.from(documents));
     emit(newState);
   }
 
   // Update address front documents list
   void updateAddressFrontDocuments(List documents) {
-    print('🔍 updateAddressFrontDocuments called with ${documents.length} documents');
     final newState = state.copyWith(addressFrontDocuments: List.from(documents));
     emit(newState);
   }
 
   // Update address back documents list
   void updateAddressBackDocuments(List documents) {
-    print('🔍 updateAddressBackDocuments called with ${documents.length} documents');
     final newState = state.copyWith(addressBackDocuments: List.from(documents));
     emit(newState);
   }
@@ -985,7 +919,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set customer name
   void setCustomerName(String value) {
-    print('🔍 Setting customer name: "$value"');
     emit(state.copyWith(customerName: value));
   }
 
@@ -996,7 +929,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set mobile number
   void setMobile(String value) {
-    print('🔍 Setting mobile: "$value"');
     emit(state.copyWith(mobile: value));
   }
 
@@ -1007,7 +939,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set address line 1
   void setAddress1(String value) {
-    print('🔍 Setting address1: "$value"');
     emit(state.copyWith(address1: value));
   }
 
@@ -1018,7 +949,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set city name
   void setCityName(String value) {
-    print('🔍 Setting cityName: "$value"');
     emit(state.copyWith(cityName: value));
   }
 
@@ -1112,7 +1042,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Set pincode
   void setPincode(String value) {
-    print('🔍 Setting pincode: "$value"');
     emit(state.copyWith(pincode: value));
   }
 
@@ -1239,15 +1168,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       print(
         'Current card: ${currentCard.vehicleNumber} | ${currentCard.vehicleType} | ${currentCard.vinNumber} | ${currentCard.mobile}',
       );
-      print(
-        'Updated card: ${updatedCard.vehicleNumber} | ${updatedCard.vehicleType} | ${updatedCard.vinNumber} | ${updatedCard.mobile}',
-      );
-
       updateCard(cardIndex, updatedCard);
-    } else {
-      print(
-        '=== DEBUG: Card index $cardIndex out of bounds. Total cards: ${state.cards.length} ===',
-      );
     }
   }
 
@@ -1258,46 +1179,27 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // Check if card creation form is valid
   bool isCardCreationFormValid() {
-    print('🔍 === CARD CREATION FORM VALIDATION ===');
-    print('🔍 Customer Name: "${state.customerName}"');
-    print('🔍 Mobile: "${state.mobile}"');
-    print('🔍 Address1: "${state.address1}"');
-    print('🔍 City: "${state.cityName}"');
-    print('🔍 Pincode: "${state.pincode}"');
-    print('🔍 Email: "${state.email}"');
-    print('🔍 PAN: "${state.pan}"');
-    print('🔍 Number of cards: ${state.cards.length}');
-    
     // Check billing address fields
     if (state.customerName.isEmpty ||
         state.mobile.isEmpty ||
         state.address1.isEmpty ||
         state.cityName.isEmpty ||
         state.pincode.isEmpty) {
-      print('❌ Form validation failed: Missing customer info');
-      print('❌ customerName.isEmpty: ${state.customerName.isEmpty}');
-      print('❌ mobile.isEmpty: ${state.mobile.isEmpty}');
-      print('❌ address1.isEmpty: ${state.address1.isEmpty}');
-      print('❌ cityName.isEmpty: ${state.cityName.isEmpty}');
-      print('❌ pincode.isEmpty: ${state.pincode.isEmpty}');
       return false;
     }
     
     // Validate city name format
     final cityRegex = RegExp(r'^[a-zA-Z\s]+$');
     if (!cityRegex.hasMatch(state.cityName.trim())) {
-      print('❌ Form validation failed: Invalid city name format');
       return false;
     }
     
     if (state.cityName.trim().length < 2 || state.cityName.trim().length > 50) {
-      print('❌ Form validation failed: City name length invalid (2-50 characters)');
       return false;
     }
 
     // Check if shipping address is required and filled
     if (!state.saveAsShipping && state.shippingAddress.isEmpty) {
-      print('❌ Form validation failed: Missing shipping address');
       return false;
     }
 
@@ -1306,27 +1208,22 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       final card = state.cards[i];
       
       if (card.vehicleNumber.isEmpty) {
-        print('❌ Form validation failed: Card $i missing vehicle number');
         return false;
       }
       
       if (card.vehicleType == null || card.vehicleType == 'Select' || card.vehicleType!.isEmpty) {
-        print('❌ Form validation failed: Card $i missing vehicle type');
         return false;
       }
       
       if (card.vinNumber.isEmpty) {
-        print('❌ Form validation failed: Card $i missing VIN number');
         return false;
       }
       
       if (card.rcNumber.isEmpty) {
-        print('❌ Form validation failed: Card $i missing RC book number');
         return false;
       }
       
       if (card.rcDocuments.isEmpty) {
-        print('❌ Form validation failed: Card $i missing RC document');
         return false;
       }
       
@@ -1335,7 +1232,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       // Mobile number is optional, so we don't check for it
     }
 
-    print('✅ Form validation passed');
     return true;
   }
 
@@ -1409,26 +1305,19 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   /// Upload document
   Future<DocumentUploadResponse?> uploadDocument(File file) async {
-    print('🔍 EnDhanCubit.uploadDocument called');
     _setDocumentUploadUIState(UIState.loading());
 
     try {
       final result = await _repository.uploadDocument(file);
-      print('🔍 Upload result type: ${result.runtimeType}');
 
       if (result is Success<DocumentUploadResponse>) {
-        print('🔍 Upload successful: ${result.value}');
-        print('🔍 Upload response data: ${result.value.data}');
-        print('🔍 Upload response URL: ${result.value.data?.url}');
         _setDocumentUploadUIState(UIState.success(result.value));
         return result.value;
       } else if (result is Error) {
-        print('🔍 Upload failed: ${(result as Error).type}');
         _setDocumentUploadUIState(UIState.error((result as Error).type));
         return null;
       }
     } catch (e) {
-      print('🔍 Upload exception: $e');
       _setDocumentUploadUIState(UIState.error(GenericError()));
       return null;
     }

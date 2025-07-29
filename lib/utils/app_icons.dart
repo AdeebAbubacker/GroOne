@@ -125,4 +125,5 @@ class SvgIcons {
   final String fuel = "${_svgBasePath}fuel.svg";
   final String manager = "${_svgBasePath}manager.svg";
   final String priorityLoad = "${_svgBasePath}priority_load.svg";
+  final String truckSteering = "${_svgBasePath}truck_steering.svg";
 }

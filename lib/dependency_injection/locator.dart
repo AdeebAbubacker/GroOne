@@ -108,9 +108,7 @@ import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
-
 import '../features/gps_feature/cubit/get_vehicle_extra_info_cubit.dart';
-import '../features/gps_feature/cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
 import '../features/gps_feature/cubit/gps_login_cubit.dart';
 import '../features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
 import '../features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
@@ -546,7 +544,7 @@ void initLocator() {
       ),
     );
     locator.registerLazySingleton(
-      () => ProfileCubit(locator<ProfileRepository>()),
+      () => ProfileCubit(locator<ProfileRepository>(), locator<VpCreationRepository>(),locator<LpHomeRepository>(),locator<KavachRepository>(),),
     );
     locator.registerLazySingleton(
       () => LpCreateAccountCubit(locator<LpCreateRepository>()),
@@ -619,9 +617,6 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => GpsNotificationCubit(locator<GpsRepository>()),
-    );
-    locator.registerLazySingleton(
-      () => GpsGeofenceMapCubit(locator<GpsRepository>()),
     );
     locator.registerLazySingleton(
       () => GpsParkingModeCubit(locator<GpsRepository>()),

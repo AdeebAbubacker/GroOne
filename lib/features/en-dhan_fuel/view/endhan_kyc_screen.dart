@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -132,7 +133,41 @@ class _EndhanKycScreenContent extends StatelessWidget {
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context) {
-        return BlocListener<EnDhanCubit, EnDhanState>(
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setState) {
+            // Resend OTP timer variables
+            bool _canResendOtp = false;
+            int _resendTimer = 10; // 10 seconds countdown
+            Timer? _timer;
+
+            void _startResendTimer() {
+              _canResendOtp = false;
+              _resendTimer = 10;
+              _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+                if (context.mounted) {
+                  setState(() {
+                    if (_resendTimer > 0) {
+                      _resendTimer--;
+                    } else {
+                      _canResendOtp = true;
+                      timer.cancel();
+                    }
+                  });
+                }
+              });
+            }
+
+            void _resetResendTimer() {
+              _timer?.cancel();
+              _startResendTimer();
+            }
+
+            // Start timer when bottom sheet opens
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _startResendTimer();
+            });
+
+            return BlocListener<EnDhanCubit, EnDhanState>(
           bloc: cubit,
           listenWhen: (previous, current) {
             final changed = previous.aadhaarVerifyOtpState != current.aadhaarVerifyOtpState;
@@ -168,22 +203,43 @@ class _EndhanKycScreenContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Handle bar
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
+                  // Handle bar and close button row
+                  Row(
+                    children: [
+                      // Handle bar
+                      Center(
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ).expand(),
+                      // Close button
+                      GestureDetector(
+                        onTap: () => Navigator.of(context).pop(),
+                        child: Container(
+                          padding: EdgeInsets.all(8),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[100],
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            Icons.close,
+                            size: 20,
+                            color: Colors.grey[600],
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                   20.height,
                   // Title
                   Text(
                     context.appText.verifyYourKyc,
-                    style: AppTextStyle.h5.copyWith(
+                    style: AppTextStyle.h4.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -196,26 +252,38 @@ class _EndhanKycScreenContent extends StatelessWidget {
                     ),
                   ),
                   40.height,
-                  // OTP input boxes
+                  // OTP input boxes - 6 digits
                   Center(
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: List.generate(6, (i) => Container(
-                        width: 40,
-                        height: 48,
+                        width: 45,
+                        height: 50,
                         margin: EdgeInsets.symmetric(horizontal: 4),
                         child: TextField(
                           controller: otpControllers[i],
                           focusNode: focusNodes[i],
                           textAlign: TextAlign.center,
-                          style: AppTextStyle.h5,
+                          style: AppTextStyle.h4.copyWith(
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 2,
+                          ),
                           decoration: InputDecoration(
                             counterText: '',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: AppColors.borderColor),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: AppColors.borderColor),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                              borderSide: BorderSide(color: AppColors.primaryColor),
                             ),
                             filled: true,
-                            fillColor: Colors.grey[100],
+                            fillColor: Colors.white,
                           ),
                           maxLength: 1,
                           keyboardType: TextInputType.number,
@@ -264,11 +332,44 @@ class _EndhanKycScreenContent extends StatelessWidget {
                       );
                     },
                   ),
-                  40.height,
+                  20.height,
+                  // Resend code option with timer
+                  BlocBuilder<EnDhanCubit, EnDhanState>(
+                    bloc: cubit,
+                    builder: (context, state) {
+                      final bool isResendLoading = state.aadhaarSendOtpState?.status == Status.LOADING;
+                      return Center(
+                        child: GestureDetector(
+                          onTap: (isResendLoading || !_canResendOtp) ? null : () {
+                            cubit.sendAadhaarOtp();
+                            _resetResendTimer();
+                            ToastMessages.success(message: 'OTP resent successfully');
+                          },
+                          child: Text(
+                            _canResendOtp 
+                              ? (context.appText.resendOtp ?? 'Resend OTP')
+                              : 'Resend OTP in ${_resendTimer}s',
+                            style: AppTextStyle.body3.copyWith(
+                              color: (isResendLoading || !_canResendOtp) 
+                                ? AppColors.primaryTextColor.withOpacity(0.5) 
+                                : AppColors.primaryColor,
+                              decoration: (isResendLoading || !_canResendOtp) 
+                                ? TextDecoration.none 
+                                : TextDecoration.underline,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  20.height,
                 ],
               ),
             ),
           ),
+        );
+          },
         );
       },
     );
@@ -767,6 +868,5 @@ class _EndhanKycScreenContent extends StatelessWidget {
       },
     );
   }
-
 
 }

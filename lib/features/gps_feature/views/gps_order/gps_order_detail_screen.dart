@@ -65,8 +65,9 @@ class GpsOrderDetailScreen extends StatelessWidget {
               12.height,
               _orderTimeline(context),
               12.height,
+               _addressSection(order.billingAddress, context),
               _addressSection(order.shippingAddress, context),
-              _addressSection(order.billingAddress, context),
+             
               12.height,
               _paymentSummary(context),
               12.height,
@@ -163,48 +164,86 @@ class GpsOrderDetailScreen extends StatelessWidget {
   Widget _productItem(GpsOrderLineItem p, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Use a GPS device icon or image
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: AppColors.greyContainerBackgroundColor,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              Icons.gps_fixed,
-              color: AppColors.primaryColor,
-              size: 30,
-            ),
-          ),
-          8.height,
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(p.product.name, style: AppTextStyle.h5),
-                Text(
-                  p.product.part,
-                  style: AppTextStyle.textGreyColor12w400,
-                ),
-              ],
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+          Row(
             children: [
-              Text('₹${formatCurrency(p.totalPrice)}', style: AppTextStyle.h5),
-              Text(
-                '${context.appText.qty} - ${p.quantity}',
-                style: AppTextStyle.textGreyColor12w400,
+              // Use a GPS device icon or image
+              Container(
+                width: 70,
+                height: 70,
+                decoration: BoxDecoration(
+                  color: AppColors.greyContainerBackgroundColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(
+                  Icons.gps_fixed,
+                  color: AppColors.primaryColor,
+                  size: 30,
+                ),
+              ),
+              8.height,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(p.product.name, style: AppTextStyle.h5),
+                    Text(
+                      p.product.part,
+                      style: AppTextStyle.textGreyColor12w400,
+                    ),
+                  ],
+                ),
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('₹${formatCurrency(p.totalPrice)}', style: AppTextStyle.h5),
+                  Text(
+                    '${context.appText.qty} - ${p.quantity}',
+                    style: AppTextStyle.textGreyColor12w400,
+                  ),
+                ],
               ),
             ],
           ),
+          // Vehicle information section
+          if (p.vehicles.isNotEmpty) ...[
+            8.height,
+          Row(
+              children: [
+                Icon(
+                  Icons.local_shipping_outlined,
+                  size: 16,
+                  color: AppColors.primaryColor,
+                ),
+                4.width,
+                Expanded(
+                  child: Text(
+                    _formatVehicleNumbers(p.vehicles),
+                    style: AppTextStyle.textBlackColor12w400,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
     );
+  }
+
+  String _formatVehicleNumbers(List<GpsOrderVehicle> vehicles) {
+    if (vehicles.isEmpty) return '';
+    
+    if (vehicles.length <= 2) {
+      return vehicles.map((v) => v.vehicleNumber).join(', ');
+    } else {
+      final firstTwo = vehicles.take(2).map((v) => v.vehicleNumber).join(', ');
+      return '$firstTwo, +${vehicles.length - 2} more';
+    }
   }
 
   Widget _orderTimeline(BuildContext context) {

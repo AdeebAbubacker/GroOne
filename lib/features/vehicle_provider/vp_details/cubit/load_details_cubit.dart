@@ -256,8 +256,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setDamageListUIState(UIState<GetDamageListModel>? uiState){
     emit(state.copyWith(damageListUIState: uiState));
   }
-
-
   Future<void> fetchDamageList(String loadId) async {
     _setDamageListUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getDamageListData(loadId);
@@ -275,17 +273,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
-
   Future<void> uploadDamageFile(File file) async {
     _setUploadDamageFileUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
-
     if (result is Success<UploadDamageFileModel>) {
-
       _setUploadDamageFileUIState(UIState.success(result.value));
     }
     if (result is Error) {
-
       _setUploadDamageFileUIState(UIState.error(result.type));
     }
   }

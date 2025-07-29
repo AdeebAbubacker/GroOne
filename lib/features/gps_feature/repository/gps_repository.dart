@@ -1,3 +1,5 @@
+import 'package:flutter/cupertino.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import '../../../data/model/result.dart';
 import '../../../utils/custom_log.dart';
 import '../../load_provider/lp_home/api_request/verify_location_api_request.dart';
@@ -13,6 +15,8 @@ import 'gps_login_repository.dart';
 class GpsRepository {
   final GpsService _service;
   final GpsLoginRepository _loginRepository;
+  int? _cachedUserId;
+
 
   GpsRepository(this._service, this._loginRepository);
 
@@ -27,13 +31,12 @@ class GpsRepository {
       if (config?.data == null) return null;
 
       for (var user in config!.data!) {
-        print(user.userId);
+        debugPrint(user.id.toString());
       }
       final matchedData = config!.data!.firstWhere(
         (element) => element.userId == userId,
         orElse: () => GpsUserConfigData(), // Empty instance if not found
       );
-      print('Harsh Id 2 ${matchedData.id}');
 
       return matchedData.id;
     } catch (e) {
@@ -41,6 +44,23 @@ class GpsRepository {
       return null;
     }
   }
+
+  Future<int?> _getUserId() async {
+    if (_cachedUserId != null) return _cachedUserId;
+
+    final token = await _getToken();
+    if (token == null) return null;
+
+    final result = await _service.getUserId(token);
+    if (result is Success<int?>) {
+      _cachedUserId = result.value;
+      debugPrint("User ID Saved in repository: $_cachedUserId");
+      return _cachedUserId;
+    }
+
+    return null;
+  }
+
 
   Future<Result<List<GpsGeofenceModel>>> fetchGeofences() async {
     try {
@@ -69,9 +89,11 @@ class GpsRepository {
   ) async {
     try {
       final token = await _getToken();
-      if (token == null) return Error(GenericError());
+      final userId = await _getUserId();
+      if (token == null || userId == null) return Error(GenericError());
+
       return await _service.fetchGeofencesForVehicle(
-        userId: '163',
+        userId: userId.toString(),
         deviceId: deviceId,
         token: token,
       );
@@ -87,10 +109,6 @@ class GpsRepository {
     bool link,
   ) async {
     try {
-      final id = await getUserConfigIdByUserId(163);
-      if (id != null) {
-        print('Harsh Id $id');
-      }
       final token = await _getToken();
       if (token == null) return Error(GenericError());
       return await _service.linkUnlinkGeofenceDevice(
@@ -114,23 +132,13 @@ class GpsRepository {
     }
   }
 
-  /// Get Verify Location data from repository
-  Future<Result<VerifyLocationModel>> getVerifyLocationData(
-    VerifyLocationApiRequest request,
-  ) async {
-    try {
-      return await _service.fetchVerifyLocationData(request);
-    } catch (e) {
-      CustomLog.error(this, "Failed to verify location", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
 
   Future<Result<List<GpsNotificationModel>>> fetchNotifications() async {
     try {
       final token = await _getToken();
-      if (token == null) return Error(GenericError());
-      return await _service.fetchNotifications(token: token, userId: '163');
+      final userId = await _getUserId();
+      if (token == null || userId == null) return Error(GenericError());
+      return await _service.fetchNotifications(token: token, userId: userId.toString());
     } catch (e) {
       CustomLog.error(this, "Failed to fetch notifications in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -212,7 +220,6 @@ class GpsRepository {
 
     final Map<String, dynamic> payload = {"device_token": deviceToken};
 
-    // Include only if deviceDetails is not null
     if (deviceDetails != null) {
       payload["device_details"] = deviceDetails;
     }
@@ -223,4 +230,9 @@ class GpsRepository {
 
     return await _service.updateNotificationToggle(payload, token, 41065);
   }
+
+  Future<Result<LatLng>> fetchLatLngFromPlaceId(String placeId) async {
+    return await _service.fetchLatLngFromPlaceId(placeId);
+  }
+
 }

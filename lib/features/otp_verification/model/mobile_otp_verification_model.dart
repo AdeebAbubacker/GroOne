@@ -33,7 +33,7 @@ class MobileOtpVerificationModel {
         );
     }
 
-    factory MobileOtpVerificationModel.fromJson(Map<String, dynamic> json){ 
+    factory MobileOtpVerificationModel.fromJson(Map<String, dynamic> json){
         return MobileOtpVerificationModel(
             mobile: json["mobile"] ?? "",
             customerId: json["customerId"] ?? "",
@@ -73,7 +73,7 @@ class KongToken {
         );
     }
 
-    factory KongToken.fromJson(Map<String, dynamic> json){ 
+    factory KongToken.fromJson(Map<String, dynamic> json){
         return KongToken(
             expiresIn: json["expires_in"] ?? 0,
             tokenType: json["token_type"] ?? "",
@@ -84,10 +84,10 @@ class KongToken {
 
     Map<String, dynamic> toJson() {
         return {
-            "expiresIn": expiresIn,
-            "tokenType": tokenType,
-            "refreshToken": refreshToken,
-            "accessToken": accessToken,
+            "expires_in": expiresIn,
+            "token_type": tokenType,
+            "refresh_token": refreshToken,
+            "access_token": accessToken,
         };
     }
 

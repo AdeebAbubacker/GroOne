@@ -8,6 +8,7 @@ class AnalyticsService {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   AnalyticsService() {
     _initBaseInfo();
+    _analytics.setAnalyticsCollectionEnabled(true);
   }
 
 
@@ -71,7 +72,7 @@ class AnalyticsService {
           // Additional specific parameters
         },
       );
-      CustomLog.info(this, "Logged event: with event name $eventName");
+      CustomLog.info(this, "Logged event: with event name $eventName. \nParameters: $parameters");
     } catch(exception){
       CustomLog.error(this, "Impossible to Log Event - eventName: $eventName", exception);
     }
@@ -96,6 +97,7 @@ class AnalyticsService {
       CustomLog.error(this, "Impossible to Log Select content - contentType: $contentType", exception);
     }
   }
+
 
   Future<void> logScreenView(String screenName, [String? screenClass]) async {
     try {

@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -14,6 +15,7 @@ import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/common_widgets.dart';
 import '../cubit/gps_notification_cubit/gps_notification_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../model/gps_combined_vehicle_model.dart';
@@ -85,56 +87,60 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                     if (!uniqueVehicleNumbers.contains(selectedVehicle)) {
                       selectedVehicle = uniqueVehicleNumbers.first;
                     }
+                    // return AppDropdown(
+                    //   dropdownValue:
+                    //       selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                    //   dropDownList:
+                    //       uniqueVehicleNumbers.map((vehicleNumber) {
+                    //         return DropdownMenuItem<String>(
+                    //           value: vehicleNumber,
+                    //           child: Row(
+                    //             children: [
+                    //               CircleAvatar(
+                    //                 radius: 15,
+                    //                 backgroundColor:
+                    //                     AppColors.primaryLightColor,
+                    //                 child: SvgPicture.asset(
+                    //                   AppIcons.svg.truck,
+                    //                   width: 20,
+                    //                 ),
+                    //               ),
+                    //               10.width,
+                    //               Text(vehicleNumber, style: AppTextStyle.h6),
+                    //             ],
+                    //           ),
+                    //         );
+                    //       }).toList(),
+                    //   onChanged: (String? newValue) {
+                    //     setState(() {
+                    //       selectedVehicle = newValue!;
+                    //     });
+                    //   },
+                    // );
 
-                    return AppDropdown(
-                      dropdownValue:
-                          selectedVehicle.isNotEmpty ? selectedVehicle : null,
-                      dropDownList:
-                          uniqueVehicleNumbers.map((vehicleNumber) {
-                            return DropdownMenuItem<String>(
-                              value: vehicleNumber,
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 15,
-                                    backgroundColor:
-                                        AppColors.primaryLightColor,
-                                    child: SvgPicture.asset(
-                                      AppIcons.svg.truck,
-                                      width: 20,
-                                    ),
-                                  ),
-                                  10.width,
-                                  Text(vehicleNumber, style: AppTextStyle.h6),
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                    return DropdownSearch<String>(
+                      selectedItem: selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                      items: (String filter, _) async {
+                        return uniqueVehicleNumbers
+                            .where((v) => v.toLowerCase().contains(filter.toLowerCase()))
+                            .toList();
+                      },
+                      itemAsString: (String? item) => item ?? "",
+                      popupProps: PopupProps.menu(
+                        // fit: FlexFit.loose,
+                        showSearchBox: true,
+                        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+                        emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noVehiclesFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
+                        loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
+                      ),
+                      decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectState)),
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedVehicle = newValue!;
                         });
                       },
-
-                      // onChanged: (String? newValue) {
-                      //   setState(() {
-                      //     selectedVehicle = newValue!;
-                      //   });
-                      //
-                      //   // Find deviceId for selectedVehicle
-                      //   final selectedVehicleData = vehicleState.filteredVehicles.firstWhere(
-                      //         (v) => v.vehicleNumber == selectedVehicle,
-                      //     orElse: () => GpsCombinedVehicleData(),
-                      //   );
-                      //
-                      //   final selectedDeviceId = selectedVehicleData.deviceId;
-                      //
-                      //   // Load notifications only for this deviceId
-                      //   if (selectedDeviceId != null) {
-                      //     context.read<GpsNotificationCubit>().loadNotifications(selectedDeviceId.toString());
-                      //   }
-                      // },
                     );
+
                   }
                 },
               ).expand(),

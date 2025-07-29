@@ -3,14 +3,17 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:go_router/go_router.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 
 class ApiService {
   final Duration _timeout = const Duration(seconds: 30); // General timeout for all requests
@@ -36,9 +39,8 @@ class ApiService {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
       print("refresh token ${refreshToken}");
       if (refreshToken != null && refreshToken.isNotEmpty) {
-        headers['Authorization'] = 'Bearer $refreshToken';
-      } else {
-        CustomLog.debug(this, "Authorization token : $refreshToken");
+        final authHeader = 'Bearer $refreshToken';
+        headers['Authorization'] = authHeader;
       }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
@@ -48,33 +50,36 @@ class ApiService {
 
 
 
-  /// Clear Cache
-  Future<void> clearCache() async {
-    CustomLog.info(this, "Cache cleared successfully");
-    // await _cacheManager.clearAll();
+  /// Check if token is available
+  Future<bool> hasValidToken() async {
+    try {
+      String? token = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
+      final hasToken = token != null && token.isNotEmpty;
+      CustomLog.debug(this, "🔐 Token availability check: $hasToken");
+      if (hasToken) {
+        CustomLog.debug(this, "🔐 Token value: '${token!.substring(0, 10)}...'");
+      }
+      return hasToken;
+    } catch (e) {
+      CustomLog.error(this, "Error checking token availability", e);
+      return false;
+    }
   }
-
-
   /// Get
   Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
     dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
     CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
     try {
-      await clearCache();
-
       final headers = customHeaders ?? await _getHeaders();
-
       final response = await _dio.get(
         url,
         queryParameters: queryParams,
         cancelToken: cancelToken,
-        // options: buildConfigurableCacheOptions(
-        //   options: Options(headers: headers),
-        //   maxAge: const Duration(minutes: 30),
-        //   maxStale: const Duration(days: 1),
-        //   forceRefresh: forceRefresh,
-        // ),
-        options: Options(headers: headers),
+        options: Options(
+            headers: headers,
+            sendTimeout: _timeout,
+            receiveTimeout: _timeout
+        ),
       );
       return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
@@ -99,7 +104,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      await clearCache();
       final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.post(
         url,
@@ -136,7 +140,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      await clearCache();
       final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.put(
         url,
@@ -172,7 +175,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      await clearCache();
       final response = await _dio.patch(
         url,
         data: body,
@@ -223,7 +225,6 @@ class ApiService {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      await clearCache();
       final prettyFieldsString = const JsonEncoder.withIndent('  ').convert(fields);
       CustomLog.debug(this, "\nMethod : Multipart \nURL : $url \nPath name : $pathName \nFiles : $files \nFields : $prettyFieldsString",);
       FormData formData = FormData();
@@ -330,7 +331,7 @@ class ApiService {
     try {
       final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
       if (refreshToken == null || refreshToken.isEmpty) {
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+        await _logoutAndNavigateToLogin();
         return;
       }
 
@@ -348,20 +349,24 @@ class ApiService {
         await _secureSharedPrefs.saveKey(AppString.sessionKey.accessToken, newAccessToken);
         await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
       } else {
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+        await _logoutAndNavigateToLogin();
       }
     } catch (e) {
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+      await _logoutAndNavigateToLogin();
+    }
+  }
+
+
+  Future<void> _logoutAndNavigateToLogin() async {
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+    if (appContext.mounted) {
+      appContext.pushReplacement(AppRouteName.chooseLanguage);
     }
   }
 
   /// Handle Dio Error
   Future<Result<dynamic>> _handleDioError(DioException error) async {
-    CustomLog.error(
-      this,
-      "DIO HTTP call error,Status Code : ${error.response?.statusCode} response : ${error.response}",
-      error,
-    );
+    CustomLog.error(this, "DIO HTTP call error,Status Code : ${error.response?.statusCode} response : ${error.response}", error);
     switch (error.type) {
       case DioExceptionType.badResponse:
         return await _handleHttpError(error.response);
@@ -374,38 +379,7 @@ class ApiService {
     }
   }
 
-  /// Json to Query Params
-  String jsonToQueryParams(Map<String, dynamic> json) {
-    String stringQueryParams = "";
-    try {
-      return json.entries.map((e) {
-            final key = Uri.encodeComponent(e.key);
-            final value = Uri.decodeComponent(e.value.toString());
-            stringQueryParams = '$key=$value';
-            return stringQueryParams;
-          }).join('&');
-    } catch (e) {
-      CustomLog.error(
-        this,
-        "QueryParams : $stringQueryParams,\nRun type : ${stringQueryParams.runtimeType}",
-        e,
-      );
-      return stringQueryParams;
-    }
-  }
 
-  ///
-  String decodeQueryParams(String queryString) {
-    return Uri.splitQueryString(queryString).entries
-        .map((e) {
-          final key = e.key;
-          final value = Uri.decodeComponent(
-            e.value,
-          ); // Decode percent-encoded values
-          return '$key = $value';
-        })
-        .join('\n');
-  }
 
   /// Get Response Result Status
   Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {
