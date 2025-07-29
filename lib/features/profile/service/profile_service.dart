@@ -452,10 +452,12 @@ class ProfileService {
 /// fetch Driver
  Future<Result<PaginatedDriverList>> fetchDriver({required String customerId,String? search}) async {
   try {
-    final baseUrl = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
-      final url = (search != null && search.trim().isNotEmpty)
-          ? '$baseUrl?search=$search'
-          : baseUrl;
+      final baseUrl = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
+
+    // Append search properly using &
+    final url = (search != null && search.trim().isNotEmpty)
+        ? '$baseUrl&search=$search'
+        : baseUrl;
     final response = await _apiService.get(url);
     if (response is Success) {
       final loads = PaginatedDriverList.fromJson(response.value);
