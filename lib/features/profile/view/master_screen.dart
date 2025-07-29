@@ -1192,7 +1192,7 @@ class _MasterScreenState extends State<MasterScreen>
      bool isVehicleVerified = vehcile != null;
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
-    bool isActive = vehcile != null ? (vehcile.status == 1) : true;
+    bool isVehicleActive = vehcile != null ? (vehcile.status == 1) : true;
     final truckNumberController = TextEditingController(text: vehcile?.truckNo ?? '');
     final truckMakeModelController = TextEditingController(text: vehcile?.modelNumber ?? '');
     final rcNumberController = TextEditingController();
@@ -1203,7 +1203,7 @@ class _MasterScreenState extends State<MasterScreen>
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
-        builder: (context, asyncSnapshot) {
+        builder: (context, setState) {
           List<Map<String, dynamic>> localVehicleDocList = List.from(vehicleDocList);
       final vehicleDocUpload = context.watch<ProfileCubit>().state.vehicleDocUpload;
       final isUploading = vehicleDocUpload?.status == Status.LOADING;
@@ -1349,18 +1349,16 @@ class _MasterScreenState extends State<MasterScreen>
                    
                  
                     16.height,
-                     /// Active Switch
+                    /// Active Switch
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(context.appText.active),
                     Switch(
-                      value: isActive,
-                      onChanged: isVehicleVerified?  (val) {
-                        setState(() {
-                         isActive = val;
-                        });
-                      } : null,
+                      value: isVehicleActive,
+                      onChanged: isVehicleVerified
+                      ? (val) => setState(() => isVehicleActive = val)
+                      : null,
                     ),
                   ],
                 ),
@@ -1380,8 +1378,9 @@ class _MasterScreenState extends State<MasterScreen>
                     tonnage: capacityController.text.trim(),
                     truckTypeId: selectedTruckType?.id ?? 1,
                     truckMakeAndModel: truckMakeModelController.text.trim(),
-                   // acceptableCommodities: selectedCommodities.map(int.parse).toList(),
-                    vehicleStatus: 1,
+                    acceptableCommodities: selectedCommodities.map(int.parse).toList(),
+                    truckLength: 1,
+                    vehicleStatus:  isVehicleActive ? 1 : 2
                 );
           
                 if (isEdit) {

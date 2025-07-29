@@ -7,6 +7,9 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/widgets/district_autocomplete_textfield.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/widgets/state_autocomplete_textfield.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
@@ -64,7 +67,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   final kycCubit = locator<KycCubit>();
   final profileCubit = locator<ProfileCubit>();
-
+   final endhancubit = locator<EnDhanCubit>();
   final TextEditingController aadhaarNumberTextController = TextEditingController();
   final TextEditingController gstInTextController = TextEditingController();
   final TextEditingController tanTextController = TextEditingController();
@@ -77,7 +80,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   final TextEditingController bankNameTextController = TextEditingController();
   final TextEditingController branchNameTextController = TextEditingController();
   final TextEditingController ifscCodeTextController = TextEditingController();
-
+  final stateController = TextEditingController();
+  final districtController = TextEditingController();
   final FocusNode gstFocusNode = FocusNode();
   final FocusNode tanFocusNode = FocusNode();
   final FocusNode panFocusNode = FocusNode();
@@ -121,6 +125,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     await kycCubit.fetchUserId();
     await kycCubit.fetchCompanyTypeId();
     await kycCubit.fetchStateList();
+    await  endhancubit.fetchStates();
     if (widget.aadhaarNumber != null) {
       aadhaarNumberTextController.text = widget.aadhaarNumber!;
     } else {
@@ -705,142 +710,59 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 labelText: context.appText.fullAddress,
                                 hintText: context.appText.enterFullAddress,
                               ),
-                              20.height,
-
-
-                              // State Dropdown
-                              BlocConsumer<KycCubit, KycState>(
-                                bloc: kycCubit,
-                                listenWhen: (previous, current) => previous.stateUIState?.status != current.stateUIState?.status,
-                                listener:  (context, state) {
-                                  final status = state.stateUIState?.status;
-                                  if (status == Status.ERROR) {
-                                    final error = state.stateUIState?.errorType;
-                                    ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-                                  }
+                           16.height,    
+                         // State Dropdown
+                         BlocBuilder<EnDhanCubit, EnDhanState>(
+                          bloc: endhancubit,
+                             builder: (context, state) {
+                              return Column(children: [
+                                 StateAutoCompleteTextField(
+                                controller: stateController,
+                                labelText: '${context.appText.state} *',
+                                onSelected: (value) {
+                                  // The widget will handle setting the text
                                 },
-                                builder: (context, state) {
-                                  return Column(
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text(context.appText.state.toString().capitalizeFirst, style: AppTextStyle.body3),
-                                          Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
-                                        ],
-                                      ),
-                                      6.height,
-                                      DropdownSearch<String>(
-                                        validator: (value) => Validator.fieldRequired(value),
-                                        key: dropDownStateKey,
-                                        items: (String filter, _) async {
-                                          final localList = kycCubit.state.stateUIState?.data ?? [];
-
-                                          final localMatches = localList
-                                              .where((e) => e.name.toLowerCase().contains(filter.toLowerCase()))
-                                              .toList();
-
-                                          if (localMatches.isNotEmpty || filter.trim().isEmpty) {
-                                            return localMatches.map((e) => e.name).toList();
-                                          } else {
-                                            final result = await kycCubit.getFilteredStateList(filter: filter);
-                                            if (result is Success<StateModel>) {
-                                              final remoteList = result.value.data;
-                                              return remoteList.map((e) => e.name).toList();
-                                            } else {
-                                              return [];
-                                            }
-                                          }
-                                        },
-                                        popupProps: PopupProps.modalBottomSheet(
-                                          fit: FlexFit.loose,
-                                          showSearchBox: true,
-                                          constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
-                                          emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noStateFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
-                                          loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
-                                        ),
-                                        decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectState)),
-                                        selectedItem: selectedState,
-                                        onChanged: (value) {
-                                          selectedState = value;
-                                          selectedCity = null;
-                                          if (value != null) {
-                                            kycCubit.fetchCityList(value);
-                                          }
-                                        },
-                                      ),
-
-                                    ],
-                                  );
+                                onStateSelected: (stateId) {
+                                  endhancubit.setSelectedStateId(stateId);
+                                  endhancubit.fetchDistricts(stateId);
+                                  // Clear district selection when state changes
+                                  districtController.clear();
+                                },
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return context.appText.pleaseSelectState;
+                                  }
+                                  return null;
                                 },
                               ),
-                              20.height,
+                               16.height,
+                               // District Dropdown
+                          DistrictAutoCompleteTextField(
+                            controller: districtController,
+                            labelText: '${context.appText.district} *',
+                            stateId: state.selectedStateId,
+                            onSelected: (value) {
+                              // The widget will handle setting the text
+                            },
+                            onDistrictSelected: (districtId) {
+                              endhancubit.setSelectedDistrictId(districtId);
+                            },
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return 'Please select a district';
+                              }
+                              return null;
+                            },
+                          ),
 
-                              // CITY DROPDOWN
-                              if (selectedState != null)
-                                BlocConsumer<KycCubit, KycState>(
-                                  bloc: kycCubit,
-                                  listenWhen: (previous, current) => previous.cityUIState?.status != current.cityUIState?.status,
-                                  listener: (context, state) {
-                                    final status = state.cityUIState?.status;
-                                    if (status == Status.ERROR) {
-                                      final error = state.cityUIState?.errorType;
-                                      ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-                                    }
-                                  },
-                                  builder: (context, state) {
-                                    return Column(
-                                      children: [
-                                        Row(
-                                          children: [
-                                            Text(context.appText.city.toString().capitalizeFirst, style: AppTextStyle.body3),
-                                            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
-                                          ],
-                                        ),
-                                        6.height,
-                                        DropdownSearch<String>(
-                                          validator: (value) => Validator.fieldRequired(value),
-                                          key: dropDownCityKey,
-                                          items: (String filter, _) async {
-                                            final localList = kycCubit.state.cityUIState?.data ?? [];
-
-                                            final localMatches = localList
-                                                .where((e) => e.city.toLowerCase().contains(filter.toLowerCase()))
-                                                .toList();
-
-                                            if (localMatches.isNotEmpty || filter.trim().isEmpty) {
-                                              return localMatches.map((e) => e.city).toList();
-                                            } else {
-                                              final result = await kycCubit.getFilteredCityList(stateName: selectedState!, filter: filter);
-                                              if (result is Success<CityModel>) {
-                                                final remoteList = result.value.data;
-                                                return remoteList.map((e) => e.city).toList();
-                                              } else {
-                                                return [];
-                                              }
-                                            }
-                                          },
-                                          popupProps: PopupProps.modalBottomSheet(
-                                            fit: FlexFit.loose,
-                                            showSearchBox: true,
-                                            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
-                                            emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noCityFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
-                                            loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
-                                          ),
-                                          decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectCity),
-                                          ),
-                                          selectedItem: selectedCity,
-                                          onChanged: (value) {
-                                            selectedCity = value;
-                                          },
-                                        ),
-                                        20.height
-                                      ],
-                                    );
-                                  },
-                                )
-                              else
-                                0.height,
-
+                              ],);
+                              
+                              
+                            }
+                          ),
+                          16.height,
+                         
+                         
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
@@ -883,7 +805,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 labelText: context.appText.bankName,
                                 hintText: context.appText.enterBankName,
                                 inputFormatters: [
-                                  FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]"))
+                                  FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
+                                  UpperCaseTextFormatter(),
                                 ],
                               ),
                               20.height,
@@ -895,7 +818,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   labelText: context.appText.branchName,
                                   hintText: context.appText.enterBranchName,
                                   inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]"))
+                                    FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
+                                    UpperCaseTextFormatter(),
                                   ],
                               ),
                               20.height,
