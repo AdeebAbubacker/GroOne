@@ -32,6 +32,7 @@ import 'package:gro_one_app/features/profile/model/profile_update_response.dart'
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -479,7 +480,45 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+  
 
+   /// fetch check vehicle excists or not
+
+ Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
+    try {
+      final url = "https://gro-devapi.letsgro.co/customer/api/v1/vehicle/check/vehicle-no/${vehcileId}";
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = VehicleVerificationSuccess.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+     /// fetch check license excists or not
+
+ Future<Result<VehicleVerificationSuccess>> fetchCheckDrivingLicenseExcists({required String licenseId}) async {
+    try {
+      final url = "https://gro-devapi.letsgro.co/customer/api/v1/vehicle/check/vehicle-no/${licenseId}";
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = VehicleVerificationSuccess.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
   Future<Result<KavachVehicleDocumentUploadModel>> uploadLicenseData(File file) async {
     try {
       // Get user ID from secure storage

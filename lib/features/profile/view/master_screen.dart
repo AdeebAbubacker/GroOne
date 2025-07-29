@@ -16,6 +16,7 @@ import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/view/widgets/master_dialogue_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
@@ -931,7 +932,135 @@ class _MasterScreenState extends State<MasterScreen>
     ),
   );
 }
+ 
+ Widget buildVehicleVerificationFieldWidget({required TextEditingController vehicleNoController,required void Function(bool) onVerificationResult,}) {
+  return BlocConsumer<ProfileCubit, ProfileState>(
+    bloc: profileCubit,
+    listenWhen: (previous, current) =>
+        previous.vehicleVerificationState != current.vehicleVerificationState,
+    listener: (context, state) {
+              final s = state.vehicleVerificationState;      
+              final status = s?.status;
+          
+              if (status == Status.SUCCESS) {
+                 ToastMessages.success(message: "This vehicle verified");
+                  onVerificationResult(true);
+              } else if (status == Status.ERROR) {
+                 ToastMessages.error(message: "This vehicle already excist");
+                  onVerificationResult(false);
+              }
+            },
+    builder: (context, state) {
+      return AppTextField(
+        validator: (value) => Validator.fieldRequired(value),
+        controller: vehicleNoController,
+        labelText: "Vehicle ID",
+        mandatoryStar: true,
+        keyboardType: TextInputType.text,
+        decoration: commonInputDecoration(
+          hintText: "Enter vehicle ID",
+          suffixIcon: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                (state.vehicleVerificationState?.status == Status.LOADING)
+                    ? "Checking..."
+                    : "Check",
+                style: AppTextStyle.body3.copyWith(
+                  color: AppColors.primaryColor,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.primaryColor,
+                ),
+              ),
+              5.width,
+              Icon(Icons.directions_car,
+                  size: 15, color: AppColors.greyIconColor),
+            ],
+          ),
+          suffixOnTap: () {
+            final String? validation = Validator.fieldRequired(vehicleNoController.text);
+            if (validation == null) {
+              profileCubit.fetchVehicleExcistence(
+                vehicleId: vehicleNoController.text.trim(),
+              );
+            } else {
+              ToastMessages.alert(message: validation);
+            }
+          },
+        ),
+      );
+    },
+  );
+}
+ 
+  Widget buildLicenseVerificationFieldWidget({required TextEditingController licenseNoController,required void Function(bool) onVerificationResult,}) {
+  return BlocConsumer<ProfileCubit, ProfileState>(
+    bloc: profileCubit,
+    listenWhen: (previous, current) =>
+        previous.licenseVerficationState != current.licenseVerficationState,
+    listener: (context, state) {
+              final s = state.licenseVerficationState;
+              print("📡 BlocListener triggered");
+              print("👉 Status: ${s?.status}");
+              print("👉 Data: ${s?.data}");
+              print("👉 Error: ${s?.errorType}");
+          
+              final status = s?.status;
+          
+              if (status == Status.SUCCESS) {
+                 ToastMessages.success(message: "License verified");
+                 onVerificationResult(true);
+              } else if (status == Status.ERROR) {
+                 ToastMessages.error(message: "License doesnt excist");
+                 onVerificationResult(false);
+              }
+            },
+    builder: (context, state) {
+      return AppTextField(
+        validator: (value) => Validator.fieldRequired(value),
+        controller: licenseNoController,
+        labelText: "License No",
+        mandatoryStar: true,
+        keyboardType: TextInputType.text,
+        decoration: commonInputDecoration(
+          hintText: "Enter License No",
+          suffixIcon: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                (state.vehicleVerificationState?.status == Status.LOADING)
+                    ? "Checking..."
+                    : "Check",
+                style: AppTextStyle.body3.copyWith(
+                  color: AppColors.primaryColor,
+                  decoration: TextDecoration.underline,
+                  decorationColor: AppColors.primaryColor,
+                ),
+              ),
+              5.width,
+              Icon(Icons.directions_car,
+                  size: 15, color: AppColors.greyIconColor),
+            ],
+          ),
+          suffixOnTap: () {
+            final String? validation = Validator.fieldRequired(licenseNoController.text);
+            if (validation == null) {
+              profileCubit.fetchLicenseExcistence(
+                licenseNo: licenseNoController.text.trim(),
+              );
+            } else {
+              ToastMessages.alert(message: validation);
+            }
+          },
+        ),
+      );
+    },
+  );
+}
 
+ 
   void showAddAddressPopup(BuildContext context, {CustomerAddress? address}) {
     final formKey = GlobalKey<FormState>();
     final isEdit = address != null;
@@ -1054,7 +1183,7 @@ class _MasterScreenState extends State<MasterScreen>
   }
  
   void showAddVehiclePopup(BuildContext context, {VehicleDetailsData? vehcile}) {
-   
+     bool isVehicleVerified = vehcile != null;
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
     bool isActive = vehcile != null ? (vehcile.status == 1) : true;
@@ -1089,26 +1218,29 @@ class _MasterScreenState extends State<MasterScreen>
                       style: AppTextStyle.h4,
                     ),
                     20.height,
-                    _buildTextField(
-                      context,
-                      truckNumberController,
-                      context.appText.truckNumber,
-                      alphanumericWithSpaceRegex,
-                    ),
+                    buildVehicleVerificationFieldWidget(vehicleNoController:  truckNumberController,onVerificationResult: (value) {
+                      setState(() {
+                        isVehicleVerified = value;
+                      });
+                    },),
                     16.height,
-                    _buildTextField(
-                      context,
-                      truckMakeModelController,
-                      context.appText.truckMakeAndModel,
-                      alphanumericWithSpaceRegex,
-                    ),
+                    AppTextField(
+                    readOnly: isVehicleVerified ? false : true,
+                    validator: (value) => Validator.fieldRequired(value),
+                    controller: truckMakeModelController,
+                    labelText: context.appText.truckMakeAndModel,
+                    hintText:  context.appText.truckMakeAndModel,
+                    mandatoryStar: true,
+                  ),
                     16.height,
-                    _buildTextField(
-                      context,
-                      rcNumberController,
-                      context.appText.rcBook,
-                      alphabetWithSpaceRegex,
-                    ),
+                    AppTextField(
+                    readOnly: isVehicleVerified ? false : true,
+                    validator: (value) => Validator.fieldRequired(value),
+                    controller: rcNumberController,
+                    labelText:  context.appText.rcBook,
+                    hintText:   context.appText.rcBook,
+                    mandatoryStar: true,
+                  ),
                     16.height,
                     // Upload RC Book
                       UploadAttachmentFiles(
@@ -1144,6 +1276,7 @@ class _MasterScreenState extends State<MasterScreen>
                     return Column(
                       children: [
                         AppDropdown(
+                          enabled: isVehicleVerified ? true : false,
                           labelText: context.appText.truckType,
                           dropdownValue: selectedTruckType,
                           dropDownList: truckTypes.map((e) => DropdownMenuItem(
@@ -1161,6 +1294,7 @@ class _MasterScreenState extends State<MasterScreen>
                         ),
                      16.height,
                     AppDropdown(
+                      enabled: isVehicleVerified ? true : false,
                       labelText: context.appText.truckLength,
                       dropdownValue: truckLengthDropdownValue,
                       dropDownList: (truckLengthsUI != null &&
@@ -1200,11 +1334,12 @@ class _MasterScreenState extends State<MasterScreen>
             ),
               16.height,
                   AppTextField(
-                validator: (value)=> Validator.fieldRequired(value),
-                controller: capacityController,
-                labelText: context.appText.capacity,
-                hintText: "2",
-              ),
+                    readOnly: isVehicleVerified ? false : true,
+                    validator: (value)=> Validator.fieldRequired(value),
+                    controller: capacityController,
+                    labelText: context.appText.capacity,
+                    hintText: "2",
+                  ),
                    16.height,   
                  Builder(
                       builder: (context) {
@@ -1249,11 +1384,11 @@ class _MasterScreenState extends State<MasterScreen>
                     Text(context.appText.active),
                     Switch(
                       value: isActive,
-                      onChanged: (val) {
+                      onChanged: isVehicleVerified?  (val) {
                         setState(() {
                          isActive = val;
                         });
-                      },
+                      } : null,
                     ),
                   ],
                 ),
@@ -1327,6 +1462,8 @@ class _MasterScreenState extends State<MasterScreen>
 
 
   void showAddDriverPopup(BuildContext context, {DriverDetailsData? driver}) {
+   bool isLicenseVerified = driver != null;
+
     final formKey = GlobalKey<FormState>();
     final isEdit = driver != null;
    String? selectedDate = driver?.licenseExpiryDate != null
@@ -1387,29 +1524,35 @@ class _MasterScreenState extends State<MasterScreen>
                     style: AppTextStyle.h4,
                   ),
                   20.height,
-                  _buildTextField(
-                    context,
-                    nameController,
-                    context.appText.driverName,
-                    alphanumericWithSpaceRegex,
-                    
-                  ),
+                  buildLicenseVerificationFieldWidget(licenseNoController: licenseNumberController,onVerificationResult: (value) {
+                  setState(() {
+                    isLicenseVerified = value;
+                  });
+                },),
                   16.height,
-                  _buildTextField(
-                    context,
-                    licenseNumberController,
-                    context.appText.licenseNumber,
-                    alphanumericWithSpaceRegex,
+                  AppTextField(
+                    readOnly: isLicenseVerified ? false : true,
+                    validator: (value) => Validator.fieldRequired(value),
+                    controller: nameController,
+                    labelText:  context.appText.driverName,
+                    hintText:   context.appText.driverName,
+                    mandatoryStar: true,
+                    keyboardType: TextInputType.name,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                    ],
                   ),
+                 
                   16.height,
           
                   ///License Expiry date
-                  InkWell(
-                    onTap: () async {
+                  InkWell(                   
+                    onTap: isLicenseVerified ? () async {
+                       final DateTime today = DateTime.now();
                       final DateTime? pickedDate = await showDatePicker(
                   context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
+                  initialDate: today,
+                  firstDate: today, 
                   lastDate: DateTime(2100),
                 );
                 if (pickedDate != null) {
@@ -1418,7 +1561,7 @@ class _MasterScreenState extends State<MasterScreen>
                     selectedDate = formattedDate;
                   });
                 }
-                    },
+                    } : null,
                     child: buildReadOnlyField(
           
                       context.appText.licenseExpiryDate,
@@ -1431,27 +1574,33 @@ class _MasterScreenState extends State<MasterScreen>
           
                   ///Date of Birth
                   InkWell(
-                    onTap: () async {
-                  final DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime(2100),
-                );
-                if (pickedDate != null) {
-                  final formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
-                  setState(() {
-                    selectedDoB = formattedDate;
-                  });
-                }
-                    },
+                    onTap: isLicenseVerified? () async {
+                      final DateTime today = DateTime.now();
+                      final DateTime eighteenYearsAgo = DateTime(today.year - 18, today.month, today.day);
+
+                      final DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: eighteenYearsAgo,
+                        firstDate: DateTime(1900),     
+                        lastDate: eighteenYearsAgo,   
+                      );
+
+                      if (pickedDate != null) {
+                        final formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+                        setState(() {
+                          selectedDoB = formattedDate;
+                        });
+                      }
+                    }
+                    :null, 
                     child: buildReadOnlyField(
-                    context.appText.dateOdBirth,
+                      context.appText.dateOdBirth,
                       selectedDoB ?? 'DOB',
                       fillColor: Colors.white,
                       mandatoryStar: true,
                     ),
                   ),
+
                   
                   16.height,
                   UploadAttachmentFiles(
@@ -1461,8 +1610,7 @@ class _MasterScreenState extends State<MasterScreen>
                   thenUploadFileToSever: () async {
                     final result = await _uploadLicenseCopy(context, localVehicleDocList);
                     if (result is Success) {
-                      setState(() {
-                        // Update the persistent vehicleDocList field in State class as well if needed
+                      setState(() {                    
                         vehicleDocList.clear();
                         vehicleDocList.addAll(localVehicleDocList);
                       });
@@ -1470,32 +1618,27 @@ class _MasterScreenState extends State<MasterScreen>
                   },
                 ),
                  16.height,
-                    AppTextField(
-                    validator: Validator.phone,
-                    controller: mobileController,
-                    labelText: context.appText.mobileNumber,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.digitsOnly,
-                      LengthLimitingTextInputFormatter(10),
-                    ],
-                    keyboardType: iosNumberKeyboard,
+                  AppTextField(
+                  readOnly:isLicenseVerified? false : true,
+                  controller: mobileController,
+                  labelText: context.appText.mobileNumber,
+                  hintText: context.appText.mobileNumber,
+                  mandatoryStar: true,
+                  keyboardType: TextInputType.number,
+                  maxLength: 10,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) => Validator.positiveNumber(
+                    value,
+                    fieldName: context.appText.mobileNumber,
                   ),
+                ),
                   16.height,
                   AppTextField(
+                  readOnly:isLicenseVerified? false : true,
                   labelText: '${context.appText.emailId}(optional)',
                                 hintText: 'example@email.com',
-                               controller: emailController,
-                              
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return context.appText.emailAddressRequired;
-                                  }
-                                  // Email validation
-                                  final emailRegex = emailValidationRegex;
-                                  if (!emailRegex.hasMatch(value.trim())) {
-                                    return context.appText.validEmailAddress;
-                                  }
-                                  return null;
+                               controller: emailController,                            
+                                validator: (value) {                     
                                 },
                                 decoration: commonInputDecoration(
                                   hintText: 'example@email.com',                         
@@ -1510,11 +1653,9 @@ class _MasterScreenState extends State<MasterScreen>
                     Text(context.appText.active),
                     Switch(
                       value: isActive,
-                      onChanged: (val) {
-                        setState(() {
-                         isActive = val;
-                        });
-                      },
+                      onChanged: isLicenseVerified
+                      ? (val) => setState(() => isActive = val)
+                      : null,
                     ),
                   ],
                 ),
@@ -1576,6 +1717,8 @@ class _MasterScreenState extends State<MasterScreen>
     );
 
   }
+
+
 
   Widget _buildTextField(
     BuildContext context,

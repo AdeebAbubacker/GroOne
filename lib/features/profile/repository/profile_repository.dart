@@ -27,6 +27,7 @@ import 'package:gro_one_app/features/profile/model/profile_update_response.dart'
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -142,6 +143,23 @@ class ProfileRepository {
     }
   }
  
+   /// fetch vehicle verfifcation
+  Future<Result<VehicleVerificationSuccess>> fetchVehicleVerification({required String vehicleId}) async {
+    try {
+      return await _profileService.fetchCheckVehicleExcists(vehcileId: vehicleId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// fetch license verfifcation
+  Future<Result<VehicleVerificationSuccess>> fetchLicenseVerification({required String licenseNo}) async {
+    try {
+      return await _profileService.fetchCheckDrivingLicenseExcists(licenseId: licenseNo);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
     /// create new vehicle
   Future<Result<VehicleNewModel>> createVehicle({required VehicleRequest request}) async {
     try {
@@ -258,7 +276,7 @@ Future<Result<bool>> deleteVehicle({
     }
   }
 
-
+  
 
   /// LogOut Repo
   Future<Result<LogOutModel>> getLogOutData() async {

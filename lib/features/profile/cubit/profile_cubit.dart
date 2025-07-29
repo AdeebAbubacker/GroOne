@@ -26,6 +26,7 @@ import 'package:gro_one_app/features/profile/model/primart_address_response.dart
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
@@ -255,6 +256,40 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
  
+  // Check Vehicle Excistence
+  void _setCheckVehicleExcistence(UIState<VehicleVerificationSuccess>? uiState){
+    emit(state.copyWith(vehicleVerificationState: uiState));
+  }
+   Future<void> fetchVehicleExcistence({required String vehicleId}) async {
+    _setCheckVehicleExcistence(UIState.loading());
+
+    dynamic result = await _repo.fetchVehicleVerification(vehicleId: vehicleId);
+    if (result is Success<VehicleVerificationSuccess>) {
+      print("Vehicle already excist");
+      _setCheckVehicleExcistence(UIState.success(result.value));
+    }
+    if (result is Error) {
+      print("Vehicle not found excist");
+      _setCheckVehicleExcistence(UIState.error(result.type));
+    }
+  }
+
+   // Check License Excistence
+  void _setCheckLicenseExcistence(UIState<VehicleVerificationSuccess>? uiState){
+    emit(state.copyWith(licenseVerficationState: uiState));
+  }
+   Future<void> fetchLicenseExcistence({required String licenseNo}) async {
+    _setCheckLicenseExcistence(UIState.loading());
+
+    dynamic result = await _repo.fetchLicenseVerification(licenseNo: licenseNo);
+    if (result is Success<VehicleVerificationSuccess>) {
+      _setCheckLicenseExcistence(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCheckLicenseExcistence(UIState.error(result.type));
+    }
+  }
+
     // Create New vehicle from api call
   void _setCreateVehicleUIState(UIState<VehicleNewModel>? uiState){
     emit(state.copyWith(createVehicleState: uiState));
