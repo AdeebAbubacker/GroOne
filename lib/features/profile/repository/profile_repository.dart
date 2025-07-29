@@ -27,6 +27,7 @@ import 'package:gro_one_app/features/profile/model/profile_update_response.dart'
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -98,9 +99,9 @@ class ProfileRepository {
   }
 
   /// Get Address
-  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search}) async {
     try {
-      return await _profileService.fetchAddress(userId: userId);
+      return await _profileService.fetchAddress(userId: userId,search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -142,6 +143,23 @@ class ProfileRepository {
     }
   }
  
+   /// fetch vehicle verfifcation
+  Future<Result<VehicleVerificationSuccess>> fetchVehicleVerification({required String vehicleId}) async {
+    try {
+      return await _profileService.fetchCheckVehicleExcists(vehcileId: vehicleId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// fetch license verfifcation
+  Future<Result<VehicleVerificationSuccess>> fetchLicenseVerification({required String licenseNo}) async {
+    try {
+      return await _profileService.fetchCheckDrivingLicenseExcists(licenseId: licenseNo);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
     /// create new vehicle
   Future<Result<VehicleNewModel>> createVehicle({required VehicleRequest request}) async {
     try {
@@ -205,9 +223,9 @@ Future<Result<bool>> deleteVehicle({
 
 
   /// Get Driver
-  Future<Result<PaginatedDriverList>> fetchDriver({required String userId}) async {
+  Future<Result<PaginatedDriverList>> fetchDriver({required String userId,String? search}) async {
     try {
-      return await _profileService.fetchDriver(customerId: userId);
+      return await _profileService.fetchDriver(customerId: userId,search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -258,7 +276,7 @@ Future<Result<bool>> deleteVehicle({
     }
   }
 
-
+  
 
   /// LogOut Repo
   Future<Result<LogOutModel>> getLogOutData() async {

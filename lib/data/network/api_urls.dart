@@ -239,5 +239,7 @@ class ApiUrls {
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
 
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
+  static final String checkVehicleNumber = "$_fetchUrl$_customer$_path$_v1/vehicle/check/vehicle-no/";
+  static final String checkLicenseNumber = "$_fetchUrl$_customer$_path$_v1/drivers/check-license/";
 
 }

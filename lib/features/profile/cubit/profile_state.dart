@@ -20,7 +20,8 @@ class ProfileState extends Equatable {
   final UIState<List<TruckLengthModel>>? truckLengths;
   final UIState<KavachVehicleDocumentUploadModel>? vehicleDocUpload;
   final UIState<KavachVehicleDocumentUploadModel>? licenseDocUpload;
-
+  final UIState<VehicleVerificationSuccess>? vehicleVerificationState;
+  final UIState<VehicleVerificationSuccess>? licenseVerficationState;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -40,6 +41,8 @@ class ProfileState extends Equatable {
     this.truckLengths,
     this.vehicleDocUpload,
     this.licenseDocUpload,
+    this.vehicleVerificationState,
+    this.licenseVerficationState,
     this.faqUIState
   });
 
@@ -62,6 +65,8 @@ class ProfileState extends Equatable {
     UIState<KavachVehicleDocumentUploadModel>? vehicleDocUpload,
     UIState<KavachVehicleDocumentUploadModel>? licenseDocUpload,
     UIState<FaqResponse>? faqUIState,
+    UIState<VehicleVerificationSuccess>? vehicleVerificationState,
+    UIState<VehicleVerificationSuccess>? licenseVerficationState,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -84,7 +89,9 @@ class ProfileState extends Equatable {
       driverState: driverState ?? this.driverState,
       customerSettingsState: customerSettingsState ?? this.customerSettingsState,
       vehicleDocUpload: vehicleDocUpload ?? this.vehicleDocUpload,
-      licenseDocUpload: licenseDocUpload ?? this.licenseDocUpload, 
+      licenseDocUpload: licenseDocUpload ?? this.licenseDocUpload,
+      vehicleVerificationState: vehicleVerificationState ?? this.vehicleVerificationState,  
+      licenseVerficationState: licenseVerficationState ?? this.licenseVerficationState,  
       faqUIState: faqUIState ?? this.faqUIState,
     );
   }
@@ -109,6 +116,8 @@ class ProfileState extends Equatable {
     customerSettingsState,
     vehicleDocUpload,
     licenseDocUpload,
-    faqUIState
+    faqUIState,
+    vehicleVerificationState,
+    licenseVerficationState
   ];
 }
