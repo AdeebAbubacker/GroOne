@@ -36,6 +36,7 @@ import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../payments/view/payments_screen.dart';
 import '../../models/gps_document_models.dart';
+import '../gps_home_screen.dart';
 
 class GpsOrderSummaryScreen extends StatefulWidget {
   final List<GpsProduct> products;
@@ -483,7 +484,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.appText.total, style: AppTextStyle.blackColor14w400),
-              Text('₹${KavachHelper.formatCurrency(totalAmount)}', style: AppTextStyle.primaryColor16w900),
+              Text('₹${KavachHelper.formatCurrency(totalAmount.round())}', style: AppTextStyle.primaryColor16w900),
             ],
           ),
           15.width,
@@ -519,13 +520,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     String state = '';
     String postalCode = '';
 
-    print('Parsing address: $addressString');
-
     try {
       // Split by commas and clean up
       List<String> parts =
           addressString.split(',').map((part) => part.trim()).toList();
-      print('Address parts: $parts');
 
       if (parts.length >= 3) {
         // Try to extract postal code from the last part (format: "Country - PostalCode")
@@ -560,10 +558,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       print('Error parsing address: $e');
     }
 
-    print(
-      'Parsed address - City: $city, State: $state, PostalCode: $postalCode',
-    );
-
     return {'city': city, 'state': state, 'postalCode': postalCode};
   }
 
@@ -597,12 +591,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
       // Create billing address
       final billingAddressParts = _parseAddress(widget.billingAddress.addr1);
-      print(
-        'Billing address - Original: city=${widget.billingAddress.city}, state=${widget.billingAddress.state}, pincode=${widget.billingAddress.pincode}',
-      );
-      print(
-        'Billing address - Parsed: city=${billingAddressParts['city']}, state=${billingAddressParts['state']}, postalCode=${billingAddressParts['postalCode']}',
-      );
       final billingAddress = GpsOrderAddress(
         addressLine1: widget.billingAddress.addressName,
         addressLine2: widget.billingAddress.addr1,
@@ -624,12 +612,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
       // Create shipping address
       final shippingAddressParts = _parseAddress(widget.shippingAddress.addr1);
-      print(
-        'Shipping address - Original: city=${widget.shippingAddress.city}, state=${widget.shippingAddress.state}, pincode=${widget.shippingAddress.pincode}',
-      );
-      print(
-        'Shipping address - Parsed: city=${shippingAddressParts['city']}, state=${shippingAddressParts['state']}, postalCode=${shippingAddressParts['postalCode']}',
-      );
       final shippingAddress = GpsOrderAddress(
         addressLine1: widget.shippingAddress.addressName,
         addressLine2: widget.shippingAddress.addr1,
@@ -736,33 +718,42 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           Navigator.of(currentContext).pop();
           
           // Use a post-frame callback to ensure dialog is fully closed
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+          WidgetsBinding.instance.addPostFrameCallback((_) async {
+            // Add a small delay to ensure dialog is fully closed
+            await Future.delayed(Duration(milliseconds: 100));
+            
             if (currentContext.mounted) {
-              print('🔄 GPS Order Success: Attempting GoRouter navigation');
-              print('🔄 GPS Order Success: Target route: ${AppRouteName.gpsOrderBenefits}');
-              
               try {
-                // Use GoRouter navigation
-                GoRouter.of(currentContext).go(AppRouteName.gpsOrderBenefits);
-                print('🔄 GPS Order Success: GoRouter navigation called successfully');
+                // Try multiple navigation approaches
+                GoRouter.of(currentContext).go(AppRouteName.gps);
               } catch (e) {
-                print('❌ GPS Order Success: Navigation error: $e');
-                
-                // Fallback: Try with context.go
                 try {
-                  currentContext.go(AppRouteName.gpsOrderBenefits);
-                  print('🔄 GPS Order Success: Fallback navigation successful');
+                  currentContext.go(AppRouteName.gps);
                 } catch (fallbackError) {
-                  print('❌ GPS Order Success: Fallback navigation also failed: $fallbackError');
-                  
-                  // Final fallback: Show error message
-                  ToastMessages.error(
-                    message: 'Navigation failed. Please try again.',
-                  );
+                  try {
+                    Navigator.of(currentContext).pushNamedAndRemoveUntil(
+                      AppRouteName.gps,
+                      (route) => false,
+                    );
+                  } catch (navigatorError) {
+                    try {
+                      Navigator.of(currentContext).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (context) => GpsHomeScreen()),
+                        (route) => false,
+                      );
+                    } catch (pushError) {
+                      // Last resort: Try to navigate to a different route
+                      try {
+                        currentContext.go(AppRouteName.lpBottomNavigationBar);
+                      } catch (lastResortError) {
+                        ToastMessages.error(
+                          message: 'Navigation failed. Please try again.',
+                        );
+                      }
+                    }
+                  }
                 }
               }
-            } else {
-              print('❌ GPS Order Success: Context not mounted after dialog close');
             }
           });
         },

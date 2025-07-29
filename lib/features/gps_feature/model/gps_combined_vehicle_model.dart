@@ -1,5 +1,7 @@
 import 'dart:convert'; // Added for jsonDecode
 
+import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_realm_model.dart';
+
 import '../model/gps_devices_expiry_model.dart';
 import '../model/gps_devices_positions_model.dart';
 
@@ -301,7 +303,7 @@ class GpsCombinedVehicleData {
       phone: phone ?? this.phone,
       positionId: positionId ?? this.positionId,
       statusCode: statusCode ?? this.statusCode,
-      attributes: attributes ?? this.attributes,
+      attributes: this.attributes,
     );
   }
 
@@ -572,6 +574,22 @@ class GpsCombinedVehicleData {
           }
         }
       }
+
+      // Try to parse as JSON and extract battery info
+      try {
+        final jsonMap = jsonDecode(posAttr) as Map<String, dynamic>;
+        if (jsonMap.containsKey('battery')) {
+          final batteryValue = jsonMap['battery'];
+          if (batteryValue != null) {
+            final batteryNum = double.tryParse(batteryValue.toString());
+            if (batteryNum != null && batteryNum >= 0 && batteryNum <= 100) {
+              return batteryNum.toInt().toString();
+            }
+          }
+        }
+      } catch (e) {
+        // JSON parsing failed, continue with other methods
+      }
     } catch (e) {
       // If parsing fails, return the original value
     }
@@ -598,9 +616,32 @@ class GpsCombinedVehicleData {
   static Map<String, dynamic> _parsePosAttr(String? posAttr) {
     if (posAttr == null || posAttr.isEmpty) return {};
     try {
-      return jsonDecode(posAttr) as Map<String, dynamic>;
-    } catch (_) {
+      // Try to parse as JSON
+      final decoded = jsonDecode(posAttr);
+      if (decoded is Map<String, dynamic>) {
+        return decoded;
+      }
       return {};
+    } catch (e) {
+      // If JSON parsing fails, try to extract key-value pairs from string
+      try {
+        final Map<String, dynamic> result = {};
+        // Handle simple key=value format
+        final pairs = posAttr.split(',');
+        for (final pair in pairs) {
+          final keyValue = pair.split('=');
+          if (keyValue.length == 2) {
+            final key = keyValue[0].trim();
+            final value = keyValue[1].trim();
+            // Try to parse value as number if possible
+            final numValue = double.tryParse(value);
+            result[key] = numValue ?? value;
+          }
+        }
+        return result;
+      } catch (e2) {
+        return {};
+      }
     }
   }
 }

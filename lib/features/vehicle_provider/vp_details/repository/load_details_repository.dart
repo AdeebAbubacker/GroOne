@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/settlement_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
@@ -59,7 +60,7 @@ class LoadDetailsRepository {
 
 
   /// Submit Settlement Repo
-  Future<Result<DamageModel>> getSubmitSettlementData(SettlementApiRequest request) async {
+  Future<Result<SettlementApiResponse>> getSubmitSettlementData(SettlementApiRequest request) async {
     try {
       return await _vpDetailsService.submitSettlement(request);
     } catch (e) {

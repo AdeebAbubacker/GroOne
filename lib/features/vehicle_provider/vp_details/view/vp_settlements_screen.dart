@@ -27,6 +27,7 @@ import '../../../../data/ui_state/status.dart';
 class VpSettlementsScreen extends StatefulWidget {
   final String? loadId;
   final String? vehicleID;
+
   const VpSettlementsScreen({super.key,this.loadId,this.vehicleID});
 
   @override
@@ -41,6 +42,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
   TextEditingController unloadingAmount = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final vpDetailsCubit = locator<LoadDetailsCubit>();
+  bool isSettementsSubmited=false;
 
   @override
   void initState() {
@@ -84,7 +86,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.settlements),
+      appBar: CommonAppBar(title: context.appText.settlements,onLeadingTap: () => Navigator.pop(context,isSettementsSubmited)),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(commonSafeAreaPadding),
         child: Form(
@@ -160,20 +162,20 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
                 bloc: vpDetailsCubit,
-                listenWhen: (previous, current) =>  previous.createDamageUIState?.status != current.createDamageUIState?.status,
+                listenWhen: (previous, current) =>  previous.settlementUIState?.status != current.settlementUIState?.status,
                 listener: (context, state) async {
-                  final status = state.createDamageUIState?.status;
+                  final status = state.settlementUIState?.status;
                   if (status == Status.SUCCESS) {
                     clearValues();
                     showSuccessDialog(context);
                   }
                   if (status == Status.ERROR) {
-                    final error = state.createDamageUIState?.errorType;
+                    final error = state.settlementUIState?.errorType;
                     ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
                   }
                 },
                 builder: (context, state) {
-                  final isLoading = state.createDamageUIState?.status == Status.LOADING;
+                  final isLoading = state.settlementUIState?.status == Status.LOADING;
                   return AppButton(
                       title: context.appText.submit,
                       isLoading: isLoading,
@@ -209,6 +211,8 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
         message:  context.appText.notifiedTheConcernTeam,
         onContinue: (){
           Navigator.of(context).pop(true);
+          Navigator.of(context).pop(isSettementsSubmited);
+
           },
       ),
     );

@@ -46,6 +46,7 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
     if (loginResult is Success<GpsLoginResponseModel>) {
       _authToken = loginResult.value.token;
       AppConstants.token = _authToken;
+      AppConstants.token = _authToken!;
       _setLoginUIState(UIState.success(loginResult.value));
 
       // Store login response in Realm
@@ -77,19 +78,19 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
       // Step 2.4: Get mobile config (requires user ID)
       final userDetails = await _repository.getUserDetails(token);
       if (userDetails is Success<GpsUserDetailsModel> &&
-          userDetails.value.id != null) {
+          userDetails.value.firstUser?.id != null) {
         await _repository.fetchAndStoreMobileConfig(
           token,
-          userDetails.value.id!,
+          userDetails.value.firstUser!.id!,
         );
       }
 
       // Step 2.5: Get user configuration (requires user ID)
       if (userDetails is Success<GpsUserDetailsModel> &&
-          userDetails.value.id != null) {
+          userDetails.value.firstUser?.id != null) {
         await _repository.fetchAndStoreUserConfiguration(
           token,
-          userDetails.value.id!,
+          userDetails.value.firstUser!.id!,
         );
       }
 

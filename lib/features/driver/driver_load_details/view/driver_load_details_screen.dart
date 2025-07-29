@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_loa
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_bottom_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -38,6 +39,7 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   Timer? _ticker;
   String _countDown = "--:--:--";
   bool _simConsentCalled = false;
+  bool _trackingApiCalled = false;
    final driverLoadDetailsCubit = locator<DriverLoadDetailsCubit>();
   @override
   void initState() {
@@ -46,14 +48,32 @@ class _DriverLoadsLocationDetailsScreenState extends State<DriverLoadsLocationDe
   }
 
 Future<void> getLoadDetails() async {
-  await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadId);
-
+  frameCallback(() async{
+      await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadId);
+     
   final statusId = driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
 
   if (statusId != null) {
     driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
   }
+  },);
+
 }
+
+ callApi(DriverLoadDetailsModelData loadItem) async {
+    if(loadItem.trackingDetails==null){
+      return;
+    }
+    await driverLoadDetailsCubit.getTrackingDistance(request: TrackingDistanceApiRequest(
+      originLat: loadItem.trackingDetails?.originLat ?? 0.0,
+      originLong: loadItem.trackingDetails?.originLong ?? 0.0,
+      currentLat: loadItem.trackingDetails?.currentLat ?? 0.0,
+      currentLong: loadItem.trackingDetails?.currentLong ?? 0.0,
+      destLat: loadItem.trackingDetails?.destinationLat ?? 0.0,
+      destLong: loadItem.trackingDetails?.destinationLong ?? 0.0,
+    ));
+  }
+
 
   @override
   void dispose() {
@@ -69,14 +89,21 @@ Future<void> getLoadDetails() async {
         child: 
         BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
          bloc: driverLoadDetailsCubit,
-          listener: (context, state) {
-            
-          },
+            listener: (context, state) {
+          if (!_trackingApiCalled &&
+        state.lpLoadById?.status == Status.SUCCESS &&
+        state.lpLoadById?.data?.data != null &&
+        (state.loadStatusId ?? 0) >= 4
+    ) {
+      callApi(state.lpLoadById!.data!.data!);
+      _trackingApiCalled = true;
+    }
+        },
           builder: (context, state) {
             final uiState = state.lpLoadById;
         
             if (uiState == null || uiState.status == Status.LOADING) {
-              return const Center(child: CircularProgressIndicator());
+              return CircularProgressIndicator().center();
             }
         
             if (uiState.status == Status.ERROR) {
@@ -120,16 +147,18 @@ Future<void> getLoadDetails() async {
         
             return Stack(
               children: [
-                GoogleMapWidget(
-                  pickupLocation: loadItem?.data?.loadRoute?.pickUpLocation,
-                  dropLocation: loadItem?.data?.loadRoute?.dropLocation,
-                  pickUpLatLong: loadItem?.data?.loadRoute?.pickUpLatlon,
-                  dropLatLong: loadItem?.data?.loadRoute?.dropLatlon,
-                  driverLat: 3,
-                  driverLong: 23,
+               Positioned.fill(
+                  child: GoogleMapWidget(
+                    pickupLocation: loadItem?.data?.loadRoute?.pickUpLocation,
+                    dropLocation: loadItem?.data?.loadRoute?.dropLocation,
+                    pickUpLatLong: loadItem?.data?.loadRoute?.pickUpLatlon,
+                    dropLatLong: loadItem?.data?.loadRoute?.dropLatlon,
+                   driverLat: loadItem?.data?.trackingDetails?.currentLat ?? 0.0,
+                  driverLong: loadItem?.data?.trackingDetails?.currentLong ?? 0.0,
+                  ),
                 ),
                 buildTopLocationWidget(loadItem!),
-                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: context.read<DriverLoadDetailsCubit>(),),
+                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: driverLoadDetailsCubit,),
                 buildFloatingWidget(context),
                 buildSimConsentWidget(loadItem.data?.driverConsent ?? 0),
               ],
@@ -163,7 +192,7 @@ Future<void> getLoadDetails() async {
                 const Spacer(),
                 Text(
                   loadItem.data?.createdAt != null
-                      ? DateTimeHelper.formatCustomDateIST( loadItem.data?.createdAt)
+                      ? DateTimeHelper.formatCustomDateTimeIST( loadItem.data?.createdAt)
                       : "--",
                   style: AppTextStyle.body4PrimaryColor.copyWith(fontSize: 10),
                 ),

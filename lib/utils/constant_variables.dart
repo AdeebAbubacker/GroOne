@@ -59,6 +59,9 @@ final RegExp indianPincodeRegex = RegExp(r'^[1-9][0-9]{5}$');
 final RegExp vehicleAlphaNumSpaceRegex = RegExp(r'[a-zA-Z0-9 ]');
 final RegExp licenseAlphaNumHyphenRegex = RegExp(r'[A-Za-z0-9\-]');
 
+final RegExp alphanumericWithSpaceRegex = RegExp(r'[a-zA-Z0-9 ]');
+final RegExp alphabetWithSpaceRegex = RegExp(r'[a-zA-Z ]');
+
 
 
 

@@ -28,9 +28,7 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
     final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
-      print('KavachCheckoutShippingAddressBloc: Successfully fetched ${result.value.length} addresses');
       if (result.value.isEmpty) {
-        print('KavachCheckoutShippingAddressBloc: No addresses found, emitting empty state');
         emit(KavachCheckoutShippingAddressEmpty());
       } else {
         // Check if the previously selected address still exists in the new list
@@ -38,24 +36,20 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
           final addressExists = result.value.any((address) => address.uniqueId == currentlySelectedAddress!.uniqueId);
           if (addressExists) {
             // Restore the previously selected address
-            print('KavachCheckoutShippingAddressBloc: Restoring previously selected address');
             emit(KavachCheckoutShippingAddressSelected(
               selectedAddress: currentlySelectedAddress,
               addresses: result.value,
             ));
           } else {
             // Previously selected address no longer exists, show available state
-            print('KavachCheckoutShippingAddressBloc: Previously selected address no longer exists, emitting available state');
             emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
           }
         } else {
           // No previously selected address, show available state without auto-selection
-          print('KavachCheckoutShippingAddressBloc: No previously selected address, showing available state without auto-selection');
           emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
         }
       }
     } else if (result is Error<List<KavachAddressModel>>) {
-      print('KavachCheckoutShippingAddressBloc: Error fetching addresses: ${result.type}');
       emit(KavachCheckoutShippingAddressError(result.type));
     }
   }

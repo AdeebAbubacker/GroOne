@@ -103,6 +103,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     if (!_tabController!.indexIsChanging) return;
 
     paginationController.reset();
+    clearAllFilterValues();
 
     final selectedType = _tabController!.index;
     lpLoadLocator.updateSelectedTabIndex(selectedType);
@@ -162,6 +163,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   });
 
   void filterPopUp () {
+    var loadStatusType = lpLoadLocator.state.selectedTabIndex;
     AppDialog.show(context, child: CommonDialogView(
       crossAxisAlignment: CrossAxisAlignment.start,
       hideCloseButton: true,
@@ -271,7 +273,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       onClickYesButton: () {
 
         Navigator.pop(context);
-        var loadStatusType = lpLoadLocator.state.selectedTabIndex;
         lpLoadLocator.getLpLoadsByType(
             loadListApiRequest: LoadListApiRequest(
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
@@ -279,6 +280,12 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               truckTypeId: selectedTruckTypeId.toString(),
               loadPostDate: loadPostedDateController.text
             ));
+      },
+      onClickNoButton: () {
+        Navigator.pop(context);
+        lpLoadLocator.getLpLoadsByType(
+            loadListApiRequest: LoadListApiRequest(
+            loadStatus: loadStatusType == 0 ? null : loadStatusType + 1));
         clearAllFilterValues();
       },
     ));

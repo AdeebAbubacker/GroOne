@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gp
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_models_screen.dart';
 import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -52,8 +53,6 @@ class _GpsOrderBenefitsAndOrderListScreenState
   @override
   void initState() {
     super.initState();
-    print('🔄 GPS Benefits Screen: initState called');
-    print('🔄 GPS Benefits Screen: Widget key: ${widget.key}');
     _getCustomerId();
   }
 
@@ -61,16 +60,13 @@ class _GpsOrderBenefitsAndOrderListScreenState
   void didChangeDependencies() {
     super.didChangeDependencies();
     // Reset any existing cubit state when screen is navigated to
-    print('🔄 GPS Benefits Screen: didChangeDependencies called');
   }
 
   @override
   void didUpdateWidget(GpsOrderBenefitsAndOrderListScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    print('🔄 GPS Benefits Screen: didUpdateWidget called');
     // Force refresh KYC check when widget is updated
     if (customerId != null) {
-      print('🔄 GPS Benefits Screen: Forcing KYC check refresh');
       // This will be handled by the BlocProvider.value in build method
     }
   }
@@ -84,13 +80,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
   }
 
   void _handleBackNavigation() {
-    print('🔙 Back button tapped - starting navigation');
-    
     // Make navigation synchronous to avoid issues with onLeadingTap
     try {
       _navigateBackSynchronously();
     } catch (e) {
-      print('🔙 Error in _handleBackNavigation: $e');
       // Fallback: try to pop or navigate to default route
       if (Navigator.canPop(context)) {
         Navigator.pop(context);
@@ -112,24 +105,21 @@ class _GpsOrderBenefitsAndOrderListScreenState
       // If we can't pop, try to navigate to the appropriate dashboard
       _getUserRoleAndNavigate();
     } catch (e) {
-      print('🔙 Error in _navigateBackSynchronously: $e');
       // Final fallback: try to go to default route
       try {
         if (context.mounted) {
           context.go(AppRouteName.lpBottomNavigationBar);
         }
       } catch (fallbackError) {
-        print('🔙 Fallback navigation also failed: $fallbackError');
+        // Handle fallback error silently
       }
     }
   }
 
   Future<void> _getUserRoleAndNavigate() async {
-    print('🔙 Getting user role for navigation');
     try {
       final userRepository = locator<UserInformationRepository>();
       final userRole = await userRepository.getUserRole();
-      print('🔙 User role: $userRole');
       String targetRoute;
       if (userRole == 1 || userRole == 3) {
         targetRoute = AppRouteName.lpBottomNavigationBar;
@@ -138,14 +128,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
       } else {
         targetRoute = AppRouteName.lpBottomNavigationBar;
       }
-      print('🔙 Navigating to: $targetRoute');
       if (context.mounted) {
         context.go(targetRoute);
-      } else {
-        print('🔙 Context not mounted, cannot navigate');
       }
     } catch (e) {
-      print('🔙 Error during navigation: $e');
       // Fallback to default navigation
       if (context.mounted) {
         context.go(AppRouteName.lpBottomNavigationBar);

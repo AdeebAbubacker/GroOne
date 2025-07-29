@@ -101,7 +101,7 @@ class GpsDataRefreshService {
         return const Duration(seconds: 5000);
       case GpsScreenType.home:
       case GpsScreenType.other:
-        return const Duration(seconds: 15000);
+        return const Duration(seconds: 150000);
     }
   }
 

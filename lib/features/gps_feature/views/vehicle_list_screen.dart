@@ -32,10 +32,6 @@ class VehicleListScreen extends StatelessWidget {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!vehicleListCubit.hasLoadedData) {
         vehicleListCubit.loadVehicleData();
-      } else {
-        print(
-          "📱 VehicleListScreen - Data already loaded, skipping loadVehicleData call",
-        );
       }
     });
 
@@ -72,7 +68,6 @@ class VehicleListView extends StatelessWidget {
               Column(
                 children: [
                   _buildAppBar(context),
-                  // _buildExpiryAlert(context, 5),
                   BlocBuilder<VehicleListCubit, VehicleListState>(
                     builder: (context, state) {
                       if (state.expiringSoonCount > 0) {
@@ -101,7 +96,6 @@ class VehicleListView extends StatelessWidget {
                   ),
                 ],
               ),
-              // Remove the floating map/list toggle button and map view logic
               // Add a button to navigate to VehicleMapScreen
               Positioned(
                 right: 16,
@@ -228,7 +222,6 @@ class VehicleListView extends StatelessWidget {
           IconButton(
             icon: const Icon(Icons.refresh, color: AppConstants.primaryColor),
             onPressed: () {
-              print("🔄 VehicleListScreen - Refresh button pressed");
               context.read<VehicleListCubit>().refreshData();
             },
           ),
@@ -337,7 +330,7 @@ class VehicleListView extends StatelessWidget {
               color:
                   isSelected
                       ? AppConstants.primaryColor
-                      : AppConstants.textSecondaryColor.withOpacity(0.3),
+                      : AppConstants.textSecondaryColor.withValues(alpha: 0.3),
               width: 1.5,
             ),
           ),
@@ -485,186 +478,230 @@ class VehicleListView extends StatelessWidget {
     BuildContext context,
     GpsCombinedVehicleData vehicle,
   ) {
+    final isExpired = vehicle.expired == true;
+
     return GestureDetector(
-      onTap: () {
-        context.push(
-          AppRouteName.vehicleMap,
-          extra: {
-            'vehicles': [vehicle],
-            'initialSelectedVehicle': vehicle,
-          },
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: AppConstants.cardColor,
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              spreadRadius: 0,
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Text(
-                  (vehicle.vehicleNumber ?? context.appText.unknown).formatVehicleNumberForDisplay,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    color: AppConstants.textPrimaryColor,
-                  ),
+      onTap:
+          isExpired
+              ? null
+              : () {
+                context.push(
+                  AppRouteName.vehicleMap,
+                  extra: {
+                    'vehicles': [vehicle],
+                    'initialSelectedVehicle': vehicle,
+                  },
+                );
+              },
+      child: Stack(
+        children: [
+          Container(
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppConstants.cardColor,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.04),
+                  spreadRadius: 0,
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
                 ),
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppConstants.successColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          color: AppConstants.successColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        vehicle.statusDuration ?? context.appText.notAvailable,
-                        style: TextStyle(
-                          color: AppConstants.successColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                _buildSignalIndicator(context, vehicle.networkSignal ?? 0),
-                const SizedBox(width: 8),
-                _buildGPSIndicator(context, vehicle.hasGPS ?? false),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(
-              vehicle.lastUpdate?.toString() ?? context.appText.noUpdateTime,
-              style: TextStyle(
-                color: AppConstants.textSecondaryColor,
-                fontSize: 12,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      (vehicle.vehicleNumber ?? context.appText.unknown)
+                          .formatVehicleNumberForDisplay,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        color: AppConstants.textPrimaryColor,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    // Show status duration only if not expired
+                    if (!isExpired)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 2,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppConstants.successColor.withValues(
+                            alpha: 0.1,
+                          ),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 6,
+                              height: 6,
+                              decoration: const BoxDecoration(
+                                color: AppConstants.successColor,
+                                shape: BoxShape.circle,
+                              ),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              vehicle.statusDuration ??
+                                  context.appText.notAvailable,
+                              style: TextStyle(
+                                color: AppConstants.successColor,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    const Spacer(),
+                    _buildSignalIndicator(context, vehicle.networkSignal ?? 0),
+                    const SizedBox(width: 8),
+                    _buildGPSIndicator(context, vehicle.hasGPS ?? false),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  vehicle.lastUpdate?.toString() ??
+                      context.appText.noUpdateTime,
+                  style: TextStyle(
+                    color: AppConstants.textSecondaryColor,
+                    fontSize: 12,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Icon(
+                      Icons.location_on_outlined,
+                      color: AppConstants.textSecondaryColor,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child:
+                          vehicle.address != null && vehicle.address!.isNotEmpty
+                              ? Text(
+                                vehicle.address!,
+                                style: TextStyle(
+                                  color: AppConstants.textSecondaryColor,
+                                  fontSize: 12,
+                                ),
+                              )
+                              : (vehicle.location != null &&
+                                  vehicle.location!.contains(','))
+                              ? FutureBuilder<String>(
+                                future: () {
+                                  final parts = vehicle.location!.split(',');
+                                  final lat =
+                                      double.tryParse(parts[0].trim()) ?? 0;
+                                  final lng =
+                                      double.tryParse(parts[1].trim()) ?? 0;
+                                  return MapHelper.getAddressFromLatLngDoubles(
+                                    lat,
+                                    lng,
+                                  );
+                                }(),
+                                builder: (context, snapshot) {
+                                  if (snapshot.connectionState ==
+                                      ConnectionState.waiting) {
+                                    return const Text(
+                                      'Fetching address...',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black54,
+                                      ),
+                                    );
+                                  } else if (snapshot.hasData) {
+                                    return Text(
+                                      snapshot.data!,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black87,
+                                      ),
+                                    );
+                                  } else {
+                                    return const Text(
+                                      'No address found',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.red,
+                                      ),
+                                    );
+                                  }
+                                },
+                              )
+                              : Text(
+                                context.appText.locationNotAvailable,
+                                style: TextStyle(
+                                  color: AppConstants.textSecondaryColor,
+                                  fontSize: 12,
+                                ),
+                              ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildStatItem(
+                        context.appText.odo,
+                        vehicle.odoReading ?? 'N/A',
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildStatItem(
+                        context.appText.today,
+                        vehicle.todayDistance ?? 'N/A',
+                      ),
+                    ),
+                    Expanded(
+                      child: _buildStatItem(
+                        context.appText.lastSpeed,
+                        vehicle.lastSpeed ?? 'N/A',
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          // Expired banner overlay
+          if (isExpired)
+            Positioned.fill(
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.warning_amber_rounded,
+                      color: Colors.red,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'EXPIRED',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(
-                  Icons.location_on_outlined,
-                  color: AppConstants.textSecondaryColor,
-                  size: 16,
-                ),
-                const SizedBox(width: 4),
-                Expanded(
-                  child:
-                      vehicle.address != null && vehicle.address!.isNotEmpty
-                          ? Text(
-                            vehicle.address!,
-                            style: TextStyle(
-                              color: AppConstants.textSecondaryColor,
-                              fontSize: 12,
-                            ),
-                          )
-                          : (vehicle.location != null &&
-                              vehicle.location!.contains(','))
-                          ? FutureBuilder<String>(
-                            future: () {
-                              final parts = vehicle.location!.split(',');
-                              final lat = double.tryParse(parts[0].trim()) ?? 0;
-                              final lng = double.tryParse(parts[1].trim()) ?? 0;
-                              return MapHelper.getAddressFromLatLngDoubles(
-                                lat,
-                                lng,
-                              );
-                            }(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Text(
-                                  'Fetching address...',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black54,
-                                  ),
-                                );
-                              } else if (snapshot.hasData) {
-                                return Text(
-                                  snapshot.data!,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.black87,
-                                  ),
-                                );
-                              } else {
-                                return const Text(
-                                  'No address found',
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.red,
-                                  ),
-                                );
-                              }
-                            },
-                          )
-                          : Text(
-                            context.appText.locationNotAvailable,
-                            style: TextStyle(
-                              color: AppConstants.textSecondaryColor,
-                              fontSize: 12,
-                            ),
-                          ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatItem(
-                    context.appText.odo,
-                    vehicle.odoReading ?? 'N/A',
-                  ),
-                ),
-                Expanded(
-                  child: _buildStatItem(
-                    context.appText.today,
-                    vehicle.todayDistance ?? 'N/A',
-                  ),
-                ),
-                Expanded(
-                  child: _buildStatItem(
-                    context.appText.lastSpeed,
-                    vehicle.lastSpeed ?? 'N/A',
-                  ),
-                ),
-              ],
-            ),
-          ],
-        ),
+        ],
       ),
     );
   }

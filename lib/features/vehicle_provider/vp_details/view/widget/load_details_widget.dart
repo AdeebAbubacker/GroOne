@@ -25,6 +25,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_settlements_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/document_widget_view.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/view/vp_pod_dispatch_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
@@ -171,7 +172,10 @@ class LoadDetailsWidget extends StatelessWidget {
                           ),
                           10.height,
                           _simTrackingConsent(loadDetails?.driverConsent==0 &&  ((state.loadStatusId??0) >4),context),
-                          Divider(color: Color(0xffE1E1E1), thickness: 3),
+                          commonDivider(
+                              thickness: 3,
+                            height: 15
+                          ),
                           12.height,
                           if(((state.loadStatusId??0) >4))
                             ...[
@@ -214,8 +218,7 @@ class LoadDetailsWidget extends StatelessWidget {
                           ),
                           if ((state.loadStatusId??0) >4)
                             ...[
-                            20.height,
-                            _buildConsigneeDetail(
+                              _buildConsigneeDetail(
                               context: context,
                               isVisible: loadDetails?.consignee!=null,
                               name: loadDetails?.consignee?.name,
@@ -225,11 +228,17 @@ class LoadDetailsWidget extends StatelessWidget {
                               isTextField: false,
                             ),
                             20.height,
+                              commonDivider(
+                                  thickness: 3,
+                                  height: 15
+                              ),
+                              8.height,
                             Text(
                               context.appText.tripDocument,
                               style: AppTextStyle.h4,
                             ).paddingSymmetric(horizontal: 15),
-                            15.height,
+
+
                             buildAttachmentView(context,loadDetails?.loadId,state),
 
                             if((loadDetails?.loadStatusId??0)>=7 )
@@ -239,45 +248,63 @@ class LoadDetailsWidget extends StatelessWidget {
                                 showAddButton:state.loadStatus!= LoadStatus.completed,
                                 context: context,
                                 title: context.appText.damageAndShortage,
-                                onAdd: () {
-                                  Navigator.push(
+                                onAdd: () async {
+                                 await Navigator.push(
                                     context,
                                     commonRoute(VpDamagesAndShortagesScreen(vehicleId: loadDetails?.scheduleTripDetails?.vehicleId, loadId: loadDetails?.loadId,)),
-                                  );
+                                  ).then((value) {
+                                    if(value){
+                                      getLoadDetails(loadDetails?.loadId??"");
+                                    }
+                                    },);
                                 },
                               ),
+
                               Visibility(
                                   visible:(loadDetails?.damageShortage??[]).isNotEmpty,
                                   child: Column(
                                     children: [
                                       20.height,
-                                      AddedDamageWidget(
+                                      VpAddedDamageWidget(
+                                        imageList: state.allDamageImageList,
                                         damageReport: loadDetails?.damageShortage,
                                       ),
                                     ],
                                   ).paddingSymmetric(horizontal: 20)),
+
                               20.height,
                               _buildAdableSectionHeader(
                                 context: context,
-                                showAddButton: state.loadStatus!= LoadStatus.completed,
+                                showAddButton: state.loadStatus!= LoadStatus.completed && loadDetails?.loadSettlement==null,
                                 title: context.appText.settlement,
-                                onAdd: () {
-                                  Navigator.push(
+                                onAdd: () async {
+                                await Navigator.push(
                                     context,
                                     commonRoute(VpSettlementsScreen(
                                       loadId: loadDetails?.loadId,
                                       vehicleID: loadDetails?.scheduleTripDetails?.vehicleId,
                                     )),
-                                  );
+                                  ).then((value) {
+                                    if(value){
+                                      return getLoadDetails(loadDetails?.loadId??"");
+                                    }
+                                  });
                                 },
                               ),
+                              _submittedSettlementInfoWidget(loadDetails?.loadSettlement,context),
                             ]
                           ],
-                          20.height,
+
                           if ((state.loadStatusId??0) >=4) ...[
+                            20.height,
+                            commonDivider(
+                                thickness: 3,
+                                height: 15
+                            ),
+                            8.height,
                             Text(
                               context.appText.timeLine,
-                              style: AppTextStyle.h4,
+                              style: AppTextStyle.h4w500,
                             ).paddingSymmetric(horizontal: 15),
                             20.height,
                             LoadTimelineWidget(
@@ -437,22 +464,22 @@ class LoadDetailsWidget extends StatelessWidget {
               ),
             ],
           ),
-        // if(loadStatusID>4 && paymentEntity!=null)
-        // ...[
-        //   5.height,
-        //   _buildLoadProviderAdvancePaymentCardViewOnly(
-        //     context: context,
-        //     agreedAdvance: PriceHelper.formatINR(paymentEntity.payableAdvance??""),
-        //     paymentStatus: 1,
-        //     advancePayment:PriceHelper.formatINR(paymentEntity.advancePaid??""),
-        //     agreedPrice: PriceHelper.formatINR(paymentEntity.agreedPrice??""),
-        //     balancePayment: PriceHelper.formatINR(paymentEntity.payableBalance??""),
-        //     onViewTap: () {
-        //       showPaymentView(context, paymentEntity);
-        //     },
-        //     // tripPrice: "1000",
-        //   ),
-        // ]
+    /*    if(loadStatusID>4 && paymentEntity!=null)
+        ...[
+          5.height,
+          _buildLoadProviderAdvancePaymentCardViewOnly(
+            context: context,
+            agreedAdvance: PriceHelper.formatINR(paymentEntity.payableAdvance??""),
+            paymentStatus: 1,
+            advancePayment:PriceHelper.formatINR(paymentEntity.advancePaid??""),
+            agreedPrice: PriceHelper.formatINR(paymentEntity.agreedPrice??""),
+            balancePayment: PriceHelper.formatINR(paymentEntity.payableBalance??""),
+            onViewTap: () {
+              showPaymentView(context, paymentEntity);
+            },
+            // tripPrice: "1000",
+          ),
+        ]*/
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
@@ -828,6 +855,11 @@ Widget _buildConsigneeDetail({
       child: Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+      20.height,
+      commonDivider(
+          thickness: 3,
+          height: 15
+      ),
       Row(
         children: [
           Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
@@ -920,111 +952,53 @@ Widget _buildDetailWidget({required String text1, required String text2}) {
 // Doc Preview
 
 
-// Travel Progress Details
-Widget _buildProgressEtaWidget({
-  required BuildContext context,
-  required double progressPercentage,
-  required String remainingDistance,
-  required String totalDistance,
-  required String eta,
-}) {
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      // Radial Progress
-      Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox(
-            width: 40,
-            height: 40,
-            child: CircularProgressIndicator(
-              value: progressPercentage / 100,
-              strokeWidth: 4,
-              backgroundColor: Colors.grey.shade200,
-              valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
-            ),
-          ),
-          Text(
-            "${progressPercentage.toInt()}%",
-            style: AppTextStyle.radialProgressText,
-          ),
-        ],
-      ),
 
-      const SizedBox(width: 12),
 
-      // Main content with distance/ETA
-      Expanded(
-        child: Row(
+//submitted settlement
+
+Widget _submittedSettlementInfoWidget(LoadSettlement? loadSettlement,BuildContext context){
+  if(loadSettlement==null){
+    return SizedBox.shrink();
+  }
+  final numberOfDays=loadSettlement.noOfDays??1;
+  final amount=loadSettlement.amountPerDay??1;
+  final detentionsAmount=PriceHelper.formatINR((amount*numberOfDays).toString());
+  final style= AppTextStyle.body4.copyWith(
+  fontWeight: FontWeight.w400,
+  fontSize: 16
+  );
+  return Padding(
+    padding: EdgeInsets.only(top: 15),
+    child: Column(
+      spacing: 15,
+      children: [
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            // Remaining Distance
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.appText.remainingDistance,
-                    style: AppTextStyle.body3SoftGrey,
-                  ),
-                  const SizedBox(height: 4),
-                  RichText(
-                    text: TextSpan(
-                      children: [
-                        TextSpan(
-                          text: remainingDistance,
-                          style: AppTextStyle.body2.copyWith(
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
-                        ),
-                        TextSpan(
-                          text: ' / $totalDistance',
-                          style: AppTextStyle.textDarkGreyColor14w400.copyWith(
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            Text("${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays??1} ${context.appText.days})",style: style
             ),
-
-            // Vertical Divider
-            Container(
-              width: 1,
-              height: 35,
-              color: Colors.grey.shade300,
-              margin: const EdgeInsets.symmetric(horizontal: 12),
-            ),
-
-            // ETA
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    context.appText.estArrivalTime,
-                    style: AppTextStyle.body3SoftGrey,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(eta, style: AppTextStyle.body3),
-                ],
-              ),
-            ),
+            Text(detentionsAmount)
           ],
         ),
-      ),
-    ],
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(context.appText.loadingCharges,style: style),
+            Text(PriceHelper.formatINR(loadSettlement.loadingCharge).toString())
+          ],
+        ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(context.appText.unloadingCharges,style: style,),
+            Text(PriceHelper.formatINR(loadSettlement.unLoadingCharge).toString())
+          ],
+        )
+      ],
+    ).paddingSymmetric(horizontal: 15,),
   );
 }
 
-// Divider
-Widget _buildDivider() {
-  return Divider(color: AppColors.bottomSheetDividerColor, thickness: 3);
-}
 
 // Addable Section Header
 Widget _buildAdableSectionHeader({
@@ -1058,5 +1032,9 @@ Widget _buildAdableSectionHeader({
 
 // Heading
 Widget _buildHeading({required String text}) {
-  return Text(text, style: AppTextStyle.h4).paddingSymmetric(horizontal: 15);
+  return Text(text, style: AppTextStyle.h4w500.copyWith(
+    fontSize: 18,
+
+  )).paddingSymmetric(horizontal: 15);
 }
+

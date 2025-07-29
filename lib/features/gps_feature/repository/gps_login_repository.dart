@@ -4,6 +4,7 @@ import 'package:gro_one_app/service/has_internet_connection.dart';
 
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_device_fuel_model.dart';
+import '../model/gps_distance_data_model.dart';
 import '../model/gps_login_model.dart';
 import '../model/gps_mobile_config_model.dart';
 import '../model/gps_user_config_model.dart';
@@ -12,6 +13,9 @@ import '../model/gps_user_details_model.dart';
 import '../models/gps_geofence_model.dart';
 import '../service/gps_login_service.dart';
 import '../service/gps_realm_service.dart';
+import 'package:intl/intl.dart';
+import '../models/gps_device_distance_model.dart';
+import '../model/distance_report_realm_model.dart';
 
 class GpsLoginRepository {
   final GpsLoginService _gpsLoginService;
@@ -339,6 +343,59 @@ class GpsLoginRepository {
       }
     } catch (e) {
       print("Error in fetchAndUpdateAddresses: $e");
+    }
+  }
+
+  /// Get distance data for all vehicles
+  Future<Result<List<DeviceDistancePojo>>> getDistanceAllVehicles(
+    String token,
+    List<GpsCombinedVehicleData> vehicles,
+  ) async {
+    return await _gpsLoginService.getDistanceAllVehicles(token, vehicles);
+  }
+
+  /// Save distance report data to Realm
+  Future<void> saveDistanceReportData(List<DeviceDistancePojo> distanceData) async {
+    await _realmService.saveDistanceReportData(distanceData);
+  }
+
+  /// Get all distance report data from Realm
+  Future<List<DistanceReportRealmModel>> getAllDistanceReportData() async {
+    return await _realmService.getAllDistanceReportData();
+  }
+
+  /// Get distance report data by device ID
+  Future<List<DistanceReportRealmModel>> getDistanceReportDataByDeviceId(String deviceId) async {
+    return await _realmService.getDistanceReportDataByDeviceId(deviceId);
+  }
+
+  /// Get monthly distance for a device
+  String getMonthlyDistance(String deviceId) {
+    return _realmService.getMonthlyDistance(deviceId);
+  }
+
+  /// Get weekly distance for a device
+  String getWeeklyDistance(String deviceId) {
+    return _realmService.getWeeklyDistance(deviceId);
+  }
+
+  /// Get 7-day daily distance list for a device
+  List<DistanceData> getWeekDistanceList(String deviceId, String? deviceName) {
+    return _realmService.getWeekDistanceList(deviceId, deviceName);
+  }
+
+  /// Fetch and store distance data after login
+  Future<void> fetchAndStoreDistanceData(String token, List<GpsCombinedVehicleData> vehicles) async {
+    try {
+      final distanceResult = await getDistanceAllVehicles(token, vehicles);
+      if (distanceResult is Success<List<DeviceDistancePojo>>) {
+        await saveDistanceReportData(distanceResult.value);
+        print("💾 Distance data fetched and stored successfully: ${distanceResult.value.length} devices");
+      } else {
+        print("❌ Failed to fetch distance data: ${distanceResult.runtimeType}");
+      }
+    } catch (e) {
+      print("❌ Error fetching distance data: $e");
     }
   }
 }

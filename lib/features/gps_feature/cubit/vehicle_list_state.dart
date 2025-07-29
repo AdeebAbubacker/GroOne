@@ -9,6 +9,12 @@ class VehicleListState {
   final bool showMapView;
   final bool trafficEnabled;
   final MapType mapType;
+  
+  // Dashboard specific state
+  final String? selectedVehicleNumber;
+  final bool isWeeklyDistanceLoading;
+  final List<DistanceData> weeklyDistance;
+  final Map<String, dynamic> selectedVehicleDistanceData;
 
   VehicleListState({
     this.vehicleDataState,
@@ -25,6 +31,10 @@ class VehicleListState {
     this.showMapView = false,
     this.trafficEnabled = false,
     this.mapType = MapType.normal,
+    this.selectedVehicleNumber,
+    this.isWeeklyDistanceLoading = false,
+    this.weeklyDistance = const [],
+    this.selectedVehicleDistanceData = const {},
   });
 
   VehicleListState copyWith({
@@ -36,6 +46,10 @@ class VehicleListState {
     bool? showMapView,
     bool? trafficEnabled,
     MapType? mapType,
+    String? selectedVehicleNumber,
+    bool? isWeeklyDistanceLoading,
+    List<DistanceData>? weeklyDistance,
+    Map<String, dynamic>? selectedVehicleDistanceData,
   }) {
     return VehicleListState(
       vehicleDataState: vehicleDataState ?? this.vehicleDataState,
@@ -46,6 +60,10 @@ class VehicleListState {
       showMapView: showMapView ?? this.showMapView,
       trafficEnabled: trafficEnabled ?? this.trafficEnabled,
       mapType: mapType ?? this.mapType,
+      selectedVehicleNumber: selectedVehicleNumber ?? this.selectedVehicleNumber,
+      isWeeklyDistanceLoading: isWeeklyDistanceLoading ?? this.isWeeklyDistanceLoading,
+      weeklyDistance: weeklyDistance ?? this.weeklyDistance,
+      selectedVehicleDistanceData: selectedVehicleDistanceData ?? this.selectedVehicleDistanceData,
     );
   }
 

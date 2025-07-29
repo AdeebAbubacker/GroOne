@@ -6,14 +6,14 @@ import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.
 import 'package:gro_one_app/features/driver/driver_home/view/driver_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/edit_vehicle_info.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/select_vehicle_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/vehicle_share_update_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/vehicle_map_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/edit_vehicle_info.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/select_vehicle_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/vehicle_share_update_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/vehicle_map_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
@@ -32,6 +32,8 @@ import '../dependency_injection/locator.dart';
 import '../features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import '../features/fastag/views/fastag_new_user_screen.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
+import '../features/gps_feature/views/report_screen.dart';
+import '../features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import '../features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 
 class AppRoutes {
@@ -114,7 +116,7 @@ class AppRoutes {
         path: AppRouteName.gpsVehicleSelectScreen,
         builder: (BuildContext context, GoRouterState state) {
           final isFromId = "${state.extra}";
-          return VehicleSelectScreen(isFromId: int.parse(isFromId),);
+          return VehicleSelectScreen(isFromId: int.parse(isFromId));
         },
       ),
 
@@ -125,14 +127,12 @@ class AppRoutes {
         },
       ),
 
-
       GoRoute(
         path: AppRouteName.insurance,
         builder: (BuildContext context, GoRouterState state) {
           return InsuranceScreen();
         },
       ),
-
 
       // VP Bottom Navigation bar
       GoRoute(
@@ -170,20 +170,30 @@ class AppRoutes {
         },
       ),
 
-        GoRoute(
+      GoRoute(
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra! as Map<String, dynamic>;
           final String id = data["userId"];
           final String mobileNumber = data["mobileNumber"];
-          return ChooseRoleScreen(
-            userId: id,
-            mobileNumber: mobileNumber,
-
-          );
+          return ChooseRoleScreen(userId: id, mobileNumber: mobileNumber);
         },
       ),
 
+      GoRoute(
+        path: AppRouteName.lpPayNowAndTrackLoad,
+        builder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>?;
+          final String loadId = data?["loadId"] ?? "";
+          return LpLoadsLocationDetailsScreen(loadId: loadId);
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.gpsReports,
+        builder: (BuildContext context, GoRouterState state) {
+          return GpsReportScreen();
+        },
+      ),
 
       GoRoute(
         path: AppRouteName.lpCreateAccount,

@@ -119,4 +119,11 @@ class SvgIcons {
   final String dashboardVibration = "${_svgBasePath}dashboard_vibration.svg";
   final String tAndCDoc = "${_svgBasePath}terms_and_condition_doc.svg";
   final String privacyLock = "${_svgBasePath}privacy_lock.svg";
+  final String commission = "${_svgBasePath}commission.svg";
+  final String fasterLoad = "${_svgBasePath}faster_load.svg";
+  final String fasterPayment = "${_svgBasePath}faster_payment.svg";
+  final String fuel = "${_svgBasePath}fuel.svg";
+  final String manager = "${_svgBasePath}manager.svg";
+  final String priorityLoad = "${_svgBasePath}priority_load.svg";
+  final String truckSteering = "${_svgBasePath}truck_steering.svg";
 }

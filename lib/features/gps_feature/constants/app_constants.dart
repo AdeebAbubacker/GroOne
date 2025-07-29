@@ -27,4 +27,6 @@ class AppConstants {
   static const Color chartGreen = Color(0xFF4CAF50);
   static const Color chartRed = Color(0xFFF44336);
   static const Color chartBlue = Color(0xFF007AFF);
+
+  //String
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/otp_verification/api_request/mobile_otp_verification_api_request.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
@@ -10,6 +11,8 @@ import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verificat
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -42,9 +45,10 @@ class MobileOtpVerificationScreen extends StatefulWidget {
   State<MobileOtpVerificationScreen> createState() => _MobileOtpVerificationScreenState();
 }
 
-class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScreen> {
-  final otpBloc = locator<OtpBloc>();
+class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationScreen> {
 
+  final otpBloc = locator<OtpBloc>();
+  final analytics = locator<AnalyticsService>();
   final otpTextController = TextEditingController();
 
   String otpString = "";
@@ -154,14 +158,14 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
         listener: (context, state) async {
           if (state is OtpResendSuccess) {
             otpString = "";
-          ToastMessages.success(message: context.appText.otpHasBeenSentSuccessfully);
+            ToastMessages.success(message: context.appText.otpHasBeenSentSuccessfully);
           }
+
           if (state is OtpSuccess) {
             final data = state.otpResponse;
             final tempFlag = data.tempFlg ?? false;
 
             //  1. Check if it's a driver
-
             if (data.driver == true) {
             loginSuccessDialog(context, AppRouteName.driverHome);
             return;
@@ -180,34 +184,30 @@ class _MobileOtpVerificationScreenState extends State<MobileOtpVerificationScree
               final role = data.roleId;
               if (role == 1) {
                 loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
+                return;
               } else if (role == 2) {
                 loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
+                return;
               } else if (role == 3) {
                 // both VP + LP, handle as per your app logic
                 loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
+                return;
               }
             }
-            if (state.otpResponse!.tempFlg) {
-              homeRedirection(
-                state.otpResponse,
-                context,
-                tempFlag: state.otpResponse!.tempFlg,
-              );
+
+            if (state.otpResponse.tempFlg) {
+              homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.tempFlg);
             } else {
               if (!context.mounted) return;
-              homeRedirection(
-                state.otpResponse,
-                context,
-                tempFlag: state.otpResponse!.tempFlg,
-              );
+              homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.tempFlg);
             }
+            analytics.logEvent(AnalyticEventName.ONBOARD_OTP_VERIFIED, {"otp" : otpString});
           }
           if (state is OtpError) {
             otpTextController.clear();
             otpString = "";
-            ToastMessages.error(
-              message: getErrorMsg(errorType: state.errorType),
-            );
+            analytics.logEvent(AnalyticEventName.ONBOARD_OTP_FAILED, {"message" : getErrorMsg(errorType: state.errorType)});
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
           }
         },
         builder: (context, state) {

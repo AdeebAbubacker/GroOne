@@ -79,40 +79,81 @@ class GpsPaymentFailure extends GpsOrderState {
 class GpsOrderCubit extends Cubit<GpsOrderState> {
   final GpsOrderApiRepository _repository;
   final UserInformationRepository _userRepository;
+  bool _isClosed = false;
 
   GpsOrderCubit(this._repository, this._userRepository) : super(GpsOrderInitial());
 
+  @override
+  Future<void> close() {
+    _isClosed = true;
+    return super.close();
+  }
+
+  /// Reset the cubit state and reopen it for use
+  void resetCubit() {
+    _isClosed = false;
+    emit(GpsOrderInitial());
+  }
+
   Future<void> createOrder(GpsOrderRequest request) async {
-    emit(GpsOrderLoading());
+    if (_isClosed) return;
+    
+    if (!_isClosed) {
+      emit(GpsOrderLoading());
+    }
+    
     try {
       final result = await _repository.createGpsOrder(request);
+      
+      if (_isClosed) return;
+      
       if (result is Success) {
-        emit(GpsOrderSuccess('Order created successfully'));
+        if (!_isClosed) {
+          emit(GpsOrderSuccess('Order created successfully'));
+        }
       } else if (result is Error) {
         final errorMessage = result.type is ErrorWithMessage
             ? (result.type as ErrorWithMessage).message
             : 'Failed to create order';
-        emit(GpsOrderError(errorMessage));
+        if (!_isClosed) {
+          emit(GpsOrderError(errorMessage));
+        }
       }
     } catch (e) {
-      emit(GpsOrderError(e.toString()));
+      if (!_isClosed) {
+        emit(GpsOrderError(e.toString()));
+      }
     }
   }
 
   Future<void> getOrderSummary(GpsOrderSummaryRequest request) async {
-    emit(GpsOrderSummaryLoading());
+    if (_isClosed) return;
+    
+    if (!_isClosed) {
+      emit(GpsOrderSummaryLoading());
+    }
+    
     try {
       final result = await _repository.getGpsOrderSummary(request);
+      
+      if (_isClosed) return;
+      
       if (result is Success<GpsOrderSummaryResponse>) {
-        emit(GpsOrderSummaryLoaded(result.value));
+        if (!_isClosed) {
+          emit(GpsOrderSummaryLoaded(result.value));
+        }
       } else if (result is Error<GpsOrderSummaryResponse>) {
         final errorMessage = result.type is ErrorWithMessage
             ? (result.type as ErrorWithMessage).message
             : 'Failed to get order summary';
-        emit(GpsOrderSummaryError(errorMessage));
+        if (!_isClosed) {
+          emit(GpsOrderSummaryError(errorMessage));
+        }
       }
     } catch (e) {
-      emit(GpsOrderSummaryError(e.toString()));
+      if (!_isClosed) {
+        emit(GpsOrderSummaryError(e.toString()));
+      }
     }
   }
 

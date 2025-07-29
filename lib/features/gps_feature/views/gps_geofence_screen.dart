@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -11,16 +12,18 @@ import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-
+import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
-import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/common_widgets.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../models/gps_geofence_model.dart';
+import '../repository/gps_login_repository.dart';
+import '../service/gps_service.dart';
 
 class GpsGeofenceScreen extends StatefulWidget {
   const GpsGeofenceScreen({super.key});
@@ -92,6 +95,31 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
     }
   }
 
+  // Helper method to get user ID dynamically
+  Future<String> _getUserIdFromService() async {
+    try {
+      final gpsService = locator<GpsService>();
+      final loginRepository = locator<GpsLoginRepository>();
+
+      // Get stored token
+      final loginResponse = await loginRepository.getStoredLoginResponse();
+      if (loginResponse?.token == null) {
+        return "163"; // Fallback to default if no token
+      }
+
+      // Get user ID from service
+      final userIdResult = await gpsService.getUserId(loginResponse!.token!);
+      if (userIdResult is Success<int?>) {
+        final userId = userIdResult.value?.toString();
+        return userId ?? "163"; // Fallback to default if no user ID
+      } else {
+        return "163"; // Fallback to default on error
+      }
+    } catch (e) {
+      return "163"; // Fallback to default on exception
+    }
+  }
+
   Future<bool?> _showConfirmationDialog(
     BuildContext context,
     bool enable,
@@ -106,7 +134,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             children: [
               10.height,
               Text(
-                enable ? context.appText.addGeofence : context.appText.removeGeofence,
+                enable
+                    ? context.appText.addGeofence
+                    : context.appText.removeGeofence,
                 style: AppTextStyle.h5,
               ),
               10.height,
@@ -262,7 +292,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             },
           );
         } else if (state is GpsGeofenceError) {
-          return Center(child: Text('${context.appText.error}: ${state.message}'));
+          return Center(
+            child: Text('${context.appText.error}: ${state.message}'),
+          );
         }
         return const SizedBox();
       },
@@ -296,47 +328,72 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               if (!uniqueVehicleNumbers.contains(selectedVehicle)) {
                 selectedVehicle = uniqueVehicleNumbers.first;
               }
-
               return Padding(
-                padding: const EdgeInsets.all(15),
-                child: AppDropdown(
-                  labelText: context.appText.selectVehicle,
-                  dropdownValue:
-                      selectedVehicle.isNotEmpty ? selectedVehicle : null,
-                  dropDownList:
-                      uniqueVehicleNumbers.map((vehicleNumber) {
-                        return DropdownMenuItem<String>(
-                          value: vehicleNumber,
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 15,
-                                backgroundColor: AppColors.primaryLightColor,
-                                child: SvgPicture.asset(
-                                  AppIcons.svg.truck,
-                                  width: 20,
-                                ),
+                  padding: const EdgeInsets.all(15),
+                  // --- START Replacement for AppDropdown ---
+                  child: DropdownSearch<String>(
+                    selectedItem:
+                    selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                    items: (String filter, _) async {
+                      return uniqueVehicleNumbers
+                          .where((v) => v.toLowerCase().contains(filter.toLowerCase()))
+                          .toList();
+                    },
+                    popupProps: PopupProps.menu(
+                      // fit: FlexFit.loose,
+                      showSearchBox: true,
+                      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
+                      emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noVehiclesFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
+                      loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
+                    ),
+                    decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectState)),
+                    itemAsString: (String? item) => item ?? "",
+                    dropdownBuilder: (context, selectedItem) {
+                      if (selectedItem == null || selectedItem.isEmpty) {
+                        return Row(
+                          children: [
+                            CircleAvatar(
+                              radius: 15,
+                              backgroundColor: AppColors.primaryLightColor,
+                              child: SvgPicture.asset(
+                                AppIcons.svg.truck,
+                                width: 20,
                               ),
-                              const SizedBox(width: 10),
-                              Text(vehicleNumber, style: AppTextStyle.h6),
-                            ],
-                          ),
+                            ),
+                            10.width,
+                            Text(context.appText.selectVehicle, style: AppTextStyle.h6GreyColor),
+                          ],
                         );
-                      }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedVehicle = newValue!;
-                    });
+                      }
+                      return Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 15,
+                            backgroundColor: AppColors.primaryLightColor,
+                            child: SvgPicture.asset(
+                              AppIcons.svg.truck,
+                              width: 20,
+                            ),
+                          ),
+                          10.width,
+                          Text(selectedItem, style: AppTextStyle.h6),
+                        ],
+                      );
+                    },
 
-                    final selectedVehicleData = vehicleState.filteredVehicles
-                        .firstWhere((v) => v.vehicleNumber == selectedVehicle);
-                    gpsGeofenceCubit.loadVehicleGeofences(
-                      deviceId: selectedVehicleData.deviceId.toString(),
-                      vehicleId: selectedVehicle, // use vehicle number or ID
-                    );
-                  },
-                ),
-              );
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedVehicle = newValue!;
+                      });
+
+                      final selectedVehicleData = vehicleState.filteredVehicles
+                          .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+                      gpsGeofenceCubit.loadVehicleGeofences(
+                        deviceId: selectedVehicleData.deviceId.toString(),
+                        vehicleId: selectedVehicle, // use vehicle number or ID
+                      );
+                    },
+                  ));
             }
           },
         ),
@@ -370,25 +427,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                         child: ListTile(
                           title: Text(
                             '${item.name} (${_getFormattedValue(item)})',
-                            style: AppTextStyle.h6,
+                            style: AppTextStyle.h5,
                           ),
                           trailing: Switch(
                             value: isEnabled,
-                            // onChanged: (bool value) {
-                            //   final selectedVehicleData = context
-                            //       .read<VehicleListCubit>()
-                            //       .state
-                            //       .filteredVehicles
-                            //       .firstWhere((v) => v.vehicleNumber == selectedVehicle);
-                            //
-                            //   gpsGeofenceCubit.toggleGeofenceForVehicle(
-                            //     userId: "163", // Get this dynamically
-                            //     deviceId: selectedVehicleData.deviceId.toString(),
-                            //     vehicleId: selectedVehicle,
-                            //     geofenceId: item.id,
-                            //     enable: value,
-                            //   );
-                            // },
                             onChanged: (bool value) async {
                               final confirmed = await _showConfirmationDialog(
                                 context,
@@ -403,9 +445,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                                       (v) => v.vehicleNumber == selectedVehicle,
                                     );
 
+                                // Get user ID dynamically from the cubit or service
+                                final userId = await _getUserIdFromService();
                                 gpsGeofenceCubit.toggleGeofenceForVehicle(
-                                  userId: "163",
-                                  // Get this dynamically
+                                  userId: userId,
                                   deviceId:
                                       selectedVehicleData.deviceId.toString(),
                                   vehicleId: selectedVehicle,
