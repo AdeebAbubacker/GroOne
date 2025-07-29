@@ -10,6 +10,8 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_lo
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -28,24 +30,21 @@ import '../../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 class VpAllLoadAvailableLoadWidget extends StatefulWidget {
   final VpRecentLoadData data;
   final Function() onBack;
-
-  const VpAllLoadAvailableLoadWidget({
-    super.key,
-    required this.data,
-    required this.onBack,
-  });
+  const VpAllLoadAvailableLoadWidget({super.key, required this.data, required this.onBack});
 
   @override
-  State<VpAllLoadAvailableLoadWidget> createState() =>
-      _VpAllLoadAvailableLoadWidgetState();
+  State<VpAllLoadAvailableLoadWidget> createState() => _VpAllLoadAvailableLoadWidgetState();
 }
 
 class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWidget> {
+
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
   final bloc = locator<VpAcceptLoadBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
 
   @override
   Widget build(BuildContext context) {
+
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
@@ -181,8 +180,19 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
               ),
             ),
             20.height,
-            BlocBuilder<VpAcceptLoadBloc, VpAcceptLoadState>(
+            BlocConsumer<VpAcceptLoadBloc, VpAcceptLoadState>(
               bloc: bloc,
+              listener: (context, state) {
+                if(state is VpAcceptLoadSuccess){
+                  var parameter = {
+                    "loadId": widget.data.id.toString(),
+                    "status": "accepted",
+                    "amount": amount,
+                  };
+                  analyticsHelper.logEvent(AnalyticEventName.ACCEPT_LOAD, parameter);
+                }
+              },
+              listenWhen: (previous, current) => previous != current,
               builder: (context, state) {
                 return Row(
                   children: [
@@ -208,13 +218,13 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                       ),
                     ),
                     10.width,
+
+                    // Accept Load
                     AppButton(
                       buttonHeight: 40,
                       onPressed: () {
                         if (VpVariables.isKycVerified) {
-                          bloc.add(
-                            VpAcceptLoad(loadId: widget.data.id.toString()),
-                          );
+                          bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
                         } else {
                           commonBottomSheetWithBGBlur(
                             context: context,
@@ -225,10 +235,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                                   context: context,
                                   screen: EnterAadhaarNumberBottomSheet(),
                                 ).then((_) {
-                                  lpHomeBloc.add(
-                                    GetProfileDetailApiRequest(
-                                      lpHomeBloc.userId ?? "0",
-                                    ),
+                                  lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
                                   );
                                 });
                               },
