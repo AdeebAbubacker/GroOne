@@ -156,6 +156,43 @@ class GpsMapHelper {
     );
   }
 
+  /// Creates a vehicle marker with custom vehicle icon
+  static Future<Marker> createCustomVehicleMarker({
+    required String vehicleId,
+    required LatLng position,
+    String? title,
+    String? snippet,
+    VoidCallback? onTap,
+    double rotation = 0.0,
+  }) async {
+    BitmapDescriptor vehicleIcon;
+
+    try {
+      // Try to load the custom vehicle icon
+      vehicleIcon = await BitmapDescriptor.fromAssetImage(
+        const ImageConfiguration(size: Size(64, 64)),
+        'assets/icons/png/vehicle_icon.png',
+      );
+    } catch (e) {
+      // Fallback to default yellow marker if custom icon fails to load
+      vehicleIcon = BitmapDescriptor.defaultMarkerWithHue(
+        BitmapDescriptor.hueYellow,
+      );
+    }
+
+    return createMarker(
+      markerId: vehicleId,
+      position: position,
+      title: title,
+      snippet: snippet,
+      icon: vehicleIcon,
+      onTap: onTap,
+      rotation: rotation,
+      flat: true,
+      anchor: const Offset(0.5, 0.5),
+    );
+  }
+
   /// Creates a geofence circle marker
   static Marker createGeofenceCircleMarker({
     required LatLng position,

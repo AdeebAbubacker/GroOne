@@ -28,12 +28,21 @@ class PathReplayCubit extends Cubit<PathReplayState> {
   Future<void> _loadCustomMarker() async {
     try {
       final icon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(48, 48)),
-        'assets/images/png/vp.png',
+        const ImageConfiguration(size: Size(64, 64)),
+        'assets/icons/png/vehicle_icon.png',
       );
       emit(state.copyWith(truckIcon: icon));
     } catch (e) {
-      emit(state.copyWith(errorMessage: 'Failed to load truck icon'));
+      // Fallback to the original truck icon if the new one fails to load
+      try {
+        final fallbackIcon = await BitmapDescriptor.fromAssetImage(
+          const ImageConfiguration(size: Size(48, 48)),
+          'assets/images/png/vp.png',
+        );
+        emit(state.copyWith(truckIcon: fallbackIcon));
+      } catch (fallbackError) {
+        emit(state.copyWith(errorMessage: 'Failed to load vehicle icon'));
+      }
     }
   }
 

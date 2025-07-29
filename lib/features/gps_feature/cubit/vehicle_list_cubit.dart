@@ -317,7 +317,9 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
   void _updateStatusCounts() {
     // Filter out expired vehicles first
     final nonExpiredVehicles =
-        _allVehicles.where((vehicle) => vehicle.expired != true).toList();
+        _allVehicles.where((vehicle) {
+          return vehicle.expired != null && vehicle.expired == false;
+        }).toList();
 
     if (nonExpiredVehicles.isNotEmpty &&
         nonExpiredVehicles.first.apiCounts != null) {
