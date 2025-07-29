@@ -1,3 +1,5 @@
+import '../../../load_provider/lp_loads/model/lp_load_memo_response.dart';
+
 class TripStatementResponse {
   String? message;
   MemoDetails? memoDetails;
@@ -68,31 +70,7 @@ class MemoDetails {
   }
 }
 
-class BankDetails {
-  final String? beneficiaryName;
-  final String? bankName;
-  final String? accountNumber;
-  final String? ifscCode;
-  final String? branchName;
 
-  BankDetails({
-    this.beneficiaryName,
-    this.bankName,
-    this.accountNumber,
-    this.ifscCode,
-    this.branchName,
-  });
-
-  factory BankDetails.fromJson(Map<String, dynamic> json) {
-    return BankDetails(
-      beneficiaryName: json['beneficiaryName'],
-      bankName: json['bankName'],
-      accountNumber: json['accountNumber'],
-      ifscCode: json['ifscCode'],
-      branchName: json['branchName'],
-    );
-  }
-}
 
 class TruckSupplier {
   final String? partnerName;

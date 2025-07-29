@@ -104,6 +104,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/repository/pod_dispatch_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/service/pod_dispatch_service.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/cubit/vp_trip_statement_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/repository/vp_trip_settlement_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/service/vp_trip_settlement_service.dart';
 import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
@@ -161,6 +164,7 @@ void initLocator() {
       () => VpCreationService(locator<ApiService>()),
     );
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
+    locator.registerLazySingleton(() => VpTripStatementService(locator<ApiService>()));
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
     locator.registerLazySingleton(
       () => ProfileService(
@@ -246,6 +250,9 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => LoginInRepository(locator<LoginInService>()),
+    );
+    locator.registerLazySingleton(
+      () => VpTripStatementRepository(locator<VpTripStatementService>()),
     );
     locator.registerLazySingleton(
       () => MobileOtpVerificationRepository(
@@ -525,6 +532,10 @@ void initLocator() {
         locator<LpLoadRepository>(),
       ),
     );
+    locator.registerLazySingleton(
+      () => VpTripStatementCubit(locator<VpTripStatementRepository>()),
+    );
+
     locator.registerLazySingleton(
       () => ChoosePreferenceCubit(locator<KavachRepository>()),
     );
