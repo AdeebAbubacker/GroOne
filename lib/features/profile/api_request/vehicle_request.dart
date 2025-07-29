@@ -7,8 +7,8 @@ class VehicleRequest {
     required this.tonnage,
     required this.truckTypeId,
     required this.truckMakeAndModel,
-    required this.acceptableCommodities,
-    required this.truckLength,
+    this.acceptableCommodities, 
+    this.truckLength,           
     required this.vehicleStatus,
   });
 
@@ -19,8 +19,8 @@ class VehicleRequest {
   final String tonnage;
   final int truckTypeId;
   final String truckMakeAndModel;
-  final List<int> acceptableCommodities;
-  final int truckLength;
+  final List<int>? acceptableCommodities; 
+  final int? truckLength;                 
   final int vehicleStatus;
 
   VehicleRequest copyWith({
@@ -58,8 +58,10 @@ class VehicleRequest {
       tonnage: json["tonnage"] ?? "",
       truckTypeId: json["truckTypeId"] ?? 0,
       truckMakeAndModel: json["truckMakeAndModel"] ?? "",
-      acceptableCommodities: List<int>.from(json["acceptableCommodities"] ?? []),
-      truckLength: json["truckLength"] ?? 0,
+      acceptableCommodities: json["acceptableCommodities"] != null
+          ? List<int>.from(json["acceptableCommodities"])
+          : null,
+      truckLength: json["truckLength"],
       vehicleStatus: json["vehicleStatus"] ?? 0,
     );
   }
@@ -73,8 +75,10 @@ class VehicleRequest {
       "tonnage": tonnage,
       "truckTypeId": truckTypeId,
       "truckMakeAndModel": truckMakeAndModel,
-      "acceptableCommodities": acceptableCommodities,
-      "truckLength": truckLength,
+      if (acceptableCommodities != null) 
+        "acceptableCommodities": acceptableCommodities,
+      if (truckLength != null) 
+        "truckLength": truckLength,
       "vehicleStatus": vehicleStatus,
     };
   }
