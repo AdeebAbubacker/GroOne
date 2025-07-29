@@ -17,6 +17,7 @@ class VpTripSettlementCubit extends BaseCubit<VpTripSettlementState> {
   void _setTripSettlementUIState(UIState<PodCenterListModel>? uiState){
     emit(state.copyWith(tripSettlementUIState: uiState));
   }
+
   Future<void> fetchTripSettlement() async {
     _setTripSettlementUIState(UIState.loading());
     Result result = await _repository.getTripSettlementData();

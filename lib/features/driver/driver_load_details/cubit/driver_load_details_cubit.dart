@@ -63,7 +63,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
               result.value.data?.loadRoute?.dropLatlon ?? "0"),
           lpLoadById: UIState.success(result.value),
           loadStatusId:result.value.data?.loadStatusId ));
-    setTripDocuments(result.value.data!.loadDocument);
+    // setTripDocuments(result.value.data!.loadDocument);
   } else if (result is Error) {
     _setLoadByIdUIState(UIState.error(result.type));
   }
@@ -180,7 +180,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     final currentDocument = currentList[index];
 
     final updatedDocument = currentDocument.copyWith(
-      loadDocument: currentDocument.loadDocument ?? loadDocument,
+      // loadDocument: currentDocument.loadDocument ?? loadDocument,
       isLoading: !(currentDocument.isLoading ?? false),
     );
     currentList[index] = updatedDocument;
@@ -329,23 +329,23 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     ));
   }
 
-    setTripDocuments(List<LoadDocument>? loadDocument) {
-      List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
-      for (DocumentEntity item in documentList) {
-        /// find load item for api response set into local document entity
-        try {
-          item.loadDocument = loadDocument!.firstWhere(
-                (element) =>
-            element.documentDetails?.documentType == item.documentType,
-          );
-        } catch (e) {
-          item.loadDocument = null;
-        }
-      }
-      emit(state.copyWith(
-          tripDocumentList: documentList
-      ));
-    }
+    // setTripDocuments(List<LoadDocument>? loadDocument) {
+    //   List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+    //   for (DocumentEntity item in documentList) {
+    //     /// find load item for api response set into local document entity
+    //     try {
+    //       item.loadDocument = loadDocument!.firstWhere(
+    //             (element) =>
+    //         element.documentDetails?.documentType == item.documentType,
+    //       );
+    //     } catch (e) {
+    //       item.loadDocument = null;
+    //     }
+    //   }
+    //   emit(state.copyWith(
+    //       tripDocumentList: documentList
+    //   ));
+    // }
 
 
   bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
@@ -416,28 +416,28 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     }
 
     //Lorry Receipt, E-way Bill , Material invoice file status check
-    bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
-      final requiredTypeIds = [5, 6, 7]; 
+    // bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
+    //   final requiredTypeIds = [5, 6, 7];
+    //
+    //   final presentTypeIds = tripDocumentList
+    //     .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
+    //     .map((doc) => doc.documentTypeId)
+    //     .toSet();
+    //
+    //   return requiredTypeIds.every(presentTypeIds.contains);
+    // }
 
-      final presentTypeIds = tripDocumentList
-        .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
-        .map((doc) => doc.documentTypeId)
-        .toSet();
-
-      return requiredTypeIds.every(presentTypeIds.contains);
-    }
-
-  bool isPODUploaded(List<DocumentEntity> tripDocumentList) {
-  // Just check if the POD document (TypeId 8) is uploaded successfully
-  const podTypeId = 8;
-
-  final presentTypeIds = tripDocumentList
-      .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
-      .map((doc) => doc.documentTypeId)
-      .toSet();
-
-  return presentTypeIds.contains(podTypeId);
-}
+//   bool isPODUploaded(List<DocumentEntity> tripDocumentList) {
+//   // Just check if the POD document (TypeId 8) is uploaded successfully
+//   const podTypeId = 8;
+//
+//   final presentTypeIds = tripDocumentList
+//       .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
+//       .map((doc) => doc.documentTypeId)
+//       .toSet();
+//
+//   return presentTypeIds.contains(podTypeId);
+// }
 
 
 bool isMemoUploaded(DriverLoadDetailsModel? load) {

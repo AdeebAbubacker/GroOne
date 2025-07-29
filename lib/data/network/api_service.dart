@@ -34,6 +34,7 @@ class ApiService {
     };
     try {
       String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
+      print("refresh token ${refreshToken}");
       if (refreshToken != null && refreshToken.isNotEmpty) {
         headers['Authorization'] = 'Bearer $refreshToken';
       } else {

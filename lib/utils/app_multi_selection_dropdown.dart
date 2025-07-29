@@ -18,6 +18,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
   final Widget? prefixIcon;
   final String? headerText;
   final bool showValidationError;
+  final Function(String searchChanged)? onSearchChanged;
 
   const AppMultiSelectionDropdown({
     super.key,
@@ -32,6 +33,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
     this.headerText, 
     this.mandatoryStar = false,
     this.showValidationError = false,
+    this.onSearchChanged
   });
 
   @override
@@ -52,10 +54,10 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
           controller: controller,
           items: items,
           enabled: true,
+          onSearchChange: onSearchChanged,
           searchEnabled: true,
           validator: null, // Disable built-in validator to avoid maroon error text
           onSelectionChange: onSelectionChange,
-
           chipDecoration: ChipDecoration(
             backgroundColor: AppColors.primaryColor,
             wrap: true,
@@ -82,9 +84,11 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
             maxHeight: 400,
             backgroundColor: Colors.white,
             borderRadius: BorderRadius.circular(commonTexFieldRadius),
+
             header: headerText != null
                 ? Text(headerText!, textAlign: TextAlign.start, style: AppTextStyle.body.copyWith(fontWeight: FontWeight.bold))
                 : null,
+
           ),
 
           dropdownItemDecoration: DropdownItemDecoration(

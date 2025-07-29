@@ -1041,18 +1041,11 @@
   "unloadingCharges":"Unloading Charges",
   "loadingCharges":"Loading Charges",
   "detentions":"detentions",
-  "days":"Days"
-
-
-
-
-
-
-
-
-
-
-
-
+  "days":"Days",
+  "podDispatchedDetails":"POD Dispatch details",
+  "podDispatch":"POD Dispatch",
+  "courierCompany":"courier Company",
+  "awbCompany":"AWB Number",
+  "othersDocument":"Others Document"
 
 }

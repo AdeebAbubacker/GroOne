@@ -21,17 +21,26 @@ class MobileOtpVerificationRepository {
       if (result is Success<MobileOtpVerificationModel?>) {
         if (result.value != null) {
           dynamic saveUserResult;
-          if (result.value?.tempFlg == false) {
-            saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
-            if (saveUserResult is Success) {
-              return result;
-            }
-            if (saveUserResult is Error) {
-              return Error(saveUserResult.type);
-            }
-          } else {
+          saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
+          if (saveUserResult is Success) {
             return result;
           }
+          if (saveUserResult is Error) {
+            return Error(saveUserResult.type);
+          }
+
+          // if (result.value?.tempFlg == false) {
+          //
+          //   saveUserResult = await _authRepository.saveUserInfoFromLogin(result.value!);
+          //   if (saveUserResult is Success) {
+          //     return result;
+          //   }
+          //   if (saveUserResult is Error) {
+          //     return Error(saveUserResult.type);
+          //   }
+          // } else {
+          //   return result;
+          // }
         }
       }
       if (result is Error) {
