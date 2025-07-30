@@ -29,6 +29,8 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_docu
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:mime/mime.dart';
@@ -57,13 +59,16 @@ Future<void> getDriverLoadsById({required String loadId}) async {
   Result result = await _repository.fetchDriversLoadById(loadId: loadId);
 
   if (result is Success<DriverLoadDetailsModel>) {
+    final loadStatus = getLoadStatus( result.value.data?.loadStatusId);
       emit(state.copyWith(
           locationDistance: getDistance(
-              result.value.data?.loadRoute?.pickUpLatlon ?? "0",
-              result.value.data?.loadRoute?.dropLatlon ?? "0"),
+          result.value.data?.loadRoute?.pickUpLatlon ?? "0",
+          result.value.data?.loadRoute?.dropLatlon ?? "0"),
           lpLoadById: UIState.success(result.value),
-          loadStatusId:result.value.data?.loadStatusId ));
-    // setTripDocuments(result.value.data!.loadDocument);
+          loadStatusId:result.value.data?.loadStatusId ,
+          loadStatus: loadStatus
+          ));
+    setTripDocuments(result.value.data!.loadDocument);
   } else if (result is Error) {
     _setLoadByIdUIState(UIState.error(result.type));
   }
@@ -104,16 +109,21 @@ Future<void> getDriverLoadsById({required String loadId}) async {
   void _updateloadStatusUIState(UIState<VpLoadAcceptModel>? uiState){
     emit(state.copyWith(loadStatusUiUpdate: uiState));
   }
-  Future<void> fupdateLoadStatus({required String customerId,required String loadid,required int loadStatus}) async {
-    _updateloadStatusUIState(UIState.loading());
-    Result result = await _repository.changeLoadStatus(customerId: customerId,loadId: loadid,loadStatus: loadStatus);
-    if (result is Success<VpLoadAcceptModel>) {
-      _updateloadStatusUIState(UIState.success(result.value));
-    }
-    if (result is Error) {
-      _updateloadStatusUIState(UIState.error(result.type));
-    }
+
+  Future<void> fupdateLoadStatus({required String customerId, required String loadid, required int loadStatus}) async {
+  _updateloadStatusUIState(UIState.loading());
+  Result result = await _repository.changeLoadStatus(customerId: customerId, loadId: loadid, loadStatus: loadStatus);
+  if (result is Success<VpLoadAcceptModel>) {
+    final newStatus = result.value.data?.loadStatus;
+    emit(state.copyWith(
+      loadStatusId: newStatus,                   
+      loadStatusUiUpdate: UIState.success(result.value),
+    ));
   }
+  if (result is Error) {
+    _updateloadStatusUIState(UIState.error(result.type));
+  }
+}
 
 
   // // Upload File
@@ -176,25 +186,27 @@ Future<void> getDriverLoadsById({required String loadId}) async {
 
 
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
-    List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-    final currentDocument = currentList[index];
+  List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+  final currentDocument = currentList[index];
 
-    final updatedDocument = currentDocument.copyWith(
-      // loadDocument: currentDocument.loadDocument ?? loadDocument,
-      isLoading: !(currentDocument.isLoading ?? false),
-    );
-    currentList[index] = updatedDocument;
+  // Build a new list of documents by adding the new one if passed
+  final updatedLoadDocuments = loadDocument != null
+      ? [
+          ...?currentDocument.loadDocument, // existing documents (nullable)
+          loadDocument,
+        ]
+      : currentDocument.loadDocument;
 
-    /// TODO:
-    /// This is for multiple documents
+  final updatedDocument = currentDocument.copyWith(
+    loadDocument: updatedLoadDocuments,
+    isLoading: !(currentDocument.isLoading ?? false),
+  );
 
-    // if(loadDocument!=null && updatedDocument.fileType==DocumentFileType.uploadOtherDocument.name){
-    //   DocumentEntity updatedDocumentList=   addOthersDocumentUploadOption(currentList);
-    //   debugPrint("updatedDocumentList added");
-    //   currentList.add(updatedDocumentList);
-    // }
-    emit(state.copyWith(tripDocumentList: currentList));
-  }
+  currentList[index] = updatedDocument;
+
+  emit(state.copyWith(tripDocumentList: currentList));
+}
+
 
   void uploadDeleteLoaderStatus(int index,{bool isDelete=false}) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
@@ -291,6 +303,27 @@ Future<void> getDriverLoadsById({required String loadId}) async {
       return null;
     }
   }
+ 
+  Future downloadDocument(String documentId, int index) async {
+    try {
+      uploadLoadingStatus(index, null);
+      return await _loadDetailsRepository.viewDocument(
+        documentId: documentId,
+      ).then((result) {
+        if (result is Success<ViewDocumentResponse>) {
+          downloadAndOpenFile(result.value.filePath ?? "",
+              originalFileName: result.value.originalFilename);
+          uploadLoadingStatus(index, null);
+        }
+        if (result is Error) {
+          uploadLoadingStatus(index, null);
+        }
+      },);
+    } catch (e) {
+      uploadLoadingStatus(index, null);
+      return null;
+    }
+  }
 
 
   void resetDeleteDamageUIState(){
@@ -329,24 +362,35 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     ));
   }
 
-    // setTripDocuments(List<LoadDocument>? loadDocument) {
-    //   List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
-    //   for (DocumentEntity item in documentList) {
-    //     /// find load item for api response set into local document entity
-    //     try {
-    //       item.loadDocument = loadDocument!.firstWhere(
-    //             (element) =>
-    //         element.documentDetails?.documentType == item.documentType,
-    //       );
-    //     } catch (e) {
-    //       item.loadDocument = null;
-    //     }
-    //   }
-    //   emit(state.copyWith(
-    //       tripDocumentList: documentList
-    //   ));
-    // }
+     setTripDocuments(List<LoadDocument>? loadDocument) {
+    List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+      for (DocumentEntity item in documentList) {
+        /// find load item for api response set into local document entity
+        item.loadDocument=filterLoadDocumentById(loadDocument,item);
+      }
+      emit(state.copyWith(
+          tripDocumentList: documentList
+      ));
+    }
 
+    List<LoadDocument> filterLoadDocumentById(List<LoadDocument>? loadDocument,DocumentEntity item){
+    try {
+      if(item.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments){
+        LoadDocument? foundedDocument = loadDocument!.firstWhere(
+              (element) =>
+          element.documentDetails?.documentType == item.documentType,
+        );
+
+        return [foundedDocument];
+      } else {
+        return loadDocument!.where(
+              (element) =>
+          element.documentDetails?.documentType == item.documentType,
+        ).toList();
+      }} catch (e) {
+      return [];
+    }
+  }
 
   bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
     try {
@@ -416,28 +460,56 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     }
 
     //Lorry Receipt, E-way Bill , Material invoice file status check
-    // bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
-    //   final requiredTypeIds = [5, 6, 7];
-    //
-    //   final presentTypeIds = tripDocumentList
-    //     .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
-    //     .map((doc) => doc.documentTypeId)
-    //     .toSet();
-    //
-    //   return requiredTypeIds.every(presentTypeIds.contains);
-    // }
+    bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
+  final requiredTypeIds = [5, 6, 7]; // IDs of LR Receipt, E-way Bill, Material Invoice
 
-//   bool isPODUploaded(List<DocumentEntity> tripDocumentList) {
-//   // Just check if the POD document (TypeId 8) is uploaded successfully
-//   const podTypeId = 8;
-//
-//   final presentTypeIds = tripDocumentList
-//       .where((doc) => doc.loadDocument != null && doc.loadDocument?.status == 1)
-//       .map((doc) => doc.documentTypeId)
-//       .toSet();
-//
-//   return presentTypeIds.contains(podTypeId);
-// }
+  // For each required type ID, check if any of the loadDocuments under that type
+  // has status == 1 (uploaded successfully)
+  for (int typeId in requiredTypeIds) {
+    final documentEntity = tripDocumentList.firstWhere(
+      (doc) => doc.documentTypeId == typeId,
+    );
+
+    if (documentEntity == null || documentEntity.loadDocument == null) {
+      return false; 
+    }
+
+    bool anyUploaded = documentEntity.loadDocument!.any((loadDoc) => loadDoc.status == 1);
+    if (!anyUploaded) {
+      return false; 
+    }
+  }
+
+  return true; 
+}
+ 
+
+bool canAddMoreOtherDocuments() {
+  try {
+    final otherDocEntity = state.tripDocumentList?.firstWhere(
+      (doc) => doc.documentTypeId == 309, 
+    );
+    return (otherDocEntity?.loadDocument?.length ?? 0) < 5;
+  } catch (e) {
+    return false;
+  }
+}
+
+
+  bool isPODUploaded(List<DocumentEntity> tripDocumentList) {
+  const podTypeId = 331; 
+
+  final podDocEntity = tripDocumentList.firstWhere(
+    (doc) => doc.documentTypeId == podTypeId,
+  );
+
+  if (podDocEntity == null || podDocEntity.loadDocument == null) {
+    return false;
+  }
+
+  return podDocEntity.loadDocument!.any((loadDoc) => loadDoc.status == 1);
+}
+
 
 
 bool isMemoUploaded(DriverLoadDetailsModel? load) {

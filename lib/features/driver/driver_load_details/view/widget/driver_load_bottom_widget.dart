@@ -120,12 +120,12 @@ if (loadStatus == 4) {
   }
 /// TODO: need to change driver code also regarding document
       if (loadStatus == 5) {
-     // if (driverConsent != 1) return false;
-     //  if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
+     if (driverConsent != 1) return false;
+      if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
       }
 
       if (loadStatus == 7) {
-        // if (tripDocumentList == null || !widget.cubit.isPODUploaded(tripDocumentList)) return false;
+        if (tripDocumentList == null || !widget.cubit.isPODUploaded(tripDocumentList)) return false;
       }
 
       return true;
@@ -493,20 +493,20 @@ if (loadStatus == 4) {
                                       final isConsentGiven = loads.data?.driverConsent == 1;
                                     final tripDocumentList = state.tripDocumentList ?? [];
                                     /// TODO: change this according to multiple document
-                                    // if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {
-                                    //   ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
-                                    //   return;
-                                    // }
+                                    if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {
+                                      ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
+                                      return;
+                                    }
                                   }
                     
                                 // Check for Pod Doc
                                 if (loads.data?.loadStatusId == 7) {
                                   /// TODO: change this according to multiple document
                                     final tripDocumentList = state.tripDocumentList ?? [];
-                                    // if (!widget.cubit.isPODUploaded(tripDocumentList)) {
-                                    //   ToastMessages.error(message: 'Please upload POD document');
-                                    //   return;
-                                    // }
+                                    if (!widget.cubit.isPODUploaded(tripDocumentList)) {
+                                      ToastMessages.error(message: 'Please upload POD document');
+                                      return;
+                                    }
                               }
                                   final customerId =
                                         loads!.data!.customer?.customerId ??
