@@ -1,7 +1,5 @@
 import 'dart:convert'; // Added for jsonDecode
 
-import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_realm_model.dart';
-
 import '../model/gps_devices_expiry_model.dart';
 import '../model/gps_devices_positions_model.dart';
 
@@ -643,5 +641,42 @@ class GpsCombinedVehicleData {
         return {};
       }
     }
+  }
+}
+
+/// Extension for filtering GPS vehicle lists based on expiry status
+extension GpsVehicleListExtensions on List<GpsCombinedVehicleData> {
+  /// Returns all vehicles including expired ones
+  List<GpsCombinedVehicleData> get withExpired => this;
+
+  /// Returns only vehicles that are not expired
+  /// A vehicle is considered expired if expired == true or expired == null
+  List<GpsCombinedVehicleData> get withoutExpired {
+    return where((vehicle) {
+      // Consider null as expired (default behavior)
+      return vehicle.expired == false;
+    }).toList();
+  }
+
+  /// Returns only expired vehicles
+  /// A vehicle is considered expired if expired == true or expired == null
+  List<GpsCombinedVehicleData> get onlyExpired {
+    return where((vehicle) {
+      return vehicle.expired == true || vehicle.expired == null;
+    }).toList();
+  }
+
+  /// Returns vehicles that are expiring soon (isExpiringSoon == true)
+  List<GpsCombinedVehicleData> get expiringSoon {
+    return where((vehicle) {
+      return vehicle.isExpiringSoon == true;
+    }).toList();
+  }
+
+  /// Returns vehicles that are not expiring soon
+  List<GpsCombinedVehicleData> get notExpiringSoon {
+    return where((vehicle) {
+      return vehicle.isExpiringSoon != true;
+    }).toList();
   }
 }

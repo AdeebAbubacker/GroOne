@@ -51,10 +51,7 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
               children: [
                 Text(
                   "${context.appText.feedback} / ${context.appText.remarks}",
-                  style: AppTextStyle.body3.copyWith(
-                    color: AppColors.textBlackColor,
-                    fontSize: 14,
-                  ),
+                  style: AppTextStyle.h4,
                 ),
                 AppButton(
                   buttonHeight: 35,
@@ -75,7 +72,7 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                 ),
               ],
             ),
-            10.height,
+            20.height,
 
             /// Multiline TextField
             AppMultilineTextField(

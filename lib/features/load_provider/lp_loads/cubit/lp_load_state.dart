@@ -4,6 +4,7 @@ class LpLoadState extends Equatable {
   final UIState<LpLoadResponse>? lpLoadResponse;
   final UIState<LoadGetByIdResponse>? lpLoadById;
   final UIState<LpLoadMemoResponse>? lpLoadMemoDetails;
+  final UIState<TripStatementResponse>? lpLoadTripDetails;
   final UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp;
   final UIState<LpLoadMemoVerifyOtpResponse>? lpLoadMemoVerifyOtp;
   final UIState<List<LoadTruckTypeListModel>>? lpLoadTruckTypes;
@@ -27,6 +28,8 @@ class LpLoadState extends Equatable {
   final String? downloadingKey;
   final bool? isFeedbackAdded;
   final Map<String, bool> downloadedFiles;
+  final List<String>? allDamageImageList;
+
 
 
 
@@ -35,6 +38,7 @@ class LpLoadState extends Equatable {
     this.lpLoadById,
     this.selectedTabIndex = 0,
     this.lpLoadMemoDetails,
+    this.lpLoadTripDetails,
     this.lpLoadMemoSendOtp,
     this.lpLoadMemoVerifyOtp,
     this.lpLoadTruckTypes,
@@ -57,13 +61,14 @@ class LpLoadState extends Equatable {
     this.downloadingKey,
     this.isFeedbackAdded = false,
     this.downloadedFiles = const {},
-
+    this.allDamageImageList,
   });
 
   LpLoadState copyWith({
     UIState<LpLoadResponse>? lpLoadResponse,
     UIState<LoadGetByIdResponse>? lpLoadById,
     UIState<LpLoadMemoResponse>? lpLoadMemoDetails,
+    UIState<TripStatementResponse>? lpLoadTripDetails,
     UIState<LpLoadMemoOtpResponse>? lpLoadMemoSendOtp,
     UIState<LpLoadMemoVerifyOtpResponse>? lpLoadMemoVerifyOtp,
     UIState<List<LoadTruckTypeListModel>>? lpLoadTruckTypes,
@@ -87,12 +92,14 @@ class LpLoadState extends Equatable {
     String? downloadingKey,
     bool? isFeedbackAdded,
     Map<String, bool>? downloadedFiles,
+    List<String>? allDamageImageList
   }) {
     return LpLoadState(
       lpLoadResponse: lpLoadResponse ?? this.lpLoadResponse,
       lpLoadById: lpLoadById ?? this.lpLoadById,
       selectedTabIndex: selectedTabIndex ?? this.selectedTabIndex,
       lpLoadMemoDetails: lpLoadMemoDetails ?? this.lpLoadMemoDetails,
+      lpLoadTripDetails: lpLoadTripDetails ?? this.lpLoadTripDetails,
       lpLoadMemoSendOtp: lpLoadMemoSendOtp ?? this.lpLoadMemoSendOtp,
       lpLoadMemoVerifyOtp: lpLoadMemoVerifyOtp ?? this.lpLoadMemoVerifyOtp,
       lpLoadTruckTypes: lpLoadTruckTypes ?? this.lpLoadTruckTypes,
@@ -115,6 +122,7 @@ class LpLoadState extends Equatable {
       lpCreateOrder: lpCreateOrder ?? this.lpCreateOrder,
       isFeedbackAdded: isFeedbackAdded ?? this.isFeedbackAdded,
       downloadedFiles: downloadedFiles ?? this.downloadedFiles,
+      allDamageImageList: allDamageImageList ?? this.allDamageImageList,
     );
   }
 
@@ -124,6 +132,7 @@ class LpLoadState extends Equatable {
     lpLoadById,
     selectedTabIndex,
     lpLoadMemoDetails,
+    lpLoadTripDetails,
     lpLoadMemoSendOtp,
     lpLoadMemoVerifyOtp,
     lpLoadTruckTypes,
@@ -145,6 +154,7 @@ class LpLoadState extends Equatable {
     lpAddCustomerPaymentOption,
     lpCreateOrder,
     isFeedbackAdded,
-    downloadedFiles
+    downloadedFiles,
+    allDamageImageList,
   ];
 }

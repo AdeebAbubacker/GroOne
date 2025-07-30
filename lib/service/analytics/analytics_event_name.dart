@@ -39,6 +39,10 @@ class AnalyticEventName {
   static const String CREATE_LOAD = "create_load";
   static const String LP_BLUE_MEMBERSHIP_ID = "lp_blue_membership_id";
 
+  // Both
+  static const String SWITCH_TO_LP = "switch_to_lp";
+  static const String SWITCH_TO_VP = "switch_to_vp";
+
   // Kyc
   static const String AADHAAR_VERIFICATION_SUCCESS = "aadhaar_verification_success";
   static const String AADHAAR_VERIFICATION_FAILED = "aadhaar_verification_failed";

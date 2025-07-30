@@ -32,16 +32,17 @@ class VpPodDispatchScreen extends StatefulWidget {
 }
 
 class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
-  final cubit = locator<PodDispatchCubit>();
 
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+  final cubit = locator<PodDispatchCubit>();
 
   final courierCompanyTextController = TextEditingController();
   final awbNumberTextController = TextEditingController();
 
   String? podCenterIdDropDownValue;
   String? podCenterNameDropDownValue;
-  bool isPodSubmitted = false;
+
+  bool isPodCenterDropDownEnabled = false;
+
 
   @override
   void initState() {
@@ -63,159 +64,158 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
     cubit.resetState();
   });
 
+
+  void clearTextFields() {
+    courierCompanyTextController.clear();
+    awbNumberTextController.clear();
+  }
+
+  void clearDropDownFields() {
+    podCenterIdDropDownValue = null;
+    podCenterNameDropDownValue = null;
+    isPodCenterDropDownEnabled = false;
+  }
+
+
   // Submit Pod Api call
-  Future<void> submitPodApiCall() async {
+  void submitPodApiCall() {
     if (widget.loadId == null && widget.loadId!.isEmpty) {
-      ToastMessages.error(
-        message:
-            "${context.appText.somethingWentWrong} - ${context.appText.loadId} : ${widget.loadId}",
-      );
+      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${context.appText.loadId} : ${widget.loadId}");
       return;
     }
-    if (formKey.currentState!.validate()) {
-      if (podCenterNameDropDownValue != null &&
-          podCenterNameDropDownValue!.isEmpty) {
-        ToastMessages.alert(
-          message:
-              "${context.appText.somethingWentWrong} - ${context.appText.podCenterName} : $podCenterNameDropDownValue",
-        );
+
+    if(isPodCenterDropDownEnabled){
+      if (podCenterNameDropDownValue != null && podCenterNameDropDownValue!.isEmpty) {
+        ToastMessages.alert(message: "${context.appText.somethingWentWrong} - ${context.appText.podCenterName} : $podCenterNameDropDownValue");
         return;
       }
+    } else {
+      if(awbNumberTextController.text.isEmpty && courierCompanyTextController.text.isEmpty){
+        ToastMessages.alert(message: context.appText.thisFieldIsRequired);
+        return;
+      }
+    }
 
-      final request = SubmitPodApiRequest(
+    final request = SubmitPodApiRequest(
         loadId: widget.loadId!,
         courierCompany: courierCompanyTextController.text,
         awbNumber: awbNumberTextController.text,
         podCenterId: podCenterIdDropDownValue!,
-        podCenterName: podCenterNameDropDownValue!,
-      );
-      isPodSubmitted = await cubit.submitPod(request) ?? false;
-    }
+        podCenterName: podCenterNameDropDownValue!
+    );
+    cubit.submitPod(request);
+
   }
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        title: context.appText.podDispatch,
-        onLeadingTap: () => Navigator.pop(context, isPodSubmitted),
-      ),
+      appBar: CommonAppBar(title: context.appText.podDispatch),
       body: _buildBodyWidget(context),
       bottomNavigationBar: _buildSubmitButtonWidget(),
     );
   }
 
   // Body
-  Widget _buildBodyWidget(BuildContext context) {
-    return SafeArea(
-      minimum: EdgeInsets.all(commonSafeAreaPadding),
-      child: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 20,
-          children: [
-            // Courier Company
-            AppTextField(
-              validator: (value) => Validator.fieldRequired(value),
-              controller: courierCompanyTextController,
-              labelText: context.appText.courierCompany,
-              hintText: "LED TV 42”",
-              textInputAction: TextInputAction.next,
-            ),
+  Widget _buildBodyWidget(BuildContext context){
+    return  SafeArea(
+      minimum : EdgeInsets.all(commonSafeAreaPadding),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 20,
+        children: [
 
-            // AWB Number
-            AppTextField(
-              validator: (value) => Validator.fieldRequired(value),
-              controller: awbNumberTextController,
-              labelText: context.appText.awbNumber,
-              hintText: "54678765436898",
-              textInputAction: TextInputAction.next,
-            ),
+          // Courier Company
+          AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: courierCompanyTextController,
+            labelText: context.appText.courierCompany,
+            hintText: "LED TV 42”",
+            textInputAction: TextInputAction.next,
+            onChanged: (value){
+              clearDropDownFields();
+            },
+          ),
 
-            orDivider(),
+          // AWB Number
+          AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: awbNumberTextController,
+            labelText: context.appText.awbNumber,
+            hintText: "54678765436898",
+            textInputAction: TextInputAction.next,
+            onChanged: (value){
+              clearDropDownFields();
+            },
+          ),
 
-            // POD Center
-            BlocConsumer<PodDispatchCubit, PodDispatchState>(
-              bloc: cubit,
-              listenWhen:
-                  (previous, current) =>
-                      previous.podCenterListUIState?.status !=
-                      current.podCenterListUIState?.status,
-              listener: (context, state) {
-                final status = state.podCenterListUIState?.status;
+          orDivider(),
 
-                if (status == Status.ERROR) {
-                  final error = state.podCenterListUIState?.errorType;
-                  ToastMessages.error(
-                    message: getErrorMsg(errorType: error ?? GenericError()),
-                  );
-                }
-              },
-              builder: (context, state) {
-                final data = state.podCenterListUIState?.data;
-                if (data != null && data.data.isNotEmpty) {
-                  return Column(
-                    children: [
-                      AppDropdown(
-                        validator: (value) => Validator.fieldRequired(value),
-                        labelText: context.appText.podCenter,
-                        hintText: context.appText.selectPodCenter,
-                        dropdownValue: podCenterIdDropDownValue,
-                        decoration: commonInputDecoration(
-                          fillColor: Colors.white,
-                        ),
-                        dropDownList:
-                            data.data
-                                .map(
-                                  (e) => DropdownMenuItem(
-                                    value: e.podCenterId,
-                                    child: Text(
-                                      e.podCenterName.capitalize,
-                                      style: AppTextStyle.body,
-                                    ),
-                                    onTap: () {
-                                      podCenterIdDropDownValue = e.podCenterId;
-                                      podCenterNameDropDownValue =
-                                          e.podCenterName;
-                                    },
-                                  ),
-                                )
-                                .toList(),
-                        onChanged: (onChangeValue) {
-                          podCenterIdDropDownValue = onChangeValue;
+
+          // POD Center
+          BlocConsumer<PodDispatchCubit, PodDispatchState>(
+            bloc: cubit,
+            listenWhen: (previous, current) =>  previous.podCenterListUIState?.status != current.podCenterListUIState?.status,
+            listener: (context, state) {
+              final status = state.podCenterListUIState?.status;
+
+              if (status == Status.ERROR) {
+                final error = state.podCenterListUIState?.errorType;
+                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+              }
+
+            },
+            builder: (context, state) {
+              final data = state.podCenterListUIState?.data;
+              if(data != null && data.data.isNotEmpty){
+                return Column(
+                  children: [
+                    AppDropdown(
+                      labelText: context.appText.podCenter,
+                      hintText: context.appText.selectPodCenter,
+                      dropdownValue: podCenterIdDropDownValue,
+                      decoration: commonInputDecoration(fillColor: Colors.white),
+                      dropDownList: data.data.map((e) => DropdownMenuItem(
+                        value: e.podCenterId,
+                        child: Text(e.podCenterName.capitalize, style: AppTextStyle.body),
+                        onTap: (){
+                          podCenterIdDropDownValue = e.podCenterId;
+                          podCenterNameDropDownValue = e.podCenterName;
                         },
-                      ),
-                    ],
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
-          ],
-        ),
+                      )).toList(),
+                      onChanged: (onChangeValue) {
+                        podCenterIdDropDownValue = onChangeValue;
+                        isPodCenterDropDownEnabled = true;
+                        clearTextFields();
+                      },
+                    ),
+                  ],
+                );
+              }
+              return const SizedBox();
+            },
+          ),
+
+        ],
       ),
     );
   }
 
+
   ///  Submit Button
-  Widget _buildSubmitButtonWidget() {
+  Widget _buildSubmitButtonWidget(){
     return BlocConsumer<PodDispatchCubit, PodDispatchState>(
       bloc: cubit,
-      listenWhen:
-          (previous, current) =>
-              previous.submitPodUIState?.status !=
-              current.submitPodUIState?.status,
+      listenWhen: (previous, current) =>  previous.submitPodUIState?.status != current.submitPodUIState?.status,
       listener: (context, state) async {
         final status = state.submitPodUIState?.status;
         if (status == Status.SUCCESS) {
-          Navigator.of(context).pop(true);
+           Navigator.of(context).pop(true);
         }
         if (status == Status.ERROR) {
           final error = state.submitPodUIState?.errorType;
-          ToastMessages.error(
-            message: getErrorMsg(errorType: error ?? GenericError()),
-          );
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
         }
       },
       builder: (context, state) {
@@ -223,13 +223,14 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
-          onPressed: isLoading ? () {} : () => submitPodApiCall(),
+          onPressed: isLoading ? (){} : () => submitPodApiCall(),
         ).bottomNavigationPadding();
       },
     );
   }
 
-  // Or Divider
+
+ // Or Divider
   Widget orDivider() {
     return Row(
       children: [
@@ -241,10 +242,15 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: AppColors.primaryColor,
-            ),
+              ),
           ),
         ),
-        Expanded(child: Divider(thickness: 1, color: AppColors.primaryColor)),
+        Expanded(
+          child: Divider(
+            thickness: 1,
+          color: AppColors.primaryColor,
+          ),
+        ),
       ],
     );
   }

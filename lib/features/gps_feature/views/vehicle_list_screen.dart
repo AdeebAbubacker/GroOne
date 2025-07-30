@@ -429,7 +429,9 @@ class VehicleListView extends StatelessWidget {
       );
     }
 
-    if (state.filteredVehicles.isEmpty) {
+    final vehiclesToShow = state.filteredVehicles.withExpired;
+
+    if (vehiclesToShow.isEmpty) {
       return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -465,9 +467,9 @@ class VehicleListView extends StatelessWidget {
       color: AppConstants.backgroundColor,
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
-        itemCount: state.filteredVehicles.length,
+        itemCount: vehiclesToShow.length,
         itemBuilder: (context, index) {
-          final vehicle = state.filteredVehicles[index];
+          final vehicle = vehiclesToShow[index];
           return _buildVehicleCard(context, vehicle);
         },
       ),
@@ -478,7 +480,7 @@ class VehicleListView extends StatelessWidget {
     BuildContext context,
     GpsCombinedVehicleData vehicle,
   ) {
-    final isExpired = vehicle.expired == true;
+    final isExpired = vehicle.expired == null || vehicle.expired == true;
 
     return GestureDetector(
       onTap:
