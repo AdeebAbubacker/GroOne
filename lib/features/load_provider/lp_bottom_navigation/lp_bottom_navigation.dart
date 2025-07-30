@@ -13,6 +13,8 @@ import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -31,6 +33,9 @@ class LpBottomNavigation extends StatefulWidget {
 }
 
 class _LpBottomNavigationState extends State<LpBottomNavigation> {
+
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
+
   late final ProfileCubit profileCubit;
 
   ProfileDetailModel? profileResponse;
@@ -58,6 +63,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     if (index == 3 && (role != null && role == 3)) {
       AppDialog.show(context, child: CommonDialogView(
         showYesNoButtonButtons: true,
+        hideCloseButton: true,
         noButtonText: context.appText.cancel,
         yesButtonText: context.appText.switchText,
         child: Column(
@@ -66,10 +72,10 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
             Text(context.appText.switchToVp, style: AppTextStyle.h3w500.copyWith(fontSize: 20, color: AppColors.black)),
             10.height,
             Text(context.appText.switchToVpDesc, textAlign: TextAlign.center, style: AppTextStyle.body3.copyWith(color: AppColors.textGreyDetailColor)),
-            10.height,
           ],
         ),
         onClickYesButton: () {
+          analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_VP);
           context.go(AppRouteName.vpBottomNavigationBar);
         },
       ));

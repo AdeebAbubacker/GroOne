@@ -175,7 +175,11 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         heading: context.appText.accountCreatedSuccessfully,
         message: context.appText.accountCreatedSuccessfullySubHeading,
         afterDismiss: () {
-          context.go(AppRouteName.vpBottomNavigationBar);
+          if(widget.roleId == 3){
+            context.go(AppRouteName.lpBottomNavigationBar);
+          } else {
+            context.go(AppRouteName.vpBottomNavigationBar);
+          }
           disposeFunction();
         },
       ),
