@@ -632,10 +632,10 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
  Widget buildAttachmentView(BuildContext context,String? loadId,DriverLoadDetailsState state, DriverLoadDetailsCubit cubit){
 
     final tripDocumentList=state.tripDocumentList??[];
-    print("Trip Document List from state:");
-for (final doc in tripDocumentList) {
-  print("Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}");
-}
+
+      for (final doc in tripDocumentList) {
+        print("Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}");
+      }
     return Column(
         children: List.generate(tripDocumentList.length, (index) => DriverDocumentWidgetView(
        index: index,
