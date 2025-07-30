@@ -460,8 +460,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     }
 
 
-      bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
-
+  bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
         const requiredDocsMap = {
           5: 'Lorry Receipt',
           6: 'E-Way Bill',
@@ -486,7 +485,6 @@ Future<void> getDriverLoadsById({required String loadId}) async {
         }
         return true;
       }
-
 
 
 
