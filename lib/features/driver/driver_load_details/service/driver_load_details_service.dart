@@ -27,20 +27,24 @@ class DriverLoadDetailsService {
     try {
       final url = ApiUrls.driverLoadById;
       final response = await _apiService.get(
-      "${url}${driverId}/${loadId}",
+       "${url}${driverId}/${loadId}",
         forceRefresh: forceRefresh,
       );
 
       if (response is Success) {
         final data = response.value;
         final loads = DriverLoadDetailsModel.fromJson(data);
+        print('---------------------------------------------------${loads.data?.acceptedBy}');
         return Success(loads);
       } else if (response is Error) {
+        print('---------------------------------------------------${response.type}');
         return Error(response.type);
       } else {
+        print('---------------------------------------------------error');
         return Error(GenericError());
       }
     } catch (e) {
+      print('---------------------------------------------------${e.toString()}');
       return Error(DeserializationError());
     }
   }
