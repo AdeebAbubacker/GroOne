@@ -6,10 +6,12 @@ import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
+import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
@@ -25,8 +27,11 @@ import 'package:gro_one_app/features/profile/model/primart_address_response.dart
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
+import 'package:gro_one_app/features/profile/model/settings_response.dart';
+import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -98,9 +103,9 @@ class ProfileRepository {
   }
 
   /// Get Address
-  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search}) async {
     try {
-      return await _profileService.fetchAddress(userId: userId);
+      return await _profileService.fetchAddress(userId: userId,search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -142,6 +147,23 @@ class ProfileRepository {
     }
   }
  
+   /// fetch vehicle verfifcation
+  Future<Result<VehicleVerificationSuccess>> fetchVehicleVerification({required String vehicleId}) async {
+    try {
+      return await _profileService.fetchCheckVehicleExcists(vehcileId: vehicleId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// fetch license verfifcation
+  Future<Result<VehicleVerificationSuccess>> fetchLicenseVerification({required String licenseNo}) async {
+    try {
+      return await _profileService.fetchCheckDrivingLicenseExcists(licenseId: licenseNo);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
     /// create new vehicle
   Future<Result<VehicleNewModel>> createVehicle({required VehicleRequest request}) async {
     try {
@@ -205,9 +227,9 @@ Future<Result<bool>> deleteVehicle({
 
 
   /// Get Driver
-  Future<Result<PaginatedDriverList>> fetchDriver({required String userId}) async {
+  Future<Result<PaginatedDriverList>> fetchDriver({required String userId,String? search}) async {
     try {
-      return await _profileService.fetchDriver(customerId: userId);
+      return await _profileService.fetchDriver(customerId: userId,search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -227,6 +249,15 @@ Future<Result<bool>> deleteVehicle({
       return await _profileService.uploadLicenseData(file);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch GST upload data in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// fetch settings
+  Future<Result<List<SettingsResponse>>> fetchSettings() async {
+    try {
+      return await _profileService.fetchSettings();
+    } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -250,15 +281,33 @@ Future<Result<bool>> deleteVehicle({
   }
 
   /// Get Address
-  Future<Result<FaqResponse>> fetchFaq() async {
+  Future<Result<FaqResponse>> fetchFaq({String search = ''}) async {
     try {
-      return await _profileService.fetchFaq();
+      return await _profileService.fetchFaq(search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 
+  /// Get Tickets
+  Future<Result<TicketResponse>> fetchTickets({required String userId,required TicketRequest request}) async {
+    try {
+      return await _profileService.fetchTickets(userId: userId ,request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 
+  /// Create Ticket
+  Future<Result<Ticket>> createTicket({required CreateTicketRequest request}) async {
+    try {
+      return await _profileService.createTicket(request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  
 
   /// LogOut Repo
   Future<Result<LogOutModel>> getLogOutData() async {

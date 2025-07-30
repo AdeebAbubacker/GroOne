@@ -10,8 +10,10 @@ import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
+import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
@@ -24,13 +26,18 @@ import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
+import 'package:gro_one_app/features/profile/model/settings_response.dart';
+import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 part 'profile_state.dart';
+
+enum TicketStatus { pending, completed }
 
 class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _repo;
@@ -168,11 +175,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(addressState: uiState));
   }
 
-  Future<void> fetchAddress({bool isLoading = true}) async {
+  Future<void> fetchAddress({bool isLoading = true,String? search}) async {
     if(isLoading) _setFetchAddressUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchAddress(userId: userId ?? '');
+    dynamic result = await _repo.fetchAddress(userId: userId ?? '',search: search);
     if (result is Success<PaginatedAddressList>) {
       _setFetchAddressUIState(UIState.success(result.value));
     }
@@ -238,6 +245,21 @@ class ProfileCubit extends BaseCubit<ProfileState> {
      return result;
   }
 
+  // Fetch settings from api call
+  void _setSettingsUIState(UIState<List<SettingsResponse>>? uiState){
+    emit(state.copyWith(settingsState: uiState));
+  }
+
+  Future<void> fetchSettings() async {
+    dynamic result = await _repo.fetchSettings();
+    if (result is Success<List<SettingsResponse>>) {
+      _setSettingsUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setSettingsUIState(UIState.error(result.type));
+    }
+  }
+
   // Fetch address from api call
   void _setCustomerSettingsUIState(UIState<CustomerSettingsResponse>? uiState){
     emit(state.copyWith(customerSettingsState: uiState));
@@ -255,6 +277,40 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
  
+  // Check Vehicle Excistence
+  void _setCheckVehicleExcistence(UIState<VehicleVerificationSuccess>? uiState){
+    emit(state.copyWith(vehicleVerificationState: uiState));
+  }
+   Future<void> fetchVehicleExcistence({required String vehicleId}) async {
+    _setCheckVehicleExcistence(UIState.loading());
+
+    dynamic result = await _repo.fetchVehicleVerification(vehicleId: vehicleId);
+    if (result is Success<VehicleVerificationSuccess>) {
+      print("Vehicle already excist");
+      _setCheckVehicleExcistence(UIState.success(result.value));
+    }
+    if (result is Error) {
+      print("Vehicle not found excist");
+      _setCheckVehicleExcistence(UIState.error(result.type));
+    }
+  }
+
+   // Check License Excistence
+  void _setCheckLicenseExcistence(UIState<VehicleVerificationSuccess>? uiState){
+    emit(state.copyWith(licenseVerficationState: uiState));
+  }
+   Future<void> fetchLicenseExcistence({required String licenseNo}) async {
+    _setCheckLicenseExcistence(UIState.loading());
+
+    dynamic result = await _repo.fetchLicenseVerification(licenseNo: licenseNo);
+    if (result is Success<VehicleVerificationSuccess>) {
+      _setCheckLicenseExcistence(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCheckLicenseExcistence(UIState.error(result.type));
+    }
+  }
+
     // Create New vehicle from api call
   void _setCreateVehicleUIState(UIState<VehicleNewModel>? uiState){
     emit(state.copyWith(createVehicleState: uiState));
@@ -386,11 +442,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
  
-  Future<void> fetchDriver({bool isLoading = true}) async {
+  Future<void> fetchDriver({bool isLoading = true,String? search}) async {
     if(isLoading) _setFetchDriverUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchDriver(userId: userId ?? '');
+    dynamic result = await _repo.fetchDriver(userId: userId ?? '',search: search);
     if (result is Success<PaginatedDriverList>) {
       _setFetchDriverUIState(UIState.success(result.value));
     }
@@ -455,11 +511,10 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(faqUIState: uiState));
   }
 
-  Future<void> fetchFaq() async {
-    _setFetchFaqUIState(UIState.loading());
-    userId = await _repo.getUserId();
+  Future<void> fetchFaq({String search = '', bool isLoading = true}) async {
+   if(isLoading) _setFetchFaqUIState(UIState.loading());
 
-    dynamic result = await _repo.fetchFaq();
+    dynamic result = await _repo.fetchFaq(search: search);
     if (result is Success<FaqResponse>) {
       _setFetchFaqUIState(UIState.success(result.value));
     }
@@ -467,6 +522,61 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setFetchFaqUIState(UIState.error(result.type));
     }
   }
+
+  // Fetch tickets from api call
+  void _setTicketsUIState(UIState<TicketResponse>? uiState){
+    emit(state.copyWith(ticketState: uiState));
+  }
+
+  Future<void> fetchTickets({bool isLoading = true, required TicketRequest request}) async {
+    if(isLoading) _setTicketsUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchTickets(userId: userId ?? '',request: request);
+    if (result is Success<TicketResponse>) {
+      _setTicketsUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setTicketsUIState(UIState.error(result.type));
+    }
+  }
+
+  // create ticket from api call
+  void _setCreateTicketsUIState(UIState<Ticket>? uiState){
+    emit(state.copyWith(createTicketState: uiState));
+  }
+
+  Future<void> createTicket({ required CreateTicketRequest request}) async {
+    _setCreateTicketsUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.createTicket(request: request.copyWith(customerId: userId));
+    if (result is Success<Ticket>) {
+      _setCreateTicketsUIState(UIState.success(result.value));
+      fetchTickets(request: TicketRequest());
+    }
+    if (result is Error) {
+      _setCreateTicketsUIState(UIState.error(result.type));
+    }
+  }
+
+  void updateTempTicketStatus(TicketStatus? status) {
+    emit(state.copyWith(tempSelectedTicketStatus: status));
+  }
+
+  void applyTicketStatusFilter() {
+    emit(state.copyWith(selectedTicketStatus: state.tempSelectedTicketStatus));
+    fetchTickets(request: TicketRequest(ticketStatus: state.tempSelectedTicketStatus == TicketStatus.pending ? '1' : '2'));
+  }
+
+  void clearTicketStatusFilter() {
+    emit(state.copyWith(
+      selectedTicketStatus: null,
+      tempSelectedTicketStatus: null,
+    ));
+    fetchTickets(request: TicketRequest());
+  }
+
 
 
   // Reset State

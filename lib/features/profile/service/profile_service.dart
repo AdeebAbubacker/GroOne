@@ -10,10 +10,12 @@ import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
+import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
@@ -30,8 +32,11 @@ import 'package:gro_one_app/features/profile/model/primart_address_response.dart
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
+import 'package:gro_one_app/features/profile/model/settings_response.dart';
+import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -191,9 +196,12 @@ class ProfileService {
   }
 
   /// fetch address
-  Future<Result<PaginatedAddressList>> fetchAddress({required String userId}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search}) async {
     try {
-      final url = ApiUrls.getAddress+userId;
+      final baseUrl = ApiUrls.getAddress+userId;
+      final url = (search != null && search.trim().isNotEmpty)
+          ? '$baseUrl?search=$search'
+          : baseUrl;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = PaginatedAddressList.fromJson(response.value);
@@ -278,6 +286,28 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+
+  /// fetch settings
+  Future<Result<List<SettingsResponse>>> fetchSettings() async {
+    try {
+      final url = ApiUrls.getSettings;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final list = (response.value as List)
+            .map((json) => SettingsResponse.fromJson(json))
+            .toList();
+        return Success(list);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      print('error is $e');
+      return Error(DeserializationError());
+    }
+  }
+
 
   /// fetch customer settings
   Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({required String userId}) async {
@@ -446,9 +476,14 @@ class ProfileService {
   }
 
 /// fetch Driver
- Future<Result<PaginatedDriverList>> fetchDriver({required String customerId}) async {
+ Future<Result<PaginatedDriverList>> fetchDriver({required String customerId,String? search}) async {
   try {
-    final url = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
+      final baseUrl = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
+
+    // Append search properly using &
+    final url = (search != null && search.trim().isNotEmpty)
+        ? '$baseUrl&search=$search'
+        : baseUrl;
     final response = await _apiService.get(url);
     if (response is Success) {
       final loads = PaginatedDriverList.fromJson(response.value);
@@ -479,7 +514,45 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+  
 
+   /// fetch check vehicle excists or not
+
+ Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
+    try {
+      final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = VehicleVerificationSuccess.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+     /// fetch check license excists or not
+
+ Future<Result<VehicleVerificationSuccess>> fetchCheckDrivingLicenseExcists({required String licenseId}) async {
+    try {
+      final url = '${ApiUrls.checkLicenseNumber}${licenseId}';
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = VehicleVerificationSuccess.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
   Future<Result<KavachVehicleDocumentUploadModel>> uploadLicenseData(File file) async {
     try {
       // Get user ID from secure storage
@@ -536,12 +609,48 @@ class ProfileService {
     }
   }
   /// fetch FAQ
-  Future<Result<FaqResponse>> fetchFaq() async {
+  Future<Result<FaqResponse>> fetchFaq({String search = ''}) async {
     try {
-      final url = ApiUrls.getFaq;
+      final url = '${ApiUrls.getFaq}?search=$search';
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = FaqResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch Tickets
+  Future<Result<TicketResponse>> fetchTickets({required String userId, required TicketRequest request}) async {
+    try {
+      final url = ApiUrls.getTicketList+userId;
+      final response = await _apiService.get(url, queryParams: request.toJson());
+      if (response is Success) {
+        final loads = TicketResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// create Ticket
+  Future<Result<Ticket>> createTicket({required CreateTicketRequest request}) async {
+    try {
+      final url = ApiUrls.createTicket;
+      final response = await _apiService.post(url, body: request.toJson());
+      if (response is Success) {
+        final loads = Ticket.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

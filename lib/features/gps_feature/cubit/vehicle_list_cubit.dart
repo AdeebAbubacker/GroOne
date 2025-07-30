@@ -295,10 +295,10 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
   /// Initialize dashboard after vehicle data is loaded
   Future<void> _initializeDashboardAfterDataLoad() async {
     if (_allVehicles.isNotEmpty && state.selectedVehicleNumber == null) {
-      final activeVehicles =
-          _allVehicles.where((vehicle) => vehicle.expired != true).toList();
-      if (activeVehicles.isNotEmpty) {
-        final firstVehicle = activeVehicles.first;
+      // final activeVehicles =
+      //     _allVehicles.where((vehicle) => vehicle.expired != true).toList();
+      if (_allVehicles.isNotEmpty) {
+        final firstVehicle = _allVehicles.first;
         final vehicleNumber = firstVehicle.vehicleNumber ?? '';
         if (vehicleNumber.isNotEmpty) {
           // Set the selected vehicle
@@ -316,12 +316,13 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
 
   void _updateStatusCounts() {
     // Filter out expired vehicles first
-    final nonExpiredVehicles =
-        _allVehicles.where((vehicle) => vehicle.expired != true).toList();
+    // final nonExpiredVehicles =
+    //     _allVehicles.where((vehicle) {
+    //       return vehicle.expired != null && vehicle.expired == false;
+    //     }).toList();
 
-    if (nonExpiredVehicles.isNotEmpty &&
-        nonExpiredVehicles.first.apiCounts != null) {
-      final apiCounts = nonExpiredVehicles.first.apiCounts!;
+    if (_allVehicles.isNotEmpty && _allVehicles.first.apiCounts != null) {
+      final apiCounts = _allVehicles.first.apiCounts!;
       emit(
         state.copyWith(
           statusCount: StatusCount(
@@ -339,7 +340,7 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
       int idleCount = 0;
       int inactiveCount = 0;
 
-      for (final vehicle in nonExpiredVehicles) {
+      for (final vehicle in _allVehicles) {
         final status = vehicle.status?.toUpperCase();
         if (status == 'IGNITION_ON') {
           ignitionOnCount++;
@@ -355,7 +356,7 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
       emit(
         state.copyWith(
           statusCount: StatusCount(
-            total: nonExpiredVehicles.length,
+            total: _allVehicles.length,
             ignitionOn: ignitionOnCount,
             ignitionOff: ignitionOffCount,
             idle: idleCount,
@@ -368,9 +369,6 @@ class VehicleListCubit extends BaseCubit<VehicleListState> {
 
   void _filterVehicles() {
     List<GpsCombinedVehicleData> filtered = _allVehicles;
-
-    // First, filter out expired vehicles
-    filtered = filtered.where((vehicle) => vehicle.expired != true).toList();
 
     // Apply search filter
     if (state.searchQuery.isNotEmpty) {

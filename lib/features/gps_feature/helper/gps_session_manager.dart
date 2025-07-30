@@ -8,15 +8,13 @@ class GpsSessionManager {
   static const String _showMarkerLabelKey = 'gps_show_marker_label';
   static const String _showMarkerClusterKey = 'gps_show_marker_cluster';
   static const String _geofenceToggleKey = 'gps_geofence_toggle_map';
-
-
+  static const String _showGeofenceOnMapKey = 'gps_show_geofence_on_map';
 
   static SharedPreferences? _prefs;
 
   static Future<void> init() async {
     _prefs ??= await SharedPreferences.getInstance();
   }
-
 
   static Future<void> setNotificationToneUri(String uri) async {
     await _prefs?.setString(_notificationToneUriKey, uri);
@@ -31,11 +29,9 @@ class GpsSessionManager {
     return _prefs?.getString(_notificationToneUriKey);
   }
 
-
   static Future<void> clearNotificationToneUri() async {
     await _prefs?.remove(_notificationToneUriKey);
   }
-
 
   // GPS Notification
   static Future<void> setNotificationEnabled(bool isEnabled) async {
@@ -64,6 +60,14 @@ class GpsSessionManager {
     return _prefs?.getBool(_showMarkerClusterKey) ?? true; // default to true
   }
 
+  // Geofence Display on Map
+  static Future<void> setShowGeofenceOnMap(bool value) async {
+    await _prefs?.setBool(_showGeofenceOnMapKey, value);
+  }
+
+  static bool isShowGeofenceOnMapEnabled() {
+    return _prefs?.getBool(_showGeofenceOnMapKey) ?? false; // default to false
+  }
 
   static Future<void> clearAll() async {
     await _prefs?.clear();
@@ -84,5 +88,4 @@ class GpsSessionManager {
     final decoded = jsonDecode(jsonString);
     return Map<String, bool>.from(decoded);
   }
-
 }

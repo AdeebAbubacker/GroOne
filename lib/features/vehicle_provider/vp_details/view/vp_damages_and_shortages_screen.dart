@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -14,6 +15,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/documen
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -48,10 +50,12 @@ class VpDamagesAndShortagesScreen extends StatefulWidget {
   State<VpDamagesAndShortagesScreen> createState() => _VpDamagesAndShortagesScreenState();
 }
 
-class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScreen> {
+class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesScreen> {
+
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final cubit = locator<LoadDetailsCubit>();
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   final String selectedFileName = "";
 
   List<dynamic> multiFilesList = [];
@@ -180,6 +184,8 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
    }
   }
 
+
+  // Success Damages Create Dialog
   void showSuccessDialog(BuildContext context) => frameCallback(() {
     AppDialog.show(
       context,
@@ -188,6 +194,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
         message: context.appText.notifiedTheConcernTeam,
         onContinue: (){
           Navigator.of(context).pop(true);
+          analyticsHelper.logEvent(AnalyticEventName.CREATE_DAMAGES_SUCCESSFULLY);
           cubit.fetchDamageList(widget.loadId ?? "");
         },
       ),
@@ -196,6 +203,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
 
 
 
+  // Confirm Delete Damage Dialog
   void confirmDeleteDamageDialog(BuildContext context, String damageId) => frameCallback(() {
     AppDialog.show(
       context,
@@ -213,9 +221,9 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
             yesButtonLoading: isLoading,
             onClickYesButton: () async {
               await cubit.deleteDamage(damageId);
-
               if (status == Status.SUCCESS) {
                 cubit.resetDeleteDamageUIState();
+                analyticsHelper.logEvent(AnalyticEventName.DELETE_DAMAGES);
               }
               if (status == Status.ERROR) {
                 final error = state.deleteDamageUIState?.errorType;
@@ -229,7 +237,6 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
               frameCallback((){
                 Navigator.of(context).pop();
               });
-
             },
           );
         },
@@ -261,7 +268,6 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
                   }
                 }
             ),
-
           ],
       ),
       body: _buildBodyWidget(context),
@@ -390,6 +396,7 @@ class _VpDamagesAndShortagesScreenState extends State<VpDamagesAndShortagesScree
           clearValues();
           initFunction();
           ToastMessages.success(message: context.appText.damageUpdatesSuccessfully);
+          analyticsHelper.logEvent(AnalyticEventName.UPDATE_DAMAGES);
         }
         if (status == Status.ERROR) {
           final error = state.updateDamageUIState?.errorType;
