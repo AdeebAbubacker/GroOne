@@ -48,4 +48,6 @@ class AppRouteName {
   static const String driverHome = "/driverHome";
 
   static const String vehicleMap = '/vehicle-map';
+
+  static const String fastagList = '/fastagList';
 }

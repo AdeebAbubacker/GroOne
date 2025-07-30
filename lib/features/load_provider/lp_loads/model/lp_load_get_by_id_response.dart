@@ -67,6 +67,8 @@ class LoadData {
     required this.damageShortage,
     required this.timeline,
     required this.loadApproval,
+    required this.podDispatch,
+    required this.loadSettlement,
     required this.customer,
     required this.vpCustomer,
     required this.weight,
@@ -107,6 +109,8 @@ class LoadData {
   final ConsigneeDetails? consigneeDetails;
   final List<LoadDocumentData> loadDocument;
   final LoadApproval? loadApproval;
+  final PodDispatch? podDispatch;
+  final LoadSettlement? loadSettlement;
   final TrackingDetails? trackingDetails;
   final List<Timeline> timeline;
   final List<DamageReport>? damageShortage;
@@ -150,6 +154,8 @@ class LoadData {
     List<LoadDocumentData>? loadDocument,
     TrackingDetails? trackingDetails,
     LoadApproval? loadApproval,
+    PodDispatch? podDispatch,
+    LoadSettlement? loadSettlement,
     List<Timeline>? timeline,
     List<DamageReport>? damageShortage,
     Customer? customer,
@@ -193,6 +199,8 @@ class LoadData {
       trackingDetails: trackingDetails ?? this.trackingDetails,
       timeline: timeline ?? this.timeline,
       loadApproval: loadApproval ?? this.loadApproval,
+      podDispatch: podDispatch ?? this.podDispatch,
+      loadSettlement: loadSettlement ?? this.loadSettlement,
       damageShortage: damageShortage ?? this.damageShortage,
       customer: customer ?? this.customer,
       vpCustomer: vpCustomer ?? this.vpCustomer,
@@ -238,6 +246,8 @@ class LoadData {
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocumentData>.from(json["loadDocument"]!.map((x) => LoadDocumentData.fromJson(x))),
       trackingDetails: json["trackingDetails"] == null ? null : TrackingDetails.fromJson(json["trackingDetails"]),
       loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
+      podDispatch: json["podDispatch"] == null ? null : PodDispatch.fromJson(json["podDispatch"]),
+      loadSettlement: json["loadSettlement"] == null ? null : LoadSettlement.fromJson(json["loadSettlement"]),
       timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
       damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
@@ -959,6 +969,62 @@ class LoadDocumentData {
 
 }
 
+class LoadSettlement {
+  final String? settlementId;
+  final String? vehicleId;
+  final String? loadId;
+  final int? noOfDays;
+  final int? amountPerDay;
+  final int? loadingCharge;
+  final int? unLoadingCharge;
+  final int? debitDamages;
+  final int? debitShortages;
+  final int? debitPenalities;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
+
+  LoadSettlement({
+    this.settlementId,
+    this.vehicleId,
+    this.loadId,
+    this.noOfDays,
+    this.amountPerDay,
+    this.loadingCharge,
+    this.unLoadingCharge,
+    this.debitDamages,
+    this.debitShortages,
+    this.debitPenalities,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
+
+  factory LoadSettlement.fromJson(Map<String, dynamic> json) {
+    return LoadSettlement(
+      settlementId: json['settlementId'] as String?,
+      vehicleId: json['vehicleId'] as String?,
+      loadId: json['loadId'] as String?,
+      noOfDays: json['noOfDays'] as int?,
+      amountPerDay: json['amountPerDay'] as int?,
+      loadingCharge: json['loadingCharge'] as int?,
+      unLoadingCharge: json['unLoadingCharge'] as int?,
+      debitDamages: json['debitDamages'] as int?,
+      debitShortages: json['debitShortages'] as int?,
+      debitPenalities: json['debitPenalities'] as int?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
+      deletedAt: json['deletedAt'] != null
+          ? DateTime.tryParse(json['deletedAt'])
+          : null,
+    );
+  }
+}
+
 class TrackingDetails {
   TrackingDetails({
     required this.uuid,
@@ -1249,8 +1315,111 @@ class Driver {
 
 }
 
+
 class ScheduleTripDetailsVehicle {
   ScheduleTripDetailsVehicle({
+    required this.vehicle,
+    required this.companyName,
+    required this.truckType,
+  });
+
+  final Vehicle? vehicle;
+  final String companyName;
+  final TruckType? truckType;
+
+  ScheduleTripDetailsVehicle copyWith({
+    Vehicle? vehicle,
+    String? companyName,
+    TruckType? truckType,
+  }) {
+    return ScheduleTripDetailsVehicle(
+      vehicle: vehicle ?? this.vehicle,
+      companyName: companyName ?? this.companyName,
+      truckType: truckType ?? this.truckType,
+    );
+  }
+
+  factory ScheduleTripDetailsVehicle.fromJson(Map<String, dynamic> json){
+    return ScheduleTripDetailsVehicle(
+      vehicle: json["vehicle"] == null ? null : Vehicle.fromJson(json["vehicle"]),
+      companyName: json["companyName"] ?? "",
+      truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "vehicle": vehicle?.toJson(),
+    "companyName": companyName,
+    "truckType": truckType?.toJson(),
+  };
+
+}
+
+class TruckType {
+  TruckType({
+    required this.id,
+    required this.type,
+    required this.subType,
+    required this.iconUrl,
+    required this.status,
+    required this.createdAt,
+    required this.deletedAt,
+  });
+
+  final int id;
+  final String type;
+  final String subType;
+  final dynamic iconUrl;
+  final int status;
+  final DateTime? createdAt;
+  final dynamic deletedAt;
+
+  TruckType copyWith({
+    int? id,
+    String? type,
+    String? subType,
+    dynamic? iconUrl,
+    int? status,
+    DateTime? createdAt,
+    dynamic? deletedAt,
+  }) {
+    return TruckType(
+      id: id ?? this.id,
+      type: type ?? this.type,
+      subType: subType ?? this.subType,
+      iconUrl: iconUrl ?? this.iconUrl,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  factory TruckType.fromJson(Map<String, dynamic> json){
+    return TruckType(
+      id: json["id"] ?? 0,
+      type: json["type"] ?? "",
+      subType: json["subType"] ?? "",
+      iconUrl: json["iconUrl"],
+      status: json["status"] ?? 0,
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      deletedAt: json["deletedAt"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "type": type,
+    "subType": subType,
+    "iconUrl": iconUrl,
+    "status": status,
+    "createdAt": createdAt?.toIso8601String(),
+    "deletedAt": deletedAt,
+  };
+
+}
+
+class Vehicle {
+  Vehicle({
     required this.vehicleId,
     required this.customerId,
     required this.truckNo,
@@ -1259,6 +1428,8 @@ class ScheduleTripDetailsVehicle {
     required this.tonnage,
     required this.truckTypeId,
     required this.modelNumber,
+    required this.rcNumber,
+    required this.rcDocLink,
     required this.insurancePolicyNumber,
     required this.insuranceValidityDate,
     required this.fcExpiryDate,
@@ -1267,6 +1438,7 @@ class ScheduleTripDetailsVehicle {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    required this.customer,
   });
 
   final String vehicleId;
@@ -1277,6 +1449,8 @@ class ScheduleTripDetailsVehicle {
   final String tonnage;
   final int truckTypeId;
   final String modelNumber;
+  final dynamic rcNumber;
+  final dynamic rcDocLink;
   final String insurancePolicyNumber;
   final DateTime? insuranceValidityDate;
   final DateTime? fcExpiryDate;
@@ -1285,8 +1459,9 @@ class ScheduleTripDetailsVehicle {
   final DateTime? createdAt;
   final dynamic updatedAt;
   final dynamic deletedAt;
+  final Customer? customer;
 
-  ScheduleTripDetailsVehicle copyWith({
+  Vehicle copyWith({
     String? vehicleId,
     String? customerId,
     String? truckNo,
@@ -1295,6 +1470,8 @@ class ScheduleTripDetailsVehicle {
     String? tonnage,
     int? truckTypeId,
     String? modelNumber,
+    dynamic? rcNumber,
+    dynamic? rcDocLink,
     String? insurancePolicyNumber,
     DateTime? insuranceValidityDate,
     DateTime? fcExpiryDate,
@@ -1303,8 +1480,9 @@ class ScheduleTripDetailsVehicle {
     DateTime? createdAt,
     dynamic? updatedAt,
     dynamic? deletedAt,
+    Customer? customer,
   }) {
-    return ScheduleTripDetailsVehicle(
+    return Vehicle(
       vehicleId: vehicleId ?? this.vehicleId,
       customerId: customerId ?? this.customerId,
       truckNo: truckNo ?? this.truckNo,
@@ -1313,6 +1491,8 @@ class ScheduleTripDetailsVehicle {
       tonnage: tonnage ?? this.tonnage,
       truckTypeId: truckTypeId ?? this.truckTypeId,
       modelNumber: modelNumber ?? this.modelNumber,
+      rcNumber: rcNumber ?? this.rcNumber,
+      rcDocLink: rcDocLink ?? this.rcDocLink,
       insurancePolicyNumber: insurancePolicyNumber ?? this.insurancePolicyNumber,
       insuranceValidityDate: insuranceValidityDate ?? this.insuranceValidityDate,
       fcExpiryDate: fcExpiryDate ?? this.fcExpiryDate,
@@ -1321,11 +1501,12 @@ class ScheduleTripDetailsVehicle {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      customer: customer ?? this.customer,
     );
   }
 
-  factory ScheduleTripDetailsVehicle.fromJson(Map<String, dynamic> json){
-    return ScheduleTripDetailsVehicle(
+  factory Vehicle.fromJson(Map<String, dynamic> json){
+    return Vehicle(
       vehicleId: json["vehicleId"] ?? "",
       customerId: json["customerId"] ?? "",
       truckNo: json["truckNo"] ?? "",
@@ -1334,6 +1515,8 @@ class ScheduleTripDetailsVehicle {
       tonnage: json["tonnage"] ?? "",
       truckTypeId: json["truckTypeId"] ?? 0,
       modelNumber: json["modelNumber"] ?? "",
+      rcNumber: json["rcNumber"],
+      rcDocLink: json["rcDocLink"],
       insurancePolicyNumber: json["insurancePolicyNumber"] ?? "",
       insuranceValidityDate: DateTime.tryParse(json["insuranceValidityDate"] ?? ""),
       fcExpiryDate: DateTime.tryParse(json["fcExpiryDate"] ?? ""),
@@ -1342,10 +1525,34 @@ class ScheduleTripDetailsVehicle {
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: json["updatedAt"],
       deletedAt: json["deletedAt"],
+      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
     );
   }
 
+  Map<String, dynamic> toJson() => {
+    "vehicleId": vehicleId,
+    "customerId": customerId,
+    "truckNo": truckNo,
+    "ownerName": ownerName,
+    "registrationDate": registrationDate,
+    "tonnage": tonnage,
+    "truckTypeId": truckTypeId,
+    "modelNumber": modelNumber,
+    "rcNumber": rcNumber,
+    "rcDocLink": rcDocLink,
+    "insurancePolicyNumber": insurancePolicyNumber,
+    "insuranceValidityDate": insuranceValidityDate,
+    "fcExpiryDate": fcExpiryDate,
+    "pucExpiryDate": pucExpiryDate,
+    "status": status,
+    "createdAt": createdAt?.toIso8601String(),
+    "updatedAt": updatedAt,
+    "deletedAt": deletedAt,
+    "customer": customer,
+  };
+
 }
+
 
 class Timeline {
   Timeline({
@@ -2206,6 +2413,10 @@ class LoadMemoDetails {
         required this.advancePercentage,
         required this.balance,
         required this.balancePercentage,
+        required this.vpAdvance,
+        required this.vpAdvancePercentage,
+        required this.vpBalance,
+        required this.vpBalancePercentage,
         required this.status,
         required this.createAt,
         required this.deletedAt,
@@ -2219,6 +2430,10 @@ class LoadMemoDetails {
     final String advancePercentage;
     final String balance;
     final String balancePercentage;
+    final String vpAdvance;
+    final String vpAdvancePercentage;
+    final String vpBalance;
+    final String vpBalancePercentage;
     final int status;
     final DateTime? createAt;
     final dynamic deletedAt;
@@ -2232,6 +2447,10 @@ class LoadMemoDetails {
         String? advancePercentage,
         String? balance,
         String? balancePercentage,
+        String? vpAdvance,
+        String? vpAdvancePercentage,
+        String? vpBalance,
+        String? vpBalancePercentage,
         int? status,
         DateTime? createAt,
         dynamic? deletedAt,
@@ -2245,6 +2464,10 @@ class LoadMemoDetails {
             advancePercentage: advancePercentage ?? this.advancePercentage,
             balance: balance ?? this.balance,
             balancePercentage: balancePercentage ?? this.balancePercentage,
+            vpAdvance: vpAdvance ?? this.vpAdvance,
+            vpAdvancePercentage: vpAdvancePercentage ?? this.vpAdvancePercentage,
+            vpBalance: balance ?? this.vpBalance,
+            vpBalancePercentage: vpBalancePercentage ?? this.vpBalancePercentage,
             status: status ?? this.status,
             createAt: createAt ?? this.createAt,
             deletedAt: deletedAt ?? this.deletedAt,
@@ -2261,6 +2484,10 @@ class LoadMemoDetails {
             advancePercentage: json["advancePercentage"] ?? "",
             balance: json["balance"] ?? "",
             balancePercentage: json["balancePercentage"] ?? "",
+            vpAdvance: json["vpAdvance"] ?? "",
+            vpAdvancePercentage: json["vpAdvancePercentage"] ?? "",
+            vpBalance: json["vpBalance"] ?? "",
+            vpBalancePercentage: json["vpBalancePercentage"] ?? "",
             status: json["status"] ?? 0,
             createAt: DateTime.tryParse(json["createAt"] ?? ""),
             deletedAt: json["deletedAt"],

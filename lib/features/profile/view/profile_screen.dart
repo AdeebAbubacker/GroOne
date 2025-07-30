@@ -229,7 +229,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             },
           ),
           commonDivider(),
-          if(kycCubit.userRole == 1)
+          if(kycCubit.userRole == 1 || kycCubit.userRole == 3)
             ...[
               ProfileMyAccountTile(
                 imageString: AppImage.svg.routes,

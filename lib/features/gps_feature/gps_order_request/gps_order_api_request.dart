@@ -325,12 +325,6 @@ class GpsKycCheckModel {
       hasDocuments = data.containsKey('document') &&
           data['document'] != null;
 
-      print('🔍 GpsKycCheckModel.fromJson:');
-      print('  - data keys: ${data.keys}');
-      print('  - has document key: ${data.containsKey('document')}');
-      print('  - document value: ${data['document']}');
-      print('  - hasDocuments: $hasDocuments');
-
       kycData = data;
     }
 
@@ -433,9 +427,9 @@ class GpsKycCheckResponseModel {
 
   /// Check if KYC documents exist
   bool get hasKycDocuments {
-    // Check if isKyc is 1 AND documents exist AND Aadhaar has a proper number
-    return isKyc == 1 && 
-           documents != null && 
+    // Check if documents exist AND Aadhaar has a proper number
+    // The isKyc flag might not always be reliable, so we focus on actual document existence
+    return documents != null && 
            documents!.aadhar != null && 
            documents!.aadhar!.isNotEmpty &&
            documents!.isAadhar == true;

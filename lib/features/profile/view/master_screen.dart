@@ -1279,13 +1279,14 @@ class _MasterScreenState extends State<MasterScreen>
         ),
         onClickYesButton: () async {
           if (formKey.currentState!.validate()) {
+            final existingAddresses = profileCubit.state.addressState?.data?.addresses ?? [];
             final request = AddressRequest(
               addrName: addressNameController.text.trim(),
               addr: addressController.text.trim(),
               city: cityController.text.trim(),
               state: stateController.text.trim(),
               pincode: pinCodeController.text.trim(),
-              isDefault: address?.isDefault ?? false,
+              isDefault: isEdit ? address?.isDefault ?? false  : existingAddresses.isEmpty, 
             );
 
             if (isEdit) {

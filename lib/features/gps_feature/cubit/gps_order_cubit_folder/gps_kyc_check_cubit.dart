@@ -15,27 +15,20 @@ class GpsKycCheckCubit extends Cubit<GpsKycCheckState> {
 
   @override
   Future<void> close() {
-    print('🔒 GpsKycCheckCubit.close() called');
     _isClosed = true;
     return super.close();
   }
 
   /// Reset the cubit state and reopen it for use
   void resetCubit() {
-    print('🔄 Resetting GpsKycCheckCubit state');
     _isClosed = false;
     emit(GpsKycCheckState.initial());
   }
 
   /// Check if KYC documents exist for the customer
   Future<void> checkKycDocuments(String customerId) async {
-    print('🔍 GpsKycCheckCubit.checkKycDocuments called');
-    print('🔍 Cubit closed status: $_isClosed');
-    print('🔍 Customer ID: $customerId');
-
     if (_isClosed) return;
 
-    print('🔍 Starting GPS KYC documents check...');
     _setKycCheckUIState(UIState.loading());
 
     try {
@@ -46,20 +39,6 @@ class GpsKycCheckCubit extends Cubit<GpsKycCheckState> {
       if (result is Success<GpsKycCheckResponseModel>) {
         final kycModel = result.value;
         final hasDocuments = kycModel.hasKycDocuments;
-
-        print('📋 GPS KYC Check Response:');
-        print('  Customer ID: ${kycModel.customerId}');
-        print('  Is KYC: ${kycModel.isKyc}');
-        print('  Has Documents: $hasDocuments');
-        print('  Documents: ${kycModel.documents}');
-        
-        // Additional detailed logging
-        if (kycModel.documents != null) {
-          print('  Aadhaar: ${kycModel.documents!.aadhar}');
-          print('  Is Aadhaar: ${kycModel.documents!.isAadhar}');
-          print('  PAN: ${kycModel.documents!.pan}');
-          print('  Is PAN: ${kycModel.documents!.isPan}');
-        }
 
         emit(
           state.copyWith(
@@ -79,11 +58,9 @@ class GpsKycCheckCubit extends Cubit<GpsKycCheckState> {
         );
         _setKycCheckUIState(UIState.success(kycModel));
       } else if (result is Error) {
-        print('❌ GPS KYC Check failed: ${(result as Error).type}');
         _setKycCheckUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('💥 GPS KYC Check exception: $e');
       if (!_isClosed) {
         _setKycCheckUIState(UIState.error(GenericError()));
       }
