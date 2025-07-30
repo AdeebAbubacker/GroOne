@@ -8,6 +8,7 @@ class AnalyticsService {
   final FirebaseAnalytics _analytics = FirebaseAnalytics.instance;
   AnalyticsService() {
     _initBaseInfo();
+    _analytics.setAnalyticsCollectionEnabled(true);
   }
 
 
@@ -96,6 +97,7 @@ class AnalyticsService {
       CustomLog.error(this, "Impossible to Log Select content - contentType: $contentType", exception);
     }
   }
+
 
   Future<void> logScreenView(String screenName, [String? screenClass]) async {
     try {
