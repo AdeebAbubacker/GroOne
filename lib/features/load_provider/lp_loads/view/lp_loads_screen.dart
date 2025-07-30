@@ -340,7 +340,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
 
     return Container(
       height: 40,
-      decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
+      decoration: commonContainerDecoration(color: AppColors.lightGreyBackgroundColor),
       child: BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
           return SingleChildScrollView(
@@ -358,7 +358,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: commonContainerDecoration(
-                      color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                      color: isSelected ? AppColors.primaryColor : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(

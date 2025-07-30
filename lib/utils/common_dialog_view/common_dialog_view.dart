@@ -101,7 +101,7 @@ class _CommonDialogViewState extends State<CommonDialogView> {
         ],
 
         if(widget.heading != null)...[
-          Text(widget.heading!.capitalize, textAlign: TextAlign.center, style: AppTextStyle.h3.copyWith(color: widget.headingColor ?? Colors.black, fontSize: 25)),
+          Text(widget.heading!.capitalize, textAlign: TextAlign.center, style: widget.headingTextStyle ??  AppTextStyle.h3.copyWith(color: widget.headingColor ?? Colors.black, fontSize: 25)),
           10.height,
         ],
 
