@@ -120,12 +120,11 @@ if (loadStatus == 4) {
   }
 /// TODO: need to change driver code also regarding document
       if (loadStatus == 5) {
-     // if (driverConsent != 1) return false;
-     //  if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
+      if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
       }
 
       if (loadStatus == 7) {
-        // if (tripDocumentList == null || !widget.cubit.isPODUploaded(tripDocumentList)) return false;
+        if (tripDocumentList == null || !widget.cubit.isPODUploaded(tripDocumentList)) return false;
       }
 
       return true;
@@ -301,15 +300,12 @@ if (loadStatus == 4) {
                           20.height,
                           15.height,
                           _buildLoadEntityWidget(
-                            commodities:
-                                loads!.data!.commodity!.name.toString() ??
-                                '',
-                            weight:
-                                loads!.data!.weight!.value.toString() ??
-                                '',
+                            commodities: loads?.data?.commodity?.name?.toString() ?? '',
+                            weight: loads?.data?.weight?.value?.toString() ?? '',
                             locationDistance: state.locationDistance,
-                                context: context
+                            context: context,
                           ),
+
                            if (loads!.data!.consignees != null &&
                                     widget.loadItem.data!.consignees.isNotEmpty)
                                   _buildConsigneeDetail(
@@ -490,23 +486,23 @@ if (loadStatus == 4) {
                               onSubmit: () {
                               //Check for sim consent and trip doc
                                     if (loads.data?.loadStatusId == 5) {
-                                      final isConsentGiven = loads.data?.driverConsent == 1;
+                                     // final isConsentGiven = loads.data?.driverConsent == 1;
                                     final tripDocumentList = state.tripDocumentList ?? [];
                                     /// TODO: change this according to multiple document
-                                    // if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {
-                                    //   ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
-                                    //   return;
-                                    // }
+                                    if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {
+                                      ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
+                                      return;
+                                    }
                                   }
                     
                                 // Check for Pod Doc
                                 if (loads.data?.loadStatusId == 7) {
                                   /// TODO: change this according to multiple document
                                     final tripDocumentList = state.tripDocumentList ?? [];
-                                    // if (!widget.cubit.isPODUploaded(tripDocumentList)) {
-                                    //   ToastMessages.error(message: 'Please upload POD document');
-                                    //   return;
-                                    // }
+                                    if (!widget.cubit.isPODUploaded(tripDocumentList)) {
+                                      ToastMessages.error(message: 'Please upload POD document');
+                                      return;
+                                    }
                               }
                                   final customerId =
                                         loads!.data!.customer?.customerId ??
@@ -636,10 +632,10 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
  Widget buildAttachmentView(BuildContext context,String? loadId,DriverLoadDetailsState state, DriverLoadDetailsCubit cubit){
 
     final tripDocumentList=state.tripDocumentList??[];
-    print("Trip Document List from state:");
-for (final doc in tripDocumentList) {
-  print("Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}");
-}
+
+      for (final doc in tripDocumentList) {
+        print("Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}");
+      }
     return Column(
         children: List.generate(tripDocumentList.length, (index) => DriverDocumentWidgetView(
        index: index,

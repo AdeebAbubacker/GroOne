@@ -33,6 +33,13 @@ class PngIcons {
 
   //gps
   final String gpsDashboardRoad = "${_pngBasePath}gps_dashboard_road.png";
+
+  //fastag
+  final String fastagBalanceIcon = "${_pngBasePath}balance_icon.png";
+  final String fastagNetcIcon = "${_pngBasePath}fastag_icon.png";
+  final String fastagIdfcIcon = "${_pngBasePath}idfc_icon.png";
+  final String fastagListCardIcon = "${_pngBasePath}list_card_icon.png";
+  final String fastagTollIcon = "${_pngBasePath}toll_icon.png";
 }
 
 /// GIF Icons

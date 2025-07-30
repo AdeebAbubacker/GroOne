@@ -136,7 +136,7 @@ class ApiUrls {
   static final String  updateDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
   static final String  deleteDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
   static final String  submitPod = "$_loadBaseUrl/pod";
-  static final String  getTripStatement = "$_baseUrl$_path$_v1$_load/trip-statement/";
+  static final String  getTripStatement = "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
 
 
   /// Settlement

@@ -47,6 +47,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -1279,13 +1280,14 @@ class _MasterScreenState extends State<MasterScreen>
         ),
         onClickYesButton: () async {
           if (formKey.currentState!.validate()) {
+            final existingAddresses = profileCubit.state.addressState?.data?.addresses ?? [];
             final request = AddressRequest(
               addrName: addressNameController.text.trim(),
               addr: addressController.text.trim(),
               city: cityController.text.trim(),
               state: stateController.text.trim(),
               pincode: pinCodeController.text.trim(),
-              isDefault: address?.isDefault ?? false,
+              isDefault: isEdit ? address?.isDefault ?? false  : existingAddresses.isEmpty, 
             );
 
             if (isEdit) {
@@ -1470,6 +1472,8 @@ class _MasterScreenState extends State<MasterScreen>
                       controller: capacityController,
                       labelText: context.appText.capacity,
                       hintText: "2",
+                      inputFormatters: [phoneNumberInputFormatter],
+                      keyboardType: TextInputType.phone,
                     ),
                     16.height,
                     Builder(
@@ -1554,7 +1558,19 @@ class _MasterScreenState extends State<MasterScreen>
                 if (isEdit) {
                   await profileCubit.updateVehicle(
                     vehicleId: vehcile.vehicleId,
-                    request: request,
+                    request: VehicleRequest(
+                  customerId: profileCubit.userId ?? "",
+                  truckNo: truckNumberController.text.trim(),
+                  rcNumber: rcNumberController.text.trim(),
+                  rcDocLink: rcDocLink,
+                  tonnage: capacityController.text.trim(),
+                  truckTypeId: selectedTruckType?.id ?? 1,
+                 
+                  // acceptableCommodities:
+                  //     selectedCommodities.map(int.parse).toList(),
+                 
+                  vehicleStatus: isVehicleActive ? 1 : 2,
+                ),
                   );
                 } else {
                   await profileCubit.createVehicle(request: request);

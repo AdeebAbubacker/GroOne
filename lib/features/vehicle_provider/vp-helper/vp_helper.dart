@@ -120,7 +120,7 @@ String getButtonText(LoadStatus status){
   BuildContext context=navigatorKey.currentState!.context;
   switch(status){
     case LoadStatus.completed:
-      return context.appText.viewTripSettlement;
+      return context.appText.viewTripStatement;
     case LoadStatus.accepted:
       return context.appText.assignDriver;
       case LoadStatus.podDispatched:

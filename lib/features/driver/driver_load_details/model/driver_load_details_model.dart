@@ -319,7 +319,9 @@ class DriverLoadDetailsModelData {
             podDispatch: json["podDispatch"],
             loadApproval: json["loadApproval"],
              damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
-            trackingDetails: json["trackingDetails"] == null ? null : TrackingDetails.fromJson(json["trackingDetails"]),
+            trackingDetails: (json["trackingDetails"] is Map<String, dynamic>)
+            ? TrackingDetails.fromJson(json["trackingDetails"])
+            : null,
             customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
             vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
             weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),

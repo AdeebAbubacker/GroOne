@@ -83,6 +83,12 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
   });
 
+  getLoadDetails(String id) {
+    WidgetsBinding.instance.addPostFrameCallback(
+          (_) => vpDetailsCubit.getLoadDetails(id),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -210,9 +216,8 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
         heading: context.appText.settlementRecordedSuccessfully,
         message:  context.appText.notifiedTheConcernTeam,
         onContinue: (){
+          getLoadDetails(widget.loadId??"");
           Navigator.of(context).pop(true);
-          Navigator.of(context).pop(isSettementsSubmited);
-
           },
       ),
     );

@@ -74,7 +74,7 @@ bool _shouldEnableButton(DriverLoadDetails? load) {
     return  allRequiredDocsUploaded;
   }
 
-  if (currentStatus == 6) {
+  if (currentStatus == 7) {
     final nestedDocuments = load.loadDocument ?? [];
     //final documents = nestedDocuments.expand((list) => list).toList();
 
@@ -131,7 +131,7 @@ void _validateButtonStateOnInit() {
   }
  
   // Required document types for status 6 (In Transist)
-  if (statusId == 6) {
+  if (statusId == 7) {
     const podDocType = 'proof of document';
 
     final podDocExists = nestedDocuments.any((doc) {
@@ -360,7 +360,7 @@ void _validateButtonStateOnInit() {
                         }
                         
                         // Check for Pod Doc
-                            if (widget.driverLoadDetails?.loadStatusId == 6) {
+                            if (widget.driverLoadDetails?.loadStatusId == 7) {
                             final nestedDocuments = widget.driverLoadDetails?.loadDocument ?? [];
                           //  final documents = nestedDocuments.expand((list) => list).toList();
 

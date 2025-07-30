@@ -958,7 +958,7 @@
   "uploadOtherDocuments":"Upload Other documents",
   "pickup":"pickup",
   "drop":"drop",
-  "driver":"driver",
+  "driver":"Driver",
   "driverLocation":"Driver Location",
   "paymentInformation":"Payment Information",
   "tripCost":"Trip Cost",
@@ -974,6 +974,25 @@
   "completed":"Completed",
   "loadOnHold":"loadOnHold",
   "profOfDelivery":"Proof of delivery",
+
+
+
+
+  "failedToDownloadDocuments":"Failed to download the document",
+  "fastag":"FASTag",
+  "noFastagFound":"No FASTag found",
+  "myFastag":"My Fastag",
+  "search":"Search",
+  "recharge":"Recharge",
+  "lastUpdated":"Last Updated",
+  "active":"Active",
+  "lowBalance":"Low Balance",
+  "underIssuance":"Under Issuance",
+  "addFastag":"Add FASTag",
+  "fastagId":"ID",
+  "vehicleNumber":"Vehicle Number",
+  "currentBalance":"Current Balance",
+  "refresh":"Refresh",
   "failedToDownloadDocuments":"Failed to download the document",
   "appSettings": "App Settings",
   "typesOfNotifications": "Types of Notifications",
@@ -1037,11 +1056,13 @@
   "addNewTicket" : "add New Ticket",
   "issueCategory" : "Issue Category",
   "title" : "Title",
+  "vehicleIconSize": "Vehicle Icon Size",
   "editVehicle": "Edit Vehicle",
   "vehicleUpdatedSuccessfully" : "Vehicle updated successfully",
   "vehicleAddedSuccessfully" : "Vehicle added successfully",
   "licenseExpiryDate" : "License Expiry Date",
   "dateOdBirth" : "DOB",
+  "failedToDownloadDocuments":"Failed to download the document",
   "proofOfDelivery":"Proof of Delivery",
   "damagesAndShortageDocument":"Damages and Shortages",
   "unloadingCharges":"Unloading Charges",
@@ -1079,6 +1100,24 @@
   "failedToLoadReachabilityAddresses": "Failed to load reachability addresses",
   "selectFiltersHint": "Select filters and tap 'Show Report' to begin.",
   "noReportTypesFound": "No report types found",
+  "loadProvider":"Load Provider",
+  "name":"Name",
+  "destination":"destination",
+  "unloadingDate":"Unloading date",
+  "name":"name",
+  "destination":"Destination",
+  "unloadingDate":"Unloading date",
+  "addDriver":"Add Driver",
+  "addVehicle":"Add Vehicle",
+
+
+
+
+
+
+  "days":"Days",
+  "podDispatchedDetails":"POD Dispatch details",
+  "podDispatch":"POD Dispatch",
   "awbCompany":"AWB Number",
   "othersDocument":"Others Document",
   "onlinePay" : "Online (pay now)",
@@ -1114,4 +1153,8 @@
   "speedLimitUpdateFailed": "Failed to update speed limit.",
   "multipleSharingFailed": "Multiple sharing failed",
   "noLocationToShare": "No location data available to share"
+  "noTicketsFound": "No Tickets Found",
+  "othersDocument":"Others Document",
+  "viewTripStatement":"View Trip Statement"
+
 }

@@ -308,13 +308,7 @@ class LoadDetailsWidget extends StatelessWidget {
                                                 ?.vehicleId,
                                       ),
                                     ),
-                                  ).then((value) {
-                                    if (value) {
-                                      return getLoadDetails(
-                                        loadDetails?.loadId ?? "",
-                                      );
-                                    }
-                                  });
+                                  );
                                 },
                               ),
                               _submittedSettlementInfoWidget(
@@ -669,6 +663,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   if (state.loadStatus == LoadStatus.completed) {
                     Navigator.push(context, commonRoute(VpTripStatementScreen(
                       loadDetailModelData: loadDetails,
+                      loadId: loadDetails?.loadId,
                     )));
                     return;
                   }
@@ -787,6 +782,10 @@ class LoadDetailsWidget extends StatelessWidget {
   }
 
   Widget _buildDispatchedDetails(PodDispatch? podDispatched,BuildContext context) {
+
+
+    print("podDispatched data ${podDispatched}");
+
     if (podDispatched == null) {
       return SizedBox.shrink();
     }
