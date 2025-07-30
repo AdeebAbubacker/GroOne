@@ -62,7 +62,7 @@ class _KavachAddAddressBottomSheetState
   final pinCodeController = TextEditingController();
   final gstNoController = TextEditingController();
   final _locationService = LocationService();
-  
+
   // GPS-specific dependencies
   late final GpsOrderApiRepository _gpsRepository;
   late final UserInformationRepository _userRepository;
@@ -137,11 +137,11 @@ class _KavachAddAddressBottomSheetState
         );
 
         final result = await _gpsRepository.addGpsAddress(request);
-        
+
         if (result is Success) {
           Navigator.of(context).pop();
           ToastMessages.success(message: context.appText.addressAddedSuccess);
-          
+
           // Call the callback to refresh addresses
           if (widget.onAddressAdded != null) {
             widget.onAddressAdded!();
@@ -170,7 +170,7 @@ class _KavachAddAddressBottomSheetState
                 if (state is KavachCheckoutAddressAdded) {
                   Navigator.of(context).pop();
                   ToastMessages.success(message: context.appText.addressAddedSuccess);
-                  
+
                   // Refresh both billing and shipping address lists after successful addition
                   Future.delayed(Duration(milliseconds: 300), () {
                     if (context.mounted) {
@@ -272,10 +272,10 @@ class _KavachAddAddressBottomSheetState
                   if (value == null || value.trim().isEmpty) {
                     return null;
                   }
-                  final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
-                  if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
-                    return context.appText.enterValidGstin;
-                  }
+                  // final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
+                  // if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
+                  //   return context.appText.enterValidGstin;
+                  // }
                   return null;
                 },
               ),

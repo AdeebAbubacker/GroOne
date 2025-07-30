@@ -974,6 +974,25 @@
   "completed":"Completed",
   "loadOnHold":"loadOnHold",
   "profOfDelivery":"Proof of delivery",
+
+
+
+
+  "failedToDownloadDocuments":"Failed to download the document",
+  "fastag":"FASTag",
+  "noFastagFound":"No FASTag found",
+  "myFastag":"My Fastag",
+  "search":"Search",
+  "recharge":"Recharge",
+  "lastUpdated":"Last Updated",
+  "active":"Active",
+  "lowBalance":"Low Balance",
+  "underIssuance":"Under Issuance",
+  "addFastag":"Add FASTag",
+  "fastagId":"ID",
+  "vehicleNumber":"Vehicle Number",
+  "currentBalance":"Current Balance",
+  "refresh":"Refresh",
   "failedToDownloadDocuments":"Failed to download the document",
   "appSettings": "App Settings",
   "typesOfNotifications": "Types of Notifications",

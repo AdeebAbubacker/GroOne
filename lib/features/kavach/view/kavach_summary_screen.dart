@@ -153,47 +153,55 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         }
 
         if (state is KavachPaymentSuccess) {
-          // Navigate to payment screen
-          final result = await Navigator.of(context).push(
-            commonRoute(
-              PaymentsScreen(
-                url: state.paymentResponse.data?.data?.tinyUrl ?? "",
-                loadId: "kavach_order",
+          // Add a small delay to ensure the dialog is fully dismissed before navigation
+          await Future.delayed(const Duration(milliseconds: 100));
+          
+          // Check if the context is still mounted before navigating
+          if (context.mounted) {
+            // Navigate to payment screen
+            final result = await Navigator.of(context).push(
+              commonRoute(
+                PaymentsScreen(
+                  url: state.paymentResponse.data?.data?.tinyUrl ?? "",
+                  loadId: "kavach_order",
+                ),
               ),
-            ),
-          );
-
-          // Handle payment completion
-          if (result == true) {
-            showSuccessDialog(
-              context,
-              text: 'Order placed successfully',
-              subheading: ''
             );
-            Future.delayed(Duration(seconds: 3),() {
-              // Clear address blocs before navigating back
-              try {
-                // Clear billing address bloc
-                final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
-                billingBloc.add(ClearKavachBillingAddress());
-                
-                // Clear shipping address bloc
-                final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
-                shippingBloc.add(ClearKavachShippingAddress());
-              } catch (e) {
-                // Handle any errors if blocs are not available
-              }
-              
-              Navigator.of(context).popUntil((route) {
-                if (route.settings.name == 'KavachOrderListScreen') {
-                  if (route.navigator != null && route.navigator!.context.mounted) {
-                    BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
+
+            // Handle payment completion
+            if (result == true && context.mounted) {
+              showSuccessDialog(
+                context,
+                text: 'Order placed successfully',
+                subheading: ''
+              );
+              Future.delayed(Duration(seconds: 3),() {
+                if (context.mounted) {
+                  // Clear address blocs before navigating back
+                  try {
+                    // Clear billing address bloc
+                    final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+                    billingBloc.add(ClearKavachBillingAddress());
+                    
+                    // Clear shipping address bloc
+                    final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
+                    shippingBloc.add(ClearKavachShippingAddress());
+                  } catch (e) {
+                    // Handle any errors if blocs are not available
                   }
-                  return true; // Pop until this route
+                  
+                  Navigator.of(context).popUntil((route) {
+                    if (route.settings.name == 'KavachOrderListScreen') {
+                      if (route.navigator != null && route.navigator!.context.mounted) {
+                        BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
+                      }
+                      return true; // Pop until this route
+                    }
+                    return false;
+                  });
                 }
-                return false;
-              });
-            },);
+              },);
+            }
           }
         } else if (state is KavachPaymentFailure) {
           ToastMessages.error(message: "Failed to initiate payment: ${state.message}");

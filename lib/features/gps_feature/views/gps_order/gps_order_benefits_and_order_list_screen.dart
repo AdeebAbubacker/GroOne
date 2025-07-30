@@ -143,7 +143,6 @@ class _GpsOrderBenefitsAndOrderListScreenState
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        print('🔙 WillPopScope triggered');
         // Use the same navigation logic as the back button
         _navigateBackSynchronously();
         return false; // Prevent default back behavior
@@ -214,9 +213,6 @@ class _GpsOrderBenefitsAndOrderListScreenState
             // Scenario 1: KYC not done or no documents - Show benefits screen
             if (state.kycCheckState?.status == Status.SUCCESS &&
                 (state.hasKycDocuments == false || state.kycData == null)) {
-              print('🔍 GPS KYC Check: Scenario 1 - KYC not done, showing benefits screen');
-              print('  - hasKycDocuments: ${state.hasKycDocuments}');
-              print('  - kycData: ${state.kycData}');
               return _buildBenefitsScreen(context, navigateToUploadDocument: true);
             }
 
@@ -224,9 +220,6 @@ class _GpsOrderBenefitsAndOrderListScreenState
             if (state.kycCheckState?.status == Status.SUCCESS &&
                 state.hasKycDocuments == true &&
                 state.kycData != null) {
-              print('🔍 GPS KYC Check: KYC done, checking order list');
-              print('  - hasKycDocuments: ${state.hasKycDocuments}');
-              print('  - kycData: ${state.kycData}');
               return _buildOrderListScreen(context);
             }
 
@@ -282,7 +275,6 @@ class _GpsOrderBenefitsAndOrderListScreenState
         listener: (context, state) {
           if (state is GpsOrderListError) {
             // Handle error if needed
-            print('GPS Order List Error: ${state.message}');
           }
         },
         builder: (context, state) {
@@ -349,7 +341,6 @@ class _GpsOrderBenefitsAndOrderListScreenState
           if (state is GpsOrderListLoaded) {
             if (state.orderList.data.rows.isEmpty) {
               // Scenario 2: KYC done but no orders - show benefits screen with GPS title
-              print('🔍 GPS Order List: No orders found, showing benefits screen');
               return Scaffold(
                 backgroundColor: AppColors.blackishWhite,
                 appBar: CommonAppBar(
@@ -372,7 +363,6 @@ class _GpsOrderBenefitsAndOrderListScreenState
               );
             } else {
               // Scenario 3: KYC done and has orders - show order list with GPS Model title
-              print('🔍 GPS Order List: Orders found, showing order list');
               return Scaffold(
                 backgroundColor: AppColors.blackishWhite,
                 appBar: CommonAppBar(
