@@ -1109,12 +1109,6 @@
   "unloadingDate":"Unloading date",
   "addDriver":"Add Driver",
   "addVehicle":"Add Vehicle",
-
-
-
-
-
-
   "days":"Days",
   "podDispatchedDetails":"POD Dispatch details",
   "podDispatch":"POD Dispatch",
@@ -1152,9 +1146,8 @@
   "speedLimitUpdatedSuccess": "Speed limit updated successfully!",
   "speedLimitUpdateFailed": "Failed to update speed limit.",
   "multipleSharingFailed": "Multiple sharing failed",
-  "noLocationToShare": "No location data available to share"
+  "noLocationToShare": "No location data available to share",
   "noTicketsFound": "No Tickets Found",
   "othersDocument":"Others Document",
   "viewTripStatement":"View Trip Statement"
-
 }
