@@ -11,9 +11,9 @@ class VpTripStatementService {
   VpTripStatementService(this._apiService);
 
   /// Fetch Trip Settlement Service
-  Future<Result<TripStatementResponse>> fetchTripStatement() async {
+  Future<Result<TripStatementResponse>> fetchTripStatement(String? loadId) async {
     try {
-      final url = ApiUrls.getTripStatement;
+      final url = ApiUrls.getTripStatement+(loadId??"");
       final result = await _apiService.get(url);
       if (result is Success) {
         final data= TripStatementResponse.fromJson(result.value);

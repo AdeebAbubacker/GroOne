@@ -19,9 +19,9 @@ class VpTripStatementCubit extends BaseCubit<VpTripStatementState> {
     emit(state.copyWith(tripSettlementUIState: uiState));
   }
 
-  Future<void> fetchTripStatement() async {
+  Future<void> fetchTripStatement(String? loadId) async {
     _setTripStatementUIState(UIState.loading());
-    Result result = await _repository.getTripStatementData();
+    Result result = await _repository.getTripStatementData(loadId);
     if (result is Success<TripStatementResponse>) {
       _setTripStatementUIState(UIState.success(result.value));
     }

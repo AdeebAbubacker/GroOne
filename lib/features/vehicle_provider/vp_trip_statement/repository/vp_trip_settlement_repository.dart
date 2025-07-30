@@ -9,9 +9,9 @@ class VpTripStatementRepository {
   VpTripStatementRepository(this._service);
 
   /// Trip Settlement Repo
-  Future<Result<TripStatementResponse>> getTripStatementData() async {
+  Future<Result<TripStatementResponse>> getTripStatementData(String? loadID) async {
     try {
-      return await _service.fetchTripStatement();
+      return await _service.fetchTripStatement(loadID);
     } catch (e) {
       CustomLog.error(this, "Failed to request trip settlement data", e);
       return Error(ErrorWithMessage(message: e.toString()));

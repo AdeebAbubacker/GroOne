@@ -1,6 +1,7 @@
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/cubit/vp_trip_statement_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -12,7 +13,8 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class VpTripStatementScreen extends StatefulWidget {
   final LoadDetailModelData? loadDetailModelData;
-  const VpTripStatementScreen({super.key,this.loadDetailModelData});
+  final String? loadId;
+  const VpTripStatementScreen({super.key,this.loadDetailModelData,this.loadId});
 
   @override
   State<VpTripStatementScreen> createState() => _VpTripStatementScreenState();
@@ -20,14 +22,16 @@ class VpTripStatementScreen extends StatefulWidget {
 
 class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
 
-  final homeCubit = locator<LoadDetailsCubit>();
+  final loadDetailsCubit = locator<LoadDetailsCubit>();
+  final tripStatementCubit = locator<VpTripStatementCubit>();
 
 
 
   @override
   void initState() {
-
+    tripStatementCubit.fetchTripStatement(widget.loadId);
     super.initState();
+
   }
 
 
