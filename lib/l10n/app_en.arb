@@ -1105,7 +1105,7 @@
   "onlinePay" : "Online (pay now)",
   "myOrders" : "My Orders",
   "clear" : "Clear",
-  "noTicketsFound": "No Tickets Found"
+  "noTicketsFound": "No Tickets Found",
   "othersDocument":"Others Document",
   "viewTripStatement":"View Trip Statement"
 

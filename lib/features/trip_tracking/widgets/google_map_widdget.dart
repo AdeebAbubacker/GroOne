@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
@@ -85,18 +86,18 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
      if(addMarker){
        _markers.value.add(
          Marker(
-           markerId: MarkerId(context.appText.pickup),
+           markerId: MarkerId(navigatorKey.currentState!.context.appText.pickup),
            position: pickupLatLng,
            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-           infoWindow: InfoWindow(title: '${context.appText.pickup}: ${widget.pickupLocation}'),
+           infoWindow: InfoWindow(title: '${navigatorKey.currentState!.context.appText.pickup}: ${widget.pickupLocation}'),
          ),
        );
        _markers.value.add(
          Marker(
-           markerId: MarkerId(context.appText.drop),
+           markerId: MarkerId(navigatorKey.currentState!.context.appText.drop),
            position: dropLatLng,
            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-           infoWindow: InfoWindow(title: '${context.appText.drop}: ${widget.dropLocation}'),
+           infoWindow: InfoWindow(title: '${navigatorKey.currentState!.context.appText.drop}: ${widget.dropLocation}'),
          ),
        );
        double distanceInMeters = Geolocator.distanceBetween(
@@ -110,10 +111,10 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
          final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
          _markers.value.add(
            Marker(
-             markerId: MarkerId(context.appText.driver),
+             markerId: MarkerId(navigatorKey.currentState!.context.appText.driver),
              position: driverLatLng,
              icon: driverIcon,
-             infoWindow:  InfoWindow(title: context.appText.driverLocation),
+             infoWindow:  InfoWindow(title: navigatorKey.currentState!.context.appText.driverLocation),
            ),
          );
        }
@@ -156,14 +157,14 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
          _polylines.clear();
 
          _polylines.add(Polyline(
-           polylineId: PolylineId(context.appText.completed),
+           polylineId: PolylineId(navigatorKey.currentState!.context.appText.completed),
            color: Colors.green,
            width: 5,
            points: greenSegment,
          ));
 
          _polylines.add(Polyline(
-           polylineId: PolylineId(context.appText.remainingDistance),
+           polylineId: PolylineId(navigatorKey.currentState!.context.appText.remainingDistance),
            color: AppColors.primaryColor.withOpacity(0.7),
            width: 5,
            points: blueSegment,
@@ -172,7 +173,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
        } else {
          _polylines.clear();
          _polylines.add(Polyline(
-           polylineId: PolylineId(context.appText.route),
+           polylineId: PolylineId(navigatorKey.currentState!.context.appText.route),
            color: AppColors.primaryColor.withOpacity(0.7),
            width: 5,
            points: _polylineCoordinates,
