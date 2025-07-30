@@ -338,8 +338,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     }
 
     return Container(
-      height: 40,
-      decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
+      alignment: Alignment.center,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
+      padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
       child: BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
           return SingleChildScrollView(
@@ -348,16 +349,20 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             child: TabBar(
               controller: _tabController!,
               isScrollable: true,
-              physics: ClampingScrollPhysics(),  // tighter scroll behavior
-              indicator: const BoxDecoration(),
               dividerHeight: 0,
+              tabAlignment: TabAlignment.center,
+              indicatorPadding: EdgeInsets.zero,
+              labelPadding: EdgeInsets.zero,
+              padding: EdgeInsets.zero,
+              indicator: const BoxDecoration(),
+              splashFactory: NoSplash.splashFactory,
               tabs: List.generate(8, (index) {
                 final isSelected = state.selectedTabIndex == index;
                 return Tab(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     decoration: commonContainerDecoration(
-                      color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                      color: isSelected ? AppColors.primaryColor : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -371,7 +376,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           );
         }
       ),
-    ).paddingOnly(top: 15, right: 15, left: 15);
+    ).paddingOnly(top: 15, right: commonSafeAreaPadding, left: commonSafeAreaPadding);
   }
 
   /// Search and Filter

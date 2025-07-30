@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:image_picker/image_picker.dart';
@@ -29,6 +30,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'app_dialog.dart';
 import 'app_image.dart';
 import 'common_dialog_view/common_dialog_view.dart';
+import 'constant_variables.dart';
 
 /// Field Focus change
 void fieldFocusChange(
@@ -564,9 +566,10 @@ void commonSupportDialog(BuildContext context, {String? message}) {
     child: CommonDialogView(
       heading: context.appText.callCustomerSupport,
       message: message ?? context.appText.contactCustomerSupport,
+      headingTextStyle: AppTextStyle.h3.copyWith(fontWeight: FontWeight.w200),
       onSingleButtonText: context.appText.call,
       onTapSingleButton: () async {
-        await callRedirect("1800 208 8800");
+        await callRedirect(SUPPORT_NUMBER);
       },
       child: SvgPicture.asset(AppImage.svg.customerSupport, width: 200),
     ),
