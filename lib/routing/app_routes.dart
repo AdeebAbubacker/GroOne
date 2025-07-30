@@ -30,6 +30,7 @@ import 'package:gro_one_app/utils/default_screen.dart';
 
 import '../dependency_injection/locator.dart';
 import '../features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
+import '../features/fastag/views/fastag_list_screen.dart';
 import '../features/fastag/views/fastag_new_user_screen.dart';
 import '../features/gps_feature/cubit/vehicle_list_cubit.dart';
 import '../features/gps_feature/views/report_screen.dart';
@@ -269,6 +270,13 @@ class AppRoutes {
         path: AppRouteName.driverHome,
         builder: (BuildContext context, GoRouterState state) {
           return DriverHomeScreen();
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.fastagList,
+        builder: (BuildContext context, GoRouterState state) {
+          return FastagListScreen();
         },
       ),
     ],

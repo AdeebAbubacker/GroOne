@@ -4,17 +4,14 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:lottie/lottie.dart';
 import '../../../utils/app_dialog.dart';
+import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
 import 'fastag_list_screen.dart';
+import '../../kavach/view/widgets/vehicle_selection_field.dart';
+import '../../../utils/toast_messages.dart';
 
 class FastagRechargeScreen extends StatefulWidget {
   const FastagRechargeScreen({super.key});
@@ -25,8 +22,10 @@ class FastagRechargeScreen extends StatefulWidget {
 
 class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
   final TextEditingController _amountController = TextEditingController();
+  final TextEditingController _vehicleController = TextEditingController();
   String _selectedAmount = '1000';
   bool _isLoading = false;
+  bool _isVehicleVerified = false;
 
   @override
   void initState() {
@@ -37,6 +36,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
   @override
   void dispose() {
     _amountController.dispose();
+    _vehicleController.dispose();
     super.dispose();
   }
 
@@ -57,6 +57,11 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
                   children: [
                     // FASTag Details Card
                     _buildFastagDetailsCard(),
+                    
+                    const SizedBox(height: 24),
+                    
+                    // Vehicle Selection Section
+                    _buildVehicleSelectionSection(),
                     
                     const SizedBox(height: 24),
                     
@@ -93,7 +98,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -117,24 +122,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
           Row(
             children: [
               // IDFC Icon
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: const Center(
-                  child: Text(
-                    'IDFC',
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
+              Image.asset(AppIcons.png.fastagListCardIcon),
               
               const SizedBox(width: 8),
               
@@ -148,6 +136,49 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
                 ),
               ),
             ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVehicleSelectionSection() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Section Title
+          Text(
+            context.appText.vehicleNumber,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Colors.black,
+            ),
+          ),
+          
+          const SizedBox(height: 12),
+          
+          // Vehicle Selection Field
+          VehicleSelectionField(
+            controller: _vehicleController,
+            hintText: context.appText.selectVehicleNumber,
+            index: 0,
+            isVerified: _isVehicleVerified,
+            isVehicleAlreadySelected: false,
+            onVehicleSelected: (selectedIndex, selectedVehicle) {
+              setState(() {
+                _vehicleController.text = selectedVehicle;
+                _isVehicleVerified = true;
+              });
+              ToastMessages.success(message: 'Vehicle selected successfully');
+            },
+            onVehicleVerified: (verifiedVehicle) {
+              setState(() {
+                _isVehicleVerified = verifiedVehicle.isNotEmpty;
+              });
+            },
           ),
         ],
       ),
@@ -256,6 +287,17 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
   }
 
   void _handleRecharge() async {
+    // Validate vehicle selection
+    if (_vehicleController.text.trim().isEmpty) {
+      ToastMessages.alert(message: 'Please select a vehicle');
+      return;
+    }
+
+    if (!_isVehicleVerified) {
+      ToastMessages.alert(message: 'Please verify the vehicle number');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });

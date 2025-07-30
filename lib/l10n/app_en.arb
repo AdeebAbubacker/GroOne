@@ -992,7 +992,7 @@
   "fastagId":"ID",
   "vehicleNumber":"Vehicle Number",
   "currentBalance":"Current Balance",
-  "refresh":"Refresh"
+  "refresh":"Refresh",
   "failedToDownloadDocuments":"Failed to download the document",
   "appSettings": "App Settings",
   "typesOfNotifications": "Types of Notifications",

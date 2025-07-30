@@ -200,25 +200,7 @@ class FastagListScreen extends StatelessWidget {
           Row(
             children: [
               // Vehicle Icon (Red square with white symbol)
-              Container(
-                width: 20,
-                height: 20,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-                  borderRadius: BorderRadius.circular(4),
-                ),
-
-                child: const Center(
-                  child: Text(
-                    'IDFC',
-                    style: TextStyle(
-                      fontSize: 8,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-              ),
+              Image.asset(AppIcons.png.fastagListCardIcon),
               
               const SizedBox(width: 8),
               
@@ -270,9 +252,6 @@ class FastagListScreen extends StatelessWidget {
               
             ],
           ),
-          
-          
-          const SizedBox(height: 8),
           
          
           const SizedBox(height: 12),

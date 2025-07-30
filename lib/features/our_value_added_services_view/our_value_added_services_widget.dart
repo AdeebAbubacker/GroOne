@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gro_one_app/features/fast_tag/fast_tag_screen.dart';
 // import 'package:gro_one_app/features/gps/view/gps_order_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_orders_list_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';

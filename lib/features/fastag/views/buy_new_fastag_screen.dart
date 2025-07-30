@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -14,8 +16,11 @@ import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:lottie/lottie.dart';
+import '../../../routing/app_route_name.dart';
 import '../../../utils/app_dialog.dart';
 import 'fastag_list_screen.dart';
+import '../../kavach/view/widgets/vehicle_selection_field.dart';
+import '../../../utils/toast_messages.dart';
 
 class BuyNewFastagScreen extends StatefulWidget {
   const BuyNewFastagScreen({super.key});
@@ -27,6 +32,7 @@ class BuyNewFastagScreen extends StatefulWidget {
 class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
   final TextEditingController _vehicleNumberController = TextEditingController();
   bool _isLoading = false;
+  bool _isVehicleVerified = false;
 
   @override
   void dispose() {
@@ -76,8 +82,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
               // Back Button
               AppIconButton(
                 onPressed: () => Navigator.pop(context),
-                icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-                style: AppButtonStyle.circularIconButtonStyle,
+                icon:  Icon(Icons.arrow_back_ios, color: AppColors.black),
               ),
               
               const SizedBox(width: 16),
@@ -102,50 +107,9 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
           const SizedBox(height: 12),
           
           // NETC Logo
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text(
-                'NETC',
-                style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.black,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [Colors.green, Colors.orange],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                  ),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text(
-                      'FASTag',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.white,
-                      ),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(
-                      Icons.arrow_forward_ios,
-                      size: 12,
-                      color: Colors.white,
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
+          Image.asset(AppIcons.png.fastagNetcIcon),
+
+          SizedBox(height: 10),
         ],
       ),
     );
@@ -160,15 +124,26 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
           // Vehicle Number Section
           _buildSectionTitle('Vehicle Number'),
           const SizedBox(height: 8),
-          Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: AppTextField(
-              controller: _vehicleNumberController,
-              hintText: 'TN18 AB 5468',
-            ),
+          
+          // Vehicle Selection Field
+          VehicleSelectionField(
+            controller: _vehicleNumberController,
+            hintText: context.appText.selectVehicleNumber,
+            index: 0,
+            isVerified: _isVehicleVerified,
+            isVehicleAlreadySelected: false,
+            onVehicleSelected: (selectedIndex, selectedVehicle) {
+              setState(() {
+                _vehicleNumberController.text = selectedVehicle;
+                _isVehicleVerified = true;
+              });
+              ToastMessages.success(message: 'Vehicle selected successfully');
+            },
+            onVehicleVerified: (verifiedVehicle) {
+              setState(() {
+                _isVehicleVerified = verifiedVehicle.isNotEmpty;
+              });
+            },
           ),
           
           const SizedBox(height: 24),
@@ -250,39 +225,21 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
   Widget _buildIdfcSection() {
     return Container(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE0E0E0)),
-      ),
       child: Row(
         children: [
           // IDFC Bank Logo
           Container(
             width: 40,
             height: 40,
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(4),
-            ),
-            child: const Center(
-              child: Text(
-                'IDFC\nFIRST\nBank',
-                style: TextStyle(
-                  fontSize: 8,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ),
+           
+            child: Image.asset(AppIcons.png.fastagIdfcIcon,
+           ),
           ),
           
           const SizedBox(width: 12),
           
           // Text
-          const Expanded(
-            child: Text(
+          Text(
               'Issued by IDFC Bank',
               style: TextStyle(
                 fontSize: 14,
@@ -290,21 +247,13 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                 color: Colors.black,
               ),
             ),
-          ),
-          
+          SizedBox(width: 10),
           // Info Icon
-          Container(
-            padding: const EdgeInsets.all(4),
-            decoration: BoxDecoration(
-              color: Colors.grey[200],
-              shape: BoxShape.circle,
-            ),
-            child: const Icon(
+           Icon(
               Icons.info_outline,
               size: 16,
               color: Colors.grey,
-            ),
-          ),
+            )
         ],
       ),
     );
@@ -323,6 +272,17 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
   }
 
   void _handlePlaceRequest() async {
+    // Validate vehicle selection
+    if (_vehicleNumberController.text.trim().isEmpty) {
+      ToastMessages.alert(message: 'Please select a vehicle');
+      return;
+    }
+
+    if (!_isVehicleVerified) {
+      ToastMessages.alert(message: 'Please verify the vehicle number');
+      return;
+    }
+
     setState(() {
       _isLoading = true;
     });
@@ -339,18 +299,23 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
   }
 
   void _showSuccessPopup(BuildContext context) {
+    final currentContext = context;
     AppDialog.show(
       context,
        child: SuccessDialogView(
           heading: 'FASTag Request \nSubmitted Successfully!',
           message: 'Our Team will reach out in 48 hrs',
           afterDismiss: () {
-            Navigator.push(context, commonRoute(FastagListScreen()));
+          if (currentContext.mounted) {
+               GoRouter.of(currentContext).go(AppRouteName.fastagList);
+          }
+          
+           // Navigator.push(context, commonRoute(FastagListScreen()));
           },
         ),
     );
   }
-
+ 
   void _showFailurePopup() {
     showDialog(
       context: context,
