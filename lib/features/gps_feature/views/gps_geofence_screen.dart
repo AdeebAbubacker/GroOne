@@ -2,6 +2,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_map_view_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_notification_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -12,6 +13,8 @@ import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+
+import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
@@ -53,7 +56,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
         final vehicleListState = locator<VehicleListCubit>().state;
 
         final uniqueVehicleNumbers =
-            vehicleListState.filteredVehicles
+            vehicleListState.filteredVehicles.withoutExpired
                 .map((v) => v.vehicleNumber)
                 .whereType<String>() // removes nulls
                 .toSet()
@@ -64,7 +67,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
         }
 
         if (selectedVehicle.isNotEmpty) {
-          final selectedVehicleData = vehicleListState.filteredVehicles
+          final selectedVehicleData = vehicleListState
+              .filteredVehicles
+              .withoutExpired
               .firstWhere((v) => v.vehicleNumber == selectedVehicle);
 
           gpsGeofenceCubit.loadVehicleGeofences(
@@ -319,7 +324,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             } else {
               // Extract unique vehicle numbers
               final uniqueVehicleNumbers =
-                  vehicleState.filteredVehicles
+                  vehicleState.filteredVehicles.withoutExpired
                       .map((v) => v.vehicleNumber)
                       .whereType<String>() // removes nulls
                       .toSet() // remove duplicates
@@ -335,42 +340,40 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                 selectedVehicle = uniqueVehicleNumbers.first;
               }
               return Padding(
-                  padding: const EdgeInsets.all(15),
-                  // --- START Replacement for AppDropdown ---
-                  child: DropdownSearch<String>(
-                    selectedItem:
-                    selectedVehicle.isNotEmpty ? selectedVehicle : null,
-                    items: (String filter, _) async {
-                      return uniqueVehicleNumbers
-                          .where((v) => v.toLowerCase().contains(filter.toLowerCase()))
-                          .toList();
-                    },
-                    popupProps: PopupProps.menu(
-                      // fit: FlexFit.loose,
-                      showSearchBox: true,
-                      constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
-                      emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noVehiclesFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
-                      loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
+                padding: const EdgeInsets.all(15),
+                // --- START Replacement for AppDropdown ---
+                child: DropdownSearch<String>(
+                  selectedItem:
+                      selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                  items: (String filter, _) async {
+                    return uniqueVehicleNumbers
+                        .where(
+                          (v) => v.toLowerCase().contains(filter.toLowerCase()),
+                        )
+                        .toList();
+                  },
+                  popupProps: PopupProps.menu(
+                    // fit: FlexFit.loose,
+                    showSearchBox: true,
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.5,
                     ),
-                    decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectState)),
-                    itemAsString: (String? item) => item ?? "",
-                    dropdownBuilder: (context, selectedItem) {
-                      if (selectedItem == null || selectedItem.isEmpty) {
-                        return Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 15,
-                              backgroundColor: AppColors.primaryLightColor,
-                              child: SvgPicture.asset(
-                                AppIcons.svg.truck,
-                                width: 20,
-                              ),
-                            ),
-                            10.width,
-                            Text(context.appText.selectVehicle, style: AppTextStyle.h6GreyColor),
-                          ],
-                        );
-                      }
+                    emptyBuilder:
+                        (context, searchEntry) => Center(
+                          child: Text(context.appText.noVehiclesFound),
+                        ).withHeight(MediaQuery.of(context).size.height * 0.5),
+                    loadingBuilder:
+                        (context, searchEntry) =>
+                            const Center(child: CircularProgressIndicator()),
+                  ),
+                  decoratorProps: DropDownDecoratorProps(
+                    decoration: commonInputDecoration(
+                      hintText: context.appText.selectState,
+                    ),
+                  ),
+                  itemAsString: (String? item) => item ?? "",
+                  dropdownBuilder: (context, selectedItem) {
+                    if (selectedItem == null || selectedItem.isEmpty) {
                       return Row(
                         children: [
                           CircleAvatar(
@@ -382,24 +385,45 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                             ),
                           ),
                           10.width,
-                          Text(selectedItem, style: AppTextStyle.h6),
+                          Text(
+                            context.appText.selectVehicle,
+                            style: AppTextStyle.h6GreyColor,
+                          ),
                         ],
                       );
-                    },
+                    }
+                    return Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 15,
+                          backgroundColor: AppColors.primaryLightColor,
+                          child: SvgPicture.asset(
+                            AppIcons.svg.truck,
+                            width: 20,
+                          ),
+                        ),
+                        10.width,
+                        Text(selectedItem, style: AppTextStyle.h6),
+                      ],
+                    );
+                  },
 
-                    onChanged: (String? newValue) {
-                      setState(() {
-                        selectedVehicle = newValue!;
-                      });
+                  onChanged: (String? newValue) {
+                    setState(() {
+                      selectedVehicle = newValue!;
+                    });
 
-                      final selectedVehicleData = vehicleState.filteredVehicles
-                          .firstWhere((v) => v.vehicleNumber == selectedVehicle);
-                      gpsGeofenceCubit.loadVehicleGeofences(
-                        deviceId: selectedVehicleData.deviceId.toString(),
-                        vehicleId: selectedVehicle, // use vehicle number or ID
-                      );
-                    },
-                  ));
+                    final selectedVehicleData = vehicleState
+                        .filteredVehicles
+                        .withoutExpired
+                        .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+                    gpsGeofenceCubit.loadVehicleGeofences(
+                      deviceId: selectedVehicleData.deviceId.toString(),
+                      vehicleId: selectedVehicle, // use vehicle number or ID
+                    );
+                  },
+                ),
+              );
             }
           },
         ),
@@ -449,6 +473,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                                     .read<VehicleListCubit>()
                                     .state
                                     .filteredVehicles
+                                    .withoutExpired
                                     .firstWhere(
                                       (v) => v.vehicleNumber == selectedVehicle,
                                     );

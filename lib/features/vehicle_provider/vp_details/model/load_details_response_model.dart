@@ -75,6 +75,7 @@ class LoadDetailModelData {
     required this.loadOnHold,
     required this.loadStatusValue,
     required this.loadSettlement,
+    required this.podDispatch,
 
   });
 
@@ -121,7 +122,7 @@ class LoadDetailModelData {
   final bool? loadOnHold;
   final LoadStatus? loadStatusValue;
   final LoadSettlement? loadSettlement;
-
+  final PodDispatch? podDispatch;
 
   LoadDetailModelData copyWith({
     String? loadId,
@@ -166,10 +167,12 @@ class LoadDetailModelData {
     dynamic loadMemo,
     TrackingDetails? trackingDetails,
     LoadStatus? loadStatusValue,
-    LoadSettlement? loadSettlement
+    LoadSettlement? loadSettlement,
+    PodDispatch? podDispatch
 
   }) {
     return LoadDetailModelData(
+      podDispatch: podDispatch??this.podDispatch,
 loadSettlement: loadSettlement ?? this.loadSettlement,
 loadStatusValue: loadStatusValue??this.loadStatusValue,
       loadOnHold: loadOnHold??this.loadOnHold,
@@ -218,12 +221,12 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
   }
 
   factory LoadDetailModelData.fromJson(Map<String, dynamic> json){
-
     List? consigneeDetails;
     if(json["consignees"] != null && (json["consignees"] as List).isNotEmpty){
       consigneeDetails=json["consignees"];
     }
     return LoadDetailModelData(
+      podDispatch: json['podDispatch']!=null ? PodDispatch.fromJson(json['podDispatch']):null,
       loadSettlement:json['loadSettlement']!=null ? LoadSettlement.fromJson(json['loadSettlement']):null,
       loadStatusValue: getLoadStatus(json["loadStatusId"] ?? 0),
       loadOnHold:  json['loadOnhold'],
@@ -971,7 +974,7 @@ class ScheduleTripDetails {
       deletedAt: json["deletedAt"],
       loadId: json["loadId"] ?? "",
       driver: json["driver"] == null ? null : Driver.fromJson(json["driver"]),
-      vehicle: json["vehicle"] == null ? null : ScheduleTripDetailsVehicle.fromJson(json["vehicle"]),
+      vehicle: json["vehicle"] == null ? null : ScheduleTripDetailsVehicle.fromJson(json["vehicle"]['vehicle']),
     );
   }
 
@@ -1495,7 +1498,7 @@ class LoadSettlement {
       noOfDays: json['noOfDays'] as int?,
       amountPerDay: json['amountPerDay'] as int?,
       loadingCharge: json['loadingCharge'] as int?,
-      unLoadingCharge: json['unLoadingCharge'] as int?,
+      unLoadingCharge: json['unloadingCharge'] as int?,
       debitDamages: json['debitDamages'] as int?,
       debitShortages: json['debitShortages'] as int?,
       debitPenalities: json['debitPenalities'] as int?,
@@ -1511,6 +1514,49 @@ class LoadSettlement {
     );
   }
 }
+
+class PodDispatch {
+  final String? loadPodId;
+  final String? loadId;
+  final String? courierCompany;
+  final String? awbNumber;
+  final String? podTrackingLink;
+  final String? podCenterId;
+  final String? podCenterName;
+  final int? status;
+  final DateTime? createAt;
+  final DateTime? deletedAt;
+
+  PodDispatch({
+    this.loadPodId,
+    this.loadId,
+    this.courierCompany,
+    this.awbNumber,
+    this.podTrackingLink,
+    this.podCenterId,
+    this.podCenterName,
+    this.status,
+    this.createAt,
+    this.deletedAt,
+  });
+
+  factory PodDispatch.fromJson(Map<String, dynamic> json) {
+    return PodDispatch(
+      loadPodId: json['loadPodId'] as String?,
+      loadId: json['loadId'] as String?,
+      courierCompany: json['courierCompany'] as String?,
+      awbNumber: json['awbNumber'] as String?,
+      podTrackingLink: json['podTrackingLink'] as String?,
+      podCenterId: json['podCenterId'] as String?,
+      podCenterName: json['podCenterName'] as String?,
+      status: json['status'] as int?,
+      createAt: json['createAt'] != null ? DateTime.tryParse(json['createAt']) : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+    );
+  }
+
+}
+
 
 
 

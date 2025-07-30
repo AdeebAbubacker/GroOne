@@ -117,11 +117,7 @@ class ChooseRoleScreen extends StatelessWidget {
                           ), isForward: true));
                           break;
                       case 4: // Fleet Products
-                          Navigator.push(context, commonRoute(VpCreationFormScreen(
-                              id: userId
-                              , mobileNumber:mobileNumber,
-                              roleId: roleId,
-                          ), isForward: true));
+                        context.push(AppRouteName.lpCreateAccount, extra: extra);
                           break;
                     }
                     analytics.logScreenView("RoleSelectionScreen");

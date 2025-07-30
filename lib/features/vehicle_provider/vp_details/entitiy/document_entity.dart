@@ -12,7 +12,7 @@ class DocumentEntity {
   int? documentTypeId;
   bool? visible;
   String? documentType;
-  LoadDocument? loadDocument;
+  List<LoadDocument>? loadDocument;
   bool? isLoading;
   bool? deleteLoading;
 
@@ -34,7 +34,7 @@ class DocumentEntity {
     int? documentTypeId,
     bool? visible,
     String? documentType,
-    LoadDocument? loadDocument,
+    List<LoadDocument>? loadDocument,
     bool? isLoading,
     bool? deleteLoading,
     bool clearLoadData=false,
@@ -86,7 +86,7 @@ List<DocumentEntity> documentTypeList=[
   DocumentEntity(
     documentTypeId: 309,
     fileType: DocumentFileType.uploadOtherDocument.name,
-    title:navigatorKey.currentState?.context.appText.uploadOtherDocuments,
+    title:navigatorKey.currentState?.context.appText.othersDocument,
     visible: true,
     documentType: navigatorKey.currentState?.context.appText.uploadOtherDocuments,
   ),

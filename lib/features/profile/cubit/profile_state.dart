@@ -13,7 +13,12 @@ class ProfileState extends Equatable {
   final UIState<VehicleNewModel>? createVehicleState;
   final UIState<DriverNewModel>? createDriverState;
   final UIState<CustomerSettingsResponse>? customerSettingsState;
+  final UIState<List<SettingsResponse>>? settingsState;
   final UIState<FaqResponse>? faqUIState;
+  final UIState<TicketResponse>? ticketState;
+  final UIState<Ticket>? createTicketState;
+  final TicketStatus? selectedTicketStatus;
+  final TicketStatus? tempSelectedTicketStatus;
   final bool showSuccessKyc;
   final String? blueId;
   final UIState<List<LoadTruckTypeListModel>>? truckTypeUIState;
@@ -37,13 +42,18 @@ class ProfileState extends Equatable {
     this.driverState,
     this.createDriverState,
     this.customerSettingsState,
+    this.settingsState,
     this.truckTypeUIState,
     this.truckLengths,
     this.vehicleDocUpload,
     this.licenseDocUpload,
     this.vehicleVerificationState,
     this.licenseVerficationState,
-    this.faqUIState
+    this.faqUIState,
+    this.ticketState,
+    this.createTicketState,
+    this.selectedTicketStatus,
+    this.tempSelectedTicketStatus
   });
 
   ProfileState copyWith({
@@ -53,6 +63,7 @@ class ProfileState extends Equatable {
     UIState<PaginatedAddressList>? addressState,
     UIState<SetPrimaryAddressResponse>? primaryAddressState,
     UIState<CustomerSettingsResponse>? customerSettingsState,
+    UIState<List<SettingsResponse>>? settingsState,
     UIState<BlueMemberShipResponse>? memberShipState,
     UIState<CustomerAddress>? createAddressState,
     UIState<VehicleNewModel>? createVehicleState,
@@ -67,6 +78,10 @@ class ProfileState extends Equatable {
     UIState<FaqResponse>? faqUIState,
     UIState<VehicleVerificationSuccess>? vehicleVerificationState,
     UIState<VehicleVerificationSuccess>? licenseVerficationState,
+    UIState<TicketResponse>? ticketState,
+    UIState<Ticket>? createTicketState,
+    TicketStatus? selectedTicketStatus,
+    TicketStatus? tempSelectedTicketStatus,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -87,12 +102,17 @@ class ProfileState extends Equatable {
       truckTypeUIState: truckTypeUIState ?? this.truckTypeUIState,
       truckLengths: truckLengths ?? this.truckLengths,
       driverState: driverState ?? this.driverState,
+      settingsState: settingsState ?? this.settingsState,
       customerSettingsState: customerSettingsState ?? this.customerSettingsState,
       vehicleDocUpload: vehicleDocUpload ?? this.vehicleDocUpload,
       licenseDocUpload: licenseDocUpload ?? this.licenseDocUpload,
-      vehicleVerificationState: vehicleVerificationState ?? this.vehicleVerificationState,  
-      licenseVerficationState: licenseVerficationState ?? this.licenseVerficationState,  
+      vehicleVerificationState: vehicleVerificationState ?? this.vehicleVerificationState,
+      licenseVerficationState: licenseVerficationState ?? this.licenseVerficationState,
       faqUIState: faqUIState ?? this.faqUIState,
+      ticketState: ticketState ?? this.ticketState,
+      createTicketState: createTicketState ?? this.createTicketState,
+      selectedTicketStatus: selectedTicketStatus ?? this.selectedTicketStatus,
+      tempSelectedTicketStatus: tempSelectedTicketStatus ?? this.tempSelectedTicketStatus,
     );
   }
 
@@ -113,11 +133,16 @@ class ProfileState extends Equatable {
     createDriverState,
     vehicleState,
     driverState,
+    settingsState,
     customerSettingsState,
     vehicleDocUpload,
     licenseDocUpload,
     faqUIState,
     vehicleVerificationState,
-    licenseVerficationState
+    licenseVerficationState,
+    ticketState,
+    createTicketState,
+    selectedTicketStatus,
+    tempSelectedTicketStatus
   ];
 }

@@ -33,15 +33,19 @@ class PodDispatchCubit extends BaseCubit<PodDispatchState> {
   void _setSubmitPodIState(UIState<bool>? uiState){
     emit(state.copyWith(submitPodUIState: uiState));
   }
-  Future<void> submitPod(SubmitPodApiRequest request) async {
+
+  Future<bool?> submitPod(SubmitPodApiRequest request) async {
     _setSubmitPodIState(UIState.loading());
     Result result = await _repository.getSubmitPodData(request);
     if (result is Success<bool>) {
       _setSubmitPodIState(UIState.success(result.value));
+      return true;
     }
     if (result is Error) {
       _setSubmitPodIState(UIState.error(result.type));
+      return false;
     }
+    return false;
   }
 
 

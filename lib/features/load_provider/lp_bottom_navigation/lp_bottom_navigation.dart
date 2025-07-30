@@ -13,6 +13,8 @@ import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -20,6 +22,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class LpBottomNavigation extends StatefulWidget {
   static final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
@@ -31,6 +34,9 @@ class LpBottomNavigation extends StatefulWidget {
 }
 
 class _LpBottomNavigationState extends State<LpBottomNavigation> {
+
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
+
   late final ProfileCubit profileCubit;
 
   ProfileDetailModel? profileResponse;
@@ -46,11 +52,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     super.initState();
   }
 
-  final List<Widget> pages = [
-    HomeScreenLoadProvider(),
-    LpLoadsScreen(),
-    LpSupport(showBackButton: false),
-  ];
 
   void onItemTapped(int index) {
     int? role = profileCubit.userRole;
@@ -58,6 +59,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     if (index == 3 && (role != null && role == 3)) {
       AppDialog.show(context, child: CommonDialogView(
         showYesNoButtonButtons: true,
+        hideCloseButton: true,
         noButtonText: context.appText.cancel,
         yesButtonText: context.appText.switchText,
         child: Column(
@@ -66,10 +68,10 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
             Text(context.appText.switchToVp, style: AppTextStyle.h3w500.copyWith(fontSize: 20, color: AppColors.black)),
             10.height,
             Text(context.appText.switchToVpDesc, textAlign: TextAlign.center, style: AppTextStyle.body3.copyWith(color: AppColors.textGreyDetailColor)),
-            10.height,
           ],
         ),
         onClickYesButton: () {
+          analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_VP);
           context.go(AppRouteName.vpBottomNavigationBar);
         },
       ));
@@ -98,6 +100,15 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
       builder: (context, state) {
         int? role = profileCubit.userRole;
 
+        final List<Widget> pages = [
+          HomeScreenLoadProvider(),
+          if (role == 4)
+           Container(child: Text(context.appText.myOrders).center())
+          else
+           LpLoadsScreen(),
+          LpSupport(showBackButton: false),
+        ];
+
         if ((role != null && role == 3)) {
           pages.add(HomeScreenLoadProvider());
         }
@@ -105,14 +116,16 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
         return ValueListenableBuilder<int>(
           valueListenable: LpBottomNavigation.selectedIndexNotifier,
           builder: (context, selectedIndex, _) {
+            final safeIndex = selectedIndex.clamp(0, pages.length - 1);
+
             return Scaffold(
-              body: pages[selectedIndex],
+              body: pages[safeIndex],
               bottomNavigationBar: BottomNavigationBar(
                 backgroundColor: AppColors.primaryColor,
                 type: BottomNavigationBarType.fixed,
                 selectedItemColor: Colors.white,
                 unselectedItemColor: Colors.white54,
-                currentIndex: selectedIndex,
+                currentIndex: safeIndex,
                 onTap: onItemTapped,
                 items: [
                   BottomNavigationBarItem(
@@ -128,7 +141,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
                       padding: EdgeInsets.only(top: 10.0),
                       child: Icon(CupertinoIcons.cube),
                     ),
-                    label: context.appText.myLoads,
+                    label: role == 4 ? context.appText.myOrders : context.appText.myLoads,
                   ),
 
                   BottomNavigationBarItem(

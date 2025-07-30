@@ -251,6 +251,8 @@ static Color getLoadStatusTextColor(String loadType) {
        return LoadStatus.unloading;
      case 'Unloading Held':
        return LoadStatus.unloadingHeld;
+     case 'POD Dispatch':
+       return LoadStatus.podDispatch;
      case 'Completed':
        return LoadStatus.completed;
      default:
@@ -273,5 +275,6 @@ enum LoadStatus {
   inTransit,
   unloading,
   unloadingHeld,
+  podDispatch,
   completed
 }

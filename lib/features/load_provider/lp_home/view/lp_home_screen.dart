@@ -132,12 +132,16 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   void initFunction() => frameCallback(() async {
     profileCubit.fetchProfileDetail();
-    loadCommodityBloc.add(LoadCommodity());
-    loadTruckTypeBloc.add(LoadTruckType());
-    lpHomeCubit.fetchGetLoadList();
-    lpHomeCubit.fetchRecentRoute();
-    lpHomeCubit.fetchLoadWeight();
     lpHomeCubit.setBluIDFlag();
+    await profileCubit.fetchUserRole().then((val) {
+      if(val != 4) {
+        loadCommodityBloc.add(LoadCommodity());
+        loadTruckTypeBloc.add(LoadTruckType());
+        lpHomeCubit.fetchGetLoadList();
+        lpHomeCubit.fetchRecentRoute();
+        lpHomeCubit.fetchLoadWeight();
+      }
+    });
     clearAllValues();
   });
 
@@ -506,12 +510,15 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                 children: [
                   buildKycLabelWidget(),
                   10.height,
-                  OurValueAddedServicesWidget(),
+                  OurValueAddedServicesWidget(isGridLayout: profileCubit.userRole == 4),
                   10.height,
-                  bookShipmentSectionWidget(context),
-                  10.height,
-                  buildUpComingShipmentListWidget(),
-                  10.height,
+                  if(profileCubit.userRole != 4)
+                    ...[
+                      bookShipmentSectionWidget(context),
+                      10.height,
+                      buildUpComingShipmentListWidget(),
+                      10.height,
+                    ]
                 ],
               ),
             );
@@ -905,7 +912,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
                                 String formattedPrice;
                                 if (data?.minPrice == null) {
-                                  formattedPrice = "₹0";
+                                  formattedPrice = context.appText.contactCustomerSupport;
                                 } else if (data?.maxPrice == null || data?.maxPrice == 0) {
                                   formattedPrice = PriceHelper.formatINR(data!.minPrice);
                                 } else {
