@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/path_replay_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/path_replay_state.dart';
-import 'package:gro_one_app/features/gps_feature/helpers/gps_map_helper.dart';
+import 'package:gro_one_app/features/gps_feature/helper/gps_map_helper.dart';
 
 import '../../../data/network/api_service.dart';
 import '../../../dependency_injection/locator.dart';
