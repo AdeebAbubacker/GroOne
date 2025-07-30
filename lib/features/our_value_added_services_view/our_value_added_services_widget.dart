@@ -93,8 +93,7 @@ class _OurValueAddedServicesWidgetState
                       imageString: AppImage.png.gps,
                       onClick: () async {
                         // Check KYC status before navigating
-                        final userRepository =
-                            locator<UserInformationRepository>();
+                        final userRepository = locator<UserInformationRepository>();
                         final customerId = await userRepository.getUserID();
 
                         if (customerId != null && customerId.isNotEmpty) {
@@ -126,12 +125,10 @@ class _OurValueAddedServicesWidgetState
                           if (context.mounted) {
                             if (kycCheckCubit.state.hasKycDocuments &&
                                 kycCheckCubit.state.kycData != null) {
-                              // KYC done - show GPS home screen
+                              // KYC done - check order list to decide between GPS home or benefits
                               Navigator.push(
                                 context,
-                                commonRoute(GpsHomeScreen()),
-                               // commonRoute(GpsOrderBenefitsAndOrderListScreen()),
-                                
+                                commonRoute(GpsOrderBenefitsAndOrderListScreen()),
                               );
                             } else {
                               // KYC not done - show benefits screen
