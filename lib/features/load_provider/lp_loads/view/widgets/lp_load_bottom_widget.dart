@@ -21,7 +21,9 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trackin
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide LoadSettlement;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -184,7 +186,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
       final String paymentAgreedPrice = payments?.last.agreedPrice ?? '';
       final String paymentPayableAdvance = payments?.last.payableAdvance ?? '';
       final String paymentPayableBalance = payments?.last.payableBalance ?? '';
-     final action = (payments != null && payments.isNotEmpty ) ? 'clear_balance' : 'pay_advance';   
+     final action = (payments != null && payments.isNotEmpty ) ? 'balance' : 'advance';
      final isButtonShow = payments?.last.action ?? '';
     // final action = 'clear_balance';
     return Positioned(
@@ -226,7 +228,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                   Container(
                                       decoration: commonContainerDecoration(color: Color(0xffFFC100), borderRadius: BorderRadius.circular(4)),
                                       padding: EdgeInsets.symmetric(horizontal: 4),
-                                      child: Text(widget.loadItem.scheduleTripDetails?.vehicle?.truckNo ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
+                                      child: Text(widget.loadItem.scheduleTripDetails?.vehicle?.vehicle?.truckNo ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.black))),
                                   8.width,
                                   Text('${widget.loadItem.truckType?.type ?? ''} - ${widget.loadItem.truckType?.subType ?? ''}', style:  AppTextStyle.body3.copyWith(color: AppColors.greyIconColor))],
                               ),
@@ -385,6 +387,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                      lpLoadCubit: lpLoadLocator,
                      action: action,
                       isButtonShow: isButtonShow,
+                      loadItem: widget.loadItem
                   ),
                       16.height,
                     ],
@@ -525,7 +528,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                            return Column(
                              children: [
                                TripDocuments(
-                                 docName: doc.documentDetails?.title ?? '',
+                                 docName: doc.documentDetails?.documentType ?? '',
                                  docDateTime: doc.createdAt!,
                                  docUrl: doc.documentDetails?.filePath ?? '',
                                  downloadKey: doc.loadDocumentId,
@@ -541,24 +544,25 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                       // Feedback and Remarks
                       if(widget.loadStatus.index >= LoadStatus.unloading.index)
                         ...[
-                          FeedbackWidget(loadId: widget.loadItem.loadId),
                            if(widget.loadItem.loadApproval?.damageAndShortagesApproved == true && widget.loadItem.damageShortage!.isNotEmpty)
                              ...[
                                15.height,
                                Text(context.appText.damagesAndShortages, style: AppTextStyle.h4),
                                15.height,
-                               AddedDamageWidget(
+                               VpAddedDamageWidget(
                                  damageReport: widget.loadItem.damageShortage,
-
+                                 imageList: lpLoadLocator.state.allDamageImageList,
                                ),
-                               15.height,
                              ],
-                          if(widget.loadItem.loadApproval?.settlementApproved == true)
+                          if(widget.loadItem.loadApproval?.settlementApproved == true && widget.loadItem.loadSettlement != null)
                             ...[
-                              Text(context.appText.settlements, style: AppTextStyle.h4),
                               15.height,
-                            ]
-
+                              Text(context.appText.settlements, style: AppTextStyle.h4),
+                              _settlementInfoWidget(widget.loadItem.loadSettlement)
+                            ],
+                          if(widget.loadItem.podDispatch != null)
+                            _buildDispatchedDetails(widget.loadItem.podDispatch),
+                          FeedbackWidget(loadId: widget.loadItem.loadId),
 
                         ],
 
@@ -599,6 +603,50 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
       ),
     );
   }
+
+  Widget _settlementInfoWidget(LoadSettlement? settlement) {
+    final days = settlement?.noOfDays ?? 1;
+    final perDay = settlement?.amountPerDay ?? 1;
+
+    String inr(dynamic val) => PriceHelper.formatINR(val.toString());
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 15),
+      child: Column(
+        spacing: 15,
+        children: [
+          _buildRow("${context.appText.detentions.capitalizeFirst} ($days ${context.appText.days})", inr(days * perDay)),
+          _buildRow(context.appText.loadingCharges, inr(settlement?.loadingCharge)),
+          _buildRow(context.appText.unloadingCharges, inr(settlement?.unLoadingCharge)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDispatchedDetails(PodDispatch? podDispatched) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        20.height,
+        Text(context.appText.podDispatch, style: AppTextStyle.h4),
+        15.height,
+        _buildRow(context.appText.courierCompany, podDispatched?.courierCompany ?? ''),
+        10.height,
+        _buildRow(context.appText.awbNumber, podDispatched?.awbNumber ?? ''),
+        30.height,
+      ],
+    );
+  }
+
+  Widget _buildRow(String label, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: AppTextStyle.body2),
+        Text(value, style: AppTextStyle.body2.copyWith(color: AppColors.primaryColor)),
+      ],
+    );
+  }
 }
 
 // Advance Payment Card
@@ -617,6 +665,7 @@ Widget _buildAdvancePaymentCard({
   required String action,
   required bool isAdancePaid,
   required String isButtonShow,
+  required LoadData loadItem,
   required LpLoadCubit lpLoadCubit,
 }) {
   final lpLoadCubit = context.read<LpLoadCubit>();
@@ -659,7 +708,7 @@ final double payableAdvanceValue =
                   ),
                 ),
                 8.width,
-                if(isButtonShow != 'clear_balance')
+                if(isButtonShow != 'balance')
                 Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -811,7 +860,7 @@ final double payableAdvanceValue =
 
          12.height,
 
-       if(isButtonShow != 'clear_balance')
+       if(isButtonShow != 'balance')
         // Action Button
           AppButton(
             title: context.appText.payAdvance,
@@ -833,57 +882,101 @@ final double payableAdvanceValue =
                           final selectedAmountString = isAdancePaid ? payableBalance : payableAdvance;
                         final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
 
+                        print('data ${loadItem.loadMemoDetails?.netFreight}');
+
                           // Create Order
                           await lpLoadCubit.createOrder(
                             loadId: loadId,
-                            createOrderidReuest: CreateOrderIdRequest(
-                                  amount: paymentAmount,
-                            type: 'online',
-                            action: action,
-                                  )
+                            // createOrderidReuest: CreateOrderIdRequest(
+                            //       amount: paymentAmount,
+                            // type: 'online',
+                            // action: action,
+                            //       )
+                            createOrderIdRequest: CreateOrderIdRequest(
+                                memoid: loadItem.loadMemoDetails?.id ?? '',
+                                lpId: loadItem.customer?.customerId ?? '',
+                                lpName: loadItem.customer?.customerName ?? '',
+                                lpEmailId: loadItem.customer?.emailId ?? '',
+                                lpMobile: loadItem.customer?.mobileNumber ?? '',
+                                vpId: loadItem.vpCustomer?.customerId ?? '',
+                                memoNumber: loadItem.loadMemoDetails?.memoNumber ?? '',
+                                netFreight: loadItem.loadMemoDetails?.netFreight ?? '',
+                                advance: loadItem.loadMemoDetails?.advance ?? '',
+                                advancePercentage: loadItem.loadMemoDetails?.advancePercentage ?? '',
+                                balance: loadItem.loadMemoDetails?.balance ?? '',
+                                balancePercentage: loadItem.loadMemoDetails?.balancePercentage ?? '',
+                                vpAdvance: loadItem.loadMemoDetails?.vpAdvance ?? '',
+                                vpAdvancePercentage: loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
+                                vpBalance: loadItem.loadMemoDetails?.vpBalance ?? '',
+                                vpBalancePercentage: loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
+                                amount: paymentAmount.toString(),
+                                type: 'online',
+                                action: action
+                            )
                               );
 
                           final createOrderState = lpLoadCubit.state.lpCreateOrder;
 
                           if (createOrderState?.status == Status.SUCCESS) {
+                            // // final orderId = createOrderState?.data?.orderId;
                             // final orderId = createOrderState?.data?.orderId;
-                            final orderId = createOrderState?.data?.orderId;
-                            if (orderId != null) {
-                              // Initiate Payment
-                              await lpLoadCubit.initaitepayment(
-                                initiatePaymentRequest:
-                                InitiatePaymentRequest(
-                                  orderId: orderId,
-                                  amount: paymentAmount,
-                                  customerName: customerName,
-                                  customerEmail: customerEmail,
-                                  customerMobile: customerMobile,
-                                  customerCity: customerCity)
-                              );
+                            // if (orderId != null) {
+                            //   // Initiate Payment
+                            //   await lpLoadCubit.initaitepayment(
+                            //     initiatePaymentRequest:
+                            //     InitiatePaymentRequest(
+                            //       orderId: orderId,
+                            //       amount: paymentAmount,
+                            //       customerName: customerName,
+                            //       customerEmail: customerEmail,
+                            //       customerMobile: customerMobile,
+                            //       customerCity: customerCity)
+                            //   );
+                            //
+                            //   final addpaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
+                            //
+                            //   if (addpaymentState?.status == Status.SUCCESS) {
+                            //           final result = await Navigator.of(context).push(
+                            //         commonRoute(
+                            //           PaymentsScreen(
+                            //             url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",
+                            //             loadId: loadId,
+                            //           ),
+                            //         ),
+                            //       );
+                            //
+                            //   if (result == true) {
+                            //     Navigator.pop(context);
+                            //
+                            //     context.read<LpLoadCubit>().getLpLoadsById(loadId: loadId);
+                            //   }
+                            //   } else {
+                            //     ToastMessages.error(message: context.appText.paymentFailed);
+                            //   }
+                            // } else {
+                            //   ToastMessages.error(message: context.appText.orderIdNotFound);
+                            // }
 
-                              final addpaymentState = lpLoadCubit.state.lpAddCustomerPaymentOption;
+                            final url = createOrderState?.data?.data?.data?.tinyUrl;
 
-                              if (addpaymentState?.status == Status.SUCCESS) {
-                                      final result = await Navigator.of(context).push(
-                                    commonRoute(
-                                      PaymentsScreen(
-                                        url: addpaymentState?.data?.data?.data?.tinyUrl ?? "",
-                                        loadId: loadId,
-                                      ),
-                                    ),
-                                  );
+                              final result = await Navigator.of(context).push(
+                                commonRoute(
+                                  PaymentsScreen(
+                                    url: url ?? '',
+                                    loadId: loadId,
+                                  ),
+                                ));
+
 
                               if (result == true) {
                                 Navigator.pop(context);
 
                                 context.read<LpLoadCubit>().getLpLoadsById(loadId: loadId);
-                              }
                               } else {
-                                ToastMessages.error(message: context.appText.paymentFailed);
-                              }
-                            } else {
-                              ToastMessages.error(message: context.appText.orderIdNotFound);
+                              ToastMessages.error(message: context.appText.paymentFailed);
                             }
+
+
                           } else {
                             Navigator.pop(context);
                             ToastMessages.error(message: context.appText.orderCreationFailed);
@@ -908,7 +1001,7 @@ final double payableAdvanceValue =
                           ),
                           RadioListTile<PaymentMethod>(
                             contentPadding: EdgeInsets.zero,
-                            title: Text(context.appText.online),
+                            title: Text(context.appText.onlinePay),
                             value: PaymentMethod.online,
                             groupValue: selectedMethod,
                             onChanged: (value) {

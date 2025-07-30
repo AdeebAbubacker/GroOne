@@ -66,6 +66,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     'Loading',
     'In Transit',
     'Unloading',
+    'POD Dispatch',
     'Completed',
   ];
 
@@ -85,7 +86,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     lpLoadLocator.updateSelectedTabIndex(0);
     paginationController = lpLoadLocator.paginationController;
     _tabController = TabController(
-      length: 8,
+      length: 9,
       vsync: this,
       initialIndex: lpLoadLocator.state.selectedTabIndex,
     )..addListener(_handleTabChange);
@@ -338,9 +339,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     }
 
     return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
-      padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
+      height: 40,
+      decoration: commonContainerDecoration(color: AppColors.lightGreyBackgroundColor),
       child: BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
           return SingleChildScrollView(
@@ -349,18 +349,14 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             child: TabBar(
               controller: _tabController!,
               isScrollable: true,
-              dividerHeight: 0,
-              tabAlignment: TabAlignment.center,
-              indicatorPadding: EdgeInsets.zero,
-              labelPadding: EdgeInsets.zero,
-              padding: EdgeInsets.zero,
+              physics: ClampingScrollPhysics(),  // tighter scroll behavior
               indicator: const BoxDecoration(),
-              splashFactory: NoSplash.splashFactory,
-              tabs: List.generate(8, (index) {
+              dividerHeight: 0,
+              tabs: List.generate(9, (index) {
                 final isSelected = state.selectedTabIndex == index;
                 return Tab(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: commonContainerDecoration(
                       color: isSelected ? AppColors.primaryColor : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
@@ -376,7 +372,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           );
         }
       ),
-    ).paddingOnly(top: 15, right: commonSafeAreaPadding, left: commonSafeAreaPadding);
+    ).paddingOnly(top: 15, right: 15, left: 15);
   }
 
   /// Search and Filter

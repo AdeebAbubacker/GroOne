@@ -523,7 +523,7 @@ void initLocator() {
       () => EmailVerificationCubit(locator<EmailVerificationRepository>()),
     );
     locator.registerLazySingleton(
-      () => LpLoadCubit(locator<LpLoadRepository>()),
+      () => LpLoadCubit(locator<LpLoadRepository>(), locator<LoadDetailsRepository>()),
     );
     locator.registerLazySingleton(
       () => LoadDetailsCubit(

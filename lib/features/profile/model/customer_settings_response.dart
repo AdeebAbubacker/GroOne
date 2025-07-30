@@ -1,3 +1,5 @@
+import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
+
 class CustomerSettingsResponse {
   CustomerSettingsResponse({
     required this.loadUpdates,
@@ -66,3 +68,32 @@ class CustomerSettingsResponse {
   };
 
 }
+
+extension CustomerSettingsMapper on CustomerSettingsResponse {
+  static final valueExtractors = <String, String Function(CustomerSettingsResponse?)>{
+    'language': (settings) => settings?.language ?? '',
+    'load_updates': (settings) => settings?.loadUpdates ?? '',
+    'system_updates': (settings) => settings?.systemUpdates ?? '',
+    'payment_alerts': (settings) => settings?.paymentAlerts ?? '',
+    'offers_promotions': (settings) => settings?.offersPromotions ?? '',
+    'enable_app_lock': (settings) => settings?.enableAppLock ?? '',
+  };
+
+  static final requestBuilders = <String, UpdateSettingsRequest Function(String)>{
+    'language': (val) => UpdateSettingsRequest(language: val),
+    'load_updates': (val) => UpdateSettingsRequest(loadUpdates: val),
+    'system_updates': (val) => UpdateSettingsRequest(systemUpdates: val),
+    'payment_alerts': (val) => UpdateSettingsRequest(paymentAlerts: val),
+    'offers_promotions': (val) => UpdateSettingsRequest(offersPromotions: val),
+    'enable_app_lock': (val) => UpdateSettingsRequest(enableAppLock: val),
+  };
+
+  static String getValue(String key, CustomerSettingsResponse? data, String fallback) {
+    return valueExtractors[key]?.call(data) ?? fallback;
+  }
+
+  static UpdateSettingsRequest? buildRequest(String key, String value) {
+    return requestBuilders[key]?.call(value);
+  }
+}
+

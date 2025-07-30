@@ -104,14 +104,12 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
       ToastMessages.alert(message: context.appText.expectedDeliveryRateRequired);
       return;
     }
-    if(handlingChargesTextController.text.isEmpty){
-      ToastMessages.alert(message: context.appText.handlingChargeRequired);
-      return;
-    }
 
-    if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
-      ToastMessages.alert(message: context.appText.handlingChargeLessTenPercent);
-      return;
+    if(handlingChargesTextController.text.isNotEmpty) {
+      if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
+        ToastMessages.alert(message: context.appText.handlingChargeLessTenPercent);
+        return;
+      }
     }
 
     if (widget.isKycValid == 3) {
@@ -124,7 +122,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
   Future<void> _postLoad(BuildContext context) async {
     final req = widget.apiRequest.copyWith(
       note: noteTextController.text,
-      handlingCharges: int.parse(handlingChargesTextController.text),
+      handlingCharges: handlingChargesTextController.text.isNotEmpty ? int.parse(handlingChargesTextController.text) : null,
       expectedDeliveryDateTime: sendDateAndTimeInApi ?? "",
     );
     await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
@@ -226,7 +224,6 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
               controller: handlingChargesTextController,
               hintText: context.appText.enterHandlingCharges,
               labelText: context.appText.handlingCharges,
-              mandatoryStar: true,
               keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,

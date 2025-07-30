@@ -96,6 +96,8 @@ class _SplashScreenState extends State<SplashScreen> {
       context.go(AppRouteName.vpBottomNavigationBar);
     } else if (userRole == 3){
       context.go(AppRouteName.lpBottomNavigationBar);
+    } else if (userRole == 4){
+      context.go(AppRouteName.lpBottomNavigationBar);
     } else {
       context.push(AppRouteName.notFound);
     }

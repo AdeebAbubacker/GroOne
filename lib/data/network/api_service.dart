@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -435,6 +436,7 @@ class ApiService {
 
         if (appContext.mounted) {
           appContext.pushReplacement(AppRouteName.chooseLanguage);
+          LpBottomNavigation.selectedIndexNotifier.value = 0;
         }
       } catch (fallbackError) {
         CustomLog.error(this, "Fallback error handling failed", fallbackError);

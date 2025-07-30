@@ -565,7 +565,7 @@ void commonSupportDialog(BuildContext context, {String? message}) {
     context,
     child: CommonDialogView(
       heading: context.appText.callCustomerSupport,
-      message: message ?? context.appText.contactCustomerSupport,
+      message: message ?? context.appText.contactOurCustomerSupport,
       headingTextStyle: AppTextStyle.h3.copyWith(fontWeight: FontWeight.w200),
       onSingleButtonText: context.appText.call,
       onTapSingleButton: () async {
