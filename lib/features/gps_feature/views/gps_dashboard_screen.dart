@@ -95,7 +95,7 @@ class _GpsDashboardContent extends StatelessWidget {
           );
         }
 
-        final filteredVehicles = state.filteredVehicles;
+        final filteredVehicles = state.filteredVehicles.withoutExpired;
         final vehicles =
             filteredVehicles
                 .where((vehicle) => vehicle.expired != true)

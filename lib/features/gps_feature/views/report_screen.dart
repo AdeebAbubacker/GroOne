@@ -33,8 +33,8 @@ class GpsReportScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => locator.get<GpsReportCubit>()..loadInitialData(),
+    return BlocProvider.value(
+      value: locator.get<GpsReportCubit>()..loadInitialData(),
       child: BlocListener<GpsReportCubit, GpsReportState>(
         listener: (context, state) {
           if (state.reportStatus == GpsDataStatus.error) {
@@ -141,15 +141,12 @@ class GpsReportScreen extends StatelessWidget {
                       child: Text(context.appText.errorLoadingVehicles),
                     );
                   } else {
-                    final vehicles = vehicleState.filteredVehicles;
+                    final vehicles = vehicleState.filteredVehicles.withoutExpired;
 
                     if (vehicles.isEmpty) {
                       return Text(context.appText.noVehiclesFound);
                     }
-
                     return DropdownSearch<GpsCombinedVehicleData>(
-                      selectedItem:
-                          context.read<GpsReportCubit>().state.selectedVehicle,
                       items: (String filter, _) async {
                         return vehicles.where((v) {
                           final name = v.vehicleNumber ?? '';

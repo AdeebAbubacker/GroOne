@@ -63,7 +63,7 @@ class VehicleShareUpdateScreen extends StatelessWidget {
                 icon: Icons.speed,
                 iconBgColor: Colors.orange.shade50,
                 iconColor: Colors.orange,
-                title: 'Overspeed Calibration',
+                title: context.appText.overSpeedCalibration,
                 onTap: () {
                   context.push(AppRouteName.gpsVehicleSelectScreen,extra: 0);
                 },
@@ -74,7 +74,7 @@ class VehicleShareUpdateScreen extends StatelessWidget {
                 icon: Icons.share,
                 iconBgColor: Colors.blue.shade50,
                 iconColor: Colors.blue,
-                title: 'Connect & Share',
+                title: context.appText.connectAndShare,
                 onTap: () {
                   context.push(AppRouteName.gpsVehicleSelectScreen,extra: 1);
                 },
@@ -85,7 +85,7 @@ class VehicleShareUpdateScreen extends StatelessWidget {
                 icon: Icons.directions_car,
                 iconBgColor: Colors.green.shade50,
                 iconColor: Colors.green,
-                title: 'Edit Vehicle Info',
+                title: context.appText.editVehicleInfo,
                 onTap: () {
                   context.push(AppRouteName.gpsVehicleSelectScreen,extra: 2);
                 },

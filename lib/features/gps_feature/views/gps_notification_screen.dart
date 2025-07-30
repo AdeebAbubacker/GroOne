@@ -85,7 +85,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   } else {
                     // Extract unique vehicle numbers
                     final uniqueVehicleNumbers =
-                        vehicleState.filteredVehicles
+                        vehicleState.filteredVehicles.withoutExpired
                             .map((v) => v.vehicleNumber)
                             .whereType<String>() // removes nulls
                             .toSet() // remove duplicates

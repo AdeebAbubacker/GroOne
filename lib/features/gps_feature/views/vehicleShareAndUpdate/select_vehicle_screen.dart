@@ -75,8 +75,8 @@ class _VehicleSelectScreenState extends State<VehicleSelectScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => locator<VehicleListCubit>()..loadOfflineData(),
+    return BlocProvider.value(
+        value: locator<VehicleListCubit>()..loadVehicleData()..loadOfflineData(),
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: AppBar(
@@ -118,7 +118,10 @@ class _VehicleSelectScreenState extends State<VehicleSelectScreen> {
                     // Update vehicles when data changes
                     if (state.filteredVehicles.isNotEmpty && _allVehicles.isEmpty) {
                       WidgetsBinding.instance.addPostFrameCallback((_) {
-                        _updateVehicles(state.filteredVehicles);
+                        final vehiclesList = widget.isFromId == 2
+                            ? state.filteredVehicles.withExpired
+                            : state.filteredVehicles.withoutExpired;
+                        _updateVehicles(vehiclesList);
                       });
                     }
 
@@ -145,7 +148,7 @@ class _VehicleSelectScreenState extends State<VehicleSelectScreen> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'Failed to load vehicles',
+                              context.appText.failedToLoadVehicles,
                               style: TextStyle(
                                 color: AppConstants.textSecondaryColor,
                                 fontSize: 16,
@@ -165,8 +168,16 @@ class _VehicleSelectScreenState extends State<VehicleSelectScreen> {
                     }
 
                     // Use filtered vehicles from our local state
+                    // final vehiclesToShow =
+                    //     _filteredVehicles.isNotEmpty ? _filteredVehicles : state.filteredVehicles;
+
                     final vehiclesToShow =
-                        _filteredVehicles.isNotEmpty ? _filteredVehicles : state.filteredVehicles;
+                    _searchQuery.isNotEmpty ? _filteredVehicles : (
+                        widget.isFromId == 2
+                            ? state.filteredVehicles.withExpired
+                            : state.filteredVehicles.withoutExpired
+                    );
+
 
                     if (vehiclesToShow.isEmpty) {
                       return Center(
@@ -190,8 +201,8 @@ class _VehicleSelectScreenState extends State<VehicleSelectScreen> {
                             const SizedBox(height: 8),
                             Text(
                               _searchQuery.isNotEmpty
-                                  ? 'No vehicles match your search'
-                                  : 'No vehicles found',
+                                  ? context.appText.noVehiclesMatchSearch
+                                  : context.appText.noVehiclesFound,
                               style: TextStyle(
                                 color: AppConstants.textSecondaryColor,
                                 fontSize: 14,
@@ -207,7 +218,7 @@ class _VehicleSelectScreenState extends State<VehicleSelectScreen> {
                                     _applyFilters();
                                   });
                                 },
-                                child: Text('Clear Search'),
+                                child: Text(context.appText.clearSearch),
                               ),
                             ],
                           ],
@@ -288,7 +299,7 @@ class VehicleCard extends StatelessWidget {
                           SizedBox(width: 10),
                           Expanded(
                             child: Text(
-                              'Set Speed Limit',
+                              context.appText.setSpeedLimit,
                               style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
                             ),
                           ),
@@ -302,7 +313,7 @@ class VehicleCard extends StatelessWidget {
                       if (isEnabled) ...[
                         Align(
                           alignment: Alignment.centerLeft,
-                          child: Text('Enter Speed Limit', style: TextStyle(fontSize: 15)),
+                          child: Text(context.appText.enterSpeedLimit, style: TextStyle(fontSize: 15)),
                         ),
                         SizedBox(height: 8),
                         AppTextField(controller: controller, keyboardType: TextInputType.number),
@@ -312,7 +323,7 @@ class VehicleCard extends StatelessWidget {
                         children: [
                           AppButton(
                             onPressed: () => Navigator.pop(context),
-                            title: 'Cancel',
+                            title: context.appText.cancel,
                             style: AppButtonStyle.outline,
                           ).expand(),
                           20.width,
@@ -324,7 +335,7 @@ class VehicleCard extends StatelessWidget {
                                 if (speed.isEmpty || speedValue <= 0 || speedValue >= 201) {
                                   if (context.mounted) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Enter a valid speed (1-200)')),
+                                      SnackBar(content: Text(context.appText.enterValidSpeed)),
                                     );
                                   }
                                   return;
@@ -349,7 +360,7 @@ class VehicleCard extends StatelessWidget {
                                 Navigator.pop(context);
                               }
                             },
-                            title: 'Apply',
+                            title: context.appText.apply,
                             style: AppButtonStyle.primary,
                           ).expand(),
                         ],
@@ -383,13 +394,13 @@ class VehicleCard extends StatelessWidget {
         if (result is Success<bool>) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Speed limit updated successfully!'),
+              content: Text(context.appText.speedLimitUpdatedSuccess),
               backgroundColor: Colors.green,
             ),
           );
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to update speed limit.'), backgroundColor: Colors.red),
+            SnackBar(content: Text(context.appText.speedLimitUpdateFailed), backgroundColor: Colors.red),
           );
         }
       }
@@ -429,14 +440,14 @@ class VehicleCard extends StatelessWidget {
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
+                 SnackBar(content: Text(context.appText.multipleSharingFailed), backgroundColor: Colors.red),
               );
             }
           }
         } catch (e) {
           if (context.mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(content: Text('Multiple sharing failed'), backgroundColor: Colors.red),
+               SnackBar(content: Text(context.appText.multipleSharingFailed), backgroundColor: Colors.red),
             );
           }
         }
@@ -460,8 +471,8 @@ class VehicleCard extends StatelessWidget {
               );
             } else {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('No location data available for sharing'),
+                 SnackBar(
+                  content: Text(context.appText.noLocationToShare),
                   backgroundColor: Colors.orange,
                   duration: Duration(seconds: 2),
                 ),

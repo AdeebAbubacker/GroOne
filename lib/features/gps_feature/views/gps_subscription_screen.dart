@@ -124,11 +124,6 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
                 return daysLeft != null && daysLeft <= 30;
               }).length;
 
-          for(var vehicle in _filteredVehicles){
-            debugPrint('Total Vehicles ${_filteredVehicles.length}');
-            debugPrint('vehicle: ${vehicle.vehicleNumber}, expiry: ${vehicle.subscriptionExpiryDate}');
-          }
-
           return Column(
             children: [
               if (expiringCount > 0) _buildAlertCard(context, expiringCount),
