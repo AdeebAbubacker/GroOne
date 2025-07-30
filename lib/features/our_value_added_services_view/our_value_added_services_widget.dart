@@ -17,7 +17,9 @@ import '../en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import '../gps_feature/views/gps_home_screen.dart';
 
 class OurValueAddedServicesWidget extends StatefulWidget {
-  const OurValueAddedServicesWidget({super.key});
+  const OurValueAddedServicesWidget({super.key, this.isGridLayout = false});
+
+  final bool isGridLayout;
 
   @override
   State<OurValueAddedServicesWidget> createState() =>
@@ -37,7 +39,7 @@ class _OurValueAddedServicesWidgetState
       final currentScroll = _scrollController.position.pixels;
       setState(() {
         _scrollProgress =
-            maxScroll == 0 ? 0 : (currentScroll / maxScroll).clamp(0.0, 1.0);
+        maxScroll == 0 ? 0 : (currentScroll / maxScroll).clamp(0.0, 1.0);
       });
     });
   }
@@ -50,6 +52,133 @@ class _OurValueAddedServicesWidgetState
 
   @override
   Widget build(BuildContext context) {
+
+    final List<Widget> services = [
+      _buildServicesWidget(
+        title: context.appText.gps,
+        imageString: AppImage.png.gps,
+        onClick: () async {
+          Navigator.push(
+            context,
+            commonRoute(GpsHomeScreen()),
+
+            //commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+          );
+          // Check KYC status before navigating
+          // final userRepository =
+          //     locator<UserInformationRepository>();
+          // final customerId = await userRepository.getUserID();
+
+          // if (customerId != null && customerId.isNotEmpty) {
+          //   // Create a temporary cubit to check KYC
+          //   final kycCheckCubit = GpsKycCheckCubit(
+          //     locator<GpsOrderApiRepository>(),
+          //   );
+
+          //   // Show loading dialog
+          //   showDialog(
+          //     context: context,
+          //     barrierDismissible: false,
+          //     builder: (BuildContext context) {
+          //       return const Center(
+          //         child: CircularProgressIndicator(),
+          //       );
+          //     },
+          //   );
+
+          //   // Check KYC documents
+          //   await kycCheckCubit.checkKycDocuments(customerId);
+
+          //   // Close loading dialog
+          //   if (context.mounted) {
+          //     Navigator.of(context).pop();
+          //   }
+
+          //   // Navigate based on KYC status
+          //   if (context.mounted) {
+          //     if (kycCheckCubit.state.hasKycDocuments &&
+          //         kycCheckCubit.state.kycData != null) {
+          //       // KYC done - show GPS home screen
+          //       Navigator.push(
+          //         context,
+          //         commonRoute(GpsHomeScreen()),
+          //         //commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+
+          //       );
+          //     } else {
+          //       // KYC not done - show benefits screen
+          //       Navigator.push(
+          //         context,
+          //         commonRoute(
+          //           GpsOrderBenefitsAndOrderListScreen(),
+          //         ),
+          //       );
+          //     }
+          //   }
+
+          //   // Dispose the temporary cubit
+          //   kycCheckCubit.close();
+          // } else {
+          //   // Fallback to benefits screen if customer ID not available
+          //   Navigator.push(
+          //     context,
+          //     commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+          //   );
+          // }
+        },
+      ),
+      _buildServicesWidget(
+        title: "Fuel Card",
+        imageString: AppImage.png.enDhan,
+        onClick: () {
+          //context.push(AppRouteName.enDhanCard);
+          Navigator.push(
+            context,
+            commonRoute(EndhanNewUserAndCardScreen()),
+          );
+        },
+      ),
+      _buildServicesWidget(
+        title: "Fast tag",
+        imageString: AppImage.png.buyFastTag,
+        onClick: () {
+          //context.push(AppRouteName.buyFastag);
+          Navigator.push(context, commonRoute(FastTagScreen()));
+        },
+      ),
+      _buildServicesWidget(
+        title: "Tank Lock",
+        imageString: AppImage.png.kavach,
+        onClick: () {
+          Navigator.push(
+            context,
+            CupertinoPageRoute(
+              builder: (context) => KavachOrdersListScreen(),
+              settings: const RouteSettings(name: 'KavachOrderListScreen'),
+            ),
+          );
+        },
+      ),
+
+      //
+      // _buildServicesWidget(
+      //   title: context.appText.instantLoan,
+      //   imageString: AppImage.png.insuranceLoan,
+      //   onClick: () {
+      //     context.push(AppRouteName.instantLoan);
+      //   },
+      // ),
+      // 15.width,
+      //
+      // _buildServicesWidget(
+      //   title: context.appText.insurance,
+      //   imageString: AppImage.png.insurance,
+      //   onClick: () {
+      //     context.push(AppRouteName.insurance);
+      //   },
+      // ),
+    ];
+
     return Container(
       decoration: commonContainerDecoration(
         borderRadius: BorderRadius.circular(0),
@@ -58,173 +187,46 @@ class _OurValueAddedServicesWidgetState
       child: Column(
         children: [
           20.height,
-
-          // Heading
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
                 child: Text("Value Added Services", style: AppTextStyle.body1),
               ),
-              // Icon(Icons.arrow_forward_outlined),
             ],
           ).paddingSymmetric(horizontal: commonSafeAreaPadding),
           20.height,
-
-          Column(
-            children: [
-              SizedBox(
-                height: 101,
-                child: ListView(
-                  controller: _scrollController,
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    15.width,
-
-                    _buildServicesWidget(
-                      title: context.appText.gps,
-                      imageString: AppImage.png.gps,
-                      onClick: () async {
-                        Navigator.push(
-                          context,
-                          commonRoute(GpsHomeScreen()),
-
-                          //commonRoute(GpsOrderBenefitsAndOrderListScreen()),
-                        );
-                        // Check KYC status before navigating
-                        // final userRepository =
-                        //     locator<UserInformationRepository>();
-                        // final customerId = await userRepository.getUserID();
-
-                        // if (customerId != null && customerId.isNotEmpty) {
-                        //   // Create a temporary cubit to check KYC
-                        //   final kycCheckCubit = GpsKycCheckCubit(
-                        //     locator<GpsOrderApiRepository>(),
-                        //   );
-
-                        //   // Show loading dialog
-                        //   showDialog(
-                        //     context: context,
-                        //     barrierDismissible: false,
-                        //     builder: (BuildContext context) {
-                        //       return const Center(
-                        //         child: CircularProgressIndicator(),
-                        //       );
-                        //     },
-                        //   );
-
-                        //   // Check KYC documents
-                        //   await kycCheckCubit.checkKycDocuments(customerId);
-
-                        //   // Close loading dialog
-                        //   if (context.mounted) {
-                        //     Navigator.of(context).pop();
-                        //   }
-
-                        //   // Navigate based on KYC status
-                        //   if (context.mounted) {
-                        //     if (kycCheckCubit.state.hasKycDocuments &&
-                        //         kycCheckCubit.state.kycData != null) {
-                        //       // KYC done - show GPS home screen
-                        //       Navigator.push(
-                        //         context,
-                        //         commonRoute(GpsHomeScreen()),
-                        //         //commonRoute(GpsOrderBenefitsAndOrderListScreen()),
-
-                        //       );
-                        //     } else {
-                        //       // KYC not done - show benefits screen
-                        //       Navigator.push(
-                        //         context,
-                        //         commonRoute(
-                        //           GpsOrderBenefitsAndOrderListScreen(),
-                        //         ),
-                        //       );
-                        //     }
-                        //   }
-
-                        //   // Dispose the temporary cubit
-                        //   kycCheckCubit.close();
-                        // } else {
-                        //   // Fallback to benefits screen if customer ID not available
-                        //   Navigator.push(
-                        //     context,
-                        //     commonRoute(GpsOrderBenefitsAndOrderListScreen()),
-                        //   );
-                        // }
-                      },
-                    ),
-                    15.width,
-
-                    _buildServicesWidget(
-                      title: "Fuel Card",
-                      imageString: AppImage.png.enDhan,
-                      onClick: () {
-                        //context.push(AppRouteName.enDhanCard);
-                        Navigator.push(
-                          context,
-                          commonRoute(EndhanNewUserAndCardScreen()),
-                        );
-                      },
-                    ),
-                    15.width,
-
-                    _buildServicesWidget(
-                      title: "Fast tag",
-                      imageString: AppImage.png.buyFastTag,
-                      onClick: () {
-                        //context.push(AppRouteName.buyFastag);
-                        Navigator.push(context, commonRoute(FastTagScreen()));
-                      },
-                    ),
-                    15.width,
-
-                    _buildServicesWidget(
-                      title: "Tank Lock",
-                      imageString: AppImage.png.kavach,
-                      onClick: () {
-                        Navigator.push(
-                          context,
-                          CupertinoPageRoute(
-                            builder: (context) => KavachOrdersListScreen(),
-                            settings: RouteSettings(
-                              name: 'KavachOrderListScreen',
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                    15.width,
-
-                    //
-                    // _buildServicesWidget(
-                    //   title: context.appText.instantLoan,
-                    //   imageString: AppImage.png.insuranceLoan,
-                    //   onClick: () {
-                    //     context.push(AppRouteName.instantLoan);
-                    //   },
-                    // ),
-                    // 15.width,
-                    //
-                    // _buildServicesWidget(
-                    //   title: context.appText.insurance,
-                    //   imageString: AppImage.png.insurance,
-                    //   onClick: () {
-                    //     context.push(AppRouteName.insurance);
-                    //   },
-                    // ),
-                    15.width,
-                  ],
-                ),
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: commonSafeAreaPadding),
+            child: widget.isGridLayout
+                ? GridView.count(
+              crossAxisCount: 2,
+              shrinkWrap: true,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              childAspectRatio: 1.3,
+              physics: const NeverScrollableScrollPhysics(),
+              children: services,
+            )
+                : SizedBox(
+              height: 101,
+              child: ListView.separated(
+                controller: _scrollController,
+                scrollDirection: Axis.horizontal,
+                itemCount: services.length,
+                separatorBuilder: (_, __) => 12.width,
+                itemBuilder: (context, index) => services[index],
               ),
-
-              20.height,
+            ),
+          ),
+          20.height,
+          if (!widget.isGridLayout)
+            ...[
               Container(
                 width: 100,
                 height: 4,
-                decoration: commonContainerDecoration(
-                  color: AppColors.borderColor,
-                ),
+                decoration:
+                commonContainerDecoration(color: AppColors.borderColor),
                 child: Stack(
                   children: [
                     FractionallySizedBox(
@@ -232,7 +234,6 @@ class _OurValueAddedServicesWidgetState
                       child: Container(
                         decoration: BoxDecoration(
                           color: AppColors.primaryColor,
-                          // Replace with your theme color
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -240,9 +241,8 @@ class _OurValueAddedServicesWidgetState
                   ],
                 ),
               ),
-            ],
-          ),
-          20.height,
+              20.height,
+            ]
         ],
       ),
     );

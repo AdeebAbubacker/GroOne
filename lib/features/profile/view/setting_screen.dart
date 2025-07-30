@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/core/localization_bloc/localization_bloc.dart';
+import 'package:gro_one_app/core/localization_bloc/localization_event.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/settings_response.dart';
 import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -14,6 +18,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_switch_toggle.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -40,8 +45,9 @@ class _LpSettingState extends State<LpSetting> {
     initFunction();
   }
 
-  void initFunction() => frameCallback(()  {
-    profileCubit.fetchCustomerSettings();
+  void initFunction() => frameCallback(()  async{
+    await profileCubit.fetchSettings();
+    await profileCubit.fetchCustomerSettings();
   });
 
   @override
@@ -51,62 +57,96 @@ class _LpSettingState extends State<LpSetting> {
         backgroundColor: Colors.transparent,
         title: Text(context.appText.settings, style: AppTextStyle.body1),
       ),
-      body: BlocBuilder<ProfileCubit, ProfileState>(builder: (context, state) {
-        final uiState = state.customerSettingsState;
+      body: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          final settingState = state.settingsState;
+          final customerState = state.customerSettingsState;
 
-        if (uiState == null || uiState.status == Status.LOADING) {
-          return CircularProgressIndicator().center();
-        }
+          if (settingState?.status == Status.LOADING || customerState?.status == Status.LOADING) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (uiState.status == Status.ERROR) {
-          ToastMessages.error(message: getErrorMsg(errorType: uiState.errorType ?? GenericError()));
-        }
+          if (settingState?.status == Status.ERROR) {
+            return genericErrorWidget(error: settingState?.errorType ?? customerState?.errorType);
+          }
 
-        final settings = uiState.data;
+          final settingsList = settingState?.data ?? [];
+          final customerData = customerState?.data;
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              headingText(context.appText.notification),
-              ..._buildSwitches(settings),
-              dividerWidget(),
-              10.height,
-              headingText(context.appText.language),
-              20.height,
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [context.appText.english, context.appText.tamil, context.appText.hindi].map<Widget>((lang) {
-                  final selected = settings?.language.toLowerCase() == lang.toLowerCase();
-                  return languageRadio(lang, selected);
-                }).toList(),
-              ),
-              20.height,
-              dividerWidget(),
-              10.height,
-              headingText(context.appText.security),
-              toggleRow(
-                context.appText.enableAppLock,
-                bool.parse(settings?.enableAppLock ?? ''),
-                    (value) => _updateSetting(enableAppLock: value),
-              ),
-              dividerWidget(),
-              buildLinks(context),
-            ],
-          ),
-        );
-      }),
+          // Group settings by section
+          final Map<String, List<SettingsResponse>> groupedSettings = {};
+          for (var setting in settingsList) {
+            groupedSettings.putIfAbsent(setting.section, () => []).add(setting);
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            child: ListView(
+              children: groupedSettings.entries.map((entry) {
+                final section = entry.key;
+                final settings = entry.value;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    headingText(section),
+                    ...settings.map((setting) {
+                      final key = setting.key;
+                      final value = CustomerSettingsMapper.getValue(key, customerData, setting.defaultValue);
+
+
+                      if (setting.type == 'toggle') {
+                        return toggleRow(
+                          setting.label,
+                          value == 'true',
+                              (bool newVal) {
+                                final request = CustomerSettingsMapper.buildRequest(key, newVal.toString());
+
+                            if (request != null) {
+                              profileCubit.updateCustomerSettings(request: request);
+                            }
+                          },
+                        );
+                      } else if (setting.type == 'radio') {
+                        final options = setting.options.split(',') ?? [];
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ...options.map((opt) => languageRadio(opt, value == opt)).toList()
+                            ],
+                          ),
+                        );
+                      } else if (setting.type == 'link') {
+                        return linkTile(
+                          context,
+                          icon: setting.key == 'privacy_policy'
+                              ? AppIcons.svg.privacyLock
+                              : AppIcons.svg.tAndCDoc,
+                          text: setting.label,
+                          onTap: () {
+                            if (setting.key == 'privacy_policy') {
+                              Navigator.push(context, commonRoute(PrivacyPolicyScreen()));
+                            } else if (setting.key == 'terms_conditions') {
+                              Navigator.push(context, commonRoute(TermsAndConditionsScreen()));
+                            }
+                          },
+                        ).paddingSymmetric(vertical: 20);
+                      } else {
+                        return const SizedBox();
+                      }
+                    }),
+                    dividerWidget(),
+                    10.height,
+                  ],
+                );
+              }).toList(),
+            ),
+          );
+        },
+      ),
     );
-  }
-
-  List<Widget> _buildSwitches(dynamic settings) {
-    return [
-      toggleRow(context.appText.loadUpdates, bool.parse(settings?.loadUpdates ?? ''), (value) => _updateSetting(loadUpdates: value)),
-      toggleRow(context.appText.systemUpdates, bool.parse(settings?.systemUpdates ?? ''), (value) => _updateSetting(systemUpdates: value)),
-      toggleRow(context.appText.paymentAlerts, bool.parse(settings?.paymentAlerts ?? ''), (value) => _updateSetting(paymentAlerts: value)),
-      toggleRow(context.appText.offersAndPromotions, bool.parse(settings?.offersPromotions ?? ''), (value) => _updateSetting(offersPromotions: value)),
-    ];
   }
 
   Widget toggleRow(String text, bool selected, Function(bool) onChanged) {
@@ -119,19 +159,23 @@ class _LpSettingState extends State<LpSetting> {
   Widget languageRadio(String text, bool selected) {
     return InkWell(
       onTap: () {
-        profileCubit.updateCustomerSettings(request: UpdateSettingsRequest(language: text));
-        setState(() {});
+        _updateLanguage(context, text);
       },
       child: Row(
         children: [
           RadioButton(radioBool: selected, onChanged: () {
-            profileCubit.updateCustomerSettings(request: UpdateSettingsRequest(language: text));
-            setState(() {});
+            _updateLanguage(context, text);
           }),
           Text(text, style: AppTextStyle.blackColor14w400),
         ],
       ),
     );
+  }
+
+  void _updateLanguage(BuildContext context, String languageCode) {
+    profileCubit.updateCustomerSettings(request: UpdateSettingsRequest(language: languageCode));
+
+    context.read<LocaleBloc>().add(ChangeLocale(Locale(languageCode.toLowerCase().substring(0,2))));
   }
 
   Widget headingText(String text) =>
@@ -167,24 +211,6 @@ class _LpSettingState extends State<LpSetting> {
           Spacer(),
           Icon(Icons.arrow_forward_ios, size: 12),
         ],
-      ),
-    );
-  }
-
-  void _updateSetting({
-    bool? loadUpdates,
-    bool? systemUpdates,
-    bool? paymentAlerts,
-    bool? offersPromotions,
-    bool? enableAppLock,
-  }) {
-    profileCubit.updateCustomerSettings(
-      request: UpdateSettingsRequest(
-        loadUpdates: loadUpdates?.toString(),
-        systemUpdates: systemUpdates?.toString(),
-        paymentAlerts: paymentAlerts?.toString(),
-        offersPromotions: offersPromotions?.toString(),
-        enableAppLock: enableAppLock?.toString(),
       ),
     );
   }

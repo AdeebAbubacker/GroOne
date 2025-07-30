@@ -385,7 +385,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     // VP FLOW
-    if (userRole == 2) {
+    if (userRole != 1) {
       if (companyId == 2) {
         final chkOk = need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &
         checkId(cancelledChequeDocId, "Cancelled Cheque");
@@ -491,12 +491,12 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
       final kycRequest = SubmitKycApiRequest(
         aadhar: widget.aadhaarNumber,
-        addressName: addressNameTextController.text,
-        fullAddress: fullAddressTextController.text,
+        addressName: addressNameTextController.text.trim(),
+        fullAddress: fullAddressTextController.text.trim(),
         pincode: pinCodeTextController.text,
         bankAccount: accountNumberTextController.text,
-        bankName: bankNameTextController.text,
-        branchName: branchNameTextController.text,
+        bankName: bankNameTextController.text.trim(),
+        branchName: branchNameTextController.text.trim(),
         chequeDocLink: cancelledChequeDocId ?? "",
         tdsDocLink: tdsDocId ?? "",
         gstin: gstInTextController.text,
@@ -587,6 +587,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                   companyId = null;
                 }
                 CustomLog.info(this, "companyId: $companyId");
+                final userRole = kycCubit.userRole;
+                final isVP = userRole == 2 || userRole == 3 || userRole == 4;
+                final isLP = userRole == 1 || userRole == 3;
                 return Column(
                   children: [
                     Form(
@@ -596,92 +599,68 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                         children: [
 
                           Builder(
-                            builder: (context){
+                            builder: (context) {
 
-                              if(kycCubit.userRole == null){
-                                return Container();
+                              if (userRole == null) {
+                                return SizedBox();
                               }
 
-                              CustomLog.debug(this, "User Role: ${kycCubit.userRole}");
+                              CustomLog.debug(this, "User Role: $userRole");
 
-                              // For VP
-                              if(kycCubit.userRole == 2) {
-                                return Column(
-                                  children: [
+                              List<Widget> children = [];
 
-                                    //  VP Individual Proprietor id 2
-                                    if(companyId == 2)...[
-                                      25.height,
-                                      _buildAadhaarWidget(context),
-                                      25.height,
-                                      buildCancelledCheckWidget(),
-                                      50.height,
-                                    ],
-
-
-                                    //  VP Sole Proprietor id = 1
-                                    if(companyId == 1)...[
-                                      _buildAadhaarWidget(context),
-                                      25.height,
-                                      _buildGstWidget(),
-                                      25.height,
-                                      _buildPanWidget(),
-                                      25.height,
-                                      buildCancelledCheckWidget(),
-                                      25.height,
-                                      buildTDSCertificationWidget(),
-                                      50.height,
-                                    ],
-
-                                    // VP All Others
-                                    if(companyId != 1 && companyId != 2)...[
-                                      _buildGstWidget(),
-                                      25.height,
-                                      _buildPanWidget(),
-                                      25.height,
-                                      buildTDSCertificationWidget(),
-                                      25.height,
-                                      buildCancelledCheckWidget(),
-                                      50.height,
-                                    ],
+                              if (companyId == 1) {
+                                children.addAll([
+                                  _buildAadhaarWidget(context),
+                                  25.height,
+                                  _buildGstWidget(),
+                                  25.height,
+                                  _buildPanWidget(),
+                                  25.height,
+                                  if (isVP) ...[
+                                    buildCancelledCheckWidget(),
+                                    25.height,
+                                    buildTDSCertificationWidget(),
                                   ],
-                                );
-                              }else{
-
-                                // For LP
-                                return Column(
-                                  children: [
-                                    // LP Sole Proprietor id = 1
-                                    if(companyId == 1)...[
-                                      _buildAadhaarWidget(context),
-                                      25.height,
-                                      _buildGstWidget(),
-                                      25.height,
-                                      _buildPanWidget(),
-                                      25.height,
-                                      _buildTanWidget(),
-                                      50.height,
-                                    ],
-
-                                    // LP Individual Proprietor id = 2
-                                    if(companyId == 2)...[
-                                      _buildAadhaarWidget(context),
-                                      50.height,
-                                    ],
-
-                                    // VP All Others
-                                    if(companyId != 1 && companyId != 2)...[
-                                      _buildGstWidget(),
-                                      25.height,
-                                      _buildPanWidget(),
-                                      25.height,
-                                      _buildTanWidget(),
-                                      50.height,
-                                    ],
+                                  if (isLP) ...[
+                                    25.height,
+                                   _buildTanWidget(),
                                   ],
-                                );
+                                  50.height,
+                                ]);
+                              } else if (companyId == 2) {
+                                children.addAll([
+                                  25.height,
+                                  _buildAadhaarWidget(context),
+                                  25.height,
+                                  if (isVP)
+                                    ...[
+                                      buildCancelledCheckWidget(),
+                                      50.height,
+                                    ]
+                                ]);
+                              } else {
+                                children.addAll([
+                                  _buildGstWidget(),
+                                  25.height,
+                                  _buildPanWidget(),
+                                  25.height,
+                                  if (isLP)
+                                    ...[
+                                      _buildTanWidget(),
+                                      25.height,
+                                    ],
+                                  if (isVP)
+                                    ...[
+                                      buildTDSCertificationWidget(),
+                                      25.height,
+                                      buildCancelledCheckWidget(),
+                                      50.height,
+                                    ]
+                                ]);
                               }
 
+                              return Column(children: children);
                             },
                           ),
 
@@ -710,7 +689,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 labelText: context.appText.fullAddress,
                                 hintText: context.appText.enterFullAddress,
                               ),
-                           16.height,    
+                           16.height,
                          // State Dropdown
                          BlocBuilder<EnDhanCubit, EnDhanState>(
                           bloc: endhancubit,
@@ -756,13 +735,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                           ),
 
                               ],);
-                              
-                              
+
+
                             }
                           ),
                           16.height,
-                         
-                         
+
+
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
@@ -785,9 +764,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                             children: [
                               10.height,
                               AppTextField(
-                                validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
+                                validator: (value) => isVP ? Validator.fieldRequired(value) : null,
                                 controller: accountNumberTextController,
-                                mandatoryStar: kycCubit.userRole == 1 ? false : true,
+                                mandatoryStar: isVP,
                                 labelText: context.appText.accountNumber,
                                 hintText: context.appText.enterAccountNumber,
                                 keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
@@ -799,9 +778,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               20.height,
 
                               AppTextField(
-                                validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
+                                validator: (value) => isVP ? Validator.fieldRequired(value) : null,
                                 controller: bankNameTextController,
-                                mandatoryStar: kycCubit.userRole == 1 ? false : true,
+                                mandatoryStar: isVP,
                                 labelText: context.appText.bankName,
                                 hintText: context.appText.enterBankName,
                                 inputFormatters: [
@@ -812,27 +791,27 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               20.height,
 
                               AppTextField(
-                                  validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
-                                  controller: branchNameTextController,
-                                  mandatoryStar: kycCubit.userRole == 1 ? false : true,
-                                  labelText: context.appText.branchName,
-                                  hintText: context.appText.enterBranchName,
-                                  inputFormatters: [
-                                    FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
-                                    UpperCaseTextFormatter(),
-                                  ],
+                                validator: (value) => isVP ? Validator.fieldRequired(value) : null,
+                                controller: branchNameTextController,
+                                mandatoryStar: isVP,
+                                labelText: context.appText.branchName,
+                                hintText: context.appText.enterBranchName,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
+                                  UpperCaseTextFormatter()
+                                ],
                               ),
                               20.height,
 
                               AppTextField(
-                                  validator: (value) => kycCubit.userRole == 1 ? null : Validator.fieldRequired(value),
-                                  controller: ifscCodeTextController,
-                                  mandatoryStar: kycCubit.userRole == 1 ? false : true,
-                                  labelText: context.appText.ifscCode,
-                                  hintText: context.appText.enterIFSCCode,
-                                  inputFormatters: [
-                                    IFSCCodeFormatter()
-                                  ],
+                                validator: (value) =>  isVP ? Validator.fieldRequired(value) : null,
+                                controller: ifscCodeTextController,
+                                mandatoryStar: isVP,
+                                labelText: context.appText.ifscCode,
+                                hintText: context.appText.enterIFSCCode,
+                                inputFormatters: [
+                                  IFSCCodeFormatter()
+                                ],
 
                               ),
 
@@ -1133,7 +1112,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       bloc: kycCubit,
         builder: (context, state) {
           final cancelledCheckUploadState = state.uploadCancelledUIState?.status;
-          if(kycCubit.userRole != null && kycCubit.userRole == 2) {
+          if(kycCubit.userRole != null && kycCubit.userRole != 1) {
             return UploadAttachmentFiles(
               title: "${context.appText.cancelledCheque} *",
               multiFilesList: checkDocLink,
@@ -1192,7 +1171,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       bloc: kycCubit,
       builder: (context, state) {
           final tdsUploadState = state.uploadTDSDocUIState?.status;
-          if(kycCubit.userRole != null && kycCubit.userRole == 2) {
+          if(kycCubit.userRole != null && kycCubit.userRole != 1) {
             return UploadAttachmentFiles(
               title: "${context.appText.tdsCertificate} *",
               multiFilesList: tdsDocLink,

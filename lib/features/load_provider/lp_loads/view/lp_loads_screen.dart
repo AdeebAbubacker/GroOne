@@ -66,6 +66,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     'Loading',
     'In Transit',
     'Unloading',
+    'POD Dispatch',
     'Completed',
   ];
 
@@ -85,7 +86,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     lpLoadLocator.updateSelectedTabIndex(0);
     paginationController = lpLoadLocator.paginationController;
     _tabController = TabController(
-      length: 8,
+      length: 9,
       vsync: this,
       initialIndex: lpLoadLocator.state.selectedTabIndex,
     )..addListener(_handleTabChange);
@@ -351,7 +352,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               physics: ClampingScrollPhysics(),  // tighter scroll behavior
               indicator: const BoxDecoration(),
               dividerHeight: 0,
-              tabs: List.generate(8, (index) {
+              tabs: List.generate(9, (index) {
                 final isSelected = state.selectedTabIndex == index;
                 return Tab(
                   child: Container(

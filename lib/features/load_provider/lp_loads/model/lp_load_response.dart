@@ -1,3 +1,5 @@
+import 'lp_load_get_by_id_response.dart';
+
 class LpLoadResponse {
   LpLoadResponse({
     required this.data,
@@ -56,6 +58,7 @@ class LpLoadItem {
     required this.deletedAt,
     required this.loadOnhold,
     required this.loadRoute,
+    required this.scheduleTripDetails,
     required this.loadStatusDetails,
     required this.loadPrice,
     required this.customer,
@@ -85,6 +88,7 @@ class LpLoadItem {
   final bool loadOnhold;
   final LoadRoute? loadRoute;
   final LoadStatusDetails? loadStatusDetails;
+  final ScheduleTripDetails? scheduleTripDetails;
   final LoadPrice? loadPrice;
   final Customer? customer;
 
@@ -112,6 +116,7 @@ class LpLoadItem {
     dynamic? deletedAt,
     bool? loadOnhold,
     LoadRoute? loadRoute,
+    ScheduleTripDetails? scheduleTripDetails,
     LoadStatusDetails? loadStatusDetails,
     LoadPrice? loadPrice,
     Customer? customer,
@@ -140,6 +145,7 @@ class LpLoadItem {
       deletedAt: deletedAt ?? this.deletedAt,
       loadOnhold: loadOnhold ?? this.loadOnhold,
       loadRoute: loadRoute ?? this.loadRoute,
+      scheduleTripDetails: scheduleTripDetails ?? this.scheduleTripDetails,
       loadStatusDetails: loadStatusDetails ?? this.loadStatusDetails,
       loadPrice: loadPrice ?? this.loadPrice,
       customer: customer ?? this.customer,
@@ -171,6 +177,7 @@ class LpLoadItem {
       deletedAt: json["deletedAt"],
       loadOnhold: json["loadOnhold"],
       loadRoute: json["loadRoute"] == null ? null : LoadRoute.fromJson(json["loadRoute"]),
+      scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
       loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),

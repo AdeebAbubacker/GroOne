@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/localization_bloc/localization_bloc.dart';
+import 'package:gro_one_app/core/localization_bloc/localization_event.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -81,9 +83,9 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                       isSelected: state.index == index,
                       imageString: getImgPath(lang.name),
                       onTap: () {
-                        // context.read<LanguageBloc>().add(ChangeIndex(index: index));
-                        // context.read<LocaleBloc>().add(ChangeLocale(const Locale('en')));
-                        // Add logic to switch locale if needed
+                        context.read<LanguageBloc>().add(ChangeIndex(index: index));
+                        final langCode = lang.name.toLowerCase().substring(0,2);
+                        context.read<LocaleBloc>().add(ChangeLocale(Locale(langCode)));
                       },
                     );
                   },
