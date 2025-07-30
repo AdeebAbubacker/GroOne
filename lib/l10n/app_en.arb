@@ -1063,5 +1063,22 @@
   "noDriversfound": "No drivers found",
   "vehicleRegNoVerified" : "Vehicle reg no is verified",
   "vehicleRegNoAlreadyExcist" : "This vehicle reg no already excist",
-  "licenseNoVerified" : "License no verified"
+  "licenseNoVerified" : "License no verified",
+  "otherReports": "Other Reports",
+  "errorOccurred": "An error occurred",
+  "selectReportType": "Select Report Type",
+  "showReport": "Show Report",
+  "pleaseSelectVehicle": "Please select a vehicle first",
+  "noReachabilityAlerts": "No reachability alerts found for the selected period.",
+  "noStopsFound": "No stops found for the selected period.",
+  "noTripsFound": "No trips found for the selected period.",
+  "noDailySummary": "No daily summary found for the selected period.",
+  "noDistanceData": "No distance data found for the selected period.",
+  "noReportsFound": "No reports found for the selected period.",
+  "failedToLoadStopAddresses": "Failed to load stop addresses",
+  "failedToLoadTripAddresses": "Failed to load trip addresses",
+  "failedToLoadSummaryAddresses": "Failed to load summary addresses",
+  "failedToLoadReachabilityAddresses": "Failed to load reachability addresses",
+  "selectFiltersHint": "Select filters and tap 'Show Report' to begin.",
+  "noReportTypesFound": "No report types found"
 }

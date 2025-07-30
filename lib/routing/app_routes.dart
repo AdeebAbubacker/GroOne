@@ -191,7 +191,10 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.gpsReports,
         builder: (BuildContext context, GoRouterState state) {
-          return GpsReportScreen();
+          return BlocProvider.value(
+              value: locator<VehicleListCubit>(),
+              child: GpsReportScreen());
+          // return GpsReportScreen();
         },
       ),
 

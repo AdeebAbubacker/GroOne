@@ -216,6 +216,7 @@ class _GpsHomeContent extends StatelessWidget {
           }
         },
         child: Scaffold(
+          bottomNavigationBar: _buildBuyNewGpsButton(context),
           appBar: AppBar(
             backgroundColor: AppConstants.cardColor,
             elevation: 0,
@@ -331,7 +332,7 @@ class _GpsHomeContent extends StatelessWidget {
                       // Bottom banner
                       _buildBottomBannerImageWidget(),
                       // Buy New GPS button
-                      _buildBuyNewGpsButton(context),
+
                     ],
                   ),
                 ),

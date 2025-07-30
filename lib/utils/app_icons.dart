@@ -129,7 +129,7 @@ class SvgIcons {
   final String truckSteering = "${_svgBasePath}truck_steering.svg";
   final String gpsGeofenceCircle = "${_svgBasePath}gps_geofence_icon_circle.svg";
   final String gpsGeofenceSquare = "${_svgBasePath}gps_geofence_icon_square.svg";
-  final String gpsGeofencePolyline = "${_svgBasePath}gps_home_geofence.svg";
+  final String gpsGeofencePolyline = "${_svgBasePath}gps_geofence_icon_polyline.svg";
   final String gpsHomeParking = "${_svgBasePath}gps_home_parking.svg";
   final String gpsHomeDashboard = "${_svgBasePath}gps_home_dashboard.svg";
   final String gpsHomeOrders = "${_svgBasePath}gps_home_orders.svg";

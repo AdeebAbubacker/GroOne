@@ -117,14 +117,9 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                       popupProps: PopupProps.menu(
                         // fit: FlexFit.loose,
                         showSearchBox: true,
-                        constraints: BoxConstraints(
-                          maxHeight: MediaQuery.of(context).size.height * 0.5,
-                        ),
                         emptyBuilder:
                             (context, searchEntry) => Center(
                               child: Text(context.appText.noVehiclesFound),
-                            ).withHeight(
-                              MediaQuery.of(context).size.height * 0.5,
                             ),
                         loadingBuilder:
                             (context, searchEntry) => const Center(
