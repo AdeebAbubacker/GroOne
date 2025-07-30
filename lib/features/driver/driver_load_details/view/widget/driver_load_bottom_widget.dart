@@ -490,7 +490,7 @@ if (loadStatus == 4) {
                               onSubmit: () {
                               //Check for sim consent and trip doc
                                     if (loads.data?.loadStatusId == 5) {
-                                      final isConsentGiven = loads.data?.driverConsent == 1;
+                                     // final isConsentGiven = loads.data?.driverConsent == 1;
                                     final tripDocumentList = state.tripDocumentList ?? [];
                                     /// TODO: change this according to multiple document
                                     if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {

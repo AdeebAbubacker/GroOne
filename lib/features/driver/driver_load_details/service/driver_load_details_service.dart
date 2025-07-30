@@ -34,13 +34,17 @@ class DriverLoadDetailsService {
       if (response is Success) {
         final data = response.value;
         final loads = DriverLoadDetailsModel.fromJson(data);
+        print('---------------------------------------------------${loads.data?.acceptedBy}');
         return Success(loads);
       } else if (response is Error) {
+        print('---------------------------------------------------${response.type}');
         return Error(response.type);
       } else {
+        print('---------------------------------------------------error');
         return Error(GenericError());
       }
     } catch (e) {
+      print('---------------------------------------------------${e.toString()}');
       return Error(DeserializationError());
     }
   }

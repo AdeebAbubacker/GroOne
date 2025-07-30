@@ -460,28 +460,47 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     }
 
     //Lorry Receipt, E-way Bill , Material invoice file status check
-    bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
-  final requiredTypeIds = [5, 6, 7]; // IDs of LR Receipt, E-way Bill, Material Invoice
+//     bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
+//   final requiredTypeIds = [5, 6, 7]; // IDs of LR Receipt, E-way Bill, Material Invoice
 
-  // For each required type ID, check if any of the loadDocuments under that type
-  // has status == 1 (uploaded successfully)
-  for (int typeId in requiredTypeIds) {
-    final documentEntity = tripDocumentList.firstWhere(
-      (doc) => doc.documentTypeId == typeId,
-    );
+//   // For each required type ID, check if any of the loadDocuments under that type
+//   // has status == 1 (uploaded successfully)
+//   for (int typeId in requiredTypeIds) {
+//     final documentEntity = tripDocumentList.firstWhere(
+//       (doc) => doc.documentTypeId == typeId,
+//     );
 
-    if (documentEntity == null || documentEntity.loadDocument == null) {
-      return false; 
-    }
+//     if (documentEntity == null || documentEntity.loadDocument == null) {
+//       return false; 
+//     }
 
-    bool anyUploaded = documentEntity.loadDocument!.any((loadDoc) => loadDoc.status == 1);
-    if (!anyUploaded) {
-      return false; 
+//     bool anyUploaded = documentEntity.loadDocument!.any((loadDoc) => loadDoc.status == 1);
+//     if (!anyUploaded) {
+//       return false; 
+//     }
+//   }
+
+//   return true; 
+// }
+
+bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
+  final requiredTypeIds = [5, 6, 7];
+  for (final typeId in requiredTypeIds) {
+    try {
+      final documentEntity = tripDocumentList.firstWhere((doc) => doc.documentTypeId == typeId);
+      if (documentEntity.loadDocument == null || documentEntity.loadDocument!.isEmpty) {
+        return false;
+      }
+    } catch (e) {
+      // No documentEntity found for this typeId
+      return false;
     }
   }
-
-  return true; 
+  return true;
 }
+
+
+
  
 
 bool canAddMoreOtherDocuments() {
