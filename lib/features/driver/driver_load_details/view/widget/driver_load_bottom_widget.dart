@@ -120,7 +120,6 @@ if (loadStatus == 4) {
   }
 /// TODO: need to change driver code also regarding document
       if (loadStatus == 5) {
-     if (driverConsent != 1) return false;
       if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
       }
 
@@ -301,15 +300,12 @@ if (loadStatus == 4) {
                           20.height,
                           15.height,
                           _buildLoadEntityWidget(
-                            commodities:
-                                loads!.data!.commodity!.name.toString() ??
-                                '',
-                            weight:
-                                loads!.data!.weight!.value.toString() ??
-                                '',
+                            commodities: loads?.data?.commodity?.name?.toString() ?? '',
+                            weight: loads?.data?.weight?.value?.toString() ?? '',
                             locationDistance: state.locationDistance,
-                                context: context
+                            context: context,
                           ),
+
                            if (loads!.data!.consignees != null &&
                                     widget.loadItem.data!.consignees.isNotEmpty)
                                   _buildConsigneeDetail(

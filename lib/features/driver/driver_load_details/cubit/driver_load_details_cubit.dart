@@ -459,25 +459,57 @@ Future<void> getDriverLoadsById({required String loadId}) async {
       }
     }
 
+    //Lorry Receipt, E-way Bill , Material invoice file status check
+//     bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
+//   final requiredTypeIds = [5, 6, 7]; // Lorry Receipt, E-Way Bill, Material Invoice
+
+//   for (final typeId in requiredTypeIds) {
+//     final entity = tripDocumentList.firstWhere(
+//       (d) => d.documentTypeId == typeId,
+//     );
+//     if (entity == null || entity.loadDocument == null || entity.loadDocument!.isEmpty) {
+//       return false;
+//     }
+//     if (!entity.loadDocument!.any((doc) => doc.status == 1)) {
+//       return false;
+//     }
+//   }
+//   return true;
+// }
 bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
-  final requiredTypeIds = [5, 6, 7];
-  for (final typeId in requiredTypeIds) {
-    try {
-      final documentEntity = tripDocumentList.firstWhere((doc) => doc.documentTypeId == typeId);
-      if (documentEntity.loadDocument == null || documentEntity.loadDocument!.isEmpty) {
-        return false;
-      }
-    } catch (e) {
-      // No documentEntity found for this typeId
+  // Map typeId to readable document names for better debug messages
+  const requiredDocsMap = {
+    5: 'Lorry Receipt',
+    6: 'E-Way Bill',
+    7: 'Material Invoice',
+  };
+
+  for (final typeId in requiredDocsMap.keys) {
+    final entity = tripDocumentList.firstWhere(
+      (d) => d.documentTypeId == typeId,
+  
+    );
+    if (entity == null) {
+      print('Validation failed: ${requiredDocsMap[typeId]} document not uploaded (no entity found).');
+      return false;
+    }
+    if (entity.loadDocument == null || entity.loadDocument!.isEmpty) {
+      print('Validation failed: ${requiredDocsMap[typeId]} document list is empty.');
+      return false;
+    }
+    if (!entity.loadDocument!.any((doc) => doc.status == 1)) {
+      print('Validation failed: No active (${requiredDocsMap[typeId]}) document with status = 1 found.');
       return false;
     }
   }
+
+  // All required documents are uploaded and valid
+  print('All required documents uploaded and valid.');
   return true;
 }
 
 
 
- 
 
 bool canAddMoreOtherDocuments() {
   try {
