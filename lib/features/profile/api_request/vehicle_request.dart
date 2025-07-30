@@ -1,27 +1,27 @@
 class VehicleRequest {
   VehicleRequest({
-    required this.customerId,
-    required this.truckNo,
-    required this.rcNumber,
-    required this.rcDocLink,
-    required this.tonnage,
-    required this.truckTypeId,
-    required this.truckMakeAndModel,
-    this.acceptableCommodities, 
-    this.truckLength,           
-    required this.vehicleStatus,
+    this.customerId,
+    this.truckNo,
+    this.rcNumber,
+    this.rcDocLink,
+    this.tonnage,
+    this.truckTypeId,
+    this.truckMakeAndModel,
+    this.acceptableCommodities,
+    this.truckLength,
+    this.vehicleStatus,
   });
 
-  final String customerId;
-  final String truckNo;
-  final String rcNumber;
-  final String rcDocLink;
-  final String tonnage;
-  final int truckTypeId;
-  final String truckMakeAndModel;
-  final List<int>? acceptableCommodities; 
-  final int? truckLength;                 
-  final int vehicleStatus;
+  final String? customerId;
+  final String? truckNo;
+  final String? rcNumber;
+  final String? rcDocLink;
+  final String? tonnage;
+  final int? truckTypeId;
+  final String? truckMakeAndModel;
+  final List<int>? acceptableCommodities;
+  final int? truckLength;
+  final int? vehicleStatus;
 
   VehicleRequest copyWith({
     String? customerId,
@@ -51,35 +51,33 @@ class VehicleRequest {
 
   factory VehicleRequest.fromJson(Map<String, dynamic> json) {
     return VehicleRequest(
-      customerId: json["customerId"] ?? "",
-      truckNo: json["truckNo"] ?? "",
-      rcNumber: json["rcNumber"] ?? "",
-      rcDocLink: json["rcDocLink"] ?? "",
-      tonnage: json["tonnage"] ?? "",
-      truckTypeId: json["truckTypeId"] ?? 0,
-      truckMakeAndModel: json["truckMakeAndModel"] ?? "",
+      customerId: json["customerId"],
+      truckNo: json["truckNo"],
+      rcNumber: json["rcNumber"],
+      rcDocLink: json["rcDocLink"],
+      tonnage: json["tonnage"],
+      truckTypeId: json["truckTypeId"],
+      truckMakeAndModel: json["truckMakeAndModel"],
       acceptableCommodities: json["acceptableCommodities"] != null
           ? List<int>.from(json["acceptableCommodities"])
           : null,
       truckLength: json["truckLength"],
-      vehicleStatus: json["vehicleStatus"] ?? 0,
+      vehicleStatus: json["vehicleStatus"],
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      "customerId": customerId,
-      "truckNo": truckNo,
-      "rcNumber": rcNumber,
-      "rcDocLink": rcDocLink,
-      "tonnage": tonnage,
-      "truckTypeId": truckTypeId,
-      "truckMakeAndModel": truckMakeAndModel,
-      if (acceptableCommodities != null) 
-        "acceptableCommodities": acceptableCommodities,
-      if (truckLength != null) 
-        "truckLength": truckLength,
-      "vehicleStatus": vehicleStatus,
+      if (customerId != null) "customerId": customerId,
+      if (truckNo != null) "truckNo": truckNo,
+      if (rcNumber != null) "rcNumber": rcNumber,
+      if (rcDocLink != null) "rcDocLink": rcDocLink,
+      if (tonnage != null) "tonnage": tonnage,
+      if (truckTypeId != null) "truckTypeId": truckTypeId,
+      if (truckMakeAndModel != null) "truckMakeAndModel": truckMakeAndModel,
+      if (acceptableCommodities != null) "acceptableCommodities": acceptableCommodities,
+      if (truckLength != null) "truckLength": truckLength,
+      if (vehicleStatus != null) "vehicleStatus": vehicleStatus,
     };
   }
 }
