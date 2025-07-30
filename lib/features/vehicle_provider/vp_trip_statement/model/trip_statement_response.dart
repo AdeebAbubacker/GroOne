@@ -3,13 +3,14 @@ import '../../../load_provider/lp_loads/model/lp_load_memo_response.dart';
 class TripStatementResponse {
   String? message;
   MemoDetails? memoDetails;
+  LoadSettlement? loadSettlement;
 
 
   TripStatementResponse.fromJson(Map<String,dynamic> json){
     message=json['message'];
-    memoDetails=MemoDetails.fromJson(json['data']);
+    memoDetails= json['data'] !=null &&  json['data']['memoDetails']!=null  ?  MemoDetails.fromJson(json['data']['memoDetails']):null;
+    loadSettlement=json['data'] !=null &&  json['data']['loadSettlement']!=null ? LoadSettlement.fromJson(json['data']['loadSettlement']):null;
   }
-
 }
 
 
@@ -141,4 +142,6 @@ class LoadSettlement {
     );
   }
 }
+
+
 

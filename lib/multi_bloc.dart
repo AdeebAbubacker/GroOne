@@ -45,6 +45,7 @@ import 'features/privacy_policy/bloc/privacy_policy_bloc.dart';
 import 'features/terms_and_conditions/bloc/terms_and_conditions_bloc.dart';
 import 'features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+import 'features/vehicle_provider/vp_trip_statement/cubit/vp_trip_statement_cubit.dart';
 
 class MultiBlocWrapper extends StatelessWidget {
   final Widget child;
@@ -100,6 +101,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<DriverProfileCubit>(create: (_) => locator<DriverProfileCubit>()),
         BlocProvider<DriverLoadDetailsCubit>(create: (_) => locator<DriverLoadDetailsCubit>()),
         BlocProvider<GpsVehicleCubit>(create: (_) => locator<GpsVehicleCubit>()),
+        BlocProvider<VpTripStatementCubit>(create: (_) => locator<VpTripStatementCubit>()),
        ],
       child: child,
     );

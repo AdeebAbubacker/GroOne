@@ -1063,6 +1063,18 @@
   "vehicleRegNoVerified" : "Vehicle reg no is verified",
   "vehicleRegNoAlreadyExcist" : "This vehicle reg no already excist",
   "licenseNoVerified" : "License no verified",
+  "loadProvider":"Load Provider",
+  "name":"Name",
+  "destination":"destination",
+  "unloadingDate":"Unloading date",
+  "name":"name",
+  "destination":"Destination",
+  "unloadingDate":"Unloading date",
+  "addDriver":"Add Driver",
+  "addVehicle":"Add Vehicle",
+
+
+
 
 
 
@@ -1071,6 +1083,7 @@
   "podDispatch":"POD Dispatch",
   "courierCompany":"courier Company",
   "awbCompany":"AWB Number",
-  "othersDocument":"Others Document"
+  "othersDocument":"Others Document",
+  "viewTripStatement":"View Trip Statement"
 
 }

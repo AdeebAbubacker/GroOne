@@ -126,6 +126,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
               ],
             );
           }
+
           return genericErrorWidget(error: GenericError());
         },
         listener: (context, state) {
@@ -247,7 +248,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                 children: [
                   _buildLocationDetailsTileWidget(
                     loadDetails?.loadRoute?.pickUpLocation,
-                    DateTimeHelper.getFormattedDate(
+                    DateTimeHelper.formatCustomDateIST(
                       loadDetails?.pickUpDateTime?? DateTime.now(),
                     ),
                   ),
@@ -255,7 +256,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   20.width,
                   _buildLocationDetailsTileWidget(
                     loadDetails?.loadRoute?.dropLocation,
-                    DateTimeHelper.getFormattedDate(
+                    DateTimeHelper.formatCustomDateIST(
                       loadDetails?.expectedDeliveryDateTime ?? DateTime.now(),
                     ),
                   ),

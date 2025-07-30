@@ -50,6 +50,7 @@ class PreviewDocumentWidget extends StatelessWidget {
     return buildUploadedDocPreviewItem(
       onClickViewMoreIcon:onClickViewMoreIcon ,
       showDeleteIcon: showDeleteIcon,
+
       onClickDeleteIcon: onClickDeleteIcon,
       isLoading: isLoading ?? false,
       onClickDownload: onClickDownload,
@@ -89,6 +90,9 @@ Widget buildUploadedDocPreviewItem({
   final bool shouldShowAdd = showAddMoreButton ?? false;
   final bool shouldShowDelete = showDeleteIcon ?? false;
   final bool shouldShowView = showViewButton ?? false;
+
+
+
 
   final Widget loader = SizedBox(
     height: 15,

@@ -57,10 +57,12 @@ class AppDropdown extends StatelessWidget {
           ),
         if (labelText != null) 6.height,
         DropdownButtonHideUnderline(
+
           child: DropdownButtonFormField<String>(
             dropdownColor: AppColors.scaffoldBackgroundColor,
             isExpanded: false,
             enableFeedback: true,
+
             decoration: enabled 
                 ? (decoration ?? commonInputDecoration())
                 : (decoration ?? commonInputDecoration()).copyWith(

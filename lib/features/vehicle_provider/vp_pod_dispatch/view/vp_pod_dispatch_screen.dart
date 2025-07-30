@@ -72,6 +72,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
       );
       return;
     }
+
     if (formKey.currentState!.validate()) {
       if (podCenterNameDropDownValue != null &&
           podCenterNameDropDownValue!.isEmpty) {
