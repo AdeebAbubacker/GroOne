@@ -953,6 +953,7 @@
   "daysLeft": "दिन शेष",
   "vehicleIconSize": "वाहन आइकन आकार",
   "editVehicleInfo": "वाहन जानकारी संपादित करें",
-  "notVerified" : "सत्यापित नहीं है"
+  "notVerified" : "सत्यापित नहीं है",
+  "selectGeofence" :    "जियोफेंस का चयन करें"
 
 }

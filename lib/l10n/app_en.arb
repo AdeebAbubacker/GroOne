@@ -1056,7 +1056,8 @@
    "driverDeletedSuccessfully" : "Driver Deleted Successfully",
    "addNewDriver" : "Add Driver",
     "driverUpdatedSuccessfully" : "Driver Updated Successfully",
-    "driverAddedSuccess" :    "Driver added successfully"
+    "driverAddedSuccess" :    "Driver added successfully",
+    "selectGeofence" :    "Select Geofence"
 
 
 

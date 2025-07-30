@@ -990,5 +990,6 @@
   "daysLeft": "நாட்கள் மீதம்",
   "vehicleIconSize": "வாகன ஐகான் அளவு",
   "noNotificationsAvailable": "அறிவிப்புகள் எதுவும் இல்லை",
-  "notVerified" : "சரிபார்க்கப்படவில்லை"
+  "notVerified" : "சரிபார்க்கப்படவில்லை",
+  "selectGeofence" :    "ஜியோஃபென்ஸைத் தேர்ந்தெடுக்கவும்"
 }

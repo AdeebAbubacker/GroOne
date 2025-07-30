@@ -12,7 +12,6 @@ import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
@@ -22,8 +21,6 @@ import '../../../utils/common_widgets.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../models/gps_geofence_model.dart';
-import '../repository/gps_login_repository.dart';
-import '../service/gps_service.dart';
 
 class GpsGeofenceScreen extends StatefulWidget {
   const GpsGeofenceScreen({super.key});
@@ -49,6 +46,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
     gpsGeofenceCubit.loadGeofences();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {}); // Trigger rebuild when tab changes
+      }
       if (_tabController.index == 1 && !_tabController.indexIsChanging) {
         final vehicleListState = locator<VehicleListCubit>().state;
 
@@ -95,30 +95,19 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
     }
   }
 
-  // Helper method to get user ID dynamically
-  Future<String> _getUserIdFromService() async {
-    try {
-      final gpsService = locator<GpsService>();
-      final loginRepository = locator<GpsLoginRepository>();
-
-      // Get stored token
-      final loginResponse = await loginRepository.getStoredLoginResponse();
-      if (loginResponse?.token == null) {
-        return "163"; // Fallback to default if no token
-      }
-
-      // Get user ID from service
-      final userIdResult = await gpsService.getUserId(loginResponse!.token!);
-      if (userIdResult is Success<int?>) {
-        final userId = userIdResult.value?.toString();
-        return userId ?? "163"; // Fallback to default if no user ID
-      } else {
-        return "163"; // Fallback to default on error
-      }
-    } catch (e) {
-      return "163"; // Fallback to default on exception
+  String getGeofenceShapeIcon(String? shapeType) {
+    switch (shapeType?.toLowerCase()) {
+      case 'circle':
+        return AppIcons.svg.gpsGeofenceCircle;
+      case 'polygon':
+        return AppIcons.svg.gpsGeofenceSquare;
+      case 'polyline':
+        return AppIcons.svg.gpsGeofencePolyline;
+      default:
+        return AppIcons.svg.gpsGeofenceCircle;
     }
   }
+
 
   Future<bool?> _showConfirmationDialog(
     BuildContext context,
@@ -181,7 +170,18 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
           AppIconButton(
             onPressed: () {
               debugPrint("🔄 GpsGeofenceScreen - Refresh button pressed");
-              gpsGeofenceCubit.refreshData();
+              // gpsGeofenceCubit.refreshData();
+              gpsGeofenceCubit.refreshData().then((_) {
+                if (_tabController.index == 1 && selectedVehicle.isNotEmpty) {
+                  final vehicleListState = locator<VehicleListCubit>().state;
+                  final selectedVehicleData = vehicleListState.filteredVehicles
+                      .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+                  gpsGeofenceCubit.loadVehicleGeofences(
+                    deviceId: selectedVehicleData.deviceId.toString(),
+                    vehicleId: selectedVehicle,
+                  );
+                }
+              });
             },
             icon: const Icon(Icons.refresh, size: 20),
             iconColor: AppColors.primaryColor,
@@ -257,6 +257,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                 color: AppColors.white,
                 elevation: 0,
                 child: ListTile(
+                  leading: SvgPicture.asset(
+                    getGeofenceShapeIcon(item.shapeType),
+                    width: 20,
+                  ),
                   title: Text(
                     '${item.name} (${_getFormattedValue(item)})',
                     style: AppTextStyle.h5,
@@ -303,7 +307,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
 
   Widget buildVehiclesTab() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        //Vehicle dropdown
         BlocBuilder<VehicleListCubit, VehicleListState>(
           builder: (context, vehicleState) {
             if (vehicleState.isLoading) {
@@ -397,6 +403,8 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             }
           },
         ),
+        Text(context.appText.selectGeofence, style: AppTextStyle.h5,).paddingOnly(left: 25),
+        //List of geofence
         Expanded(
           child: BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
             builder: (context, state) {
@@ -410,7 +418,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                       gpsState.vehicleGeofenceMap[selectedVehicle] ?? {};
 
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
                     itemCount: gpsState.geofences.length,
                     itemBuilder: (context, index) {
                       final item = gpsState.geofences[index];
@@ -444,11 +452,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                                     .firstWhere(
                                       (v) => v.vehicleNumber == selectedVehicle,
                                     );
-
-                                // Get user ID dynamically from the cubit or service
-                                final userId = await _getUserIdFromService();
                                 gpsGeofenceCubit.toggleGeofenceForVehicle(
-                                  userId: userId,
                                   deviceId:
                                       selectedVehicleData.deviceId.toString(),
                                   vehicleId: selectedVehicle,
