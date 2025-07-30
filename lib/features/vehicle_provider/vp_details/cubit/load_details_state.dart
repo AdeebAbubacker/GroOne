@@ -31,7 +31,7 @@ class LoadDetailsState extends Equatable {
   final bool? isUpdateDamage;
   final String? damageId;
 
-  final List<DocumentEntity>? tripDocumentList ;
+  final List<DocumentEntity>? tripDocumentList;
   final UIState<TrackingDistanceResponse>? trackingDistance;
   final int? loadStatusId;
   final List<String>? allDamageImageList;

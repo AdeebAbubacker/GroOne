@@ -32,7 +32,6 @@ class VpPodDispatchScreen extends StatefulWidget {
 }
 
 class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
-
   final cubit = locator<PodDispatchCubit>();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -42,6 +41,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
   String? podCenterIdDropDownValue;
   String? podCenterNameDropDownValue;
+  bool isPodSubmitted = false;
 
   @override
   void initState() {
@@ -63,51 +63,58 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
     cubit.resetState();
   });
 
-
   // Submit Pod Api call
-  void submitPodApiCall() {
+  Future<void> submitPodApiCall() async {
     if (widget.loadId == null && widget.loadId!.isEmpty) {
-      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${context.appText.loadId} : ${widget.loadId}");
+      ToastMessages.error(
+        message:
+            "${context.appText.somethingWentWrong} - ${context.appText.loadId} : ${widget.loadId}",
+      );
       return;
     }
     if (formKey.currentState!.validate()) {
-      if (podCenterNameDropDownValue != null && podCenterNameDropDownValue!.isEmpty) {
-        ToastMessages.alert(message: "${context.appText.somethingWentWrong} - ${context.appText.podCenterName} : $podCenterNameDropDownValue");
+      if (podCenterNameDropDownValue != null &&
+          podCenterNameDropDownValue!.isEmpty) {
+        ToastMessages.alert(
+          message:
+              "${context.appText.somethingWentWrong} - ${context.appText.podCenterName} : $podCenterNameDropDownValue",
+        );
         return;
       }
 
       final request = SubmitPodApiRequest(
-          loadId: widget.loadId!,
-          courierCompany: courierCompanyTextController.text,
-          awbNumber: awbNumberTextController.text,
-          podCenterId: podCenterIdDropDownValue!,
-          podCenterName: podCenterNameDropDownValue!
+        loadId: widget.loadId!,
+        courierCompany: courierCompanyTextController.text,
+        awbNumber: awbNumberTextController.text,
+        podCenterId: podCenterIdDropDownValue!,
+        podCenterName: podCenterNameDropDownValue!,
       );
-      cubit.submitPod(request);
+      isPodSubmitted = await cubit.submitPod(request) ?? false;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.podDispatch),
+      appBar: CommonAppBar(
+        title: context.appText.podDispatch,
+        onLeadingTap: () => Navigator.pop(context, isPodSubmitted),
+      ),
       body: _buildBodyWidget(context),
       bottomNavigationBar: _buildSubmitButtonWidget(),
     );
   }
 
   // Body
-  Widget _buildBodyWidget(BuildContext context){
-    return  SafeArea(
-      minimum : EdgeInsets.all(commonSafeAreaPadding),
+  Widget _buildBodyWidget(BuildContext context) {
+    return SafeArea(
+      minimum: EdgeInsets.all(commonSafeAreaPadding),
       child: Form(
         key: formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           spacing: 20,
           children: [
-
             // Courier Company
             AppTextField(
               validator: (value) => Validator.fieldRequired(value),
@@ -128,23 +135,26 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
             orDivider(),
 
-
             // POD Center
             BlocConsumer<PodDispatchCubit, PodDispatchState>(
               bloc: cubit,
-              listenWhen: (previous, current) =>  previous.podCenterListUIState?.status != current.podCenterListUIState?.status,
+              listenWhen:
+                  (previous, current) =>
+                      previous.podCenterListUIState?.status !=
+                      current.podCenterListUIState?.status,
               listener: (context, state) {
                 final status = state.podCenterListUIState?.status;
 
                 if (status == Status.ERROR) {
                   final error = state.podCenterListUIState?.errorType;
-                  ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                  ToastMessages.error(
+                    message: getErrorMsg(errorType: error ?? GenericError()),
+                  );
                 }
-
               },
               builder: (context, state) {
                 final data = state.podCenterListUIState?.data;
-                if(data != null && data.data.isNotEmpty){
+                if (data != null && data.data.isNotEmpty) {
                   return Column(
                     children: [
                       AppDropdown(
@@ -152,15 +162,26 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
                         labelText: context.appText.podCenter,
                         hintText: context.appText.selectPodCenter,
                         dropdownValue: podCenterIdDropDownValue,
-                        decoration: commonInputDecoration(fillColor: Colors.white),
-                        dropDownList: data.data.map((e) => DropdownMenuItem(
-                          value: e.podCenterId,
-                          child: Text(e.podCenterName.capitalize, style: AppTextStyle.body),
-                          onTap: (){
-                            podCenterIdDropDownValue = e.podCenterId;
-                            podCenterNameDropDownValue = e.podCenterName;
-                          },
-                        )).toList(),
+                        decoration: commonInputDecoration(
+                          fillColor: Colors.white,
+                        ),
+                        dropDownList:
+                            data.data
+                                .map(
+                                  (e) => DropdownMenuItem(
+                                    value: e.podCenterId,
+                                    child: Text(
+                                      e.podCenterName.capitalize,
+                                      style: AppTextStyle.body,
+                                    ),
+                                    onTap: () {
+                                      podCenterIdDropDownValue = e.podCenterId;
+                                      podCenterNameDropDownValue =
+                                          e.podCenterName;
+                                    },
+                                  ),
+                                )
+                                .toList(),
                         onChanged: (onChangeValue) {
                           podCenterIdDropDownValue = onChangeValue;
                         },
@@ -171,27 +192,30 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
                 return const SizedBox();
               },
             ),
-
           ],
         ),
       ),
     );
   }
 
-
   ///  Submit Button
-  Widget _buildSubmitButtonWidget(){
+  Widget _buildSubmitButtonWidget() {
     return BlocConsumer<PodDispatchCubit, PodDispatchState>(
       bloc: cubit,
-      listenWhen: (previous, current) =>  previous.submitPodUIState?.status != current.submitPodUIState?.status,
+      listenWhen:
+          (previous, current) =>
+              previous.submitPodUIState?.status !=
+              current.submitPodUIState?.status,
       listener: (context, state) async {
         final status = state.submitPodUIState?.status;
         if (status == Status.SUCCESS) {
-           Navigator.of(context).pop(true);
+          Navigator.of(context).pop(true);
         }
         if (status == Status.ERROR) {
           final error = state.submitPodUIState?.errorType;
-          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+          ToastMessages.error(
+            message: getErrorMsg(errorType: error ?? GenericError()),
+          );
         }
       },
       builder: (context, state) {
@@ -199,14 +223,13 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
-          onPressed: isLoading ? (){} : () => submitPodApiCall(),
+          onPressed: isLoading ? () {} : () => submitPodApiCall(),
         ).bottomNavigationPadding();
       },
     );
   }
 
-
- // Or Divider
+  // Or Divider
   Widget orDivider() {
     return Row(
       children: [
@@ -218,15 +241,10 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
               fontSize: 16,
               fontWeight: FontWeight.w500,
               color: AppColors.primaryColor,
-              ),
+            ),
           ),
         ),
-        Expanded(
-          child: Divider(
-            thickness: 1,
-          color: AppColors.primaryColor,
-          ),
-        ),
+        Expanded(child: Divider(thickness: 1, color: AppColors.primaryColor)),
       ],
     );
   }

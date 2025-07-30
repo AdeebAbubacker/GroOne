@@ -52,12 +52,13 @@ enum LoadStatus {
   loading,
   inTransit,
   unloading,
+  podDispatched,
   completed
 }
 
 
 
-String getBottomButtonTitle(LoadStatus status){
+String getSwipeButtonTitle(LoadStatus status){
   BuildContext context=navigatorKey.currentState!.context;
   switch(status){
     case LoadStatus.loading:
@@ -93,7 +94,8 @@ LoadStatus getLoadStatus(int? status){
     5 => LoadStatus.loading,
     6 => LoadStatus.inTransit,
     7 => LoadStatus.unloading,
-    8 => LoadStatus.completed,
+    8 => LoadStatus.podDispatched,
+    9 => LoadStatus.completed,
     null || int() => LoadStatus.matching
   };
 }
@@ -113,5 +115,22 @@ enum DocumentFileType {
 
   const DocumentFileType(this.value);
 }
+
+String getButtonText(LoadStatus status){
+  BuildContext context=navigatorKey.currentState!.context;
+  switch(status){
+    case LoadStatus.completed:
+      return context.appText.viewTripSettlement;
+    case LoadStatus.accepted:
+      return context.appText.assignDriver;
+      case LoadStatus.podDispatched:
+      return context.appText.podDispatchedDetails;
+      default:
+      return context.appText.acceptLoad;
+  }
+}
+
+
+
 
 

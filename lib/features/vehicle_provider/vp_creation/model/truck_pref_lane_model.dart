@@ -69,6 +69,7 @@ class Item {
         required this.deletedAt,
         required this.fromLocation,
         required this.toLocation,
+        required this.isSelected,
     });
 
     final int masterLaneId;
@@ -79,6 +80,7 @@ class Item {
     final dynamic deletedAt;
     final Location? fromLocation;
     final Location? toLocation;
+    final bool? isSelected;
 
     Item copyWith({
         int? masterLaneId,
@@ -89,8 +91,10 @@ class Item {
         dynamic? deletedAt,
         Location? fromLocation,
         Location? toLocation,
+        bool? isSelected
     }) {
         return Item(
+            isSelected: isSelected ?? this.isSelected,
             masterLaneId: masterLaneId ?? this.masterLaneId,
             fromLocationId: fromLocationId ?? this.fromLocationId,
             toLocationId: toLocationId ?? this.toLocationId,
@@ -104,6 +108,7 @@ class Item {
 
     factory Item.fromJson(Map<String, dynamic> json){
         return Item(
+            isSelected: false,
             masterLaneId: json["masterLaneId"] ?? 0,
             fromLocationId: json["fromLocationId"] ?? 0,
             toLocationId: json["toLocationId"] ?? 0,

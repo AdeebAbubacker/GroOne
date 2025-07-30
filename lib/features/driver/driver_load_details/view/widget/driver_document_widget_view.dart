@@ -36,20 +36,29 @@ class DriverDocumentWidgetView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return documentEntity?.loadDocument != null
-        ? PreviewDocumentWidget(
-      showDeleteIcon:true,
-      showDeleteLoader: documentEntity?.deleteLoading,
-      onClickDeleteIcon: () {
-        driverLoadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.loadDocumentId??"",index);
-      },
-         onClickDownload: () {
-         driverLoadDetailsCubit?.viewDocument(documentEntity?.loadDocument?.documentDetails?.documentId??"", index);
-      },
-       isLoading: documentEntity?.isLoading??false,
-        documentEntity: documentEntity!,
-        loadDocument: documentEntity!.loadDocument!).paddingTop(15)
-        : Visibility(
+
+    /// TODO : correct this
+    return
+      documentEntity?.loadDocument != null
+        ? SizedBox.shrink() :
+
+      // PreviewDocumentWidget(
+      // showDeleteIcon:true,
+      // showDeleteLoader: documentEntity?.deleteLoading,
+      // onClickDeleteIcon: () {
+      //   driverLoadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.loadDocumentId??"",index);
+      // },
+      //    onClickDownload: () {
+      //    driverLoadDetailsCubit?.viewDocument(documentEntity?.loadDocument?.documentDetails?.documentId??"", index);
+      // },
+      //  isLoading: documentEntity?.isLoading??false,
+      //   documentEntity: documentEntity!,
+      //   loadDocument:
+      //
+      //   // documentEntity!.loadDocument!).paddingTop(15)
+      //   :
+
+      Visibility(
       visible: documentEntity?.visible??true,
           child: GestureDetector(
             onTap: () {

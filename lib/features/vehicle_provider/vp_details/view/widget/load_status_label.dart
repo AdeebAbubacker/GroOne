@@ -49,6 +49,8 @@ class LoadStatusLabel extends StatelessWidget {
         return AppColors.teal.withOpacity(0.3);
       case LoadStatus.completed:
         return AppColors.activeDarkGreenColor;
+      case LoadStatus.podDispatched:
+      return Color(0xff42A5F5);
       default:
         return AppColors.activeDarkGreenColor.withAlpha(64);
     }
@@ -61,7 +63,7 @@ class LoadStatusLabel extends StatelessWidget {
     switch (loadStatus) {
       case LoadStatus.inTransit:
         return const Color(0xffFF5722);
-      case LoadStatus.completed:
+      case LoadStatus.completed || LoadStatus.podDispatched:
         return Colors.white;
       case LoadStatus.unloading:
         return Colors.teal;

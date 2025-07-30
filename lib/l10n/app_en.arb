@@ -1040,7 +1040,7 @@
   "vehicleIconSize": "Vehicle Icon Size",
   "editVehicle": "Edit Vehicle",
   "vehicleUpdatedSuccessfully" : "Vehicle updated successfully",
-  "vehicleAddedSuccessfully" : "Vehicle added successfully", 
+  "vehicleAddedSuccessfully" : "Vehicle added successfully",
   "licenseExpiryDate" : "License Expiry Date",
   "dateOdBirth" : "DOB",
   "failedToDownloadDocuments":"Failed to download the document",
@@ -1060,11 +1060,17 @@
   "startByAddingANewVehicle": "Start by adding a new vehicle.",
   "startByAddingANewDriver": "Start by adding a new driver.",
   "noDriversfound": "No drivers found",
-  "vehicleRegNoVerified" : "Vehicle reg no is verified",  
-  "vehicleRegNoAlreadyExcist" : "This vehicle reg no already excist",  
-  "licenseNoVerified" : "License no verified"
+  "vehicleRegNoVerified" : "Vehicle reg no is verified",
+  "vehicleRegNoAlreadyExcist" : "This vehicle reg no already excist",
+  "licenseNoVerified" : "License no verified",
 
 
 
+  "days":"Days",
+  "podDispatchedDetails":"POD Dispatch details",
+  "podDispatch":"POD Dispatch",
+  "courierCompany":"courier Company",
+  "awbCompany":"AWB Number",
+  "othersDocument":"Others Document"
 
 }
