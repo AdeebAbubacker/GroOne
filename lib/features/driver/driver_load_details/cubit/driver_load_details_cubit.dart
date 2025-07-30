@@ -459,30 +459,6 @@ Future<void> getDriverLoadsById({required String loadId}) async {
       }
     }
 
-    //Lorry Receipt, E-way Bill , Material invoice file status check
-//     bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
-//   final requiredTypeIds = [5, 6, 7]; // IDs of LR Receipt, E-way Bill, Material Invoice
-
-//   // For each required type ID, check if any of the loadDocuments under that type
-//   // has status == 1 (uploaded successfully)
-//   for (int typeId in requiredTypeIds) {
-//     final documentEntity = tripDocumentList.firstWhere(
-//       (doc) => doc.documentTypeId == typeId,
-//     );
-
-//     if (documentEntity == null || documentEntity.loadDocument == null) {
-//       return false; 
-//     }
-
-//     bool anyUploaded = documentEntity.loadDocument!.any((loadDoc) => loadDoc.status == 1);
-//     if (!anyUploaded) {
-//       return false; 
-//     }
-//   }
-
-//   return true; 
-// }
-
 bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
   final requiredTypeIds = [5, 6, 7];
   for (final typeId in requiredTypeIds) {
