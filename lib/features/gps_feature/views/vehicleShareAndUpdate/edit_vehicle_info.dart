@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/edit_vehicle_info_bloc/ed
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_vehicle_extra_info_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
@@ -85,9 +86,9 @@ class EditVehicleInfoView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.appBarBackgroundColor,
-      appBar: AppBar(
+      appBar: CommonAppBar(
         backgroundColor: Colors.white,
-        title: Text('Edit Vehicle Info'),
+        title: context.appText.editVehicleInfo,
         leading: IconButton(
           icon: Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -99,7 +100,7 @@ class EditVehicleInfoView extends StatelessWidget {
             if (state.isSuccess) {
               _showSuccessSnackBar(
                 context,
-                'Vehicle information updated successfully!',
+                context.appText.vehicleInfoUpdateSuccess,
               );
               Navigator.pop(context);
             }
@@ -159,7 +160,7 @@ class EditVehicleInfoView extends StatelessWidget {
       child: Column(
         children: [
           Text(
-            'Subscription Expiry Date',
+            context.appText.subscriptionExpiryDate,
             style: TextStyle(
               fontSize: 16,
               color: Colors.black,
@@ -187,7 +188,7 @@ class EditVehicleInfoView extends StatelessWidget {
               ),
               onPressed: () {},
               child: Text(
-                'Renew / Extend Subscription',
+                context.appText.renewExtendSubscription,
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -225,7 +226,7 @@ class EditVehicleInfoView extends StatelessWidget {
         // Vehicle Number - always show
         _buildTextField(
           context: context,
-          label: 'Vehicle Number',
+          label: context.appText.vehicleNumber,
           value: state.vehicleNumber ?? '',
           field: 'vehicleNumber',
         ),
@@ -233,7 +234,7 @@ class EditVehicleInfoView extends StatelessWidget {
         // Plate Number - always show
         _buildTextField(
           context: context,
-          label: 'Plate Number',
+          label: context.appText.plateNumber,
           value: state.plateNumber ?? '',
           field: 'plateNumber',
         ),
@@ -241,7 +242,7 @@ class EditVehicleInfoView extends StatelessWidget {
         // Chassis Number - always show
         _buildTextField(
           context: context,
-          label: 'Chassis Number',
+          label: context.appText.chassisNumber,
           value: state.chassisNumber ?? '',
           field: 'chassisNumber',
         ),
@@ -255,7 +256,7 @@ class EditVehicleInfoView extends StatelessWidget {
         // Date Added - always show
         _buildDateField(
           context: context,
-          label: 'Date Added',
+          label: context.appText.dateAdded,
           value:
               state.dateAdded != null
                   ? DateFormat('dd-MM-yyyy HH:mm').format(state.dateAdded!)
@@ -266,7 +267,7 @@ class EditVehicleInfoView extends StatelessWidget {
         // Insurance Expiry Date - always show
         _buildDateField(
           context: context,
-          label: 'Insurance Exp Date',
+          label:  context.appText.insuranceExpDate,
           value: _formatDateString(state.insuranceExpDate),
           onTap: () => _pickDate(context, 'insuranceExpDate'),
         ),
@@ -274,7 +275,7 @@ class EditVehicleInfoView extends StatelessWidget {
         // Pollution Expiry Date - always show
         _buildDateField(
           context: context,
-          label: 'Pollution Exp Date',
+          label:  context.appText.pollutionExpDate,
           value: _formatDateString(state.pollutionExpDate),
           onTap: () => _pickDate(context, 'pollutionExpDate'),
         ),
@@ -282,7 +283,7 @@ class EditVehicleInfoView extends StatelessWidget {
         // Fitness Expiry Date - always show
         _buildDateField(
           context: context,
-          label: 'Fitness Expiry Date',
+          label: context.appText.fitnessExpDate,
           value: _formatDateString(state.fitnessExpDate),
           onTap: () => _pickDate(context, 'fitnessExpDate'),
         ),
@@ -295,14 +296,14 @@ class EditVehicleInfoView extends StatelessWidget {
         // File Upload Sections - always show
         fileUploadRow(
           url: state.registrationCertificate,
-          label: 'Registration Certificate',
+          label: context.appText.registrationCertificate,
           onView: () => _onViewFile(context, state.registrationCertificate),
           onUpload: () => _onUploadFile(context, 'registrationCertificate'),
         ),
 
         fileUploadRow(
           url: state.insuranceImage,
-          label: 'Insurance Image',
+          label: context.appText.insuranceImage,
           onView: () => _onViewFile(context, state.insuranceImage),
           onUpload:
               () => _onUploadFile(context, 'insuranceImage', imageOnly: true),
@@ -310,7 +311,7 @@ class EditVehicleInfoView extends StatelessWidget {
 
         fileUploadRow(
           url: state.pollutionImage,
-          label: 'Pollution Image',
+          label: context.appText.pollutionImage,
           onView: () => _onViewFile(context, state.pollutionImage),
           onUpload:
               () => _onUploadFile(context, 'pollutionImage', imageOnly: true),
@@ -318,7 +319,7 @@ class EditVehicleInfoView extends StatelessWidget {
 
         fileUploadRow(
           url: state.fitnessCertificate,
-          label: 'Fitness Certificate Image',
+          label: context.appText.fitnessCertificateImage,
           onView: () => _onViewFile(context, state.fitnessCertificate),
           onUpload:
               () =>
@@ -474,7 +475,7 @@ class EditVehicleInfoView extends StatelessWidget {
         AppDropdown(
           dropdownValue: selectedBrand,
           dropDownList: _createDropdownItems(brands),
-          labelText: 'Brand',
+          labelText: context.appText.brand,
           onChanged: (String? value) {
             context.read<EditVehicleInfoBloc>().add(UpdateBrand(brand: value));
           },
@@ -725,7 +726,7 @@ class EditVehicleInfoView extends StatelessWidget {
         AppDropdown(
           dropdownValue: selectedModel,
           dropDownList: _createDropdownItems(models),
-          labelText: 'Model',
+          labelText: context.appText.model,
           onChanged: (String? value) {
             context.read<EditVehicleInfoBloc>().add(UpdateModel(model: value));
           },
@@ -854,7 +855,7 @@ class EditVehicleInfoView extends StatelessWidget {
             children: [
               ListTile(
                 leading: Icon(Icons.camera_alt),
-                title: Text('Camera'),
+                title: Text(context.appText.camera),
                 onTap: () async {
                   Navigator.pop(context);
                   await _handleImageSelection(
@@ -866,7 +867,7 @@ class EditVehicleInfoView extends StatelessWidget {
               ),
               ListTile(
                 leading: Icon(Icons.photo_library),
-                title: Text('Gallery'),
+                title: Text(context.appText.gallery),
                 onTap: () async {
                   Navigator.pop(context);
                   await _handleImageSelection(
@@ -878,7 +879,7 @@ class EditVehicleInfoView extends StatelessWidget {
               ),
               ListTile(
                 leading: Icon(Icons.attach_file),
-                title: Text('Files'),
+                title: Text(context.appText.files),
                 onTap: () async {
                   Navigator.pop(context);
                   await _handleFileSelection(context, field, imageOnly);
