@@ -42,15 +42,14 @@ class DocumentWidgetView extends StatelessWidget {
 
        onClickViewMoreIcon: () {
         Navigator.push(context, commonRoute(ViewOtherDocuments(
-          loadDocument:documentEntity?.loadDocument ,
+
           documentEntity:documentEntity ,
-          cubit:loadDetailsCubit ,
+          cubit:loadDetailsCubit,
         )));
       },
-        showViewMoreButton:documentEntity?.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments
-         ,
-        showAddMoreButton: (loadDetailsCubit?.isVisibleAddMoreDocument()??false),
-      showDeleteIcon:loadDetailsCubit?.state.loadStatus==LoadStatus.loading ,
+        showViewMoreButton:documentEntity?.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments,
+        showAddMoreButton: documentEntity?.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments && (loadDetailsCubit?.isVisibleAddMoreDocument()??false) && loadDetailsCubit?.state.loadStatus==LoadStatus.loading,
+      showDeleteIcon:loadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments ,
       showDeleteLoader: documentEntity?.deleteLoading,
       onClickDeleteIcon: () {
         loadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.first.loadDocumentId??"",index);

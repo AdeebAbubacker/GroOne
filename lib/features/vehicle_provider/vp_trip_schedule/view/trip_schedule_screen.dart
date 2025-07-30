@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/profile/view/master_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -17,6 +18,7 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -81,6 +83,10 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   });
 
 
+ Future<void> addVehicleAndDriver() async {
+   await Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
+    onRefresh();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,41 +122,62 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                 return Form(
                   key: formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 20,
                     children: [
                       TripDetails(),
-                      AppDropdown(
-                        validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.truckNumber),
-                        hintText: context.appText.truckNumber,
-                        labelText: context.appText.truckNumber,
-                        mandatoryStar: true,
-                        dropdownValue: truckType,
-                        decoration: commonInputDecoration(fillColor: Colors.white),
-                        dropDownList: vehicleDetail.map((e) => DropdownMenuItem(
-                          value: e.id.toString(),
-                          child: Text(e.truckNumber, style: AppTextStyle.body),
-                        ),
-                        ).toList(),
-                        onChanged: (onChangeValue) {
-                          truckType = onChangeValue;
-                        },
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          AppDropdown(
+                            validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.truckNumber),
+                            hintText: context.appText.truckNumber,
+                            labelText: context.appText.truckNumber,
+                            mandatoryStar: true,
+                            dropdownValue: truckType,
+                            decoration: commonInputDecoration(fillColor: Colors.white),
+                            dropDownList: vehicleDetail.map((e) => DropdownMenuItem(
+                              value: e.id.toString(),
+                              child: Text(e.truckNumber, style: AppTextStyle.body),
+                            ),
+                            ).toList(),
+                            onChanged: (onChangeValue) {
+                              truckType = onChangeValue;
+                            },
+                          ),
+                          GestureDetector(
+                              onTap: () => addVehicleAndDriver(),
+                              child: Text(context.appText.addVehicle)),
+                        ],
                       ),
-                      AppDropdown(
-                        labelText: context.appText.driverNameAndNumber,
-                        mandatoryStar: true,
-                        validator: (value) => Validator.fieldRequired(value),
-                        hintText: context.appText.selectDriver,
-                        dropdownValue: driverType,
-                        decoration: commonInputDecoration(fillColor: Colors.white),
-                        dropDownList: driverDetails.map((e) => DropdownMenuItem(
-                          value: e.id.toString(),
-                          child: Text(e.name, style: AppTextStyle.body),
-                        ),
-                        ).toList(),
-                        onChanged: (onChangeValue) {
-                          driverType = onChangeValue;
-                        },
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        spacing: 8,
+                        children: [
+                          AppDropdown(
+                            labelText: context.appText.driverNameAndNumber,
+                            mandatoryStar: true,
+                            validator: (value) => Validator.fieldRequired(value),
+                            hintText: context.appText.selectDriver,
+                            dropdownValue: driverType,
+                            decoration: commonInputDecoration(fillColor: Colors.white),
+                            dropDownList: driverDetails.map((e) => DropdownMenuItem(
+                              value: e.id.toString(),
+                              child: Text(e.name, style: AppTextStyle.body),
+                            ),
+                            ).toList(),
+                            onChanged: (onChangeValue) {
+                              driverType = onChangeValue;
+                            },
+                          ),
+                          GestureDetector(
+                              onTap: () => addVehicleAndDriver(),
+                              child: Text(context.appText.addDriver)),
+                        ],
                       ),
+
                       ///Scheduled Pickup Date
                       buildReadOnlyField(context.appText.schedulePickUpDate,DateTimeHelper.formatCustomDate(loadDetails?.pickUpDateTime??DateTime.now()), fillColor: Color(0xffEBEBEB)),
 

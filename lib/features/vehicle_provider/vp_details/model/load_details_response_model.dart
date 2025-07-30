@@ -226,7 +226,7 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
       consigneeDetails=json["consignees"];
     }
     return LoadDetailModelData(
-      podDispatch: json['podDispatch']!=null ? PodDispatch.fromJson(json['podDispatch']):null,
+      podDispatch: json['podDispatch']!=null &&  (json['podDispatch'] as Map).isNotEmpty ? PodDispatch.fromJson(json['podDispatch']):null,
       loadSettlement:json['loadSettlement']!=null ? LoadSettlement.fromJson(json['loadSettlement']):null,
       loadStatusValue: getLoadStatus(json["loadStatusId"] ?? 0),
       loadOnHold:  json['loadOnhold'],

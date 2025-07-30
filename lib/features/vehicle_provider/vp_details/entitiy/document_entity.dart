@@ -81,6 +81,7 @@ List<DocumentEntity> documentTypeList=[
     title:navigatorKey.currentState?.context.appText.uploadPOD,
     visible: false,
     documentType: navigatorKey.currentState?.context.appText.proofOfDelivery,
+
   ),
 
   DocumentEntity(

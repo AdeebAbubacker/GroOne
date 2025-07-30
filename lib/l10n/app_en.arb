@@ -1056,11 +1056,13 @@
   "addNewTicket" : "add New Ticket",
   "issueCategory" : "Issue Category",
   "title" : "Title",
+  "vehicleIconSize": "Vehicle Icon Size",
   "editVehicle": "Edit Vehicle",
   "vehicleUpdatedSuccessfully" : "Vehicle updated successfully",
   "vehicleAddedSuccessfully" : "Vehicle added successfully",
   "licenseExpiryDate" : "License Expiry Date",
   "dateOdBirth" : "DOB",
+  "failedToDownloadDocuments":"Failed to download the document",
   "proofOfDelivery":"Proof of Delivery",
   "damagesAndShortageDocument":"Damages and Shortages",
   "unloadingCharges":"Unloading Charges",
@@ -1080,6 +1082,18 @@
   "vehicleRegNoVerified" : "Vehicle reg no is verified",
   "vehicleRegNoAlreadyExcist" : "This vehicle reg no already excist",
   "licenseNoVerified" : "License no verified",
+  "loadProvider":"Load Provider",
+  "name":"Name",
+  "destination":"destination",
+  "unloadingDate":"Unloading date",
+  "name":"name",
+  "destination":"Destination",
+  "unloadingDate":"Unloading date",
+  "addDriver":"Add Driver",
+  "addVehicle":"Add Vehicle",
+
+
+
 
 
 
@@ -1091,5 +1105,8 @@
   "onlinePay" : "Online (pay now)",
   "myOrders" : "My Orders",
   "clear" : "Clear",
-  "noTicketsFound": "No Tickets Found"
+  "noTicketsFound": "No Tickets Found",
+  "othersDocument":"Others Document",
+  "viewTripStatement":"View Trip Statement"
+
 }

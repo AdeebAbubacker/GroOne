@@ -29,6 +29,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+
   @override
   void initState() {
     initFun();
@@ -60,7 +61,6 @@ class _MyAppState extends State<MyApp> {
             supportedLocales: L10n.all,
             theme: AppThemeStyle.appTheme,
             routerConfig: AppRoutes.router,
-
           ),
         );
       },
