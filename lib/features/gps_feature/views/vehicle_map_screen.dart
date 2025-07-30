@@ -10,7 +10,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/helpers/gps_map_helper.dart';
+import 'package:gro_one_app/features/gps_feature/helper/gps_map_helper.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
@@ -23,6 +23,9 @@ import 'package:gro_one_app/utils/app_share_helper.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import '../helper/gps_session_manager.dart';
 
 // Cubit for selected vehicle state
 class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
@@ -80,6 +83,39 @@ class _VehicleMapContent extends StatelessWidget {
     this.initialSelectedVehicle,
   });
 
+  Future<Map<String, bool>> _loadGeofenceToggles() async {
+    return await GpsSessionManager.getGeofenceToggleMap();
+  }
+
+  /// Creates vehicle markers with custom vehicle icons
+  Future<Set<Marker>> _createVehicleMarkers(
+    List<GpsCombinedVehicleData> vehicles,
+    BuildContext context,
+  ) async {
+    final markers = <Marker>{};
+    for (final vehicle in vehicles) {
+      final loc = vehicle.location;
+      if (loc != null && loc.contains(',')) {
+        final parts = loc.split(',');
+        final lat = double.tryParse(parts[0].trim());
+        final lng = double.tryParse(parts[1].trim());
+        if (lat != null && lng != null) {
+          // Use custom vehicle marker with vehicle icon
+          final marker = await GpsMapHelper.createCustomVehicleMarker(
+            vehicleId: vehicle.vehicleNumber ?? 'unknown',
+            position: LatLng(lat, lng),
+            title: vehicle.vehicleNumber ?? vehicle.vehicleNumber,
+            onTap: () {
+              context.read<SelectedVehicleCubit>().select(vehicle);
+            },
+          );
+          markers.add(marker);
+        }
+      }
+    }
+    return markers;
+  }
+
   @override
   Widget build(BuildContext context) {
     final Completer<GoogleMapController> mapController =
@@ -90,292 +126,505 @@ class _VehicleMapContent extends StatelessWidget {
         BlocProvider<SelectedVehicleCubit>(
           create: (_) => SelectedVehicleCubit(),
         ),
+        BlocProvider.value(value: locator<GpsGeofenceCubit>()),
       ],
       child: BlocBuilder<SelectedVehicleCubit, GpsCombinedVehicleData?>(
         builder: (context, selectedVehicle) {
           final isSingleVehicle = vehicles.length == 1;
-          final markers = <Marker>{};
-          for (final vehicle in vehicles) {
-            final loc = vehicle.location;
-            if (loc != null && loc.contains(',')) {
-              final parts = loc.split(',');
-              final lat = double.tryParse(parts[0].trim());
-              final lng = double.tryParse(parts[1].trim());
-              if (lat != null && lng != null) {
-                markers.add(
-                  GpsMapHelper.createVehicleMarker(
-                    vehicleId: vehicle.vehicleNumber ?? 'unknown',
-                    position: LatLng(lat, lng),
-                    title: vehicle.address ?? vehicle.vehicleNumber,
-                    onTap: () {
-                      context.read<SelectedVehicleCubit>().select(vehicle);
-                    },
-                  ),
-                );
-              }
-            }
-          }
-          final initialCameraPosition = () {
-            // If there's an initial selected vehicle, focus on it
-            if (initialSelectedVehicle != null) {
-              final initialVehicle = vehicles.firstWhere(
-                (v) => v.vehicleNumber == initialSelectedVehicle!.vehicleNumber,
-                orElse: () => vehicles.first,
-              );
-              final loc = initialVehicle.location;
-              if (loc != null && loc.contains(',')) {
-                final parts = loc.split(',');
-                final lat = double.tryParse(parts[0].trim());
-                final lng = double.tryParse(parts[1].trim());
-                if (lat != null && lng != null) {
+          return FutureBuilder<Set<Marker>>(
+            future: _createVehicleMarkers(vehicles, context),
+            builder: (context, markerSnapshot) {
+              final markers = markerSnapshot.data ?? <Marker>{};
+              final initialCameraPosition = () {
+                // If there's an initial selected vehicle, focus on it
+                if (initialSelectedVehicle != null) {
+                  final initialVehicle = vehicles.firstWhere(
+                    (v) =>
+                        v.vehicleNumber ==
+                        initialSelectedVehicle!.vehicleNumber,
+                    orElse: () => vehicles.first,
+                  );
+                  final loc = initialVehicle.location;
+                  if (loc != null && loc.contains(',')) {
+                    final parts = loc.split(',');
+                    final lat = double.tryParse(parts[0].trim());
+                    final lng = double.tryParse(parts[1].trim());
+                    if (lat != null && lng != null) {
+                      return GpsMapHelper.createCameraPosition(
+                        target: LatLng(lat, lng),
+                        zoom: 14,
+                      );
+                    }
+                  }
+                }
+
+                if (isSingleVehicle && markers.isNotEmpty) {
                   return GpsMapHelper.createCameraPosition(
-                    target: LatLng(lat, lng),
+                    target: markers.first.position,
                     zoom: 14,
                   );
+                } else if (markers.isNotEmpty) {
+                  return GpsMapHelper.createCameraPosition(
+                    target: markers.first.position,
+                    zoom: 12,
+                  );
+                } else {
+                  return GpsMapHelper.getDefaultCameraPosition();
                 }
-              }
-            }
-
-            if (isSingleVehicle && markers.isNotEmpty) {
-              return GpsMapHelper.createCameraPosition(
-                target: markers.first.position,
-                zoom: 14,
-              );
-            } else if (markers.isNotEmpty) {
-              return GpsMapHelper.createCameraPosition(
-                target: markers.first.position,
-                zoom: 12,
-              );
-            } else {
-              return GpsMapHelper.getDefaultCameraPosition();
-            }
-          }();
-          return Scaffold(
-            body: Stack(
-              children: [
-                GpsMapHelper.createGpsMap(
-                  initialCameraPosition: initialCameraPosition,
-                  markers: markers,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: true,
-                  mapType: context.watch<VehicleListCubit>().state.mapType,
-                  trafficEnabled:
-                      context.watch<VehicleListCubit>().state.trafficEnabled,
-                  onMapCreated: (controller) {
-                    GpsMapHelper.handleMapCreated(
-                      controller,
-                      mapController,
-                      null,
-                    );
-                  },
-                ),
-                if (selectedVehicle == null) ...[
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.only(
-                        top: 36,
-                        left: 16,
-                        right: 16,
-                        bottom: 12,
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.arrow_back,
-                              color: Colors.black,
-                            ),
-                            onPressed: () => context.pop(),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              'SB Matric School',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 16,
-                    bottom: 60,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 4,
-                      ),
-                      icon: Icon(Icons.list, color: Colors.blue),
-                      label: const Text(
-                        'List View',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                      onPressed: () {
-                        context.pop();
-                      },
-                    ),
-                  ),
-                ],
-                if (selectedVehicle != null) ...[
-                  Positioned(
-                    top: 24,
-                    left: 16,
-                    right: 16,
-                    child: _VehicleInfoOverlayCard(vehicle: selectedVehicle),
-                  ),
-                  DraggableScrollableSheet(
-                    initialChildSize: 0.35,
-                    minChildSize: 0.2,
-                    maxChildSize: 0.85,
-                    builder: (context, scrollController) {
-                      return _VehicleBottomCard(
-                        vehicle: selectedVehicle,
-                        scrollController: scrollController,
-                      );
-                    },
-                  ),
-                ],
-                // Current Location Button
-                Positioned(
-                  right: 16,
-                  bottom: 180,
-                  child: GpsMapHelper.createMapFloatingButton(
-                    icon: Icons.my_location,
-                    heroTag: "currentLocation",
-                    onPressed: () async {
-                      try {
-                        final locationService = LocationService();
-                        final result =
-                            await locationService.getCurrentLatLong();
-                        if (result is Success<geo.Position>) {
-                          final position = result.value;
-                          final controller = await mapController.future;
-                          await GpsMapHelper.animateToLocation(
-                            controller,
-                            LatLng(position.latitude, position.longitude),
-                            zoom: 15,
-                          );
-                        } else if (result is Error<geo.Position>) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(result.type.getText(context)),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Error getting current location'),
-                            backgroundColor: Colors.red,
-                          ),
+              }();
+              return Scaffold(
+                body: Stack(
+                  children: [
+                    BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
+                      builder: (context, geofenceState) {
+                        debugPrint(
+                          '📍 Geofence state: ${geofenceState.runtimeType}',
                         );
-                      }
-                    },
-                  ),
-                ),
-                Positioned(
-                  right: 16,
-                  bottom: 260,
-                  child: MapFloatingMenu(
-                    onToggleTraffic:
-                        () => context.read<VehicleListCubit>().toggleTraffic(),
-                    onToggleMapType:
-                        () => context.read<VehicleListCubit>().toggleMapType(),
-                    onReachability: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Reachability feature coming soon!'),
-                        ),
-                      );
-                    },
-                    onNearbyVehicles: () async {
-                      final locationService = LocationService();
-                      final result = await locationService.getCurrentLatLong();
-                      if (result is Success<geo.Position>) {
-                        final userPos = result.value;
-                        double minDistance = double.infinity;
-                        GpsCombinedVehicleData? nearestVehicle;
-                        double? nearestDistance;
 
-                        for (final vehicle in vehicles) {
-                          if (vehicle.location != null &&
-                              vehicle.location!.contains(',')) {
-                            final parts = vehicle.location!.split(',');
-                            final lat = double.tryParse(parts[0].trim());
-                            final lng = double.tryParse(parts[1].trim());
-                            if (lat != null && lng != null) {
-                              final distance =
-                                  geo.Geolocator.distanceBetween(
-                                    userPos.latitude,
-                                    userPos.longitude,
-                                    lat,
-                                    lng,
-                                  ) /
-                                  1000; // in km
-                              if (distance < minDistance) {
-                                minDistance = distance;
-                                nearestVehicle = vehicle;
-                                nearestDistance = distance;
-                              }
+                        // Load geofences if not already loaded
+                        if (geofenceState is GpsGeofenceInitial) {
+                          debugPrint('📍 Loading geofences...');
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            context.read<GpsGeofenceCubit>().loadGeofences();
+                          });
+                        }
+
+                        // Check if geofence display is enabled
+                        final showGeofenceOnMap =
+                            GpsSessionManager.isShowGeofenceOnMapEnabled();
+                        debugPrint(
+                          '📍 Show geofence on map: $showGeofenceOnMap',
+                        );
+
+                        // Add a test circle for debugging
+                        Set<Circle> testCircles = {};
+                        if (showGeofenceOnMap) {
+                          testCircles.add(
+                            Circle(
+                              circleId: const CircleId("test_circle"),
+                              center: const LatLng(
+                                28.6139,
+                                77.2090,
+                              ), // Delhi coordinates
+                              radius: 1000,
+                              fillColor: const Color(
+                                0x33FF0000,
+                              ), // Red with 20% opacity
+                              strokeColor: Colors.red,
+                              strokeWidth: 3,
+                            ),
+                          );
+                          debugPrint('📍 Added test circle for debugging');
+                        }
+
+                        if (showGeofenceOnMap &&
+                            geofenceState is GpsGeofenceLoaded) {
+                          debugPrint(
+                            '📍 Geofences loaded: ${geofenceState.geofences.length} geofences',
+                          );
+
+                          // Debug: Print all geofences
+                          for (final geofence in geofenceState.geofences) {
+                            debugPrint(
+                              '📍 Available geofence: ${geofence.id} - ${geofence.name} - ${geofence.shapeType}',
+                            );
+                            if (geofence.shapeType == 'circle') {
+                              debugPrint(
+                                '📍 Circle data: center=${geofence.center}, radius=${geofence.radius}',
+                              );
+                            } else if (geofence.shapeType == 'polygon' ||
+                                geofence.shapeType == 'polyline') {
+                              debugPrint(
+                                '📍 ${geofence.shapeType} data: points=${geofence.polygonPoints?.length}',
+                              );
                             }
                           }
-                        }
 
-                        if (nearestVehicle != null && nearestDistance != null) {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => NearestVehicleDialog(
-                                  vehicle: nearestVehicle!,
-                                  distance: nearestDistance!,
-                                ),
+                          return FutureBuilder<Map<String, bool>>(
+                            future: _loadGeofenceToggles(),
+                            builder: (context, toggleSnapshot) {
+                              Set<Circle> circles = {};
+                              Set<Polygon> polygons = {};
+                              Set<Polyline> polylines = {};
+
+                              if (toggleSnapshot.hasData) {
+                                final toggleMap = toggleSnapshot.data!;
+                                debugPrint('📍 Toggle map: $toggleMap');
+
+                                for (final geofence
+                                    in geofenceState.geofences) {
+                                  final shouldShow =
+                                      toggleMap[geofence.id] ?? false;
+                                  debugPrint(
+                                    '📍 Geofence ${geofence.id} (${geofence.name}): shouldShow = $shouldShow, shapeType = ${geofence.shapeType}',
+                                  );
+
+                                  // TEMPORARY: Show all geofences for testing
+                                  final testShow =
+                                      true; // Set to true to show all geofences
+
+                                  if (shouldShow || testShow) {
+                                    if (geofence.shapeType == 'circle' &&
+                                        geofence.center != null &&
+                                        geofence.radius != null) {
+                                      circles.add(
+                                        Circle(
+                                          circleId: CircleId(
+                                            "geofence_circle_${geofence.id}",
+                                          ),
+                                          center: geofence.center!,
+                                          radius: geofence.radius!,
+                                          fillColor: const Color(
+                                            0x330000FF,
+                                          ), // Blue with 20% opacity
+                                          strokeColor: Colors.blue,
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                      debugPrint(
+                                        '📍 Added circle geofence: ${geofence.name} at ${geofence.center} with radius ${geofence.radius}',
+                                      );
+                                    } else if (geofence.shapeType ==
+                                            'polygon' &&
+                                        geofence.polygonPoints != null &&
+                                        geofence.polygonPoints!.isNotEmpty) {
+                                      polygons.add(
+                                        Polygon(
+                                          polygonId: PolygonId(
+                                            "geofence_polygon_${geofence.id}",
+                                          ),
+                                          points: geofence.polygonPoints!,
+                                          fillColor: const Color(
+                                            0x3300FF00,
+                                          ), // Green with 20% opacity
+                                          strokeColor: Colors.green,
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                      debugPrint(
+                                        '📍 Added polygon geofence: ${geofence.name} with ${geofence.polygonPoints!.length} points',
+                                      );
+                                    } else if (geofence.shapeType ==
+                                            'polyline' &&
+                                        geofence.polygonPoints != null &&
+                                        geofence.polygonPoints!.isNotEmpty) {
+                                      polylines.add(
+                                        Polyline(
+                                          polylineId: PolylineId(
+                                            "geofence_polyline_${geofence.id}",
+                                          ),
+                                          points: geofence.polygonPoints!,
+                                          color: Colors.red,
+                                          width: 3,
+                                        ),
+                                      );
+                                      debugPrint(
+                                        '📍 Added polyline geofence: ${geofence.name} with ${geofence.polygonPoints!.length} points',
+                                      );
+                                    } else {
+                                      debugPrint(
+                                        '📍 Skipped geofence ${geofence.name}: invalid data',
+                                      );
+                                    }
+                                  }
+                                }
+
+                                debugPrint(
+                                  '📍 Final counts - circles: ${circles.length}, polygons: ${polygons.length}, polylines: ${polylines.length}',
+                                );
+                              } else {
+                                debugPrint('📍 Toggle snapshot has no data');
+                              }
+
+                              // Combine test circles with actual geofences
+                              circles.addAll(testCircles);
+
+                              return GpsMapHelper.createGpsMap(
+                                initialCameraPosition: initialCameraPosition,
+                                markers: markers,
+                                circles: circles,
+                                polygons: polygons,
+                                polylines: polylines,
+                                myLocationButtonEnabled: false,
+                                zoomControlsEnabled: true,
+                                mapType:
+                                    context
+                                        .watch<VehicleListCubit>()
+                                        .state
+                                        .mapType,
+                                trafficEnabled:
+                                    context
+                                        .watch<VehicleListCubit>()
+                                        .state
+                                        .trafficEnabled,
+                                onMapCreated: (controller) {
+                                  GpsMapHelper.handleMapCreated(
+                                    controller,
+                                    mapController,
+                                    null,
+                                  );
+                                },
+                              );
+                            },
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('No vehicles found')),
+                          debugPrint(
+                            '📍 Not showing geofences: showGeofenceOnMap=$showGeofenceOnMap, state=${geofenceState.runtimeType}',
+                          );
+
+                          // Show test circle even if no geofences are loaded
+                          return GpsMapHelper.createGpsMap(
+                            initialCameraPosition: initialCameraPosition,
+                            markers: markers,
+                            circles: testCircles,
+                            myLocationButtonEnabled: false,
+                            zoomControlsEnabled: true,
+                            mapType:
+                                context.watch<VehicleListCubit>().state.mapType,
+                            trafficEnabled:
+                                context
+                                    .watch<VehicleListCubit>()
+                                    .state
+                                    .trafficEnabled,
+                            onMapCreated: (controller) {
+                              GpsMapHelper.handleMapCreated(
+                                controller,
+                                mapController,
+                                null,
+                              );
+                            },
                           );
                         }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Could not get current location'),
+                      },
+                    ),
+                    if (selectedVehicle == null) ...[
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.only(
+                            top: 36,
+                            left: 16,
+                            right: 16,
+                            bottom: 12,
                           ),
-                        );
-                      }
-                    },
-                    onNearbyPlaces: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Nearby Places feature coming soon!'),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.black,
+                                ),
+                                onPressed: () => context.pop(),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  'SB Matric School',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                    isTrafficEnabled:
-                        context.watch<VehicleListCubit>().state.trafficEnabled,
-                    isSatellite:
-                        context.watch<VehicleListCubit>().state.mapType ==
-                        MapType.satellite,
-                  ),
+                      ),
+                      Positioned(
+                        right: 16,
+                        bottom: 60,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
+                          ),
+                          icon: Icon(Icons.list, color: Colors.blue),
+                          label: const Text(
+                            'List View',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          onPressed: () {
+                            context.pop();
+                          },
+                        ),
+                      ),
+                    ],
+                    if (selectedVehicle != null) ...[
+                      Positioned(
+                        top: 24,
+                        left: 16,
+                        right: 16,
+                        child: _VehicleInfoOverlayCard(
+                          vehicle: selectedVehicle,
+                        ),
+                      ),
+                      DraggableScrollableSheet(
+                        initialChildSize: 0.35,
+                        minChildSize: 0.2,
+                        maxChildSize: 0.85,
+                        builder: (context, scrollController) {
+                          return _VehicleBottomCard(
+                            vehicle: selectedVehicle,
+                            scrollController: scrollController,
+                          );
+                        },
+                      ),
+                    ],
+                    // Current Location Button
+                    Positioned(
+                      right: 16,
+                      bottom: 180,
+                      child: GpsMapHelper.createMapFloatingButton(
+                        icon: Icons.my_location,
+                        heroTag: "currentLocation",
+                        onPressed: () async {
+                          try {
+                            final locationService = LocationService();
+                            final result =
+                                await locationService.getCurrentLatLong();
+                            if (result is Success<geo.Position>) {
+                              final position = result.value;
+                              final controller = await mapController.future;
+                              await GpsMapHelper.animateToLocation(
+                                controller,
+                                LatLng(position.latitude, position.longitude),
+                                zoom: 15,
+                              );
+                            } else if (result is Error<geo.Position>) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(result.type.getText(context)),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Error getting current location'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    Positioned(
+                      right: 16,
+                      bottom: 260,
+                      child: MapFloatingMenu(
+                        onToggleTraffic:
+                            () =>
+                                context
+                                    .read<VehicleListCubit>()
+                                    .toggleTraffic(),
+                        onToggleMapType:
+                            () =>
+                                context
+                                    .read<VehicleListCubit>()
+                                    .toggleMapType(),
+                        onReachability: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Reachability feature coming soon!',
+                              ),
+                            ),
+                          );
+                        },
+                        onNearbyVehicles: () async {
+                          final locationService = LocationService();
+                          final result =
+                              await locationService.getCurrentLatLong();
+                          if (result is Success<geo.Position>) {
+                            final userPos = result.value;
+                            double minDistance = double.infinity;
+                            GpsCombinedVehicleData? nearestVehicle;
+                            double? nearestDistance;
+
+                            for (final vehicle in vehicles) {
+                              if (vehicle.location != null &&
+                                  vehicle.location!.contains(',')) {
+                                final parts = vehicle.location!.split(',');
+                                final lat = double.tryParse(parts[0].trim());
+                                final lng = double.tryParse(parts[1].trim());
+                                if (lat != null && lng != null) {
+                                  final distance =
+                                      geo.Geolocator.distanceBetween(
+                                        userPos.latitude,
+                                        userPos.longitude,
+                                        lat,
+                                        lng,
+                                      ) /
+                                      1000; // in km
+                                  if (distance < minDistance) {
+                                    minDistance = distance;
+                                    nearestVehicle = vehicle;
+                                    nearestDistance = distance;
+                                  }
+                                }
+                              }
+                            }
+
+                            if (nearestVehicle != null &&
+                                nearestDistance != null) {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (_) => NearestVehicleDialog(
+                                      vehicle: nearestVehicle!,
+                                      distance: nearestDistance!,
+                                    ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('No vehicles found'),
+                                ),
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Could not get current location'),
+                              ),
+                            );
+                          }
+                        },
+                        onNearbyPlaces: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Nearby Places feature coming soon!',
+                              ),
+                            ),
+                          );
+                        },
+                        isTrafficEnabled:
+                            context
+                                .watch<VehicleListCubit>()
+                                .state
+                                .trafficEnabled,
+                        isSatellite:
+                            context.watch<VehicleListCubit>().state.mapType ==
+                            MapType.satellite,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),

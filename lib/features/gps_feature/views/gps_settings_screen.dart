@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -9,6 +10,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
@@ -34,6 +36,7 @@ class GpsSettingsScreen extends StatefulWidget {
 class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
   bool _showMarkerLabel = GpsSessionManager.isShowMarkerLabelEnabled();
   bool _showMarkerCluster = GpsSessionManager.isShowMarkerClusterEnabled();
+  bool _showGeofenceOnMap = GpsSessionManager.isShowGeofenceOnMapEnabled();
   final uri = GpsSessionManager.getNotificationToneUri();
   String? _notificationToneUri;
 
@@ -266,6 +269,14 @@ class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
                   onChanged: (val) async {
                     setState(() => _showMarkerCluster = val);
                     await GpsSessionManager.setShowMarkerCluster(val);
+                  },
+                ),
+                SwitchListTile(
+                  title: Text('Show Geofence on Map', style: AppTextStyle.h5),
+                  value: _showGeofenceOnMap,
+                  onChanged: (val) async {
+                    setState(() => _showGeofenceOnMap = val);
+                    await GpsSessionManager.setShowGeofenceOnMap(val);
                   },
                 ),
               ],

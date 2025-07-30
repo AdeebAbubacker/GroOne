@@ -6,7 +6,6 @@ import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
@@ -16,7 +15,9 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
 
 class ApiService {
-  final Duration _timeout = const Duration(seconds: 30); // General timeout for all requests
+  final Duration _timeout = const Duration(
+    seconds: 30,
+  ); // General timeout for all requests
   final Dio _dio;
   final SecuredSharedPreferences _secureSharedPrefs;
   // late DioCacheManager _cacheManager;
@@ -36,8 +37,9 @@ class ApiService {
       'Accept': 'application/json',
     };
     try {
-      String? refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
-      print("refresh token ${refreshToken}");
+      String? refreshToken = await _secureSharedPrefs.get(
+        AppString.sessionKey.accessToken,
+      );
       if (refreshToken != null && refreshToken.isNotEmpty) {
         final authHeader = 'Bearer $refreshToken';
         headers['Authorization'] = authHeader;
@@ -48,16 +50,19 @@ class ApiService {
     return headers;
   }
 
-
-
   /// Check if token is available
   Future<bool> hasValidToken() async {
     try {
-      String? token = await _secureSharedPrefs.get(AppString.sessionKey.accessToken);
+      String? token = await _secureSharedPrefs.get(
+        AppString.sessionKey.accessToken,
+      );
       final hasToken = token != null && token.isNotEmpty;
       CustomLog.debug(this, "🔐 Token availability check: $hasToken");
       if (hasToken) {
-        CustomLog.debug(this, "🔐 Token value: '${token!.substring(0, 10)}...'");
+        CustomLog.debug(
+          this,
+          "🔐 Token value: '${token!.substring(0, 10)}...'",
+        );
       }
       return hasToken;
     } catch (e) {
@@ -65,10 +70,22 @@ class ApiService {
       return false;
     }
   }
+
   /// Get
-  Future<Result<dynamic>> get(String url, {Map<String, dynamic>? queryParams, bool forceRefresh = false, CancelToken? cancelToken, Map<String, String>? customHeaders}) async {
-    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
-    CustomLog.debug(this, "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}");
+  Future<Result<dynamic>> get(
+    String url, {
+    Map<String, dynamic>? queryParams,
+    bool forceRefresh = false,
+    CancelToken? cancelToken,
+    Map<String, String>? customHeaders,
+  }) async {
+    dynamic prettyHeader = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(await _getHeaders());
+    CustomLog.debug(
+      this,
+      "\nMethod : Get, \nURL : $url, \nHeader : $prettyHeader, ${queryParams != null ? "\nQueryParams : $queryParams" : ""}",
+    );
     try {
       final headers = customHeaders ?? await _getHeaders();
       final response = await _dio.get(
@@ -76,9 +93,9 @@ class ApiService {
         queryParameters: queryParams,
         cancelToken: cancelToken,
         options: Options(
-            headers: headers,
-            sendTimeout: _timeout,
-            receiveTimeout: _timeout
+          headers: headers,
+          sendTimeout: _timeout,
+          receiveTimeout: _timeout,
         ),
       );
       return await _handleBodyResponse(response);
@@ -91,15 +108,27 @@ class ApiService {
   }
 
   /// Post
-  Future<Result<dynamic>> post(String url, {dynamic body, Map<String, dynamic>? queryParams, Map<String, String>? customHeaders}) async {
+  Future<Result<dynamic>> post(
+    String url, {
+    dynamic body,
+    Map<String, dynamic>? queryParams,
+    Map<String, String>? customHeaders,
+  }) async {
     Object prettyBodyString;
     if (queryParams != null) {
-      prettyBodyString = const JsonEncoder.withIndent('  ').convert(queryParams);
+      prettyBodyString = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(queryParams);
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
-    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
-    CustomLog.debug(this, "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString");
+    dynamic prettyHeader = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(await _getHeaders());
+    CustomLog.debug(
+      this,
+      "\nMethod: Post \nURL: $url, \nHeader: $prettyHeader, \nRequest: $prettyBodyString",
+    );
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -124,18 +153,29 @@ class ApiService {
     }
   }
 
-
   /// Put
-  Future<Result<dynamic>> put(String url, {dynamic body, Map<String, dynamic>? queryParams, Map<String, String>? customHeaders}) async {
+  Future<Result<dynamic>> put(
+    String url, {
+    dynamic body,
+    Map<String, dynamic>? queryParams,
+    Map<String, String>? customHeaders,
+  }) async {
     Object prettyBodyString;
     if (queryParams != null) {
-      prettyBodyString = const JsonEncoder.withIndent('  ').convert(queryParams);
+      prettyBodyString = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(queryParams);
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
-    dynamic prettyHeader = const JsonEncoder.withIndent('  ').convert(await _getHeaders());
+    dynamic prettyHeader = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(await _getHeaders());
 
-    CustomLog.debug(this, "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString \nHeader: $prettyHeader");
+    CustomLog.debug(
+      this,
+      "\nMethod: Put \nURL: $url \nRequest: $prettyBodyString \nHeader: $prettyHeader",
+    );
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
@@ -160,16 +200,25 @@ class ApiService {
     }
   }
 
-
   /// Patch
-  Future<Result<dynamic>> patch(String url, {dynamic body, Map<String, dynamic>? queryParams, Map<String, String>? customHeaders}) async {
+  Future<Result<dynamic>> patch(
+    String url, {
+    dynamic body,
+    Map<String, dynamic>? queryParams,
+    Map<String, String>? customHeaders,
+  }) async {
     Object prettyBodyString;
     if (queryParams != null) {
-      prettyBodyString = const JsonEncoder.withIndent('  ').convert(queryParams);
+      prettyBodyString = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(queryParams);
     } else {
       prettyBodyString = const JsonEncoder.withIndent('  ').convert(body);
     }
-    CustomLog.debug(this, "\nMethod: patch \nURL: $url \nRequest: $prettyBodyString");
+    CustomLog.debug(
+      this,
+      "\nMethod: patch \nURL: $url \nRequest: $prettyBodyString",
+    );
     final headers = customHeaders ?? await _getHeaders();
     try {
       if (!HasInternetConnection.isInternet) {
@@ -195,7 +244,10 @@ class ApiService {
   }
 
   // Delete
-  Future<Result<dynamic>> delete(String url, {Map<String, String>? customHeaders}) async {
+  Future<Result<dynamic>> delete(
+    String url, {
+    Map<String, String>? customHeaders,
+  }) async {
     CustomLog.debug(this, "Method: Delete, \nURL: $url");
     try {
       if (!HasInternetConnection.isInternet) {
@@ -220,13 +272,24 @@ class ApiService {
   }
 
   /// Multi parts
-  Future<Result<dynamic>> multipart(String url, dynamic files, {Map<String, String>? fields, String? pathName, Map<String, String>? customHeaders}) async {
+  Future<Result<dynamic>> multipart(
+    String url,
+    dynamic files, {
+    Map<String, String>? fields,
+    String? pathName,
+    Map<String, String>? customHeaders,
+  }) async {
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
-      final prettyFieldsString = const JsonEncoder.withIndent('  ').convert(fields);
-      CustomLog.debug(this, "\nMethod : Multipart \nURL : $url \nPath name : $pathName \nFiles : $files \nFields : $prettyFieldsString",);
+      final prettyFieldsString = const JsonEncoder.withIndent(
+        '  ',
+      ).convert(fields);
+      CustomLog.debug(
+        this,
+        "\nMethod : Multipart \nURL : $url \nPath name : $pathName \nFiles : $files \nFields : $prettyFieldsString",
+      );
       FormData formData = FormData();
 
       // Handling file upload (single or multiple)
@@ -284,11 +347,15 @@ class ApiService {
     }
   }
 
-
   /// Handle Body Response
   Future<Result<dynamic>> _handleBodyResponse(Response response) async {
-    final prettyBodyString = const JsonEncoder.withIndent('  ',).convert(response.data);
-    CustomLog.debug(this, "\nResponse status code: ${response.statusCode}, \nResponse data: ${response.data}");
+    final prettyBodyString = const JsonEncoder.withIndent(
+      '  ',
+    ).convert(response.data);
+    CustomLog.debug(
+      this,
+      "\nResponse status code: ${response.statusCode}, \nResponse data: ${response.data}",
+    );
     try {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return Success(response.data);
@@ -329,44 +396,89 @@ class ApiService {
   /// Handle unauthorized error by clearing invalid token
   Future<void> _handleUnauthorizedError() async {
     try {
-      final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
-      if (refreshToken == null || refreshToken.isEmpty) {
-        await _logoutAndNavigateToLogin();
-        return;
-      }
+      CustomLog.debug(this, "🔐 Handling 401 Unauthorized error");
 
-      final response = await _dio.post(
-        ApiUrls.refreshToken,
-        data: {
-          "refresh_token": refreshToken,
-        },
+      // Clear all authentication data immediately
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.userId);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
+
+      CustomLog.debug(
+        this,
+        "🔐 Cleared all authentication data due to 401 error",
       );
 
-      if (response.statusCode == 200 && response.data['data'] != null) {
-        final data = response.data['data'];
-        final newAccessToken = data['access_token'];
-        final newRefreshToken = data['refresh_token'];
-        await _secureSharedPrefs.saveKey(AppString.sessionKey.accessToken, newAccessToken);
-        await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
-      } else {
-        await _logoutAndNavigateToLogin();
+      // Only redirect if we're not already on the choose language screen
+      if (appContext.mounted) {
+        final currentRoute = GoRouterState.of(appContext).uri.path;
+        if (currentRoute != AppRouteName.chooseLanguage) {
+          CustomLog.debug(this, "🔐 Redirecting to choose language screen");
+          appContext.pushReplacement(AppRouteName.chooseLanguage);
+        } else {
+          CustomLog.debug(
+            this,
+            "🔐 Already on choose language screen, skipping redirect",
+          );
+        }
       }
     } catch (e) {
-      await _logoutAndNavigateToLogin();
+      CustomLog.error(this, "Error handling unauthorized error", e);
+      // Fallback: clear data and redirect
+      try {
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.userId);
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
+        await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
+
+        if (appContext.mounted) {
+          appContext.pushReplacement(AppRouteName.chooseLanguage);
+        }
+      } catch (fallbackError) {
+        CustomLog.error(this, "Fallback error handling failed", fallbackError);
+      }
     }
   }
 
-
   Future<void> _logoutAndNavigateToLogin() async {
-    await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
-    if (appContext.mounted) {
-      appContext.pushReplacement(AppRouteName.chooseLanguage);
+    try {
+      CustomLog.debug(this, "🔐 Logging out user");
+
+      // Clear all authentication data
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.userId);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
+      await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
+
+      CustomLog.debug(this, "🔐 All authentication data cleared");
+
+      if (appContext.mounted) {
+        final currentRoute = GoRouterState.of(appContext).uri.path;
+        if (currentRoute != AppRouteName.chooseLanguage) {
+          CustomLog.debug(this, "🔐 Redirecting to choose language screen");
+          appContext.pushReplacement(AppRouteName.chooseLanguage);
+        } else {
+          CustomLog.debug(
+            this,
+            "🔐 Already on choose language screen, skipping redirect",
+          );
+        }
+      }
+    } catch (e) {
+      CustomLog.error(this, "Error during logout", e);
     }
   }
 
   /// Handle Dio Error
   Future<Result<dynamic>> _handleDioError(DioException error) async {
-    CustomLog.error(this, "DIO HTTP call error,Status Code : ${error.response?.statusCode} response : ${error.response}", error);
+    CustomLog.error(
+      this,
+      "DIO HTTP call error,Status Code : ${error.response?.statusCode} response : ${error.response}",
+      error,
+    );
     switch (error.type) {
       case DioExceptionType.badResponse:
         return await _handleHttpError(error.response);
@@ -379,10 +491,11 @@ class ApiService {
     }
   }
 
-
-
   /// Get Response Result Status
-  Future<Result<T>> getResponseStatus<T>(dynamic result, T Function(dynamic) fromJson) async {
+  Future<Result<T>> getResponseStatus<T>(
+    dynamic result,
+    T Function(dynamic) fromJson,
+  ) async {
     if (result[SUCCESS] == true || result[STATUS] == true) {
       final data = fromJson(result);
       return Success(data);
@@ -392,6 +505,4 @@ class ApiService {
       return Error(ResponseStatusFailed());
     }
   }
-
-
 }
