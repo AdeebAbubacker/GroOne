@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+
 import '../../../data/model/result.dart';
 import '../../../utils/app_string.dart';
 import '../../../utils/custom_log.dart';
+import '../model/gps_info_window_details_model.dart';
 import '../model/gps_vehicle_extra_info_model.dart';
 
 class GpsVehicleExtraInfoService {
@@ -12,17 +14,19 @@ class GpsVehicleExtraInfoService {
   GpsVehicleExtraInfoService(this._dio, this._apiService);
 
   /// API call to get vehicle extra info
-  Future<Result<List<GpsVehicleExtraInfo>>> getVehicleExtraInfo(String token) async {
+  Future<Result<List<GpsVehicleExtraInfo>>> getVehicleExtraInfo(
+    String token,
+  ) async {
     try {
       CustomLog.info(this, "Starting GPS Get Vehicle Extra info...");
-      
+
       // Create headers with authorization token
       final headers = {
         'Authorization': token,
         'Content-Type': 'application/json',
         'Accept': 'application/json',
       };
-      
+
       final response = await _dio.get(
         'https://api.letsgro.co/api/v1/auth/devices?__limit=50000',
         options: Options(
@@ -34,16 +38,19 @@ class GpsVehicleExtraInfoService {
 
       CustomLog.info(this, "Vehicle extra info API call successful");
       try {
-        CustomLog.info(this, "Parsing Vehicle extra info response: ${response.data}");
-        
+        CustomLog.info(
+          this,
+          "Parsing Vehicle extra info response: ${response.data}",
+        );
+
         // Handle the response as a list of vehicle info
         final List<dynamic> dataList = response.data['data'] ?? response.data;
-        final List<GpsVehicleExtraInfo> vehicleInfoList = dataList
-            .map((item) => GpsVehicleExtraInfo.fromJson(item))
-            .toList();
+        final List<GpsVehicleExtraInfo> vehicleInfoList =
+            dataList.map((item) => GpsVehicleExtraInfo.fromJson(item)).toList();
 
         CustomLog.info(
-          this, "Vehicle extra info parsed successfully: ${vehicleInfoList.length} vehicles found",
+          this,
+          "Vehicle extra info parsed successfully: ${vehicleInfoList.length} vehicles found",
         );
         return Success(vehicleInfoList);
       } catch (e) {
@@ -69,13 +76,13 @@ class GpsVehicleExtraInfoService {
   }) async {
     try {
       CustomLog.info(this, "Starting Multiple Share API call...");
-      
+
       // Create headers with authorization token
       final headers = {
         'Authorization': '$token',
         'Content-Type': 'application/json',
       };
-      
+
       // Query parameters (matching Android implementation)
       final queryParams = {
         'device_id': deviceId,
@@ -83,7 +90,7 @@ class GpsVehicleExtraInfoService {
         'device_name': vehicleName,
         'category': category,
       };
-      
+
       final response = await _dio.get(
         'https://api.letsgro.co/api/v1/auth/get_public_tracking_token',
         queryParameters: queryParams,
@@ -95,13 +102,18 @@ class GpsVehicleExtraInfoService {
       );
 
       CustomLog.info(this, "Multiple Share API call successful");
-      
+
       if (response.statusCode == 200) {
-        final String shareToken = response.data['data'] ?? response.data['token'];
+        final String shareToken =
+            response.data['data'] ?? response.data['token'];
         CustomLog.info(this, "Share token generated: $shareToken");
         return Success(shareToken);
       } else {
-        CustomLog.error(this, "Multiple Share API failed with status: ${response.statusCode}", null);
+        CustomLog.error(
+          this,
+          "Multiple Share API failed with status: ${response.statusCode}",
+          null,
+        );
         return Error(GenericError());
       }
     } on DioException catch (e) {
@@ -122,16 +134,13 @@ class GpsVehicleExtraInfoService {
   }) async {
     try {
       CustomLog.info(this, "Starting Speed Limit Update API call...");
-      
+
       // Convert speed to knots if enabled, else use "0"
       final double speedValue = enabled ? double.parse(speed) : 0;
       final double speedKnots = enabled ? speedValue * 0.539957 : 0;
 
       final attributes = {"speedLimit": speedKnots};
-      final data = {
-        "device_id": deviceId,
-        "attributes": attributes,
-      };
+      final data = {"device_id": deviceId, "attributes": attributes};
 
       final headers = {
         "Authorization": token,
@@ -149,7 +158,7 @@ class GpsVehicleExtraInfoService {
       );
 
       CustomLog.info(this, "Speed Limit Update API call successful");
-      
+
       if (response.data['success'] == true) {
         CustomLog.info(this, "Speed limit updated successfully");
         return Success(true);
@@ -204,6 +213,66 @@ class GpsVehicleExtraInfoService {
       return Error(GenericError());
     } catch (e) {
       CustomLog.error(this, "Error in Device Extra Info Update API", e);
+      return Error(GenericError());
+    }
+  }
+
+  /// API call to get info window details for a specific device
+  Future<Result<GpsInfoWindowDetails>> getInfoWindowDetails({
+    required String token,
+    required String deviceId,
+  }) async {
+    try {
+      CustomLog.info(this, "Starting Info Window Details API call...");
+
+      // Create headers with authorization token
+      final headers = {
+        'Authorization': token,
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      };
+
+      final response = await _dio.get(
+        'https://api.letsgro.co/api/v1/auth/info_window_details?device_id=$deviceId',
+        options: Options(
+          headers: headers,
+          sendTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
+      );
+
+      CustomLog.info(this, "Info Window Details API call successful");
+
+      if (response.statusCode == 200) {
+        try {
+          final Map<String, dynamic> data =
+              response.data['data'] ?? response.data;
+          final GpsInfoWindowDetails infoDetails =
+              GpsInfoWindowDetails.fromJson(data);
+
+          CustomLog.info(this, "Info Window Details parsed successfully");
+          return Success(infoDetails);
+        } catch (e) {
+          CustomLog.error(
+            this,
+            "Error parsing info window details response",
+            e,
+          );
+          return Error(DeserializationError());
+        }
+      } else {
+        CustomLog.error(
+          this,
+          "Info Window Details API failed with status: ${response.statusCode}",
+          null,
+        );
+        return Error(GenericError());
+      }
+    } on DioException catch (e) {
+      CustomLog.error(this, "Info Window Details API call failed", e);
+      return Error(GenericError());
+    } catch (e) {
+      CustomLog.error(this, "Error in Info Window Details API", e);
       return Error(GenericError());
     }
   }

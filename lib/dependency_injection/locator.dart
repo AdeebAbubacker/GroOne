@@ -111,7 +111,9 @@ import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+
 import '../features/gps_feature/cubit/get_vehicle_extra_info_cubit.dart';
+import '../features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import '../features/gps_feature/cubit/gps_login_cubit.dart';
 import '../features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
 import '../features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
@@ -400,6 +402,9 @@ void initLocator() {
     locator.registerLazySingleton(
       () => GpsVehicleExtraInfoCubit(locator<GpsVehicleExtraInfoRepository>()),
     );
+    locator.registerLazySingleton(
+      () => GpsInfoWindowDetailsCubit(locator<GpsVehicleExtraInfoRepository>()),
+    );
 
     // Bloc
     locator.registerLazySingleton(
@@ -533,7 +538,12 @@ void initLocator() {
       ),
     );
     locator.registerLazySingleton(
-      () => ProfileCubit(locator<ProfileRepository>(), locator<VpCreationRepository>(),locator<LpHomeRepository>(),locator<KavachRepository>(),),
+      () => ProfileCubit(
+        locator<ProfileRepository>(),
+        locator<VpCreationRepository>(),
+        locator<LpHomeRepository>(),
+        locator<KavachRepository>(),
+      ),
     );
     locator.registerLazySingleton(
       () => LpCreateAccountCubit(locator<LpCreateRepository>()),
