@@ -146,6 +146,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                               truckType = onChangeValue;
                             },
                           ),
+
                           GestureDetector(
                               onTap: () => addVehicleAndDriver(),
                               child: Text(context.appText.addVehicle)),

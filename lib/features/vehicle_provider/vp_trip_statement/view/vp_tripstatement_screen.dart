@@ -4,9 +4,10 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide LoadSettlement;
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/cubit/vp_trip_statement_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/model/trip_statement_response.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -89,30 +90,40 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
   }
 
   Widget buildTripStatementView(TripStatementResponse? tripStatement){
-  return Column(
-    spacing: 10,
-    children: [
-      buildMainDetailWidget(context: context,tripStatement: tripStatement),
 
-      buildLoadProviderWidget(context: context,tripStatement: tripStatement),
-      10.height,
-      AppButton(
-        title: context.appText.downloadInvoice,
-        onPressed: () {
-        },
+  return Expanded(
+    child: RefreshIndicator(
+      onRefresh: () async {
+        await _fetchTripStatement();
+      },
+      child: SingleChildScrollView(
+        child: Column(
+          spacing: 10,
+          children: [
+            buildMainDetailWidget(context: context,tripStatement: tripStatement),
+            buildLoadProviderWidget(context: context,tripStatement: tripStatement),
+            10.height,
+            AppButton(
+              title: context.appText.downloadInvoice,
+              onPressed: () {
+              },
+            ),
+            40.height,
+          ],
+        ),
       ),
-      40.height,
-    ],
-  ).withScroll().expand();
+    ),
+  );
   }
 
   /// Main Details
   Widget buildMainDetailWidget({required BuildContext context,TripStatementResponse? tripStatement}) {
+    LoadSettlement? loadSettlement=tripStatement?.data?.loadSettlement;
+    TripStatementData? statementData= tripStatement?.data;
 
-    final numberOfDays = tripStatement?.loadSettlement?.noOfDays ?? 1;
-    final amount = tripStatement?.loadSettlement?.amountPerDay ?? 1;
+
     final detentionsAmount = PriceHelper.formatINR(
-      (amount * numberOfDays).toString(),
+      statementData?.detentions.toString(),
     );
 
     return Container(
@@ -125,41 +136,41 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           buildHeadingText(context.appText.mainDetails),
           buildDTripStatementWidget(
             label: context.appText.loadID,
-            value: tripStatement?.memoDetails?.loadId??"",
+            value: statementData?.loadId??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.transporter,
-            value: tripStatement?.memoDetails?.transporter??"",
+            value: statementData?.transporter??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.vehicleNumber,
-            value: tripStatement?.memoDetails?.vehicleNumber??"",
+            value: statementData?.vehicleNumber??"",
           ),
           buildDTripStatementWidget(
             label: "${context.appText.memo}#",
-            value: tripStatement?.memoDetails?.memoNumber??"",
+            value: statementData?.memoNumber??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.lane,
-            value: tripStatement?.memoDetails?.lane??"",
+            value: statementData?.lane??"",
           ),
           buildDTripStatementWidget(
-            label: "Total transportation cost",
-            value: "Rs 30,000.00",
+            label: context.appText.totalTransportationCost,
+            value: tripStatement?.data?.totalTransportationCost??"",
           ),
 
           buildDTripStatementWidget(
-            label: "${context.appText.advance} (${tripStatement?.memoDetails?.advancePercentage??""}%)",
-            value: tripStatement?.memoDetails?.advanceAmount??"",
+            label: "${context.appText.advance} (${statementData?.advancePercentage??""}%)",
+            value: statementData?.advanceAmount??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.damageCharges,
-            value: '(-) ${tripStatement?.loadSettlement?.debitDamages}',
+            value: '(-) ${loadSettlement?.debitDamages??"--"}',
             isNegative: true,
           ),
           buildDTripStatementWidget(
             label: context.appText.shortages,
-            value: '(-) ${tripStatement?.loadSettlement?.debitShortages}',
+            value: '(-) ${loadSettlement?.debitShortages??"--"}',
             isNegative: true,
           ),
           buildDTripStatementWidget(
@@ -169,23 +180,23 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           buildDTripStatementWidget(
             label: context.appText.loadingCharges,
-            value: tripStatement?.loadSettlement?.loadingCharge.toString() ??"",
+            value: loadSettlement?.loadingCharge.toString() ??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.unloadingCharges,
-            value: tripStatement?.loadSettlement?.unloadingCharge.toString() ??"",
+            value: loadSettlement?.unloadingCharge.toString() ??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.detentions,
             value: detentionsAmount,
           ),
           buildDTripStatementWidget(
-            label: "Advance Received",
-            value: 'Rs 5,800.00',
+            label:  context.appText.advancedReceived,
+            value: tripStatement?.data?.advanceReceived??"--",
           ),
           buildDTripStatementWidget(
-            label: "Balance to be Received",
-            value: 'Rs 5,800.00',
+            label: context.appText.balanceToBeReceived,
+            value: statementData?.balanceToBeReceived??"",
           ),
         ],
       ),
@@ -207,15 +218,17 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           buildHeadingText(context.appText.loadProvider),
           buildDTripStatementWidget(
             label: context.appText.name,
-            value: tripStatement?.memoDetails?.truckSupplier?.partnerName??"",
+            value: tripStatement?.data?.loadProvider?.name??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.destination,
-            value: 'DPXP938650',
+            value: tripStatement?.data?.loadProvider?.destination??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.unloadingDate,
-            value: 'DPXP938650',
+            value:  DateTimeHelper.formatCustomDateIST(
+              tripStatement?.data?.loadProvider?.unloadingDate,
+            ),
           ),
         ],
       ),
@@ -242,13 +255,18 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTextStyle.body3),
-        Text(
-          value,
-          style: AppTextStyle.body2.copyWith(
-            color: isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
+        Text(label, style: AppTextStyle.body3).expand(),
+        Align(
+          alignment: Alignment.centerRight,
+          child: Text(
+             value,
+            textAlign: TextAlign.right,
+            style: AppTextStyle.body2.copyWith(
+              fontSize: 15,
+              color: isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
+            ),
           ),
-        ),
+        ).expand(),
       ],
     );
   }

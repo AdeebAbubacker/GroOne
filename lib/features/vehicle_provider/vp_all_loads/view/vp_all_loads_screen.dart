@@ -226,14 +226,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
           searchController: searchController,
           onChanged: _onSearchChanged,
         ).expand(),
-        15.width,
-        AppIconButton(
-          onPressed: () {
 
-          },
-          style: AppButtonStyle.primaryIconButtonStyle,
-          icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
-        ),
       ],
     ).paddingAll(commonSafeAreaPadding);
   }

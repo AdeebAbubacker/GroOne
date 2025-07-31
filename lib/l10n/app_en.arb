@@ -1109,6 +1109,13 @@
   "unloadingDate":"Unloading date",
   "addDriver":"Add Driver",
   "addVehicle":"Add Vehicle",
+  "balanceToBeReceived":"Balance to be Received",
+
+
+
+
+
+
   "days":"Days",
   "podDispatchedDetails":"POD Dispatch details",
   "podDispatch":"POD Dispatch",
@@ -1149,5 +1156,7 @@
   "noLocationToShare": "No location data available to share",
   "noTicketsFound": "No Tickets Found",
   "othersDocument":"Others Document",
+  "viewTripStatement":"View Trip Statement",
+   "totalTransportationCost":"Total transportation cost",
   "viewTripStatement":"View Trip Statement"
 }

@@ -5,6 +5,7 @@ import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
@@ -339,6 +340,29 @@ class KycService {
     try {
       final url = ApiUrls.deleteDocument;
       final result = await _apiService.delete(url+documentId);
+      if (result is Success) {
+        final data = DeleteDocumentModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<DeleteDocumentModel>> initKycRequest(KycInitRequest initKycRequest) async {
+    try {
+      final url = ApiUrls.digiLockerInit;
+      final xApiKey = ApiUrls.xApiKey;
+      final UDID = ApiUrls.fetchUDID;
+      final result = await _apiService.post(
+          customHeaders: {
+
+          },
+          url,body:initKycRequest.toJson());
       if (result is Success) {
         final data = DeleteDocumentModel.fromJson(result.value);
         return Success(data);

@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
@@ -220,6 +221,16 @@ class KycRepository {
   Future<Result<DeleteDocumentModel>> getDeleteDocumentData(String documentId) async {
     try {
       return await _service.deleteDocument(documentId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get delete document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Init Kyc Request
+  Future<Result<DeleteDocumentModel>> initKycRequest(KycInitRequest? initKycRequest) async {
+    try {
+      return await _service.initKycRequest(initKycRequest!);
     } catch (e) {
       CustomLog.error(this, "Failed to get delete document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
