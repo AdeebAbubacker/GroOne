@@ -73,6 +73,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
      'Loading',
      'In Transit',
      'Unloading',
+     'Pod Dispatch',
      'Completed'
   ];
 
@@ -95,7 +96,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     setState(() {});
   driverLoadBloc = locator<DriverLoadsBloc>();
   _tabController = TabController(
-    length: 6,
+    length: 7,
     vsync: this,
     initialIndex: widget.initialTabIndex,
   );
