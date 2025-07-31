@@ -27,6 +27,7 @@ import '../../../../data/ui_state/status.dart';
 class DriverSettlementsScreen extends StatefulWidget {
   final String? loadId;
   final String? vehicleID;
+
   const DriverSettlementsScreen({super.key,this.loadId,this.vehicleID});
 
   @override
@@ -41,6 +42,7 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
   TextEditingController unloadingAmount = TextEditingController();
   final formKey = GlobalKey<FormState>();
   final vpDetailsCubit = locator<LoadDetailsCubit>();
+  bool isSettementsSubmited=false;
 
   @override
   void initState() {
@@ -81,10 +83,16 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
 
   });
 
+  getLoadDetails(String id) {
+    WidgetsBinding.instance.addPostFrameCallback(
+          (_) => vpDetailsCubit.getLoadDetails(id),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.settlements),
+      appBar: CommonAppBar(title: context.appText.settlements,onLeadingTap: () => Navigator.pop(context,isSettementsSubmited)),
       body: SingleChildScrollView(
         padding: EdgeInsets.all(commonSafeAreaPadding),
         child: Form(
@@ -160,20 +168,20 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
 
               BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
                 bloc: vpDetailsCubit,
-                listenWhen: (previous, current) =>  previous.createDamageUIState?.status != current.createDamageUIState?.status,
+                listenWhen: (previous, current) =>  previous.settlementUIState?.status != current.settlementUIState?.status,
                 listener: (context, state) async {
-                  final status = state.createDamageUIState?.status;
+                  final status = state.settlementUIState?.status;
                   if (status == Status.SUCCESS) {
                     clearValues();
                     showSuccessDialog(context);
                   }
                   if (status == Status.ERROR) {
-                    final error = state.createDamageUIState?.errorType;
+                    final error = state.settlementUIState?.errorType;
                     ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
                   }
                 },
                 builder: (context, state) {
-                  final isLoading = state.createDamageUIState?.status == Status.LOADING;
+                  final isLoading = state.settlementUIState?.status == Status.LOADING;
                   return AppButton(
                       title: context.appText.submit,
                       isLoading: isLoading,
@@ -208,6 +216,7 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
         heading: context.appText.settlementRecordedSuccessfully,
         message:  context.appText.notifiedTheConcernTeam,
         onContinue: (){
+          getLoadDetails(widget.loadId??"");
           Navigator.of(context).pop(true);
           },
       ),

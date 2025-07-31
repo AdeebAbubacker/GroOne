@@ -25,7 +25,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/document_widget_view.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/information_view.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/view/vp_pod_dispatch_screen.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -408,10 +410,10 @@ if (loadStatus == 4) {
                                          showAddButton: LpHomeHelper.getLoadStatusFromString(loadDetails?.data?.loadStatusDetails?.loadStatus) != LoadStatus.completed,
                                         title: 'Settlements',
                                         onAdd: () {
-                                          Navigator.push(
-                                            context,
-                                            commonRoute(
-                                              DriverSettlementsScreen(
+                                           Navigator.push(
+                                          context,
+                                          commonRoute(
+                                            DriverSettlementsScreen(
                                                 vehicleID:
                                                     loads!.data!
                                                         ?.scheduleTripDetails
@@ -419,10 +421,20 @@ if (loadStatus == 4) {
                                                 loadId:
                                                       loads!.data!.loadId,
                                               ),
+                                              isForward: true,
                                             ),
-                                          );
+                                          ).then((value) {
+                                                    if (mounted) {
+                                                      getLoadDetails();
+                                                    }
+                                      });               
+  
                                         },
                                       ),
+                                      _submittedSettlementInfoWidget(
+                                      loadDetails?.data?.loadSettlement,
+                                      context,
+                                    ),
                                     ],
                                   ),
                                 20.height,
@@ -903,4 +915,45 @@ Widget _buildBottomButtonWidget(BuildContext context,DriverLoadDetailsState driv
       ],
     ).paddingSymmetric(horizontal: 15, vertical: 12),
     );
+}
+
+//Submitted settlement
+Widget _submittedSettlementInfoWidget(
+  DriverloadSettlement? loadSettlement,
+  BuildContext context,
+) {
+  if (loadSettlement == null) {
+    return SizedBox.shrink();
+  }
+  final numberOfDays = loadSettlement.noOfDays ?? 1;
+  final amount = loadSettlement.amountPerDay ?? 1;
+  final detentionsAmount = PriceHelper.formatINR(
+    (amount * numberOfDays).toString(),
+  );
+
+  return Padding(
+    padding: EdgeInsets.only(top: 15),
+    child: Column(
+      spacing: 15,
+      children: [
+        InformationView(
+          title:
+              "3 (${loadSettlement.noOfDays ?? 1} ${context.appText.days})",
+          amount: detentionsAmount,
+        ),
+
+        InformationView(
+          title: context.appText.loadingCharges,
+          amount:
+              PriceHelper.formatINR(loadSettlement.loadingCharge).toString(),
+        ),
+
+        InformationView(
+          title: context.appText.unloadingCharges,
+          amount:
+              PriceHelper.formatINR(loadSettlement.unloadingCharge).toString(),
+        ),
+      ],
+    ).paddingSymmetric(horizontal: 15),
+  );
 }
