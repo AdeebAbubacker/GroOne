@@ -999,10 +999,6 @@ class _VehicleBottomCard extends StatelessWidget {
     return BlocProvider(
       create: (context) {
         final cubit = locator<GpsInfoWindowDetailsCubit>();
-        // Call the API to get info window details
-        if (vehicle.deviceId != null) {
-          cubit.getInfoWindowDetails(vehicle.deviceId.toString());
-        }
         return cubit;
       },
       child: _VehicleBottomCardContent(
@@ -1032,6 +1028,37 @@ class _VehicleBottomCardContent extends StatefulWidget {
 
 class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
   bool _expanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Call API when widget is first created
+    _loadInfoWindowDetails();
+  }
+
+  @override
+  void didUpdateWidget(_VehicleBottomCardContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Call API when vehicle changes
+    if (oldWidget.vehicle.deviceId != widget.vehicle.deviceId) {
+      _loadInfoWindowDetails();
+    }
+  }
+
+  void _loadInfoWindowDetails() {
+    if (widget.vehicle.deviceId != null) {
+      context.read<GpsInfoWindowDetailsCubit>().getInfoWindowDetails(
+        widget.vehicle.deviceId.toString(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    // Reset cubit state when widget is disposed
+    context.read<GpsInfoWindowDetailsCubit>().resetState();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

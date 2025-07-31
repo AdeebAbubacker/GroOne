@@ -47,28 +47,61 @@ class GpsInfoWindowDetails {
 
   factory GpsInfoWindowDetails.fromJson(Map<String, dynamic> json) {
     return GpsInfoWindowDetails(
-      averageSpeedKph: json['averageSpeedKph']?.toDouble(),
-      cacheDistance: json['cacheDistance']?.toDouble(),
-      currentTripDistance: json['currentTripDistance']?.toDouble(),
-      currentTripEndTime: json['currentTripEndTime'],
-      currentTripStartTime: json['currentTripStartTime'],
-      dontUse: json['dontUse'],
-      engineSecondsViaIgnition: json['engineSecondsViaIgnition'],
-      engine2Seconds: json['engine_2_seconds'],
-      engine2Time: json['engine_2_time'],
-      idleSeconds: json['idleSeconds'],
-      ignitionSeconds: json['ignitionSeconds'],
-      isStopped: json['isStopped'],
-      lastTripDistance: json['lastTripDistance']?.toDouble(),
-      lastTripEndTime: json['lastTripEndTime'],
-      lastTripStartTime: json['lastTripStartTime'],
-      maxSpeedKph: json['maxSpeedKph']?.toDouble(),
-      motionSeconds: json['motionSeconds'],
-      pastDataReceived: json['pastDataReceived'],
-      stoppedSince: json['stoppedSince'],
-      stopsCount: json['stopsCount'],
-      tripsCount: json['tripsCount'],
+      averageSpeedKph: _parseDouble(json['averageSpeedKph']),
+      cacheDistance: _parseDouble(json['cacheDistance']),
+      currentTripDistance: _parseDouble(json['currentTripDistance']),
+      currentTripEndTime: _parseInt(json['currentTripEndTime']),
+      currentTripStartTime: _parseInt(json['currentTripStartTime']),
+      dontUse: json['dontUse']?.toString(),
+      engineSecondsViaIgnition: _parseInt(json['engineSecondsViaIgnition']),
+      engine2Seconds: _parseInt(json['engine_2_seconds']),
+      engine2Time: _parseInt(json['engine_2_time']),
+      idleSeconds: _parseInt(json['idleSeconds']),
+      ignitionSeconds: _parseInt(json['ignitionSeconds']),
+      isStopped: _parseBool(json['isStopped']),
+      lastTripDistance: _parseDouble(json['lastTripDistance']),
+      lastTripEndTime: _parseInt(json['lastTripEndTime']),
+      lastTripStartTime: _parseInt(json['lastTripStartTime']),
+      maxSpeedKph: _parseDouble(json['maxSpeedKph']),
+      motionSeconds: _parseInt(json['motionSeconds']),
+      pastDataReceived: _parseBool(json['pastDataReceived']),
+      stoppedSince: _parseInt(json['stoppedSince']),
+      stopsCount: _parseInt(json['stopsCount']),
+      tripsCount: _parseInt(json['tripsCount']),
     );
+  }
+
+  static double? _parseDouble(dynamic value) {
+    if (value == null) return null;
+    if (value is double) return value;
+    if (value is int) return value.toDouble();
+    if (value is String) {
+      final parsed = double.tryParse(value);
+      return parsed;
+    }
+    return null;
+  }
+
+  static int? _parseInt(dynamic value) {
+    if (value == null) return null;
+    if (value is int) return value;
+    if (value is double) return value.toInt();
+    if (value is String) {
+      final parsed = int.tryParse(value);
+      return parsed;
+    }
+    return null;
+  }
+
+  static bool? _parseBool(dynamic value) {
+    if (value == null) return null;
+    if (value is bool) return value;
+    if (value is String) {
+      final lower = value.toLowerCase();
+      return lower == 'true' || lower == '1' || lower == 'yes';
+    }
+    if (value is int) return value > 0;
+    return null;
   }
 
   Map<String, dynamic> toJson() {
