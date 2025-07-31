@@ -1157,6 +1157,6 @@
   "noTicketsFound": "No Tickets Found",
   "othersDocument":"Others Document",
   "viewTripStatement":"View Trip Statement",
-    "totalTransportationCost":"Total transportation cost"
+   "totalTransportationCost":"Total transportation cost",
   "viewTripStatement":"View Trip Statement"
 }
