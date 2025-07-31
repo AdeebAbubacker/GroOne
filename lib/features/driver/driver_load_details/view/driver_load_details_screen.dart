@@ -251,7 +251,10 @@ Future<void> getLoadDetails() async {
                     ),
                   ],
                 ).expand(),
-                 DriverLoadHelper.driverStatusWidget(loadItem.data?.loadStatusId.toString()),
+                 if(loadItem.data!.loadStatusId >= 4 && loadItem.data?.loadStatusId != null)
+                    DriverLoadHelper.loadStatusWidget(
+                        (loadItem.data?.loadOnhold??false) ? context.appText.loadOnHold:
+                        loadItem.data!.loadStatusDetails!.loadStatus, context) 
                 ],
             )
           ],

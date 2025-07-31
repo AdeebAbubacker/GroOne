@@ -218,7 +218,7 @@ class Customer {
   final dynamic password;
   final String companyName;
   final String otp;
-  final String otpAttempt;
+  final dynamic otpAttempt;
   final int isKyc;
   final dynamic preferredLanes;
   final int roleId;
@@ -242,7 +242,7 @@ class Customer {
     dynamic? password,
     String? companyName,
     String? otp,
-    String? otpAttempt,
+    dynamic? otpAttempt,
     int? isKyc,
     dynamic? preferredLanes,
     int? roleId,
@@ -293,7 +293,7 @@ class Customer {
       password: json["password"],
       companyName: json["companyName"] ?? "",
       otp: json["otp"] ?? "",
-      otpAttempt: json["otpAttempt"] ?? "",
+      otpAttempt: json["otpAttempt"],
       isKyc: json["isKyc"] ?? 0,
       preferredLanes: json["preferredLanes"],
       roleId: json["roleId"] ?? 0,

@@ -180,7 +180,7 @@ class DriverLoadDetailsModelData {
     final ScheduleTripDetails? scheduleTripDetails;
     final LoadMemo? loadMemo;
     final List<LoadDocument> loadDocument;
-    final dynamic loadSettlement;
+    final DriverloadSettlement? loadSettlement;
     final dynamic podDispatch;
     final dynamic loadApproval;
      final List<DamageReport>? damageShortage;
@@ -224,7 +224,7 @@ class DriverLoadDetailsModelData {
         ScheduleTripDetails? scheduleTripDetails,
         LoadMemo? loadMemo,
         List<LoadDocument>? loadDocument,
-        dynamic? loadSettlement,
+        DriverloadSettlement? loadSettlement,
         dynamic? podDispatch,
         dynamic? loadApproval,
         List<DamageReport>? damageShortage,
@@ -315,7 +315,7 @@ class DriverLoadDetailsModelData {
             scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
             loadMemo: json["loadMemo"] == null ? null : LoadMemo.fromJson(json["loadMemo"]),
             loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) => LoadDocument.fromJson(x))),
-            loadSettlement: json["loadSettlement"],
+            loadSettlement: json["loadSettlement"] == null ? null : DriverloadSettlement.fromJson(json["loadSettlement"]),
             podDispatch: json["podDispatch"],
             loadApproval: json["loadApproval"],
              damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
@@ -1739,6 +1739,89 @@ class DriverConsignee {
             email: json["email"] ?? "",
             mobileNumber: json["mobileNumber"] ?? "",
             loadId: json["loadId"] ?? "",
+        );
+    }
+
+}
+
+class DriverloadSettlement {
+    DriverloadSettlement({
+        required this.settlementId,
+        required this.vehicleId,
+        required this.loadId,
+        required this.noOfDays,
+        required this.amountPerDay,
+        required this.loadingCharge,
+        required this.unloadingCharge,
+        required this.debitDamages,
+        required this.debitShortages,
+        required this.debitPenalities,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.deletedAt,
+    });
+
+    final String settlementId;
+    final String vehicleId;
+    final String loadId;
+    final int noOfDays;
+    final int amountPerDay;
+    final int loadingCharge;
+    final int unloadingCharge;
+    final int debitDamages;
+    final int debitShortages;
+    final int debitPenalities;
+    final DateTime? createdAt;
+    final dynamic updatedAt;
+    final dynamic deletedAt;
+
+    DriverloadSettlement copyWith({
+        String? settlementId,
+        String? vehicleId,
+        String? loadId,
+        int? noOfDays,
+        int? amountPerDay,
+        int? loadingCharge,
+        int? unloadingCharge,
+        int? debitDamages,
+        int? debitShortages,
+        int? debitPenalities,
+        DateTime? createdAt,
+        dynamic? updatedAt,
+        dynamic? deletedAt,
+    }) {
+        return DriverloadSettlement(
+            settlementId: settlementId ?? this.settlementId,
+            vehicleId: vehicleId ?? this.vehicleId,
+            loadId: loadId ?? this.loadId,
+            noOfDays: noOfDays ?? this.noOfDays,
+            amountPerDay: amountPerDay ?? this.amountPerDay,
+            loadingCharge: loadingCharge ?? this.loadingCharge,
+            unloadingCharge: unloadingCharge ?? this.unloadingCharge,
+            debitDamages: debitDamages ?? this.debitDamages,
+            debitShortages: debitShortages ?? this.debitShortages,
+            debitPenalities: debitPenalities ?? this.debitPenalities,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory DriverloadSettlement.fromJson(Map<String, dynamic> json){ 
+        return DriverloadSettlement(
+            settlementId: json["settlementId"] ?? "",
+            vehicleId: json["vehicleId"] ?? "",
+            loadId: json["loadId"] ?? "",
+            noOfDays: json["noOfDays"] ?? 0,
+            amountPerDay: json["amountPerDay"] ?? 0,
+            loadingCharge: json["loadingCharge"] ?? 0,
+            unloadingCharge: json["unloadingCharge"] ?? 0,
+            debitDamages: json["debitDamages"] ?? 0,
+            debitShortages: json["debitShortages"] ?? 0,
+            debitPenalities: json["debitPenalities"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            updatedAt: json["updatedAt"],
+            deletedAt: json["deletedAt"],
         );
     }
 

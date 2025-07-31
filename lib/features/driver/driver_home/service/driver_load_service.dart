@@ -23,14 +23,11 @@ class DriverLoadService {
     try {
        String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
        if (status != null && status != 3) {
-        url += "&loadStatus=$status";
-      }
-      if (search.isNotEmpty) {
-      url += "&search=$search";
-      }
-      if (laneId != null) {
-        url += "&laneId=$laneId";
-      }
+      url += "&loadStatus=$status";
+    }
+    if (search.isNotEmpty) {
+      url += "&search=$search"; 
+    }
       final response = await _apiService.get(
         url,
         forceRefresh: forceRefresh,

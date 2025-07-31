@@ -213,7 +213,7 @@ class VpCustomerModel {
     final String password;
     final String companyName;
     final int otp;
-    final String otpAttempt;
+    final dynamic otpAttempt;
     final int isKyc;
     final int roleId;
     final bool tempFlg;
@@ -234,7 +234,7 @@ class VpCustomerModel {
         String? password,
         String? companyName,
         int? otp,
-        String? otpAttempt,
+        dynamic? otpAttempt,
         int? isKyc,
         int? roleId,
         bool? tempFlg,
@@ -279,7 +279,7 @@ class VpCustomerModel {
             password: json["password"] ?? "",
             companyName: json["companyName"] ?? "",
             otp: json["otp"] ?? 0,
-            otpAttempt: json["otpAttempt"] ?? "",
+            otpAttempt: json["otpAttempt"],
             isKyc: json["isKyc"] ?? 0,
             roleId: json["roleId"] ?? 0,
             tempFlg: json["tempFlg"] ?? false,
