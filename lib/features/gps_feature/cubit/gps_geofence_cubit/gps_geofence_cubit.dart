@@ -149,7 +149,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
   }
 
   Future<void> toggleGeofenceForVehicle({
-    required String userId,
     required String deviceId,
     required String vehicleId,
     required String geofenceId,

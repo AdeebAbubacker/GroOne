@@ -95,7 +95,7 @@ class _GpsDashboardContent extends StatelessWidget {
           );
         }
 
-        final filteredVehicles = state.filteredVehicles;
+        final filteredVehicles = state.filteredVehicles.withoutExpired;
         final vehicles =
             filteredVehicles
                 .where((vehicle) => vehicle.expired != true)
@@ -738,13 +738,10 @@ class _GpsDashboardContent extends StatelessWidget {
       popupProps: PopupProps.menu(
         // fit: FlexFit.loose,
         showSearchBox: true,
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.3,
-        ),
         emptyBuilder:
             (context, searchEntry) => Center(
               child: Text(context.appText.noVehiclesFound),
-            ).withHeight(MediaQuery.of(context).size.height * 0.3),
+            ),
         loadingBuilder:
             (context, searchEntry) =>
                 const Center(child: CircularProgressIndicator()),

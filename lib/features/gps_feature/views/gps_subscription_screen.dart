@@ -124,11 +124,6 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
                 return daysLeft != null && daysLeft <= 30;
               }).length;
 
-          for(var vehicle in _filteredVehicles){
-            debugPrint('Total Vehicles ${_filteredVehicles.length}');
-            debugPrint('vehicle: ${vehicle.vehicleNumber}, expiry: ${vehicle.subscriptionExpiryDate}');
-          }
-
           return Column(
             children: [
               if (expiringCount > 0) _buildAlertCard(context, expiringCount),
@@ -263,11 +258,11 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
               children: [
                 Text(
                   context.appText.expiryAlert,
-                  style: AppTextStyle.h5.copyWith(color: Colors.red),
+                  style: AppTextStyle.h6.copyWith(color: Colors.red),
                 ),
                 Text(
                   '$expiringCount ${context.appText.devicesExpiringSoon}!',
-                  style: AppTextStyle.h5WhiteColor,
+                  style: AppTextStyle.h6WhiteColor,
                 ),
               ],
             ),
