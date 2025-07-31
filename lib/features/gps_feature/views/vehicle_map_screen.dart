@@ -7,8 +7,10 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/helper/gps_map_helper.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
@@ -969,23 +971,67 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-// Replace the _VehicleBottomCard stateless widget with a stateful one
-class _VehicleBottomCard extends StatefulWidget {
+// Stateless widget with BlocProvider
+class _VehicleBottomCard extends StatelessWidget {
   final GpsCombinedVehicleData vehicle;
   final ScrollController? scrollController;
   const _VehicleBottomCard({required this.vehicle, this.scrollController});
 
+  String _formatDuration(int? seconds) {
+    if (seconds == null || seconds <= 0) return '0h 0m';
+
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
+
+    if (hours > 0 && minutes > 0) {
+      return '${hours}h ${minutes}m';
+    } else if (hours > 0) {
+      return '${hours}h';
+    } else if (minutes > 0) {
+      return '${minutes}m';
+    } else {
+      return '0m';
+    }
+  }
+
   @override
-  State<_VehicleBottomCard> createState() => _VehicleBottomCardState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        final cubit = locator<GpsInfoWindowDetailsCubit>();
+        // Call the API to get info window details
+        if (vehicle.deviceId != null) {
+          cubit.getInfoWindowDetails(vehicle.deviceId.toString());
+        }
+        return cubit;
+      },
+      child: _VehicleBottomCardContent(
+        vehicle: vehicle,
+        scrollController: scrollController,
+        formatDuration: _formatDuration,
+      ),
+    );
+  }
 }
 
-class _VehicleBottomCardState extends State<_VehicleBottomCard> {
-  bool _expanded = false;
+class _VehicleBottomCardContent extends StatefulWidget {
+  final GpsCombinedVehicleData vehicle;
+  final ScrollController? scrollController;
+  final String Function(int?) formatDuration;
+
+  const _VehicleBottomCardContent({
+    required this.vehicle,
+    this.scrollController,
+    required this.formatDuration,
+  });
 
   @override
-  void initState() {
-    super.initState();
-  }
+  State<_VehicleBottomCardContent> createState() =>
+      _VehicleBottomCardContentState();
+}
+
+class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
+  bool _expanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -1313,6 +1359,100 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                   ],
                 ),
               ),
+            ),
+
+            // Info Window Details Card (Trip Details)
+            BlocBuilder<GpsInfoWindowDetailsCubit, GpsInfoWindowDetailsState>(
+              builder: (context, state) {
+                if (state.infoWindowDetailsState?.status == Status.LOADING) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      top: 12,
+                      left: 12,
+                      right: 12,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                }
+
+                if (state.infoWindowDetailsState?.status == Status.SUCCESS &&
+                    state.infoWindowDetailsState?.data != null) {
+                  final infoDetails = state.infoWindowDetailsState!.data!;
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      top: 12,
+                      left: 12,
+                      right: 12,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          _InfoWindowDetailRow(
+                            icon: Icons.speed,
+                            label: 'Average Speed',
+                            value:
+                                '${infoDetails.averageSpeedKph?.toStringAsFixed(1) ?? '0.0'} km/h',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.speed,
+                            label: 'Max Speed',
+                            value:
+                                '${infoDetails.maxSpeedKph?.toStringAsFixed(1) ?? '0.0'} km/h',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.route,
+                            label: 'Current Trip Distance',
+                            value:
+                                '${infoDetails.currentTripDistance?.toStringAsFixed(1) ?? '0.0'} km',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.route,
+                            label: 'Last Trip Distance',
+                            value:
+                                '${infoDetails.lastTripDistance?.toStringAsFixed(1) ?? '0.0'} km',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.access_time,
+                            label: 'Engine Time',
+                            value: widget.formatDuration(
+                              infoDetails.engineSecondsViaIgnition,
+                            ),
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.stop_circle,
+                            label: 'Stops Count',
+                            value: '${infoDetails.stopsCount ?? 0}',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.trip_origin,
+                            label: 'Trips Count',
+                            value: '${infoDetails.tripsCount ?? 0}',
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return const SizedBox.shrink();
+              },
             ),
 
             // Bottom Immobilizer row (now expandable)
@@ -2031,7 +2171,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
   }
 
   void _callDriver(BuildContext context, GpsCombinedVehicleData vehicle) async {
-    final phoneNumber = vehicle.phone;
+    final phoneNumber = widget.vehicle.phone;
 
     if (phoneNumber == null || phoneNumber.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -2090,6 +2230,49 @@ class _InfoRow extends StatelessWidget {
   final String label;
   final String value;
   const _InfoRow({
+    required this.icon,
+    required this.label,
+    required this.value,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.grey[600], size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Info window detail row widget for trip details
+class _InfoWindowDetailRow extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String value;
+  const _InfoWindowDetailRow({
     required this.icon,
     required this.label,
     required this.value,
