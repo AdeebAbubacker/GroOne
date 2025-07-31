@@ -11,6 +11,17 @@ class EnvironmentVariables {
   /// Fetch Base URL
   static String get fetchMapKey {
     return _getEnvVariable("MAP_KEY");
+
+  }
+
+  /// Fetch X API KEY
+  static String get fetchXApiKEY {
+    return _getEnvVariable("X_API_KEY");
+  }
+
+  /// Fetch UDID
+  static String get fetchUDID {
+    return _getEnvVariable("X_APPLICATION_UDID");
   }
 
   /// Helper method to fetch environment variables safely

@@ -8,6 +8,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
@@ -169,8 +170,8 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
             onPressed:  aadhaarNumberTextController.text.length == 14 ?  () async {
                // Navigator.of(context).push(commonRoute(KycScreen(aadhaarNumber: aadhaarNumberTextController.text)));
                 if (formKey.currentState!.validate()) {
-                  final request = AddharOtpApiRequest(force: false, aadhaar: aadhaarValue ?? "");
-                  await kycBloc.sendAadhaarOtp(request);
+                  final request = KycInitRequest(aadharNumber:  aadhaarValue ?? "");
+                  await kycBloc.sendKycRequest(request);
                 }
             } : (){},
           ),

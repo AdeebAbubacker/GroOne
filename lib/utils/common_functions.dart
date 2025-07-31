@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -20,6 +21,7 @@ import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:mime/mime.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
@@ -233,18 +235,20 @@ class ImagePickerFrom {
   static Future<T?> fromCamera<T>({List? allowedExtensions}) async {
     dynamic imageFile;
     final XFile? pickedFromCamera = await picker.pickImage(
-      source: ImageSource.camera,
-      imageQuality: 100,
-    );
+      source: ImageSource.camera,);
     if (pickedFromCamera == null) {
       ToastMessages.alert(message: appContext.appText.noImageSelected);
     } else {
-      final File fileImage = File(pickedFromCamera.path);
+      final compressedFIle= await ImagePickerFrom.compressImage(File(pickedFromCamera.path));
+      if(compressedFIle==null){
+        return null;
+      }
+      final File fileImage = File(pickedFromCamera.path??"");
       final File fileName = File(pickedFromCamera.name);
       final String fileExtension = path.extension(pickedFromCamera.path).replaceFirst('.', '');
       dynamic data = {
-        "fileName": fileName.path,
-        "path": fileImage.path,
+        "fileName": compressedFIle.path,
+        "path": compressedFIle.path,
         "extension": fileExtension,
         "dateTime": DateTime.now().toString(),
       };
@@ -260,26 +264,96 @@ class ImagePickerFrom {
     dynamic imageFile;
     final XFile? pickedFromGallery = await picker.pickImage(
       source: ImageSource.gallery,
-      imageQuality: 100,
+
     );
     if (pickedFromGallery == null) {
       ToastMessages.alert(message: appContext.appText.noImageSelected);
     } else {
-      final File fileImage = File(pickedFromGallery.path);
-      final File fileName = File(pickedFromGallery.name);
-      final String fileExtension = path.extension(pickedFromGallery.path).replaceFirst('.', '');
+      final compressedFile = await compressImage(File(pickedFromGallery.path));
+
+      int fileSize =await  compressedFile?.length()??0;
+      if(compressedFile==null){
+        return null;
+      }
+
+      final File fileImage = File(compressedFile.path);
+      final File fileName = File(compressedFile.name);
+      final String fileExtension = path.extension(compressedFile.path).replaceFirst('.', '');
       dynamic data = {
-        "fileName": fileName.path,
-        "path": fileImage.path,
+        "fileName": compressedFile.path,
+        "path": compressedFile.path,
         "extension": fileExtension,
         "dateTime": DateTime.now().toString(),
       };
-      if (_imageConstraint(fileImage, allowedExtensions: allowedExtensions)) {
+      if (_imageConstraint(File(compressedFile.path), allowedExtensions: allowedExtensions)) {
         imageFile = data;
       }
     }
     return imageFile;
   }
+
+
+
+
+
+  static Future<XFile?> compressImage(File file) async {
+    print("call compress image");
+    const int maxSizeInBytes = 5 * 1024 * 1024;
+    const int minQuality = 30;
+
+
+    final mimeType = lookupMimeType(file.path);
+    if (mimeType == null || !mimeType.startsWith('image/')) {
+      return XFile(file.path);
+    }
+
+    final originalSize = await file.length();
+    if (originalSize <= maxSizeInBytes) {
+      return XFile(file.path);
+    }
+
+    final dir = Directory.systemTemp;
+    final basePath = '${dir.path}/${DateTime.now().millisecondsSinceEpoch}';
+    int quality = 90;
+    File? compressedFile;
+
+    while (quality >= minQuality) {
+      final targetPath = '$basePath-q$quality.${mimeType.split("/").last}';
+      final result = await FlutterImageCompress.compressAndGetFile(
+        file.absolute.path,
+        targetPath,
+        quality: quality,
+        rotate: 0,
+        minHeight: 400,
+        minWidth: 400,
+      );
+
+      if (result != null && await result.length() <= maxSizeInBytes) {
+        final compressedSize = await result.length();
+        print("📉 Compressed (quality $quality): ${(compressedSize / (1024 * 1024)).toStringAsFixed(2)} MB");
+
+        if (compressedSize <= maxSizeInBytes) {
+          compressedFile = File(result.path);
+          break;
+        }
+      }
+
+      quality -= 5;
+    }
+
+    if (compressedFile == null) {
+      print("❌ Compression failed or still too large. Returning original.");
+    } else {
+      print("✅ Final compressed size: ${(await compressedFile.length() / (1024 * 1024)).toStringAsFixed(2)} MB");
+    }
+
+    return XFile(compressedFile?.path ?? file.path);
+  }
+
+
+
+
+
 
   // Image Constraint
   static bool _imageConstraint(File image, {List? allowedExtensions}) {
@@ -308,11 +382,13 @@ class ImagePickerFrom {
 
 /// Multiple File Picker
 Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
+  print("working here");
   try {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       withData: true,
       withReadStream: true,
+
     );
 
     if (result == null || result.files.isEmpty) {
@@ -352,7 +428,12 @@ Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
 
     for (final file in result.files) {
       final extension = file.extension?.toLowerCase() ?? '';
-      final path = file.path;
+      final compressedFIle= await ImagePickerFrom.compressImage(File(file.path!));
+      String? path;
+      if(compressedFIle!=null){
+        path = compressedFIle.path;
+      }
+
 
       if (!extensionSet.contains(extension)) {
         ToastMessages.alert(message: "Invalid file format: ${file.name}");
@@ -365,22 +446,22 @@ Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
       }
 
       validFiles = {
-        "fileName": file.name,
+        "fileName": compressedFIle?.name,
         "path": path,
         "extension": extension,
         "dateTime": DateTime.now().toString(),
       };
 
-      if (file.size > 5000000) {
+      if ((await compressedFIle?.length()??0) > 5 * 1024 * 1024) {
         ToastMessages.alert(message: appContext.appText.imageSize);
         return null;
       } else {
         return validFiles;
       }
+
     }
     return null;
   } catch (e) {
-    debugPrint("File Picker error: $e");
     ToastMessages.alert(message: "An error occurred while picking files");
     return null;
   }

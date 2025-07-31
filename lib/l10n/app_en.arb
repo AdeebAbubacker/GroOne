@@ -1091,6 +1091,7 @@
   "unloadingDate":"Unloading date",
   "addDriver":"Add Driver",
   "addVehicle":"Add Vehicle",
+  "balanceToBeReceived":"Balance to be Received",
 
 
 
@@ -1107,6 +1108,6 @@
   "clear" : "Clear",
   "noTicketsFound": "No Tickets Found",
   "othersDocument":"Others Document",
-  "viewTripStatement":"View Trip Statement"
-
+  "viewTripStatement":"View Trip Statement",
+    "totalTransportationCost":"Total transportation cost"
 }

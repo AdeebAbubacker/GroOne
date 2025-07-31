@@ -1,20 +1,20 @@
-import '../../../load_provider/lp_loads/model/lp_load_memo_response.dart';
-
 class TripStatementResponse {
-  String? message;
-  MemoDetails? memoDetails;
-  LoadSettlement? loadSettlement;
+  final String? message;
+  final TripStatementData? data;
 
+  TripStatementResponse({this.message, this.data});
 
-  TripStatementResponse.fromJson(Map<String,dynamic> json){
-    message=json['message'];
-    memoDetails= json['data'] !=null &&  json['data']['memoDetails']!=null  ?  MemoDetails.fromJson(json['data']['memoDetails']):null;
-    loadSettlement=json['data'] !=null &&  json['data']['loadSettlement']!=null ? LoadSettlement.fromJson(json['data']['loadSettlement']):null;
+  factory TripStatementResponse.fromJson(Map<String, dynamic> json) {
+    return TripStatementResponse(
+      message: json['message'] as String?,
+      data: json['data'] != null
+          ? TripStatementData.fromJson(json['data'])
+          : null,
+    );
   }
 }
 
-
-class MemoDetails {
+class TripStatementData {
   final String? loadId;
   final String? transporter;
   final String? vehicleNumber;
@@ -27,10 +27,15 @@ class MemoDetails {
   final String? advancePercentage;
   final String? balancePercentage;
   final String? balanceAmount;
-  final BankDetails? bankDetails;
-  final TruckSupplier? truckSupplier;
+  final int? detentions;
+  final LoadSettlement? loadSettlement;
+  final String? balanceToBeReceived;
+  final LoadProvider? loadProvider;
+  final String? totalTransportationCost;
+  final String? platformFee;
+  final String? advanceReceived;
 
-  MemoDetails({
+  TripStatementData({
     this.loadId,
     this.transporter,
     this.vehicleNumber,
@@ -43,52 +48,40 @@ class MemoDetails {
     this.advancePercentage,
     this.balancePercentage,
     this.balanceAmount,
-    this.bankDetails,
-    this.truckSupplier,
+    this.detentions,
+    this.loadSettlement,
+    this.balanceToBeReceived,
+    this.loadProvider,
+    this.totalTransportationCost,
+    this.platformFee,
+    this.advanceReceived,
   });
 
-  factory MemoDetails.fromJson(Map<String, dynamic> json) {
-    return MemoDetails(
-      loadId: json['loadId'],
-      transporter: json['transporter'],
-      vehicleNumber: json['vehicleNumber'],
-      memoNumber: json['memoNumber'],
-      lane: json['lane'],
-      totalFreight: json['totalFreight'],
-      handlingCharges: json['handlingCharges'],
-      netFreight: json['netFreight'],
-      advanceAmount: json['advanceAmount'],
-      advancePercentage: json['advancePercentage'],
-      balancePercentage: json['balancePercentage'],
-      balanceAmount: json['balanceAmount'],
-      bankDetails: json['bankDetails'] != null
-          ? BankDetails.fromJson(json['bankDetails'])
+  factory TripStatementData.fromJson(Map<String, dynamic> json) {
+    return TripStatementData(
+      advanceReceived:      json['advanceReceived']?.toString()??"",
+      totalTransportationCost:json['totalTransportationCost']?.toString()??"" ,
+      platformFee:json['platformFee']?.toString()??"" ,
+      loadId: json['loadId'] as String?,
+      transporter: json['shipper'] as String?,
+      vehicleNumber: json['vehicleNumber'] as String?,
+      memoNumber: json['memoNumber'] as String?,
+      lane: json['lane'] as String?,
+      totalFreight: json['totalFreight'] as String?,
+      handlingCharges: json['handlingCharges'] as String?,
+      netFreight: json['netFreight'] as String?,
+      advanceAmount: json['advanceAmount'] as String?,
+      advancePercentage: json['advancePercentage'] as String?,
+      balancePercentage: json['balancePercentage'] as String?,
+      balanceAmount: json['balanceAmount'] as String?,
+      detentions: json['detentions'] as int?,
+      loadSettlement: json['loadSettlement'] != null
+          ? LoadSettlement.fromJson(json['loadSettlement'])
           : null,
-      truckSupplier: json['truckSupplier'] != null
-          ? TruckSupplier.fromJson(json['truckSupplier'])
+      balanceToBeReceived: json['balanceToBeReceived'] as String?,
+      loadProvider: json['loadProvider'] != null
+          ? LoadProvider.fromJson(json['loadProvider'])
           : null,
-    );
-  }
-}
-
-
-
-class TruckSupplier {
-  final String? partnerName;
-  final String? vehicleNumber;
-  final String? panNumber;
-
-  TruckSupplier({
-    this.partnerName,
-    this.vehicleNumber,
-    this.panNumber,
-  });
-
-  factory TruckSupplier.fromJson(Map<String, dynamic> json) {
-    return TruckSupplier(
-      partnerName: json['partnerName'],
-      vehicleNumber: json['vehicleNumber'],
-      panNumber: json['panNumber'],
     );
   }
 }
@@ -105,8 +98,9 @@ class LoadSettlement {
   final int? debitShortages;
   final int? debitPenalities;
   final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final DateTime? deletedAt;
+  final String? updatedAt;
+  final String? deletedAt;
+
 
   LoadSettlement({
     this.settlementId,
@@ -122,26 +116,48 @@ class LoadSettlement {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+
   });
 
   factory LoadSettlement.fromJson(Map<String, dynamic> json) {
     return LoadSettlement(
-      settlementId: json['settlementId'],
-      vehicleId: json['vehicleId'],
-      loadId: json['loadId'],
-      noOfDays: json['noOfDays'],
-      amountPerDay: json['amountPerDay'],
-      loadingCharge: json['loadingCharge'],
-      unloadingCharge: json['unloadingCharge'],
-      debitDamages: json['debitDamages'],
-      debitShortages: json['debitShortages'],
-      debitPenalities: json['debitPenalities'],
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
-      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+      settlementId: json['settlementId'] as String?,
+      vehicleId: json['vehicleId'] as String?,
+      loadId: json['loadId'] as String?,
+      noOfDays: json['noOfDays'] as int?,
+      amountPerDay: json['amountPerDay'] as int?,
+
+      loadingCharge: json['loadingCharge'] as int?,
+      unloadingCharge: json['unloadingCharge'] as int?,
+      debitDamages: json['debitDamages'] as int?,
+      debitShortages: json['debitShortages'] as int?,
+      debitPenalities: json['debitPenalities'] as int?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] as String?,
+      deletedAt: json['deletedAt'] as String?,
     );
   }
 }
 
+class LoadProvider {
+  final String? name;
+  final String? destination;
+  final DateTime? unloadingDate;
 
+  LoadProvider({
+    this.name,
+    this.destination,
+    this.unloadingDate,
+  });
 
+  factory LoadProvider.fromJson(Map<String, dynamic> json) {
+    return LoadProvider(
+      name: json['name'] as String?,
+      destination: json['destination'] as String?,
+        unloadingDate: json['unloadingDate'] != null ? DateTime.tryParse(json['unloadingDate']) : null,
+
+    );
+  }
+}

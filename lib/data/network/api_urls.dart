@@ -9,6 +9,9 @@ class ApiUrls {
   /// Map Key
   static String get fetchedMapKEY => EnvironmentVariables.fetchMapKey;
 
+  static String get xApiKey => EnvironmentVariables.fetchXApiKEY;
+  static String get fetchUDID => EnvironmentVariables.fetchUDID;
+
 
 
 
@@ -139,6 +142,7 @@ class ApiUrls {
   static final String  getTripStatement = "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
 
 
+
   /// Settlement
   static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
   static final String  submitSettlement = "$_settlementBaseUrl/settlement";
@@ -247,5 +251,9 @@ class ApiUrls {
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
   static final String checkVehicleNumber = "$_fetchUrl$_customer$_path$_v1/vehicle/check/vehicle-no/";
   static final String checkLicenseNumber = "$_fetchUrl$_customer$_path$_v1/drivers/check-license/";
+
+  /// DIGI LOCKER
+
+  static final String digiLockerInit = "https://groone-uat.letsgro.co/aadhar/api/v1/digilocker/init";
 
 }

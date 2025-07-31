@@ -6,6 +6,7 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
@@ -103,6 +104,17 @@ class KycCubit extends BaseCubit<KycState> {
   Future<void> sendAadhaarOtp(AddharOtpApiRequest request) async {
     emit(state.copyWith(aadhaarOtpState: UIState.loading()));
     Result result = await _repo.kycSendOtp(request);
+    if (result is Success<AadhaarOtpModel>) {
+      emit(state.copyWith(aadhaarOtpState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(aadhaarOtpState: UIState.error(result.type)));
+    }
+  }
+
+  Future<void> sendKycRequest(KycInitRequest request) async {
+    emit(state.copyWith(aadhaarOtpState: UIState.loading()));
+    Result result = await _repo.initKycRequest(request);
     if (result is Success<AadhaarOtpModel>) {
       emit(state.copyWith(aadhaarOtpState: UIState.success(result.value)));
     }
