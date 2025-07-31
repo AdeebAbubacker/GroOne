@@ -72,6 +72,7 @@ class LoadData {
     required this.customer,
     required this.vpCustomer,
     required this.weight,
+    required this.bankDetails,
     required this.lpPaymentsData,
     required this.consignees,
   });
@@ -117,8 +118,9 @@ class LoadData {
   final Customer? customer;
   final Customer? vpCustomer;
   final Weight? weight;
-  final LpPaymentsData? lpPaymentsData;
+  final LpPaymentDetails? lpPaymentsData;
   final List<Consignee> consignees;
+  final BankDetails? bankDetails;
 
   LoadData copyWith({
     String? loadId,
@@ -161,7 +163,8 @@ class LoadData {
     Customer? customer,
     Customer? vpCustomer,
     Weight? weight,
-    LpPaymentsData? lpPaymentsData,
+    BankDetails? bankDetails,
+    LpPaymentDetails? lpPaymentsData,
   }) {
     return LoadData(
       loadId: loadId ?? this.loadId,
@@ -205,6 +208,7 @@ class LoadData {
       customer: customer ?? this.customer,
       vpCustomer: vpCustomer ?? this.vpCustomer,
       weight: weight ?? this.weight,
+      bankDetails: bankDetails ?? this.bankDetails,
       lpPaymentsData: lpPaymentsData ?? this.lpPaymentsData,
       consignees: consignees ?? this.consignees,
     );
@@ -253,7 +257,8 @@ class LoadData {
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
       weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
-      lpPaymentsData: json["paymentDetails"] == null ? null : LpPaymentsData.fromJson(json["paymentDetails"]),
+      bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
+      lpPaymentsData: json["paymentDetails"] == null ? null : LpPaymentDetails.fromJson(json["paymentDetails"]),
       consignees: json["consignees"] == null
           ? []
           : List<Consignee>.from(json["consignees"].map((x) => Consignee.fromJson(x))),
@@ -1802,6 +1807,82 @@ class Weight {
 
 }
 
+class BankDetails {
+  BankDetails({
+    required this.id,
+    required this.beneficiaryName,
+    required this.bankName,
+    required this.accountNumber,
+    required this.ifscCode,
+    required this.branchName,
+    required this.status,
+    required this.createAt,
+    required this.deletedAt,
+  });
+
+  final int id;
+  final String beneficiaryName;
+  final String bankName;
+  final String accountNumber;
+  final String ifscCode;
+  final String branchName;
+  final int status;
+  final DateTime? createAt;
+  final dynamic deletedAt;
+
+  BankDetails copyWith({
+    int? id,
+    String? beneficiaryName,
+    String? bankName,
+    String? accountNumber,
+    String? ifscCode,
+    String? branchName,
+    int? status,
+    DateTime? createAt,
+    dynamic? deletedAt,
+  }) {
+    return BankDetails(
+      id: id ?? this.id,
+      beneficiaryName: beneficiaryName ?? this.beneficiaryName,
+      bankName: bankName ?? this.bankName,
+      accountNumber: accountNumber ?? this.accountNumber,
+      ifscCode: ifscCode ?? this.ifscCode,
+      branchName: branchName ?? this.branchName,
+      status: status ?? this.status,
+      createAt: createAt ?? this.createAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  factory BankDetails.fromJson(Map<String, dynamic> json){
+    return BankDetails(
+      id: json["id"] ?? 0,
+      beneficiaryName: json["beneficiaryName"] ?? "",
+      bankName: json["bankName"] ?? "",
+      accountNumber: json["accountNumber"] ?? "",
+      ifscCode: json["ifscCode"] ?? "",
+      branchName: json["branchName"] ?? "",
+      status: json["status"] ?? 0,
+      createAt: DateTime.tryParse(json["createAt"] ?? ""),
+      deletedAt: json["deletedAt"],
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "beneficiaryName": beneficiaryName,
+    "bankName": bankName,
+    "accountNumber": accountNumber,
+    "ifscCode": ifscCode,
+    "branchName": branchName,
+    "status": status,
+    "createAt": createAt?.toIso8601String(),
+    "deletedAt": deletedAt,
+  };
+
+}
+
+
 class Consignee {
     Consignee({
         required this.id,
@@ -1846,171 +1927,26 @@ class Consignee {
 }
 
 
-class LpPaymentsData {
-  LpPaymentsData({
-    required this.status,
-    required this.message,
-    required this.data,
-  });
-
-  final int status;
-  final String message;
-  final LpPaymentInnerData data;
-
-  LpPaymentsData copyWith({
-    int? status,
-    String? message,
-    LpPaymentInnerData? data,
-  }) {
-    return LpPaymentsData(
-      status: status ?? this.status,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
-
-  factory LpPaymentsData.fromJson(Map<String, dynamic> json) {
-    return LpPaymentsData(
-      status: json["status"] ?? 0,
-      message: json["message"] ?? "",
-      data: LpPaymentInnerData.fromJson(json["data"] ?? {}),
-    );
-  }
-}
-
-class LpPaymentInnerData {
-  LpPaymentInnerData({
-    required this.logs,
-    required this.payments,
-  });
-
-  final List<LogItem> logs;
-  final List<PaymentItem> payments;
-
-  LpPaymentInnerData copyWith({
-    List<LogItem>? logs,
-    List<PaymentItem>? payments,
-  }) {
-    return LpPaymentInnerData(
-      logs: logs ?? this.logs,
-      payments: payments ?? this.payments,
-    );
-  }
-
-  factory LpPaymentInnerData.fromJson(Map<String, dynamic> json) {
-    return LpPaymentInnerData(
-      logs: (json["logs"] as List<dynamic>? ?? [])
-          .map((e) => LogItem.fromJson(e ?? {}))
-          .toList(),
-      payments: (json["payments"] as List<dynamic>? ?? [])
-          .map((e) => PaymentItem.fromJson(e ?? {}))
-          .toList(),
-    );
-  }
-}
-
-class LogItem {
-  LogItem({
+class LpPaymentDetails {
+  LpPaymentDetails({
     required this.id,
+    required this.seriesNo,
     required this.loadId,
-    required this.orderId,
-    required this.erpOrderId,
-    required this.amount,
+    required this.lpId,
+    required this.vpId,
     required this.agreedPrice,
+    required this.receivableAdvance,
+    required this.receivableBalance,
+    required this.receivableAdvancePercentage,
+    required this.receivableBalancePercentage,
+    required this.receivableAdvancePaid,
+    required this.receivableBalancePaid,
     required this.payableAdvance,
     required this.payableBalance,
-    required this.advancePaid,
-    required this.paymentDate,
-    required this.paymentType,
-    required this.action,
-    required this.paymentStatus,
-    required this.createdAt,
-  });
-
-  final String id;
-  final String loadId;
-  final String orderId;
-  final String erpOrderId;
-  final String amount;
-  final String agreedPrice;
-  final String payableAdvance;
-  final String payableBalance;
-  final String advancePaid;
-  final String paymentDate;
-  final String paymentType;
-  final String action;
-  final String paymentStatus;
-  final String createdAt;
-
-  LogItem copyWith({
-    String? id,
-    String? loadId,
-    String? orderId,
-    String? erpOrderId,
-    String? amount,
-    String? agreedPrice,
-    String? payableAdvance,
-    String? payableBalance,
-    String? advancePaid,
-    String? paymentDate,
-    String? paymentType,
-    String? action,
-    String? paymentStatus,
-    String? createdAt,
-  }) {
-    return LogItem(
-      id: id ?? this.id,
-      loadId: loadId ?? this.loadId,
-      orderId: orderId ?? this.orderId,
-      erpOrderId: erpOrderId ?? this.erpOrderId,
-      amount: amount ?? this.amount,
-      agreedPrice: agreedPrice ?? this.agreedPrice,
-      payableAdvance: payableAdvance ?? this.payableAdvance,
-      payableBalance: payableBalance ?? this.payableBalance,
-      advancePaid: advancePaid ?? this.advancePaid,
-      paymentDate: paymentDate ?? this.paymentDate,
-      paymentType: paymentType ?? this.paymentType,
-      action: action ?? this.action,
-      paymentStatus: paymentStatus ?? this.paymentStatus,
-      createdAt: createdAt ?? this.createdAt,
-    );
-  }
-
-  factory LogItem.fromJson(Map<String, dynamic> json) {
-    return LogItem(
-      id: json["id"] ?? "",
-      loadId: json["loadId"] ?? "",
-      orderId: json["orderId"] ?? "",
-      erpOrderId: json["erpOrderId"] ?? "",
-      amount: json["amount"] ?? "",
-      agreedPrice: json["agreedPrice"] ?? "",
-      payableAdvance: json["payableAdvance"] ?? "",
-      payableBalance: json["payableBalance"] ?? "",
-      advancePaid: json["advancePaid"] ?? "",
-      paymentDate: json["payment_date"] ?? "",
-      paymentType: json["paymentType"] ?? "",
-      action: json["action"] ?? "",
-      paymentStatus: json["paymentStatus"] ?? "",
-      createdAt: json["createdAt"] ?? "",
-    );
-  }
-}
-
-class PaymentItem {
-  PaymentItem({
-    required this.id,
-    required this.loadId,
-    required this.orderId,
-    required this.erpOrderId,
-    required this.amount,
-    required this.agreedPrice,
-    required this.payableAdvance,
-    required this.payableBalance,
-    required this.advancePaid,
-    required this.paymentDate,
-    required this.paymentType,
-    required this.paymentStatus,
-    required this.action,
+    required this.payableAdvancePercentage,
+    required this.payableBalancePercentage,
+    required this.payableAdvancePaid,
+    required this.payableBalancePaid,
     required this.status,
     required this.createdAt,
     required this.updatedAt,
@@ -2018,56 +1954,71 @@ class PaymentItem {
   });
 
   final String id;
+  final int seriesNo;
   final String loadId;
-  final String orderId;
-  final String erpOrderId;
-  final String amount;
+  final String lpId;
+  final String vpId;
   final String agreedPrice;
+  final String receivableAdvance;
+  final String receivableBalance;
+  final String receivableAdvancePercentage;
+  final String receivableBalancePercentage;
+  final String receivableAdvancePaid;
+  final String receivableBalancePaid;
   final String payableAdvance;
   final String payableBalance;
-  final String advancePaid;
-  final String paymentDate;
-  final String paymentType;
-  final String paymentStatus;
-  final String action;
+  final String payableAdvancePercentage;
+  final String payableBalancePercentage;
+  final String payableAdvancePaid;
+  final String payableBalancePaid;
   final int status;
-  final String createdAt;
-  final String updatedAt;
-  final String deletedAt;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final dynamic deletedAt;
 
-  PaymentItem copyWith({
+  LpPaymentDetails copyWith({
     String? id,
+    int? seriesNo,
     String? loadId,
-    String? orderId,
-    String? erpOrderId,
-    String? amount,
+    String? lpId,
+    String? vpId,
     String? agreedPrice,
+    String? receivableAdvance,
+    String? receivableBalance,
+    String? receivableAdvancePercentage,
+    String? receivableBalancePercentage,
+    String? receivableAdvancePaid,
+    String? receivableBalancePaid,
     String? payableAdvance,
     String? payableBalance,
-    String? advancePaid,
-    String? paymentDate,
-    String? paymentType,
-    String? paymentStatus,
-    String? action,
+    String? payableAdvancePercentage,
+    String? payableBalancePercentage,
+    String? payableAdvancePaid,
+    String? payableBalancePaid,
     int? status,
-    String? createdAt,
-    String? updatedAt,
-    String? deletedAt,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    dynamic? deletedAt,
   }) {
-    return PaymentItem(
+    return LpPaymentDetails(
       id: id ?? this.id,
+      seriesNo: seriesNo ?? this.seriesNo,
       loadId: loadId ?? this.loadId,
-      orderId: orderId ?? this.orderId,
-      erpOrderId: erpOrderId ?? this.erpOrderId,
-      amount: amount ?? this.amount,
+      lpId: lpId ?? this.lpId,
+      vpId: vpId ?? this.vpId,
       agreedPrice: agreedPrice ?? this.agreedPrice,
+      receivableAdvance: receivableAdvance ?? this.receivableAdvance,
+      receivableBalance: receivableBalance ?? this.receivableBalance,
+      receivableAdvancePercentage: receivableAdvancePercentage ?? this.receivableAdvancePercentage,
+      receivableBalancePercentage: receivableBalancePercentage ?? this.receivableBalancePercentage,
+      receivableAdvancePaid: receivableAdvancePaid ?? this.receivableAdvancePaid,
+      receivableBalancePaid: receivableBalancePaid ?? this.receivableBalancePaid,
       payableAdvance: payableAdvance ?? this.payableAdvance,
       payableBalance: payableBalance ?? this.payableBalance,
-      advancePaid: advancePaid ?? this.advancePaid,
-      paymentDate: paymentDate ?? this.paymentDate,
-      paymentType: paymentType ?? this.paymentType,
-      paymentStatus: paymentStatus ?? this.paymentStatus,
-      action: action ?? this.action,
+      payableAdvancePercentage: payableAdvancePercentage ?? this.payableAdvancePercentage,
+      payableBalancePercentage: payableBalancePercentage ?? this.payableBalancePercentage,
+      payableAdvancePaid: payableAdvancePaid ?? this.payableAdvancePaid,
+      payableBalancePaid: payableBalancePaid ?? this.payableBalancePaid,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -2075,29 +2026,59 @@ class PaymentItem {
     );
   }
 
-  factory PaymentItem.fromJson(Map<String, dynamic> json) {
-    return PaymentItem(
+  factory LpPaymentDetails.fromJson(Map<String, dynamic> json){
+    return LpPaymentDetails(
       id: json["id"] ?? "",
+      seriesNo: json["seriesNo"] ?? 0,
       loadId: json["loadId"] ?? "",
-      orderId: json["orderId"] ?? "",
-      erpOrderId: json["erpOrderId"] ?? "",
-      amount: json["amount"] ?? "",
+      lpId: json["lpId"] ?? "",
+      vpId: json["vpId"] ?? "",
       agreedPrice: json["agreedPrice"] ?? "",
+      receivableAdvance: json["receivableAdvance"] ?? "",
+      receivableBalance: json["receivableBalance"] ?? "",
+      receivableAdvancePercentage: json["receivableAdvancePercentage"] ?? "",
+      receivableBalancePercentage: json["receivableBalancePercentage"] ?? "",
+      receivableAdvancePaid: json["receivableAdvancePaid"] ?? "",
+      receivableBalancePaid: json["receivableBalancePaid"] ?? "",
       payableAdvance: json["payableAdvance"] ?? "",
       payableBalance: json["payableBalance"] ?? "",
-      advancePaid: json["advancePaid"] ?? "",
-      paymentDate: json["payment_date"] ?? "",
-      paymentType: json["paymentType"] ?? "",
-      paymentStatus: json["paymentStatus"] ?? "",
-      action: json["action"] ?? "",
+      payableAdvancePercentage: json["payableAdvancePercentage"] ?? "",
+      payableBalancePercentage: json["payableBalancePercentage"] ?? "",
+      payableAdvancePaid: json["payableAdvancePaid"] ?? "",
+      payableBalancePaid: json["payableBalancePaid"] ?? "",
       status: json["status"] ?? 0,
-      createdAt: json["createdAt"] ?? "",
-      updatedAt: json["updatedAt"] ?? "",
-      deletedAt: json["deletedAt"] ?? "",
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      deletedAt: json["deletedAt"],
     );
   }
-}
 
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "seriesNo": seriesNo,
+    "loadId": loadId,
+    "lpId": lpId,
+    "vpId": vpId,
+    "agreedPrice": agreedPrice,
+    "receivableAdvance": receivableAdvance,
+    "receivableBalance": receivableBalance,
+    "receivableAdvancePercentage": receivableAdvancePercentage,
+    "receivableBalancePercentage": receivableBalancePercentage,
+    "receivableAdvancePaid": receivableAdvancePaid,
+    "receivableBalancePaid": receivableBalancePaid,
+    "payableAdvance": payableAdvance,
+    "payableBalance": payableBalance,
+    "payableAdvancePercentage": payableAdvancePercentage,
+    "payableBalancePercentage": payableBalancePercentage,
+    "payableAdvancePaid": payableAdvancePaid,
+    "payableBalancePaid": payableBalancePaid,
+    "status": status,
+    "createdAt": createdAt?.toIso8601String(),
+    "updatedAt": updatedAt?.toIso8601String(),
+    "deletedAt": deletedAt,
+  };
+
+}
 
 class Customer {
     Customer({

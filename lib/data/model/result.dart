@@ -142,10 +142,7 @@ class UnauthenticatedError extends ErrorType {
   UnauthenticatedError({this.message});
   @override
   String getText(BuildContext context) {
-    if(message != null){
-      return message!;
-    }
-    return context.appText.unauthenticatedError.capitalize;
+    return message ?? '';
   }
 
   factory UnauthenticatedError.fromApiResponse(Map<String, dynamic> response) {

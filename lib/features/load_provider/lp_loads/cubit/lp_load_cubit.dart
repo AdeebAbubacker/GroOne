@@ -222,10 +222,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Fetches the LP load Memo Details.
-  Future<void> getLpLoadsTripDetails() async {
+  Future<void> getLpLoadsTripDetails({required String loadId}) async {
     _setLoadTripState(UIState.loading());
 
-    Result result = await _repository.fetchTripDetails();
+    Result result = await _repository.fetchTripDetails(loadId: loadId);
 
     if (result is Success<TripStatementResponse>) {
       _setLoadTripState(UIState.success(result.value));

@@ -62,10 +62,9 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<TripStatementResponse>> fetchTripDetails() async {
+  Future<Result<TripStatementResponse>> fetchTripDetails({required String loadId}) async {
     try {
-      final customerId = await userRepo.getUserID() ?? '';
-      return service.fetchTripDetails(customerId: customerId);
+      return service.fetchTripDetails(loadId: loadId);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch trip details data", e);
       return Error(ErrorWithMessage(message: e.toString()));
