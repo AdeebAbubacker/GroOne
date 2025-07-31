@@ -112,14 +112,24 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
   _loadDataByTab(index: widget.initialTabIndex);
 });
-
+ 
+ /// Mapping between tab index and API loadStatus ID
+  static const Map<int, int?> tabIndexToStatusId = {
+    0: null, // All Loads
+    1: 4,    // Assigned
+    2: 5,    // Loading
+    3: 6,    // In Transit
+    4: 7,    // Unloading
+    5: 8,    // POD Dispatch
+    6: 9,   // Completed (adjust if needed for backend)
+  };
 
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      final type = _tabController!.index + 1;
+      final loadStatus = tabIndexToStatusId[_tabController!.index];
       final parsedNumber = int.tryParse(query);
-      driverLoadBloc.add(FetchDriverLoads(loadStatus: type,  search: parsedNumber == null ? query : "", laneId: parsedNumber,
+      driverLoadBloc.add(FetchDriverLoads(loadStatus: loadStatus,  search: parsedNumber == null ? query : "", laneId: parsedNumber,
     ));
   });
   }
@@ -134,13 +144,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
    void _loadDataByTab({required int index,bool forceRefresh = false}) {
     final search = searchController.text;
-    int? loadStatus;
-  if (index > 0) {  
-  loadStatus = index + 3; 
-   
-} else{
-   loadStatus = null;
-}
+    final loadStatus = tabIndexToStatusId[index];
     driverLoadBloc.add(FetchDriverLoads(loadStatus: loadStatus, search: search, forceRefresh: forceRefresh));
     setState(() {});
   }
