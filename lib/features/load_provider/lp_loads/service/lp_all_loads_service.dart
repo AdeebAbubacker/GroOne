@@ -101,11 +101,11 @@ class LpLoadService {
     }
   }
 
-  Future<Result<TripStatementResponse>> fetchTripDetails({required String customerId}) async {
+  Future<Result<TripStatementResponse>> fetchTripDetails({required String loadId}) async {
 
     try {
-      final url = ApiUrls.lpLoadTripDetails+customerId;
-      final response = await _apiService.get(url);
+      final url = '${ApiUrls.lpLoadTripDetails+loadId}?role=1';
+      final response = await _apiService.get(url, );
 
       if (response is Success) {
         final data = response.value;

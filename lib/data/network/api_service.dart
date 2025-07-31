@@ -376,7 +376,8 @@ class ApiService {
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
         await _handleUnauthorizedError();
-        return Error(UnauthenticatedError.fromApiResponse(response?.data));
+        final msg = response?.data?['error_description'];
+        return Error(UnauthenticatedError(message: msg));
       case 404:
         return Error(NotFoundError.fromApiResponse(response?.data));
       case 409:
