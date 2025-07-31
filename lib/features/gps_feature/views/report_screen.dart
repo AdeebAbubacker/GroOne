@@ -20,8 +20,22 @@ import '../widgets/summary_report_card.dart';
 import '../widgets/trip_report_card.dart';
 import 'other_reports_webview_screen.dart';
 
-class GpsReportScreen extends StatelessWidget {
+class GpsReportScreen extends StatefulWidget {
   const GpsReportScreen({super.key});
+
+  @override
+  State<GpsReportScreen> createState() => _GpsReportScreenState();
+}
+
+class _GpsReportScreenState extends State<GpsReportScreen> {
+  late GpsReportCubit _reportCubit;
+
+  @override
+  void initState() {
+    super.initState();
+    _reportCubit = locator.get<GpsReportCubit>()..loadInitialData();
+  }
+
 
   Future<void> _pickFromDate(BuildContext context) async {
     await context.read<GpsReportCubit>().pickFromDate(context);
@@ -32,9 +46,16 @@ class GpsReportScreen extends StatelessWidget {
   }
 
   @override
+  void dispose() {
+    locator.get<GpsReportCubit>().resetState();
+    super.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return BlocProvider.value(
-      value: locator.get<GpsReportCubit>()..loadInitialData(),
+      value: _reportCubit,
       child: BlocListener<GpsReportCubit, GpsReportState>(
         listener: (context, state) {
           if (state.reportStatus == GpsDataStatus.error) {
@@ -141,12 +162,29 @@ class GpsReportScreen extends StatelessWidget {
                       child: Text(context.appText.errorLoadingVehicles),
                     );
                   } else {
+                    // final vehicles = vehicleState.filteredVehicles.withoutExpired;
+                    //
+                    // if (vehicles.isEmpty) {
+                    //   return Text(context.appText.noVehiclesFound);
+                    // }
+
                     final vehicles = vehicleState.filteredVehicles.withoutExpired;
 
                     if (vehicles.isEmpty) {
                       return Text(context.appText.noVehiclesFound);
                     }
+
+                    final reportCubit = context.read<GpsReportCubit>();
+                    final selectedVehicle = reportCubit.state.selectedVehicle;
+
+                    if (selectedVehicle == null) {
+                      final firstVehicle = vehicles.first;
+                      Future.microtask(() {
+                        reportCubit.selectVehicle(firstVehicle);
+                      });
+                    }
                     return DropdownSearch<GpsCombinedVehicleData>(
+                      selectedItem: selectedVehicle,
                       items: (String filter, _) async {
                         return vehicles.where((v) {
                           final name = v.vehicleNumber ?? '';

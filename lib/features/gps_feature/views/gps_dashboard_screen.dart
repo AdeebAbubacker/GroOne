@@ -96,10 +96,13 @@ class _GpsDashboardContent extends StatelessWidget {
         }
 
         final filteredVehicles = state.filteredVehicles.withoutExpired;
+        // final vehicles =
+        //     filteredVehicles
+        //         .where((vehicle) => vehicle.expired != true)
+        //         .toList();
+
         final vehicles =
-            filteredVehicles
-                .where((vehicle) => vehicle.expired != true)
-                .toList();
+            filteredVehicles.withExpired;
 
         if (vehicles.isEmpty) {
           return Scaffold(
