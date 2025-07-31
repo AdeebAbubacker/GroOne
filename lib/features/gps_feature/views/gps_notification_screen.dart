@@ -15,6 +15,7 @@ import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/common_widgets.dart';
 import '../cubit/gps_notification_cubit/gps_notification_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
@@ -101,35 +102,14 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                     if (!uniqueVehicleNumbers.contains(selectedVehicle)) {
                       selectedVehicle = uniqueVehicleNumbers.first;
                     }
-                    return DropdownSearch<String>(
-                      selectedItem:
-                          selectedVehicle.isNotEmpty ? selectedVehicle : null,
-                      items: (String filter, _) async {
-                        return uniqueVehicleNumbers
-                            .where(
-                              (v) => v.toLowerCase().contains(
-                                filter.toLowerCase(),
-                              ),
-                            )
-                            .toList();
-                      },
-                      itemAsString: (String? item) => item ?? "",
-                      popupProps: PopupProps.menu(
-                        // fit: FlexFit.loose,
-                        showSearchBox: true,
-                        emptyBuilder:
-                            (context, searchEntry) => Center(
-                              child: Text(context.appText.noVehiclesFound),
-                            ),
-                        loadingBuilder:
-                            (context, searchEntry) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                      ),
-                      decoratorProps: DropDownDecoratorProps(
-                        decoration: commonInputDecoration(
-                          hintText: context.appText.selectState,
-                          prefixIcon: CircleAvatar(
+                    return SearchableDropdown(
+                      selectedItem: selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                      items: uniqueVehicleNumbers,
+                      hintText: context.appText.selectState,
+                      showSearchBox: true,
+                      dropdownBuilder: (context, selectedItem) => Row(
+                        children: [
+                          CircleAvatar(
                             radius: 15,
                             backgroundColor: AppColors.primaryLightColor,
                             child: SvgPicture.asset(
@@ -137,13 +117,21 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                               width: 20,
                             ),
                           ).paddingAll(5),
-                        ),
+                          const SizedBox(width: 8),
+                          Text(
+                            selectedItem ?? '',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
                       ),
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedVehicle = newValue!;
                         });
                       },
+                      emptyBuilder: (context, searchEntry) => Center(
+                        child: Text(context.appText.noVehiclesFound),
+                      ),
                     );
                   }
                 },

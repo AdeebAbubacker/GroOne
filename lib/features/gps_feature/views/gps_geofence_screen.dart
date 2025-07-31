@@ -20,6 +20,7 @@ import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/common_widgets.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
@@ -341,37 +342,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               }
               return Padding(
                 padding: const EdgeInsets.all(15),
-                // --- START Replacement for AppDropdown ---
-                child: DropdownSearch<String>(
-                  selectedItem:
-                      selectedVehicle.isNotEmpty ? selectedVehicle : null,
-                  items: (String filter, _) async {
-                    return uniqueVehicleNumbers
-                        .where(
-                          (v) => v.toLowerCase().contains(filter.toLowerCase()),
-                        )
-                        .toList();
-                  },
-                  popupProps: PopupProps.menu(
-                    // fit: FlexFit.loose,
-                    showSearchBox: true,
-                    constraints: BoxConstraints(
-                      maxHeight: MediaQuery.of(context).size.height * 0.5,
-                    ),
-                    emptyBuilder:
-                        (context, searchEntry) => Center(
-                          child: Text(context.appText.noVehiclesFound),
-                        ).withHeight(MediaQuery.of(context).size.height * 0.5),
-                    loadingBuilder:
-                        (context, searchEntry) =>
-                            const Center(child: CircularProgressIndicator()),
-                  ),
-                  decoratorProps: DropDownDecoratorProps(
-                    decoration: commonInputDecoration(
-                      hintText: context.appText.selectState,
-                    ),
-                  ),
-                  itemAsString: (String? item) => item ?? "",
+                child: SearchableDropdown(
+                  selectedItem: selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                  items: uniqueVehicleNumbers,
+                  hintText: context.appText.selectState,
                   dropdownBuilder: (context, selectedItem) {
                     if (selectedItem == null || selectedItem.isEmpty) {
                       return Row(
@@ -407,19 +381,22 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                       ],
                     );
                   },
-
+                  emptyBuilder: (context, _) => Center(
+                    child: Text(context.appText.noVehiclesFound),
+                  ).withHeight(MediaQuery.of(context).size.height * 0.5),
                   onChanged: (String? newValue) {
+                    if (newValue == null) return;
+
                     setState(() {
-                      selectedVehicle = newValue!;
+                      selectedVehicle = newValue;
                     });
 
-                    final selectedVehicleData = vehicleState
-                        .filteredVehicles
-                        .withoutExpired
+                    final selectedVehicleData = vehicleState.filteredVehicles.withoutExpired
                         .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+
                     gpsGeofenceCubit.loadVehicleGeofences(
                       deviceId: selectedVehicleData.deviceId.toString(),
-                      vehicleId: selectedVehicle, // use vehicle number or ID
+                      vehicleId: selectedVehicle,
                     );
                   },
                 ),

@@ -8,6 +8,8 @@ class SearchableDropdown extends StatelessWidget {
   final String hintText;
   final ValueChanged<String?> onChanged;
   final bool showSearchBox;
+  final DropdownSearchBuilder<String>? dropdownBuilder;
+  final Widget Function(BuildContext, String)? emptyBuilder;
 
   const SearchableDropdown({
     super.key,
@@ -16,6 +18,8 @@ class SearchableDropdown extends StatelessWidget {
     required this.hintText,
     required this.onChanged,
     this.showSearchBox = true,
+    this.dropdownBuilder,
+    this.emptyBuilder,
   });
 
   @override
@@ -29,8 +33,8 @@ class SearchableDropdown extends StatelessWidget {
       },
       popupProps: PopupProps.menu(
         showSearchBox: showSearchBox,
-        constraints: const BoxConstraints(maxHeight: 250),
-        emptyBuilder: (context, searchEntry) => const Center(
+        // constraints: const BoxConstraints(maxHeight: 250),
+        emptyBuilder:  emptyBuilder ?? (context, searchEntry) => const Center(
           child: Text("No results found"),
         ),
         loadingBuilder: (context, searchEntry) =>
@@ -42,6 +46,7 @@ class SearchableDropdown extends StatelessWidget {
         ),
       ),
       onChanged: onChanged,
+      dropdownBuilder: dropdownBuilder,
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:intl/intl.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_colors.dart';
+import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/common_widgets.dart';
 import '../cubit/report_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
@@ -36,7 +37,6 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
     _reportCubit = locator.get<GpsReportCubit>()..loadInitialData();
   }
 
-
   Future<void> _pickFromDate(BuildContext context) async {
     await context.read<GpsReportCubit>().pickFromDate(context);
   }
@@ -50,7 +50,6 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
     locator.get<GpsReportCubit>().resetState();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -168,7 +167,8 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                     //   return Text(context.appText.noVehiclesFound);
                     // }
 
-                    final vehicles = vehicleState.filteredVehicles.withoutExpired;
+                    final vehicles =
+                        vehicleState.filteredVehicles.withoutExpired;
 
                     if (vehicles.isEmpty) {
                       return Text(context.appText.noVehiclesFound);
@@ -183,86 +183,37 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
                         reportCubit.selectVehicle(firstVehicle);
                       });
                     }
-                    return DropdownSearch<GpsCombinedVehicleData>(
-                      selectedItem: selectedVehicle,
-                      items: (String filter, _) async {
-                        return vehicles.where((v) {
-                          final name = v.vehicleNumber ?? '';
-                          return name.toLowerCase().contains(
-                            filter.toLowerCase(),
-                          );
-                        }).toList();
-                      },
-                      itemAsString: (item) => item.vehicleNumber ?? "",
-                      compareFn: (a, b) => a.deviceId == b.deviceId,
-                      popupProps: PopupProps.menu(
-                        showSearchBox: true,
-                        emptyBuilder:
-                            (context, _) => Center(
-                              child: Text(context.appText.noVehiclesFound),
-                            ),
-                        loadingBuilder:
-                            (context, _) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                      ),
-                      decoratorProps: DropDownDecoratorProps(
-                        decoration: commonInputDecoration(
-                          hintText: context.appText.selectVehicle,
-                          prefixIcon: Icon(
-                            Icons.directions_car,
-                            color: AppColors.primaryColor,
-                            size: 20,
-                          ),
-                        ),
-                      ),
-                      onChanged: (vehicle) {
-                        if (vehicle != null) {
-                          context.read<GpsReportCubit>().selectVehicle(vehicle);
-                        }
+                    return SearchableDropdown(
+                      selectedItem: selectedVehicle?.vehicleNumber,
+                      items:
+                          vehicles.map((v) => v.vehicleNumber ?? '').toList(),
+                      hintText: context.appText.selectVehicle,
+                      onChanged: (selectedNumber) {
+                        final selected = vehicles.firstWhere(
+                          (v) => v.vehicleNumber == selectedNumber,
+                          orElse: () => vehicles.first,
+                        );
+                        context.read<GpsReportCubit>().selectVehicle(selected);
                       },
                     );
                   }
                 },
               ),
-              const SizedBox(height: 16),
+              15.height,
               // Report type selection
-              DropdownSearch<ReportType>(
-                selectedItem: state.selectedReportType,
-                items: (String filter, LoadProps? loadProps) {
-                  // You can filter here if needed
-                  return ReportType.values.where((r) {
-                    return r.displayName.toLowerCase().contains(
-                      filter.toLowerCase(),
-                    );
-                  }).toList();
-                },
-                itemAsString: (item) => item.displayName,
-                compareFn: (r1, r2) => r1 == r2,
-                popupProps: PopupProps.menu(
-                  showSearchBox: true,
-                  emptyBuilder:
-                      (context, searchEntry) => Center(
-                        child: Text(context.appText.noReportTypesFound),
-                      ),
-                ),
-                decoratorProps: DropDownDecoratorProps(
-                  decoration: commonInputDecoration(
-                    hintText: context.appText.selectReportType,
-                    prefixIcon: Icon(
-                      Icons.assignment,
-                      color: AppColors.primaryColor,
-                      size: 20,
-                    ),
-                  ),
-                ),
-                onChanged: (type) {
-                  if (type != null) {
-                    context.read<GpsReportCubit>().selectReportType(type);
-                  }
+              SearchableDropdown(
+                selectedItem: state.selectedReportType.displayName,
+                items: ReportType.values.map((r) => r.displayName).toList(),
+                hintText: context.appText.selectReportType,
+                onChanged: (selectedDisplayName) {
+                  final selectedType = ReportType.values.firstWhere(
+                    (r) => r.displayName == selectedDisplayName,
+                    orElse: () => ReportType.values.first,
+                  );
+                  context.read<GpsReportCubit>().selectReportType(selectedType);
                 },
               ),
-              const SizedBox(height: 24),
+              25.height,
               // Show Report button
               SizedBox(
                 width: double.infinity,
