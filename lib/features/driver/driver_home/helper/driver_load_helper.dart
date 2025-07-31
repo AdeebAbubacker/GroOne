@@ -68,6 +68,8 @@ static  String getBottomButtonTitle(int statusId){
       case 6:
       return  context.appText.swipeToStartUnLoading;
        case 7:
+      return context.appText.podDispatchDetail;
+      case 8:
       return context.appText.swipeToCompleteUnLoading;
     default:
       return context.appText.swipeToStart;
@@ -176,6 +178,7 @@ static  String getBottomButtonTitle(int statusId){
   }
 
     static Widget homeloadStatusButtonWidget({
+    required BuildContext context,
     required int statusId,
     bool isLoading = false,
     required VoidCallback onPressed,
@@ -288,7 +291,15 @@ static  String getBottomButtonTitle(int statusId){
         onPressed();
       },
         );
-      case 8:
+        case 8:
+        return AppButton(
+
+          buttonHeight: commonButtonHeight2,
+          onPressed: isLoading ? () {} : onPressed,
+          isLoading: isLoading,
+          title: context.appText.podDispatchedDetails,
+        );
+      case 9:
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
@@ -346,10 +357,16 @@ static  String getBottomButtonTitle(int statusId){
         );
       case "8":
         return buildUI(
+          text: "pod Dispatch",
+          textColor: Colors.white,
+          backgroundColor: Color(0xff42A5F5),
+        );
+      case "9":
+        return buildUI(
           text: "Completed",
           textColor: Colors.green,
           backgroundColor: Colors.green.shade100,
-        );
+        );  
       default:
         return buildUI(
           text: "Unknown",
