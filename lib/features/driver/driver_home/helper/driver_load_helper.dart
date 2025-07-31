@@ -54,27 +54,26 @@ class DriverLoadHelper {
 
   }
 
-  
 
-static  String getBottomButtonTitle(int statusId){
-  BuildContext context=navigatorKey.currentState!.context;
-  switch(statusId){
-    case 4:
-      return context.appText.swipeToStart; 
-      case 5:
-      
-     return context.appText.swipeToCompleteLoading;
-      
-      case 6:
-      return  context.appText.swipeToStartUnLoading;
-       case 7:
-      return context.appText.podDispatchDetail;
-      case 8:
-      return context.appText.swipeToCompleteUnLoading;
-    default:
-      return context.appText.swipeToStart;
-  }
-}
+    static  String getBottomButtonTitle(int statusId){
+      BuildContext context=navigatorKey.currentState!.context;
+      switch(statusId){
+        case 4:
+          return context.appText.swipeToStart; 
+          case 5:
+          
+        return context.appText.swipeToCompleteLoading;
+          
+          case 6:
+          return  context.appText.swipeToStartUnLoading;
+          case 7:
+          return context.appText.swipeToCompleteUnLoading;
+          case 8:
+          return context.appText.podDispatchDetail;
+        default:
+          return context.appText.swipeToStart;
+      }
+    }
 
 
   static Widget loadStatusButtonWidget({
