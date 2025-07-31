@@ -1,6 +1,4 @@
 import 'dart:convert';
-
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,12 +12,9 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
-
-import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
-import '../../../utils/common_widgets.dart';
+import '../../../utils/app_searchabledropdown.dart';
 import '../constants/app_constants.dart';
 
 class GpsDashboardScreen extends StatelessWidget {
@@ -96,10 +91,12 @@ class _GpsDashboardContent extends StatelessWidget {
         }
 
         final filteredVehicles = state.filteredVehicles.withoutExpired;
-        final vehicles =
-            filteredVehicles
-                .where((vehicle) => vehicle.expired != true)
-                .toList();
+        // final vehicles =
+        //     filteredVehicles
+        //         .where((vehicle) => vehicle.expired != true)
+        //         .toList();
+
+        final vehicles = filteredVehicles.withExpired;
 
         if (vehicles.isEmpty) {
           return Scaffold(
@@ -354,7 +351,7 @@ class _GpsDashboardContent extends StatelessWidget {
             '${context.appText.totalDistance} - ',
             style: AppTextStyle.textDarkGreyColor14w500,
           ),
-          Text(total, style: AppTextStyle.h5),
+          Text('$total Kms', style: AppTextStyle.h5),
         ],
       ),
     );
@@ -728,30 +725,15 @@ class _GpsDashboardContent extends StatelessWidget {
     String? selected,
     List<String> vehicleNumbers,
   ) {
-    return DropdownSearch<String>(
+    return SearchableDropdown(
       selectedItem: selected,
-      items: (String filter, _) async {
-        return vehicleNumbers
-            .where((v) => v.toLowerCase().contains(filter.toLowerCase()))
-            .toList();
+      items: vehicleNumbers,
+      hintText: context.appText.selectState,
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          context.read<VehicleListCubit>().setSelectedVehicle(newValue);
+        }
       },
-      popupProps: PopupProps.menu(
-        // fit: FlexFit.loose,
-        showSearchBox: true,
-        emptyBuilder:
-            (context, searchEntry) => Center(
-              child: Text(context.appText.noVehiclesFound),
-            ),
-        loadingBuilder:
-            (context, searchEntry) =>
-                const Center(child: CircularProgressIndicator()),
-      ),
-      decoratorProps: DropDownDecoratorProps(
-        decoration: commonInputDecoration(
-          hintText: context.appText.selectState,
-        ),
-      ),
-      itemAsString: (String? item) => item ?? "",
       dropdownBuilder: (context, selectedItem) {
         if (selectedItem == null || selectedItem.isEmpty) {
           return Row(
@@ -781,35 +763,8 @@ class _GpsDashboardContent extends StatelessWidget {
           ],
         );
       },
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          context.read<VehicleListCubit>().setSelectedVehicle(newValue);
-        }
-      },
+      emptyBuilder:
+          (context, _) => Center(child: Text(context.appText.noVehiclesFound)),
     );
-    // return AppDropdown(
-    //   dropdownValue: selected,
-    //   dropDownList: vehicleNumbers.map((number) {
-    //     return DropdownMenuItem<String>(
-    //       value: number,
-    //       child: Row(
-    //         children: [
-    //           CircleAvatar(
-    //             radius: 15,
-    //             backgroundColor: AppColors.primaryLightColor,
-    //             child: SvgPicture.asset(AppIcons.svg.truck, width: 20),
-    //           ),
-    //           10.width,
-    //           Text(number),
-    //         ],
-    //       ),
-    //     );
-    //   }).toList(),
-    //   onChanged: (String? newValue) {
-    //     if (newValue != null) {
-    //       context.read<VehicleListCubit>().setSelectedVehicle(newValue);
-    //     }
-    //   },
-    // );
   }
 }

@@ -1,10 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 
+import '../../../../dependency_injection/locator.dart';
 import '../../../../routing/app_route_name.dart';
+import '../../../../utils/app_colors.dart';
+import '../../../../utils/app_icon_button.dart';
+import '../../../../utils/app_icons.dart';
 import '../../../../utils/app_image.dart';
+import '../../../../utils/app_route.dart';
 import '../../constants/app_constants.dart';
+import '../../cubit/vehicle_list_cubit.dart';
+import '../gps_notification_screen.dart';
 
 class VehicleShareUpdateScreen extends StatelessWidget {
   const VehicleShareUpdateScreen({super.key});
@@ -32,15 +42,31 @@ class VehicleShareUpdateScreen extends StatelessWidget {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_outlined,
-              color: AppConstants.textPrimaryColor,
-            ),
-            onPressed: () {},
+          AppIconButton(
+            onPressed: () {
+              final vehicleListCubit = locator<VehicleListCubit>();
+              // Only load data if not already loaded
+              if (!vehicleListCubit.hasLoadedData) {
+                vehicleListCubit.loadVehicleData();
+              }
+
+              Navigator.push(
+                context,
+                commonRoute(
+                  BlocProvider.value(
+                    value: vehicleListCubit,
+                    child: GpsNotificationScreen(),
+                  ),
+                ),
+              );
+            },
+            icon: SvgPicture.asset(AppIcons.svg.notification, height: 20),
+            iconColor: AppColors.primaryColor,
           ),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              commonSupportDialog(context);
+            },
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Image.asset(
