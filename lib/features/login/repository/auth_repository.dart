@@ -5,13 +5,14 @@ import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
+import 'package:gro_one_app/service/pushNotification/notification_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class AuthRepository {
   final SecuredSharedPreferences _securedSharedPref;
-  final ApiService _apiService;
-  AuthRepository(this._securedSharedPref, this._apiService);
+  final NotificationService _notificationService;
+  AuthRepository(this._securedSharedPref, this._notificationService);
 
 
 
@@ -169,8 +170,8 @@ class AuthRepository {
   /// Clear auth & cache
   Future<void> _clearAuthData() async {
     await _securedSharedPref.reset();
-    // await _notificationService.clearBadgeCount();
-    // await _notificationService.clearFcmToken();
+    await _notificationService.clearBadgeCount();
+    await _notificationService.clearFcmToken();
   }
 
   /// Sign out

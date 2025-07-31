@@ -25,7 +25,7 @@ class GpsSessionManager {
   }
 
   static Future<String?> getNotificationToneUriSafe() async {
-    if (_prefs == null) _prefs = await SharedPreferences.getInstance();
+    _prefs ??= await SharedPreferences.getInstance();
     return _prefs?.getString(_notificationToneUriKey);
   }
 
