@@ -84,6 +84,9 @@ class PngImages {
   // gps Order
   final String gpsBenefitTruck = "${_pngImageBasePath}benefitsOfGps.png";
   final String gpsNewProduct = "${_pngImageBasePath}gps_product_image.png";
+
+  //fastag images
+  final String fastagNewUser = "${_pngImageBasePath}fasttag-no-user.png";
 }
 
 class SvgImages {

@@ -118,6 +118,7 @@ class ApiUrls {
   static final String lppayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
   static final String lpCreateOrderBase = "$_paymentBrokerBase/order/pay";
   static final String  podCenter = "$_baseUrl$_loadDiscovery$_path$_v1$_load/podCenterList";
+  static final String  lpLoadTripDetails = "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
 
   /// Load
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
@@ -135,6 +136,8 @@ class ApiUrls {
   static final String  updateDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
   static final String  deleteDamage = "$_baseUrl$_loadSettlement$_path$_v1/damage/";
   static final String  submitPod = "$_loadBaseUrl/pod";
+  static final String  getTripStatement = "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
+
 
   /// Settlement
   static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
@@ -232,11 +235,14 @@ class ApiUrls {
   static final String getAddress = "$_baseUrl$_customer$_path$_v1/address/";
   static final String setPrimaryAddress = "$_baseUrl$_customer$_path$_v1/address/is-default/";
   static final String getKycDocuments = "$_baseUrl$_customer$_path$_v1/kyc/";
+  static final String getSettings = "$_baseUrl$_customer$_path$_v1/settings/";
   static final String getCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
   static final String updateCustomerSettings = "$_baseUrl$_customer$_path$_v1/settings/";
   static final String getVehicleList = "$_baseUrl$_customer$_path$_v1/vehicle/";
   static final String deleteVehicle = "$_baseUrl$_customer$_path$_v1/vehicle/status/";
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
+  static final String getTicketList = "$_baseUrl$_customer$_path$_v1/support-ticket/";
+  static final String createTicket = "$_baseUrl$_customer$_path$_v1/support-ticket/";
 
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
   static final String checkVehicleNumber = "$_fetchUrl$_customer$_path$_v1/vehicle/check/vehicle-no/";

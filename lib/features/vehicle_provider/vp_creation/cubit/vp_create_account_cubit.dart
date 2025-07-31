@@ -7,7 +7,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart' hide Data;
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 
@@ -101,6 +101,23 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
   // Reset Rc file ui state
   void resetUploadRcFileUIState(){
     emit(state.copyWith(uploadRcFileUIState: resetUIState<UploadRcTruckFileModel>(state.uploadRcFileUIState)));
+  }
+
+  void selectLanes(int index,{bool? selected}){
+    List<Item> preferLanes=List.from(state.prefLaneUIState?.data?.data?.items??[]);
+    if(preferLanes.isNotEmpty){
+      Item lanesItem=  preferLanes[index];
+      // final selected=(lanesItem.isSelected??false) ?false:true;
+     final selectedLanesItem=lanesItem.copyWith(
+      isSelected: selected
+    );
+      preferLanes[index]=selectedLanesItem;
+      emit(state.copyWith(
+        prefLaneUIState: UIState.success(TruckPrefLaneModel(data: state.prefLaneUIState?.data?.data?.copyWith(
+          items: preferLanes
+        )
+      ))));
+    }
   }
 
 

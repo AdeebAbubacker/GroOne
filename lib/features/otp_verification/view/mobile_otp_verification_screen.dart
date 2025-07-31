@@ -182,7 +182,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
             } else {
               // Navigate to respective home based on role
               final role = data.roleId;
-              if (role == 1) {
+              if (role == 1 || role == 4) {
                 loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
                 return;
               } else if (role == 2) {
@@ -221,7 +221,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
                   30.height,
                   Text(context.appText.mobileOtpVerification, style: AppTextStyle.h2W600),
                   20.height,
-                  Row(
+                  Wrap(
                     children: [
                       Text(
                         textAlign: TextAlign.start,

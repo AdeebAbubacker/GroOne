@@ -1,140 +1,128 @@
 class LpCreateOrderResponse {
     LpCreateOrderResponse({
+        required this.success,
         required this.message,
-        required this.orderId,
-        required this.order,
+        required this.data,
     });
 
+    final bool success;
     final String message;
-    final String orderId;
-    final Order? order;
+    final LpCreateOrderResponseData? data;
 
     LpCreateOrderResponse copyWith({
+        bool? success,
         String? message,
-        String? orderId,
-        Order? order,
+        LpCreateOrderResponseData? data,
     }) {
         return LpCreateOrderResponse(
+            success: success ?? this.success,
             message: message ?? this.message,
-            orderId: orderId ?? this.orderId,
-            order: order ?? this.order,
+            data: data ?? this.data,
         );
     }
 
-    factory LpCreateOrderResponse.fromJson(Map<String, dynamic> json){ 
+    factory LpCreateOrderResponse.fromJson(Map<String, dynamic> json){
         return LpCreateOrderResponse(
+            success: json["success"] ?? false,
             message: json["message"] ?? "",
-            orderId: json["orderId"] ?? "",
-            order: json["order"] == null ? null : Order.fromJson(json["order"]),
+            data: json["data"] == null ? null : LpCreateOrderResponseData.fromJson(json["data"]),
         );
     }
+
+    Map<String, dynamic> toJson() => {
+        "success": success,
+        "message": message,
+        "data": data?.toJson(),
+    };
 
 }
 
-class Order {
-    Order({
-        required this.id,
-        required this.loadId,
-        required this.memoId,
-        required this.orderId,
-        required this.netFreight,
-        required this.amount,
-        required this.percentage,
-        required this.totalPaid,
-        required this.loadMargin,
-        required this.loadMarginAmount,
-        required this.action,
-        required this.orderType,
-        required this.orderStatus,
-        required this.orderDate,
-        required this.status,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.deletedAt,
+class LpCreateOrderResponseData {
+    LpCreateOrderResponseData({
+        required this.data,
     });
 
-    final String id;
-    final String loadId;
-    final String memoId;
-    final String orderId;
-    final int netFreight;
-    final int amount;
-    final int percentage;
-    final int totalPaid;
-    final int loadMargin;
-    final int loadMarginAmount;
-    final String action;
-    final String orderType;
-    final String orderStatus;
-    final DateTime? orderDate;
-    final int status;
-    final DateTime? createdAt;
-    final DateTime? updatedAt;
-    final dynamic deletedAt;
+    final DataData? data;
 
-    Order copyWith({
-        String? id,
-        String? loadId,
-        String? memoId,
-        String? orderId,
-        int? netFreight,
-        int? amount,
-        int? percentage,
-        int? totalPaid,
-        int? loadMargin,
-        int? loadMarginAmount,
-        String? action,
-        String? orderType,
-        String? orderStatus,
-        DateTime? orderDate,
-        int? status,
-        DateTime? createdAt,
-        DateTime? updatedAt,
-        dynamic? deletedAt,
+    LpCreateOrderResponseData copyWith({
+        DataData? data,
     }) {
-        return Order(
-            id: id ?? this.id,
-            loadId: loadId ?? this.loadId,
-            memoId: memoId ?? this.memoId,
-            orderId: orderId ?? this.orderId,
-            netFreight: netFreight ?? this.netFreight,
-            amount: amount ?? this.amount,
-            percentage: percentage ?? this.percentage,
-            totalPaid: totalPaid ?? this.totalPaid,
-            loadMargin: loadMargin ?? this.loadMargin,
-            loadMarginAmount: loadMarginAmount ?? this.loadMarginAmount,
-            action: action ?? this.action,
-            orderType: orderType ?? this.orderType,
-            orderStatus: orderStatus ?? this.orderStatus,
-            orderDate: orderDate ?? this.orderDate,
-            status: status ?? this.status,
-            createdAt: createdAt ?? this.createdAt,
-            updatedAt: updatedAt ?? this.updatedAt,
-            deletedAt: deletedAt ?? this.deletedAt,
+        return LpCreateOrderResponseData(
+            data: data ?? this.data,
         );
     }
 
-    factory Order.fromJson(Map<String, dynamic> json) {
-  return Order(
-    id: json["id"] ?? "",
-    loadId: json["loadId"] ?? "",
-    memoId: json["memoId"] ?? "",
-    orderId: json["orderId"] ?? "",
-    netFreight: (json["netFreight"] as num?)?.toInt() ?? 0,
-    amount: (json["amount"] as num?)?.toInt() ?? 0,
-    percentage: (json["percentage"] as num?)?.toInt() ?? 0,
-    totalPaid: (json["totalPaid"] as num?)?.toInt() ?? 0,
-    loadMargin: (json["loadMargin"] as num?)?.toInt() ?? 0,
-    loadMarginAmount: (json["loadMarginAmount"] as num?)?.toInt() ?? 0,
-    action: json["action"] ?? "",
-    orderType: json["orderType"] ?? "",
-    orderStatus: json["orderStatus"] ?? "",
-    orderDate: DateTime.tryParse(json["orderDate"] ?? ""),
-    status: (json["status"] as num?)?.toInt() ?? 0,
-    createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-    updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-    deletedAt: json["deletedAt"],
-  );
+    factory LpCreateOrderResponseData.fromJson(Map<String, dynamic> json){
+        return LpCreateOrderResponseData(
+            data: json["data"] == null ? null : DataData.fromJson(json["data"]),
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "data": data?.toJson(),
+    };
+
 }
+
+class DataData {
+    DataData({
+        required this.errorDesc,
+        required this.invoiceId,
+        required this.tinyUrl,
+        required this.qrCode,
+        required this.invoiceStatus,
+        required this.errorCode,
+        required this.merchantReferenceNo,
+    });
+
+    final String errorDesc;
+    final String invoiceId;
+    final String tinyUrl;
+    final String qrCode;
+    final int invoiceStatus;
+    final String errorCode;
+    final String merchantReferenceNo;
+
+    DataData copyWith({
+        String? errorDesc,
+        String? invoiceId,
+        String? tinyUrl,
+        String? qrCode,
+        int? invoiceStatus,
+        String? errorCode,
+        String? merchantReferenceNo,
+    }) {
+        return DataData(
+            errorDesc: errorDesc ?? this.errorDesc,
+            invoiceId: invoiceId ?? this.invoiceId,
+            tinyUrl: tinyUrl ?? this.tinyUrl,
+            qrCode: qrCode ?? this.qrCode,
+            invoiceStatus: invoiceStatus ?? this.invoiceStatus,
+            errorCode: errorCode ?? this.errorCode,
+            merchantReferenceNo: merchantReferenceNo ?? this.merchantReferenceNo,
+        );
+    }
+
+    factory DataData.fromJson(Map<String, dynamic> json){
+        return DataData(
+            errorDesc: json["error_desc"] ?? "",
+            invoiceId: json["invoice_id"] ?? "",
+            tinyUrl: json["tiny_url"] ?? "",
+            qrCode: json["qr_code"] ?? "",
+            invoiceStatus: json["invoice_status"] ?? 0,
+            errorCode: json["error_code"] ?? "",
+            merchantReferenceNo: json["merchant_reference_no"] ?? "",
+        );
+    }
+
+    Map<String, dynamic> toJson() => {
+        "error_desc": errorDesc,
+        "invoice_id": invoiceId,
+        "tiny_url": tinyUrl,
+        "qr_code": qrCode,
+        "invoice_status": invoiceStatus,
+        "error_code": errorCode,
+        "merchant_reference_no": merchantReferenceNo,
+    };
 
 }

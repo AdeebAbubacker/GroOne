@@ -1,3 +1,13 @@
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/cubit/vp_trip_statement_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/model/trip_statement_response.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -6,9 +16,33 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-class VpTripStatementScreen extends StatelessWidget {
-  const VpTripStatementScreen({super.key});
+class VpTripStatementScreen extends StatefulWidget {
+  final LoadDetailModelData? loadDetailModelData;
+  final String? loadId;
+  const VpTripStatementScreen({super.key,this.loadDetailModelData,this.loadId});
+
+  @override
+  State<VpTripStatementScreen> createState() => _VpTripStatementScreenState();
+}
+
+class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
+
+  final loadDetailsCubit = locator<LoadDetailsCubit>();
+  final tripStatementCubit = locator<VpTripStatementCubit>();
+
+
+
+  @override
+  void initState() {
+    _fetchTripStatement();
+    super.initState();
+  }
+
+  Future _fetchTripStatement() async {
+    await tripStatementCubit.fetchTripStatement(widget.loadId);
+  }
 
 
   @override
@@ -18,29 +52,69 @@ class VpTripStatementScreen extends StatelessWidget {
       appBar: CommonAppBar(title: context.appText.tripStatement),
       body: Padding(
         padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
-        child: SingleChildScrollView(
-          child: Column(
-            spacing: 10,
-            children: [
-              buildMainDetailWidget(context: context),
-              buildBankDetailsWidget(context: context),
-              buildTruckSupplierWidget(context: context),
-              10.height,
-              AppButton(
-                title: context.appText.downloadInvoice,
-                onPressed: () {
-                },
-              ),
-              40.height,
-            ],
-          ),
+        child: Column(
+          children: [
+            BlocBuilder<VpTripStatementCubit,VpTripStatementState>(
+              builder:(context, state)  {
+                final status=state.tripStatementUIState?.status;
+
+                if (status == Status.LOADING) {
+                  return CircularProgressIndicator().center();
+                }
+
+                if (status == Status.ERROR) {
+                  return VpHelper.withSliverRefresh(
+                          () => _fetchTripStatement(),
+                      child: genericErrorWidget(
+                        error: state.tripStatementUIState?.errorType,
+                      ));
+                }
+                if (status == Status.SUCCESS) {
+                  final tripStatement = state.tripStatementUIState?.data;
+                  if (tripStatement == null) {
+                    return VpHelper.withSliverRefresh(
+                            () => _fetchTripStatement(),
+                        child: genericErrorWidget(error: NotFoundError()));
+                  }
+                  return buildTripStatementView(tripStatement);
+                }
+
+                return genericErrorWidget(error: GenericError());
+              }
+            ),
+          ],
         ),
       ),
     );
   }
 
+  Widget buildTripStatementView(TripStatementResponse? tripStatement){
+  return Column(
+    spacing: 10,
+    children: [
+      buildMainDetailWidget(context: context,tripStatement: tripStatement),
+
+      buildLoadProviderWidget(context: context,tripStatement: tripStatement),
+      10.height,
+      AppButton(
+        title: context.appText.downloadInvoice,
+        onPressed: () {
+        },
+      ),
+      40.height,
+    ],
+  ).withScroll().expand();
+  }
+
   /// Main Details
-  Widget buildMainDetailWidget({required BuildContext context}) {
+  Widget buildMainDetailWidget({required BuildContext context,TripStatementResponse? tripStatement}) {
+
+    final numberOfDays = tripStatement?.loadSettlement?.noOfDays ?? 1;
+    final amount = tripStatement?.loadSettlement?.amountPerDay ?? 1;
+    final detentionsAmount = PriceHelper.formatINR(
+      (amount * numberOfDays).toString(),
+    );
+
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -51,70 +125,66 @@ class VpTripStatementScreen extends StatelessWidget {
           buildHeadingText(context.appText.mainDetails),
           buildDTripStatementWidget(
             label: context.appText.loadID,
-            value: 'GD12456',
+            value: tripStatement?.memoDetails?.loadId??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.transporter,
-            value: 'Gogovan',
+            value: tripStatement?.memoDetails?.transporter??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.vehicleNumber,
-            value: 'MH87 HV 7807',
+            value: tripStatement?.memoDetails?.vehicleNumber??"",
           ),
           buildDTripStatementWidget(
             label: "${context.appText.memo}#",
-            value: '5465215',
+            value: tripStatement?.memoDetails?.memoNumber??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.lane,
-            value: 'Chennai - Namakkal',
+            value: tripStatement?.memoDetails?.lane??"",
           ),
           buildDTripStatementWidget(
-            label: context.appText.totalFreight,
-            value: 'Rs 30,000.00',
+            label: "Total transportation cost",
+            value: "Rs 30,000.00",
           ),
+
           buildDTripStatementWidget(
-            label: context.appText.handlingCharges,
-            value: '(-) Rs 1000.00',
-            isNegative: true,
-          ),
-          buildDTripStatementWidget(
-            label: context.appText.netFreight,
-            value: 'Rs 29,000.00',
-          ),
-          buildDTripStatementWidget(
-            label: "${context.appText.advance} (80%)",
-            value: 'Rs 23,200.00',
+            label: "${context.appText.advance} (${tripStatement?.memoDetails?.advancePercentage??""}%)",
+            value: tripStatement?.memoDetails?.advanceAmount??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.damageCharges,
-            value: '(-) Rs 1000.00',
+            value: '(-) ${tripStatement?.loadSettlement?.debitDamages}',
             isNegative: true,
           ),
           buildDTripStatementWidget(
             label: context.appText.shortages,
-            value: '(-) Rs 1000.00',
+            value: '(-) ${tripStatement?.loadSettlement?.debitShortages}',
             isNegative: true,
           ),
           buildDTripStatementWidget(
             label: context.appText.penalty,
-            value: '(-) Rs 1000.00',
+            value: '(-) 0',
             isNegative: true,
           ),
           buildDTripStatementWidget(
             label: context.appText.loadingCharges,
-            value: 'Rs 23,200.00',
+            value: tripStatement?.loadSettlement?.loadingCharge.toString() ??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.unloadingCharges,
-            value: 'Rs 23,200.00',
+            value: tripStatement?.loadSettlement?.unloadingCharge.toString() ??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.detentions,
-            value: 'Rs 23,200.00',
+            value: detentionsAmount,
           ),
           buildDTripStatementWidget(
-            label: context.appText.balanceToBePaid,
+            label: "Advance Received",
+            value: 'Rs 5,800.00',
+          ),
+          buildDTripStatementWidget(
+            label: "Balance to be Received",
             value: 'Rs 5,800.00',
           ),
         ],
@@ -123,42 +193,10 @@ class VpTripStatementScreen extends StatelessWidget {
   }
 
   /// Bank Details
-  Widget buildBankDetailsWidget({required BuildContext context}) {
-    return Container(
-      decoration: commonContainerDecoration(),
-      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20,
-        children: [
-          buildHeadingText(context.appText.bankDetails),
-          buildDTripStatementWidget(
-            label: context.appText.beneficiaryName,
-            value: 'Gro Digital',
-          ),
-          buildDTripStatementWidget(
-            label: context.appText.bankName,
-            value: 'Axis Bank',
-          ),
-          buildDTripStatementWidget(
-            label: "${context.appText.accountNumber}*",
-            value: '7587967568',
-          ),
-          buildDTripStatementWidget(
-            label: "${context.appText.ifscCode}*",
-            value: 'BARB0KALAMA',
-          ),
-          buildDTripStatementWidget(
-            label: "${context.appText.branchName}*",
-            value: 'Nungambakam',
-          ),
-        ],
-      ),
-    );
-  }
+
 
   /// Truck Supplier Details
-  Widget buildTruckSupplierWidget({required BuildContext context}) {
+  Widget buildLoadProviderWidget({required BuildContext context,TripStatementResponse? tripStatement}) {
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -166,18 +204,18 @@ class VpTripStatementScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 20,
         children: [
-          buildHeadingText(context.appText.truckSupplier),
+          buildHeadingText(context.appText.loadProvider),
           buildDTripStatementWidget(
-            label: context.appText.partnerName,
-            value: 'Manish Kumar',
+            label: context.appText.name,
+            value: tripStatement?.memoDetails?.truckSupplier?.partnerName??"",
           ),
           buildDTripStatementWidget(
-            label: context.appText.panNumber,
+            label: context.appText.destination,
             value: 'DPXP938650',
           ),
           buildDTripStatementWidget(
-            label: context.appText.vehicleNumber,
-            value: 'MH87HV7808',
+            label: context.appText.unloadingDate,
+            value: 'DPXP938650',
           ),
         ],
       ),

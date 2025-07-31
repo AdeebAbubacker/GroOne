@@ -62,6 +62,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
     loadStatus = getLoadStatus(status);
+    loadStatus = getLoadStatus(status);
     emit(state.copyWith(
         loadStatusId: status,
         loadStatus: loadStatus));
@@ -98,6 +99,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
 
       /// SET TRIP DOCUMENT
+      print("Calling set trip documents");
       setTripDocuments(
           state.loadDetailsUIState?.data?.data?.loadDocument ?? []);
     }
@@ -283,17 +285,44 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   /// DELETE LOAD DOCUMENT
-  Future<void> deleteLoadDocument(String loadDocumentID,int index) async {
-    uploadDeleteLoaderStatus(index);
+  Future<void> deleteLoadDocument(String loadDocumentID,int index,{bool otherDocument=false}) async {
+    if(!otherDocument){
+      uploadDeleteLoaderStatus(index);
+    }
+
     Result result = await _loadDetailsRepository.deleteLoadDocument(loadDocumentID);
     if (result is Success<DeleteLoadDocumentResponse>) {
       /// delete from local
-      uploadDeleteLoaderStatus(index,isDelete: true);
+      if(otherDocument){
+        deleteOtherDocumentFromLocal(index);
+      }else{
+        uploadDeleteLoaderStatus(index,isDelete: true);
+      }
+
     }
     if (result is Error) {
       uploadDeleteLoaderStatus(index);
     }
   }
+
+
+  deleteOtherDocumentFromLocal(int index){
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    int currentDocumentIndex = currentList.indexWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments);
+    List<LoadDocument> loadDocument =  List.from(currentList[currentDocumentIndex].loadDocument??[]);
+
+    loadDocument.removeAt(index);
+
+    final updatedDocument = currentList[currentDocumentIndex].copyWith(
+      clearLoadData: false,
+      loadDocument: loadDocument,
+      isLoading: false,
+      deleteLoading:false,
+    );
+    currentList[currentDocumentIndex] = updatedDocument;
+    emit(state.copyWith(tripDocumentList: currentList));
+  }
+
 
   Future<void> uploadDocument(File file, String fileType, String? title,
       int? documentTypeId, String loadId, int index) async {
@@ -348,8 +377,12 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
     List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
+
     final updatedDocument = currentDocument.copyWith(
-      loadDocument: currentDocument.loadDocument ?? loadDocument,
+      loadDocument: [
+        ...currentDocument.loadDocument??[],
+        if(loadDocument!=null) ...[loadDocument]
+      ],
       isLoading: !(currentDocument.isLoading ?? false),
     );
     currentList[index] = updatedDocument;
@@ -357,15 +390,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     /// TODO:
     /// This is for multiple documents
 
-    // if(loadDocument!=null && updatedDocument.fileType==DocumentFileType.uploadOtherDocument.name){
-    //   DocumentEntity updatedDocumentList=   addOthersDocumentUploadOption(currentList);
-    //   debugPrint("updatedDocumentList added");
-    //   currentList.add(updatedDocumentList);
-    // }
     emit(state.copyWith(tripDocumentList: currentList));
   }
-
-
 
   void uploadDeleteLoaderStatus(int index,{bool isDelete=false}) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
@@ -377,18 +403,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     );
     currentList[index] = updatedDocument;
     emit(state.copyWith(tripDocumentList: currentList));
-  }
-
-
-  /// add option for add more other documents
-  DocumentEntity addOthersDocumentUploadOption(List<DocumentEntity> currentList){
-    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-    final otherDocumentObj=currentList.firstWhere((element) => element.fileType==DocumentFileType.uploadOtherDocument.name);
-    final currentDocument = otherDocumentObj.copyWith(
-      loadDocument: null
-    );
-
-    return currentDocument;
   }
 
 
@@ -528,23 +542,19 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     ));
   }
 
+
+
+
   void resetTripScheduleUIState(){
     emit(state.copyWith(scheduleTripResponse: resetUIState<ScheduleTripResponse>(state.scheduleTripResponse)));
   }
 
 
     setTripDocuments(List<LoadDocument>? loadDocument) {
-      List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+    List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
       for (DocumentEntity item in documentList) {
         /// find load item for api response set into local document entity
-        try {
-          item.loadDocument = loadDocument!.firstWhere(
-                (element) =>
-            element.documentDetails?.documentType == item.documentType,
-          );
-        } catch (e) {
-          item.loadDocument = null;
-        }
+        item.loadDocument=filterLoadDocumentById(loadDocument,item);
       }
       emit(state.copyWith(
           tripDocumentList: documentList
@@ -554,8 +564,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
     try {
-      DocumentEntity? document = documentEntity.firstWhere((element) =>
-      element.loadDocument == null && element.visible==true);
+      DocumentEntity? document = documentEntity.firstWhere((element) {
+
+      return (element.loadDocument??[]).isEmpty && element.visible==true;
+      });
       return document == null || document.fileType==DocumentFileType.uploadOtherDocument.name;
     } catch (e) {
       return true;
@@ -568,7 +580,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       case LoadStatus.assigned:
         return (checkMemo??true) ? memo!=null:true;
         case LoadStatus.loading:
-      return  checkIsDocumentUploaded(documentEntity);
+          return  checkIsDocumentUploaded(documentEntity);
       case LoadStatus.unloading:
         return checkIsDocumentUploaded(documentEntity);
       default:
@@ -583,8 +595,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       return  checkLoadingDocumentAddedOrNot(documentList,true);
 
       case LoadStatus.unloading:
-        bool isPodAdded=checkLoadingDocumentAddedOrNot(documentList,false);
-        print("isPodAdded $isPodAdded");
         return checkLoadingDocumentAddedOrNot(documentList,false);
       default:
         return true;
@@ -604,19 +614,48 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
     bool isAdded=false;
     for(var item in requiredDocument){
-      print("item is ${item}");
+
       try{
         loadDocumentList.firstWhere((element) => element.documentDetails?.documentType==item);
         isAdded=true;
-        print("added");
       }catch(e){
-        print("not added");
         return false;
       }
     }
     return isAdded;
-
   }
+
+
+ List<LoadDocument> filterLoadDocumentById(List<LoadDocument>? loadDocument,DocumentEntity item){
+    try {
+      if(item.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments){
+        LoadDocument? foundedDocument = loadDocument!.firstWhere(
+              (element) =>
+          element.documentDetails?.documentType == item.documentType,
+        );
+
+        return [foundedDocument];
+      } else {
+        return loadDocument!.where(
+              (element) =>
+          element.documentDetails?.documentType == item.documentType,
+        ).toList();
+      }} catch (e) {
+      return [];
+    }
+  }
+
+
+  bool isVisibleAddMoreDocument(){
+    try{
+      DocumentEntity? tripDocumentList= state.tripDocumentList?.firstWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments,);
+      return (tripDocumentList?.loadDocument?.length??0)<5;
+    }catch(e){
+      return false;
+    }
+  }
+
+
 
 
 

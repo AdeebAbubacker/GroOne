@@ -27,6 +27,7 @@ const String FAILED = "failed";
 const String ERROR = "Error";
 const String MESSAGE = "message";
 const String MSG = "msg";
+const String SUPPORT_NUMBER = "1800 208 8800";
 
 
 // Kyc Upload Doc file type

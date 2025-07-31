@@ -56,6 +56,17 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
         title: context.appText.notifications,
         centreTile: false,
         isLeading: true,
+        actions: [
+          AppIconButton(
+            onPressed: () {
+              debugPrint("🔄 GpsGeofenceScreen - Refresh button pressed");
+              context.read<GpsNotificationCubit>().loadNotifications();
+            },
+            icon: const Icon(Icons.refresh, size: 20),
+            iconColor: AppColors.primaryColor,
+          ),
+          10.width
+        ],
       ),
       body: Column(
         children: [
@@ -68,11 +79,13 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   if (vehicleState.isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (vehicleState.error != null) {
-                    return Center(child: Text(context.appText.errorLoadingVehicles));
+                    return Center(
+                      child: Text(context.appText.errorLoadingVehicles),
+                    );
                   } else {
                     // Extract unique vehicle numbers
                     final uniqueVehicleNumbers =
-                        vehicleState.filteredVehicles
+                        vehicleState.filteredVehicles.withoutExpired
                             .map((v) => v.vehicleNumber)
                             .whereType<String>() // removes nulls
                             .toSet() // remove duplicates
@@ -80,67 +93,58 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
 
                     // If no vehicles found
                     if (uniqueVehicleNumbers.isEmpty) {
-                      return Center(child: Text(context.appText.noVehiclesFound));
+                      return Center(
+                        child: Text(context.appText.noVehiclesFound),
+                      );
                     }
-
                     // Ensure selectedVehicle is in the dropdown
                     if (!uniqueVehicleNumbers.contains(selectedVehicle)) {
                       selectedVehicle = uniqueVehicleNumbers.first;
                     }
-                    // return AppDropdown(
-                    //   dropdownValue:
-                    //       selectedVehicle.isNotEmpty ? selectedVehicle : null,
-                    //   dropDownList:
-                    //       uniqueVehicleNumbers.map((vehicleNumber) {
-                    //         return DropdownMenuItem<String>(
-                    //           value: vehicleNumber,
-                    //           child: Row(
-                    //             children: [
-                    //               CircleAvatar(
-                    //                 radius: 15,
-                    //                 backgroundColor:
-                    //                     AppColors.primaryLightColor,
-                    //                 child: SvgPicture.asset(
-                    //                   AppIcons.svg.truck,
-                    //                   width: 20,
-                    //                 ),
-                    //               ),
-                    //               10.width,
-                    //               Text(vehicleNumber, style: AppTextStyle.h6),
-                    //             ],
-                    //           ),
-                    //         );
-                    //       }).toList(),
-                    //   onChanged: (String? newValue) {
-                    //     setState(() {
-                    //       selectedVehicle = newValue!;
-                    //     });
-                    //   },
-                    // );
-
                     return DropdownSearch<String>(
-                      selectedItem: selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                      selectedItem:
+                          selectedVehicle.isNotEmpty ? selectedVehicle : null,
                       items: (String filter, _) async {
                         return uniqueVehicleNumbers
-                            .where((v) => v.toLowerCase().contains(filter.toLowerCase()))
+                            .where(
+                              (v) => v.toLowerCase().contains(
+                                filter.toLowerCase(),
+                              ),
+                            )
                             .toList();
                       },
                       itemAsString: (String? item) => item ?? "",
                       popupProps: PopupProps.menu(
                         // fit: FlexFit.loose,
                         showSearchBox: true,
-                        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.5),
-                        emptyBuilder: (context, searchEntry) => Center(child: Text(context.appText.noVehiclesFound)).withHeight(MediaQuery.of(context).size.height * 0.5),
-                        loadingBuilder: (context, searchEntry) => const Center(child: CircularProgressIndicator()),
+                        emptyBuilder:
+                            (context, searchEntry) => Center(
+                              child: Text(context.appText.noVehiclesFound),
+                            ),
+                        loadingBuilder:
+                            (context, searchEntry) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
                       ),
-                      decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration(hintText: context.appText.selectState)),
+                      decoratorProps: DropDownDecoratorProps(
+                        decoration: commonInputDecoration(
+                          hintText: context.appText.selectState,
+                          prefixIcon: CircleAvatar(
+                            radius: 15,
+                            backgroundColor: AppColors.primaryLightColor,
+                            child: SvgPicture.asset(
+                              AppIcons.svg.truck,
+                              width: 20,
+                            ),
+                          ).paddingAll(5),
+                        ),
+                      ),
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedVehicle = newValue!;
                         });
                       },
                     );
-
                   }
                 },
               ).expand(),
@@ -179,48 +183,54 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                     }).toList();
 
                 if (filteredNotifications.isEmpty) {
-                  return  Center(
-                    child: Text(context.appText.noNotificationsAvailable,style: AppTextStyle.h5,),
+                  return Center(
+                    child: Text(
+                      context.appText.noNotificationsAvailable,
+                      style: AppTextStyle.h5,
+                    ),
                   );
                 }
 
-                return ListView.separated(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  separatorBuilder: (context, index) => Divider(),
-                  itemCount: filteredNotifications.length,
-                  itemBuilder: (context, index) {
-                    final item = filteredNotifications[index];
-                    return Row(
-                      children: [
-                        SvgPicture.asset(
-                          _getIconForFilter(item.filterKey),
-                          width: 35,
-                        ),
-                        10.width,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${item.filterKey} alert",
-                                style: AppTextStyle.h5,
-                              ),
-                              Text(
-                                "Device ID: ${item.deviceId}",
-                                style: AppTextStyle.h6GreyColor,
-                              ),
-                            ],
+                return Container(
+                  color: AppColors.white,
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
+                    separatorBuilder: (context, index) => Divider(),
+                    itemCount: filteredNotifications.length,
+                    itemBuilder: (context, index) {
+                      final item = filteredNotifications[index];
+                      return Row(
+                        children: [
+                          SvgPicture.asset(
+                            _getIconForFilter(item.filterKey),
+                            width: 35,
                           ),
-                        ),
-                        Text(
-                          DateFormat(
-                            'dd MMMM yyyy,\n h:mm a',
-                          ).format(item.fixTime),
-                          style: AppTextStyle.h6GreyColor,
-                        ),
-                      ],
-                    ).paddingAll(15);
-                  },
+                          10.width,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${item.filterKey} alert",
+                                  style: AppTextStyle.h5,
+                                ),
+                                Text(
+                                  "Device ID: ${item.deviceId}",
+                                  style: AppTextStyle.h6GreyColor,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            DateFormat(
+                              'dd MMMM yyyy,\n h:mm a',
+                            ).format(item.fixTime),
+                            style: AppTextStyle.h6GreyColor,
+                          ),
+                        ],
+                      ).paddingAll(15);
+                    },
+                  ),
                 );
               } else if (state is GpsNotificationError) {
                 return Center(child: Text("Error: ${state.message}"));
@@ -251,8 +261,8 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.appText.filter, style: AppTextStyle.h4),
-                    const SizedBox(height: 12),
+                    Text(context.appText.filter, style: AppTextStyle.h4).paddingOnly(left: 15),
+                    12.height,
                     ...filterOptions.keys.map((key) {
                       return SwitchListTile(
                         title: Text(key, style: AppTextStyle.h5),
@@ -299,7 +309,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
       case "Vibration":
         return AppIcons.svg.dashboardVibration;
       case "Other":
-        return AppIcons.svg.dashboardIgnitionOff;
+        return AppIcons.svg.gpsNotificationsOtherAlerts;
       default:
         return AppIcons.svg.dashboardIgnitionOff;
     }

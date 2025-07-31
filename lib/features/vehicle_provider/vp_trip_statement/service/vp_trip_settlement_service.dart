@@ -2,20 +2,21 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/model/pod_center_list_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/model/trip_statement_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
-class VpTripSettlementService {
+class VpTripStatementService {
   final ApiService _apiService;
-  VpTripSettlementService(this._apiService);
+  VpTripStatementService(this._apiService);
 
   /// Fetch Trip Settlement Service
-  Future<Result<PodCenterListModel>> fetchTripSettlement() async {
+  Future<Result<TripStatementResponse>> fetchTripStatement(String? loadId) async {
     try {
-      final url = ApiUrls.podCenter;
+      final url = ApiUrls.getTripStatement+(loadId??"");
       final result = await _apiService.get(url);
       if (result is Success) {
-        final data= PodCenterListModel.fromJson(result.value);
+        final data= TripStatementResponse.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);

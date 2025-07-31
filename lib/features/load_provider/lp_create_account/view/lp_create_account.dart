@@ -381,12 +381,12 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
                 return;
               }
               final apiRequest = LpCreateApiRequest(
-                customerName: nameTextController.text,
-                mobileNumber: phoneNumberTextController.text,
-                companyName: companyNameTextController.text,
+                customerName: nameTextController.text.trim(),
+                mobileNumber: phoneNumberTextController.text.trim(),
+                companyName: companyNameTextController.text.trim(),
                 companyTypeId: int.parse(companyTypeDropDownValue ?? "0"),
-                pincode: pinCodeTextController.text,
-                email: emailTextController.text,
+                pincode: pinCodeTextController.text.trim(),
+                email: emailTextController.text.trim(),
                 roleId: int.parse(widget.roleId)
               );
 

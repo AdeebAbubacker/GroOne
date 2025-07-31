@@ -6,10 +6,12 @@ import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
+import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
+import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
@@ -25,6 +27,8 @@ import 'package:gro_one_app/features/profile/model/primart_address_response.dart
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
+import 'package:gro_one_app/features/profile/model/settings_response.dart';
+import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
@@ -248,6 +252,15 @@ Future<Result<bool>> deleteVehicle({
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+  /// fetch settings
+  Future<Result<List<SettingsResponse>>> fetchSettings() async {
+    try {
+      return await _profileService.fetchSettings();
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
  
   /// fetch customer settings
   Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({required String userId}) async {
@@ -268,9 +281,27 @@ Future<Result<bool>> deleteVehicle({
   }
 
   /// Get Address
-  Future<Result<FaqResponse>> fetchFaq() async {
+  Future<Result<FaqResponse>> fetchFaq({String search = ''}) async {
     try {
-      return await _profileService.fetchFaq();
+      return await _profileService.fetchFaq(search: search);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Get Tickets
+  Future<Result<TicketResponse>> fetchTickets({required String userId,required TicketRequest request}) async {
+    try {
+      return await _profileService.fetchTickets(userId: userId ,request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Create Ticket
+  Future<Result<Ticket>> createTicket({required CreateTicketRequest request}) async {
+    try {
+      return await _profileService.createTicket(request: request);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

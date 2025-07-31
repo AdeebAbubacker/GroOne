@@ -2,6 +2,7 @@ part of 'driver_load_details_cubit.dart';
 
 
 class DriverLoadDetailsState extends Equatable {
+  final LoadStatus? loadStatus;
   final UIState<DriverLoadDetailsModel>? lpLoadById;
   final UIState<UploadDamageFileModel>? uploadDamageUIState;
   final UIState<GetDamageListModel>? damageListUIState;
@@ -30,6 +31,7 @@ class DriverLoadDetailsState extends Equatable {
      this.updateDamageUIState,
      this.locationDistance,
      this.loadStatusId,
+     this.loadStatus = LoadStatus.assigned,
   });
 
   DriverLoadDetailsState copyWith({
@@ -46,6 +48,7 @@ class DriverLoadDetailsState extends Equatable {
     bool? isUpdateDamage,
      String? locationDistance,
      int? loadStatusId,
+     LoadStatus? loadStatus,
   }) {
     return DriverLoadDetailsState(
        trackingDistance: trackingDistance ?? this.trackingDistance,
@@ -60,12 +63,14 @@ class DriverLoadDetailsState extends Equatable {
        settlementUIState : settlementUIState ?? this.settlementUIState,
        updateDamageUIState: updateDamageUIState ?? this.updateDamageUIState,
        locationDistance: locationDistance ?? this.locationDistance,
-        loadStatusId: loadStatusId?? this.loadStatusId, 
+        loadStatusId: loadStatusId?? this.loadStatusId,
+        loadStatus: loadStatus ?? this.loadStatus, 
      );
   }
 
   @override
   List<Object?> get props => [
+        loadStatus,
         lpLoadById,
         uploadDamageUIState,
         damageListUIState,

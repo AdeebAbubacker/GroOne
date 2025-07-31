@@ -12,10 +12,12 @@ import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driv
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_document_widget_view.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_timeline_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
+import 'package:gro_one_app/features/driver/driver_pod/view/driver_pod_dispatch_screen.dart';
 import 'package:gro_one_app/features/driver/driver_settlements/view/driver_settlements_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
@@ -42,7 +44,7 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import '../../../../../data/ui_state/status.dart';
-import '../../../../load_provider/lp_home/helper/lp_home_helper.dart';
+import '../../../../load_provider/lp_home/helper/lp_home_helper.dart' hide LoadStatus;
 
 class DriverLoadBottomWidget extends StatefulWidget {
   final DriverLoadDetailsCubit cubit;
@@ -118,8 +120,8 @@ void initState() {
 if (loadStatus == 4) {
     return isMemoUploaded; // Only return true if memo is uploaded
   }
+/// TODO: need to change driver code also regarding document
       if (loadStatus == 5) {
-     // if (driverConsent != 1) return false;
       if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
       }
 
@@ -158,7 +160,7 @@ if (loadStatus == 4) {
           loadDetails= loads;
      
           bool showButton(int status, bool onHold) {
-          if (status == 8) return false; 
+          if (status == 9) return false; 
           if (onHold) return false;
           return true;
         }
@@ -300,15 +302,12 @@ if (loadStatus == 4) {
                           20.height,
                           15.height,
                           _buildLoadEntityWidget(
-                            commodities:
-                                loads!.data!.commodity!.name.toString() ??
-                                '',
-                            weight:
-                                loads!.data!.weight!.value.toString() ??
-                                '',
+                            commodities: loads?.data?.commodity?.name?.toString() ?? '',
+                            weight: loads?.data?.weight?.value?.toString() ?? '',
                             locationDistance: state.locationDistance,
-                                context: context
+                            context: context,
                           ),
+
                            if (loads!.data!.consignees != null &&
                                     widget.loadItem.data!.consignees.isNotEmpty)
                                   _buildConsigneeDetail(
@@ -445,81 +444,97 @@ if (loadStatus == 4) {
                     ),
                   ),
                 ),
-                    if(showButton(loads!.data!.loadStatusId,  loads.data?.loadOnhold ?? false))
-                            BlocListener<
-                              DriverLoadDetailsCubit,
-                              DriverLoadDetailsState
-                            >(
-                              bloc: widget.cubit,
-                              listener: (context, state) {
-                                final loadStatusState = state.loadStatusUIState;
-                    
-                                if (loadStatusState is Success) {
-                                  ToastMessages.success(
-                                    message: "Load status updated successfully",
-                                  );
-                                  widget.cubit.getDriverLoadsById(
-                                    loadId:   loads!.data!.loadId ?? '',
-                                  );
-                                }
-                                    if (loadStatusState is Error) {
-                                      ToastMessages.success(
-                                        message: "Failed to update load status",
-                                      );
-                                      widget.cubit.getDriverLoadsById(
-                                        loadId:   loads!.data!.loadId ?? '',
-                                      );
-                                    }
-                                  },
-                                  child:                          
-                              SizedBox(
-                            height: 60,
-                            width: MediaQuery.of(context).size.width * 0.90,
-                            child: CustomSwipeButton(
-                              padding: 0,
-                              price: 0,
-                              loadId: loads.data!.loadId.toString(),
-                              enable: isChangeStatusButtonEnabled(
-                                isMemoUploaded: loads.data?.loadMemo != null,
-                                loadStatus: loads.data?.loadStatusId,
-                                driverConsent: loads.data?.driverConsent ?? 0,
-                                tripDocumentList: state.tripDocumentList,
+                    if (showButton(loads!.data!.loadStatusId, loads.data?.loadOnhold ?? false))
+              BlocListener<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+                bloc: widget.cubit,
+                listener: (context, state) {
+                  final loadStatusState = state.loadStatusUIState;
+
+                  if (loadStatusState is Success) {
+                    ToastMessages.success(message: "Load status updated successfully");
+                    widget.cubit.getDriverLoadsById(loadId: loads!.data!.loadId ?? '');
+                  }
+                  if (loadStatusState is Error) {
+                    ToastMessages.error(message: "Failed to update load status");
+                    widget.cubit.getDriverLoadsById(loadId: loads!.data!.loadId ?? '');
+                  }
+                },
+                child: SizedBox(
+                  height: 60,
+                  width: MediaQuery.of(context).size.width * 0.90,
+                  child: (loads.data!.loadStatusId == 8)
+                      ? AppButton(
+                          isLoading: false,
+                          title: getButtonText(state.loadStatus ?? LoadStatus.matching),
+                          style: AppButtonStyle.primary.copyWith(
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
-                              text: DriverLoadHelper.getBottomButtonTitle(loads.data!.loadStatusId), 
-                              onSubmit: () {
-                              //Check for sim consent and trip doc
-                                    if (loads.data?.loadStatusId == 5) {
-                                      final isConsentGiven = loads.data?.driverConsent == 1;
-                                    final tripDocumentList = state.tripDocumentList ?? [];
-                                    if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {
-                                      ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
-                                      return;
-                                    }
-                                  }
-                    
-                                // Check for Pod Doc
-                                if (loads.data?.loadStatusId == 7) {
-                                    final tripDocumentList = state.tripDocumentList ?? [];
-                                    if (!widget.cubit.isPODUploaded(tripDocumentList)) {
-                                      ToastMessages.error(message: 'Please upload POD document');
-                                      return;
-                                    }
-                              }
-                                  final customerId =
-                                        loads!.data!.customer?.customerId ??
-                                      '';
-                                  final loadId =   loads!.data!.loadId ?? '';
-                                  final currentStatus =
-                                        loads!.data!.loadStatusId ?? 4;
-                    
-                                  if (currentStatus <= 7) {
-                                    changeLoadStatus(context, loadStatus: currentStatus + 1, loadId: loadId);
-                                  }
-                                },                             
                             ),
                           ),
-                          
+                          onPressed: () {
+                            Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DriverPodDispatchScreen(
+                                loadId: loads.data!.loadId ?? '',
+                                currentStatus: loads.data!.loadStatusId ?? 8, // pass status 8
+                              ),
                             ),
+                          ).then((value) {
+                            if (value == true) {
+                              widget.cubit.getDriverLoadsById(loadId: loads.data!.loadId ?? '');
+                              changeLoadStatus(context, loadId: loads.data!.loadId ?? '',loadStatus: loads.data!.loadStatusId + 1);
+                            }
+                          });
+
+                          },
+                        )
+                      : CustomSwipeButton(
+                          padding: 0,
+                          price: 0,
+                          loadId: loads.data!.loadId.toString(),
+                          enable: isChangeStatusButtonEnabled(
+                            isMemoUploaded: loads.data?.loadMemo != null,
+                            loadStatus: loads.data?.loadStatusId,
+                            driverConsent: loads.data?.driverConsent ?? 0,
+                            tripDocumentList: state.tripDocumentList,
+                          ),
+                          text: DriverLoadHelper.getBottomButtonTitle(loads.data!.loadStatusId),
+                          onSubmit: () {
+                            // Check for sim consent and trip doc
+                            if (loads.data?.loadStatusId == 5) {
+                              final tripDocumentList = state.tripDocumentList ?? [];
+                              if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {
+                                ToastMessages.error(
+                                    message:
+                                        'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
+                                return;
+                              }
+                            }
+
+                            // Check for POD doc
+                            if (loads.data?.loadStatusId == 7) {
+                              final tripDocumentList = state.tripDocumentList ?? [];
+                              if (!widget.cubit.isPODUploaded(tripDocumentList)) {
+                                ToastMessages.error(message: 'Please upload POD document');
+                                return;
+                              }
+                            }
+
+                            final loadId = loads!.data!.loadId ?? '';
+                            final currentStatus = loads!.data!.loadStatusId ?? 4;
+
+                            if (currentStatus <= 8) {
+                              changeLoadStatus(
+                                  context, loadStatus: currentStatus + 1, loadId: loadId);
+                            }
+                          },
+                        ),
+                ),
+              )
+
                        
               ],
              ).paddingTop(15),
@@ -633,10 +648,10 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
  Widget buildAttachmentView(BuildContext context,String? loadId,DriverLoadDetailsState state, DriverLoadDetailsCubit cubit){
 
     final tripDocumentList=state.tripDocumentList??[];
-    print("Trip Document List from state:");
-for (final doc in tripDocumentList) {
-  print("Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}");
-}
+
+      for (final doc in tripDocumentList) {
+        print("Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}");
+      }
     return Column(
         children: List.generate(tripDocumentList.length, (index) => DriverDocumentWidgetView(
        index: index,
