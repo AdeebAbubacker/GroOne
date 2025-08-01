@@ -11,6 +11,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/service/pushNotification/notification_helper.dart';
 import 'package:gro_one_app/service/pushNotification/notification_payload.dart';
+import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/service/pushNotification/notification_view.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -26,6 +27,8 @@ class NotificationService {
   late SecuredSharedPreferences _secureSharedPrefs;
   late GlobalKey<NavigatorState> navigatorKey;
   final NotificationView _notificationView = NotificationView();
+  final NotificationSessionManager _sessionManager =
+      NotificationSessionManager();
 
   // Flutter Local Notifications (for alert-specific sounds)
   static final FlutterLocalNotificationsPlugin
@@ -84,6 +87,9 @@ class NotificationService {
     navigatorKey = key;
     _secureSharedPrefs = secureSharedPrefs;
 
+    // Initialize session manager
+    _sessionManager.initialize(secureSharedPrefs);
+
     // Initialize all notification systems
     await _initializeFlutterLocalNotifications();
     await _initializeAwesomeNotifications();
@@ -92,6 +98,17 @@ class NotificationService {
 
     // Set up message handlers
     _setupMessageHandlers();
+
+    // Check for pending critical alerts after initialization
+    _checkForPendingCriticalAlerts();
+  }
+
+  /// Check for any pending critical alerts that might have been missed
+  void _checkForPendingCriticalAlerts() {
+    // This can be used to check for any stored critical alerts
+    // that might have been received while the app was terminated
+    // and handle them appropriately
+    CustomLog.debug(this, "Checking for pending critical alerts");
   }
 
   /// Initialize Flutter Local Notifications for alert-specific sounds
@@ -238,8 +255,8 @@ class NotificationService {
       // Terminated state
       _handleTerminatedState();
 
-      // Background handler
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      // Note: Background handler is set up in main.dart to avoid conflicts
+      // FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
 
       CustomLog.debug(this, "Message handlers setup successfully");
     } catch (e) {
@@ -274,6 +291,17 @@ class NotificationService {
   Future<void> _handleBackgroundMessage(RemoteMessage message) async {
     try {
       NotificationPayload payload = NotificationPayload.fromJson(message.data);
+
+      // Check if this is a critical alert that needs special handling
+      final eventType = payload.eventType ?? 'unknown';
+      final mode = payload.mode ?? 'normal';
+
+      if (_isCriticalAlert(eventType, mode)) {
+        // For background state, we can show a local notification with custom sound
+        // but we can't show a dialog since the app is not in foreground
+        await _showCriticalAlert(message);
+      }
+
       _handleNotificationClick(payload, "Background state");
     } catch (e) {
       CustomLog.error(this, "Background message handling error", e);
@@ -288,7 +316,18 @@ class NotificationService {
           NotificationPayload payload = NotificationPayload.fromJson(
             message.data,
           );
-          _handleNotificationClick(payload, "Terminated state");
+
+          // Check if this is a critical alert that needs dialog
+          final eventType = payload.eventType ?? 'unknown';
+          final mode = payload.mode ?? 'normal';
+
+          if (_isCriticalAlert(eventType, mode)) {
+            // Show critical alert dialog for terminated state
+            _showCriticalAlertForTerminatedState(message, payload);
+          } else {
+            // Handle normal navigation
+            _handleNotificationClick(payload, "Terminated state");
+          }
         }
       });
     } catch (e) {
@@ -314,6 +353,21 @@ class NotificationService {
 
       // Handle payload
       NotificationPayload payload = NotificationPayload.fromJson(message.data);
+
+      // Check if this is a critical alert
+      final eventType = payload.eventType ?? 'unknown';
+      final mode = payload.mode ?? 'normal';
+
+      // Store critical alert information for when app opens
+      if (_isCriticalAlertStatic(eventType, mode)) {
+        // Store the critical alert data for when app opens
+        // This will be handled in _handleTerminatedState
+        CustomLog.debug(
+          NotificationService,
+          "Critical alert received in background: $eventType, $mode",
+        );
+      }
+
       if (payload.route != null) {
         // Store route for when app opens
         // You can implement route storage logic here
@@ -355,10 +409,15 @@ class NotificationService {
     final data = message.data;
     final eventType = data['eventType'] ?? 'unknown';
     final mode = data['mode'] ?? 'normal';
+    final deviceName =
+        data['vehicleName'] ?? data['deviceName'] ?? 'Unknown Device';
 
     final notification = message.notification;
     final title = '🚨 Alert ${notification?.title ?? ''}';
     final body = notification?.body ?? 'You have a new notification';
+
+    // Save device name and notification type based on event type
+    await _saveDeviceNameAndType(eventType, deviceName);
 
     // Event-based configuration
     final eventConfig = _getEventConfig(eventType, mode);
@@ -453,6 +512,162 @@ class NotificationService {
     }
   }
 
+  /// Show critical alert dialog for terminated state
+  Future<void> _showCriticalAlertForTerminatedState(
+    RemoteMessage message,
+    NotificationPayload payload,
+  ) async {
+    try {
+      // Wait for app to be fully initialized
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      final notification = message.notification;
+      final eventType = payload.eventType ?? 'unknown';
+      final deviceName = await _getDeviceNameForEvent(eventType);
+
+      final title = '🚨 Alert ${notification?.title ?? ''}';
+      final body = _getDeviceSpecificMessage(
+        eventType,
+        deviceName,
+        notification?.body ?? 'You have a new notification',
+      );
+
+      // Try to show popup dialog for terminated state with retry mechanism
+      bool dialogShown = false;
+      int retryCount = 0;
+      const maxRetries = 3;
+
+      while (!dialogShown && retryCount < maxRetries) {
+        if (navigatorKey.currentContext != null) {
+          dialogShown = true;
+          showDialog(
+            context: navigatorKey.currentContext!,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return Dialog(
+                backgroundColor: Colors.transparent,
+                child: Container(
+                  width: 280,
+                  padding: const EdgeInsets.symmetric(vertical: 24),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.warning_amber, color: Colors.red, size: 80),
+                      const SizedBox(height: 16),
+                      Text(
+                        title,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Text(
+                          body,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 6,
+                              ),
+                              backgroundColor: Colors.grey[300],
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text(
+                              'DISMISS',
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 14,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                          ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 6,
+                              ),
+                              backgroundColor: AppColors.primaryColor,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                              // Handle navigation after dialog dismissal
+                              if (payload.route != null) {
+                                _handleNotificationClick(
+                                  payload,
+                                  "Terminated state - after dialog",
+                                );
+                              }
+                            },
+                            child: const Text(
+                              'VIEW',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 14,
+                                letterSpacing: 1,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+        } else {
+          retryCount++;
+          if (retryCount < maxRetries) {
+            CustomLog.debug(
+              this,
+              "Context not available, retrying... (attempt $retryCount)",
+            );
+            await Future.delayed(Duration(milliseconds: 500 * retryCount));
+          }
+        }
+      }
+
+      // If dialog couldn't be shown after retries, handle navigation directly
+      if (!dialogShown) {
+        CustomLog.debug(
+          this,
+          "Could not show dialog after $maxRetries attempts, handling navigation directly",
+        );
+        _handleNotificationClick(
+          payload,
+          "Terminated state - no context after retries",
+        );
+      }
+    } catch (e) {
+      CustomLog.error(this, "Terminated state critical alert error", e);
+      // Fallback to normal navigation
+      _handleNotificationClick(payload, "Terminated state - fallback");
+    }
+  }
+
   /// Check if notification is a critical alert
   bool _isCriticalAlert(String eventType, String mode) {
     const criticalEvents = [
@@ -463,6 +678,26 @@ class NotificationService {
       'unauthorised_parking',
       'parking',
       'tow',
+      'commandresult', // Fixed to lowercase to match toLowerCase() behavior
+    ];
+
+    const criticalModes = ['owl', 'parking', 'alarm'];
+
+    return criticalEvents.contains(eventType.toLowerCase()) ||
+        criticalModes.contains(mode.toLowerCase());
+  }
+
+  /// Static version of critical alert check for background handler
+  static bool _isCriticalAlertStatic(String eventType, String mode) {
+    const criticalEvents = [
+      'sos',
+      'powercut',
+      'power_cut',
+      'unauthorized_parking',
+      'unauthorised_parking',
+      'parking',
+      'tow',
+      'commandresult', // Fixed to lowercase to match toLowerCase() behavior
     ];
 
     const criticalModes = ['owl', 'parking', 'alarm'];
@@ -511,6 +746,15 @@ class NotificationService {
           'description': 'Parking and tow alerts',
           'sound': RawResourceAndroidNotificationSound('spymode_sound'),
           'iosSound': 'spymode_sound.aiff',
+        };
+
+      case 'commandresult':
+        return {
+          'channelId': _highAlertsChannel.id,
+          'channelName': _highAlertsChannel.name,
+          'description': 'Command result alerts',
+          'sound': RawResourceAndroidNotificationSound('sos_sound'),
+          'iosSound': 'sos_sound.aiff',
         };
 
       case 'gps_disconnected':
@@ -618,5 +862,93 @@ class NotificationService {
       await AppBadgePlus.updateBadge(0);
     }
     CustomLog.debug(this, "Badge Count Cleared: $badgeCount");
+  }
+
+  /// Save device name and notification type based on event type
+  Future<void> _saveDeviceNameAndType(
+    String eventType,
+    String deviceName,
+  ) async {
+    // Save last notification device name
+    _sessionManager.saveLastNotificationDeviceName(deviceName);
+
+    // Save device name based on event type
+    switch (eventType.toLowerCase()) {
+      case 'sos':
+        _sessionManager.saveSOSDeviceName(deviceName);
+        _sessionManager.setNewNotificationType('SOS');
+        break;
+      case 'powercut':
+      case 'power_cut':
+        _sessionManager.savePowerCutDeviceName(deviceName);
+        _sessionManager.setNewNotificationType('PowerCut');
+        break;
+      case 'unauthorized_parking':
+      case 'unauthorised_parking':
+      case 'parking':
+      case 'tow':
+        _sessionManager.saveSpyModeDeviceName(deviceName);
+        _sessionManager.setNewNotificationType('SpyMode');
+        break;
+      case 'commandresult':
+        _sessionManager.setNewNotificationType('CommandResult');
+        break;
+      default:
+        _sessionManager.setNewNotificationType(eventType);
+        break;
+    }
+  }
+
+  /// Get device name for specific event type
+  Future<String> _getDeviceNameForEvent(String eventType) async {
+    switch (eventType.toLowerCase()) {
+      case 'sos':
+        return await _sessionManager.getSOSDeviceName();
+      case 'powercut':
+      case 'power_cut':
+        return await _sessionManager.getPowerCutDeviceName();
+      case 'unauthorized_parking':
+      case 'unauthorised_parking':
+      case 'parking':
+      case 'tow':
+        return await _sessionManager.getSpyModeDeviceName();
+      default:
+        return await _sessionManager.getLastNotificationDeviceName();
+    }
+  }
+
+  /// Get device-specific message based on event type
+  String _getDeviceSpecificMessage(
+    String eventType,
+    String deviceName,
+    String defaultMessage,
+  ) {
+    switch (eventType.toLowerCase()) {
+      case 'sos':
+        return deviceName.isNotEmpty
+            ? "SOS Alert from $deviceName - Emergency situation detected!"
+            : "SOS Alert - Emergency situation detected!";
+      case 'powercut':
+      case 'power_cut':
+        return deviceName.isNotEmpty
+            ? "Power cut detected for $deviceName - Device disconnected!"
+            : "Power cut detected - Device disconnected!";
+      case 'unauthorized_parking':
+      case 'unauthorised_parking':
+        return deviceName.isNotEmpty
+            ? "Unauthorized parking detected for $deviceName!"
+            : "Unauthorized parking detected!";
+      case 'parking':
+      case 'tow':
+        return deviceName.isNotEmpty
+            ? "Parking/Tow alert for $deviceName!"
+            : "Parking/Tow alert detected!";
+      case 'commandresult':
+        return deviceName.isNotEmpty
+            ? "Command result received for $deviceName"
+            : "Command result received";
+      default:
+        return defaultMessage;
+    }
   }
 }
