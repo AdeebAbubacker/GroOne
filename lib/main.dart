@@ -2,22 +2,22 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gro_one_app/core/app_initializer.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/gps_feature/helper/gps_session_manager.dart';
 import 'package:gro_one_app/l10n/l10n.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
+import 'package:gro_one_app/service/pushNotification/notification_service.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/global_variables.dart';
-import 'package:gro_one_app/utils/app_global_variables.dart';
-import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 
 import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_state.dart';
 import 'l10n/app_localizations.dart';
 import 'multi_bloc.dart';
-import 'notification_service.dart'; // Your unified notification service
 
 /// Firebase background message handler
 /// This must be a top-level function
@@ -45,16 +45,12 @@ void main() async {
 
     // Initialize the unified notification service
     // Note: SecuredSharedPreferences should be initialized in initializeApp()
-    final securedSharedPrefs = SecuredSharedPreferences(); // Get your instance
+    final secureStorage = FlutterSecureStorage();
+    final securedSharedPrefs = SecuredSharedPreferences(secureStorage);
     await NotificationService().init(navigatorKey, securedSharedPrefs);
 
     // Run the app
-    runApp(
-        BlocProvider(
-            create: (_) => LocaleBloc(),
-            child: const MyApp()
-        )
-    );
+    runApp(BlocProvider(create: (_) => LocaleBloc(), child: const MyApp()));
   } catch (e) {
     // Handle initialization errors gracefully
     print('App initialization error: $e');
@@ -71,7 +67,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
-
   @override
   void initState() {
     super.initState();
@@ -97,20 +92,20 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
     switch (state) {
       case AppLifecycleState.resumed:
-      // App came to foreground - clear notification badges
+        // App came to foreground - clear notification badges
         NotificationService().clearBadgeCount();
         break;
       case AppLifecycleState.paused:
-      // App went to background
+        // App went to background
         break;
       case AppLifecycleState.detached:
-      // App is being terminated
+        // App is being terminated
         break;
       case AppLifecycleState.inactive:
-      // App is inactive
+        // App is inactive
         break;
       case AppLifecycleState.hidden:
-      // App is hidden (newer Flutter versions)
+        // App is hidden (newer Flutter versions)
         break;
     }
   }
@@ -126,7 +121,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
       // Any other initialization logic
       // await authRepo.signOut(); // Uncomment if needed
-
     } catch (e) {
       print('InitFun error: $e');
     }
@@ -141,11 +135,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         statusBarIconBrightness: Brightness.dark,
       ),
     );
-
-    // Set app context globally (if needed)
-    if (appContext != context) {
-      appContext = context;
-    }
 
     // Lock orientation to portrait
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
@@ -162,7 +151,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
             // App settings
             title: "Gro One",
             debugShowCheckedModeBanner: false, // Set to false for production
-
             // Theme and routing
             theme: AppThemeStyle.appTheme,
             routerConfig: AppRoutes.router,
@@ -191,18 +179,11 @@ class ErrorApp extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.error_outline,
-                size: 64,
-                color: Colors.red,
-              ),
+              const Icon(Icons.error_outline, size: 64, color: Colors.red),
               const SizedBox(height: 16),
               const Text(
                 'App Initialization Failed',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               const Text(
