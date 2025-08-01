@@ -28,7 +28,7 @@ class KycInitRequest {
       'purpose': "KYC",
       'response_url': "https://groone-uat.letsgro.co/aadhar/api/v1/digilocker/webhook",
       'redirect_url': "https://gro-devadmin.letsgro.co/",
-      'name_to_match': "",
+      'name_to_match': "String",
       'expiry_in_minutes': 32,
       'pinless': true,
       'redirect_method': "GET",

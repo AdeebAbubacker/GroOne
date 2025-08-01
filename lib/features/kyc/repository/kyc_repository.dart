@@ -4,11 +4,13 @@ import 'package:gro_one_app/features/kyc/api_request/create_document_api_request
 import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
+import 'package:gro_one_app/features/kyc/model/aadhar_status_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
+import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
@@ -228,9 +230,19 @@ class KycRepository {
   }
 
   /// Init Kyc Request
-  Future<Result<DeleteDocumentModel>> initKycRequest(KycInitRequest? initKycRequest) async {
+  Future<Result<KycInitResponse>> initKycRequest(KycInitRequest? initKycRequest) async {
     try {
       return await _service.initKycRequest(initKycRequest!);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get delete document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Init Kyc Request
+  Future<Result<AadharVerificationResponse>> getKYCStatus(String requestId) async {
+    try {
+      return await _service.getAadharStatus(requestId);
     } catch (e) {
       CustomLog.error(this, "Failed to get delete document data", e);
       return Error(ErrorWithMessage(message: e.toString()));

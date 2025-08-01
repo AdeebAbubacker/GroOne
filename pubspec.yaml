@@ -90,6 +90,10 @@ dependencies:
   # Notification
   flutter_local_notifications: ^19.3.1
 
+
+
+
+
   # Environment
   flutter_dotenv: ^5.2.1
 

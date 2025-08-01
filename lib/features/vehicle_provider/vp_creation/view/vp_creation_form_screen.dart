@@ -149,6 +149,15 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         ToastMessages.alert(message: context.appText.attachedTruckValidation);
         return;
       }
+
+
+      if(selectedPrefLanesTypeList.isEmpty){
+        ToastMessages.alert(message: context.appText.preferredLanes);
+        return;
+      }
+
+      print("we can are good to go");
+
       final request = VpCreationApiRequest(
         customerName: nameTextController.text,
         mobileNumber: mobileNumberTextController.text,
@@ -562,19 +571,32 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                   state.prefLaneUIState?.data?.data?.items
                       .where((element) => element.isSelected ?? false)
                       .toList();
+              if((preferredLaneItems??[]).isNotEmpty){
+                selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId,).toList()??[];
+              }else{
+                selectedPrefLanesTypeList=[];
+              }
+
+
+
 
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    context.appText.preferredLanes,
-                    style: AppTextStyle.textFiled,
+                  Row(
+                    children: [
+                      Text(
+                        context.appText.preferredLanes,
+                        style: AppTextStyle.textFiled,
+                      ),
+                      Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                    ],
                   ),
                   8.height,
                   GestureDetector(
                     onTap: () async {
                     await  Navigator.push(context, commonRoute(PreferLensScreen()));
-                    selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId,).toList()??[];
+
                     },
                     child: Container(
                       padding: EdgeInsets.only(
@@ -722,7 +744,8 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         }
       },
       builder: (context, state) {
-        final isLoading = state.createAccountUIState?.status == Status.LOADING;
+        final isLoading =
+            state.createAccountUIState?.status == Status.LOADING;
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,

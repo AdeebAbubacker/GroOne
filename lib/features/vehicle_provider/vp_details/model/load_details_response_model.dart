@@ -115,9 +115,9 @@ class LoadDetailModelData {
   final Customer? vpCustomer;
   final Weight? weight;
   final PaymentDetails? paymentDetails;
-  final PaymentEntry? paymentEntry;
+  final LoadPaymentDetails? paymentEntry;
   final int? driverConsent;
-  final dynamic loadMemo;
+  final MemoDetails? loadMemo;
   final TrackingDetails? trackingDetails;
   final bool? loadOnHold;
   final LoadStatus? loadStatusValue;
@@ -162,16 +162,17 @@ class LoadDetailModelData {
     Customer? vpCustomer,
     Weight? weight,
     PaymentDetails? paymentDetails,
-    PaymentEntry? paymentEntry,
+    LoadPaymentDetails? paymentEntry,
     int? driverConsent,
-    dynamic loadMemo,
+
     TrackingDetails? trackingDetails,
     LoadStatus? loadStatusValue,
     LoadSettlement? loadSettlement,
-    PodDispatch? podDispatch
-
+    PodDispatch? podDispatch,
+    MemoDetails? loadMemo
   }) {
     return LoadDetailModelData(
+
       podDispatch: podDispatch??this.podDispatch,
 loadSettlement: loadSettlement ?? this.loadSettlement,
 loadStatusValue: loadStatusValue??this.loadStatusValue,
@@ -230,11 +231,10 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
       loadSettlement:json['loadSettlement']!=null ? LoadSettlement.fromJson(json['loadSettlement']):null,
       loadStatusValue: getLoadStatus(json["loadStatusId"] ?? 0),
       loadOnHold:  json['loadOnhold'],
-      loadMemo:json['loadMemo'],
+      loadMemo:json['loadMemo']!=null ?MemoDetails.fromJson(json['loadMemo']) :null,
       trackingDetails: json['trackingDetails']!=null? TrackingDetails.fromJson(json['trackingDetails']):null ,
       driverConsent: json['driverConsent'],
-
-      paymentEntry: json['paymentDetails']!=null && json['paymentDetails']['data']['payments']!=null ? PaymentEntry.fromJson(json['paymentDetails']['data']['payments'][0]):null,
+      paymentEntry: json['paymentDetails']!=null && json['paymentDetails']!=null ? LoadPaymentDetails.fromJson(json['paymentDetails']):null,
       loadId: json["loadId"] ?? "",
       loadSeriesId: json["loadSeriesId"] ?? "",
       laneId: json["laneId"] ?? 0,
@@ -836,6 +836,87 @@ class LoadStatusDetailsResponse {
 
 }
 
+class MemoDetails {
+  final String? id;
+  final String? loadId;
+  final String? memoNumber;
+  final String? amount;
+  final String? netFreight;
+  final String? advance;
+  final String? advancePercentage;
+  final String? balance;
+  final String? balancePercentage;
+  final String? vpAdvance;
+  final String? vpAdvancePercentage;
+  final String? vpBalance;
+  final String? vpBalancePercentage;
+  final int? status;
+  final DateTime? createAt;
+  final DateTime? deletedAt;
+
+  MemoDetails({
+    this.id,
+    this.loadId,
+    this.memoNumber,
+    this.amount,
+    this.netFreight,
+    this.advance,
+    this.advancePercentage,
+    this.balance,
+    this.balancePercentage,
+    this.vpAdvance,
+    this.vpAdvancePercentage,
+    this.vpBalance,
+    this.vpBalancePercentage,
+    this.status,
+    this.createAt,
+    this.deletedAt,
+  });
+
+  factory MemoDetails.fromJson(Map<String, dynamic> json) {
+    return MemoDetails(
+      id: json['id'] as String?,
+      loadId: json['loadId'] as String?,
+      memoNumber: json['memoNumber'] as String?,
+      amount: json['amount'] as String?,
+      netFreight: json['netFreight'] as String?,
+      advance: json['advance'] as String?,
+      advancePercentage: json['advancePercentage'] as String?,
+      balance: json['balance'] as String?,
+      balancePercentage: json['balancePercentage'] as String?,
+      vpAdvance: json['vpAdvance'] as String?,
+      vpAdvancePercentage: json['vpAdvancePercentage'] as String?,
+      vpBalance: json['vpBalance'] as String?,
+      vpBalancePercentage: json['vpBalancePercentage'] as String?,
+      status: json['status'] as int?,
+      createAt: json['createAt'] != null ? DateTime.tryParse(json['createAt']) : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'loadId': loadId,
+      'memoNumber': memoNumber,
+      'amount': amount,
+      'netFreight': netFreight,
+      'advance': advance,
+      'advancePercentage': advancePercentage,
+      'balance': balance,
+      'balancePercentage': balancePercentage,
+      'vpAdvance': vpAdvance,
+      'vpAdvancePercentage': vpAdvancePercentage,
+      'vpBalance': vpBalance,
+      'vpBalancePercentage': vpBalancePercentage,
+      'status': status,
+      'createAt': createAt?.toIso8601String(),
+      'deletedAt': deletedAt?.toIso8601String(),
+    };
+  }
+}
+
+
 class PaymentDetails {
   PaymentDetails({
     required this.status,
@@ -1346,72 +1427,85 @@ class DocumentDetails {
 }
 
 
-class PaymentEntry {
+class LoadPaymentDetails {
   final String? id;
+  final int? seriesNo;
   final String? loadId;
-  final String? orderId;
-  final String? erpOrderId;
-  final String? amount;
+  final String? lpId;
+  final String? vpId;
   final String? agreedPrice;
+  final String? receivableAdvance;
+  final String? receivableBalance;
+  final String? receivableAdvancePercentage;
+  final String? receivableBalancePercentage;
+  final String? receivableAdvancePaid;
+  final String? receivableBalancePaid;
   final String? payableAdvance;
   final String? payableBalance;
-  final String? advancePaid;
-  final DateTime? paymentDate;
-  final String? paymentType;
-  final String? paymentStatus;
-  final String? action;
+  final String? payableAdvancePercentage;
+  final String? payableBalancePercentage;
+  final String? payableAdvancePaid;
+  final String? payableBalancePaid;
   final int? status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
 
-  PaymentEntry({
+  LoadPaymentDetails({
     this.id,
+    this.seriesNo,
     this.loadId,
-    this.orderId,
-    this.erpOrderId,
-    this.amount,
+    this.lpId,
+    this.vpId,
     this.agreedPrice,
+    this.receivableAdvance,
+    this.receivableBalance,
+    this.receivableAdvancePercentage,
+    this.receivableBalancePercentage,
+    this.receivableAdvancePaid,
+    this.receivableBalancePaid,
     this.payableAdvance,
     this.payableBalance,
-    this.advancePaid,
-    this.paymentDate,
-    this.paymentType,
-    this.paymentStatus,
-    this.action,
+    this.payableAdvancePercentage,
+    this.payableBalancePercentage,
+    this.payableAdvancePaid,
+    this.payableBalancePaid,
     this.status,
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
   });
 
-  factory PaymentEntry.fromJson(Map<String, dynamic> json) {
-    return PaymentEntry(
-      id: json['id'],
-      loadId: json['loadId'],
-      orderId: json['orderId'],
-      erpOrderId: json['erpOrderId'],
-      amount: json['amount'],
-      agreedPrice: json['agreedPrice'],
-      payableAdvance: json['payableAdvance'],
-      payableBalance: json['payableBalance'],
-      advancePaid: json['advancePaid'],
-      paymentDate: json['payment_date'] != null
-          ? DateTime.parse(json['payment_date'])
-          : null,
-      paymentType: json['paymentType'],
-      paymentStatus: json['paymentStatus'],
-      action: json['action'],
-      status: json['status'],
-      createdAt:
-      json['createdAt'] != null ? DateTime.parse(json['createdAt']) : null,
-      updatedAt:
-      json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
-      deletedAt:
-      json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+  factory LoadPaymentDetails.fromJson(Map<String, dynamic> json) {
+    return LoadPaymentDetails(
+      id: json['id'] as String?,
+      seriesNo: json['seriesNo'] as int?,
+      loadId: json['loadId'] as String?,
+      lpId: json['lpId'] as String?,
+      vpId: json['vpId'] as String?,
+      agreedPrice: json['agreedPrice'] as String?,
+      receivableAdvance: json['receivableAdvance'] as String?,
+      receivableBalance: json['receivableBalance'] as String?,
+      receivableAdvancePercentage: json['receivableAdvancePercentage'] as String?,
+      receivableBalancePercentage: json['receivableBalancePercentage'] as String?,
+      receivableAdvancePaid: json['receivableAdvancePaid'] as String?,
+      receivableBalancePaid: json['receivableBalancePaid'] as String?,
+      payableAdvance: json['payableAdvance'] as String?,
+      payableBalance: json['payableBalance'] as String?,
+      payableAdvancePercentage: json['payableAdvancePercentage'] as String?,
+      payableBalancePercentage: json['payableBalancePercentage'] as String?,
+      payableAdvancePaid: json['payableAdvancePaid'] as String?,
+      payableBalancePaid: json['payableBalancePaid'] as String?,
+      status: json['status'] as int?,
+      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
+      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
     );
   }
+
+
 }
+
 
 
 
