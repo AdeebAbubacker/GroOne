@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/settlement_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
@@ -31,7 +32,7 @@ class LoadDetailsRepository {
     try {
       return await _vpDetailsService.fetchLoadDetails(loadId);
     } catch (e) {
-      CustomLog.error(this, "Failed to get upload loadData", e);
+      CustomLog.error(this, "Failed to get upload loadData ", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -59,7 +60,7 @@ class LoadDetailsRepository {
 
 
   /// Submit Settlement Repo
-  Future<Result<DamageModel>> getSubmitSettlementData(SettlementApiRequest request) async {
+  Future<Result<SettlementApiResponse>> getSubmitSettlementData(SettlementApiRequest request) async {
     try {
       return await _vpDetailsService.submitSettlement(request);
     } catch (e) {
@@ -160,6 +161,7 @@ class LoadDetailsRepository {
       final userId=await _userInformationRepository.getUserID() ?? "";
       return await _vpDetailsService.createNewDocument(createDocumentRequest: createDocumentRequest,userId: userId);
     } catch (e) {
+      print("error in create document");
       CustomLog.error(this, "Failed to get upload gst document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }

@@ -15,27 +15,20 @@ class GpsKycCheckCubit extends Cubit<GpsKycCheckState> {
 
   @override
   Future<void> close() {
-    print('🔒 GpsKycCheckCubit.close() called');
     _isClosed = true;
     return super.close();
   }
 
   /// Reset the cubit state and reopen it for use
   void resetCubit() {
-    print('🔄 Resetting GpsKycCheckCubit state');
     _isClosed = false;
     emit(GpsKycCheckState.initial());
   }
 
   /// Check if KYC documents exist for the customer
   Future<void> checkKycDocuments(String customerId) async {
-    print('🔍 GpsKycCheckCubit.checkKycDocuments called');
-    print('🔍 Cubit closed status: $_isClosed');
-    print('🔍 Customer ID: $customerId');
-
     if (_isClosed) return;
 
-    print('🔍 Starting GPS KYC documents check...');
     _setKycCheckUIState(UIState.loading());
 
     try {
@@ -43,31 +36,31 @@ class GpsKycCheckCubit extends Cubit<GpsKycCheckState> {
 
       if (_isClosed) return; // Check again after async operation
 
-      if (result is Success<GpsKycCheckModel>) {
+      if (result is Success<GpsKycCheckResponseModel>) {
         final kycModel = result.value;
         final hasDocuments = kycModel.hasKycDocuments;
-
-        print('📋 GPS KYC Check Response:');
-        print('  Success: ${kycModel.success}');
-        print('  Message: ${kycModel.message}');
-        print('  Data Type: ${kycModel.data.runtimeType}');
-        print('  Data: ${kycModel.data}');
-        print('  Has Documents: $hasDocuments');
-        print('  KYC Data: ${kycModel.kycData}');
 
         emit(
           state.copyWith(
             hasKycDocuments: hasDocuments,
-            kycData: kycModel.kycData,
+            kycData: kycModel.documents != null ? {
+              'customerId': kycModel.customerId,
+              'isKyc': kycModel.isKyc,
+              'documents': {
+                'aadhar': kycModel.documents!.aadhar,
+                'isAadhar': kycModel.documents!.isAadhar,
+                'pan': kycModel.documents!.pan,
+                'panDocLink': kycModel.documents!.panDocLink,
+                'isPan': kycModel.documents!.isPan,
+              }
+            } : null,
           ),
         );
         _setKycCheckUIState(UIState.success(kycModel));
       } else if (result is Error) {
-        print('❌ GPS KYC Check failed: ${(result as Error).type}');
         _setKycCheckUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('💥 GPS KYC Check exception: $e');
       if (!_isClosed) {
         _setKycCheckUIState(UIState.error(GenericError()));
       }
@@ -75,7 +68,7 @@ class GpsKycCheckCubit extends Cubit<GpsKycCheckState> {
   }
 
   /// Sets the KYC check UI state
-  void _setKycCheckUIState(UIState<GpsKycCheckModel>? uiState) {
+  void _setKycCheckUIState(UIState<GpsKycCheckResponseModel>? uiState) {
     if (!_isClosed) {
       emit(state.copyWith(kycCheckState: uiState));
     }

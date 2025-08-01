@@ -8,6 +8,8 @@ class AppConstants {
   static const double iconSize = 24.0;
   static const double cardElevation = 0.5;
 
+  static String? token;
+
   // Colors
   static const Color primaryColor = Color(0xFF007AFF);
   static const Color secondaryColor = Color(0xFF03DAC6);
@@ -25,4 +27,6 @@ class AppConstants {
   static const Color chartGreen = Color(0xFF4CAF50);
   static const Color chartRed = Color(0xFFF44336);
   static const Color chartBlue = Color(0xFF007AFF);
+
+  //String
 }

@@ -1,4 +1,9 @@
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
+
+import '../../vp-helper/vp_helper.dart';
 
 
 class DocumentEntity {
@@ -7,9 +12,10 @@ class DocumentEntity {
   int? documentTypeId;
   bool? visible;
   String? documentType;
-  LoadDocument? loadDocument;
+  List<LoadDocument>? loadDocument;
   bool? isLoading;
   bool? deleteLoading;
+
 
   DocumentEntity({
     this.title,
@@ -28,7 +34,7 @@ class DocumentEntity {
     int? documentTypeId,
     bool? visible,
     String? documentType,
-    LoadDocument? loadDocument,
+    List<LoadDocument>? loadDocument,
     bool? isLoading,
     bool? deleteLoading,
     bool clearLoadData=false,
@@ -42,7 +48,6 @@ class DocumentEntity {
       documentType: documentType ?? this.documentType,
       loadDocument: clearLoadData? null: loadDocument ?? this.loadDocument,
       isLoading: isLoading ?? this.isLoading,
-
     );
   }
 }
@@ -50,34 +55,49 @@ class DocumentEntity {
 List<DocumentEntity> documentTypeList=[
   DocumentEntity(
     documentTypeId: 5,
-    fileType: "lorry_receipt",
-    title: "Upload Lorry Receipt",
+    fileType: DocumentFileType.lorryReceipt.name,
+    title:navigatorKey.currentState?.context.appText.uploadLorryReceipt,
     visible: true,
     isLoading: false,
-    documentType: "Lorry Receipt",
-
+    documentType: navigatorKey.currentState?.context.appText.lorryReceipt,
   ),
   DocumentEntity(
     documentTypeId: 6,
-    fileType: "eway_bill",
-    title: "Upload E-Way bill",
+    fileType: DocumentFileType.ewayBill.name,
+    title: navigatorKey.currentState?.context.appText.uploadEwayBill,
       visible: true,
-    documentType: "Eway Bill",
+    documentType: navigatorKey.currentState?.context.appText.ewayBill,
   ),
   DocumentEntity(
     documentTypeId: 7,
-    fileType: "material_invoice",
-    title: "Upload Material Invoice",
+    fileType: DocumentFileType.materialInvoice.name,
+    title:navigatorKey.currentState?.context.appText.uploadMaterialInvoice,
     visible: true,
-    documentType: "Material Invoice",
-
+    documentType: navigatorKey.currentState?.context.appText.materialInvoice,
   ),
   DocumentEntity(
-    documentTypeId: 8,
-    fileType: "Proof_of_document",
-    title: "Upload POD",
+    documentTypeId: 331,
+    fileType: DocumentFileType.proofOfDelivery.name,
+    title:navigatorKey.currentState?.context.appText.uploadPOD,
     visible: false,
-    documentType: "Proof of Document",
+    documentType: navigatorKey.currentState?.context.appText.proofOfDelivery,
+
   ),
 
+  DocumentEntity(
+    documentTypeId: 309,
+    fileType: DocumentFileType.uploadOtherDocument.name,
+    title:navigatorKey.currentState?.context.appText.othersDocument,
+    visible: true,
+    documentType: navigatorKey.currentState?.context.appText.uploadOtherDocuments,
+  ),
 ];
+
+
+final damageDocumentEntity=  DocumentEntity(
+  documentTypeId: 9,
+  fileType: DocumentFileType.damageAndShortage.name,
+  title:navigatorKey.currentState?.context.appText.damageAndShortage,
+  visible: true,
+  documentType: navigatorKey.currentState?.context.appText.damagesAndShortageDocument,
+);

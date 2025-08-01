@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,22 +7,57 @@ import 'package:geolocator/geolocator.dart' as geo;
 import 'package:go_router/go_router.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/helper/gps_map_helper.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
+import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
+import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/location_service.dart';
+import 'package:gro_one_app/utils/app_share_helper.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import '../helper/gps_session_manager.dart';
 
 // Cubit for selected vehicle state
 class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
+  bool _isClosed = false;
+
   SelectedVehicleCubit() : super(null);
-  void select(GpsCombinedVehicleData? vehicle) => emit(vehicle);
+
+  @override
+  Future<void> close() {
+    _isClosed = true;
+    return super.close();
+  }
+
+  /// Reset the cubit state and reopen it for use
+  void resetCubit() {
+    _isClosed = false;
+    emit(null);
+  }
+
+  void select(GpsCombinedVehicleData? vehicle) {
+    if (!_isClosed) {
+      emit(vehicle);
+    }
+  }
 }
 
 class VehicleMapScreen extends StatelessWidget {
   final List<GpsCombinedVehicleData> vehicles;
   final GpsCombinedVehicleData? initialSelectedVehicle;
+
   const VehicleMapScreen({
     super.key,
     required this.vehicles,
@@ -30,288 +66,567 @@ class VehicleMapScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Completer<GoogleMapController> mapController = Completer();
+    return GpsScreenLifecycleWrapper(
+      screenType: GpsScreenType.map,
+      child: _VehicleMapContent(
+        vehicles: vehicles,
+        initialSelectedVehicle: initialSelectedVehicle,
+      ),
+    );
+  }
+}
+
+class _VehicleMapContent extends StatelessWidget {
+  final List<GpsCombinedVehicleData> vehicles;
+  final GpsCombinedVehicleData? initialSelectedVehicle;
+
+  const _VehicleMapContent({
+    required this.vehicles,
+    this.initialSelectedVehicle,
+  });
+
+  Future<Map<String, bool>> _loadGeofenceToggles() async {
+    return await GpsSessionManager.getGeofenceToggleMap();
+  }
+
+  /// Creates vehicle markers with custom vehicle icons
+  Future<Set<Marker>> _createVehicleMarkers(
+    List<GpsCombinedVehicleData> vehicles,
+    BuildContext context,
+  ) async {
+    final markers = <Marker>{};
+    for (final vehicle in vehicles) {
+      final loc = vehicle.location;
+      if (loc != null && loc.contains(',')) {
+        final parts = loc.split(',');
+        final lat = double.tryParse(parts[0].trim());
+        final lng = double.tryParse(parts[1].trim());
+        if (lat != null && lng != null) {
+          // Use custom vehicle marker with vehicle icon
+          final marker = await GpsMapHelper.createCustomVehicleMarker(
+            vehicleId: vehicle.vehicleNumber ?? 'unknown',
+            position: LatLng(lat, lng),
+            title: vehicle.vehicleNumber ?? vehicle.vehicleNumber,
+            onTap: () {
+              context.read<SelectedVehicleCubit>().select(vehicle);
+            },
+          );
+          markers.add(marker);
+        }
+      }
+    }
+    return markers;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final Completer<GoogleMapController> mapController =
+        GpsMapHelper.createMapController();
     return MultiBlocProvider(
       providers: [
         BlocProvider.value(value: locator<VehicleListCubit>()),
         BlocProvider<SelectedVehicleCubit>(
-          create: (_) => SelectedVehicleCubit()..select(initialSelectedVehicle),
+          create: (_) => SelectedVehicleCubit(),
         ),
+        BlocProvider.value(value: locator<GpsGeofenceCubit>()),
       ],
       child: BlocBuilder<SelectedVehicleCubit, GpsCombinedVehicleData?>(
         builder: (context, selectedVehicle) {
           final isSingleVehicle = vehicles.length == 1;
-          final markers = <Marker>{};
-          for (final vehicle in vehicles) {
-            final loc = vehicle.location;
-            if (loc != null && loc.contains(',')) {
-              final parts = loc.split(',');
-              final lat = double.tryParse(parts[0].trim());
-              final lng = double.tryParse(parts[1].trim());
-              if (lat != null && lng != null) {
-                markers.add(
-                  Marker(
-                    markerId: MarkerId(vehicle.vehicleNumber ?? 'unknown'),
-                    position: LatLng(lat, lng),
-                    infoWindow: InfoWindow(
-                      title: vehicle.address ?? vehicle.vehicleNumber,
-                    ),
-                    icon: BitmapDescriptor.defaultMarkerWithHue(
-                      BitmapDescriptor.hueYellow,
-                    ),
-                    onTap:
-                        isSingleVehicle
-                            ? null
-                            : () {
-                              context.read<SelectedVehicleCubit>().select(
-                                vehicle,
-                              );
-                            },
-                  ),
-                );
-              }
-            }
-          }
-          final initialCameraPosition = () {
-            if (isSingleVehicle && markers.isNotEmpty) {
-              return CameraPosition(target: markers.first.position, zoom: 14);
-            } else if (markers.isNotEmpty) {
-              return CameraPosition(target: markers.first.position, zoom: 12);
-            } else {
-              return const CameraPosition(
-                target: LatLng(20.5937, 78.9629),
-                zoom: 4,
-              );
-            }
-          }();
-          return Scaffold(
-            body: Stack(
-              children: [
-                GoogleMap(
-                  initialCameraPosition: initialCameraPosition,
-                  markers: markers,
-                  myLocationButtonEnabled: false,
-                  zoomControlsEnabled: true,
-                  mapType: context.watch<VehicleListCubit>().state.mapType,
-                  trafficEnabled:
-                      context.watch<VehicleListCubit>().state.trafficEnabled,
-                  onMapCreated: (controller) {
-                    if (!mapController.isCompleted) {
-                      mapController.complete(controller);
+          return FutureBuilder<Set<Marker>>(
+            future: _createVehicleMarkers(vehicles, context),
+            builder: (context, markerSnapshot) {
+              final markers = markerSnapshot.data ?? <Marker>{};
+              final initialCameraPosition = () {
+                // If there's an initial selected vehicle, focus on it
+                if (initialSelectedVehicle != null) {
+                  final initialVehicle = vehicles.firstWhere(
+                    (v) =>
+                        v.vehicleNumber ==
+                        initialSelectedVehicle!.vehicleNumber,
+                    orElse: () => vehicles.first,
+                  );
+                  final loc = initialVehicle.location;
+                  if (loc != null && loc.contains(',')) {
+                    final parts = loc.split(',');
+                    final lat = double.tryParse(parts[0].trim());
+                    final lng = double.tryParse(parts[1].trim());
+                    if (lat != null && lng != null) {
+                      return GpsMapHelper.createCameraPosition(
+                        target: LatLng(lat, lng),
+                        zoom: 14,
+                      );
                     }
-                  },
-                ),
-                if (!isSingleVehicle && selectedVehicle == null) ...[
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: Container(
-                      color: Colors.white,
-                      padding: const EdgeInsets.only(
-                        top: 36,
-                        left: 16,
-                        right: 16,
-                        bottom: 12,
-                      ),
-                      child: Row(
-                        children: [
-                          IconButton(
-                            icon: const Icon(
-                              Icons.arrow_back,
-                              color: Colors.black,
-                            ),
-                            onPressed: () => context.pop(),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              'SB Matric School',
-                              style: const TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 18,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    right: 16,
-                    bottom: 60,
-                    child: ElevatedButton.icon(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        elevation: 4,
-                      ),
-                      icon: Icon(Icons.list, color: Colors.blue),
-                      label: const Text(
-                        'List View',
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                      onPressed: () {
-                        context.pop();
-                      },
-                    ),
-                  ),
-                ],
-                if (selectedVehicle != null) ...[
-                  Positioned(
-                    top: 24,
-                    left: 16,
-                    right: 16,
-                    child: _VehicleInfoOverlayCard(vehicle: selectedVehicle),
-                  ),
-                  DraggableScrollableSheet(
-                    initialChildSize: 0.35,
-                    minChildSize: 0.2,
-                    maxChildSize: 0.85,
-                    builder: (context, scrollController) {
-                      return _VehicleBottomCard(
-                        vehicle: selectedVehicle,
-                        scrollController: scrollController,
-                      );
-                    },
-                  ),
-                ],
-                // Current Location Button
-                Positioned(
-                  right: 16,
-                  bottom: 180,
-                  child: FloatingActionButton(
-                    heroTag: "currentLocation",
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.blue,
-                    elevation: 4,
-                    onPressed: () async {
-                      try {
-                        final locationService = LocationService();
-                        final result =
-                            await locationService.getCurrentLatLong();
-                        if (result is Success<geo.Position>) {
-                          final position = result.value;
-                          final controller = await mapController.future;
-                          await controller.animateCamera(
-                            CameraUpdate.newLatLngZoom(
-                              LatLng(position.latitude, position.longitude),
-                              15,
-                            ),
-                          );
-                        } else if (result is Error<geo.Position>) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(result.type.getText(context)),
-                              backgroundColor: Colors.red,
-                            ),
-                          );
-                        }
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Error getting current location'),
-                            backgroundColor: Colors.red,
-                          ),
-                        );
-                      }
-                    },
-                    child: const Icon(Icons.my_location),
-                  ),
-                ),
-                Positioned(
-                  right: 16,
-                  bottom: 260,
-                  child: MapFloatingMenu(
-                    onToggleTraffic:
-                        () => context.read<VehicleListCubit>().toggleTraffic(),
-                    onToggleMapType:
-                        () => context.read<VehicleListCubit>().toggleMapType(),
-                    onReachability: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Reachability feature coming soon!'),
-                        ),
-                      );
-                    },
-                    onNearbyVehicles: () async {
-                      final locationService = LocationService();
-                      final result = await locationService.getCurrentLatLong();
-                      if (result is Success<geo.Position>) {
-                        final userPos = result.value;
-                        double minDistance = double.infinity;
-                        GpsCombinedVehicleData? nearestVehicle;
-                        double? nearestDistance;
+                  }
+                }
 
-                        for (final vehicle in vehicles) {
-                          if (vehicle.location != null &&
-                              vehicle.location!.contains(',')) {
-                            final parts = vehicle.location!.split(',');
-                            final lat = double.tryParse(parts[0].trim());
-                            final lng = double.tryParse(parts[1].trim());
-                            if (lat != null && lng != null) {
-                              final distance =
-                                  geo.Geolocator.distanceBetween(
-                                    userPos.latitude,
-                                    userPos.longitude,
-                                    lat,
-                                    lng,
-                                  ) /
-                                  1000; // in km
-                              if (distance < minDistance) {
-                                minDistance = distance;
-                                nearestVehicle = vehicle;
-                                nearestDistance = distance;
-                              }
+                if (isSingleVehicle && markers.isNotEmpty) {
+                  return GpsMapHelper.createCameraPosition(
+                    target: markers.first.position,
+                    zoom: 14,
+                  );
+                } else if (markers.isNotEmpty) {
+                  return GpsMapHelper.createCameraPosition(
+                    target: markers.first.position,
+                    zoom: 12,
+                  );
+                } else {
+                  return GpsMapHelper.getDefaultCameraPosition();
+                }
+              }();
+              return Scaffold(
+                body: Stack(
+                  children: [
+                    BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
+                      builder: (context, geofenceState) {
+                        debugPrint(
+                          '📍 Geofence state: ${geofenceState.runtimeType}',
+                        );
+
+                        // Load geofences if not already loaded
+                        if (geofenceState is GpsGeofenceInitial) {
+                          debugPrint('📍 Loading geofences...');
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            context.read<GpsGeofenceCubit>().loadGeofences();
+                          });
+                        }
+
+                        // Check if geofence display is enabled
+                        final showGeofenceOnMap =
+                            GpsSessionManager.isShowGeofenceOnMapEnabled();
+                        debugPrint(
+                          '📍 Show geofence on map: $showGeofenceOnMap',
+                        );
+
+                        // Add a test circle for debugging
+                        Set<Circle> testCircles = {};
+                        if (showGeofenceOnMap) {
+                          testCircles.add(
+                            Circle(
+                              circleId: const CircleId("test_circle"),
+                              center: const LatLng(
+                                28.6139,
+                                77.2090,
+                              ), // Delhi coordinates
+                              radius: 1000,
+                              fillColor: const Color(
+                                0x33FF0000,
+                              ), // Red with 20% opacity
+                              strokeColor: Colors.red,
+                              strokeWidth: 3,
+                            ),
+                          );
+                          debugPrint('📍 Added test circle for debugging');
+                        }
+
+                        if (showGeofenceOnMap &&
+                            geofenceState is GpsGeofenceLoaded) {
+                          debugPrint(
+                            '📍 Geofences loaded: ${geofenceState.geofences.length} geofences',
+                          );
+
+                          // Debug: Print all geofences
+                          for (final geofence in geofenceState.geofences) {
+                            debugPrint(
+                              '📍 Available geofence: ${geofence.id} - ${geofence.name} - ${geofence.shapeType}',
+                            );
+                            if (geofence.shapeType == 'circle') {
+                              debugPrint(
+                                '📍 Circle data: center=${geofence.center}, radius=${geofence.radius}',
+                              );
+                            } else if (geofence.shapeType == 'polygon' ||
+                                geofence.shapeType == 'polyline') {
+                              debugPrint(
+                                '📍 ${geofence.shapeType} data: points=${geofence.polygonPoints?.length}',
+                              );
                             }
                           }
-                        }
 
-                        if (nearestVehicle != null && nearestDistance != null) {
-                          showDialog(
-                            context: context,
-                            builder:
-                                (_) => NearestVehicleDialog(
-                                  vehicle: nearestVehicle!,
-                                  distance: nearestDistance!,
-                                ),
+                          return FutureBuilder<Map<String, bool>>(
+                            future: _loadGeofenceToggles(),
+                            builder: (context, toggleSnapshot) {
+                              Set<Circle> circles = {};
+                              Set<Polygon> polygons = {};
+                              Set<Polyline> polylines = {};
+
+                              if (toggleSnapshot.hasData) {
+                                final toggleMap = toggleSnapshot.data!;
+                                debugPrint('📍 Toggle map: $toggleMap');
+
+                                for (final geofence
+                                    in geofenceState.geofences) {
+                                  final shouldShow =
+                                      toggleMap[geofence.id] ?? false;
+                                  debugPrint(
+                                    '📍 Geofence ${geofence.id} (${geofence.name}): shouldShow = $shouldShow, shapeType = ${geofence.shapeType}',
+                                  );
+
+                                  // TEMPORARY: Show all geofences for testing
+                                  final testShow =
+                                      true; // Set to true to show all geofences
+
+                                  if (shouldShow || testShow) {
+                                    if (geofence.shapeType == 'circle' &&
+                                        geofence.center != null &&
+                                        geofence.radius != null) {
+                                      circles.add(
+                                        Circle(
+                                          circleId: CircleId(
+                                            "geofence_circle_${geofence.id}",
+                                          ),
+                                          center: geofence.center!,
+                                          radius: geofence.radius!,
+                                          fillColor: const Color(
+                                            0x330000FF,
+                                          ), // Blue with 20% opacity
+                                          strokeColor: Colors.blue,
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                      debugPrint(
+                                        '📍 Added circle geofence: ${geofence.name} at ${geofence.center} with radius ${geofence.radius}',
+                                      );
+                                    } else if (geofence.shapeType ==
+                                            'polygon' &&
+                                        geofence.polygonPoints != null &&
+                                        geofence.polygonPoints!.isNotEmpty) {
+                                      polygons.add(
+                                        Polygon(
+                                          polygonId: PolygonId(
+                                            "geofence_polygon_${geofence.id}",
+                                          ),
+                                          points: geofence.polygonPoints!,
+                                          fillColor: const Color(
+                                            0x3300FF00,
+                                          ), // Green with 20% opacity
+                                          strokeColor: Colors.green,
+                                          strokeWidth: 2,
+                                        ),
+                                      );
+                                      debugPrint(
+                                        '📍 Added polygon geofence: ${geofence.name} with ${geofence.polygonPoints!.length} points',
+                                      );
+                                    } else if (geofence.shapeType ==
+                                            'polyline' &&
+                                        geofence.polygonPoints != null &&
+                                        geofence.polygonPoints!.isNotEmpty) {
+                                      polylines.add(
+                                        Polyline(
+                                          polylineId: PolylineId(
+                                            "geofence_polyline_${geofence.id}",
+                                          ),
+                                          points: geofence.polygonPoints!,
+                                          color: Colors.red,
+                                          width: 3,
+                                        ),
+                                      );
+                                      debugPrint(
+                                        '📍 Added polyline geofence: ${geofence.name} with ${geofence.polygonPoints!.length} points',
+                                      );
+                                    } else {
+                                      debugPrint(
+                                        '📍 Skipped geofence ${geofence.name}: invalid data',
+                                      );
+                                    }
+                                  }
+                                }
+
+                                debugPrint(
+                                  '📍 Final counts - circles: ${circles.length}, polygons: ${polygons.length}, polylines: ${polylines.length}',
+                                );
+                              } else {
+                                debugPrint('📍 Toggle snapshot has no data');
+                              }
+
+                              // Combine test circles with actual geofences
+                              circles.addAll(testCircles);
+
+                              return GpsMapHelper.createGpsMap(
+                                initialCameraPosition: initialCameraPosition,
+                                markers: markers,
+                                circles: circles,
+                                polygons: polygons,
+                                polylines: polylines,
+                                myLocationButtonEnabled: false,
+                                zoomControlsEnabled: true,
+                                mapType:
+                                    context
+                                        .watch<VehicleListCubit>()
+                                        .state
+                                        .mapType,
+                                trafficEnabled:
+                                    context
+                                        .watch<VehicleListCubit>()
+                                        .state
+                                        .trafficEnabled,
+                                onMapCreated: (controller) {
+                                  GpsMapHelper.handleMapCreated(
+                                    controller,
+                                    mapController,
+                                    null,
+                                  );
+                                },
+                              );
+                            },
                           );
                         } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('No vehicles found')),
+                          debugPrint(
+                            '📍 Not showing geofences: showGeofenceOnMap=$showGeofenceOnMap, state=${geofenceState.runtimeType}',
+                          );
+
+                          // Show test circle even if no geofences are loaded
+                          return GpsMapHelper.createGpsMap(
+                            initialCameraPosition: initialCameraPosition,
+                            markers: markers,
+                            circles: testCircles,
+                            myLocationButtonEnabled: false,
+                            zoomControlsEnabled: true,
+                            mapType:
+                                context.watch<VehicleListCubit>().state.mapType,
+                            trafficEnabled:
+                                context
+                                    .watch<VehicleListCubit>()
+                                    .state
+                                    .trafficEnabled,
+                            onMapCreated: (controller) {
+                              GpsMapHelper.handleMapCreated(
+                                controller,
+                                mapController,
+                                null,
+                              );
+                            },
                           );
                         }
-                      } else {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Could not get current location'),
+                      },
+                    ),
+                    if (selectedVehicle == null) ...[
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Container(
+                          color: Colors.white,
+                          padding: const EdgeInsets.only(
+                            top: 36,
+                            left: 16,
+                            right: 16,
+                            bottom: 12,
                           ),
-                        );
-                      }
-                    },
-                    onNearbyPlaces: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Nearby Places feature coming soon!'),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(
+                                  Icons.arrow_back,
+                                  color: Colors.black,
+                                ),
+                                onPressed: () => context.pop(),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  'SB Matric School',
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      );
-                    },
-                    isTrafficEnabled:
-                        context.watch<VehicleListCubit>().state.trafficEnabled,
-                    isSatellite:
-                        context.watch<VehicleListCubit>().state.mapType ==
-                        MapType.satellite,
-                  ),
+                      ),
+                      Positioned(
+                        right: 16,
+                        bottom: 60,
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 4,
+                          ),
+                          icon: Icon(Icons.list, color: Colors.blue),
+                          label: const Text(
+                            'List View',
+                            style: TextStyle(
+                              color: Colors.blue,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                            ),
+                          ),
+                          onPressed: () {
+                            context.pop();
+                          },
+                        ),
+                      ),
+                    ],
+                    if (selectedVehicle != null) ...[
+                      Positioned(
+                        top: 24,
+                        left: 16,
+                        right: 16,
+                        child: _VehicleInfoOverlayCard(
+                          vehicle: selectedVehicle,
+                        ),
+                      ),
+                      DraggableScrollableSheet(
+                        initialChildSize: 0.35,
+                        minChildSize: 0.2,
+                        maxChildSize: 0.85,
+                        builder: (context, scrollController) {
+                          return _VehicleBottomCard(
+                            vehicle: selectedVehicle,
+                            scrollController: scrollController,
+                          );
+                        },
+                      ),
+                    ],
+                    // Current Location Button
+                    Positioned(
+                      right: 16,
+                      bottom: 180,
+                      child: GpsMapHelper.createMapFloatingButton(
+                        icon: Icons.my_location,
+                        heroTag: "currentLocation",
+                        onPressed: () async {
+                          try {
+                            final locationService = LocationService();
+                            final result =
+                                await locationService.getCurrentLatLong();
+                            if (result is Success<geo.Position>) {
+                              final position = result.value;
+                              final controller = await mapController.future;
+                              await GpsMapHelper.animateToLocation(
+                                controller,
+                                LatLng(position.latitude, position.longitude),
+                                zoom: 15,
+                              );
+                            } else if (result is Error<geo.Position>) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(result.type.getText(context)),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Error getting current location'),
+                                backgroundColor: Colors.red,
+                              ),
+                            );
+                          }
+                        },
+                      ),
+                    ),
+                    Positioned(
+                      right: 16,
+                      bottom: 260,
+                      child: MapFloatingMenu(
+                        onToggleTraffic:
+                            () =>
+                                context
+                                    .read<VehicleListCubit>()
+                                    .toggleTraffic(),
+                        onToggleMapType:
+                            () =>
+                                context
+                                    .read<VehicleListCubit>()
+                                    .toggleMapType(),
+                        onReachability: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Reachability feature coming soon!',
+                              ),
+                            ),
+                          );
+                        },
+                        onNearbyVehicles: () async {
+                          final locationService = LocationService();
+                          final result =
+                              await locationService.getCurrentLatLong();
+                          if (result is Success<geo.Position>) {
+                            final userPos = result.value;
+                            double minDistance = double.infinity;
+                            GpsCombinedVehicleData? nearestVehicle;
+                            double? nearestDistance;
+
+                            for (final vehicle in vehicles) {
+                              if (vehicle.location != null &&
+                                  vehicle.location!.contains(',')) {
+                                final parts = vehicle.location!.split(',');
+                                final lat = double.tryParse(parts[0].trim());
+                                final lng = double.tryParse(parts[1].trim());
+                                if (lat != null && lng != null) {
+                                  final distance =
+                                      geo.Geolocator.distanceBetween(
+                                        userPos.latitude,
+                                        userPos.longitude,
+                                        lat,
+                                        lng,
+                                      ) /
+                                      1000; // in km
+                                  if (distance < minDistance) {
+                                    minDistance = distance;
+                                    nearestVehicle = vehicle;
+                                    nearestDistance = distance;
+                                  }
+                                }
+                              }
+                            }
+
+                            if (nearestVehicle != null &&
+                                nearestDistance != null) {
+                              showDialog(
+                                context: context,
+                                builder:
+                                    (_) => NearestVehicleDialog(
+                                      vehicle: nearestVehicle!,
+                                      distance: nearestDistance!,
+                                    ),
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('No vehicles found'),
+                                ),
+                              );
+                            }
+                          } else {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Could not get current location'),
+                              ),
+                            );
+                          }
+                        },
+                        onNearbyPlaces: () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Nearby Places feature coming soon!',
+                              ),
+                            ),
+                          );
+                        },
+                        isTrafficEnabled:
+                            context
+                                .watch<VehicleListCubit>()
+                                .state
+                                .trafficEnabled,
+                        isSatellite:
+                            context.watch<VehicleListCubit>().state.mapType ==
+                            MapType.satellite,
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              );
+            },
           );
         },
       ),
@@ -354,7 +669,8 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                   child: Row(
                     children: [
                       Text(
-                        vehicle.vehicleNumber ?? '-',
+                        (vehicle.vehicleNumber ?? '-')
+                            .formatVehicleNumberForDisplay,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 16,
@@ -433,9 +749,7 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                 Icon(Icons.battery_full, color: Colors.blue, size: 18),
                 const SizedBox(width: 2),
                 Text(
-                  vehicle.networkSignal != null
-                      ? '${vehicle.networkSignal}%'
-                      : '-',
+                  _formatNetworkSignal(vehicle.networkSignal),
                   style: TextStyle(
                     color: Colors.blue,
                     fontWeight: FontWeight.bold,
@@ -449,7 +763,7 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    vehicle.statusDuration ?? '-',
+                    _formatStatusDuration(vehicle.statusDuration),
                     style: const TextStyle(
                       fontSize: 12,
                       color: Colors.grey,
@@ -467,50 +781,98 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
   }
 
   Color _getStatusColor(String? status) {
-    switch (status?.toUpperCase()) {
+    if (status == null) return Colors.grey;
+
+    final statusUpper = status.toUpperCase();
+    switch (statusUpper) {
       case 'IGNITION_ON':
       case 'ACTIVE':
+      case 'RUNNING':
+      case 'ON':
         return Colors.green;
       case 'IGNITION_OFF':
       case 'OFF':
+      case 'INACTIVE':
+      case 'STOPPED':
         return Colors.red;
       case 'IDLE':
+      case 'PARKED':
         return Colors.orange;
-      case 'INACTIVE':
-        return Colors.grey;
+      case 'MAINTENANCE':
+      case 'SERVICE':
+        return Colors.purple;
+      case 'ERROR':
+      case 'FAULT':
+        return Colors.red;
       default:
+        // Try to determine color from status string
+        final statusLower = status.toLowerCase();
+        if (statusLower.contains('on') ||
+            statusLower.contains('active') ||
+            statusLower.contains('running')) {
+          return Colors.green;
+        } else if (statusLower.contains('off') ||
+            statusLower.contains('inactive') ||
+            statusLower.contains('stopped')) {
+          return Colors.red;
+        } else if (statusLower.contains('idle') ||
+            statusLower.contains('parked')) {
+          return Colors.orange;
+        }
         return Colors.grey;
     }
   }
 
   String _getIgnitionStatus(String? ignition, String? status) {
     if (ignition != null) {
-      final ignitionLower = ignition.toLowerCase();
+      final ignitionLower = ignition.toLowerCase().trim();
       if (ignitionLower == 'on' ||
           ignitionLower == '1' ||
-          ignitionLower == 'true') {
+          ignitionLower == 'true' ||
+          ignitionLower == 'yes' ||
+          ignitionLower == 'running') {
         return 'ON';
       } else if (ignitionLower == 'off' ||
           ignitionLower == '0' ||
-          ignitionLower == 'false') {
+          ignitionLower == 'false' ||
+          ignitionLower == 'no' ||
+          ignitionLower == 'stopped') {
         return 'OFF';
       }
     }
 
     // Fallback to status field
-    switch (status?.toUpperCase()) {
-      case 'IGNITION_ON':
-      case 'ACTIVE':
-        return 'ON';
-      case 'IGNITION_OFF':
-      case 'OFF':
-      case 'INACTIVE':
-        return 'OFF';
-      case 'IDLE':
-        return 'IDLE';
-      default:
-        return '-';
+    if (status != null) {
+      final statusUpper = status.toUpperCase();
+      switch (statusUpper) {
+        case 'IGNITION_ON':
+        case 'ACTIVE':
+        case 'RUNNING':
+        case 'ON':
+          return 'ON';
+        case 'IGNITION_OFF':
+        case 'OFF':
+        case 'INACTIVE':
+        case 'STOPPED':
+          return 'OFF';
+        case 'IDLE':
+        case 'PARKED':
+          return 'IDLE';
+        default:
+          // Try to extract ignition info from status string
+          final statusLower = status.toLowerCase();
+          if (statusLower.contains('on') || statusLower.contains('active')) {
+            return 'ON';
+          } else if (statusLower.contains('off') ||
+              statusLower.contains('inactive')) {
+            return 'OFF';
+          } else if (statusLower.contains('idle')) {
+            return 'IDLE';
+          }
+      }
     }
+
+    return '-';
   }
 
   Color _getIgnitionColor(String? ignition, String? status) {
@@ -525,6 +887,55 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
       default:
         return Colors.grey;
     }
+  }
+
+  String _formatNetworkSignal(int? networkSignal) {
+    if (networkSignal == null) return '-';
+
+    // Network signal is typically 0-5 or 0-100
+    if (networkSignal >= 0 && networkSignal <= 5) {
+      // Convert 0-5 scale to percentage
+      final percentage = (networkSignal / 5 * 100).round();
+      return '${percentage}%';
+    } else if (networkSignal >= 0 && networkSignal <= 100) {
+      return '${networkSignal}%';
+    } else {
+      return '${networkSignal}';
+    }
+  }
+
+  String _formatStatusDuration(String? statusDuration) {
+    if (statusDuration == null || statusDuration.isEmpty) return '-';
+
+    // If it's already in a readable format, return as is
+    if (statusDuration.contains('ago') ||
+        statusDuration.contains('h') ||
+        statusDuration.contains('m') ||
+        statusDuration.contains('d')) {
+      return statusDuration;
+    }
+
+    // Try to parse as timestamp and convert to relative time
+    try {
+      final timestamp = int.tryParse(statusDuration);
+      if (timestamp != null) {
+        final lastUpdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
+        final now = DateTime.now();
+        final difference = now.difference(lastUpdate);
+
+        if (difference.inMinutes < 60) {
+          return '${difference.inMinutes}m ago';
+        } else if (difference.inHours < 24) {
+          return '${difference.inHours}h ago';
+        } else {
+          return '${difference.inDays}d ago';
+        }
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+
+    return statusDuration;
   }
 }
 
@@ -545,7 +956,7 @@ class _StatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.25),
+        color: color.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
@@ -560,18 +971,94 @@ class _StatusChip extends StatelessWidget {
   }
 }
 
-// Replace the _VehicleBottomCard stateless widget with a stateful one
-class _VehicleBottomCard extends StatefulWidget {
+// Stateless widget with BlocProvider
+class _VehicleBottomCard extends StatelessWidget {
   final GpsCombinedVehicleData vehicle;
   final ScrollController? scrollController;
   const _VehicleBottomCard({required this.vehicle, this.scrollController});
 
+  String _formatDuration(int? seconds) {
+    if (seconds == null || seconds <= 0) return '0h 0m';
+
+    final hours = seconds ~/ 3600;
+    final minutes = (seconds % 3600) ~/ 60;
+
+    if (hours > 0 && minutes > 0) {
+      return '${hours}h ${minutes}m';
+    } else if (hours > 0) {
+      return '${hours}h';
+    } else if (minutes > 0) {
+      return '${minutes}m';
+    } else {
+      return '0m';
+    }
+  }
+
   @override
-  State<_VehicleBottomCard> createState() => _VehicleBottomCardState();
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) {
+        final cubit = locator<GpsInfoWindowDetailsCubit>();
+        return cubit;
+      },
+      child: _VehicleBottomCardContent(
+        vehicle: vehicle,
+        scrollController: scrollController,
+        formatDuration: _formatDuration,
+      ),
+    );
+  }
 }
 
-class _VehicleBottomCardState extends State<_VehicleBottomCard> {
+class _VehicleBottomCardContent extends StatefulWidget {
+  final GpsCombinedVehicleData vehicle;
+  final ScrollController? scrollController;
+  final String Function(int?) formatDuration;
+
+  const _VehicleBottomCardContent({
+    required this.vehicle,
+    this.scrollController,
+    required this.formatDuration,
+  });
+
+  @override
+  State<_VehicleBottomCardContent> createState() =>
+      _VehicleBottomCardContentState();
+}
+
+class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
   bool _expanded = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Call API when widget is first created
+    _loadInfoWindowDetails();
+  }
+
+  @override
+  void didUpdateWidget(_VehicleBottomCardContent oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Call API when vehicle changes
+    if (oldWidget.vehicle.deviceId != widget.vehicle.deviceId) {
+      _loadInfoWindowDetails();
+    }
+  }
+
+  void _loadInfoWindowDetails() {
+    if (widget.vehicle.deviceId != null) {
+      context.read<GpsInfoWindowDetailsCubit>().getInfoWindowDetails(
+        widget.vehicle.deviceId.toString(),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    // Reset cubit state when widget is disposed
+    context.read<GpsInfoWindowDetailsCubit>().resetState();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -648,7 +1135,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               Icon(Icons.circle, color: Colors.green, size: 16),
                               const SizedBox(width: 4),
                               const Text(
-                                'Moving Time',
+                                'Today Distance',
                                 style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.w600,
@@ -666,7 +1153,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            widget.vehicle.statusDuration ?? '-',
+                            _formatStatusDuration(
+                              widget.vehicle.statusDuration,
+                            ),
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 12,
@@ -728,25 +1217,132 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                     _ActionButton(
                       label: 'Play route',
                       icon: Icons.play_arrow,
-                      onTap: () {},
-                    ),
-                    const SizedBox(width: 12),
-                    _ActionButton(
-                      label: 'Capture',
-                      icon: Icons.camera_alt,
-                      onTap: () {},
+                      onTap: () {
+                        _showPlayRouteBottomSheet(context, widget.vehicle);
+                      },
                     ),
                     const SizedBox(width: 12),
                     _ActionButton(
                       label: 'Share',
                       icon: Icons.share,
-                      onTap: () {},
+                      onTap: () {
+                        AppShareHelper.showVehicleShareWidget(
+                          context: context,
+                          vehicleNumber: widget.vehicle.vehicleNumber ?? '',
+                          location: widget.vehicle.location,
+                          lastUpdate: widget.vehicle.lastUpdate,
+                          deviceId: widget.vehicle.deviceId,
+                          token: AppConstants.token,
+                          onLiveLocationShare: (
+                            token,
+                            deviceId,
+                            vehicleNumber,
+                            isLiveLocation,
+                            hours,
+                          ) async {
+                            try {
+                              final repository =
+                                  locator<GpsVehicleExtraInfoRepository>();
+                              final result = await repository
+                                  .shareVehicleLocation(
+                                    token: token,
+                                    deviceId: deviceId,
+                                    vehicleNumber: vehicleNumber,
+                                    isLiveLocation: isLiveLocation,
+                                    hours: hours,
+                                    location: widget.vehicle.location ?? '',
+                                    lastUpdate: widget.vehicle.lastUpdate,
+                                  );
+                              if (context.mounted) {
+                                if (result is Success<String>) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(result.value),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Multiple sharing failed'),
+                                      backgroundColor: Colors.red,
+                                    ),
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Multiple sharing failed'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          onCurrentLocationShare: (
+                            vehicleNumber,
+                            location,
+                            lastUpdate,
+                          ) async {
+                            try {
+                              final repository =
+                                  locator<GpsVehicleExtraInfoRepository>();
+                              final result = await repository
+                                  .shareVehicleLocation(
+                                    token: AppConstants.token ?? '',
+                                    deviceId: widget.vehicle.deviceId!,
+                                    vehicleNumber: vehicleNumber,
+                                    isLiveLocation: false,
+                                    hours: 0,
+                                    location: location,
+                                    lastUpdate: lastUpdate,
+                                  );
+                              if (context.mounted) {
+                                if (result is Success<String>) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(result.value),
+                                      backgroundColor: Colors.green,
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'No location data available for sharing',
+                                      ),
+                                      backgroundColor: Colors.orange,
+                                      duration: Duration(seconds: 2),
+                                    ),
+                                  );
+                                }
+                              }
+                            } catch (e) {
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text(
+                                      'No location data available for sharing',
+                                    ),
+                                    backgroundColor: Colors.orange,
+                                    duration: Duration(seconds: 2),
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                        );
+                      },
                     ),
                     const SizedBox(width: 12),
                     _ActionButton(
                       label: 'Call driver',
                       icon: Icons.phone,
-                      onTap: () {},
+                      onTap: () {
+                        _callDriver(context, widget.vehicle);
+                      },
                     ),
                   ],
                 ),
@@ -790,6 +1386,100 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                   ],
                 ),
               ),
+            ),
+
+            // Info Window Details Card (Trip Details)
+            BlocBuilder<GpsInfoWindowDetailsCubit, GpsInfoWindowDetailsState>(
+              builder: (context, state) {
+                if (state.infoWindowDetailsState?.status == Status.LOADING) {
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      top: 12,
+                      left: 12,
+                      right: 12,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      padding: const EdgeInsets.all(16),
+                      child: const Center(child: CircularProgressIndicator()),
+                    ),
+                  );
+                }
+
+                if (state.infoWindowDetailsState?.status == Status.SUCCESS &&
+                    state.infoWindowDetailsState?.data != null) {
+                  final infoDetails = state.infoWindowDetailsState!.data!;
+                  return Padding(
+                    padding: const EdgeInsets.only(
+                      top: 12,
+                      left: 12,
+                      right: 12,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
+                        children: [
+                          _InfoWindowDetailRow(
+                            icon: Icons.speed,
+                            label: 'Average Speed',
+                            value:
+                                '${infoDetails.averageSpeedKph?.toStringAsFixed(1) ?? '0.0'} km/h',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.speed,
+                            label: 'Max Speed',
+                            value:
+                                '${infoDetails.maxSpeedKph?.toStringAsFixed(1) ?? '0.0'} km/h',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.route,
+                            label: 'Current Trip Distance',
+                            value:
+                                '${infoDetails.currentTripDistance?.toStringAsFixed(1) ?? '0.0'} km',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.route,
+                            label: 'Last Trip Distance',
+                            value:
+                                '${infoDetails.lastTripDistance?.toStringAsFixed(1) ?? '0.0'} km',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.access_time,
+                            label: 'Engine Time',
+                            value: widget.formatDuration(
+                              infoDetails.engineSecondsViaIgnition,
+                            ),
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.stop_circle,
+                            label: 'Stops Count',
+                            value: '${infoDetails.stopsCount ?? 0}',
+                          ),
+                          const Divider(height: 1),
+                          _InfoWindowDetailRow(
+                            icon: Icons.trip_origin,
+                            label: 'Trips Count',
+                            value: '${infoDetails.tripsCount ?? 0}',
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }
+
+                return const SizedBox.shrink();
+              },
             ),
 
             // Bottom Immobilizer row (now expandable)
@@ -893,12 +1583,10 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                           ),
                           Expanded(
                             child: _StatusIconText(
-                              icon: Icons.agriculture,
+                              icon: Icons.battery_charging_full,
                               iconColor: Colors.green,
                               label: 'Vehicle Btt',
-                              value: _formatBatteryPercent(
-                                widget.vehicle.batteryPercent,
-                              ),
+                              value: _getVehicleBatteryDisplay(),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -923,7 +1611,7 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
                               icon: Icons.electric_car,
                               iconColor: Colors.green,
                               label: 'GPS Btt',
-                              value: _formatGPSBattery(widget.vehicle.extBatt),
+                              value: _getGPSBatteryDisplay(),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -945,7 +1633,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
   String _formatOdoReading(String? odoReading) {
     if (odoReading == null || odoReading.isEmpty) return '-';
     try {
-      final odo = double.tryParse(odoReading);
+      // Remove any non-numeric characters except decimal point
+      final cleanOdo = odoReading.replaceAll(RegExp(r'[^\d.]'), '');
+      final odo = double.tryParse(cleanOdo);
       if (odo != null) {
         return '${odo.toStringAsFixed(0)} km';
       }
@@ -958,7 +1648,9 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
   String _formatDistance(String? distance) {
     if (distance == null || distance.isEmpty) return '-';
     try {
-      final dist = double.tryParse(distance);
+      // Remove any non-numeric characters except decimal point
+      final cleanDistance = distance.replaceAll(RegExp(r'[^\d.]'), '');
+      final dist = double.tryParse(cleanDistance);
       if (dist != null) {
         return '${dist.toStringAsFixed(1)} km';
       }
@@ -970,8 +1662,19 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
 
   String _formatIdleCount(String? idleTime) {
     if (idleTime == null || idleTime.isEmpty) return '-';
-    // Try to extract count from idle time if it contains count information
-    // For now, return a default value since we don't have idle count in the API
+    // Since we don't have idle count in the API, we'll calculate it from idle time
+    try {
+      final idleSeconds = int.tryParse(idleTime);
+      if (idleSeconds != null && idleSeconds > 0) {
+        // If idle time is more than 5 minutes, consider it as an idle event
+        if (idleSeconds > 300) {
+          // 5 minutes = 300 seconds
+          return '1';
+        }
+      }
+    } catch (e) {
+      // If parsing fails, return default
+    }
     return '0';
   }
 
@@ -999,50 +1702,236 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
 
   String _formatSpeed(String? speed) {
     if (speed == null || speed.isEmpty) return 'N/A';
-    return '$speed Km/h';
+    try {
+      final speedValue = double.tryParse(speed);
+      if (speedValue != null) {
+        return '${speedValue.toStringAsFixed(1)} km/h';
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+    return '$speed km/h';
   }
 
   String _getImmobilizerStatus(String? alarm) {
-    if (alarm == null || alarm.isEmpty) return 'N/A';
-    return alarm.toUpperCase();
+    // Try to extract alarm from posAttr if direct field is null
+    if ((alarm == null || alarm.isEmpty) &&
+        widget.vehicle.posAttr != null &&
+        widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        if (posAttrMap.containsKey('alarm')) {
+          final alarmValue = posAttrMap['alarm'];
+          alarm = alarmValue?.toString();
+        } else if (posAttrMap.containsKey('event')) {
+          final eventValue = posAttrMap['event'];
+          alarm = eventValue?.toString();
+        }
+      } catch (e) {
+        // JSON parsing failed
+      }
+    }
+
+    if (alarm == null || alarm.isEmpty) return '-';
+
+    final alarmLower = alarm.toLowerCase().trim();
+
+    if (alarmLower == 'on' ||
+        alarmLower == '1' ||
+        alarmLower == 'true' ||
+        alarmLower == 'yes' ||
+        alarmLower == 'active') {
+      return 'ON';
+    } else if (alarmLower == 'off' ||
+        alarmLower == '0' ||
+        alarmLower == 'false' ||
+        alarmLower == 'no' ||
+        alarmLower == 'inactive') {
+      return 'OFF';
+    }
+    // If it's a number, treat as boolean
+    final numValue = int.tryParse(alarmLower);
+    if (numValue != null) {
+      return numValue > 0 ? 'ON' : 'OFF';
+    }
+    // If it contains keywords, try to determine status
+    if (alarmLower.contains('on') || alarmLower.contains('active')) {
+      return 'ON';
+    } else if (alarmLower.contains('off') || alarmLower.contains('inactive')) {
+      return 'OFF';
+    }
+    // If all else fails, show the raw value (truncated if too long)
+    return alarm.length > 10 ? '${alarm.substring(0, 10)}...' : alarm;
   }
 
   String _getDoorStatus(String? deviceStatus) {
-    if (deviceStatus == null || deviceStatus.isEmpty) return 'N/A';
-    return deviceStatus.toUpperCase();
+    // Try to extract door status from posAttr if direct field doesn't contain door info
+    if (deviceStatus != null &&
+        deviceStatus.isNotEmpty &&
+        !deviceStatus.toLowerCase().contains('door') &&
+        widget.vehicle.posAttr != null &&
+        widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        if (posAttrMap.containsKey('io68')) {
+          final ioValue = posAttrMap['io68'];
+          // io68 might indicate door status
+          if (ioValue != null) {
+            final ioNum = int.tryParse(ioValue.toString());
+            if (ioNum != null) {
+              return ioNum > 0 ? 'OPEN' : 'CLOSED';
+            }
+          }
+        }
+      } catch (e) {
+        // JSON parsing failed
+      }
+    }
+
+    if (deviceStatus == null || deviceStatus.isEmpty) return '-';
+
+    final statusLower = deviceStatus.toLowerCase().trim();
+
+    if (statusLower.contains('door') || statusLower.contains('open')) {
+      return 'OPEN';
+    } else if (statusLower.contains('closed') || statusLower.contains('shut')) {
+      return 'CLOSED';
+    }
+    // If it's a number, treat as boolean
+    final numValue = int.tryParse(statusLower);
+    if (numValue != null) {
+      return numValue > 0 ? 'OPEN' : 'CLOSED';
+    }
+    // If it contains keywords, try to determine status
+    if (statusLower.contains('open') || statusLower.contains('1')) {
+      return 'OPEN';
+    } else if (statusLower.contains('closed') || statusLower.contains('0')) {
+      return 'CLOSED';
+    }
+    // If all else fails, show the raw value (truncated if too long)
+    return deviceStatus.length > 10
+        ? '${deviceStatus.substring(0, 10)}...'
+        : deviceStatus;
   }
 
   String _formatTemperature(String? tmp) {
-    if (tmp == null || tmp.isEmpty) return 'N/A';
+    if (tmp == null || tmp.isEmpty) return '-';
+
+    // Check if it's a timestamp (ISO format)
+    if (tmp.contains('T') && tmp.contains('+')) {
+      try {
+        final dateTime = DateTime.parse(tmp);
+        // Extract temperature from posAttr if available
+        if (widget.vehicle.posAttr != null &&
+            widget.vehicle.posAttr!.isNotEmpty) {
+          try {
+            final posAttrMap =
+                jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+            if (posAttrMap.containsKey('tmp')) {
+              final tempValue = posAttrMap['tmp'];
+              if (tempValue != null) {
+                final temp = double.tryParse(tempValue.toString());
+                if (temp != null) {
+                  return '${temp.toStringAsFixed(1)}°C';
+                }
+              }
+            }
+          } catch (e) {
+            // JSON parsing failed
+          }
+        }
+        // If no temperature in posAttr, show the timestamp
+        return '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+      } catch (e) {
+        // Timestamp parsing failed
+      }
+    }
+
+    // Try to parse as temperature
     try {
-      final temp = double.tryParse(tmp);
+      // Remove any non-numeric characters except decimal point and minus
+      final cleanTemp = tmp.replaceAll(RegExp(r'[^\d.-]'), '');
+      final temp = double.tryParse(cleanTemp);
       if (temp != null) {
         return '${temp.toStringAsFixed(1)}°C';
       }
     } catch (e) {
       // If parsing fails, return the original value
     }
-    return '$tmp°C';
+
+    // If the original value doesn't contain temperature units, add them
+    if (tmp.contains('°') || tmp.contains('C') || tmp.contains('F')) {
+      return tmp;
+    }
+
+    // If all else fails, show the raw value (truncated if too long)
+    return tmp.length > 10 ? '${tmp.substring(0, 10)}...' : tmp;
   }
 
   String _getGeofenceStatus(String? geofenceIds) {
-    if (geofenceIds == null || geofenceIds.isEmpty) return 'N/A';
-    // If geofenceIds is present, it means the vehicle is outside a geofence
-    // This is a simplified logic - in a real app, you'd check against specific geofence definitions
-    return 'Outside';
+    if (geofenceIds == null || geofenceIds.isEmpty) return '-';
+    final cleanGeofence = geofenceIds.trim();
+
+    // Handle empty array
+    if (cleanGeofence == '[]' || cleanGeofence == 'null') {
+      return 'Outside';
+    }
+
+    // If geofenceIds is "0", null, or empty, it means outside
+    if (cleanGeofence == '0' ||
+        cleanGeofence.isEmpty ||
+        cleanGeofence.toLowerCase() == 'none') {
+      return 'Outside';
+    } else {
+      return 'Inside';
+    }
   }
 
   String _getParkingStatus(String? valid) {
-    if (valid == null || valid.isEmpty) return 'N/A';
-    return valid == '1' ? 'Parked' : 'Moving';
+    if (valid == null || valid.isEmpty) return '-';
+    final validLower = valid.toLowerCase().trim();
+
+    if (validLower == '1' ||
+        validLower == 'true' ||
+        validLower == 'parked' ||
+        validLower == 'yes' ||
+        validLower == 'stop') {
+      return 'Parked';
+    } else if (validLower == '0' ||
+        validLower == 'false' ||
+        validLower == 'moving' ||
+        validLower == 'no' ||
+        validLower == 'run') {
+      return 'Moving';
+    }
+    // If it's a number, treat as boolean
+    final numValue = int.tryParse(validLower);
+    if (numValue != null) {
+      return numValue > 0 ? 'Parked' : 'Moving';
+    }
+    // If it contains keywords, try to determine status
+    if (validLower.contains('park') || validLower.contains('stop')) {
+      return 'Parked';
+    } else if (validLower.contains('move') || validLower.contains('run')) {
+      return 'Moving';
+    }
+    // If all else fails, show the raw value (truncated if too long)
+    return valid.length > 10 ? '${valid.substring(0, 10)}...' : valid;
   }
 
   String _formatBatteryPercent(String? batteryPercent) {
-    if (batteryPercent == null || batteryPercent.isEmpty) return 'N/A';
+    if (batteryPercent == null || batteryPercent.isEmpty) return '-';
     try {
-      final battery = double.tryParse(batteryPercent);
+      // Remove any non-numeric characters except decimal point
+      final cleanBattery = batteryPercent.replaceAll(RegExp(r'[^\d.]'), '');
+      final battery = double.tryParse(cleanBattery);
       if (battery != null && battery >= 0 && battery <= 100) {
-        return battery.toInt().toString();
+        return '${battery.toInt()}%';
+      } else if (battery != null && battery > 100) {
+        // If battery value is greater than 100, it might be in volts
+        return '${battery.toStringAsFixed(1)}V';
       }
     } catch (e) {
       // If parsing fails, return the original value
@@ -1051,13 +1940,314 @@ class _VehicleBottomCardState extends State<_VehicleBottomCard> {
   }
 
   String _getACStatus(String? deviceStatus) {
-    if (deviceStatus == null || deviceStatus.isEmpty) return 'N/A';
-    return 'OFF';
+    // Try to extract AC status from posAttr if direct field doesn't contain AC info
+    if (deviceStatus != null &&
+        deviceStatus.isNotEmpty &&
+        !deviceStatus.toLowerCase().contains('ac') &&
+        widget.vehicle.posAttr != null &&
+        widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        // Look for AC-related fields in the JSON
+        if (posAttrMap.containsKey('ac')) {
+          final acValue = posAttrMap['ac'];
+          if (acValue != null) {
+            final acNum = int.tryParse(acValue.toString());
+            if (acNum != null) {
+              return acNum > 0 ? 'ON' : 'OFF';
+            }
+          }
+        }
+        // Check ignition status as AC might be related
+        if (posAttrMap.containsKey('ignition')) {
+          final ignitionValue = posAttrMap['ignition'];
+          if (ignitionValue != null) {
+            if (ignitionValue.toString().toLowerCase() == 'true') {
+              return 'ON'; // AC might be on when ignition is on
+            }
+          }
+        }
+      } catch (e) {
+        // JSON parsing failed
+      }
+    }
+
+    if (deviceStatus == null || deviceStatus.isEmpty) return '-';
+
+    final statusLower = deviceStatus.toLowerCase().trim();
+
+    if (statusLower.contains('ac') || statusLower.contains('air')) {
+      if (statusLower.contains('on') ||
+          statusLower.contains('1') ||
+          statusLower.contains('yes')) {
+        return 'ON';
+      } else if (statusLower.contains('off') ||
+          statusLower.contains('0') ||
+          statusLower.contains('no')) {
+        return 'OFF';
+      }
+    }
+    // If it's a number, treat as boolean
+    final numValue = int.tryParse(statusLower);
+    if (numValue != null) {
+      return numValue > 0 ? 'ON' : 'OFF';
+    }
+    // If it contains keywords, try to determine status
+    if (statusLower.contains('on') || statusLower.contains('1')) {
+      return 'ON';
+    } else if (statusLower.contains('off') || statusLower.contains('0')) {
+      return 'OFF';
+    }
+    // If all else fails, show the raw value (truncated if too long)
+    return deviceStatus.length > 10
+        ? '${deviceStatus.substring(0, 10)}...'
+        : deviceStatus;
   }
 
   String _formatGPSBattery(double? battery) {
-    if (battery == null) return 'N/A';
-    return battery.toStringAsFixed(2) + 'V';
+    if (battery == null) return '-';
+    // GPS battery is typically in volts (3.3V - 4.2V for Li-ion)
+    if (battery >= 0 && battery <= 10) {
+      return '${battery.toStringAsFixed(2)}V';
+    } else if (battery > 10 && battery <= 100) {
+      // If it's a percentage
+      return '${battery.toInt()}%';
+    } else if (battery > 100 && battery <= 5000) {
+      // High value, might be in millivolts
+      return '${(battery / 1000).toStringAsFixed(2)}V';
+    }
+    return '${battery.toStringAsFixed(2)}V';
+  }
+
+  String _getGPSBatteryDisplay() {
+    // Try direct field first
+    if (widget.vehicle.extBatt != null) {
+      return _formatGPSBattery(widget.vehicle.extBatt);
+    }
+
+    // Try to extract from posAttr if available
+    if (widget.vehicle.posAttr != null && widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        if (posAttrMap.containsKey('extBatt')) {
+          final extBattValue = posAttrMap['extBatt'];
+          if (extBattValue != null) {
+            final extBatt = double.tryParse(extBattValue.toString());
+            if (extBatt != null) {
+              return _formatGPSBattery(extBatt);
+            }
+          }
+        }
+      } catch (e) {
+        // JSON parsing failed
+      }
+    }
+
+    return '-';
+  }
+
+  String _formatVehicleBattery(double? battery) {
+    if (battery == null) return '-';
+
+    // Vehicle battery is typically in volts (12V for car battery, 24V for truck battery)
+    if (battery >= 0 && battery <= 30) {
+      // Likely voltage (12V or 24V system)
+      return '${battery.toStringAsFixed(1)}V';
+    } else if (battery > 30 && battery <= 100) {
+      // Likely percentage
+      return '${battery.toInt()}%';
+    } else if (battery > 100 && battery <= 15000) {
+      // Very high value, might be in millivolts (typical range for vehicle batteries)
+      return '${(battery / 1000).toStringAsFixed(1)}V';
+    } else if (battery > 15000) {
+      // Extremely high value, might be in microvolts or wrong unit
+      return '${(battery / 1000000).toStringAsFixed(2)}V';
+    }
+
+    return '${battery.toStringAsFixed(1)}V';
+  }
+
+  String _getVehicleBatteryDisplay() {
+    // Try multiple data sources for vehicle battery
+    if (widget.vehicle.battery != null) {
+      return _formatVehicleBattery(widget.vehicle.battery);
+    }
+
+    // Try to extract from batteryPercent (which is actually JSON)
+    if (widget.vehicle.batteryPercent != null &&
+        widget.vehicle.batteryPercent!.isNotEmpty) {
+      try {
+        final batteryPercentMap =
+            jsonDecode(widget.vehicle.batteryPercent!) as Map<String, dynamic>;
+        if (batteryPercentMap.containsKey('battery')) {
+          final batteryValue = batteryPercentMap['battery'];
+          if (batteryValue != null) {
+            final battery = double.tryParse(batteryValue.toString());
+            if (battery != null) {
+              return _formatVehicleBattery(battery);
+            }
+          }
+        }
+      } catch (e) {
+        // Fallback to string parsing
+        return _formatBatteryPercent(widget.vehicle.batteryPercent);
+      }
+    }
+
+    // Try to extract from posAttr if available
+    if (widget.vehicle.posAttr != null && widget.vehicle.posAttr!.isNotEmpty) {
+      try {
+        final posAttrMap =
+            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
+        if (posAttrMap.containsKey('battery')) {
+          final batteryValue = posAttrMap['battery'];
+          if (batteryValue != null) {
+            final battery = double.tryParse(batteryValue.toString());
+            if (battery != null) {
+              return _formatVehicleBattery(battery);
+            }
+          }
+        }
+      } catch (e) {
+        // Try alternative parsing methods
+        return _parseBatteryFromString(widget.vehicle.posAttr!);
+      }
+    }
+
+    return '-';
+  }
+
+  String _parseBatteryFromString(String posAttr) {
+    // Try to find battery patterns in the string
+    final patterns = [
+      RegExp(r'battery[:\s]*(\d+\.?\d*)', caseSensitive: false),
+      RegExp(r'batt[:\s]*(\d+\.?\d*)', caseSensitive: false),
+      RegExp(r'(\d+\.?\d*)[vV]', caseSensitive: false), // voltage pattern
+      RegExp(r'(\d+\.?\d*)%', caseSensitive: false), // percentage pattern
+    ];
+
+    for (final pattern in patterns) {
+      final match = pattern.firstMatch(posAttr);
+      if (match != null) {
+        final value = double.tryParse(match.group(1)!);
+        if (value != null) {
+          return _formatVehicleBattery(value);
+        }
+      }
+    }
+
+    // If no patterns match, try to extract any number that could be battery
+    final numbers = RegExp(r'(\d+\.?\d*)').allMatches(posAttr);
+    for (final match in numbers) {
+      final value = double.tryParse(match.group(1)!);
+      if (value != null && value > 0 && value < 50) {
+        // Likely voltage range
+        return _formatVehicleBattery(value);
+      }
+    }
+
+    return '-';
+  }
+
+  String _formatStatusDuration(String? statusDuration) {
+    if (statusDuration == null || statusDuration.isEmpty) return '-';
+
+    // If it's already in a readable format, return as is
+    if (statusDuration.contains('ago') ||
+        statusDuration.contains('h') ||
+        statusDuration.contains('m') ||
+        statusDuration.contains('d')) {
+      return statusDuration;
+    }
+
+    // Try to parse as timestamp and convert to relative time
+    try {
+      final timestamp = int.tryParse(statusDuration);
+      if (timestamp != null) {
+        final lastUpdate = DateTime.fromMillisecondsSinceEpoch(timestamp);
+        final now = DateTime.now();
+        final difference = now.difference(lastUpdate);
+
+        if (difference.inMinutes < 60) {
+          return '${difference.inMinutes}m ago';
+        } else if (difference.inHours < 24) {
+          return '${difference.inHours}h ago';
+        } else {
+          return '${difference.inDays}d ago';
+        }
+      }
+    } catch (e) {
+      // If parsing fails, return the original value
+    }
+
+    return statusDuration;
+  }
+
+  void _showPlayRouteBottomSheet(
+    BuildContext context,
+    GpsCombinedVehicleData vehicle,
+  ) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (context) => PlayRouteBottomSheet(vehicle: vehicle),
+    );
+  }
+
+  void _callDriver(BuildContext context, GpsCombinedVehicleData vehicle) async {
+    final phoneNumber = widget.vehicle.phone;
+
+    if (phoneNumber == null || phoneNumber.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Driver phone number not available'),
+          backgroundColor: Colors.orange,
+        ),
+      );
+      return;
+    }
+
+    // Clean the phone number (remove spaces, dashes, etc.)
+    final cleanPhoneNumber = phoneNumber.replaceAll(RegExp(r'[^\d+]'), '');
+
+    // Add country code if not present (assuming India +91)
+    final phoneWithCountryCode =
+        cleanPhoneNumber.startsWith('+')
+            ? cleanPhoneNumber
+            : cleanPhoneNumber.startsWith('91')
+            ? '+$cleanPhoneNumber'
+            : '+91$cleanPhoneNumber';
+
+    final Uri phoneUri = Uri(scheme: 'tel', path: phoneWithCountryCode);
+
+    try {
+      if (await canLaunchUrl(phoneUri)) {
+        await launchUrl(phoneUri);
+      } else {
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Could not launch dialer for $phoneWithCountryCode',
+              ),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error launching dialer: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 }
 
@@ -1104,80 +2294,41 @@ class _InfoRow extends StatelessWidget {
   }
 }
 
-class _StatIconItem extends StatelessWidget {
+// Info window detail row widget for trip details
+class _InfoWindowDetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final String sublabel;
-  final Color color;
-  const _StatIconItem({
+  const _InfoWindowDetailRow({
     required this.icon,
     required this.label,
     required this.value,
-    required this.sublabel,
-    required this.color,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, color: color, size: 20),
-          const SizedBox(height: 2),
-          Text(
-            value,
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15,
-              color: color,
-            ),
-          ),
-          if (sublabel.isNotEmpty)
-            Text(
-              sublabel,
-              style: const TextStyle(fontSize: 11, color: Colors.black54),
-              textAlign: TextAlign.center,
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatusChipWithIcon extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-  final Color color;
-  const _StatusChipWithIcon({
-    required this.icon,
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
-        borderRadius: BorderRadius.circular(16),
-      ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
       child: Row(
         children: [
-          Icon(icon, color: color, size: 16),
-          const SizedBox(width: 4),
-          Text(label, style: TextStyle(fontSize: 12, color: Colors.black87)),
-          const SizedBox(width: 2),
+          Icon(icon, color: Colors.grey[600], size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 15,
+                color: Colors.black87,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
           Text(
             value,
-            style: TextStyle(
+            style: const TextStyle(
+              fontSize: 15,
+              color: Colors.black,
               fontWeight: FontWeight.bold,
-              fontSize: 12,
-              color: color,
             ),
           ),
         ],
@@ -1276,15 +2427,44 @@ String formatDuration(dynamic rawIdleTime) {
 
   // Try to parse if it's a string number
   if (rawIdleTime is String) {
-    totalSeconds = int.tryParse(rawIdleTime) ?? 0;
+    // Handle different time formats
+    final cleanTime = rawIdleTime.trim();
+
+    // Check if it's already in a readable format (e.g., "2h 30m")
+    if (cleanTime.contains('h') ||
+        cleanTime.contains('hr') ||
+        cleanTime.contains('hour')) {
+      return cleanTime;
+    }
+
+    // Check if it's in HH:MM:SS format
+    if (cleanTime.contains(':')) {
+      final parts = cleanTime.split(':');
+      if (parts.length == 3) {
+        final hours = int.tryParse(parts[0]) ?? 0;
+        final minutes = int.tryParse(parts[1]) ?? 0;
+        final seconds = int.tryParse(parts[2]) ?? 0;
+        totalSeconds = hours * 3600 + minutes * 60 + seconds;
+      } else if (parts.length == 2) {
+        final minutes = int.tryParse(parts[0]) ?? 0;
+        final seconds = int.tryParse(parts[1]) ?? 0;
+        totalSeconds = minutes * 60 + seconds;
+      }
+    } else {
+      // Try to parse as a simple number
+      totalSeconds = int.tryParse(cleanTime) ?? 0;
+    }
   } else if (rawIdleTime is int) {
     totalSeconds = rawIdleTime;
+  } else if (rawIdleTime is double) {
+    totalSeconds = rawIdleTime.toInt();
   }
 
-  // If the value is in minutes (and not seconds), convert to seconds
-  // This is a crude check; adjust as needed for your data
-  if (totalSeconds < 100000 && totalSeconds > 0) {
-    totalSeconds *= 60;
+  // If the value is very small (less than 1000), it might be in minutes
+  // If it's between 1000-100000, it might be in seconds
+  // If it's very large, it might already be in seconds
+  if (totalSeconds > 0 && totalSeconds < 1000) {
+    totalSeconds *= 60; // Convert minutes to seconds
   }
 
   final duration = Duration(seconds: totalSeconds);
@@ -1292,44 +2472,735 @@ String formatDuration(dynamic rawIdleTime) {
   final minutes = duration.inMinutes % 60;
 
   if (hours > 0 && minutes > 0) {
-    return '${hours}hrs ${minutes} mins';
+    return '${hours}h ${minutes}m';
   } else if (hours > 0) {
-    return '${hours}hrs';
+    return '${hours}h';
   } else if (minutes > 0) {
-    return '${minutes} mins';
+    return '${minutes}m';
   } else {
-    return '0 min';
+    return '0m';
   }
 }
 
-String _formatVoltage(double? v) {
-  if (v == null) return '-';
-  return v.toStringAsFixed(2) + 'V';
+class PlayRouteBottomSheet extends StatelessWidget {
+  final GpsCombinedVehicleData vehicle;
+
+  const PlayRouteBottomSheet({super.key, required this.vehicle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                const Text(
+                  'Play Route',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black87,
+                  ),
+                ),
+                const Spacer(),
+                // Status indicator (green dot)
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Route options
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                _RouteOption(
+                  icon: Icons.vpn_key,
+                  label: 'Ignition Path',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _navigateToPathReplay(context, vehicle, 'ignition');
+                  },
+                ),
+                const Divider(height: 1, color: Colors.grey),
+                _RouteOption(
+                  icon: Icons.location_on,
+                  label: 'Daily Path',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _navigateToPathReplay(context, vehicle, 'daily');
+                  },
+                ),
+                const Divider(height: 1, color: Colors.grey),
+                _RouteOption(
+                  icon: Icons.replay,
+                  label: 'Path Replay',
+                  onTap: () {
+                    Navigator.pop(context);
+                    _navigateToPathReplay(context, vehicle, 'replay');
+                  },
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToPathReplay(
+    BuildContext context,
+    GpsCombinedVehicleData vehicle,
+    String routeType,
+  ) {
+    // Show date range picker for custom date selection
+    _showDateRangePicker(context, vehicle, routeType);
+  }
+
+  void _showDateRangePicker(
+    BuildContext context,
+    GpsCombinedVehicleData vehicle,
+    String routeType,
+  ) {
+    DateTime? startDate;
+    DateTime? endDate;
+
+    // Set default date ranges based on route type
+    final now = DateTime.now();
+    switch (routeType) {
+      case 'ignition':
+        if (vehicle.lastIgnitionOnFixTime != null &&
+            vehicle.lastIgnitionOnFixTime!.isNotEmpty) {
+          try {
+            startDate = DateTime.parse(vehicle.lastIgnitionOnFixTime!);
+            endDate = now;
+          } catch (e) {
+            startDate = now.subtract(const Duration(days: 1));
+            endDate = now;
+          }
+        } else {
+          startDate = now.subtract(const Duration(days: 1));
+          endDate = now;
+        }
+        break;
+      case 'daily':
+        startDate = DateTime(now.year, now.month, now.day);
+        endDate = now;
+        break;
+      case 'replay':
+      default:
+        startDate = now.subtract(const Duration(days: 7));
+        endDate = now;
+        break;
+    }
+
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder:
+          (context) => DateRangePickerBottomSheet(
+            vehicle: vehicle,
+            routeType: routeType,
+            initialStartDate: startDate!,
+            initialEndDate: endDate!,
+            onDateRangeSelected: (selectedStartDate, selectedEndDate) {
+              _navigateToPathReplayWithDates(
+                context,
+                vehicle,
+                routeType,
+                selectedStartDate,
+                selectedEndDate,
+              );
+            },
+          ),
+    );
+  }
+
+  void _navigateToPathReplayWithDates(
+    BuildContext context,
+    GpsCombinedVehicleData vehicle,
+    String routeType,
+    DateTime startDate,
+    DateTime endDate,
+  ) {
+    final Map<String, dynamic> queryParams = {
+      "start": startDate.toUtc().toIso8601String(),
+      "end": endDate.toUtc().toIso8601String(),
+      "timezone_offset": "0",
+      "inputs": {},
+      "device_ids": vehicle.deviceId,
+      "fwd_variable": 0.0,
+    };
+
+    // Determine if bottom sheet should be shown based on route type
+    final showBottomSheet = routeType == 'replay';
+
+    // Navigate to path replay screen
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder:
+            (_) => PathReplayScreen(
+              token: AppConstants.token ?? '',
+              queryParams: queryParams,
+              vehicleNumber: vehicle.vehicleNumber,
+              routeType: routeType,
+              showBottomSheet: showBottomSheet,
+            ),
+      ),
+    );
+  }
 }
 
-String _formatOdoMeters(int? meters) {
-  if (meters == null) return '-';
-  return (meters / 1000).toStringAsFixed(0) + ' km';
+/// A bottom sheet widget that allows users to select a custom date range for path replay.
+///
+/// This widget provides:
+/// - Date picker for start and end dates
+/// - Quick selection buttons for common date ranges (Today, Last 7 Days, Last 30 Days)
+/// - Date range validation and warnings for large ranges
+/// - Automatic navigation to path replay screen with selected dates
+class DateRangePickerBottomSheet extends StatefulWidget {
+  final GpsCombinedVehicleData vehicle;
+  final String routeType;
+  final DateTime initialStartDate;
+  final DateTime initialEndDate;
+  final Function(DateTime, DateTime) onDateRangeSelected;
+
+  const DateRangePickerBottomSheet({
+    super.key,
+    required this.vehicle,
+    required this.routeType,
+    required this.initialStartDate,
+    required this.initialEndDate,
+    required this.onDateRangeSelected,
+  });
+
+  @override
+  State<DateRangePickerBottomSheet> createState() =>
+      _DateRangePickerBottomSheetState();
 }
 
-String _formatTripDistance(double? km) {
-  if (km == null) return '-';
-  return km.toStringAsFixed(2) + ' km';
+class _DateRangePickerBottomSheetState
+    extends State<DateRangePickerBottomSheet> {
+  late DateTime startDate;
+  late DateTime endDate;
+  final TextEditingController startDateController = TextEditingController();
+  final TextEditingController endDateController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    startDate = widget.initialStartDate;
+    endDate = widget.initialEndDate;
+    _updateControllers();
+  }
+
+  void _updateControllers() {
+    startDateController.text = _formatDate(startDate);
+    endDateController.text = _formatDate(endDate);
+  }
+
+  String _formatDate(DateTime date) {
+    return DateFormat('dd MMM yyyy').format(date);
+  }
+
+  Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: isStartDate ? startDate : endDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: const ColorScheme.light(
+              primary: Colors.blue,
+              onPrimary: Colors.white,
+              onSurface: Colors.black,
+            ),
+            textButtonTheme: TextButtonThemeData(
+              style: TextButton.styleFrom(foregroundColor: Colors.blue),
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null) {
+      setState(() {
+        if (isStartDate) {
+          startDate = picked;
+          // Ensure end date is not before start date
+          if (endDate.isBefore(startDate)) {
+            endDate = startDate;
+          }
+        } else {
+          endDate = picked;
+          // Ensure start date is not after end date
+          if (startDate.isAfter(endDate)) {
+            startDate = endDate;
+          }
+        }
+        _updateControllers();
+      });
+    }
+  }
+
+  String _getRouteTypeTitle() {
+    switch (widget.routeType) {
+      case 'ignition':
+        return 'Ignition Path';
+      case 'daily':
+        return 'Daily Path';
+      case 'replay':
+        return 'Path Replay';
+      default:
+        return 'Route';
+    }
+  }
+
+  String _getRouteTypeDescription() {
+    switch (widget.routeType) {
+      case 'ignition':
+        return 'View the vehicle path from ignition start time';
+      case 'daily':
+        return 'View today\'s complete vehicle path';
+      case 'replay':
+        return 'View vehicle path for selected date range';
+      default:
+        return 'View vehicle path';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Handle bar
+          Container(
+            margin: const EdgeInsets.only(top: 12, bottom: 8),
+            width: 40,
+            height: 4,
+            decoration: BoxDecoration(
+              color: Colors.grey[300],
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          // Title
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getRouteTypeTitle(),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _getRouteTypeDescription(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // Status indicator (green dot)
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: const BoxDecoration(
+                    color: Colors.green,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Date range selection
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Column(
+              children: [
+                // Start Date
+                _buildDateField(
+                  label: 'Start Date',
+                  controller: startDateController,
+                  onTap: () => _selectDate(context, true),
+                ),
+                const SizedBox(height: 16),
+                // End Date
+                _buildDateField(
+                  label: 'End Date',
+                  controller: endDateController,
+                  onTap: () => _selectDate(context, false),
+                ),
+                const SizedBox(height: 20),
+                // Quick date range buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: _QuickDateButton(
+                        label: 'Today',
+                        onTap: () {
+                          final now = DateTime.now();
+                          setState(() {
+                            startDate = DateTime(now.year, now.month, now.day);
+                            endDate = now;
+                            _updateControllers();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _QuickDateButton(
+                        label: 'Last 7 Days',
+                        onTap: () {
+                          final now = DateTime.now();
+                          setState(() {
+                            startDate = now.subtract(const Duration(days: 6));
+                            endDate = now;
+                            _updateControllers();
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _QuickDateButton(
+                        label: 'Last 30 Days',
+                        onTap: () {
+                          final now = DateTime.now();
+                          setState(() {
+                            startDate = now.subtract(const Duration(days: 29));
+                            endDate = now;
+                            _updateControllers();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                // Date range indicator
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.green.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.calendar_today,
+                        color: Colors.green[700],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Selected Range: ${_formatDate(startDate)} to ${_formatDate(endDate)} (${endDate.difference(startDate).inDays + 1} days)',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green[700],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Helper text
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.blue.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(
+                      color: Colors.blue.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.blue[700],
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Select a date range to view the vehicle path. The path will show all movements and stops during this period.',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.blue[700],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                // Action buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.grey[600],
+                          side: BorderSide(color: Colors.grey[300]!),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          // Validate date range
+                          final daysDifference =
+                              endDate.difference(startDate).inDays;
+                          if (daysDifference > 30) {
+                            // Show warning for large date ranges
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: const Text('Large Date Range'),
+                                    content: Text(
+                                      'You have selected a date range of $daysDifference days. This may take longer to load and could impact performance. Do you want to continue?',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('Cancel'),
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.pop(context);
+                                          widget.onDateRangeSelected(
+                                            startDate,
+                                            endDate,
+                                          );
+                                        },
+                                        child: const Text('Continue'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          } else {
+                            Navigator.pop(context);
+                            widget.onDateRangeSelected(startDate, endDate);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text(
+                          'View Path',
+                          style: TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDateField({
+    required String label,
+    required TextEditingController controller,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey[300]!),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.calendar_today, color: Colors.blue[600], size: 20),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    label,
+                    style: TextStyle(
+                      color: Colors.grey[600],
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    controller.text,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.arrow_drop_down, color: Colors.grey[600], size: 24),
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    startDateController.dispose();
+    endDateController.dispose();
+    super.dispose();
+  }
 }
 
-String _formatSignal(int? rssi) {
-  if (rssi == null) return '-';
-  return '$rssi/5';
+class _QuickDateButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _QuickDateButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onTap,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.grey[100],
+        foregroundColor: Colors.blue[700],
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+          side: BorderSide(color: Colors.grey[300]!),
+        ),
+        padding: const EdgeInsets.symmetric(vertical: 8),
+      ),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+      ),
+    );
+  }
 }
 
-String _formatSat(int? sat) {
-  if (sat == null) return '-';
-  return sat.toString();
-}
+class _RouteOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
-String _formatMotion(bool? motion) {
-  if (motion == null) return '-';
-  return motion ? 'Moving' : 'Stopped';
+  const _RouteOption({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 4),
+        child: Row(
+          children: [
+            Icon(icon, color: Colors.blue, size: 24),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Colors.black87,
+                ),
+              ),
+            ),
+            const Icon(Icons.chevron_right, color: Colors.black54, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class NearestVehicleDialog extends StatelessWidget {

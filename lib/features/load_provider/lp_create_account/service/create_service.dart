@@ -1,19 +1,15 @@
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 
-
-
 class LpCreateService {
   final ApiService _apiService;
-
   LpCreateService(this._apiService);
 
+  /// Create Account Service
   Future<Result<UserModel?>> createAccount(LpCreateApiRequest request) async {
     try {
       final url = ApiUrls.createLpAccount;
@@ -27,13 +23,13 @@ class LpCreateService {
         return Error(GenericError());
       }
     } catch(e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
 
-Future<Result<List<LpCompanyTypeModel>>> fetchGetCompanyTypeData() async {
+  /// Fetch Company Type Service
+  Future<Result<List<LpCompanyTypeModel>>> fetchGetCompanyTypeData() async {
   try {
     final result = await _apiService.get(ApiUrls.companyType);
     if (result is Success) {
@@ -50,9 +46,8 @@ Future<Result<List<LpCompanyTypeModel>>> fetchGetCompanyTypeData() async {
       return Error(GenericError());
     }
   } catch (e) {
-    CustomLog.error(this, AppString.error.deserializationError, e);
     return Error(DeserializationError());
   }
-}
+  }
 
 }

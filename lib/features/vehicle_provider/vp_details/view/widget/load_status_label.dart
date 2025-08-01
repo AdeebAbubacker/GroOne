@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
@@ -26,7 +27,7 @@ class LoadStatusLabel extends StatelessWidget {
         color: _getBackgroundColor(),
       ),
       child: Text(
-        (loadOnHold??false) ? "Unloading Held":
+        (loadOnHold??false) ? context.appText.unLoadingHeld:
         loadStatusTitle ?? "",
         style: AppTextStyle.body.copyWith(
           fontSize: 12,
@@ -48,6 +49,8 @@ class LoadStatusLabel extends StatelessWidget {
         return AppColors.teal.withOpacity(0.3);
       case LoadStatus.completed:
         return AppColors.activeDarkGreenColor;
+      case LoadStatus.podDispatched:
+      return Color(0xff42A5F5);
       default:
         return AppColors.activeDarkGreenColor.withAlpha(64);
     }
@@ -60,7 +63,7 @@ class LoadStatusLabel extends StatelessWidget {
     switch (loadStatus) {
       case LoadStatus.inTransit:
         return const Color(0xffFF5722);
-      case LoadStatus.completed:
+      case LoadStatus.completed || LoadStatus.podDispatched:
         return Colors.white;
       case LoadStatus.unloading:
         return Colors.teal;

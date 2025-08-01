@@ -5,6 +5,8 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
+import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
@@ -13,6 +15,8 @@ import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
+import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
@@ -59,9 +63,9 @@ class KycCubit extends BaseCubit<KycState> {
   void _setStateUIState(UIState<List<StateModelList>>? uiState){
     emit(state.copyWith(stateUIState: uiState));
   }
-  Future<void> fetchStateList() async {
+  Future<void> fetchStateList({String filter = ''}) async {
     _setStateUIState(UIState.loading());
-    Result result = await _repo.getStateData();
+    Result result = await _repo.getStateData(filter: filter);
     if (result is Success<StateModel>) {
       _setStateUIState(UIState.success(result.value.data));
     }
@@ -70,14 +74,19 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
+  Future<Result<StateModel>> getFilteredStateList({required String filter}) async {
+    return await _repo.getStateData(filter: filter);
+  }
+
+
 
   // Fetch City Api Call
   void _setCityUIState(UIState<List<CityModelList>>? uiState){
     emit(state.copyWith(cityUIState: uiState));
   }
-  Future<void> fetchCityList(String stateName) async {
+  Future<void> fetchCityList(String stateName, {String filter = ''}) async {
     _setCityUIState(UIState.loading());
-    Result result = await _repo.getCityData(stateName);
+    Result result = await _repo.getCityData(stateName, filter: filter);
     if (result is Success<CityModel>) {
       _setCityUIState(UIState.success(result.value.data));
     }
@@ -86,11 +95,26 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
+  Future<Result<CityModel>> getFilteredCityList({required String stateName, required String filter}) async {
+    return await _repo.getCityData(stateName,filter: filter);
+  }
+
 
   // Send Aadhaar Otp
   Future<void> sendAadhaarOtp(AddharOtpApiRequest request) async {
     emit(state.copyWith(aadhaarOtpState: UIState.loading()));
     Result result = await _repo.kycSendOtp(request);
+    if (result is Success<AadhaarOtpModel>) {
+      emit(state.copyWith(aadhaarOtpState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(aadhaarOtpState: UIState.error(result.type)));
+    }
+  }
+
+  Future<void> sendKycRequest(KycInitRequest request) async {
+    emit(state.copyWith(aadhaarOtpState: UIState.loading()));
+    Result result = await _repo.initKycRequest(request);
     if (result is Success<AadhaarOtpModel>) {
       emit(state.copyWith(aadhaarOtpState: UIState.success(result.value)));
     }
@@ -111,6 +135,7 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
+
   // Verify Gst
   Future<void> verifyGst(VerifyGstApiRequest request) async {
     emit(state.copyWith(gstState: UIState.loading()));
@@ -124,6 +149,7 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
+
   // Verify Tan
   Future<void> verifyTan(VerifyTanApiRequest request) async {
     emit(state.copyWith(tanState: UIState.loading()));
@@ -136,6 +162,7 @@ class KycCubit extends BaseCubit<KycState> {
       emit(state.copyWith(tanState: UIState.error(result.type)));
     }
   }
+
 
   // Verify Pan
   Future<void> verifyPan(VerifyPanApiRequest request) async {
@@ -231,6 +258,38 @@ class KycCubit extends BaseCubit<KycState> {
   }
 
 
+  // Create Document
+  void _setCreateDocumentUIState(UIState<CreateDocumentModel>? uiState){
+    emit(state.copyWith(createDocumentUIState: uiState));
+  }
+  Future<void> createDocument(CreateDocumentApiRequest request) async {
+    _setCreateDocumentUIState(UIState.loading());
+    Result result = await _repo.getCreateDocumentData(request);
+    if (result is Success<CreateDocumentModel>) {
+      _setCreateDocumentUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateDocumentUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Delete Document
+  void _setDeleteDocumentUIState(UIState<DeleteDocumentModel>? uiState){
+    emit(state.copyWith(deleteDocumentUIState: uiState));
+  }
+  Future<void> deleteDocument(String documentId) async {
+    _setDeleteDocumentUIState(UIState.loading());
+    Result result = await _repo.getDeleteDocumentData(documentId);
+    if (result is Success<DeleteDocumentModel>) {
+      _setDeleteDocumentUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setDeleteDocumentUIState(UIState.error(result.type));
+    }
+  }
+
+
   // Submit Kyc
   Future<void> submitKyc(SubmitKycApiRequest request, String userId) async {
     emit(state.copyWith(submitKycState: UIState.loading()));
@@ -262,5 +321,6 @@ class KycCubit extends BaseCubit<KycState> {
       verifiedGst: false,
     ));
   }
+
 
 }

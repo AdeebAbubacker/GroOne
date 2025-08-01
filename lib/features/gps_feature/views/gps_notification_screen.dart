@@ -1,3 +1,4 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -14,6 +15,8 @@ import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/app_searchabledropdown.dart';
+import '../../../utils/common_widgets.dart';
 import '../cubit/gps_notification_cubit/gps_notification_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../model/gps_combined_vehicle_model.dart';
@@ -54,6 +57,17 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
         title: context.appText.notifications,
         centreTile: false,
         isLeading: true,
+        actions: [
+          AppIconButton(
+            onPressed: () {
+              debugPrint("🔄 GpsGeofenceScreen - Refresh button pressed");
+              context.read<GpsNotificationCubit>().loadNotifications();
+            },
+            icon: const Icon(Icons.refresh, size: 20),
+            iconColor: AppColors.primaryColor,
+          ),
+          10.width
+        ],
       ),
       body: Column(
         children: [
@@ -66,11 +80,13 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   if (vehicleState.isLoading) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (vehicleState.error != null) {
-                    return Center(child: Text(context.appText.errorLoadingVehicles));
+                    return Center(
+                      child: Text(context.appText.errorLoadingVehicles),
+                    );
                   } else {
                     // Extract unique vehicle numbers
                     final uniqueVehicleNumbers =
-                        vehicleState.filteredVehicles
+                        vehicleState.filteredVehicles.withoutExpired
                             .map((v) => v.vehicleNumber)
                             .whereType<String>() // removes nulls
                             .toSet() // remove duplicates
@@ -78,62 +94,44 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
 
                     // If no vehicles found
                     if (uniqueVehicleNumbers.isEmpty) {
-                      return Center(child: Text(context.appText.noVehiclesFound));
+                      return Center(
+                        child: Text(context.appText.noVehiclesFound),
+                      );
                     }
-
                     // Ensure selectedVehicle is in the dropdown
                     if (!uniqueVehicleNumbers.contains(selectedVehicle)) {
                       selectedVehicle = uniqueVehicleNumbers.first;
                     }
-
-                    return AppDropdown(
-                      dropdownValue:
-                          selectedVehicle.isNotEmpty ? selectedVehicle : null,
-                      dropDownList:
-                          uniqueVehicleNumbers.map((vehicleNumber) {
-                            return DropdownMenuItem<String>(
-                              value: vehicleNumber,
-                              child: Row(
-                                children: [
-                                  CircleAvatar(
-                                    radius: 15,
-                                    backgroundColor:
-                                        AppColors.primaryLightColor,
-                                    child: SvgPicture.asset(
-                                      AppIcons.svg.truck,
-                                      width: 20,
-                                    ),
-                                  ),
-                                  10.width,
-                                  Text(vehicleNumber, style: AppTextStyle.h6),
-                                ],
-                              ),
-                            );
-                          }).toList(),
+                    return SearchableDropdown(
+                      selectedItem: selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                      items: uniqueVehicleNumbers,
+                      hintText: context.appText.selectState,
+                      showSearchBox: true,
+                      dropdownBuilder: (context, selectedItem) => Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 15,
+                            backgroundColor: AppColors.primaryLightColor,
+                            child: SvgPicture.asset(
+                              AppIcons.svg.truck,
+                              width: 20,
+                            ),
+                          ).paddingAll(5),
+                          const SizedBox(width: 8),
+                          Text(
+                            selectedItem ?? '',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedVehicle = newValue!;
                         });
                       },
-
-                      // onChanged: (String? newValue) {
-                      //   setState(() {
-                      //     selectedVehicle = newValue!;
-                      //   });
-                      //
-                      //   // Find deviceId for selectedVehicle
-                      //   final selectedVehicleData = vehicleState.filteredVehicles.firstWhere(
-                      //         (v) => v.vehicleNumber == selectedVehicle,
-                      //     orElse: () => GpsCombinedVehicleData(),
-                      //   );
-                      //
-                      //   final selectedDeviceId = selectedVehicleData.deviceId;
-                      //
-                      //   // Load notifications only for this deviceId
-                      //   if (selectedDeviceId != null) {
-                      //     context.read<GpsNotificationCubit>().loadNotifications(selectedDeviceId.toString());
-                      //   }
-                      // },
+                      emptyBuilder: (context, searchEntry) => Center(
+                        child: Text(context.appText.noVehiclesFound),
+                      ),
                     );
                   }
                 },
@@ -173,48 +171,54 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                     }).toList();
 
                 if (filteredNotifications.isEmpty) {
-                  return  Center(
-                    child: Text(context.appText.noNotificationsAvailable,style: AppTextStyle.h5,),
+                  return Center(
+                    child: Text(
+                      context.appText.noNotificationsAvailable,
+                      style: AppTextStyle.h5,
+                    ),
                   );
                 }
 
-                return ListView.separated(
-                  padding: EdgeInsets.symmetric(horizontal: 15),
-                  separatorBuilder: (context, index) => Divider(),
-                  itemCount: filteredNotifications.length,
-                  itemBuilder: (context, index) {
-                    final item = filteredNotifications[index];
-                    return Row(
-                      children: [
-                        SvgPicture.asset(
-                          _getIconForFilter(item.filterKey),
-                          width: 35,
-                        ),
-                        10.width,
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${item.filterKey} alert",
-                                style: AppTextStyle.h5,
-                              ),
-                              Text(
-                                "Device ID: ${item.deviceId}",
-                                style: AppTextStyle.h6GreyColor,
-                              ),
-                            ],
+                return Container(
+                  color: AppColors.white,
+                  child: ListView.separated(
+                    padding: EdgeInsets.symmetric(horizontal: 15),
+                    separatorBuilder: (context, index) => Divider(),
+                    itemCount: filteredNotifications.length,
+                    itemBuilder: (context, index) {
+                      final item = filteredNotifications[index];
+                      return Row(
+                        children: [
+                          SvgPicture.asset(
+                            _getIconForFilter(item.filterKey),
+                            width: 35,
                           ),
-                        ),
-                        Text(
-                          DateFormat(
-                            'dd MMMM yyyy,\n h:mm a',
-                          ).format(item.fixTime),
-                          style: AppTextStyle.h6GreyColor,
-                        ),
-                      ],
-                    ).paddingAll(15);
-                  },
+                          10.width,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "${item.filterKey} alert",
+                                  style: AppTextStyle.h5,
+                                ),
+                                Text(
+                                  "Device ID: ${item.deviceId}",
+                                  style: AppTextStyle.h6GreyColor,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Text(
+                            DateFormat(
+                              'dd MMMM yyyy,\n h:mm a',
+                            ).format(item.fixTime),
+                            style: AppTextStyle.h6GreyColor,
+                          ),
+                        ],
+                      ).paddingAll(15);
+                    },
+                  ),
                 );
               } else if (state is GpsNotificationError) {
                 return Center(child: Text("Error: ${state.message}"));
@@ -245,8 +249,8 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.appText.filter, style: AppTextStyle.h4),
-                    const SizedBox(height: 12),
+                    Text(context.appText.filter, style: AppTextStyle.h4).paddingOnly(left: 15),
+                    12.height,
                     ...filterOptions.keys.map((key) {
                       return SwitchListTile(
                         title: Text(key, style: AppTextStyle.h5),
@@ -293,7 +297,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
       case "Vibration":
         return AppIcons.svg.dashboardVibration;
       case "Other":
-        return AppIcons.svg.dashboardIgnitionOff;
+        return AppIcons.svg.gpsNotificationsOtherAlerts;
       default:
         return AppIcons.svg.dashboardIgnitionOff;
     }

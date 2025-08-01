@@ -4,7 +4,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
@@ -12,10 +11,8 @@ import '../../../helpers/map_helper.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_text_field.dart';
 import '../../../utils/extra_utils.dart';
-import '../../load_provider/lp_home/api_request/verify_location_api_request.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
-import '../cubit/gps_geofence_map_cubit/gps_geofence_map_cubit.dart';
-import '../cubit/gps_geofence_map_cubit/gps_geofence_map_state.dart';
+import '../helper/gps_map_helper.dart';
 import '../models/gps_geofence_model.dart';
 
 class GeofenceMapViewScreen extends StatefulWidget {
@@ -147,14 +144,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   void _setCircle(LatLng center, double radius) {
     setState(() {
       _circles = {
-        Circle(
-          circleId: const CircleId("geofence_circle"),
-          center: center,
-          radius: radius,
-          fillColor: Colors.blue.withValues(alpha: 0.2),
-          strokeColor: Colors.blue,
-          strokeWidth: 2,
-        ),
+        GpsMapHelper.createGeofenceCircle(center: center, radius: radius),
       };
       _polygons = {}; // Clear other shapes
       _polylines = {};
@@ -174,14 +164,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
 
   void _setPolyline(List<LatLng> points) {
     setState(() {
-      _polylines = {
-        Polyline(
-          polylineId: const PolylineId("geofence_polyline"),
-          points: points,
-          color: Colors.red,
-          width: 3,
-        ),
-      };
+      _polylines = {GpsMapHelper.createGeofencePolyline(points: points)};
       _circles = {};
       _polygons = {};
     });
@@ -212,15 +195,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   void _setPolygon(List<LatLng> points) {
     if (points.length >= 3) {
       setState(() {
-        _polygons = {
-          Polygon(
-            polygonId: const PolygonId("geofence_polygon"),
-            points: points,
-            fillColor: Colors.green.withValues(alpha: 0.2),
-            strokeColor: Colors.green,
-            strokeWidth: 2,
-          ),
-        };
+        _polygons = {GpsMapHelper.createGeofencePolygon(points: points)};
         _circles = {};
         _polylines = {};
       });
@@ -269,8 +244,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
   void _setMarker(LatLng position, {bool isDraggable = false}) {
     setState(() {
       _markers = {
-        Marker(
-          markerId: const MarkerId("geofence_marker"),
+        GpsMapHelper.createGeofenceCircleMarker(
           position: position,
           draggable: isDraggable,
           onDragEnd: (newPosition) {
@@ -279,9 +253,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
               _setCircle(_currentCenter!, _currentRadius);
             });
           },
-          icon: BitmapDescriptor.defaultMarkerWithHue(
-            BitmapDescriptor.hueAzure,
-          ),
         ),
       };
     });
@@ -292,8 +263,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       _markers.clear();
       for (int i = 0; i < points.length; i++) {
         _markers.add(
-          Marker(
-            markerId: MarkerId("polygon_point_$i"),
+          GpsMapHelper.createPolygonPointMarker(
+            index: i,
             position: points[i],
             draggable: isDraggable,
             onDragEnd: (newPosition) {
@@ -302,9 +273,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                 _setPolygon(_currentPolygonPoints);
               });
             },
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueGreen,
-            ),
           ),
         );
       }
@@ -316,8 +284,8 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       _markers.clear();
       for (int i = 0; i < points.length; i++) {
         _markers.add(
-          Marker(
-            markerId: MarkerId("polyline_point_$i"),
+          GpsMapHelper.createPolylinePointMarker(
+            index: i,
             position: points[i],
             draggable: isDraggable,
             onDragEnd: (newPosition) {
@@ -326,9 +294,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                 _setPolyline(_currentPolylinePoints);
               });
             },
-            icon: BitmapDescriptor.defaultMarkerWithHue(
-              BitmapDescriptor.hueRed,
-            ),
           ),
         );
       }
@@ -451,40 +416,17 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     });
   }
 
-  Widget buildLocationSearchField(BuildContext context) {
-    return AppTextField(
-      controller: searchController,
-      labelText: context.appText.search,
-      hintText: context.appText.search,
-      decoration: commonInputDecoration(
-        suffixIcon: Icon(Icons.clear, size: 20),
-        suffixOnTap: () {
-          searchController.clear();
-          context.read<GpsGeofenceMapCubit>().resetAutoCompleteState();
-        },
-      ),
-      onChanged: (value) {
-        if (value.isNotEmpty && value.length > 2) {
-          context.read<GpsGeofenceMapCubit>().fetchAutoComplete(value);
-        } else {
-          context.read<GpsGeofenceMapCubit>().resetAutoCompleteState();
-        }
-      },
-    );
-  }
-
   Widget buildSuggestionListWidget(BuildContext context) {
-    return BlocConsumer<GpsGeofenceMapCubit, GpsGeofenceMapState>(
+    return BlocConsumer<GpsGeofenceCubit, GpsGeofenceState>(
       listenWhen:
-          (prev, curr) =>
-              prev is! GpsGeofenceMapError && curr is GpsGeofenceMapError,
+          (prev, curr) => prev is! GpsGeofenceError && curr is GpsGeofenceError,
       listener: (context, state) {
-        if (state is GpsGeofenceMapError) {
+        if (state is GpsGeofenceError) {
           ToastMessages.error(message: state.message);
         }
       },
       builder: (context, state) {
-        if (state is GpsGeofenceMapAutoCompleteLoaded) {
+        if (state is GpsGeofenceAutoCompleteLoaded) {
           final suggestions = state.autoCompleteData.predictions;
           if (suggestions.isEmpty) return Container();
           return ConstrainedBox(
@@ -497,19 +439,21 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                 return ListTile(
                   title: Text(item.description ?? context.appText.unknown),
                   onTap: () {
-                    // Call verify location API
-                    final request = VerifyLocationApiRequest(
-                      placeId: item.placeId ?? "",
-                      type: 1,
-                    );
-                    context.read<GpsGeofenceMapCubit>().verifyLocation(request);
+                    final placeId = item.placeId;
+                    if (placeId != null) {
+                      context.read<GpsGeofenceCubit>().fetchLatLngForPlace(
+                        placeId,
+                      );
+                      searchController.clear();
+                      context.read<GpsGeofenceCubit>().resetAutoCompleteState();
+                    }
                   },
                 );
               },
             ),
           );
         }
-        if (state is GpsGeofenceMapLoading) {
+        if (state is GpsGeofenceLoading) {
           return const Center(child: CircularProgressIndicator());
         }
         return Container();
@@ -545,34 +489,51 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
         (_mode == GeofenceMode.addPolyline ||
             _mode == GeofenceMode.editPolyline);
 
-    return BlocListener<GpsGeofenceCubit, GpsGeofenceState>(
-      listener: (context, state) {
-        if (state is GpsGeofenceLoaded) {
-          showSuccessDialog(
-            context,
-            text:
-                widget.geofence == null
-                    ? context.appText.geofenceAddedSuccess
-                    : context.appText.geofenceUpdatedSuccess,
-            subheading: '',
-          );
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<GpsGeofenceCubit, GpsGeofenceState>(
+          listener: (context, state) {
+            if (state is GpsGeofenceLoaded) {
+              showSuccessDialog(
+                context,
+                text:
+                    widget.geofence == null
+                        ? context.appText.geofenceAddedSuccess
+                        : context.appText.geofenceUpdatedSuccess,
+                subheading: '',
+              );
 
-          Future.delayed(const Duration(seconds: 3), () {
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          });
-        } else if (state is GpsGeofenceError) {
-          // Show error dialog if needed
-          ToastMessages.error(message: state.message);
-        }
-      },
+              Future.delayed(const Duration(seconds: 3), () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              });
+            } else if (state is GpsGeofenceError) {
+              ToastMessages.error(message: state.message);
+            }
+          },
+        ),
+        BlocListener<GpsGeofenceCubit, GpsGeofenceState>(
+          listener: (context, state) {
+            if (state is GpsGeofenceLatLngLoaded && _mapController != null) {
+              _mapController!.animateCamera(
+                CameraUpdate.newLatLngZoom(state.location, 15),
+              );
+              setState(() {
+                _currentCenter = state.location;
+                _setMarker(state.location, isDraggable: true);
+                // _setCircle(state.location, _currentRadius);
+              });
+            }
+          },
+        ),
+      ],
       child: Scaffold(
         body: SafeArea(
           child: Stack(
             children: [
-              GoogleMap(
+              GpsMapHelper.createGpsMap(
                 onMapCreated: _onMapCreated,
-                initialCameraPosition: CameraPosition(
+                initialCameraPosition: GpsMapHelper.createCameraPosition(
                   target: _currentCenter ?? const LatLng(28.6139, 77.2090),
                   zoom: _currentCenter != null ? 12 : 5,
                 ),
@@ -603,27 +564,43 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                       ),
                     ],
                   ),
-                  child: Row(
+                  child: Column(
                     children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back),
-                        onPressed: () => Navigator.pop(context),
-                      ),
-                      const Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                            hintText: 'Search',
-                            border: InputBorder.none,
+                      Row(
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.arrow_back),
+                            onPressed: () => Navigator.pop(context),
                           ),
-                        ),
+                          Expanded(
+                            child: TextField(
+                              controller: searchController,
+                              decoration: const InputDecoration(
+                                hintText: 'Search',
+                                border: InputBorder.none,
+                              ),
+                              onChanged: (value) {
+                                if (value.isNotEmpty && value.length > 2) {
+                                  context
+                                      .read<GpsGeofenceCubit>()
+                                      .fetchAutoComplete(value);
+                                } else {
+                                  // context
+                                  //     .read<GpsGeofenceCubit>()
+                                  //     .resetAutoCompleteState();
+                                }
+                              },
+                            ),
+                          ),
+                          AppIconButton(
+                            icon: Icon(Icons.search),
+                            onPressed: () {
+                              // Implement search functionality
+                            },
+                          ),
+                        ],
                       ),
-                      // buildLocationSearchField(context).expand(),
-                      AppIconButton(
-                        icon: Icon(Icons.search),
-                        onPressed: () {
-                          // Implement search functionality
-                        },
-                      ),
+                      buildSuggestionListWidget(context),
                     ],
                   ),
                 ),
@@ -756,13 +733,12 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                             ),
                             // Slider for adjusting circle radius
                             Slider(
-                              value: _currentRadius.clamp(
-                                40.0,
-                                20040.0,
-                              ), // Clamp for safety
+                              value: _currentRadius.clamp(40.0, 20040.0),
+                              // Clamp for safety
                               min: 40.0,
                               max: 20040.0,
-                              divisions: 100, // Adjust divisions as needed
+                              divisions: 100,
+                              // Adjust divisions as needed
                               label: '${_currentRadius.toStringAsFixed(1)} m',
                               onChanged: (value) {
                                 setState(() {
@@ -792,7 +768,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           ),
                         )
                       else
-                         Text(
+                        Text(
                           context.appText.selectGeofenceTypeHint,
                           style: TextStyle(fontStyle: FontStyle.italic),
                         ),
@@ -850,18 +826,11 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
     Color color = Colors.white,
     bool isActive = false, // New parameter to indicate active state
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isActive ? Colors.blue.withValues(alpha: 0.8) : color,
-        shape: BoxShape.circle,
-        boxShadow: const [
-          BoxShadow(color: Colors.black26, blurRadius: 4, offset: Offset(0, 2)),
-        ],
-      ),
-      child: IconButton(
-        icon: Icon(icon, color: isActive ? Colors.white : Colors.black),
-        onPressed: onPressed,
-      ),
+    return GpsMapHelper.createCustomFloatingButton(
+      icon: icon,
+      onPressed: onPressed,
+      color: color,
+      isActive: isActive,
     );
   }
 }

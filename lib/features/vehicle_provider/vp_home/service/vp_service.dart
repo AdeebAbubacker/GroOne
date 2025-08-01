@@ -26,7 +26,6 @@ class VpHomeService {
       final result = await _apiService.get(
 
           "${ApiUrls.getAllVpLoads}/vp/load",queryParams: {
-            "type":2,
             'customerId':userID},forceRefresh: true);
 
       if (result is Success) {
@@ -40,7 +39,6 @@ class VpHomeService {
       }
     } catch (e) {
 
-      CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }
   }
@@ -61,7 +59,6 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -85,7 +82,6 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e,);
       return Error(DeserializationError());
     }
   }
@@ -105,7 +101,6 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -130,7 +125,6 @@ class VpHomeService {
       }
     } catch (e) {
 
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
@@ -148,21 +142,20 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }
   }
 
   Future<DirectionResponse?>  getDirectionRoute({required String? pickupLat,String? pickupLong,String? destinationLat,String? destinationLong}) async {
      Dio _dio=locator<Dio>();
+
      try {
       return await _dio.get(
           ApiUrls.googleDirectionApi,
-
           queryParameters: {
             "origin":"${double.tryParse(pickupLat??"0")},${double.tryParse(pickupLong??"0")}",
             "destination":"${double.tryParse(destinationLat??"0")},${double.tryParse(destinationLong??"0")}",
-            "key":"AIzaSyAQW_V1fIJSXzYD5gjAh9wnztxLnE_pJ7E"
+            "key":ApiUrls.fetchedMapKEY
           }
       ).then((result) {
         if(result.statusCode==200){
@@ -172,7 +165,6 @@ class VpHomeService {
       },);
 
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
       return  null;
     }
   }

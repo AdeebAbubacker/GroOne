@@ -15,6 +15,10 @@ class AppRouteName {
   static const String gps = "/gps";
   static const String gpsDashboard = "/gpsDashboard";
   static const String gpsGeofence = "/gpsGeofence";
+  static const String gpsReports = "/gpsReports";
+  static const String gpsVehicleShareAndUpdate = "/gpsVehicleShareAndUpdate";
+  static const String gpsEditVehicleInfo = "/gpsEditVehicleInfo";
+  static const String gpsVehicleSelectScreen = "/gpsVehicleSelectScreen";
   static const String vehicleList = "/vehicleList";
   static const String gpsOrderBenefits = "/gpsOrderBenefits";
   static const String instantLoan = "/instantLoad";
@@ -44,4 +48,6 @@ class AppRouteName {
   static const String driverHome = "/driverHome";
 
   static const String vehicleMap = '/vehicle-map';
+
+  static const String fastagList = '/fastagList';
 }

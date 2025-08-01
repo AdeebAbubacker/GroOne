@@ -5,6 +5,7 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
@@ -35,6 +36,8 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+
+import 'routes_screen.dart';
 
 
 class ProfileScreen extends StatefulWidget {
@@ -69,46 +72,61 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
   void initFunction() => frameCallback(() async {
     profileCubit.fetchProfileDetail();
     appVersion = await appVersionInfo();
+    await kycCubit.fetchUserRole();
     setState(() {});
     debugPrint("user id ${lpHomeLocator.userId}");
   });
 
-  void disposeFunction() => frameCallback(() {});
+  void disposeFunction() => frameCallback(() {
+    profileCubit.resetLogoutUIState();
+  });
 
 
-  void logoutDialogPopUp(BuildContext context, bool isLoading) {
+  void logoutDialogPopUp(BuildContext context) {
     AppDialog.show(
       context,
-      child: CommonDialogView(
-        yesButtonText: context.appText.logOut,
-        noButtonText: context.appText.cancel,
-        showYesNoButtonButtons: true,
-        hideCloseButton: true,
-        onClickYesButton: ()=> profileCubit.logout(),
-        yesButtonLoading: isLoading,
-        child: LogOutDialogueUi(),
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        bloc: profileCubit,
+        builder: (context, state) {
+          final isLoading = state.logoutUIState?.status == Status.LOADING;
+          return CommonDialogView(
+            yesButtonText: context.appText.logOut,
+            noButtonText: context.appText.cancel,
+            showYesNoButtonButtons: true,
+            hideCloseButton: true,
+            onClickYesButton: ()=> !isLoading ? profileCubit.logout() : (){},
+            yesButtonLoading: isLoading,
+            child: LogOutDialogueUi(),
+          );
+        }
       ),
     );
   }
 
 
+  void closeBloc(){}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.profile),
-      body: SafeArea(
-        minimum: EdgeInsets.all(commonSafeAreaPadding),
-        child: Column(
-          spacing: 15,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            buildProfileDetailWidget(),
-            5.height,
-            profileOptionWidget(context),
-            buildProfileVersionWidget(),
-          ],
-        ),
-      ).withScroll(),
+      appBar: CommonAppBar(title: context.appText.profile, scrolledUnderElevation: 0),
+      body: RefreshIndicator(
+        onRefresh: () async => initFunction(),
+        child: SafeArea(
+          minimum: EdgeInsets.all(commonSafeAreaPadding),
+          child: Column(
+            spacing: 15,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              buildProfileDetailWidget(),
+              5.height,
+              profileOptionWidget(context),
+              buildProfileVersionWidget(),
+            ],
+          ),
+        ).withScroll(),
+      ),
     );
   }
 
@@ -205,25 +223,27 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
 
           ProfileMyAccountTile(
             imageString: AppImage.svg.master,
-            text: "Master",
+            text: context.appText.masters,
             onTap: () {
               Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
             },
           ),
           commonDivider(),
-
-          ProfileMyAccountTile(
-            imageString: AppImage.svg.routes,
-            text: "Routes",
-            onTap: () {
-              ///todo - routes to be done later
-            },
-          ),
-          commonDivider(),
+          if(kycCubit.userRole == 1 || kycCubit.userRole == 3)
+            ...[
+              ProfileMyAccountTile(
+                imageString: AppImage.svg.routes,
+                text: context.appText.routes,
+                onTap: () {
+                  Navigator.of(context).push(commonRoute(RouteScreen(), isForward: true));
+                },
+              ),
+              commonDivider(),
+            ],
 
           ProfileMyAccountTile(
             imageString: AppImage.svg.myDocuments,
-            text: "My Documents",
+            text: context.appText.myDocuments,
             onTap: () {
               Navigator.of(context).push(commonRoute(MyDocumentScreen(), isForward: true));
             },
@@ -252,7 +272,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             imageString: AppImage.svg.support,
             text: context.appText.support,
             onTap: () {
-              Navigator.of(context).push(commonRoute(LpSupport(), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
           ),
           commonDivider(),
@@ -266,7 +286,8 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
 
               if (status == Status.SUCCESS) {
                 LpBottomNavigation.selectedIndexNotifier.value = 0;
-                context.go(AppRouteName.chooseLanguage);
+                disposeFunction();
+                context.pushReplacement(AppRouteName.chooseLanguage);
               }
 
               if (status == Status.ERROR) {
@@ -275,10 +296,11 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               }
             },
             builder: (context, state) {
+              final status = state.logoutUIState?.status;
               return ProfileMyAccountTile(
                 imageString: AppImage.svg.logOut,
                 text: context.appText.logOut,
-                onTap: () => logoutDialogPopUp(context, state.logoutUIState?.status == Status.LOADING),
+                onTap: () => logoutDialogPopUp(context),
                 showArrow: false,
               );
             },

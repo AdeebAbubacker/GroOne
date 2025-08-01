@@ -5,6 +5,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_search_bar.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/upload_attachment_files.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../data/model/result.dart';
@@ -66,13 +80,41 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
     super.dispose();
   }
 
+  /// Helper method to get truck type display text
+  String _getTruckTypeDisplayText(GpsVehicleModel vehicle) {
+    // For GPS vehicles, we'll use a simple mapping since we don't have the full truck type API data here
+    // This can be enhanced later if needed
+    switch (vehicle.truckTypeId) {
+      case 1:
+        return 'Open - 20ft SXL';
+      case 2:
+        return 'Open - 22ft SXL';
+      case 3:
+        return 'Open - 24ft SXL';
+      case 4:
+        return 'Closed - 20ft SXL';
+      case 5:
+        return 'Closed - 22ft SXL';
+      case 6:
+        return 'Closed - 24ft SXL';
+      case 7:
+        return 'Trailer - 20ft SXL';
+      case 8:
+        return 'Trailer - 22ft SXL';
+      case 9:
+        return 'Trailer - 24ft SXL';
+      default:
+        return 'Truck - ${vehicle.truckLength}ft';
+    }
+  }
+
   Widget vehicleCard(GpsVehicleModel vehicle) {
     return InkWell(
       onTap: () {
         if (vehicle.vehicleStatus == 1) {
           Navigator.pop(context, vehicle.truckNo);
         } else {
-          ToastMessages.alert(message: 'Vehicle is currently inactive');
+          ToastMessages.alert(message: context.appText.vehicleIsCurrentlyInactive);
         }
       },
       child: Container(
@@ -120,7 +162,7 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                     style: AppTextStyle.bodyBlackColorW500,
                   ),
                   Text(
-                    '${vehicle.truckTypeId == 1 ? 'Open' : 'Closed'} Truck - ${vehicle.truckLength}ft',
+                    _getTruckTypeDisplayText(vehicle),
                     style: AppTextStyle.textGreyColor12w400,
                   ),
                 ],
@@ -137,7 +179,7 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'Active',
+                  context.appText.active,
                   style: TextStyle(color: Colors.green),
                 ),
               ),
@@ -162,7 +204,7 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      'Added Vehicles',
+                      context.appText.addedVehicles,
                       style: AppTextStyle.appBar.copyWith(
                         color: AppColors.primaryTextColor,
                       ),
@@ -186,7 +228,7 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                       );
                     },
                     child: Text(
-                      '+ Add Vehicle',
+                      context.appText.addVehicle,
                       style: AppTextStyle.primaryColor14w700,
                     ),
                   ),
@@ -201,18 +243,12 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
             Expanded(
               child: BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
                 builder: (context, state) {
-                  print('🔍 UI State: ${state.vehicles.status}, data: ${state.vehicles.data?.length ?? 0}');
-                  
                   if (state.vehicles.status == Status.LOADING) {
                     return const Center(child: CircularProgressIndicator());
                   } else if (state.vehicles.status == Status.ERROR) {
-                    return const Center(child: Text('Failed to load vehicles'));
+                    return Center(child: Text(context.appText.failedToLoadVehicles));
                   } else if (state.vehicles.status == Status.SUCCESS) {
                     final vehicles = state.vehicles.data ?? [];
-                    print('🔍 UI received ${vehicles.length} vehicles');
-                    if (vehicles.isNotEmpty) {
-                      print('🔍 First vehicle: ${vehicles.first.truckNo}');
-                    }
                     
                     final searchText = searchController.text.toLowerCase();
                     final filteredVehicles = vehicles.where((vehicle) {
@@ -222,11 +258,9 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                         vehicle.tonnage.toLowerCase().contains(searchText);
                     }).toList();
                     
-                    print('🔍 Filtered vehicles: ${filteredVehicles.length}');
-                    
                     if (filteredVehicles.isEmpty) {
                       return Center(
-                        child: Text('No vehicles found'),
+                        child: Text(context.appText.noVehiclesFound),
                       );
                     }
                     return ListView.separated(
@@ -270,6 +304,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
   final licenseNumberController = TextEditingController();
   final capacityController = TextEditingController();
   bool isVerified = false;
+  bool showValidationErrors = false;
 
   List<Map<String, dynamic>> vehicleDocList = [];
   final MultiSelectController<String> acceptableCommoditiesController = MultiSelectController<String>();
@@ -314,7 +349,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
       final url = cubit.state.documentUpload.data?.url ?? '';
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
+        ToastMessages.success(message: context.appText.fileUploadedSuccessfully);
         return Success(true);
       }
     } else if (status == Status.ERROR) {
@@ -329,7 +364,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
-      title: 'Add New Vehicle',
+      title: context.appText.addNewVehicle,
       hideDivider: false,
       body: SizedBox(
         height: MediaQuery.of(context).size.height * 0.55,
@@ -351,10 +386,11 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                       controller: truckNumberController,
                       mandatoryStar: true,
                       maxLength: 15,
-                      labelText: 'Truck Number',
+                      labelText: context.appText.truckNumber,
+                      textCapitalization: TextCapitalization.characters,
                       validator: (value) => Validator.validateVehicleNumber(
                         value,
-                        fieldName: 'Truck Number',
+                        fieldName: context.appText.truckNumber,
                       ),
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
@@ -374,7 +410,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                                       final vehicleNumber = truckNumberController.text.trim().toUpperCase();
                                       final validationMessage = Validator.validateVehicleNumber(
                                         vehicleNumber,
-                                        fieldName: 'Truck Number',
+                                        fieldName: context.appText.truckNumber,
                                       );
                                       if (validationMessage != null) {
                                         ToastMessages.alert(message: validationMessage);
@@ -383,7 +419,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                                       widget.vehicleCubit.verifyVehicle(vehicleNumber);
                                     },
                                     child: Text(
-                                      "Verify",
+                                      context.appText.verify,
                                       style: AppTextStyle.body3.copyWith(
                                         color: AppColors.primaryColor,
                                         decoration: TextDecoration.underline,
@@ -400,10 +436,11 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                   controller: truckMakeModelController,
                   mandatoryStar: true,
                   maxLength: 20,
-                  labelText: 'Truck Make and Model',
+                  labelText: context.appText.truckMakeAndModel,
+                  textCapitalization: TextCapitalization.characters,
                   validator: (value) => Validator.noSpecialCharacters(
                     value,
-                    fieldName: 'Truck Make and Model',
+                    fieldName: context.appText.truckMakeAndModel,
                   ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
@@ -412,22 +449,23 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                 10.height,
                 AppTextField(
                   controller: licenseNumberController,
-                  labelText: 'License Number',
+                  labelText: context.appText.licenseNumber,
                   maxLength: 16,
+                  textCapitalization: TextCapitalization.characters,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 -]')),
+                    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\-]')), // Allow letters, digits, and hyphens only
                   ],
                   mandatoryStar: true,
                   validator: (value) => Validator.licenseNumberValidator(
                     value,
-                    fieldName: 'License Number',
+                    fieldName: context.appText.licenseNumber,
                   ),
                 ),
                 10.height,
                 Row(
                   children: [
                     Text(
-                      " Upload RC Book Copy",
+                      context.appText.uploadRcBookCopy,
                       style: AppTextStyle.textFiled,
                     ),
                     Text(
@@ -461,7 +499,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                       children: [
                         if (state.truckTypes.status == Status.SUCCESS)
                           AppDropdown(
-                            labelText: 'Truck Type',
+                            labelText: context.appText.truckType,
                             dropdownValue: truckTypeDropdownValue,
                             dropDownList: state.truckTypes.data!
                                 .map((type) => DropdownMenuItem(
@@ -469,7 +507,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                                       child: Text(type),
                                     ))
                                 .toList(),
-                            hintText: 'Select Truck Type',
+                            hintText: context.appText.selectTruckType,
                             mandatoryStar: true,
                             onChanged: (selected) {
                               setState(() {
@@ -479,13 +517,13 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                               cubit.fetchTruckLengths(selected!);
                             },
                             validator: (value) => value == null || value.isEmpty
-                                ? 'Please select truck type'
+                                ? context.appText.pleaseSelectTruckType
                                 : null,
                           ),
                         15.height,
                         if (state.truckLengths.status == Status.SUCCESS)
                           AppDropdown(
-                            labelText: 'Truck Length',
+                            labelText: context.appText.truckLength,
                             dropdownValue: truckLengthDropdownValue,
                             dropDownList: state.truckLengths.data!
                                 .map((e) => DropdownMenuItem(
@@ -493,7 +531,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                                       child: Text(e.subType),
                                     ))
                                 .toList(),
-                            hintText: 'Truck Length',
+                            hintText: context.appText.truckLength,
                             mandatoryStar: true,
                             onChanged: (selected) {
                               setState(() {
@@ -511,7 +549,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                               });
                             },
                             validator: (value) => value == null || value.isEmpty
-                                ? 'Please select truck length'
+                                ? context.appText.pleaseSelectTruckLength
                                 : null,
                           ),
                       ],
@@ -521,19 +559,19 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                 10.height,
                 AppTextField(
                   controller: capacityController,
-                  labelText: 'Capacity',
+                  labelText: context.appText.capacity,
                   mandatoryStar: true,
                   keyboardType: TextInputType.number,
                   maxLength: 10,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   validator: (value) => Validator.positiveNumber(
                     value,
-                    fieldName: 'Capacity',
+                    fieldName: context.appText.capacity,
                   ),
                   decoration: commonInputDecoration(
                     suffixIcon: Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: Text('Metric Tons', style: AppTextStyle.textGreyColor12w400),
+                      child: Text(context.appText.metricTons, style: AppTextStyle.textGreyColor12w400),
                     ),
                   ),
                 ),
@@ -552,15 +590,16 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                         );
                       }).toList();
                       return AppMultiSelectionDropdown<String>(
-                        labelText: 'Acceptable Commodities',
-                        hintText: 'Select',
+                        labelText: context.appText.acceptableCommodities,
+                        hintText: context.appText.select,
                         mandatoryStar: true,
                         controller: acceptableCommoditiesController,
                         items: items,
                         onSelectionChange: (selected) {},
                         validator: (value) => value == null || value.isEmpty
-                            ? 'Please select commodity'
+                            ? context.appText.pleaseSelectCommodity
                             : null,
+                        showValidationError: showValidationErrors,
                       );
                     } else if (state.commodities.status == Status.ERROR) {
                       return Text('Error: ${state.commodities.errorType}');
@@ -572,7 +611,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Active'),
+                    Text(context.appText.active),
                     Switch(
                       value: isActive,
                       onChanged: (val) {
@@ -588,36 +627,36 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                   children: [
                     AppButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      title: 'Cancel',
+                      title: context.appText.cancel,
                       style: AppButtonStyle.outline,
                     ).expand(),
                     20.width,
                     AppButton(
                       onPressed: () async {
+                        setState(() {
+                          showValidationErrors = true;
+                        });
                         if (!formKey.currentState!.validate()) return;
                         if (vehicleDocList.isEmpty) {
                           ToastMessages.alert(
-                            message: 'Please upload RC Book copy',
+                            message: context.appText.pleaseUploadRcBookCopy,
                           );
                           return;
                         }
                         if (isVerified == false) {
                           ToastMessages.alert(
-                            message: 'Please verify your Vehicle Number',
+                            message: context.appText.pleaseVerifyYourVehicleNumber,
                           );
                           return;
                         }
                         // Get user ID from repository (it's a UUID string, not an integer)
                         final userInfoRepo = locator<UserInformationRepository>();
                         final userIDString = await userInfoRepo.getUserID();
-                        print('🔍 User ID from repository: $userIDString');
                         
                         if (userIDString == null || userIDString.isEmpty) {
-                          ToastMessages.error(message: 'User ID not found. Please login again.');
+                          ToastMessages.error(message: context.appText.userIdNotFoundPleaseLoginAgain);
                           return;
                         }
-                        
-                        print('🔍 Using User ID as string: $userIDString');
                         final selectedCommoditiesIds =
                             acceptableCommoditiesController.selectedItems
                                 .map((idStr) => int.tryParse(idStr.value))
@@ -641,15 +680,15 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                           Navigator.of(context).pop();
                           widget.onVehicleAdded();
                           ToastMessages.success(
-                            message: 'Vehicle saved successfully',
+                            message: context.appText.vehicleSavedSuccessfully,
                           );
                         } else {
                           ToastMessages.error(
-                            message: 'Failed to add vehicle',
+                            message: context.appText.failedToAddVehicle,
                           );
                         }
                       },
-                      title: 'Save',
+                      title: context.appText.save,
                       style: AppButtonStyle.primary,
                     ).expand(),
                   ],

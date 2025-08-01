@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
     as api_models;
+import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
@@ -156,6 +157,16 @@ class EnDhanRepository {
       print('❌ Repository error: $e');
       CustomLog.error(this, "Error fetching cards", e);
       return Error(GenericError());
+    }
+  }
+
+  /// Get Pincode Repository
+  Future<Result<PincodeResponse>> getPincode(String pincode) async {
+    try {
+      return await _enDhanService.getPincode(pincode);
+    } catch (e) {
+      CustomLog.error(this, "Failed to get pincode", e);
+      return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 

@@ -28,6 +28,7 @@ import '../../../utils/validator.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
 import '../cubit/kavach_add_vehicle_cubit/kavach_add_vehicle_state.dart';
 import '../model/kavach_truck_length_model.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 
 class KavachAddVehicleBottomSheet extends StatefulWidget {
   const KavachAddVehicleBottomSheet({super.key});
@@ -45,6 +46,13 @@ class _KavachAddVehicleBottomSheetState
   final licenseNumberController = TextEditingController();
   final capacityController = TextEditingController();
   bool isVerified = false;
+  bool showValidationErrors = false;
+
+  // Add FocusNode for capacity field
+  final FocusNode capacityFocusNode = FocusNode();
+  
+  // Add ScrollController to dismiss keyboard on scroll
+  final ScrollController scrollController = ScrollController();
 
   List<Map<String, dynamic>> vehicleDocList = []; // Add this at state level
 
@@ -63,7 +71,28 @@ class _KavachAddVehicleBottomSheetState
     kavachAddNewVehicleCubit.resetVehicleVerification();
     kavachAddNewVehicleCubit.fetchCommodities();
     kavachAddNewVehicleCubit.fetchTruckTypes();
+    
+    // Add listener to capacity FocusNode to dismiss keyboard when focus is lost
+    capacityFocusNode.addListener(() {
+      if (!capacityFocusNode.hasFocus) {
+        // Dismiss keyboard when capacity field loses focus
+        FocusScope.of(context).unfocus();
+      }
+    });
+    
+    // Add listener to ScrollController to dismiss keyboard when scrolling
+    scrollController.addListener(() {
+      FocusScope.of(context).unfocus();
+    });
+    
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    capacityFocusNode.dispose();
+    scrollController.dispose();
+    super.dispose();
   }
 
   Future<Result<bool>> _uploadGSTDocumentApiCall(
@@ -92,12 +121,14 @@ class _KavachAddVehicleBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(
+    return SafeArea(
+      child: AppBottomSheetBody(
       title: context.appText.addNewVehicle,
       hideDivider: false,
       body: SizedBox(
         height: MediaQuery.of(context).size.height * 0.55,
         child: SingleChildScrollView(
+          controller: scrollController,
           child: Form(
             key: formKey,
             child: Column(
@@ -117,12 +148,13 @@ class _KavachAddVehicleBottomSheetState
                       mandatoryStar: true,
                       maxLength: 15,
                       labelText: context.appText.truckNumber,
+                      textCapitalization: TextCapitalization.characters,
                       validator: (value) => Validator.validateVehicleNumber(
                         value,
                         fieldName: context.appText.truckNumber,
                       ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
+                        FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
                       ],
                       readOnly: verificationState.status == Status.SUCCESS,
                       decoration: commonInputDecoration(
@@ -171,13 +203,14 @@ class _KavachAddVehicleBottomSheetState
                   mandatoryStar: true,
                   maxLength: 20,
                   labelText: context.appText.truckMakeModel,
+                  textCapitalization: TextCapitalization.characters,
                   validator:
                       (value) => Validator.noSpecialCharacters(
                         value,
                         fieldName: context.appText.truckMakeModel,
                       ),
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
+                    FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
                   ],
                 ),
                 10.height,
@@ -185,10 +218,9 @@ class _KavachAddVehicleBottomSheetState
                   controller: licenseNumberController,
                   labelText: context.appText.licenseNumber,
                   maxLength: 16,
+                  textCapitalization: TextCapitalization.characters,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'[a-zA-Z0-9 -]'), // <-- Hyphen works now
-                    ),
+                    FilteringTextInputFormatter.allow(licenseAlphaNumHyphenRegex),
                   ],
                   mandatoryStar: true,
                   validator:
@@ -232,8 +264,7 @@ class _KavachAddVehicleBottomSheetState
                 10.height,
                 BlocBuilder<
                   KavachAddVehicleFormCubit,
-                  KavachAddVehicleFormState
-                >(
+                  KavachAddVehicleFormState >(
                   builder: (context, state) {
                     final cubit = context.read<KavachAddVehicleFormCubit>();
 
@@ -242,78 +273,88 @@ class _KavachAddVehicleBottomSheetState
                       children: [
                         /// Truck Type Dropdown
                         if (state.truckTypes.status == Status.SUCCESS)
-                          AppDropdown(
-                            labelText: context.appText.truckType,
-                            dropdownValue: truckTypeDropdownValue,
-                            dropDownList:
-                                state.truckTypes.data!
-                                    .map(
-                                      (type) => DropdownMenuItem(
-                                        value: type,
-                                        child: Text(type),
-                                      ),
-                                    )
-                                    .toList(),
-                            hintText: context.appText.selectTruckType,
-                            mandatoryStar: true,
-                            onChanged: (selected) {
-                              setState(() {
-                                truckTypeDropdownValue = selected;
-                                truckLengthDropdownValue = null;
-                              });
-                              cubit.fetchTruckLengths(selected!);
+                          GestureDetector(
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
                             },
-                            validator:
-                                (value) =>
-                                    value == null || value.isEmpty
-                                        ? context.appText.pleaseSelectTruckType
-                                        : null,
+                            child: AppDropdown(
+                              labelText: context.appText.truckType,
+                              dropdownValue: truckTypeDropdownValue,
+                              dropDownList:
+                                  state.truckTypes.data!
+                                      .map(
+                                        (type) => DropdownMenuItem(
+                                          value: type,
+                                          child: Text(type),
+                                        ),
+                                      )
+                                      .toList(),
+                              hintText: context.appText.selectTruckType,
+                              mandatoryStar: true,
+                              onChanged: (selected) {
+                                setState(() {
+                                  truckTypeDropdownValue = selected;
+                                  truckLengthDropdownValue = null;
+                                });
+                                cubit.fetchTruckLengths(selected!);
+                              },
+                              validator:
+                                  (value) =>
+                                      value == null || value.isEmpty
+                                          ? context.appText.pleaseSelectTruckType
+                                          : null,
+                            ),
                           ),
 
                         15.height,
 
                         /// Truck Length Dropdown
                         if (state.truckLengths.status == Status.SUCCESS)
-                          AppDropdown(
-                            labelText: context.appText.truckLength,
-                            dropdownValue: truckLengthDropdownValue,
-                            dropDownList:
-                                state.truckLengths.data!
-                                    .map(
-                                      (e) => DropdownMenuItem(
-                                        value: e.subType,
-                                        child: Text(e.subType),
-                                      ),
-                                    )
-                                    .toList(),
-                            hintText: context.appText.truckLength,
-                            mandatoryStar: true,
-                            onChanged: (selected) {
-                              setState(() {
-                                truckLengthDropdownValue = selected;
-
-                                final selectedModel = state.truckLengths.data!
-                                    .firstWhere(
-                                      (e) => e.subType == selected,
-                                      orElse:
-                                          () => TruckLengthModel(
-                                            id: 0,
-                                            type: '',
-                                            subType: '',
-                                          ),
-                                    );
-
-                                selectedTruckTypeId = selectedModel.id;
-                              });
+                          GestureDetector(
+                            onTap: () {
+                              FocusScope.of(context).unfocus();
                             },
+                            child: AppDropdown(
+                              labelText: context.appText.truckLength,
+                              dropdownValue: truckLengthDropdownValue,
+                              dropDownList:
+                                  state.truckLengths.data!
+                                      .map(
+                                        (e) => DropdownMenuItem(
+                                          value: e.subType,
+                                          child: Text(e.subType),
+                                        ),
+                                      )
+                                      .toList(),
+                              hintText: context.appText.truckLength,
+                              mandatoryStar: true,
+                              onChanged: (selected) {
+                                setState(() {
+                                  truckLengthDropdownValue = selected;
 
-                            validator:
-                                (value) =>
-                                    value == null || value.isEmpty
-                                        ? context
-                                            .appText
-                                            .pleaseSelectTruckLength
-                                        : null,
+                                  final selectedModel = state.truckLengths.data!
+                                      .firstWhere(
+                                        (e) => e.subType == selected,
+                                        orElse:
+                                            () => TruckLengthModel(
+                                              id: 0,
+                                              type: '',
+                                              subType: '',
+                                            ),
+                                      );
+
+                                  selectedTruckTypeId = selectedModel.id;
+                                });
+                              },
+
+                              validator:
+                                  (value) =>
+                                      value == null || value.isEmpty
+                                          ? context
+                                              .appText
+                                              .pleaseSelectTruckLength
+                                          : null,
+                            ),
                           ),
                       ],
                     );
@@ -328,12 +369,21 @@ class _KavachAddVehicleBottomSheetState
                   mandatoryStar: true,
                   keyboardType: TextInputType.number,
                   maxLength: 10,
+                  currentFocus: capacityFocusNode,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   validator:
                       (value) => Validator.positiveNumber(
                         value,
                         fieldName: context.appText.capacity,
                       ),
+                  decoration: commonInputDecoration(
+                    suffixIcon: Text(
+                        'Metric Tons',
+                        style: AppTextStyle.body3.copyWith(
+                          color: AppColors.textGreyColor,
+                        ),
+                      ),
+                  ),
                 ),
                 10.height,
 
@@ -357,20 +407,28 @@ class _KavachAddVehicleBottomSheetState
                         mandatoryStar: true,
                         controller: acceptableCommoditiesController,
                         items: items,
+                        onTap: () {
+                          // Dismiss keyboard when tapping on commodities dropdown
+                          FocusScope.of(context).unfocus();
+                        },
                         onSelectionChange: (selected) {
                           // Selected commodities handled
+                          // Dismiss keyboard when selection changes
+                          FocusScope.of(context).unfocus();
                         },
                         validator:
                             (value) =>
                                 value == null || value.isEmpty
                                     ? context.appText.pleaseSelectCommodity
                                     : null,
+                        showValidationError: showValidationErrors,
                       );
 
 
 
                     } else if (state.commodities.status == Status.ERROR) {
-                      return Text('Error: ${state.commodities.errorType}');
+                      return Text('Error: ${state.commodities.errorType}',
+                      style: AppTextStyle.body3.copyWith(color: Colors.red));
                     }
 
                     return const SizedBox.shrink();
@@ -405,6 +463,9 @@ class _KavachAddVehicleBottomSheetState
                     20.width,
                     AppButton(
                       onPressed: () async {
+                        setState(() {
+                          showValidationErrors = true;
+                        });
                         if (!formKey.currentState!.validate()) return;
                         if (vehicleDocList.isEmpty) {
                           ToastMessages.alert(
@@ -467,7 +528,7 @@ class _KavachAddVehicleBottomSheetState
           ),
         ),
       ),
-    );
+    ));
   }
 }
 

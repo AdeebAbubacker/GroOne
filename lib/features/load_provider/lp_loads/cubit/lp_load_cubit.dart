@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
@@ -26,8 +27,14 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/trip_statement_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' show DamageReport;
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
@@ -38,8 +45,10 @@ part 'lp_load_state.dart';
 class LpLoadCubit extends BaseCubit<LpLoadState> {
   final LpLoadRepository _repository;
   final LpLoadPaginationController paginationController = LpLoadPaginationController();
+  final LoadDetailsRepository _loadDetailsRepository;
 
-  LpLoadCubit(this._repository) : super(LpLoadState());
+
+  LpLoadCubit(this._repository, this._loadDetailsRepository) : super(LpLoadState());
 
   // Updates the UI state related to loading LP loads.
   void _setLoadUIState(UIState<LpLoadResponse>? uiState) {
@@ -103,12 +112,79 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     Result result = await _repository.fetchLoadById(loadId: loadId);
 
     if (result is Success<LoadGetByIdResponse>) {
-      emit(state.copyWith(locationDistance: getDistance(result.value.data?.loadRoute?.pickUpLatlon??"0",result.value.data?.loadRoute?.dropLatlon??"0"), isFeedbackAdded: result.value.data?.notes.isNotEmpty));
       _setLoadByIdUIState(UIState.success(result.value));
+      await _handleTrackingBasedOnStatus(result.value);
+      await getAllDamagesImages();
+
     } else if (result is Error) {
       _setLoadByIdUIState(UIState.error(result.type));
     }
   }
+
+  Future getAllDamagesImages() async {
+    List<DamageReport> damageListData = List.from(
+        state.lpLoadById?.data?.data?.damageShortage ?? []);
+
+    List<String> imageList = [];
+    for (int i = 0; i < (damageListData.length); i++) {
+      final getDamageData = damageListData[i];
+      if ((getDamageData.image ?? []).isEmpty) {
+        return;
+      }
+      String typeId = getDamageData.image!.first;
+      await fetchDocumentById(typeId).then((value) {
+        imageList.add(value?.filePath ?? "");
+      });
+    }
+    emit(state.copyWith(allDamageImageList: imageList));
+  }
+
+  Future<ViewDocumentResponse?> fetchDocumentById(String documentId) async {
+    return _loadDetailsRepository.viewDocument(
+      documentId: documentId,
+    ).then((result) =>
+    (result is Success<ViewDocumentResponse>)
+        ? result.value
+        : null);
+  }
+
+  Future<void> _handleTrackingBasedOnStatus(LoadGetByIdResponse data) async {
+    final status = LpHomeHelper.getLoadStatusFromString(data.data?.loadStatusDetails?.loadStatus);
+    final route = data.data?.loadRoute;
+
+    if (status != null && route != null) {
+      late final TrackingDistanceApiRequest request;
+
+      if (status.index <= LoadStatus.assigned.index) {
+        // Use pickup & drop coordinates
+        final pickup = route.pickUpLatlon.split(',');
+        final drop = route.dropLatlon.split(',');
+
+        request = TrackingDistanceApiRequest(
+          originLat: double.tryParse(pickup.first) ?? 0.0,
+          originLong: double.tryParse(pickup.last) ?? 0.0,
+          currentLat: double.tryParse(pickup.first) ?? 0.0,
+          currentLong: double.tryParse(pickup.last) ?? 0.0,
+          destLat: double.tryParse(drop.first) ?? 0.0,
+          destLong: double.tryParse(drop.last) ?? 0.0,
+        );
+      } else {
+        // Use trackingDetails
+        final tracking = data.data?.trackingDetails;
+        request = TrackingDistanceApiRequest(
+          originLat: tracking?.originLat ?? 0.0,
+          originLong: tracking?.originLong ?? 0.0,
+          currentLat: tracking?.currentLat ?? 0.0,
+          currentLong: tracking?.currentLong ?? 0.0,
+          destLat: tracking?.destinationLat ?? 0.0,
+          destLong: tracking?.destinationLong ?? 0.0,
+        );
+      }
+
+      await getTrackingDistance(request: request);
+    }
+  }
+
 
   String getDistance(String pickUpLatLong,dropLatLong){
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
@@ -137,6 +213,24 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setLoadMemoState(UIState.success(result.value));
     } else if (result is Error) {
       _setLoadMemoState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to load trip Details.
+  void _setLoadTripState(UIState<TripStatementResponse>? uiState) {
+    emit(state.copyWith(lpLoadTripDetails: uiState));
+  }
+
+  // Fetches the LP load Memo Details.
+  Future<void> getLpLoadsTripDetails({required String loadId}) async {
+    _setLoadTripState(UIState.loading());
+
+    Result result = await _repository.fetchTripDetails(loadId: loadId);
+
+    if (result is Success<TripStatementResponse>) {
+      _setLoadTripState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadTripState(UIState.error(result.type));
     }
   }
 
@@ -189,7 +283,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
   // Send otp to e-sign memo
   Future<void> sendOtp({required String loadId}) async {
-    _setLoadUIState(UIState.loading());
+    _setSendOtpState(UIState.loading());
 
     Result result = await _repository.sendOtp(loadId: loadId);
 
@@ -207,7 +301,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
   // Verify otp of e-sign memo
   Future<void> verifyOtp({required String otp, required String loadId}) async {
-    _setLoadUIState(UIState.loading());
+    _setVerifyOtpState(UIState.loading());
 
     Result result = await _repository.verifyOtp(otp: otp, loadId: loadId);
 
@@ -376,6 +470,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     Result result = await _repository.getTrackingDistance(request: request);
 
     if (result is Success<TrackingDistanceResponse>) {
+      emit(state.copyWith(locationDistance: result.value.overalldistance));
       _setTrackingDistanceState(UIState.success(result.value));
     } else if (result is Error) {
       _setTrackingDistanceState(UIState.error(result.type));
@@ -450,13 +545,13 @@ void _setCreateOrderResult(UIState<LpCreateOrderResponse>? uiState) {
 // Craete order for a particular load
 Future<void> createOrder({
   required String loadId,
-  required CreateOrderIdRequest createOrderidReuest,
+  required CreateOrderIdRequest createOrderIdRequest,
 }) async {
   _setCreateOrderResult(UIState.loading());
 
   Result result = await _repository.createOrder(
     loadId: loadId,
-    createOrderIdRequest: createOrderidReuest,
+    createOrderIdRequest: createOrderIdRequest,
   );
 
   if (result is Success<LpCreateOrderResponse>) {
@@ -493,19 +588,23 @@ Future<void> createOrder({
     final file = File(filePath);
 
     try {
+      final dio = Dio();
       if (await file.exists()) {
-        await OpenFilex.open(filePath);
-        markDocumentAsDownloaded(downloadKey);
-      } else {
-        final dio = Dio();
-        await dio.download(docUrl, filePath);
-        markDocumentAsDownloaded(downloadKey);
-        await OpenFilex.open(filePath);
+        await file.delete();
       }
+      await dio.download(docUrl, filePath);
+      setDownloadingKey('');
+      await OpenFilex.open(filePath);
     } catch (e) {
-      ToastMessages.error(message: 'Failed to download the document ');
+      setDownloadingKey('');
+      ToastMessages.error(message: appContext.appText.failedToDownloadDocuments);
     }
   }
+
+  void setDownloadingKey(String? key) {
+    emit(state.copyWith(downloadingKey: key));
+  }
+
 
 }
 

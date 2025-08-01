@@ -1,4 +1,4 @@
-import 'dart:io';
+
 
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
@@ -6,6 +6,8 @@ import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
+import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class GpsOrderApiRepository {
@@ -119,11 +121,24 @@ class GpsOrderApiRepository {
   }
 
   /// Check GPS KYC Documents Repository
-  Future<Result<GpsKycCheckModel>> checkKycDocuments(String customerId) async {
+  Future<Result<GpsKycCheckResponseModel>> checkKycDocuments(String customerId) async {
     try {
       return await _gpsOrderApiService.checkKycDocuments(customerId);
     } catch (e) {
       CustomLog.error(this, "Failed to check GPS KYC documents", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Upload GPS KYC Documents Repository (new API)
+  Future<Result<GpsKycUploadResponseModel>> uploadKycDocuments(
+      GpsKycUploadRequest request,
+      String customerId,
+      ) async {
+    try {
+      return await _gpsOrderApiService.uploadKycDocuments(request, customerId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to upload GPS KYC documents", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -179,6 +194,28 @@ class GpsOrderApiRepository {
       );
     } catch (e) {
       CustomLog.error(this, "Failed to fetch users in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Fetches available stock for a specific GPS product
+  Future<Result<int>> fetchAvailableStock({
+    required String productId,
+  }) async {
+    try {
+      return await _gpsOrderApiService.fetchAvailableStock(productId: productId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch available stock in repository", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Initiate GPS Payment Repository
+  Future<Result<OrderAddedSuccess>> initiatePayment(KavachInitiatePaymentRequest request) async {
+    try {
+      return await _gpsOrderApiService.initiatePayment(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to initiate GPS payment", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

@@ -35,13 +35,14 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
   final cubit = locator<PodDispatchCubit>();
 
-  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
-
   final courierCompanyTextController = TextEditingController();
   final awbNumberTextController = TextEditingController();
 
   String? podCenterIdDropDownValue;
   String? podCenterNameDropDownValue;
+
+  bool isPodCenterDropDownEnabled = false;
+
 
   @override
   void initState() {
@@ -64,27 +65,46 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
   });
 
 
+  void clearTextFields() {
+    courierCompanyTextController.clear();
+    awbNumberTextController.clear();
+  }
+
+  void clearDropDownFields() {
+    podCenterIdDropDownValue = null;
+    podCenterNameDropDownValue = null;
+    isPodCenterDropDownEnabled = false;
+  }
+
+
   // Submit Pod Api call
   void submitPodApiCall() {
     if (widget.loadId == null && widget.loadId!.isEmpty) {
-      ToastMessages.error(message: "Something went wrong - Load Id : ${widget.loadId}");
+      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${context.appText.loadId} : ${widget.loadId}");
       return;
     }
-    if (formKey.currentState!.validate()) {
+
+    if(isPodCenterDropDownEnabled){
       if (podCenterNameDropDownValue != null && podCenterNameDropDownValue!.isEmpty) {
-        ToastMessages.alert(message: "Something went wrong - Pod Center Name : $podCenterNameDropDownValue");
+        ToastMessages.alert(message: "${context.appText.somethingWentWrong} - ${context.appText.podCenterName} : $podCenterNameDropDownValue");
         return;
       }
-
-      final request = SubmitPodApiRequest(
-          loadId: widget.loadId!,
-          courierCompany: courierCompanyTextController.text,
-          awbNumber: awbNumberTextController.text,
-          podCenterId: podCenterIdDropDownValue!,
-          podCenterName: podCenterNameDropDownValue!
-      );
-      cubit.submitPod(request);
+    } else {
+      if(awbNumberTextController.text.isEmpty && courierCompanyTextController.text.isEmpty){
+        ToastMessages.alert(message: context.appText.thisFieldIsRequired);
+        return;
+      }
     }
+
+    final request = SubmitPodApiRequest(
+        loadId: widget.loadId!,
+        courierCompany: courierCompanyTextController.text,
+        awbNumber: awbNumberTextController.text,
+        podCenterId: podCenterIdDropDownValue!,
+        podCenterName: podCenterNameDropDownValue!
+    );
+    cubit.submitPod(request);
+
   }
 
 
@@ -101,79 +121,83 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
   Widget _buildBodyWidget(BuildContext context){
     return  SafeArea(
       minimum : EdgeInsets.all(commonSafeAreaPadding),
-      child: Form(
-        key: formKey,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 20,
-          children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 20,
+        children: [
 
-            // Courier Company
-            AppTextField(
-              validator: (value) => Validator.fieldRequired(value),
-              controller: courierCompanyTextController,
-              labelText: context.appText.courierCompany,
-              hintText: "LED TV 42”",
-              textInputAction: TextInputAction.next,
-            ),
+          // Courier Company
+          AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: courierCompanyTextController,
+            labelText: context.appText.courierCompany,
+            hintText: "LED TV 42”",
+            textInputAction: TextInputAction.next,
+            onChanged: (value){
+              clearDropDownFields();
+            },
+          ),
 
-            // AWB Number
-            AppTextField(
-              validator: (value) => Validator.fieldRequired(value),
-              controller: awbNumberTextController,
-              labelText: context.appText.awbNumber,
-              hintText: "54678765436898",
-              textInputAction: TextInputAction.next,
-            ),
+          // AWB Number
+          AppTextField(
+            validator: (value) => Validator.fieldRequired(value),
+            controller: awbNumberTextController,
+            labelText: context.appText.awbNumber,
+            hintText: "54678765436898",
+            textInputAction: TextInputAction.next,
+            onChanged: (value){
+              clearDropDownFields();
+            },
+          ),
 
-            orDivider(),
+          orDivider(),
 
 
-            // POD Center
-            BlocConsumer<PodDispatchCubit, PodDispatchState>(
-              bloc: cubit,
-              listenWhen: (previous, current) =>  previous.podCenterListUIState?.status != current.podCenterListUIState?.status,
-              listener: (context, state) {
-                final status = state.podCenterListUIState?.status;
+          // POD Center
+          BlocConsumer<PodDispatchCubit, PodDispatchState>(
+            bloc: cubit,
+            listenWhen: (previous, current) =>  previous.podCenterListUIState?.status != current.podCenterListUIState?.status,
+            listener: (context, state) {
+              final status = state.podCenterListUIState?.status;
 
-                if (status == Status.ERROR) {
-                  final error = state.podCenterListUIState?.errorType;
-                  ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-                }
+              if (status == Status.ERROR) {
+                final error = state.podCenterListUIState?.errorType;
+                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+              }
 
-              },
-              builder: (context, state) {
-                final data = state.podCenterListUIState?.data;
-                if(data != null && data.data.isNotEmpty){
-                  return Column(
-                    children: [
-                      AppDropdown(
-                        validator: (value) => Validator.fieldRequired(value),
-                        labelText: context.appText.podCenter,
-                        hintText: "Select POD Center",
-                        dropdownValue: podCenterIdDropDownValue,
-                        decoration: commonInputDecoration(fillColor: Colors.white),
-                        dropDownList: data.data.map((e) => DropdownMenuItem(
-                          value: e.podCenterId,
-                          child: Text(e.podCenterName.capitalize, style: AppTextStyle.body),
-                          onTap: (){
-                            podCenterIdDropDownValue = e.podCenterId;
-                            podCenterNameDropDownValue = e.podCenterName;
-                          },
-                        )).toList(),
-                        onChanged: (onChangeValue) {
-                          podCenterIdDropDownValue = onChangeValue;
+            },
+            builder: (context, state) {
+              final data = state.podCenterListUIState?.data;
+              if(data != null && data.data.isNotEmpty){
+                return Column(
+                  children: [
+                    AppDropdown(
+                      labelText: context.appText.podCenter,
+                      hintText: context.appText.selectPodCenter,
+                      dropdownValue: podCenterIdDropDownValue,
+                      decoration: commonInputDecoration(fillColor: Colors.white),
+                      dropDownList: data.data.map((e) => DropdownMenuItem(
+                        value: e.podCenterId,
+                        child: Text(e.podCenterName.capitalize, style: AppTextStyle.body),
+                        onTap: (){
+                          podCenterIdDropDownValue = e.podCenterId;
+                          podCenterNameDropDownValue = e.podCenterName;
                         },
-                      ),
-                    ],
-                  );
-                }
-                return const SizedBox();
-              },
-            ),
+                      )).toList(),
+                      onChanged: (onChangeValue) {
+                        podCenterIdDropDownValue = onChangeValue;
+                        isPodCenterDropDownEnabled = true;
+                        clearTextFields();
+                      },
+                    ),
+                  ],
+                );
+              }
+              return const SizedBox();
+            },
+          ),
 
-          ],
-        ),
+        ],
       ),
     );
   }

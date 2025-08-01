@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_mo
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/settlement_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
@@ -19,7 +20,7 @@ class LoadDetailsState extends Equatable {
   final UIState<VpLoadAcceptModel>? vpLoadStatus;
   final UIState<DirectionResponse>? directionApiResponse;
   final UIState<ScheduleTripResponse>? scheduleTripResponse;
-  final UIState<DamageModel>? settlementUIState;
+  final UIState<SettlementApiResponse>? settlementUIState;
   final UIState<DamageModel>? createDamageUIState;
   final UIState<UpdateDamageModel>? updateDamageUIState;
   final UIState<DeleteDamageModel>? deleteDamageUIState;
@@ -30,9 +31,10 @@ class LoadDetailsState extends Equatable {
   final bool? isUpdateDamage;
   final String? damageId;
 
-  final List<DocumentEntity>? tripDocumentList ;
+  final List<DocumentEntity>? tripDocumentList;
   final UIState<TrackingDistanceResponse>? trackingDistance;
   final int? loadStatusId;
+  final List<String>? allDamageImageList;
 
   const LoadDetailsState({
     this.trackingDistance,
@@ -52,7 +54,8 @@ class LoadDetailsState extends Equatable {
     this.damageListUIState,
     this.isUpdateDamage,
     this.damageId,
-    this.tripDocumentList
+    this.tripDocumentList,
+    this.allDamageImageList
   });
 
   LoadDetailsState copyWith({
@@ -63,7 +66,7 @@ class LoadDetailsState extends Equatable {
     UIState<DirectionResponse>? directionApiResponse,
     UIState<LoadDetailModel>? loadDetailsUIState,
     UIState<ScheduleTripResponse>? scheduleTripResponse,
-    UIState<DamageModel>? settlementUIState,
+    UIState<SettlementApiResponse>? settlementUIState,
     UIState<DamageModel>? createDamageUIState,
     UIState<UpdateDamageModel>? updateDamageUIState,
     UIState<DeleteDamageModel>? deleteDamageUIState,
@@ -74,11 +77,12 @@ class LoadDetailsState extends Equatable {
     UIState<GetDamageListModel>? damageListUIState,
     bool? isUpdateDamage,
     String? damageId,
-    List<DocumentEntity>? tripDocumentList
-
+    List<DocumentEntity>? tripDocumentList,
+    List<String>? allDamageImageList
   }) {
     return LoadDetailsState(
       trackingDistance: trackingDistance ?? this.trackingDistance,
+        allDamageImageList: allDamageImageList ?? this.allDamageImageList,
       tripDocumentList:tripDocumentList?? this.tripDocumentList ,
       loadStatusId: loadStatusId?? this.loadStatusId,
       directionApiResponse: directionApiResponse ?? this.directionApiResponse,
@@ -118,7 +122,8 @@ class LoadDetailsState extends Equatable {
     isUpdateDamage,
     damageId,
     tripDocumentList,
-    trackingDistance
+    trackingDistance,
+    allDamageImageList
   ];
 
 }

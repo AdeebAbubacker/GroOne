@@ -8,7 +8,10 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -26,32 +29,33 @@ import '../../../../load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 
 class VpAllLoadAvailableLoadWidget extends StatefulWidget {
   final VpRecentLoadData data;
-
-  const VpAllLoadAvailableLoadWidget({
-    super.key,
-    required this.data,
-  });
+  final Function() onBack;
+  const VpAllLoadAvailableLoadWidget({super.key, required this.data, required this.onBack});
 
   @override
-  State<VpAllLoadAvailableLoadWidget> createState() =>
-      _VpAllLoadAvailableLoadWidgetState();
+  State<VpAllLoadAvailableLoadWidget> createState() => _VpAllLoadAvailableLoadWidgetState();
 }
 
 class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWidget> {
+
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
   final bloc = locator<VpAcceptLoadBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
 
   @override
   Widget build(BuildContext context) {
+
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
 
     return GestureDetector(
-      onTap: () {
-        context.push(AppRouteName.loadDetailsScreen,extra: {
+      onTap: () async {
+       await context.push(AppRouteName.loadDetailsScreen,extra: {
           "loadId":widget.data.id
-        });
+        }).then((value) {
+         widget.onBack();
+       },);
         },
       child: Container(
         padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
@@ -63,7 +67,9 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   decoration: commonContainerDecoration(
@@ -72,32 +78,38 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                   ),
                   child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
                 ),
-                15.width,
+
+                10.width,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.data.loadId, style: AppTextStyle.h5),
+                    Text(
+                      formatDateTimeKavach(widget.data.createdAt?.toString() ??DateTime.now().toString()),
+                      style: AppTextStyle.primaryColor12w400,
+                    ),
+                  ],
+                ).expand(),
+                5.width,
+
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Wrap(
                       children: [
-                        Text(
-                          widget.data.pickUpWholeAddr.capitalize,
-                          style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 1,
-                        ),
+
+                        _buildLocationInfoWidget(    widget.data.pickUpLocation.capitalize),
+
                         Icon(
                           Icons.arrow_right_alt_outlined,
                           color: AppColors.primaryColor,
                         ).paddingSymmetric(horizontal: 5),
-                        Text(
-                          widget.data.dropWholeAddr.capitalize,
-                          style: AppTextStyle.textBlackColor18w500,
-                          maxLines: 1,
-                        ),
+
+                        _buildLocationInfoWidget(   widget.data.dropLocation.capitalize,),
+
                       ],
                     ),
-                    Text(
-                      formatDateTimeKavach(widget.data.dueDate?.toString()??DateTime.now().toString()),
-                      style: AppTextStyle.primaryColor12w400,
-                    ),
+
                   ],
                 ).expand(),
               ],
@@ -124,7 +136,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                       iconSvg: AppIcons.svg.deliveryTruckSpeed,
                     ),
                     detailWidget(
-                      text: "${widget.data.consignmentWeight} Tonn",
+                      text: "${widget.data.consignmentWeight} ${context.appText.tonn}",
                       iconSvg: AppIcons.svg.weight,
                     ),
                   ],
@@ -151,7 +163,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                 children: [
                   FittedBox(
                     child: Text(
-                      "Quoted Price",
+                     context.appText.quotedPrice,
                       style: AppTextStyle.textBlackColor18w400,
                       textAlign: TextAlign.center,
                     )
@@ -168,8 +180,19 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
               ),
             ),
             20.height,
-            BlocBuilder<VpAcceptLoadBloc, VpAcceptLoadState>(
+            BlocConsumer<VpAcceptLoadBloc, VpAcceptLoadState>(
               bloc: bloc,
+              listener: (context, state) {
+                if(state is VpAcceptLoadSuccess){
+                  var parameter = {
+                    "loadId": widget.data.id.toString(),
+                    "status": "accepted",
+                    "amount": amount,
+                  };
+                  analyticsHelper.logEvent(AnalyticEventName.ACCEPT_LOAD, parameter);
+                }
+              },
+              listenWhen: (previous, current) => previous != current,
               builder: (context, state) {
                 return Row(
                   children: [
@@ -195,13 +218,13 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                       ),
                     ),
                     10.width,
+
+                    // Accept Load
                     AppButton(
                       buttonHeight: 40,
                       onPressed: () {
                         if (VpVariables.isKycVerified) {
-                          bloc.add(
-                            VpAcceptLoad(loadId: widget.data.id.toString()),
-                          );
+                          bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
                         } else {
                           commonBottomSheetWithBGBlur(
                             context: context,
@@ -212,10 +235,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                                   context: context,
                                   screen: EnterAadhaarNumberBottomSheet(),
                                 ).then((_) {
-                                  lpHomeBloc.add(
-                                    GetProfileDetailApiRequest(
-                                      lpHomeBloc.userId ?? "0",
-                                    ),
+                                  lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
                                   );
                                 });
                               },
@@ -224,7 +244,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                         }
                       },
                       isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
-                      title: 'Accept Load',
+                      title:  context.appText.acceptLoad,
                     ).expand(),
                   ],
                 );
@@ -248,6 +268,15 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
         10.width,
         Text(text, style: AppTextStyle.body),
       ],
+    );
+  }
+
+  Widget _buildLocationInfoWidget(String? location){
+    String locationText=location?.split(",").first??"";
+    return Text(
+      locationText,
+      style: AppTextStyle.blackColor15w500,
+      maxLines: 1,
     );
   }
 }

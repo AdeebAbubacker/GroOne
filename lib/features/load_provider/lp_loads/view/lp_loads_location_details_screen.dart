@@ -46,7 +46,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
   final lpLoadLocator = locator<LpLoadCubit>();
   Timer? _ticker;
   String _countDown = "00:00:00";
-  bool _consentStatusCalled = false;
 
 
   @override
@@ -96,17 +95,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     }
   }
 
-  getTrackingDistance(LoadData loadItem) async {
-    await lpLoadLocator.getTrackingDistance(request: TrackingDistanceApiRequest(
-        originLat: loadItem.trackingDetails?.originLat ?? 0.0,
-        originLong: loadItem.trackingDetails?.originLong ?? 0.0,
-        currentLat: loadItem.trackingDetails?.currentLat ?? 0.0,
-        currentLong: loadItem.trackingDetails?.currentLong ?? 0.0,
-        destLat: loadItem.trackingDetails?.destinationLat ?? 0.0,
-        destLong: loadItem.trackingDetails?.destinationLong ?? 0.0,
-    ));
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -123,7 +111,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 return Stack(
                   children: [
                     Positioned(top: 20,left: 0,child: IconButton(icon: Icon(Icons.arrow_back), onPressed: () => Navigator.pop(context))),
-                    genericErrorWidget(onRefresh: () => lpLoadLocator.getLpLoadsById(loadId: widget.loadId)).paddingTop(50),
+                    genericErrorWidget(onRefresh: () => lpLoadLocator.getLpLoadsById(loadId: widget.loadId), error: uiState.errorType).paddingTop(50),
                   ],
                 );
               }
@@ -135,11 +123,6 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 callTimer(loadItem);
               });
-
-              if (!_consentStatusCalled && status!.index >= LoadStatus.loading.index) {
-                _consentStatusCalled = true;
-                getTrackingDistance(loadItem);
-              }
 
               return Stack(
                 children: [
@@ -186,7 +169,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 Text(loadItem.loadSeriesId, style: AppTextStyle.body3),
                 Spacer(),
                 Text(
-                  loadItem.createdAt != null ? DateTimeHelper.formatCustomDateIST(loadItem.createdAt!) : "--",
+                  loadItem.createdAt != null ? DateTimeHelper.formatCustomDateTimeIST(loadItem.createdAt!) : "--",
                   style: AppTextStyle.body4PrimaryColor.copyWith(fontSize: 10),
                 ),
               ],
@@ -211,7 +194,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     ),
                     Text(
                       loadItem.pickUpDateTime != null
-                          ? DateTimeHelper.getFormattedDate(loadItem.pickUpDateTime!)
+                          ? DateTimeHelper.formatCustomDateIST(loadItem.pickUpDateTime!)
                           : "--",
                       style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor),
                     ),
@@ -236,7 +219,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     ),
                     Text(
                       loadItem.expectedDeliveryDateTime != null
-                          ? DateTimeHelper.getFormattedDate(loadItem.expectedDeliveryDateTime!)
+                          ? DateTimeHelper.formatCustomDateIST(loadItem.expectedDeliveryDateTime!)
                           : "--",
                       style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor),
                     ),
@@ -279,22 +262,9 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       ),
                     ),
                     4.height,
-                    if (status == LoadStatus.kycPending)
-                      if(loadItem.customer?.kycPendingDate != null)
-                        Text(
-                        _countDown,
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ).paddingRight(5),
-                    if (status == LoadStatus.matching)
-                        Text(
-                        _countDown,
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ).paddingRight(5) ,
-                    if (status == LoadStatus.inTransit && !loadItem.loadOnhold)
+                    if (status == LoadStatus.kycPending || status == LoadStatus.matching)
+                      Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)),
+                    if((status == LoadStatus.inTransit && (loadItem.lpPaymentsData == null)))
                       Row(
                         children: [
                           const Icon(Icons.error, size: 16, color: AppColors.iconRed),

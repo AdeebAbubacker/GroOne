@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -24,11 +27,13 @@ import '../bloc/role_bloc.dart';
 class ChooseRoleScreen extends StatelessWidget {
   final String userId;
   final String mobileNumber;
-
   const ChooseRoleScreen({super.key,required this.userId,required this.mobileNumber, });
 
   @override
   Widget build(BuildContext context) {
+
+    final analytics = locator<AnalyticsService>();
+
     return Scaffold(
       appBar: CommonOnboardingAppbar(),
       body: BlocBuilder<RoleBloc, RoleState>(
@@ -44,7 +49,7 @@ class ChooseRoleScreen extends StatelessWidget {
                   context.appText.chooseRoleText,
                   style: AppTextStyle.textBlackColors20w400,
                 ),
-                chooseRoleTile(
+                buildRoleSelectionTileWidget(
                   isSelected: state.index == 0 ? true : false,
                   text1: context.appText.loadProvider,
                   text2: context.appText.lpText,
@@ -53,7 +58,7 @@ class ChooseRoleScreen extends StatelessWidget {
                   },
                   imageString: AppImage.png.lp,
                 ),
-                chooseRoleTile(
+                buildRoleSelectionTileWidget(
                   isSelected: state.index == 1 ? true : false,
                   text1: context.appText.truckProvider,
                   text2: context.appText.vpText,
@@ -62,7 +67,7 @@ class ChooseRoleScreen extends StatelessWidget {
                   },
                   imageString: AppImage.png.vp,
                 ),
-                chooseRoleTile(
+                buildRoleSelectionTileWidget(
                   isSelected: state.index == 2 ? true : false,
                   text1: context.appText.vpLpHeading,
                   text2: context.appText.vpLp,
@@ -71,7 +76,7 @@ class ChooseRoleScreen extends StatelessWidget {
                   },
                   imageString: AppImage.png.lpVp,
                 ),
-                chooseRoleTile(
+                buildRoleSelectionTileWidget(
                   isSelected: state.index == 3 ? true : false,
                   text1:  context.appText.fleetHeading,
                   text2: context.appText.fleet,
@@ -81,46 +86,48 @@ class ChooseRoleScreen extends StatelessWidget {
                   imageString: AppImage.png.fleet,
                 ),
                 30.height,
+
                 AppButton(
                   title: context.appText.next,
                   onPressed: () {
-                    // CustomLog.debug(this, "Role Id : ${state.index + 1}");
-                    // context.push(AppRouteName.login, extra: "${state.index + 1}");
 
                     final roleId = state.index + 1;
+                    final extra = {
+                      "userId": userId,
+                      "mobileNumber": mobileNumber,
+                      "roleId": roleId.toString(),
+                    };
 
-                  switch (roleId) {
-                    case 1: // Load Provider
-                    context.push(
-                          AppRouteName.lpCreateAccount,
-                          extra: {
-                            "userId": userId,
-                            "mobileNumber": mobileNumber,
-                            "roleId": roleId.toString(),
-                          },
-                    );
-                      break;
-                    case 2:
-                    Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
-                    break;
-                    case 3: // Both
-                      Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
-                      break;
-                    case 4: // Fleet Products
-                      Navigator.push(context, commonRoute(VpCreationFormScreen(id: userId ?? '', mobileNumber:mobileNumber, roleId: roleId), isForward: true));
-                      break;
-
-                }
+                    switch (roleId) {
+                      case 1: // Load Provider
+                       context.push(AppRouteName.lpCreateAccount, extra: extra);
+                       break;
+                      case 2:
+                         Navigator.push(context, commonRoute(VpCreationFormScreen(
+                             id: userId,
+                             mobileNumber:mobileNumber,
+                             roleId: roleId,
+                         ), isForward: true));
+                         break;
+                      case 3: // Both
+                          Navigator.push(context, commonRoute(VpCreationFormScreen(
+                              id: userId,
+                              mobileNumber:mobileNumber,
+                              roleId: roleId,
+                          ), isForward: true));
+                          break;
+                      case 4: // Fleet Products
+                        context.push(AppRouteName.lpCreateAccount, extra: extra);
+                          break;
+                    }
+                    analytics.logScreenView("RoleSelectionScreen");
+                    analytics.logEvent(AnalyticEventName.ONBOARD_ROLE_SELECTED, extra);
                   },
                 ),
                  50.height,
 
                 Text(context.appText.poweredByHindujagroup, style: AppTextStyle.bodyPrimaryColor).center()
 
-
-
-                // Text("Powered by Hinduja Group", style: AppTextStyle.bodyPrimaryColor).center(),
-               // Center(child: Image.asset(AppImage.png.hinduja)),
               ],
             ),
           ).withScroll();
@@ -129,9 +136,9 @@ class ChooseRoleScreen extends StatelessWidget {
     );
   }
 
-  Widget chooseRoleTile({
-    required String text1,
 
+  Widget buildRoleSelectionTileWidget({
+    required String text1,
     required bool isSelected,
     required String text2,
     required GestureTapCallback onTap,

@@ -31,6 +31,10 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/common_functions.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
+import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
+import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
+import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import 'kavach_support_screen.dart';
 import 'kavach_transaction_screen.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
@@ -409,6 +413,21 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                   title: context.appText.checkout.capitalize,
                   onPressed: () async {
                     final bloc = context.read<KavachProductsListBloc>();
+                    
+                    // Clear address blocs if no previous addresses are stored
+                    // This ensures fresh start for new orders
+                    if (selectedBillingAddress == null && selectedShippingAddress == null) {
+                      try {
+                        final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+                        billingBloc.add(ClearKavachBillingAddress());
+                        
+                        final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
+                        shippingBloc.add(ClearKavachShippingAddress());
+                      } catch (e) {
+                        // Handle any errors if blocs are not available
+                      }
+                    }
+                    
                     final result = await Navigator.of(context).push(
                       commonRoute(
                         KavachCheckoutScreen(
@@ -434,6 +453,21 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                     );
 
                     if (result != null) {
+                      // Check if search should be cleared
+                      final shouldClearSearch = result['clearSearch'] as bool? ?? false;
+                      
+                      if (shouldClearSearch) {
+                        // Clear search and fetch all products
+                        searchController.clear();
+                        bloc.add(events.ClearKavachQuantities());
+                        bloc.add(
+                          events.FetchKavachProducts(
+                            search: "", // Empty search to fetch all products
+                            preferences: bloc.state.userPreferences,
+                          ),
+                        );
+                      }
+                      
                       // Update quantities
                       bloc.add(
                         events.UpdateKavachQuantities(result['quantities']),

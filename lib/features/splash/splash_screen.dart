@@ -90,12 +90,13 @@ class _SplashScreenState extends State<SplashScreen> {
     CustomLog.debug(this, "User Role data type : ${userRole.runtimeType}");
     if (userRole == 0) {
       context.go(AppRouteName.driverHome);
-    } 
-    else if (userRole == 1) {
+    } else if (userRole == 1) {
       context.go(AppRouteName.lpBottomNavigationBar);
     } else if (userRole == 2) {
       context.go(AppRouteName.vpBottomNavigationBar);
     } else if (userRole == 3){
+      context.go(AppRouteName.lpBottomNavigationBar);
+    } else if (userRole == 4){
       context.go(AppRouteName.lpBottomNavigationBar);
     } else {
       context.push(AppRouteName.notFound);

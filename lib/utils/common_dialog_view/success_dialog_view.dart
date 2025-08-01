@@ -55,7 +55,7 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
 
 
         if(widget.message != null)...[
-          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.bodyGreyColor),
+          Text(widget.message!, textAlign: TextAlign.center, style: AppTextStyle.body1),
           20.height,
         ],
 
@@ -65,6 +65,7 @@ class _SuccessDialogViewState extends State<SuccessDialogView> {
             onPressed:widget.onContinue ?? (){},
             title: context.appText.continueText,
           ),
+          10.height,
         ],
 
 

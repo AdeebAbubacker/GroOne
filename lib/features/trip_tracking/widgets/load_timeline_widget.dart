@@ -39,7 +39,9 @@ class LoadTimelineWidget extends StatelessWidget {
                   Container(
                     width: 2,
                     height: 40,
-                    color: AppColors.greyTextColor,
+                    color: isCurrent || isCompleted
+                        ? AppColors.primaryIconColor
+                        : AppColors.greyTextColor,
                   ),
               ],
             ),
@@ -56,7 +58,7 @@ class LoadTimelineWidget extends StatelessWidget {
                   5.height,
                   Text(
                     ((isCompleted || isCurrent) && item.timestamp != null)
-                        ? DateTimeHelper.formatCustomDateIST(item.timestamp!)
+                        ? DateTimeHelper.formatCustomDateTimeIST(item.timestamp!)
                         : '',
                     style: AppTextStyle.body4.copyWith(color: AppColors.textGreyDetailColor),
                   ),

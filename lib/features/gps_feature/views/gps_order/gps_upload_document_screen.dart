@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -66,20 +67,25 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
   }
 
   void _showOtpBottomSheet(BuildContext context, GpsUploadDocumentCubit cubit) {
-    commonBottomSheetWithBGBlur(
-      context: context,
-      screen: GpsOtpVerificationBottomSheet(cubit: cubit),
-    );
+    // Add a small delay for smoother transition
+    Future.delayed(Duration(milliseconds: 100), () {
+      if (context.mounted) {
+        commonBottomSheetWithBGBlur(
+          context: context,
+          screen: GpsOtpVerificationBottomSheet(cubit: cubit),
+        );
+      }
+    });
   }
 
   void _showSuccessDialog(BuildContext context) {
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        message: 'KYC documents uploaded successfully!',
+        message: context.appText.kycDocumentsUploadedSuccessfully,
         onContinue: () {
           Navigator.of(context).pop();
-          Navigator.of(context).push(commonRoute(GpsModelsScreen()));
+          Navigator.of(context).pushReplacement(commonRoute(GpsModelsScreen()));
         },
       ),
     );
@@ -105,13 +111,13 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                     // Aadhaar Card Section
                     _buildLabelWithInfoIcon(
                       context,
-                      'Aadhaar Card',
+                      context.appText.aadhaarCard,
                       isMandatory: true,
                       isVerified: state.isAadhaarVerified,
                     ),
                     10.height,
                     AppTextField(
-                      hintText: 'Enter 12-digit Aadhaar number',
+                      hintText: context.appText.enter12DigitAadhaar,
                       controller: aadharNoController,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       validator:
@@ -134,16 +140,11 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                               previous.aadhaarSendOtpState !=
                               current.aadhaarSendOtpState,
                       listener: (context, state) {
-                        print(
-                          '🔍 GPS Aadhaar Send OTP State changed: ${state.aadhaarSendOtpState?.status}',
-                        );
                         if (state.aadhaarSendOtpState?.status ==
                             Status.SUCCESS) {
-                          print('🔍 GPS Showing OTP bottom sheet');
                           _showOtpBottomSheet(context, cubit);
                         }
                         if (state.aadhaarSendOtpState?.status == Status.ERROR) {
-                          print('🔍 GPS Aadhaar Send OTP failed');
                           final error = state.aadhaarSendOtpState?.errorType;
                           ToastMessages.error(
                             message: getErrorMsg(
@@ -156,16 +157,12 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         onPressed:
                             (state.isAadhaarValid && !state.isAadhaarVerified)
                                 ? () {
-                                  print('🔍 GPS Get OTP button pressed');
-                                  print(
-                                    '🔍 GPS Current aadhaar: "${state.aadhaar}"',
-                                  );
                                   cubit.sendAadhaarOtp();
                                 }
                                 : () {},
                         title:
                             state.isAadhaarVerified
-                                ? 'Verified'
+                                ? context.appText.verified
                                 : context.appText.getOtp,
                         textStyle: TextStyle(color: AppColors.primaryColor),
                         style:
@@ -179,15 +176,15 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                     // PAN Card Section
                     _buildLabelWithInfoIcon(
                       context,
-                      'PAN ',
-                      isMandatory: true,
+                      "${context.appText.pan} (Optional)",
+                      isMandatory: false, // PAN is optional
                       isVerified: state.isPanVerified,
                     ),
 
                     // _buildLabelWithInfoIcon(context, 'PAN (Optional)', isMandatory: true, isVerified: state.isPanVerified),
                     10.height,
                     AppTextField(
-                      hintText: 'Enter PAN number (e.g., ABCDE1234F)',
+                      hintText: context.appText.enterPanNumber,
                       controller: panNoController,
                       maxLength: 10,
                       validator:
@@ -210,7 +207,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         if (state.panVerificationState?.status ==
                             Status.SUCCESS) {
                           ToastMessages.success(
-                            message: 'PAN verified successfully!',
+                            message: context.appText.panVerifiedSuccessfully,
                           );
                         }
                         if (state.panVerificationState?.status ==
@@ -238,16 +235,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         cubit.updatePanDocuments(panDocList);
                       },
                     ),
-                    if (panDocList.isEmpty && state.hasAttemptedSubmit)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8.0),
-                        child: Text(
-                          'PAN document is required',
-                          style: AppTextStyle.body3.copyWith(
-                            color: AppColors.activeRedColor,
-                          ),
-                        ),
-                      ),
+                    // Removed PAN document validation since it's optional
                     30.height,
                   ],
                 ).paddingAll(commonSafeAreaPadding),
@@ -278,15 +266,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         builder: (context, state) {
           final bool isLoading = state.uploadKycState?.status == Status.LOADING;
           final bool isFormValid =
-              state.isAadhaarVerified && panDocList.isNotEmpty;
-
-          // Debug the form validation
-          print('🔍 GPS Submit Button Debug:');
-          print('  - isLoading: $isLoading');
-          print('  - isAadhaarVerified: ${state.isAadhaarVerified}');
-          print('  - panDocList.isEmpty: ${panDocList.isEmpty}');
-          print('  - panDocList.length: ${panDocList.length}');
-          print('  - isFormValid: $isFormValid');
+              state.isAadhaarVerified; // Only Aadhaar verification is required, PAN is optional
 
           return AppButton(
             onPressed:
@@ -299,10 +279,10 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         // Update the cubit with all document lists
                         cubit.updatePanDocuments(panDocList);
                         // Call the upload API
-                        cubit.uploadKycDocumentsMultipart();
+                        cubit.uploadKycDocuments();
                       } else {
                         ToastMessages.alert(
-                          message: "Please fill all required fields correctly",
+                          message: context.appText.pleaseFillAllRequiredFields,
                         );
                       }
                     }
@@ -352,30 +332,28 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
 
   void _showInfoDialog(BuildContext context, String fieldName) {
     String message = '';
-    switch (fieldName) {
-      case 'Aadhaar Card':
-        message =
-            '• Enter your 12-digit Aadhaar number\n'
-            '• Aadhaar number should not start with 0 or 1\n'
-            '• All digits should not be the same\n'
-            '• You will receive OTP for verification';
-        break;
-      case 'PAN':
-        message =
-            '• Enter your 10-character PAN number\n'
-            '• Format: ABCDE1234F (5 letters + 4 digits + 1 letter)\n'
-            '• PAN will be automatically verified when complete';
-        break;
-      case 'PAN Document':
-        message =
-            '• Upload your PAN card document\n'
-            '• This document will be used for all KYC requirements\n'
-            '• Ensure all details are clearly visible\n'
-            '• File size should be less than 5MB\n'
-            '• Supported formats: PDF, JPG, PNG';
-        break;
-      default:
-        message = 'Please provide valid information for this field.';
+    if (fieldName == context.appText.aadhaarCard) {
+      message =
+          '• Enter your 12-digit Aadhaar number\n'
+          '• Aadhaar number should not start with 0 or 1\n'
+          '• All digits should not be the same\n'
+          '• You will receive OTP for verification';
+    } else if (fieldName == context.appText.pan) {
+      message =
+          '• Enter your 10-character PAN number\n'
+          '• Format: ABCDE1234F (5 letters + 4 digits + 1 letter)\n'
+          '• Upload clear image of your PAN card\n'
+          '• Ensure all details are clearly visible';
+    } else if (fieldName == 'PAN Document') {
+      message =
+          '• Upload your PAN card document (Optional)\n'
+          '• This document will be used for KYC requirements\n'
+          '• Ensure all details are clearly visible\n'
+          '• File size should be less than 5MB\n'
+          '• Supported formats: PDF, JPG, PNG\n'
+          '• You can skip this if you don\'t have a PAN document';
+    } else {
+      message = 'Please provide valid information for this field.';
     }
 
     showDialog(
@@ -387,7 +365,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('OK'),
+              child: Text(context.appText.ok),
             ),
           ],
         );
@@ -408,120 +386,270 @@ class GpsOtpVerificationBottomSheet extends StatefulWidget {
 }
 
 class _GpsOtpVerificationBottomSheetState
-    extends State<GpsOtpVerificationBottomSheet> {
+    extends State<GpsOtpVerificationBottomSheet>
+    with TickerProviderStateMixin {
   String otpValue = '';
+  late AnimationController _animationController;
+  late AnimationController _slideAnimationController;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+  
+  // Resend OTP timer variables
+  bool _canResendOtp = false;
+  int _resendTimer = 10; // 10 seconds countdown
+  Timer? _timer;
 
   @override
-  void dispose() {
-    super.dispose();
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 400),
+      vsync: this,
+    );
+    _slideAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 500),
+      vsync: this,
+    );
+    
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeOut,
+    ));
+    
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 0.3),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _slideAnimationController,
+      curve: Curves.easeOutCubic,
+    ));
+    
+    _animationController.forward();
+    _slideAnimationController.forward();
+    
+    // Start the resend timer
+    _startResendTimer();
   }
 
   @override
+  void dispose() {
+    _animationController.dispose();
+    _slideAnimationController.dispose();
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _startResendTimer() {
+    _canResendOtp = false;
+    _resendTimer = 10;
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (mounted) {
+        setState(() {
+          if (_resendTimer > 0) {
+            _resendTimer--;
+          } else {
+            _canResendOtp = true;
+            timer.cancel();
+          }
+        });
+      }
+    });
+  }
+
+  void _resetResendTimer() {
+    _timer?.cancel();
+    _startResendTimer();
+  }
+
+    @override
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
-      title: 'Verify Your KYC',
+      title: context.appText.verifyYourKyc,
       hideDivider: false,
       isCloseButton: true,
       body: BlocListener<GpsUploadDocumentCubit, GpsUploadDocumentState>(
-        bloc: widget.cubit,
-        listenWhen:
-            (previous, current) =>
-                previous.aadhaarVerifyOtpState != current.aadhaarVerifyOtpState,
-        listener: (context, state) {
-          print(
-            '🔍 GPS OTP Verification State changed: ${state.aadhaarVerifyOtpState?.status}',
-          );
-          if (state.aadhaarVerifyOtpState?.status == Status.SUCCESS) {
-            print('🔍 GPS OTP verification successful, closing bottom sheet');
-            // Add a small delay to ensure the state is properly updated
-            Future.delayed(Duration(milliseconds: 500), () {
-              if (context.mounted) {
-                Navigator.of(context).pop();
-                ToastMessages.success(
-                  message: 'Aadhaar verified successfully!',
-                );
-              }
-            });
-          }
-          if (state.aadhaarVerifyOtpState?.status == Status.ERROR) {
-            print('🔍 GPS OTP verification failed');
-            final error = state.aadhaarVerifyOtpState?.errorType;
-            ToastMessages.error(
-              message: getErrorMsg(errorType: error ?? GenericError()),
-            );
-          }
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            20.height,
+              bloc: widget.cubit,
+              listenWhen:
+                  (previous, current) =>
+                      previous.aadhaarVerifyOtpState?.status != current.aadhaarVerifyOtpState?.status,
+              listener: (context, state) {
+                if (state.aadhaarVerifyOtpState?.status == Status.SUCCESS) {
+                  // Close bottom sheet immediately
+                  Navigator.of(context).pop();
+                  // Show success message after closing
+                  Future.delayed(Duration(milliseconds: 300), () {
+                    if (context.mounted) {
+                      ToastMessages.success(
+                        message: context.appText.aadhaarVerifiedSuccessfully,
+                      );
+                    }
+                  });
+                }
+                if (state.aadhaarVerifyOtpState?.status == Status.ERROR) {
+                  final error = state.aadhaarVerifyOtpState?.errorType;
+                  ToastMessages.error(
+                    message: getErrorMsg(errorType: error ?? GenericError()),
+                  );
+                }
+              },
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: FadeTransition(
+                  opacity: _fadeAnimation,
+                  child: Container(
+                    padding: EdgeInsets.all(8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                     // crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        // Instruction text matching the image design
+                        Text(
+                            context.appText.enterOtpSentToMobile,
+                            style: AppTextStyle.body2.copyWith(
+                              color: AppColors.primaryTextColor,
+                              height: 1.4,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        32.height,
 
-            Text(
-              'Enter the OTP sent to your registered Mobile number',
-              style: AppTextStyle.body3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            Text(
-              'OTP: 123456',
-              style: AppTextStyle.body3.copyWith(
-                color: Colors.blue,
-                fontWeight: FontWeight.bold,
+                        // OTP Input Field matching the image design (6 fields)
+                        Container(
+                          //padding: const EdgeInsets.symmetric(horizontal: 20),
+                          child: Column(
+                            children: [
+                              OtpTextField(
+                                numberOfFields: 6,
+                                borderColor: AppColors.borderColor,
+                                showFieldAsBox: true,
+                                borderRadius: BorderRadius.circular(8),
+                                fieldWidth: 45,
+                                fieldHeight: 60,
+                                textStyle: AppTextStyle.h4.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.primaryTextColor,
+                                  letterSpacing: 2,
+                                ),
+                                enabledBorderColor: AppColors.borderColor,
+                                focusedBorderColor: AppColors.primaryColor,
+                                cursorColor: AppColors.primaryColor,
+                                keyboardType: TextInputType.number,
+                                autoFocus: true,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                onCodeChanged: (String code) {
+                                  setState(() {
+                                    otpValue = code;
+                                  });
+                                },
+                                onSubmit: (String verificationCode) {
+                                  setState(() {
+                                    otpValue = verificationCode;
+                                  });
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        32.height,
+
+                        // Verify Button
+                        BlocBuilder<GpsUploadDocumentCubit, GpsUploadDocumentState>(
+                          bloc: widget.cubit,
+                          builder: (context, state) {
+                            final bool isLoading =
+                                state.aadhaarVerifyOtpState?.status == Status.LOADING;
+                            final bool isSuccess =
+                                state.aadhaarVerifyOtpState?.status == Status.SUCCESS;
+
+                            return Column(
+                              children: [
+                                AnimatedContainer(
+                                  duration: Duration(milliseconds: 300),
+                                  child: AppButton(
+                                    onPressed: isLoading
+                                        ? () {}
+                                        : () {
+                                            if (otpValue.length == 6) {
+                                              _verifyOtp(otpValue);
+                                            } else {
+                                              ToastMessages.alert(
+                                                message: 'Please enter valid 6-digit OTP',
+                                              );
+                                            }
+                                          },
+                                    title: isLoading 
+                                        ? 'Verifying...'
+                                        : context.appText.verifyOtp,
+                                    isLoading: isLoading,
+                                    style: otpValue.length == 6 && !isLoading
+                                        ? AppButtonStyle.primary
+                                        : AppButtonStyle.disableButton,
+                                  ),
+                                ),
+                                
+                                // Resend OTP option with timer
+                                if (!isLoading && !isSuccess)
+                                  AnimatedOpacity(
+                                    opacity: 1.0,
+                                    duration: Duration(milliseconds: 300),
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: TextButton(
+                                        onPressed: _canResendOtp ? () {
+                                          widget.cubit.sendAadhaarOtp();
+                                          _resetResendTimer();
+                                          ToastMessages.success(
+                                            message: 'OTP resent successfully',
+                                          );
+                                        } : null,
+                                        child: Text(
+                                          _canResendOtp 
+                                            ? (context.appText.resendOtp ?? 'Resend OTP')
+                                            : 'Resend OTP in ${_resendTimer}s',
+                                          style: AppTextStyle.body3.copyWith(
+                                            color: _canResendOtp 
+                                              ? AppColors.primaryColor 
+                                              : AppColors.primaryTextColor.withOpacity(0.5),
+                                            decoration: _canResendOtp 
+                                              ? TextDecoration.underline 
+                                              : TextDecoration.none,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ),
             ),
-            20.height,
-            OtpTextField(
-              numberOfFields: 6,
-              borderColor: AppColors.primaryColor,
-              showFieldAsBox: true,
-              borderRadius: BorderRadius.circular(8),
-              fieldWidth: 45,
-              onCodeChanged: (String code) {},
-              onSubmit: (String verificationCode) {
-                setState(() {
-                  otpValue = verificationCode;
-                });
-              },
-            ),
-            30.height,
-            BlocBuilder<GpsUploadDocumentCubit, GpsUploadDocumentState>(
-              bloc: widget.cubit,
-              builder: (context, state) {
-                final bool isLoading =
-                    state.aadhaarVerifyOtpState?.status == Status.LOADING;
-                final bool isSuccess =
-                    state.aadhaarVerifyOtpState?.status == Status.SUCCESS;
+          
+        );
+  }
 
-                return Column(
-                  children: [
-                    AppButton(
-                      onPressed:
-                          isLoading
-                              ? () {}
-                              : () {
-                                if (otpValue.length == 6) {
-                                  // Debug the cubit status before verification
-                                  widget.cubit.debugCubitStatus();
-                                  widget.cubit.verifyAadhaarOtp(otpValue);
-                                } else {
-                                  ToastMessages.alert(
-                                    message: 'Please enter a valid 6-digit OTP',
-                                  );
-                                }
-                              },
-                      title: 'Verify OTP',
-                      isLoading: isLoading,
-                      style:
-                          otpValue.length == 6 && !isLoading
-                              ? AppButtonStyle.primary
-                              : AppButtonStyle.disableButton,
-                    ),
-                  ],
-                );
-              },
-            ),
-          ],
-        ),
-      ),
-    );
+  void _verifyOtp(String otp) {
+    // Debug the cubit status before verification
+    widget.cubit.debugCubitStatus();
+    // Clear any previous state and verify OTP
+    widget.cubit.verifyAadhaarOtp(otp);
+    
+    // Add a safety timeout to close bottom sheet if verification takes too long
+    final context = this.context;
+    Future.delayed(Duration(seconds: 10), () {
+      if (context.mounted && Navigator.canPop(context)) {
+        Navigator.of(context).pop();
+        ToastMessages.error(message: 'Verification timeout. Please try again.');
+      }
+    });
   }
 }

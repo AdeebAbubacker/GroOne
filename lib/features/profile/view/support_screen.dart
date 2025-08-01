@@ -1,14 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
+import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/view/widgets/add_new_support_ticket.dart';
+import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_search_bar.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-import '../../../../utils/app_application_bar.dart';
-import '../../../../utils/app_text_style.dart';
+import '../../../utils/app_icons.dart';
+
+
 
 class LpSupport extends StatefulWidget {
   const LpSupport({super.key, this.showBackButton = true});
@@ -20,93 +40,370 @@ class LpSupport extends StatefulWidget {
 }
 
 class _LpSupportState extends State<LpSupport> {
-  List tabList = ["All", "In Transit", "Completed", "Pending"];
-  int selectedIndex = 0;
+  int selectedTabIndex = 0;
+
+  TextEditingController searchController = TextEditingController();
+  final profileCubit = locator<ProfileCubit>();
+
+
+  @override
+  void initState() {
+    super.initState();
+    initFunction();
+  }
+
+  void initFunction() => frameCallback(() async {
+    await profileCubit.fetchFaq();
+  });
+
+  void _onSearchChanged(String query) {
+    if (selectedTabIndex == 0) {
+      profileCubit.fetchFaq(search: searchController.text, isLoading: false);
+    } else {
+      profileCubit.fetchTickets(isLoading: false, request: TicketRequest(search: searchController.text));
+    }
+  }
+
+  void filterPopUp() {
+    AppDialog.show(
+      context,
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          final selected = state.tempSelectedTicketStatus;
+
+          return CommonDialogView(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            hideCloseButton: true,
+            showYesNoButtonButtons: true,
+            yesButtonText: context.appText.apply,
+            noButtonText: context.appText.clear,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(context.appText.filter, style: AppTextStyle.body1.copyWith(fontSize: 20)),
+                10.height,
+                RadioListTile<TicketStatus>(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(context.appText.pending),
+                  value: TicketStatus.pending,
+                  groupValue: selected,
+                  onChanged: (val) => profileCubit.updateTempTicketStatus(val),
+                ),
+                RadioListTile<TicketStatus>(
+                  contentPadding: EdgeInsets.zero,
+                  title: Text(context.appText.completed),
+                  value: TicketStatus.completed,
+                  groupValue: selected,
+                  onChanged: (val) => profileCubit.updateTempTicketStatus(val),
+                ),
+              ],
+            ),
+            onClickYesButton: () {
+              Navigator.pop(context);
+              profileCubit.applyTicketStatusFilter();
+            },
+            onClickNoButton: () {
+              Navigator.pop(context);
+              profileCubit.clearTicketStatusFilter();
+            },
+          );
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(
-        actions: [
-          InkWell(
-            onTap: () {
-              showCustomerCareBottomSheet(context);
-            },
-            child: Image.asset(
-              AppImage.png.customerSupport,
-              height: 32,
-              width: 32,
-            ),
-          ),
-          10.width,
-        ],
-        isLeading: widget.showBackButton ? true : false,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          context.appText.support,
-          style: AppTextStyle.textBlackColor18w500,
-        ),
-        toolbarHeight: 50,
-      ),
+      appBar: buildAppBar(),
 
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
-
+        padding: const EdgeInsets.all(18),
         child: Column(
-          spacing: 20,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            AppTextField(
-              decoration: commonInputDecoration(
-                fillColor: AppColors.white,
-                prefixIcon: Icon(Icons.search, color: AppColors.primaryColor),
-                hintText: "Search",
-              ),
-            ),
-
-            SizedBox(
-              height: 30,
-              width: MediaQuery.of(context).size.width,
-              child: ListView.builder(
-                shrinkWrap: true,
-                scrollDirection: Axis.horizontal,
-                itemCount: tabList.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: EdgeInsets.only(right: 10),
-                    child: tabWidget(
-                      text: tabList[index],
-                      onTap: () {
-                        selectedIndex = index;
-                        setState(() {});
-                      },
-                      selected: selectedIndex == index ? true : false,
-                    ),
-                  );
-                },
-              ),
-            ),
-
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-              decoration: BoxDecoration(color: AppColors.white),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "What’s the resolution time for disputes?",
-                    style: AppTextStyle.textBlackDetailColor15w500,
-                  ),
-                  dividerWidget(),
-                  Text(
-                    "Most issues are resolved within 24–48 hours. You’ll be notified via app and email on progress.",
-                    style: AppTextStyle.textGreyDetailColor12w400.copyWith(
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            buildToggleTabs(context),
+            18.height,
+            buildSearchBarAndFilterWidget(),
+            18.height,
+            buildBody(),
           ],
+        ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget buildAppBar() {
+    return CommonAppBar(
+      title: context.appText.support,
+      scrolledUnderElevation: 0,
+      isLeading: widget.showBackButton ? true : false,
+      actions: [
+        GestureDetector(
+          onTap: () {
+            commonSupportDialog(
+              context,
+              message: context.appText.callCustomerSupportSubtitle,
+            );
+          },
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Image.asset(AppImage.png.customerSupport, height: 28),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildToggleTabs(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        toggleButton(context.appText.faqs, 0),
+        12.width,
+        toggleButton(context.appText.tickets, 1),
+      ],
+    );
+  }
+
+  Widget buildSearchBarAndFilterWidget() {
+    return Row(
+      children: [
+        AppSearchBar(
+          searchController: searchController,
+          onChanged: _onSearchChanged,
+          onClear: () {
+            searchController.clear();
+            commonHideKeyboard(context);
+            _onSearchChanged('');
+          },
+        ).expand(),
+        8.width,
+        if(selectedTabIndex == 1)
+          AppIconButton(
+            onPressed: filterPopUp,
+            style: AppButtonStyle.primaryIconButtonStyle,
+            icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
+          ),
+      ],
+    );
+  }
+
+  Widget buildBody() {
+    return selectedTabIndex == 0 ? buildFAQList() : buildTicketList();
+  }
+
+  Widget buildFAQList() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        final uiState = state.faqUIState;
+
+        if (uiState == null || uiState.status == Status.LOADING) {
+          return CircularProgressIndicator().center().expand();
+        }
+
+        if (uiState.status == Status.ERROR) {
+          return genericErrorWidget(error: uiState.errorType).expand();
+        }
+
+        final faqList = uiState.data?.data?.data ?? [];
+
+        final isSearching = searchController.text.isNotEmpty;
+
+        if (faqList.isEmpty) {
+          final message = isSearching
+              ? context.appText.noSearchResults
+              : context.appText.noFAQFound;
+          return Text(message).center().expand();
+        }
+
+        return Expanded(
+          child: ListView.separated(
+            itemCount: faqList.length,
+            separatorBuilder: (_, __) => 12.height,
+            itemBuilder: (context, index) {
+              final faq = faqList[index];
+              return Container(
+                padding: const EdgeInsets.all(14),
+                decoration: commonContainerDecoration(
+                  borderColor: AppColors.lightGrey200,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(faq.question, style: AppTextStyle.body2),
+                    6.height,
+                    Divider(color: AppColors.borderColor),
+                    6.height,
+                    Text(
+                      faq.answer,
+                      style: AppTextStyle.body4.copyWith(color: AppColors.textGreyDetailColor),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildTicketList() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        final uiState = state.ticketState;
+
+        if (uiState == null || uiState.status == Status.LOADING) {
+          return CircularProgressIndicator().center().expand();
+        }
+
+        if (uiState.status == Status.ERROR) {
+          return genericErrorWidget(error: uiState.errorType).expand();
+        }
+
+        final ticketList = uiState.data?.data ?? [];
+
+        final isSearching = searchController.text.isNotEmpty;
+
+        if(ticketList.isEmpty) {
+          final message = isSearching
+              ? context.appText.noSearchResults
+              : context.appText.noTicketsFound;
+          return Column(
+            children: [
+              Text(message).center().expand(),
+              buildCreateTicketButton()
+            ],
+          ).expand();
+        }
+
+        return Expanded(
+          child: Column(
+            children: [
+              Expanded(
+                child: ListView.separated(
+                  itemCount: ticketList.length,
+                  separatorBuilder: (_, __) => 12.height,
+                  itemBuilder: (_, index) {
+                    final ticket = ticketList[index];
+                    final isCompleted = ticket.ticketStatusKey == 'COMPLETED';
+                    return Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: commonContainerDecoration(borderColor: AppColors.lightGrey200),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Ticket ID & Status
+                          Row(
+                            children: [
+                              Text(ticket.ticketSeriesId ?? '', style: AppTextStyle.h5),
+                              20.width,
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  color:
+                                      isCompleted
+                                          ? Colors.green.shade50
+                                          : Colors.orange.shade50,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  ticket.ticketStatusKey ?? '',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: isCompleted ? Colors.green : Colors.orange,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          commonDivider(height: 20),
+                          4.height,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                ticket.title,
+                                style: AppTextStyle.body3.copyWith(
+                                  color: AppColors.textGreyDetailColor,
+                                ),
+                              ),
+                              4.height,
+                              Text(
+                                DateTimeHelper.formatCustomDateTimeIST(
+                                  ticket.createdAt,
+                                ),
+                                style: AppTextStyle.body3.copyWith(
+                                  color: AppColors.grayColor,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          8.height,
+                          Text(
+                            ticket.description,
+                            style: AppTextStyle.body4.copyWith(
+                              color: AppColors.grayColor,
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
+              ),
+              buildCreateTicketButton()
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget buildCreateTicketButton() {
+    return AppButton(
+      onPressed: () {
+        Navigator.push(context, commonRoute(AddNewTicketScreen()));
+      },
+      title: context.appText.createNewTicket,
+    );
+  }
+
+  Widget toggleButton(String label, int index) {
+    final isSelected = selectedTabIndex == index;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () async {
+            selectedTabIndex = index;
+          if (index == 0) {
+            await profileCubit.fetchFaq();
+          } else {
+            profileCubit.fetchTickets(request: TicketRequest());
+          }
+          searchController.clear();
+          FocusManager.instance.primaryFocus?.unfocus();
+          setState(() {});
+        },
+        child: Container(
+          height: 42,
+          decoration: commonContainerDecoration(
+            color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            label,
+            style: AppTextStyle.body3.copyWith(
+              color: isSelected ? AppColors.white : AppColors.textGreyDetailColor,
+              fontSize: 14,
+            ),
+          ),
         ),
       ),
     );

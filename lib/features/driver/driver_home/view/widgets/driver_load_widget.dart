@@ -1,9 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
+import 'package:gro_one_app/features/driver/driver_pod/view/driver_pod_dispatch_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../../../utils/app_button.dart';
 import '../../../../../utils/app_button_style.dart';
@@ -20,189 +31,378 @@ class DriverLoadWidget extends StatefulWidget {
   final DriverLoadDetails driverLoadDetails;
   const DriverLoadWidget({super.key, required this.onClickAssignDriver,required this.driverLoadDetails});
 
+
   @override
   State<DriverLoadWidget> createState() => _DriverLoadWidgetState();
 }
 
 class _DriverLoadWidgetState extends State<DriverLoadWidget> {
-final bool isConsentGiven = false;
+@override
+void initState() {
+  super.initState();
+  _validateButtonStateOnInit();
+}
+bool _isButtonEnabled = true; 
 
+ // Button Status
+bool _shouldEnableButton(DriverLoadDetails? load) {
+  if (load == null) return false;
+
+  final currentStatus = load.loadStatusId ?? 0;
+  final documents = load.loadDocument ?? [];
+
+  // ✅ Status 4: Check if Memo document is uploaded
+  if (currentStatus == 4) {
+    final memoUploaded = load.loadMemoDetails != null;
+    return memoUploaded;
+  }
+
+  if (currentStatus == 5) {
+   // final isConsentGiven = load.driverConsent == 1;
+
+    final nestedDocuments = load.loadDocument ?? [];
+    //final documents = nestedDocuments.expand((list) => list).toList();
+
+    // normalized lower-case required docs exactly matching API string values
+    const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
+
+    final uploadedTypes = nestedDocuments
+      .where((doc) => doc.status == 1)
+      .map((doc) => doc.documentDetails?.documentType?.toLowerCase().trim() ?? '')
+      .toSet();
+
+    final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+
+    return  allRequiredDocsUploaded;
+  }
+
+  if (currentStatus == 7) {
+    final nestedDocuments = load.loadDocument ?? [];
+    //final documents = nestedDocuments.expand((list) => list).toList();
+
+    const podDocTypes = ['proof of document']; 
+
+    final podDocExists = nestedDocuments.any((doc) {
+      final docType = doc.documentDetails?.documentType?.toLowerCase() ?? '';
+      final title = doc.documentDetails?.title?.toLowerCase() ?? '';
+      return (podDocTypes.contains(docType) || title.contains('pod')) && doc.status == 1;
+    });
+
+    return podDocExists;
+  }
+  return true;
+}
+
+
+void _validateButtonStateOnInit() {
+  final statusId = widget.driverLoadDetails.loadStatusId;
+  
+  final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
+ // final documents = nestedDocuments.expand((list) => list).toList();
+
+  final currentStatus = widget.driverLoadDetails.loadStatusId ?? 0;
+  final documents = widget.driverLoadDetails.loadDocument ?? [];
+
+  // ✅ Status 4: Check if Memo document is uploaded
+  if (currentStatus == 4) {
+    final memoUploaded = widget.driverLoadDetails.loadMemoDetails != null;
+    setState(() {
+      _isButtonEnabled = memoUploaded;
+    });
+    return;
+  }
+
+  if (statusId == 5) {
+    //final isSimConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+
+    // Required document types for status 5 (Loading)
+    const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
+
+    final uploadedTypes = nestedDocuments
+        .where((doc) => doc.status == 1)
+        .map((doc) => (doc.documentDetails?.documentType ?? '').toLowerCase().trim())
+        .where((type) => type.isNotEmpty)
+        .toSet();
+
+    final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+
+    setState(() {
+      _isButtonEnabled =  allRequiredDocsUploaded;
+    });
+    return;
+  }
+ 
+  // Required document types for status 6 (In Transist)
+  if (statusId == 7) {
+    const podDocType = 'proof of document';
+
+    final podDocExists = nestedDocuments.any((doc) {
+      final docType = (doc.documentDetails?.documentType ?? '').toLowerCase().trim();
+      final title = (doc.documentDetails?.title ?? '').toLowerCase().trim();
+      return (docType == podDocType || title.contains('pod')) && doc.status == 1;
+    });
+
+    setState(() {
+      _isButtonEnabled = podDocExists;
+    });
+    return;
+  }
+
+  setState(() {
+    _isButtonEnabled = true;
+  });
+}
+
+ 
+  
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-      decoration: commonContainerDecoration(
-        borderColor: AppColors.primaryColor,
-        borderWidth: 1,
-        color: AppColors.blackishWhite,
-      ),
-      child: Column(
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Image.asset(
-                AppImage.png.truckMyLoad,
-                width: 50,
-              ).paddingSymmetric(vertical: 10),
-              10.width,
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(widget.driverLoadDetails.loadSeriesId, style: AppTextStyle.h5),
-                  Text(
-                  formatDateTimeKavach(widget.driverLoadDetails.createdAt?.toString()??DateTime.now().toString()),
-                  style: AppTextStyle.primaryColor12w400,
-                  ),
-                ],
-              ).expand(),
-              5.width,
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Wrap(
-                    children: [
-                      Text(
-                       widget.driverLoadDetails.loadRoute?.pickUpAddr ?? "",
-                        style: AppTextStyle.blackColor15w500,
-                        maxLines: 2,
-                      ),
-                      Icon(
-                        Icons.arrow_right_alt_outlined,
-                        color: AppColors.primaryColor,
-                      ).paddingSymmetric(horizontal: 2),
-                      Text(
-                        widget.driverLoadDetails.loadRoute?.dropAddr ?? "",
-                        style: AppTextStyle.blackColor15w500,
-                        maxLines: 2,
-                      ),
-                    ],
-                  ),
-                  if(widget.driverLoadDetails.loadStatusId == 3)
-                  Text('Confirmed', style: AppTextStyle.bodyPurpleColor),
-                ],
-              ).expand(),
-            ],
-          ),
-
-          commonDivider(),
-          //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
-         
-    
-         progressBarWidget(progressValue: 0.5,),
-         commonDivider(),
-
-       widget.driverLoadDetails.driverConsent == 0  
-        ? Column(
-            children: [
-             
-           
-              Text(
-                "No SIM tracking consent from driver",
-                style: AppTextStyle.textBlackColor16w400.copyWith(
-                  color: AppColors.iconRed,
-                ),
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+              context,
+              commonRoute(
+                DriverLoadsLocationDetailsScreen(loadId: widget.driverLoadDetails.loadId),
+                isForward: true,
               ),
-              commonDivider(),
-            ],
-          )
-        : Column(
-            children: [
-          
-              Text(
-                "Driver consent given",
-                style: AppTextStyle.textBlackColor16w400.copyWith(
-                  color: AppColors.iconRed,
-                ),
-              ),
-              commonDivider(),
-            ],
-          ),
-
-          Row(
-            children: [
-              detailWidget(
-                 text: widget.driverLoadDetails.truckType?.type ?? "__",
-                iconSvg: AppIcons.svg.deliveryTruckSpeed,
-              ),
-              detailWidget(
-                 text: widget.driverLoadDetails.truckType?.subType ?? "__",
-                iconSvg: AppIcons.svg.deliveryTruckSpeed,
-              ),
-            ],
-          ),
-          10.height,
-          Row(
-            children: [
-              detailWidget(
-                text: widget.driverLoadDetails.commodity?.name ?? "__",
-                iconSvg: AppIcons.svg.package,
-              ),
-              detailWidget(
-                text: "${widget.driverLoadDetails.weightage?.value} Tonn",
-                iconSvg: AppIcons.svg.weight,
-              ),
-            ],
-          ),
-          15.height,
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 5),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: AppColors.primaryLightColor,
-            ),
-            child: Row(
+            ).then((value) {
+                      if (mounted) {
+                        context.read<DriverLoadsBloc>().add(
+                          FetchDriverLoads(
+                            forceRefresh: true,
+                          ),
+                        );
+                      }
+        });
+      },
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+        decoration: commonContainerDecoration(
+          borderColor: AppColors.primaryColor,
+          borderWidth: 1,
+          color: AppColors.blackishWhite,
+        ),
+        child: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  "Accepted Price",
-                  style: AppTextStyle.textBlackColor18w400,
-                  textAlign: TextAlign.center,
+                Image.asset(
+                  AppImage.png.truckMyLoad,
+                  width: 50,
+                ).paddingSymmetric(vertical: 10),
+                10.width,
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.driverLoadDetails.loadSeriesId, style: AppTextStyle.h5),
+                    Text(
+                    formatDateTimeKavach(widget.driverLoadDetails.createdAt?.toString()??DateTime.now().toString()),
+                    style: AppTextStyle.primaryColor12w400,
+                    ),
+                  ],
                 ).expand(),
-                Text(
-                  "$indianCurrencySymbol 1000",
-                  style: AppTextStyle.h4PrimaryColor,
-                  textAlign: TextAlign.center,
+                5.width,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Wrap(
+                      children: [
+                        _buildLocationInfoWidget(widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",),
+                        Icon(
+                          Icons.arrow_right_alt_outlined,
+                          color: AppColors.primaryColor,
+                        ).paddingSymmetric(horizontal: 2),
+                        _buildLocationInfoWidget(widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",)
+                      ],
+                    ),
+               if(widget.driverLoadDetails.loadStatusId >= 4 && widget.driverLoadDetails.loadStatusId != null)
+                    DriverLoadHelper.loadStatusWidget(
+                        (widget.driverLoadDetails.loadOnhold??false) ? context.appText.loadOnHold:
+                        widget.driverLoadDetails.loadStatusDetails!.loadStatus, context)      
+
+                  ],
                 ).expand(),
               ],
             ),
-          ),
-          10.height,
-          Row(
-            children: [
-              IconButton(
-                onPressed: () {
-                  commonSupportDialog(context);
-                },
-                icon: Container(
-                  alignment: Alignment.center,
-                  padding: EdgeInsets.all(5),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                      color: AppColors.primaryColor,
-                      width: 1.5,
-                    ),
-                  ),
-                  child: SvgPicture.asset(
-                    AppIcons.svg.support,
-                    width: 25,
-                    colorFilter: AppColors.svg(AppColors.primaryColor),
+      
+            commonDivider(),
+            //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
+           
+      
+          //  progressBarWidget(progressValue: 0.5,),
+          //  commonDivider(),
+      
+        if(widget.driverLoadDetails.loadStatusId > 4)
+         widget.driverLoadDetails.driverConsent == 0  
+          ? Column(
+              children: [
+                Text(
+                  "No SIM tracking consent from driver",
+                  style: AppTextStyle.textBlackColor16w400.copyWith(
+                    color: AppColors.iconRed,
                   ),
                 ),
-              ),
-              10.width,
-              AppButton(
-                buttonHeight: 40,
-                onPressed: widget.onClickAssignDriver ?? () {},
-                title: "Start Trip",
-                style: AppButtonStyle.primary,
-              ).expand(),
-             
-            ],
-          ),
-        ],
+                commonDivider(),
+              ],
+            )
+          : Column(
+              children: [       
+                Text(
+                  "Driver consent given",
+                  style: AppTextStyle.textBlackColor16w400.copyWith(
+                    color: AppColors.textGreen,
+                  ),
+                ),
+                commonDivider(),
+              ],
+            ),
+           
+           
+            Row(
+              children: [
+                detailWidget(
+                   text: widget.driverLoadDetails.truckType?.type ?? "__",
+                  iconSvg: AppIcons.svg.deliveryTruckSpeed,
+                ),
+                detailWidget(
+                   text: widget.driverLoadDetails.truckType?.subType ?? "__",
+                  iconSvg: AppIcons.svg.deliveryTruckSpeed,
+                ),
+              ],
+            ),
+            10.height,
+            Row(
+              children: [
+                detailWidget(
+                  text: widget.driverLoadDetails.commodity?.name ?? "__",
+                  iconSvg: AppIcons.svg.package,
+                ),
+                detailWidget(
+                  text: "${widget.driverLoadDetails.weight?.value} Tonn",
+                  iconSvg: AppIcons.svg.weight,
+                ),
+              ],
+            ),
+            15.height,
+           
+            10.height,
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () {
+                    commonSupportDialog(context);
+                  },
+                  icon: Container(
+                    alignment: Alignment.center,
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.primaryColor,
+                        width: 1.5,
+                      ),
+                    ),
+                    child: SvgPicture.asset(
+                      AppIcons.svg.support,
+                      width: 25,
+                      colorFilter: AppColors.svg(AppColors.primaryColor),
+                    ),
+                  ),
+                ),
+                10.width,
+
+                DriverLoadHelper.homeloadStatusButtonWidget(
+                    context: context,
+                     enable: _isButtonEnabled,
+                      statusId: widget.driverLoadDetails.loadStatusId,
+                      onPressed: () {
+                        if (widget.driverLoadDetails.loadStatusId == 4 && widget.driverLoadDetails.loadMemoDetails == null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => DriverLoadsLocationDetailsScreen(
+                            loadId:widget.driverLoadDetails.loadId,
+                          ),
+                        ),
+                      );
+                      return;
+                    }
+                        //Check for sim consent and trip doc
+                        if (widget.driverLoadDetails.loadStatusId == 5) {
+                          //final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+                         final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
+                      //  final documents = nestedDocuments.expand((list) => list).toList();
+                        const requiredDocs = [
+                          'lorry receipt',
+                          'eway bill',
+                          'material invoice',
+                        ];
+                        final uploadedTypes = nestedDocuments
+                            .where((doc) => doc.status == 1)
+                            .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
+                            .toSet();
+
+                        final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+
+                          if (!allRequiredDocsUploaded) {
+                            setState(() {
+                                _isButtonEnabled = false;
+                              });
+                            ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
+                            return;
+                          }
+                          // if (!isConsentGiven) {
+                          //   setState(() {
+                          //       _isButtonEnabled = false;
+                          //     });
+                          //    ToastMessages.error(message: 'Please ensure SIM consent is given');
+                          //   return;
+                          // }
+                        }
+                        
+                        // Check for Pod Doc
+                            if (widget.driverLoadDetails?.loadStatusId == 7) {
+                            final nestedDocuments = widget.driverLoadDetails?.loadDocument ?? [];
+                          //  final documents = nestedDocuments.expand((list) => list).toList();
+
+                            final podDocExists = nestedDocuments.any((doc) =>
+                                (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
+                                doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
+                                doc.status == 1);
+
+                            if (!podDocExists) {
+                              setState(() {
+                                _isButtonEnabled = true;
+                              });
+                              ToastMessages.error(message:  'Please upload POD document');
+                              return;
+                            }
+                          }
+                          setState(() {
+                                _isButtonEnabled = true;
+                              });
+                        widget.onClickAssignDriver?.call();
+                      },
+                    ).expand(),
+
+        
+        
+         ],
+            ),
+          ],
+        ),
       ),
+    );
+  }
+
+    Widget _buildLocationInfoWidget(String? location){
+    String locationText=location?.split(",").first??"";
+    return Text(
+      locationText,
+      style: AppTextStyle.blackColor15w500,
+      maxLines: 1,
     );
   }
 
@@ -263,3 +463,6 @@ Widget progressBarWidget({required double progressValue}) {
     ],
   );
 }
+
+
+

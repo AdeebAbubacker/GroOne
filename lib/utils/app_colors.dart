@@ -111,9 +111,9 @@ class AppColors {
   static final Color thinLightGray = Color(0xff626262);
   static const Color docViewCardBgColor = Color(0xFFF6F8FA);
   static final Color chevronGreyColor = Color(0xff999999);
-  static const Color mediumGreyColor = Color(0xFF626262);
-  static const Color lightGrey300 = Color(0xFFE0E0E0); 
-  static const Color lightGrey200 = Color(0xFFEEEEEE); 
+static const Color mediumGreyColor = Color(0xFF626262);
+  static const Color lightGrey300 = Color(0xFFE0E0E0);
+  static const Color lightGrey200 = Color(0xFFEEEEEE);
   static const Color extraLightBackgroundColor = Color(0xFFF8F9FB);
   static const Color lightGreenBox = Color(0xccA7F0BA);
   static const Color bottomSheetDividerColor = Color(0xFFE1E1E1);
@@ -123,6 +123,7 @@ class AppColors {
   static const Color redTextColor = Color(0xffff5723);
   static const Color red = Colors.red;
   static const Color teal = Color(0xff009688);
+  static const Color disabledFieldBackgroundColor = Color(0xFFF2F2F2);
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }

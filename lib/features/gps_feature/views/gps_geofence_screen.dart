@@ -1,6 +1,8 @@
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_map_view_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_notification_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -12,12 +14,14 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
+import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
-import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
+import '../../../utils/app_searchabledropdown.dart';
+import '../../../utils/common_widgets.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../models/gps_geofence_model.dart';
@@ -46,11 +50,14 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
     gpsGeofenceCubit.loadGeofences();
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {}); // Trigger rebuild when tab changes
+      }
       if (_tabController.index == 1 && !_tabController.indexIsChanging) {
         final vehicleListState = locator<VehicleListCubit>().state;
 
         final uniqueVehicleNumbers =
-            vehicleListState.filteredVehicles
+            vehicleListState.filteredVehicles.withoutExpired
                 .map((v) => v.vehicleNumber)
                 .whereType<String>() // removes nulls
                 .toSet()
@@ -61,7 +68,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
         }
 
         if (selectedVehicle.isNotEmpty) {
-          final selectedVehicleData = vehicleListState.filteredVehicles
+          final selectedVehicleData = vehicleListState
+              .filteredVehicles
+              .withoutExpired
               .firstWhere((v) => v.vehicleNumber == selectedVehicle);
 
           gpsGeofenceCubit.loadVehicleGeofences(
@@ -92,6 +101,20 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
     }
   }
 
+  String getGeofenceShapeIcon(String? shapeType) {
+    switch (shapeType?.toLowerCase()) {
+      case 'circle':
+        return AppIcons.svg.gpsGeofenceCircle;
+      case 'polygon':
+        return AppIcons.svg.gpsGeofenceSquare;
+      case 'polyline':
+        return AppIcons.svg.gpsGeofencePolyline;
+      default:
+        return AppIcons.svg.gpsGeofenceCircle;
+    }
+  }
+
+
   Future<bool?> _showConfirmationDialog(
     BuildContext context,
     bool enable,
@@ -106,7 +129,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             children: [
               10.height,
               Text(
-                enable ? context.appText.addGeofence : context.appText.removeGeofence,
+                enable
+                    ? context.appText.addGeofence
+                    : context.appText.removeGeofence,
                 style: AppTextStyle.h5,
               ),
               10.height,
@@ -151,7 +176,18 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
           AppIconButton(
             onPressed: () {
               debugPrint("🔄 GpsGeofenceScreen - Refresh button pressed");
-              gpsGeofenceCubit.refreshData();
+              // gpsGeofenceCubit.refreshData();
+              gpsGeofenceCubit.refreshData().then((_) {
+                if (_tabController.index == 1 && selectedVehicle.isNotEmpty) {
+                  final vehicleListState = locator<VehicleListCubit>().state;
+                  final selectedVehicleData = vehicleListState.filteredVehicles
+                      .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+                  gpsGeofenceCubit.loadVehicleGeofences(
+                    deviceId: selectedVehicleData.deviceId.toString(),
+                    vehicleId: selectedVehicle,
+                  );
+                }
+              });
             },
             icon: const Icon(Icons.refresh, size: 20),
             iconColor: AppColors.primaryColor,
@@ -227,6 +263,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                 color: AppColors.white,
                 elevation: 0,
                 child: ListTile(
+                  leading: SvgPicture.asset(
+                    getGeofenceShapeIcon(item.shapeType),
+                    width: 20,
+                  ),
                   title: Text(
                     '${item.name} (${_getFormattedValue(item)})',
                     style: AppTextStyle.h5,
@@ -262,7 +302,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             },
           );
         } else if (state is GpsGeofenceError) {
-          return Center(child: Text('${context.appText.error}: ${state.message}'));
+          return Center(
+            child: Text('${context.appText.error}: ${state.message}'),
+          );
         }
         return const SizedBox();
       },
@@ -271,7 +313,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
 
   Widget buildVehiclesTab() {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        //Vehicle dropdown
         BlocBuilder<VehicleListCubit, VehicleListState>(
           builder: (context, vehicleState) {
             if (vehicleState.isLoading) {
@@ -281,7 +325,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             } else {
               // Extract unique vehicle numbers
               final uniqueVehicleNumbers =
-                  vehicleState.filteredVehicles
+                  vehicleState.filteredVehicles.withoutExpired
                       .map((v) => v.vehicleNumber)
                       .whereType<String>() // removes nulls
                       .toSet() // remove duplicates
@@ -296,43 +340,63 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               if (!uniqueVehicleNumbers.contains(selectedVehicle)) {
                 selectedVehicle = uniqueVehicleNumbers.first;
               }
-
               return Padding(
                 padding: const EdgeInsets.all(15),
-                child: AppDropdown(
-                  labelText: context.appText.selectVehicle,
-                  dropdownValue:
-                      selectedVehicle.isNotEmpty ? selectedVehicle : null,
-                  dropDownList:
-                      uniqueVehicleNumbers.map((vehicleNumber) {
-                        return DropdownMenuItem<String>(
-                          value: vehicleNumber,
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 15,
-                                backgroundColor: AppColors.primaryLightColor,
-                                child: SvgPicture.asset(
-                                  AppIcons.svg.truck,
-                                  width: 20,
-                                ),
-                              ),
-                              const SizedBox(width: 10),
-                              Text(vehicleNumber, style: AppTextStyle.h6),
-                            ],
+                child: SearchableDropdown(
+                  selectedItem: selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                  items: uniqueVehicleNumbers,
+                  hintText: context.appText.selectState,
+                  dropdownBuilder: (context, selectedItem) {
+                    if (selectedItem == null || selectedItem.isEmpty) {
+                      return Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 15,
+                            backgroundColor: AppColors.primaryLightColor,
+                            child: SvgPicture.asset(
+                              AppIcons.svg.truck,
+                              width: 20,
+                            ),
                           ),
-                        );
-                      }).toList(),
+                          10.width,
+                          Text(
+                            context.appText.selectVehicle,
+                            style: AppTextStyle.h6GreyColor,
+                          ),
+                        ],
+                      );
+                    }
+                    return Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 15,
+                          backgroundColor: AppColors.primaryLightColor,
+                          child: SvgPicture.asset(
+                            AppIcons.svg.truck,
+                            width: 20,
+                          ),
+                        ),
+                        10.width,
+                        Text(selectedItem, style: AppTextStyle.h6),
+                      ],
+                    );
+                  },
+                  emptyBuilder: (context, _) => Center(
+                    child: Text(context.appText.noVehiclesFound),
+                  ).withHeight(MediaQuery.of(context).size.height * 0.5),
                   onChanged: (String? newValue) {
+                    if (newValue == null) return;
+
                     setState(() {
-                      selectedVehicle = newValue!;
+                      selectedVehicle = newValue;
                     });
 
-                    final selectedVehicleData = vehicleState.filteredVehicles
+                    final selectedVehicleData = vehicleState.filteredVehicles.withoutExpired
                         .firstWhere((v) => v.vehicleNumber == selectedVehicle);
+
                     gpsGeofenceCubit.loadVehicleGeofences(
                       deviceId: selectedVehicleData.deviceId.toString(),
-                      vehicleId: selectedVehicle, // use vehicle number or ID
+                      vehicleId: selectedVehicle,
                     );
                   },
                 ),
@@ -340,6 +404,8 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             }
           },
         ),
+        Text(context.appText.selectGeofence, style: AppTextStyle.h5,).paddingOnly(left: 25),
+        //List of geofence
         Expanded(
           child: BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
             builder: (context, state) {
@@ -353,7 +419,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                       gpsState.vehicleGeofenceMap[selectedVehicle] ?? {};
 
                   return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
                     itemCount: gpsState.geofences.length,
                     itemBuilder: (context, index) {
                       final item = gpsState.geofences[index];
@@ -370,25 +436,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                         child: ListTile(
                           title: Text(
                             '${item.name} (${_getFormattedValue(item)})',
-                            style: AppTextStyle.h6,
+                            style: AppTextStyle.h5,
                           ),
                           trailing: Switch(
                             value: isEnabled,
-                            // onChanged: (bool value) {
-                            //   final selectedVehicleData = context
-                            //       .read<VehicleListCubit>()
-                            //       .state
-                            //       .filteredVehicles
-                            //       .firstWhere((v) => v.vehicleNumber == selectedVehicle);
-                            //
-                            //   gpsGeofenceCubit.toggleGeofenceForVehicle(
-                            //     userId: "163", // Get this dynamically
-                            //     deviceId: selectedVehicleData.deviceId.toString(),
-                            //     vehicleId: selectedVehicle,
-                            //     geofenceId: item.id,
-                            //     enable: value,
-                            //   );
-                            // },
                             onChanged: (bool value) async {
                               final confirmed = await _showConfirmationDialog(
                                 context,
@@ -399,13 +450,11 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                                     .read<VehicleListCubit>()
                                     .state
                                     .filteredVehicles
+                                    .withoutExpired
                                     .firstWhere(
                                       (v) => v.vehicleNumber == selectedVehicle,
                                     );
-
                                 gpsGeofenceCubit.toggleGeofenceForVehicle(
-                                  userId: "163",
-                                  // Get this dynamically
                                   deviceId:
                                       selectedVehicleData.deviceId.toString(),
                                   vehicleId: selectedVehicle,

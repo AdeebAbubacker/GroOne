@@ -16,7 +16,7 @@ class Validator {
 
   /// Field Required
   static String? fieldRequired(String? value, {String? fieldName}){
-    if (value == null || value.isEmpty) {
+    if (value == null || value.trim().isEmpty) {
       if(fieldName != null){
         return '$fieldName is required';
       }else{
@@ -128,15 +128,14 @@ class Validator {
       return '$fieldName is required';
     }
 
-    final regex = RegExp(r'^[a-zA-Z0-9\- ]+$');
+    // Format: 2 letters + hyphen + 13 digits (total 16 characters)
+    // Example: DL-1420110012345
+    final regex = RegExp(r'^[A-Z]{2}-\d{13}$');
 
-    if (!regex.hasMatch(value)) {
-      return '$fieldName should contain only letters, numbers, hyphens, and spaces';
+    if (!regex.hasMatch(value.trim().toUpperCase())) {
+      return '$fieldName should be in format: XX-1234567890123 (2 letters, hyphen, 13 digits)';
     }
 
-    if (value.length <= 10) {
-      return '$fieldName should be more than 10 characters';
-    }
     return null;
   }
 
@@ -151,6 +150,24 @@ class Validator {
     if (!regex.hasMatch(value.trim().toUpperCase())) {
       return '$fieldName is invalid. Example: MH12AB1234';
     }
+    return null;
+  }
+
+  static String? rcBookNumberValidator(String? value, {required String fieldName}) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+    
+    final trimmedValue = value.trim().toUpperCase();
+    
+    // RC book number format: 2 letters (State code) + 2 digits (RTO code) + 1 or 2 letters (Series) + 4 digits (Vehicle number)
+    // Examples: MH12AB1234, DL01Z1234, KA02ABC1234
+    final regex = RegExp(r'^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$');
+    
+    if (!regex.hasMatch(trimmedValue)) {
+      return '$fieldName should be in format: XX12AB1234 (2 letters, 2 digits, 1-2 letters, 4 digits)';
+    }
+    
     return null;
   }
 

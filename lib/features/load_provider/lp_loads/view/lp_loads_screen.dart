@@ -3,6 +3,7 @@ import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
@@ -65,6 +66,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     'Loading',
     'In Transit',
     'Unloading',
+    'POD Dispatch',
     'Completed',
   ];
 
@@ -84,7 +86,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     lpLoadLocator.updateSelectedTabIndex(0);
     paginationController = lpLoadLocator.paginationController;
     _tabController = TabController(
-      length: 8,
+      length: 9,
       vsync: this,
       initialIndex: lpLoadLocator.state.selectedTabIndex,
     )..addListener(_handleTabChange);
@@ -102,6 +104,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     if (!_tabController!.indexIsChanging) return;
 
     paginationController.reset();
+    clearAllFilterValues();
 
     final selectedType = _tabController!.index;
     lpLoadLocator.updateSelectedTabIndex(selectedType);
@@ -161,6 +164,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   });
 
   void filterPopUp () {
+    var loadStatusType = lpLoadLocator.state.selectedTabIndex;
     AppDialog.show(context, child: CommonDialogView(
       crossAxisAlignment: CrossAxisAlignment.start,
       hideCloseButton: true,
@@ -270,7 +274,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       onClickYesButton: () {
 
         Navigator.pop(context);
-        var loadStatusType = lpLoadLocator.state.selectedTabIndex;
         lpLoadLocator.getLpLoadsByType(
             loadListApiRequest: LoadListApiRequest(
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
@@ -278,6 +281,12 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               truckTypeId: selectedTruckTypeId.toString(),
               loadPostDate: loadPostedDateController.text
             ));
+      },
+      onClickNoButton: () {
+        Navigator.pop(context);
+        lpLoadLocator.getLpLoadsByType(
+            loadListApiRequest: LoadListApiRequest(
+            loadStatus: loadStatusType == 0 ? null : loadStatusType + 1));
         clearAllFilterValues();
       },
     ));
@@ -289,6 +298,15 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     selectedTruckTypeId = null;
     truckTypeDropDownValue = null;
     loadPostedDateController.clear();
+  }
+
+  Future<void> _onPullToRefresh() async{
+    final selectedType = _tabController!.index;
+    final loadStatus = selectedType == 0 ? null : selectedType + 1;
+    lpLoadLocator.getLpLoadsByType(
+     loadListApiRequest: LoadListApiRequest(
+     loadStatus: loadStatus, page: paginationController.currentPage),
+    );
   }
 
 
@@ -310,6 +328,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
       isLeading: false,
+      scrolledUnderElevation: 0,
       leading:  Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       actions: [
         // Notification
@@ -330,7 +349,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
 
     return Container(
       height: 40,
-      decoration: commonContainerDecoration(color: const Color(0xFFEFEFEF)),
+      decoration: commonContainerDecoration(color: AppColors.lightGreyBackgroundColor),
       child: BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
           return SingleChildScrollView(
@@ -342,13 +361,13 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               physics: ClampingScrollPhysics(),  // tighter scroll behavior
               indicator: const BoxDecoration(),
               dividerHeight: 0,
-              tabs: List.generate(8, (index) {
+              tabs: List.generate(9, (index) {
                 final isSelected = state.selectedTabIndex == index;
                 return Tab(
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                     decoration: commonContainerDecoration(
-                      color: isSelected ? AppColors.primaryColor : const Color(0xFFEFEFEF),
+                      color: isSelected ? AppColors.primaryColor : Colors.transparent,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -397,10 +416,14 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           return const Center(child: CircularProgressIndicator());
         }
 
+        if (uiState.status == Status.ERROR) {
+          return genericErrorWidget(error: uiState.errorType);
+        }
+
         final loadList = uiState.data?.data ?? [];
 
         if (loadList.isEmpty) {
-          return Center(child: Text(context.appText.noLoadFound));
+          return genericErrorWidget(error: NotFoundError());
         }
 
         return NotificationListener<ScrollNotification>(
@@ -420,10 +443,19 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             itemBuilder: (context, index) {
               if (index < loadList.length) {
                 final loadItem = loadList[index];
-                return LPLoadListBodyWidget(
-                  loadItem: loadItem,
-                  lpLoadLocator: lpLoadLocator,
-                ).paddingSymmetric(vertical: 7);
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(
+                        loadId: loadItem.loadId
+                    ))).then((value) {
+                      _onPullToRefresh();
+                    },);
+                  },
+                  child: LPLoadListBodyWidget(
+                    loadItem: loadItem,
+                    lpLoadLocator: lpLoadLocator,
+                  ).paddingSymmetric(vertical: 7),
+                );
               } else {
                 // loader for bottom pagination
                 return const Padding(

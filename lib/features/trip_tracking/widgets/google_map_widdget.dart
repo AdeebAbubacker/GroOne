@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -11,8 +12,11 @@ import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.d
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
@@ -58,32 +62,42 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     super.initState();
   }
 
+  Future<BitmapDescriptor> getResizedBitmapDescriptor(String assetPath) async {
+    final ByteData data = await rootBundle.load(assetPath);
+    final codec = await instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: 100,
+    );
+    final frame = await codec.getNextFrame();
+    final ByteData? resizedImage = await frame.image.toByteData(format: ImageByteFormat.png);
+    return BitmapDescriptor.fromBytes(resizedImage!.buffer.asUint8List());
+  }
+
+
   void setMapMarkers({bool addMarker=true,String? points}) async {
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(widget.pickUpLatLong??"0,0");
     final dropLatLng = TripTrackingHelper.getLatLngFromString(widget.dropLatLong??"0,0");
 
-    BitmapDescriptor driverIcon = await BitmapDescriptor.fromAssetImage(
-      const ImageConfiguration(size: Size(64, 64)),
-      AppIcons.png.driverIcon,
+    BitmapDescriptor driverIcon = await getResizedBitmapDescriptor(
+      AppImage.jpg.driverImaged,
     );
-
 
     frameCallback(() async {
      if(addMarker){
        _markers.value.add(
          Marker(
-           markerId: MarkerId('pickup'),
+           markerId: MarkerId(navigatorKey.currentState!.context.appText.pickup),
            position: pickupLatLng,
            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen),
-           infoWindow: InfoWindow(title: 'Pickup: ${widget.pickupLocation}'),
+           infoWindow: InfoWindow(title: '${navigatorKey.currentState!.context.appText.pickup}: ${widget.pickupLocation}'),
          ),
        );
        _markers.value.add(
          Marker(
-           markerId: MarkerId('drop'),
+           markerId: MarkerId(navigatorKey.currentState!.context.appText.drop),
            position: dropLatLng,
            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueRed),
-           infoWindow: InfoWindow(title: 'Drop: ${widget.dropLocation}'),
+           infoWindow: InfoWindow(title: '${navigatorKey.currentState!.context.appText.drop}: ${widget.dropLocation}'),
          ),
        );
        double distanceInMeters = Geolocator.distanceBetween(
@@ -92,15 +106,15 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
          dropLatLng.latitude,
          dropLatLng.longitude,
        );
-       // 🚛 Driver marker (if valid)
+       // Driver marker (if valid)
        if (widget.driverLat != null && widget.driverLong != null) {
          final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
          _markers.value.add(
            Marker(
-             markerId: MarkerId('driver'),
+             markerId: MarkerId(navigatorKey.currentState!.context.appText.driver),
              position: driverLatLng,
              icon: driverIcon,
-             infoWindow: const InfoWindow(title: 'Driver Location'),
+             infoWindow:  InfoWindow(title: navigatorKey.currentState!.context.appText.driverLocation),
            ),
          );
        }
@@ -110,16 +124,62 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
            pickUpLat: pickupLatLng.latitude.toString(),pickUpLong:  pickupLatLng.longitude.toString());
      }else{
        _polylineCoordinates.clear();
-       List<PointLatLng> result = PolylinePoints().decodePolyline(points??"");
+       List<PointLatLng> result = PolylinePoints().decodePolyline(points ?? "");
        for (var point in result) {
          _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
        }
-       _polylines.add(Polyline(
-         polylineId: PolylineId("route"),
-         color: AppColors.primaryColor.withOpacity(0.7),
-         width: 5,
-         points: _polylineCoordinates,
-       ));
+
+       // If driver position is available, split polyline
+       if (widget.driverLat != null && widget.driverLong != null) {
+         final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
+
+
+         int closestIndex = 0;
+         double minDistance = double.infinity;
+
+         for (int i = 0; i < _polylineCoordinates.length; i++) {
+           final p = _polylineCoordinates[i];
+           double distance = Geolocator.distanceBetween(
+             driverLatLng.latitude,
+             driverLatLng.longitude,
+             p.latitude,
+             p.longitude,
+           );
+           if (distance < minDistance) {
+             minDistance = distance;
+             closestIndex = i;
+           }
+         }
+
+         final List<LatLng> greenSegment = _polylineCoordinates.sublist(0, closestIndex + 1);
+         final List<LatLng> blueSegment = _polylineCoordinates.sublist(closestIndex);
+
+         _polylines.clear();
+
+         _polylines.add(Polyline(
+           polylineId: PolylineId(navigatorKey.currentState!.context.appText.completed),
+           color: Colors.green,
+           width: 5,
+           points: greenSegment,
+         ));
+
+         _polylines.add(Polyline(
+           polylineId: PolylineId(navigatorKey.currentState!.context.appText.remainingDistance),
+           color: AppColors.primaryColor.withOpacity(0.7),
+           width: 5,
+           points: blueSegment,
+         ));
+
+       } else {
+         _polylines.clear();
+         _polylines.add(Polyline(
+           polylineId: PolylineId(navigatorKey.currentState!.context.appText.route),
+           color: AppColors.primaryColor.withOpacity(0.7),
+           width: 5,
+           points: _polylineCoordinates,
+         ));
+       }
+
 
      }
 
@@ -167,9 +227,14 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     await Future.delayed(const Duration(milliseconds: 300));
 
 
-    googleMapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(bounds, padding),
-    );
+    try {
+      await googleMapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, padding),
+      );
+    } catch (e) {
+      debugPrint("animateCamera failed: $e");
+    }
+
 
 
 
@@ -193,7 +258,6 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
           if((state.directionApiResponse?.data?.routes??[]).isNotEmpty){
             setMapMarkers(addMarker: false,points: state.directionApiResponse?.data?.routes.first.overviewPolyline.points);
           }
-
         }
         return ValueListenableBuilder(
           valueListenable: _markers,

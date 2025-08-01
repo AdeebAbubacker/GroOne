@@ -20,6 +20,7 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -65,15 +66,11 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
       final matchingStartDate = widget.loadItem.matchingStartDate;
       if (matchingStartDate != null) {
         _countDown = LpHomeHelper.getMatchingTime(matchingStartDate);
-      } else {
-        _countDown = "--:--:--";
       }
     } else if (status == LoadStatus.kycPending) {
       final kycPendingDate = widget.loadItem.customer?.kycPendingDate;
       if (kycPendingDate != null) {
         _countDown = LpHomeHelper.getKycPendingTimeLeft(kycPendingDate.toString());
-      } else {
-        _countDown = "--:--:--";
       }
     } else {
       _countDown = "--:--:--";
@@ -175,33 +172,25 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
   Widget build(BuildContext context) {
     final loadStatus = LpHomeHelper.getLoadStatusFromString(widget.loadItem.loadStatusDetails?.loadStatus);
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadItem.loadId)),
-        );
-      },
-      child: Container(
-          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-          decoration: commonContainerDecoration(
-            borderColor: AppColors.primaryColor,
-            borderWidth: 1,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildLoadIdDetailsWidget(loadStatus),
-              commonDivider(),
-              buildPickupAndDropAddressWidget(),
-              20.height,
-              buildRateWidget(),
-              10.height,
-              if(loadStatus == LoadStatus.assigned && widget.loadItem.isAgreed == 0)
-              buildAgreeButtonWidget(context)
-            ],
-          )
-      ),
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        decoration: commonContainerDecoration(
+          borderColor: AppColors.primaryColor,
+          borderWidth: 1,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildLoadIdDetailsWidget(loadStatus),
+            commonDivider(),
+            buildPickupAndDropAddressWidget(),
+            20.height,
+            buildRateWidget(),
+            10.height,
+            if(loadStatus == LoadStatus.assigned && widget.loadItem.isAgreed == 0)
+            buildAgreeButtonWidget(context)
+          ],
+        )
     );
   }
 
@@ -210,13 +199,17 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
     var statusData = widget.loadItem.loadOnhold ? context.appText.unloadingHeld :widget.loadItem.loadStatusDetails?.loadStatus ?? '';
     return Row(
       children: [
-        Container(
-          decoration: commonContainerDecoration(
-            color: Color(0xffDFE6FF),
-            borderRadius: BorderRadius.circular(100),
+        if(loadStatus!.index <= LoadStatus.assigned.index)
+          Container(
+            decoration: commonContainerDecoration(
+              color: Color(0xffDFE6FF),
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
           ),
-          child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
-        ),
+        if(loadStatus.index >= LoadStatus.loading.index)
+         Image.asset(AppImage.png.truck, width: 57, height: 42),
+
         15.width,
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -230,34 +223,51 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                 ),
               ],
             ),
-            8.height,
+            4.height,
+            if(loadStatus.index >= LoadStatus.loading.index)
+              ...[
+                Text(
+                  widget.loadItem.scheduleTripDetails?.vehicle?.vehicle?.truckNo ?? '',
+                  style: AppTextStyle.body3.copyWith(color: AppColors.textBlackDetailColor),
+                ),
+                4.height,
+              ],
+
             Text(
-             widget.loadItem.createdAt != null ? DateTimeHelper.formatCustomDateIST(widget.loadItem.createdAt!) : "--",
+             widget.loadItem.createdAt != null ? DateTimeHelper.formatCustomDateTimeIST(widget.loadItem.createdAt!) : "--",
               style: AppTextStyle.body4.copyWith(
                 color: AppColors.primaryColor,
               ),
             ),
           ],
         ).expand(),
-        Column(
-          children: [
-            Container(
-              decoration: commonContainerDecoration(
-                color: LpHomeHelper.getLoadStatusColor(statusData)
+        ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: 90),
+          child: Column(
+            children: [
+              Container(
+                decoration: commonContainerDecoration(
+                  color: LpHomeHelper.getLoadStatusColor(statusData)
+                ),
+                child: Text(
+                  statusData,
+                  style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(statusData)),
+                  textAlign: TextAlign.center,
+                ).center().paddingSymmetric(vertical: 4,horizontal: 10),
               ),
-              // width: 100,
-              child: Text(
-                LpHomeHelper.getLoadTypeDisplayText(statusData),
-                style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(statusData)),
-              ).center().paddingSymmetric(vertical: 4,horizontal: 10),
-            ),
-            5.height,
-            if(loadStatus == LoadStatus.kycPending)
-              if(widget.loadItem.customer?.kycPendingDate != null)
-             Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5),
-            if(loadStatus == LoadStatus.matching)
-             Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),  maxLines: 1).paddingRight(5)
-          ],
+              5.height,
+              if(loadStatus == LoadStatus.kycPending || loadStatus == LoadStatus.matching)
+               Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)).paddingRight(5),
+              if(loadStatus.index >= LoadStatus.loading.index)
+                Text(
+                  'ETA: ${DateTimeHelper.formatCustomDateTimeIST(widget.loadItem.expectedDeliveryDateTime)}',
+                  style: AppTextStyle.body4.copyWith(
+                    color: AppColors.primaryColor,
+                  ),
+                  textAlign: TextAlign.right,
+                ),
+            ],
+          ),
         ),
       ],
     );

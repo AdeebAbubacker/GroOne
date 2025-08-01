@@ -21,6 +21,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/trip_statement_response.dart';
 
 class LpLoadService {
   final ApiService _apiService;
@@ -89,6 +90,26 @@ class LpLoadService {
       if (response is Success) {
         final data = response.value;
         final loads = LpLoadMemoResponse.fromJson(data);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<TripStatementResponse>> fetchTripDetails({required String loadId}) async {
+
+    try {
+      final url = '${ApiUrls.lpLoadTripDetails+loadId}?role=1';
+      final response = await _apiService.get(url, );
+
+      if (response is Success) {
+        final data = response.value;
+        final loads = TripStatementResponse.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

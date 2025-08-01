@@ -92,7 +92,9 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
 
     return  GestureDetector(
       onTap: () {
-        Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadData.loadId)));
+        Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadData.loadId))).then((value) {
+          lpHomeCubit.fetchGetLoadList();
+        },);
       },
       child: Container(
         padding: EdgeInsets.all(15).copyWith(top: 0),
@@ -115,7 +117,7 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
               leading: Image.asset(AppImage.png.shipmentBox, height: 45, width: 45),
               title :Align(alignment: Alignment.topLeft, child: (widget.loadData.loadSeriesId.isNotEmpty) ? Text(widget.loadData.loadSeriesId, style: AppTextStyle.h5,  maxLines: 1):SizedBox(),
               ),
-              subtitle:Text(widget.loadData.pickUpDateTime != null ? DateTimeHelper.formatCustomDateIST(widget.loadData.pickUpDateTime!) : "--", style: AppTextStyle.body4PrimaryColor) ,
+              subtitle:Text(widget.loadData.pickUpDateTime != null ? DateTimeHelper.formatCustomDateTimeIST(widget.loadData.pickUpDateTime!) : "--", style: AppTextStyle.body4PrimaryColor) ,
               trailing: (widget.loadData.loadStatusDetails != null && widget.loadData.loadStatusDetails!.loadStatus.isNotEmpty) ?
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -129,18 +131,8 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                     5.height,
 
                     // Matching Timer
-                    if (status == LoadStatus.matching)
-                      Text(
-                        _countDown,
-                        style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                      )
-
-                    else if (status == LoadStatus.kycPending)
-                      if(widget.loadData.customer?.customer?.kycPendingDate != null)
-                        Text(
-                          _countDown,
-                          style: AppTextStyle.body4.copyWith(color: AppColors.greenColor),
-                        )
+                    if (status == LoadStatus.kycPending || status == LoadStatus.matching)
+                      Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor))
                   ],
                 ) : SizedBox()
             ),

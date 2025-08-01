@@ -9,6 +9,8 @@ import 'package:gro_one_app/features/en-dhan_fuel/api_request/en-dhan_api_reques
 import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/model/endhan_transaction_model.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -287,11 +289,6 @@ class EnDhanService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
-        // Debug the API response
-        print('🔍 Vehicle Types API Response: ${result.value}');
-        print(
-          '🔍 Vehicle Types API Response Type: ${result.value.runtimeType}',
-        );
 
         // Check if the response is successful
         if (result.value['success'] == true) {
@@ -331,7 +328,7 @@ class EnDhanService {
       final fields = {
         'userId': userId,
         'fileType': 'rc_book',
-        'documentType': 'rc_document',
+        'documentType': 'vp_document',
       };
 
       final result = await _apiService.multipart(
@@ -437,7 +434,7 @@ class EnDhanService {
       // Add authentication header if token exists
       try {
         String? refreshToken = await _secureSharedPrefs.get(
-          AppString.sessionKey.refreshToken,
+          AppString.sessionKey.accessToken,
         );
         if (refreshToken != null && refreshToken.isNotEmpty) {
           headers['Authorization'] = 'Bearer $refreshToken';
@@ -797,7 +794,16 @@ class EnDhanService {
   ) async {
     try {
       final url = ApiUrls.panVerification;
-      final result = await _apiService.post(url, body: request.toJson());
+      
+      // Custom headers for the new PAN verification API
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+      
+      final result = await _apiService.post(url, body: request.toJson(), customHeaders: customHeaders);
 
       if (result is Success) {
         try {
@@ -827,15 +833,23 @@ class EnDhanService {
     VehicleVerificationRequest request,
   ) async {
     try {
-      final url = 'https://gro-devapi.letsgro.co/external/api/v1/verification/vehicle';
+      final url = 'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number';
       final requestBody = request.toJson();
+      
+      // Custom headers for the new vehicle verification API
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
       
       CustomLog.debug(
         this,
         "Vehicle Verification Request: URL=$url, Body=$requestBody",
       );
       
-      final result = await _apiService.post(url, body: requestBody);
+      final result = await _apiService.post(url, body: requestBody, customHeaders: customHeaders);
 
       if (result is Success) {
         CustomLog.debug(
@@ -847,7 +861,7 @@ class EnDhanService {
           final response = VehicleVerificationResponse.fromJson(result.value);
           CustomLog.debug(
             this,
-            "Vehicle Verification Response: status=${response.status}, message=${response.message}",
+            "Vehicle Verification Response: success=${response.success}, message=${response.message}",
           );
           return Success(response);
         } catch (e) {
@@ -906,6 +920,94 @@ class EnDhanService {
     } catch (e) {
       CustomLog.error(this, "EnDhan Fetch Users - Exception: $e", e);
       return Error(DeserializationError());
+    }
+  }
+
+  /// Get Transactions
+  Future<Result<EndhanTransactionResponse>> getTransactions({
+    required String customerId,
+    required String fromDate,
+    required String toDate,
+  }) async {
+    try {
+      final request = EndhanTransactionRequest(
+        customerId: customerId,
+        fromDate: fromDate,
+        toDate: toDate,
+      );
+
+      CustomLog.debug(this, "En-Dhan Transaction Request: ${request.toJson()}");
+
+      final result = await _apiService.post(
+        ApiUrls.enDhanTransaction,
+        body: request.toJson(),
+      );
+
+      if (result is Success) {
+        try {
+          final data = result.value as Map<String, dynamic>;
+          CustomLog.debug(this, "API Response: $data");
+          final transactionResponse = EndhanTransactionResponse.fromJson(data);
+          
+          if (transactionResponse.success) {
+            CustomLog.debug(this, "En-Dhan Transaction Response: ${transactionResponse.transactions?.length} transactions");
+            return Success(transactionResponse);
+          } else {
+            return Error(ErrorWithMessage(message: transactionResponse.message));
+          }
+        } catch (parseError) {
+          CustomLog.error(this, "Error parsing transaction response", parseError);
+          return Error(ErrorWithMessage(message: 'Error parsing response data'));
+        }
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(ErrorWithMessage(message: 'Failed to fetch transactions'));
+      }
+    } catch (e) {
+      final errorMessage = e?.toString() ?? 'Unknown error occurred';
+      CustomLog.error(this, "Error fetching En-Dhan transactions", e);
+      return Error(ErrorWithMessage(message: errorMessage));
+    }
+  }
+
+  /// Get Pincode Details
+  Future<Result<PincodeResponse>> getPincode(String pincode) async {
+    try {
+      final url = ApiUrls.enDhanGetPincode(pincode);
+      CustomLog.debug(this, "Pincode API URL: $url");
+      print('DEBUG: Pincode API URL: $url');
+
+      final result = await _apiService.get(url);
+
+      if (result is Success) {
+        try {
+          final data = result.value as Map<String, dynamic>;
+          CustomLog.debug(this, "Pincode API Response: $data");
+          print('DEBUG: Pincode API Response: $data');
+          final pincodeResponse = PincodeResponse.fromJson(data);
+          
+          if (pincodeResponse.success) {
+            CustomLog.debug(this, "Pincode Response: ${pincodeResponse.data?.district?.name}");
+            print('DEBUG: Pincode API success - district: ${pincodeResponse.data?.district?.name}');
+            return Success(pincodeResponse);
+          } else {
+            print('DEBUG: Pincode API failed - message: ${pincodeResponse.message}');
+            return Error(ErrorWithMessage(message: pincodeResponse.message));
+          }
+        } catch (parseError) {
+          CustomLog.error(this, "Error parsing pincode response", parseError);
+          return Error(ErrorWithMessage(message: 'Error parsing pincode response data'));
+        }
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(ErrorWithMessage(message: 'Failed to fetch pincode details'));
+      }
+    } catch (e) {
+      final errorMessage = e?.toString() ?? 'Unknown error occurred';
+      CustomLog.error(this, "Error fetching pincode details", e);
+      return Error(ErrorWithMessage(message: errorMessage));
     }
   }
 }

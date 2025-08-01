@@ -98,6 +98,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
                   10.height,
                   AppButton(
                     title: context.appText.eSignMemo,
+                    isLoading: lpLoadLocator.state.lpLoadMemoSendOtp?.status == Status.LOADING,
                     onPressed: () async {
                       await lpLoadLocator.sendOtp(loadId: widget.loadId);
                       final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;

@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+
+import '../../../utils/app_icons.dart';
 
 class LpMyAccount extends StatelessWidget {
   final Customer? customerDetail;
@@ -26,7 +30,21 @@ class LpMyAccount extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.myAccount),
+      appBar: CommonAppBar(title: context.appText.profile, actions: [
+        IconButton(
+          onPressed: () {
+            commonSupportDialog(context, message: context.appText.toEditProfileContactCustomerSupport);
+          },
+          icon: Container(
+            alignment: Alignment.center,
+            padding: EdgeInsets.all(5),
+            child: SvgPicture.asset(
+              AppIcons.svg.support,
+              width: 25,
+            ),
+          ),
+        ),
+      ],),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.all(commonSafeAreaPadding),
@@ -74,7 +92,7 @@ class LpMyAccount extends StatelessWidget {
 
                 buildDetailWidget(
                   text1: context.appText.kycStatus,
-                  text2: customerDetail?.isKyc == 3 ? "Verified" : "Un-Verified",
+                  text2: customerDetail?.isKyc == 3 ? context.appText.verified : context.appText.unVerified,
                 ),
 
                 dividerWidget(),
@@ -84,21 +102,21 @@ class LpMyAccount extends StatelessWidget {
 
               // Bank Details
               if(bankDetails == null)...[
-                headingText(text: 'Bank Details'),
+                headingText(text: context.appText.bankDetails),
                 buildDetailWidget(
-                  text1: 'Account no.',
+                  text1: context.appText.accountNumber,
                   text2: checkUserDetails(bankDetails?.bankAccount),
                 ),
                 buildDetailWidget(
-                  text1: 'Bank Name',
+                  text1: context.appText.bankName,
                   text2: checkUserDetails(bankDetails?.bankName),
                 ),
                 buildDetailWidget(
-                  text1: 'Branch Name',
+                  text1: context.appText.branchName,
                   text2: checkUserDetails(bankDetails?.branchName),
                 ),
                 buildDetailWidget(
-                  text1: 'IFSC code',
+                  text1: context.appText.ifscCode,
                   text2: checkUserDetails(bankDetails?.ifscCode),
                 ),
                 dividerWidget(),

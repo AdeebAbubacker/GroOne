@@ -222,18 +222,18 @@ class GpsAadhaarVerifyOtpRequest {
 }
 
 class GpsPanVerificationRequest {
-  final String pan;
-  final bool force;
+  final String panNumber;
+  final String name;
 
   const GpsPanVerificationRequest({
-    required this.pan,
-    this.force = true,
+    required this.panNumber,
+    required this.name,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'pan': pan,
-      'force': force,
+      'pan_number': panNumber,
+      'name': name,
     };
   }
 }
@@ -325,12 +325,6 @@ class GpsKycCheckModel {
       hasDocuments = data.containsKey('document') &&
           data['document'] != null;
 
-      print('🔍 GpsKycCheckModel.fromJson:');
-      print('  - data keys: ${data.keys}');
-      print('  - has document key: ${data.containsKey('document')}');
-      print('  - document value: ${data['document']}');
-      print('  - hasDocuments: $hasDocuments');
-
       kycData = data;
     }
 
@@ -369,6 +363,160 @@ class GpsKycCheckModel {
   }
 }
 
+/// New GPS KYC Upload Request Model (for the new API)
+class GpsKycUploadRequest {
+  final String aadhar;
+  final bool isAadhar;
+  final String? pan;
+  final String? panDocLink;
+  final bool? isPan;
+
+  const GpsKycUploadRequest({
+    required this.aadhar,
+    required this.isAadhar,
+    this.pan,
+    this.panDocLink,
+    this.isPan,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> json = {
+      'aadhar': aadhar,
+      'isAadhar': isAadhar,
+    };
+
+    // Only include PAN fields if PAN is provided
+    if (pan != null && pan!.isNotEmpty) {
+      json['pan'] = pan;
+      json['isPan'] = isPan ?? true;
+      if (panDocLink != null && panDocLink!.isNotEmpty) {
+        json['panDocLink'] = panDocLink;
+      }
+    }
+
+    return json;
+  }
+
+  @override
+  String toString() {
+    return 'GpsKycUploadRequest{aadhar: $aadhar, isAadhar: $isAadhar, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
+  }
+}
+
+/// New GPS KYC Check Response Model (for the new API)
+class GpsKycCheckResponseModel {
+  final String customerId;
+  final GpsKycDocuments? documents;
+  final int isKyc;
+
+  const GpsKycCheckResponseModel({
+    required this.customerId,
+    this.documents,
+    required this.isKyc,
+  });
+
+  factory GpsKycCheckResponseModel.fromJson(Map<String, dynamic> json) {
+    return GpsKycCheckResponseModel(
+      customerId: json['customerId'] ?? '',
+      documents: json['documents'] != null 
+          ? GpsKycDocuments.fromJson(json['documents']) 
+          : null,
+      isKyc: json['isKyc'] ?? 0,
+    );
+  }
+
+  /// Check if KYC documents exist
+  bool get hasKycDocuments {
+    // Check if documents exist AND Aadhaar has a proper number
+    // The isKyc flag might not always be reliable, so we focus on actual document existence
+    return documents != null && 
+           documents!.aadhar != null && 
+           documents!.aadhar!.isNotEmpty &&
+           documents!.isAadhar == true;
+  }
+
+  @override
+  String toString() {
+    return 'GpsKycCheckResponseModel{customerId: $customerId, documents: $documents, isKyc: $isKyc}';
+  }
+}
+
+/// GPS KYC Documents Model
+class GpsKycDocuments {
+  final String? aadhar;
+  final bool? isAadhar;
+  final String? pan;
+  final String? panDocLink;
+  final bool? isPan;
+  final String? gstin;
+  final String? gstinDocLink;
+  final bool? isGstin;
+  final String? tan;
+  final String? tanDocLink;
+  final bool? isTan;
+  final String? chequeDocLink;
+  final String? tdsDocLink;
+
+  const GpsKycDocuments({
+    this.aadhar,
+    this.isAadhar,
+    this.pan,
+    this.panDocLink,
+    this.isPan,
+    this.gstin,
+    this.gstinDocLink,
+    this.isGstin,
+    this.tan,
+    this.tanDocLink,
+    this.isTan,
+    this.chequeDocLink,
+    this.tdsDocLink,
+  });
+
+  factory GpsKycDocuments.fromJson(Map<String, dynamic> json) {
+    return GpsKycDocuments(
+      aadhar: json['aadhar'],
+      isAadhar: json['isAadhar'],
+      pan: json['pan'],
+      panDocLink: json['panDocLink'],
+      isPan: json['isPan'],
+      gstin: json['gstin'],
+      gstinDocLink: json['gstinDocLink'],
+      isGstin: json['isGstin'],
+      tan: json['tan'],
+      tanDocLink: json['tanDocLink'],
+      isTan: json['isTan'],
+      chequeDocLink: json['chequeDocLink'],
+      tdsDocLink: json['tdsDocLink'],
+    );
+  }
+
+  @override
+  String toString() {
+    return 'GpsKycDocuments{aadhar: $aadhar, isAadhar: $isAadhar, pan: $pan, panDocLink: $panDocLink, isPan: $isPan, gstin: $gstin, gstinDocLink: $gstinDocLink, isGstin: $isGstin, tan: $tan, tanDocLink: $tanDocLink, isTan: $isTan, chequeDocLink: $chequeDocLink, tdsDocLink: $tdsDocLink}';
+  }
+}
+
+/// New GPS KYC Upload Response Model
+class GpsKycUploadResponseModel {
+  final String message;
+
+  const GpsKycUploadResponseModel({
+    required this.message,
+  });
+
+  factory GpsKycUploadResponseModel.fromJson(Map<String, dynamic> json) {
+    return GpsKycUploadResponseModel(
+      message: json['message'] ?? '',
+    );
+  }
+
+  @override
+  String toString() {
+    return 'GpsKycUploadResponseModel{message: $message}';
+  }
+}
+
 // ==================== GPS Order Creation API Requests ====================
 
 /// GPS Order Vehicle Model
@@ -379,7 +527,6 @@ class GpsOrderVehicle {
 
   Map<String, dynamic> toJson() => {
     "vehicleNumber": vehicleNumber,
-    "deviceUniqueNumber": "DEV123456789"
   };
 }
 
@@ -467,9 +614,12 @@ class GpsOrderRequest {
   final bool isOrderPaid;
   final String customerId;
   final int createdEmpUserId;
+  final String? createdEmpId;
   final String orderReferencedBy;
   final double totalPrice;
   final int categoryId;
+  final int orderTypeId; // Added missing field
+  final int teamId; // Added teamId field
   final String shippingPersonIncharge;
   final String shippingPersonContactNo;
   final GpsCustomerInfo customerInfo;
@@ -482,9 +632,12 @@ class GpsOrderRequest {
     required this.isOrderPaid,
     required this.customerId,
     required this.createdEmpUserId,
+    this.createdEmpId,
     required this.orderReferencedBy,
     required this.totalPrice,
     required this.categoryId,
+    required this.orderTypeId, // Added to constructor
+    required this.teamId, // Added to constructor
     required this.shippingPersonIncharge,
     required this.shippingPersonContactNo,
     required this.customerInfo,
@@ -493,27 +646,40 @@ class GpsOrderRequest {
     required this.orders,
   });
 
-  Map<String, dynamic> toJson() => {
-    "orderSource": orderSource,
-    "isOrderPaid": isOrderPaid,
-    "customerId": customerId,
-    "createdEmpUserId": createdEmpUserId,
-    "orderReferencedBy": orderReferencedBy,
-    "totalPrice": totalPrice,
-    "categoryId": categoryId,
-    "shippingPersonIncharge": shippingPersonIncharge,
-    "shippingPersonContactNo": shippingPersonContactNo,
-    "customerInfo": customerInfo.toJson(),
-    "billingAddress": billingAddress.toJson(),
-    "shippingAddress": shippingAddress.toJson(),
-    "orders": orders.map((o) => o.toJson()).toList(),
-  };
+  Map<String, dynamic> toJson() {
+    final json = {
+      "orderSource": orderSource,
+      "isOrderPaid": isOrderPaid,
+      "customerId": customerId,
+      "createdEmpUserId": createdEmpUserId,
+      "orderReferencedBy": orderReferencedBy,
+      "totalPrice": totalPrice,
+      "categoryId": categoryId,
+      "orderTypeId": orderTypeId, // Added to JSON
+      "teamId": teamId, // Added to JSON
+      "shippingPersonIncharge": shippingPersonIncharge,
+      "shippingPersonContactNo": shippingPersonContactNo,
+      "customerInfo": customerInfo.toJson(),
+      "billingAddress": billingAddress.toJson(),
+      "shippingAddress": shippingAddress.toJson(),
+      "orders": orders.map((o) => o.toJson()).toList(),
+    };
+    
+    // Add createdEmpId only if it's not null
+    if (createdEmpId != null) {
+      json["createdEmpId"] = createdEmpId!;
+    }
+    
+    return json;
+  }
 
   @override
   String toString() {
-    return 'GpsOrderRequest{orderSource: $orderSource, isOrderPaid: $isOrderPaid, customerId: $customerId, createdEmpUserId: $createdEmpUserId, orderReferencedBy: $orderReferencedBy, totalPrice: $totalPrice, categoryId: $categoryId, shippingPersonIncharge: $shippingPersonIncharge, shippingPersonContactNo: $shippingPersonContactNo, customerInfo: $customerInfo, billingAddress: $billingAddress, shippingAddress: $shippingAddress, orders: $orders}';
+    return 'GpsOrderRequest{orderSource: $orderSource, isOrderPaid: $isOrderPaid, customerId: $customerId, createdEmpUserId: $createdEmpUserId, createdEmpId: $createdEmpId, orderReferencedBy: $orderReferencedBy, totalPrice: $totalPrice, categoryId: $categoryId, shippingPersonIncharge: $shippingPersonIncharge, shippingPersonContactNo: $shippingPersonContactNo, customerInfo: $customerInfo, billingAddress: $billingAddress, shippingAddress: $shippingAddress, orders: $orders}';
   }
 }
+
+
 
 // ==================== GPS Order Summary API ====================
 
@@ -958,12 +1124,20 @@ class GpsOrderApiRequest {
   /// Verify vehicle
   Future<Result<bool>> verifyVehicle(String vehicleNumber) async {
     try {
+      // Custom headers for the new vehicle verification API
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+      
       final result = await _apiService.post(
-        'https://gro-devapi.letsgro.co/external/api/v1/verification/vehicle',
+        'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number',
         body: {
           'vehicle_number': vehicleNumber,
-          'force': true,
         },
+        customHeaders: customHeaders,
       );
 
       if (result is Success) {
@@ -974,13 +1148,13 @@ class GpsOrderApiRequest {
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
 
-          // Check if it has status field
-          if (response.containsKey('status')) {
-            final isVerified = response['status'] == true;
+          // Check if it has success field
+          if (response.containsKey('success')) {
+            final isVerified = response['success'] == true;
             print('✅ Vehicle verification result: $isVerified');
             return Success(isVerified);
           } else {
-            return Error(ErrorWithMessage(message: 'Invalid response format - missing status field'));
+            return Error(ErrorWithMessage(message: 'Invalid response format - missing success field'));
           }
         } else {
           return Error(ErrorWithMessage(message: 'Invalid response format'));

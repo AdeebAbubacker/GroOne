@@ -14,6 +14,8 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomple
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
@@ -24,6 +26,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_lo
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -56,14 +59,12 @@ class VpHomeScreen extends StatefulWidget {
 
 class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
-  // ProfileDetailModel? profileResponse;
    VpMyLoadResponse? vpMyLoadResponse;
    final profileCubit = locator<ProfileCubit>();
-   final lpHomeCubit = locator<LPHomeCubit>();
    final lpHomeBloc = locator<LpHomeBloc>();
-  final vpHomeScreenBloc = locator<VpHomeBloc>();
-  final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
-
+   final vpHomeScreenBloc = locator<VpHomeBloc>();
+   final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
+   final lpHomeCubit = locator<LPHomeCubit>();
 
 
   final searchController = TextEditingController();
@@ -89,15 +90,29 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
   }
 
   void initFunction() => frameCallback(() async {
-    await lpHomeBloc.getUserId();
-    await profileCubit.fetchProfileDetail();
-    await profileCubit.fetchCompanyTypeId();
+    lpHomeBloc.getUserId();
+    await profileCubit.fetchUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
+    lpHomeCubit.setBluIDFlag();
+    profileCubit.fetchCompanyTypeId();
+    await profileCubit.fetchProfileDetail(instance: this);
   });
 
 
   void disposeFunction() => frameCallback(() {});
+
+
+  // Store Kyc Status Event
+  void logKycStatusEvent(int kycFlag){
+    if (kycFlag == 1) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_PENDING);
+    } else if (kycFlag == 2) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_IN_PROGRESS);
+    } else if (kycFlag == 3) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_COMPLETED);
+    }
+  }
 
 
    // Blue Membership Dialog
@@ -106,7 +121,13 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
        context,
        child: CommonDialogView(
          hideCloseButton: true,
-         child: BlueMembershipDialogView(blueId: blueId),
+         child: BlueMembershipDialogView(
+             blueId: blueId,
+             afterDismiss: (){
+               var parameters = {"blueId": blueId};
+               analyticsHelper.logEvent(AnalyticEventName.VP_BLUE_MEMBERSHIP_ID, parameters);
+             }
+         ),
        ),
      );
    });
@@ -117,8 +138,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
       appBar: buildAppBarWidget(context),
       body: RefreshIndicator(
         onRefresh: () async {
-          vpRecentLoadListBloc.add(VpRecentLoadEvent());
-          vpHomeScreenBloc.add(VpMyLoadListRequested());
+          initFunction();
         },
         child: SafeArea(
           child: Column(
@@ -221,7 +241,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                       child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
                     ).onClick((){
                       Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                        frameCallback(() =>  profileCubit.fetchProfileDetail());
+                        profileCubit.fetchProfileDetail(instance: this);
                       });
                     }).paddingRight(commonSafeAreaPadding),
                   ],
@@ -256,13 +276,13 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
           final blueIdFromApi = profileState.data!.customer!.blueId;
           final blueIdFromStorage = await profileCubit.fetchBlueId();
-          bool popupShownFlag = await profileCubit.getHasShowBluePopup();
-
+          // bool popupShownFlag = await profileCubit.getHasShowBluePopup();
+          final blueIdFlag = profileState.data!.customer?.blueIdFlg  ?? false;
           debugPrint("💡 BlueId from API: $blueIdFromApi");
           debugPrint("💾 BlueId in storage: $blueIdFromStorage");
-          debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
+          // debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
 
-          if (blueIdFromApi.isNotEmpty && popupShownFlag == true) {
+          if (blueIdFromApi.isNotEmpty && blueIdFlag) {
 
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
@@ -286,9 +306,10 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           final companyName = profileState.data?.customer?.companyName;
 
           CustomLog.debug(this, "Company Name: $companyName");
+          CustomLog.debug(this, "Is Kyc : ${customer.isKyc}");
 
           isKycValid = customer.isKyc.toInt();
-
+          logKycStatusEvent(customer.isKyc.toInt());
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
@@ -351,7 +372,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                         ),
                       ),
                       child: Text(
-                        "View All",
+                        context.appText.viewAll,
                         style: AppTextStyle.h5WhiteColor,
                       ),
                     ),
@@ -374,19 +395,31 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                   separatorBuilder: (context, index) => 20.height,
                   itemBuilder: (context, index) {
                     final data = state.vpMyLoadResponse.data[index];
-                    return MyLoadsListBody(
-                      data: data,
-                      onClickAssignDriver: () {
-                        final isKycDone = VpVariables.isKycVerified;
-                        final companyId = int.parse(profileCubit.companyTypeId ?? "0");
-                        if (isKycDone) {
-                          context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
-                        } else if (companyId == 2 || companyId == 1) {
-                          commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                        } else {
-                          Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
-                        }
+                    return GestureDetector(
+                      onTap: () async {
+                        await  context.push(AppRouteName.loadDetailsScreen,extra: {
+                          "loadId":data.id
+                        }).then((value) {
+                          vpHomeScreenBloc.add(VpMyLoadListRequested());
+                        },);
                       },
+                      child: VpAllLoadMyLoadWidget(
+                        data: data,
+                        onBack: (){
+                          vpHomeScreenBloc.add(VpMyLoadListRequested());
+                        },
+                        onClickAssignDriver: () {
+                          final isKycDone = VpVariables.isKycVerified;
+                          final companyId = int.parse(profileCubit.companyTypeId ?? "0");
+                          if (isKycDone) {
+                            context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
+                          } else if (companyId == 2 || companyId == 1) {
+                            commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                          } else {
+                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                          }
+                        },
+                      ),
                     );
                   },
                 ),
@@ -424,7 +457,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
               AppDialog.show(
                 context,
                 child: SuccessDialogView(
-                  message: 'Load Accepted Successfully',
+                  message: context.appText.loadAcceptedSuccessfully,
                   afterDismiss: () {
                     if (context.mounted) Navigator.pop(context);
                   },

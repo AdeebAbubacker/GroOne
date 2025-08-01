@@ -33,6 +33,13 @@ class PngIcons {
 
   //gps
   final String gpsDashboardRoad = "${_pngBasePath}gps_dashboard_road.png";
+
+  //fastag
+  final String fastagBalanceIcon = "${_pngBasePath}balance_icon.png";
+  final String fastagNetcIcon = "${_pngBasePath}fastag_icon.png";
+  final String fastagIdfcIcon = "${_pngBasePath}idfc_icon.png";
+  final String fastagListCardIcon = "${_pngBasePath}list_card_icon.png";
+  final String fastagTollIcon = "${_pngBasePath}toll_icon.png";
 }
 
 /// GIF Icons
@@ -117,5 +124,25 @@ class SvgIcons {
   final String dashboardPowerCut = "${_svgBasePath}dashboard_powercut.svg";
   final String dashboardOverSpeed = "${_svgBasePath}dashboard_overspeed.svg";
   final String dashboardVibration = "${_svgBasePath}dashboard_vibration.svg";
-
+  final String gpsNotificationsOtherAlerts = "${_svgBasePath}gps_settings_other_alerts_icon.svg";
+  final String tAndCDoc = "${_svgBasePath}terms_and_condition_doc.svg";
+  final String privacyLock = "${_svgBasePath}privacy_lock.svg";
+  final String commission = "${_svgBasePath}commission.svg";
+  final String fasterLoad = "${_svgBasePath}faster_load.svg";
+  final String fasterPayment = "${_svgBasePath}faster_payment.svg";
+  final String fuel = "${_svgBasePath}fuel.svg";
+  final String manager = "${_svgBasePath}manager.svg";
+  final String priorityLoad = "${_svgBasePath}priority_load.svg";
+  final String truckSteering = "${_svgBasePath}truck_steering.svg";
+  final String gpsGeofenceCircle = "${_svgBasePath}gps_geofence_icon_circle.svg";
+  final String gpsGeofenceSquare = "${_svgBasePath}gps_geofence_icon_square.svg";
+  final String gpsGeofencePolyline = "${_svgBasePath}gps_geofence_icon_polyline.svg";
+  final String gpsHomeParking = "${_svgBasePath}gps_home_parking.svg";
+  final String gpsHomeDashboard = "${_svgBasePath}gps_home_dashboard.svg";
+  final String gpsHomeOrders = "${_svgBasePath}gps_home_orders.svg";
+  final String gpsHomeSubscriptions = "${_svgBasePath}gps_home_subscription.svg";
+  final String gpsHomeReports = "${_svgBasePath}gps_home_reports.svg";
+  final String gpsHomeVehicleSharing = "${_svgBasePath}gps_home_vehicle_share.svg";
+  final String gpsHomeSettings = "${_svgBasePath}gps_home_settings.svg";
+  final String gpsHomeGeofences = "${_svgBasePath}gps_home_geofence.svg";
 }

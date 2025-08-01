@@ -1,5 +1,7 @@
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 
+import '../../vp-helper/vp_helper.dart';
+
 class LoadDetailModel {
   LoadDetailModel({
     required this.message,
@@ -71,6 +73,9 @@ class LoadDetailModelData {
     required this.loadMemo,
     required this.trackingDetails,
     required this.loadOnHold,
+    required this.loadStatusValue,
+    required this.loadSettlement,
+    required this.podDispatch,
 
   });
 
@@ -99,7 +104,7 @@ class LoadDetailModelData {
   final DataCommodity? commodity;
   final DataTruckType? truckType;
   final LoadRoute? loadRoute;
-  final LoadStatusDetails? loadStatusDetails;
+  final LoadStatusDetailsResponse? loadStatusDetails;
   final LoadPrice? loadPrice;
   final ScheduleTripDetails? scheduleTripDetails;
   final Consignee? consignee;
@@ -115,7 +120,9 @@ class LoadDetailModelData {
   final dynamic loadMemo;
   final TrackingDetails? trackingDetails;
   final bool? loadOnHold;
-
+  final LoadStatus? loadStatusValue;
+  final LoadSettlement? loadSettlement;
+  final PodDispatch? podDispatch;
 
   LoadDetailModelData copyWith({
     String? loadId,
@@ -144,7 +151,7 @@ class LoadDetailModelData {
     DataCommodity? commodity,
     DataTruckType? truckType,
     LoadRoute? loadRoute,
-    LoadStatusDetails? loadStatusDetails,
+    LoadStatusDetailsResponse? loadStatusDetails,
     LoadPrice? loadPrice,
     ScheduleTripDetails? scheduleTripDetails,
     Consignee? consignee,
@@ -159,10 +166,15 @@ class LoadDetailModelData {
     int? driverConsent,
     dynamic loadMemo,
     TrackingDetails? trackingDetails,
+    LoadStatus? loadStatusValue,
+    LoadSettlement? loadSettlement,
+    PodDispatch? podDispatch
 
   }) {
     return LoadDetailModelData(
-
+      podDispatch: podDispatch??this.podDispatch,
+loadSettlement: loadSettlement ?? this.loadSettlement,
+loadStatusValue: loadStatusValue??this.loadStatusValue,
       loadOnHold: loadOnHold??this.loadOnHold,
       trackingDetails: trackingDetails?? this.trackingDetails,
       loadMemo: loadMemo?? this.loadMemo,
@@ -209,12 +221,14 @@ class LoadDetailModelData {
   }
 
   factory LoadDetailModelData.fromJson(Map<String, dynamic> json){
-
     List? consigneeDetails;
     if(json["consignees"] != null && (json["consignees"] as List).isNotEmpty){
       consigneeDetails=json["consignees"];
     }
     return LoadDetailModelData(
+      podDispatch: json['podDispatch']!=null &&  (json['podDispatch'] as Map).isNotEmpty ? PodDispatch.fromJson(json['podDispatch']):null,
+      loadSettlement:json['loadSettlement']!=null ? LoadSettlement.fromJson(json['loadSettlement']):null,
+      loadStatusValue: getLoadStatus(json["loadStatusId"] ?? 0),
       loadOnHold:  json['loadOnhold'],
       loadMemo:json['loadMemo'],
       trackingDetails: json['trackingDetails']!=null? TrackingDetails.fromJson(json['trackingDetails']):null ,
@@ -246,7 +260,7 @@ class LoadDetailModelData {
       commodity: json["commodity"] == null ? null : DataCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : DataTruckType.fromJson(json["truckType"]),
       loadRoute: json["loadRoute"] == null ? null : LoadRoute.fromJson(json["loadRoute"]),
-      loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
+      loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetailsResponse.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       scheduleTripDetails: json["scheduleTripDetails"] == null ? null : ScheduleTripDetails.fromJson(json["scheduleTripDetails"]),
       consignee: (consigneeDetails??[]).isEmpty ? null : Consignee.fromJson(consigneeDetails?[0]),
@@ -774,8 +788,8 @@ class LoadRoute {
 
 }
 
-class LoadStatusDetails {
-  LoadStatusDetails({
+class LoadStatusDetailsResponse {
+  LoadStatusDetailsResponse({
     required this.id,
     required this.loadStatus,
     required this.status,
@@ -791,7 +805,7 @@ class LoadStatusDetails {
   final DateTime? updatedAt;
   final dynamic deletedAt;
 
-  LoadStatusDetails copyWith({
+  LoadStatusDetailsResponse copyWith({
     int? id,
     String? loadStatus,
     int? status,
@@ -799,7 +813,7 @@ class LoadStatusDetails {
     DateTime? updatedAt,
     dynamic? deletedAt,
   }) {
-    return LoadStatusDetails(
+    return LoadStatusDetailsResponse(
       id: id ?? this.id,
       loadStatus: loadStatus ?? this.loadStatus,
       status: status ?? this.status,
@@ -809,8 +823,8 @@ class LoadStatusDetails {
     );
   }
 
-  factory LoadStatusDetails.fromJson(Map<String, dynamic> json){
-    return LoadStatusDetails(
+  factory LoadStatusDetailsResponse.fromJson(Map<String, dynamic> json){
+    return LoadStatusDetailsResponse(
       id: json["id"] ?? 0,
       loadStatus: json["loadStatus"] ?? "",
       status: json["status"] ?? 0,
@@ -960,7 +974,7 @@ class ScheduleTripDetails {
       deletedAt: json["deletedAt"],
       loadId: json["loadId"] ?? "",
       driver: json["driver"] == null ? null : Driver.fromJson(json["driver"]),
-      vehicle: json["vehicle"] == null ? null : ScheduleTripDetailsVehicle.fromJson(json["vehicle"]),
+      vehicle: json["vehicle"] == null ? null : ScheduleTripDetailsVehicle.fromJson(json["vehicle"]['vehicle']),
     );
   }
 
@@ -1445,6 +1459,107 @@ class DamageReport {
 
 
 }
+class LoadSettlement {
+  final String? settlementId;
+  final String? vehicleId;
+  final String? loadId;
+  final int? noOfDays;
+  final int? amountPerDay;
+  final int? loadingCharge;
+  final int? unLoadingCharge;
+  final int? debitDamages;
+  final int? debitShortages;
+  final int? debitPenalities;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deletedAt;
+
+  LoadSettlement({
+    this.settlementId,
+    this.vehicleId,
+    this.loadId,
+    this.noOfDays,
+    this.amountPerDay,
+    this.loadingCharge,
+    this.unLoadingCharge,
+    this.debitDamages,
+    this.debitShortages,
+    this.debitPenalities,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
+
+  factory LoadSettlement.fromJson(Map<String, dynamic> json) {
+    return LoadSettlement(
+      settlementId: json['settlementId'] as String?,
+      vehicleId: json['vehicleId'] as String?,
+      loadId: json['loadId'] as String?,
+      noOfDays: json['noOfDays'] as int?,
+      amountPerDay: json['amountPerDay'] as int?,
+      loadingCharge: json['loadingCharge'] as int?,
+      unLoadingCharge: json['unloadingCharge'] as int?,
+      debitDamages: json['debitDamages'] as int?,
+      debitShortages: json['debitShortages'] as int?,
+      debitPenalities: json['debitPenalities'] as int?,
+      createdAt: json['createdAt'] != null
+          ? DateTime.parse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
+      deletedAt: json['deletedAt'] != null
+          ? DateTime.tryParse(json['deletedAt'])
+          : null,
+    );
+  }
+}
+
+class PodDispatch {
+  final String? loadPodId;
+  final String? loadId;
+  final String? courierCompany;
+  final String? awbNumber;
+  final String? podTrackingLink;
+  final String? podCenterId;
+  final String? podCenterName;
+  final int? status;
+  final DateTime? createAt;
+  final DateTime? deletedAt;
+
+  PodDispatch({
+    this.loadPodId,
+    this.loadId,
+    this.courierCompany,
+    this.awbNumber,
+    this.podTrackingLink,
+    this.podCenterId,
+    this.podCenterName,
+    this.status,
+    this.createAt,
+    this.deletedAt,
+  });
+
+  factory PodDispatch.fromJson(Map<String, dynamic> json) {
+    return PodDispatch(
+      loadPodId: json['loadPodId'] as String?,
+      loadId: json['loadId'] as String?,
+      courierCompany: json['courierCompany'] as String?,
+      awbNumber: json['awbNumber'] as String?,
+      podTrackingLink: json['podTrackingLink'] as String?,
+      podCenterId: json['podCenterId'] as String?,
+      podCenterName: json['podCenterName'] as String?,
+      status: json['status'] as int?,
+      createAt: json['createAt'] != null ? DateTime.tryParse(json['createAt']) : null,
+      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+    );
+  }
+
+}
+
+
+
+
 
 
 

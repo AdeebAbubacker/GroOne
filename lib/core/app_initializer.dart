@@ -1,12 +1,16 @@
 import 'dart:io';
-
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+//import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gro_one_app/core/firebase_options.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:gro_one_app/service/firebase_secondary_service.dart';
+
+import '../features/gps_feature/helper/gps_session_manager.dart';
 
 /// --- App Initialization Function ---
 Future<void> initializeApp() async {
@@ -16,7 +20,11 @@ Future<void> initializeApp() async {
     debugPrint("Firebase Initialized");
     await FirebaseMessaging.instance.requestPermission();
 
-    // Crashlytics
+    // Firebase Secondary App Initialization
+  await FirebaseService.initializeSecondaryApp();
+  debugPrint("Firebase Secondary App Initialized");
+
+  // Crashlytics
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
     PlatformDispatcher.instance.onError = (error, stack) {
       FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);

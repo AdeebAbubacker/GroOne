@@ -21,6 +21,7 @@ class AppDropdown extends StatelessWidget {
   final Function(String?)? onChanged;
   final void Function()? onTap;
   final String? Function(String?)? onSaved;
+  final bool enabled;
 
   const AppDropdown({
     super.key,
@@ -38,6 +39,7 @@ class AppDropdown extends StatelessWidget {
     this.onSaved,
     this.onTap,
     this.mandatoryStar = false,
+    this.enabled = true,
   });
 
   @override
@@ -55,21 +57,35 @@ class AppDropdown extends StatelessWidget {
           ),
         if (labelText != null) 6.height,
         DropdownButtonHideUnderline(
+
           child: DropdownButtonFormField<String>(
             dropdownColor: AppColors.scaffoldBackgroundColor,
             isExpanded: false,
             enableFeedback: true,
-            decoration: decoration ?? commonInputDecoration(),
+
+            decoration: enabled 
+                ? (decoration ?? commonInputDecoration())
+                : (decoration ?? commonInputDecoration()).copyWith(
+                    fillColor: Colors.grey.shade100,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                      borderRadius: BorderRadius.circular(commonRadius),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey.shade300, width: 1),
+                      borderRadius: BorderRadius.circular(commonRadius),
+                    ),
+                  ),
             focusNode: currentFocus,
             borderRadius: BorderRadius.circular(commonRadius),
             value: dropdownValue,
-            style: AppTextStyle.textFiled,
-            hint: hintText != null ? Text(hintText.capitalizeFirst, style: AppTextStyle.textFieldHint) : null,
+            style: enabled ? AppTextStyle.textFiled : AppTextStyle.textFiled.copyWith(color: Colors.grey),
+            hint: hintText != null ? Text(hintText.capitalizeFirst, style: enabled ? AppTextStyle.textFieldHint : AppTextStyle.textFieldHint.copyWith(color: Colors.grey)) : null,
             items: dropDownList,
-            onChanged: onChanged!,
-            onTap: onTap,
-            onSaved: onSaved,
-            validator: validator,
+            onChanged: enabled ? onChanged : null,
+            onTap: enabled ? onTap : null,
+            onSaved: enabled ? onSaved : null,
+            validator: enabled ? validator : null,
           ),
         ),
       ],

@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_verify_advance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/trip_statement_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -57,6 +58,15 @@ class  LpLoadRepository {
       return service.fetchMemoDetails(loadId: loadId, forceRefresh: forceRefresh);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch memo details data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<TripStatementResponse>> fetchTripDetails({required String loadId}) async {
+    try {
+      return service.fetchTripDetails(loadId: loadId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch trip details data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

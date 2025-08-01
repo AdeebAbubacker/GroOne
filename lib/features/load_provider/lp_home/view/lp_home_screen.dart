@@ -1,7 +1,9 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -38,6 +40,7 @@ import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -67,7 +70,7 @@ class HomeScreenLoadProvider extends StatefulWidget {
   State<HomeScreenLoadProvider> createState() => _HomeScreenLoadProviderState();
 }
 
-class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
+class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   final lpHomeBloc = locator<LpHomeBloc>();
@@ -129,12 +132,16 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
   void initFunction() => frameCallback(() async {
     profileCubit.fetchProfileDetail();
-    loadCommodityBloc.add(LoadCommodity());
-    loadTruckTypeBloc.add(LoadTruckType());
-    lpHomeCubit.fetchGetLoadList();
-    lpHomeCubit.fetchRecentRoute();
-    lpHomeCubit.fetchLoadWeight();
     lpHomeCubit.setBluIDFlag();
+    await profileCubit.fetchUserRole().then((val) {
+      if(val != 4) {
+        loadCommodityBloc.add(LoadCommodity());
+        loadTruckTypeBloc.add(LoadTruckType());
+        lpHomeCubit.fetchGetLoadList();
+        lpHomeCubit.fetchRecentRoute();
+        lpHomeCubit.fetchLoadWeight();
+      }
+    });
     clearAllValues();
   });
 
@@ -159,7 +166,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   void clearAllValues(){
     dateTimeTextController.clear();
     weightTextController.clear();
-    lpHomeCubit.clearPickUpAndDestination();
     lpHomeCubit.setDestination(null);
     lpHomeCubit.setPickup(null);
     commodityId = null;
@@ -176,9 +182,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     setState(() {});
   }
 
-
-
-
   // For Get Rate Discovery validation
   bool isFormValid() {
     final pickup = lpHomeCubit.state.pickup?.data;
@@ -193,19 +196,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
 
-
-
+  // Fetch Rate Discovery
   Future<void> fetchRateDiscovery() async {
-
     if (!isFormValid()) {
       return;
     }
-
     if (lpHomeCubit.state.laneId == null){
       ToastMessages.error(message: context.appText.landIdNull);
       return;
     }
-
     final req = RateDiscoveryApiRequest(
       laneId: lpHomeCubit.state.laneId.toString(),
       truckTypeId: truckTypeId ?? "",
@@ -227,25 +226,25 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
   }
 
 
-
-
   // Load Post Api Call
   Future<void> postLoad(BuildContext context) async {
-
-
     // 3 Complete KYC | 2 In Progress kyc | 1 Pending Kyc
     if (isKycValid == 1) {
       kycBottomSheet(context);
       return;
     }
-
     if (isKycValid == 2) {
       String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-
       if (firstPostedLoadId != null) {
-        AppDialog.show(context, child: KycInProgressDialogue(onPressed: () {
-          Navigator.pop(context);
-        }));
+        if(!context.mounted) return;
+        AppDialog.show(
+            context,
+            child: KycInProgressDialogue(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+            ),
+        );
         return;
       }
     }
@@ -276,6 +275,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
 
     // Pass Data in to next page
+    if(!context.mounted) return;
     Navigator.push(context, commonRoute(LoadSummaryScreen(
       apiRequest: request,
       pickupAddress:  lpHomeCubit.state.pickup?.data?.address ?? "",
@@ -289,15 +289,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
       price: rateDiscoveryPrice ?? "0000 - 0000",
       date : dateTimeTextController.text,
       isKycValid: isKycValid
-    ), isForward: true)).then((onValue){
+    ), isForward: true)).then((onValue)async{
       if(onValue != null && onValue == true){
         clearAllValues();
+        await lpHomeCubit.fetchLoadWeight();
         setState(() {});
       }
     });
 
   }
-
 
   // Kyc Bottom Sheet
   void kycBottomSheet(BuildContext context){
@@ -315,8 +315,6 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
     );
   }
 
-
-
   // Blue Membership Dialog
   void blueMembershipDialog(BuildContext context, String blueId)=> frameCallback(() {
     AppDialog.show(
@@ -325,10 +323,49 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
         hideCloseButton: true,
         child: BlueMembershipDialogView(
           blueId: blueId,
+          afterDismiss: (){
+            var parameters = {"blueId": blueId};
+            analyticsHelper.logEvent(AnalyticEventName.LP_BLUE_MEMBERSHIP_ID, parameters);
+          }
         ),
       ),
     );
   });
+
+
+  //
+  void navigateToLPSelectAddressScreen(state) {
+    Navigator.of(context).push(commonRoute(LPSelectAddressScreen(
+        title: context.appText.pickupPoint,
+        address: state.pickup?.data?.address,
+        location: state.pickup?.data?.location), isForward: true))
+        .then((onValue) async {
+      if (onValue != null && onValue == true) {
+        await fetchRateDiscovery();
+      }
+    });
+  }
+
+
+  void navigateToRecentRouteScreen() {
+    Navigator.of(context).push(createRoute(RecentRouteScreen())).then((onValue) async {
+      if (onValue != null && onValue == true) {
+        await fetchRateDiscovery();
+      }
+    });
+  }
+
+
+  // Store Kyc Status Event
+  void logKycStatusEvent(int kycFlag){
+    if (kycFlag == 1) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_PENDING);
+    } else if (kycFlag == 2) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_IN_PROGRESS);
+    } else if (kycFlag == 3) {
+      analyticsHelper.logEvent(AnalyticEventName.KYC_COMPLETED);
+    }
+  }
 
 
   @override
@@ -473,12 +510,15 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                 children: [
                   buildKycLabelWidget(),
                   10.height,
-                  OurValueAddedServicesWidget(),
+                  OurValueAddedServicesWidget(isGridLayout: profileCubit.userRole == 4),
                   10.height,
-                  bookShipmentSectionWidget(context),
-                  10.height,
-                  buildUpComingShipmentListWidget(),
-                  10.height,
+                  if(profileCubit.userRole != 4)
+                    ...[
+                      bookShipmentSectionWidget(context),
+                      10.height,
+                      buildUpComingShipmentListWidget(),
+                      10.height,
+                    ]
                 ],
               ),
             );
@@ -527,7 +567,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
           final companyId = profileState.data?.customer?.companyTypeId;
 
           isKycValid = customer.isKyc.toInt();
-
+          logKycStatusEvent(customer.isKyc.toInt());
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
@@ -597,23 +637,22 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                               switch (uiState.status) {
                                 case Status.SUCCESS:
                                   if (uiState.data != null && uiState.data!.data.isNotEmpty && pickupLocation == null) {
-                                    Navigator.of(context).push(createRoute(RecentRouteScreen()));
+                                    navigateToRecentRouteScreen();
                                   } else {
                                     ToastMessages.alert(message: context.appText.noRecentRouteFound);
-                                    Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.pickupPoint, address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                                    navigateToLPSelectAddressScreen(state);
                                   }
                                   break;
 
                                 case Status.ERROR:
-                                  Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.pickupPoint, address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                                  navigateToLPSelectAddressScreen(state);
                                   break;
                                 default:
-                                  Navigator.of(context).push(createRoute(RecentRouteScreen()));
+                                  navigateToRecentRouteScreen();
                               }
                             } else {
-                              Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.pickupPoint, address: state.pickup?.data?.address, location: state.pickup?.data?.location), isForward: true));
+                              navigateToLPSelectAddressScreen(state);
                             }
-                            await fetchRateDiscovery();
                           },
 
                         ),
@@ -627,12 +666,12 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                           onClick: () async {
                             Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.selectDestinationTitle, address: state.destination!.data?.address, location: state.destination!.data?.location), isForward: true)).then((onValue) async {
                               if(onValue != null && onValue == true){
+                                await fetchRateDiscovery();
                               } else {
                                 lpHomeCubit.setDestination(null);
                               }
                               setState(() {});
                             });
-                            await fetchRateDiscovery();
                           },
                         ),
 
@@ -713,16 +752,16 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
                     onTab: () async {
                       Navigator.of(context).push(createRoute(WeightSelectionScreen(
                             dataList: weights,
-                            onSelect: (weight) {
+                            onSelect: (weight) async {
                               lpHomeCubit.selectWeight(weight);
                               weightTextController.text = weight.value.toString();
                               setState(() {});
+                              await fetchRateDiscovery();
                             },
                             cubit: lpHomeCubit,
                           ),
                         ),
                       );
-                      await fetchRateDiscovery();
                     },
                     cubit: lpHomeCubit,
                   ).expand();
@@ -873,7 +912,7 @@ class _HomeScreenLoadProviderState extends State<HomeScreenLoadProvider> {
 
                                 String formattedPrice;
                                 if (data?.minPrice == null) {
-                                  formattedPrice = "₹0";
+                                  formattedPrice = context.appText.contactCustomerSupport;
                                 } else if (data?.maxPrice == null || data?.maxPrice == 0) {
                                   formattedPrice = PriceHelper.formatINR(data!.minPrice);
                                 } else {

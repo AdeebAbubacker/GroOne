@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/delete_load_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/settlement_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
@@ -29,6 +30,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_ap
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -60,25 +62,31 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
     loadStatus = getLoadStatus(status);
+    loadStatus = getLoadStatus(status);
     emit(state.copyWith(
         loadStatusId: status,
         loadStatus: loadStatus));
 
     if(status==7){
       final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-      final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==8,);
+      final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==331,);
+      final uploadOtherDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==309,);
 
       final updatedDocument = currentList[podDocumentIndex].copyWith(
         visible: true
       );
+      final updateOtherDocument = currentList[uploadOtherDocumentIndex].copyWith(
+        visible: false
+      );
       currentList[podDocumentIndex] = updatedDocument;
+      currentList[uploadOtherDocumentIndex] = updateOtherDocument;
       emit(state.copyWith(tripDocumentList: currentList));
     }
   }
 
 
   Future<void> getLoadDetails(String loadId) async {
-    emit(state.copyWith(loadDetailsUIState: UIState.loading(),));
+    emit(state.copyWith(loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
     if (result is Success<LoadDetailModel>) {
@@ -87,10 +95,11 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
               result.value.data?.loadRoute?.pickUpLatlon ?? "0",
               result.value.data?.loadRoute?.dropLatlon ?? "0"),
           loadDetailsUIState: UIState.success(result.value)));
-
+      getAllDamagesImages(getFromDetails: true);
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
 
       /// SET TRIP DOCUMENT
+      print("Calling set trip documents");
       setTripDocuments(
           state.loadDetailsUIState?.data?.data?.loadDocument ?? []);
     }
@@ -179,13 +188,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   // Submit Settlement Api Call
-  void _setSettlementUIState(UIState<DamageModel>? uiState){
+  void _setSettlementUIState(UIState<SettlementApiResponse>? uiState){
     emit(state.copyWith(settlementUIState: uiState));
   }
   Future<void> submitSettlement(SettlementApiRequest req) async {
     _setSettlementUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
-    if (result is Success<DamageModel>) {
+    if (result is Success<SettlementApiResponse>) {
       _setSettlementUIState(UIState.success(result.value));
     }
     if (result is Error) {
@@ -252,6 +261,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     Result result = await _loadDetailsRepository.getDamageListData(loadId);
     if (result is Success<GetDamageListModel>) {
       _setDamageListUIState(UIState.success(result.value));
+      getAllDamagesImages();
     }
     if (result is Error) {
       _setDamageListUIState(UIState.error(result.type));
@@ -275,29 +285,54 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   /// DELETE LOAD DOCUMENT
-  Future<void> deleteLoadDocument(String loadDocumentID,int index) async {
-    uploadDeleteLoaderStatus(index);
+  Future<void> deleteLoadDocument(String loadDocumentID,int index,{bool otherDocument=false}) async {
+    if(!otherDocument){
+      uploadDeleteLoaderStatus(index);
+    }
+
     Result result = await _loadDetailsRepository.deleteLoadDocument(loadDocumentID);
     if (result is Success<DeleteLoadDocumentResponse>) {
       /// delete from local
-      uploadDeleteLoaderStatus(index,isDelete: true);
+      if(otherDocument){
+        deleteOtherDocumentFromLocal(index);
+      }else{
+        uploadDeleteLoaderStatus(index,isDelete: true);
+      }
+
     }
     if (result is Error) {
       uploadDeleteLoaderStatus(index);
     }
   }
 
+
+  deleteOtherDocumentFromLocal(int index){
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    int currentDocumentIndex = currentList.indexWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments);
+    List<LoadDocument> loadDocument =  List.from(currentList[currentDocumentIndex].loadDocument??[]);
+
+    loadDocument.removeAt(index);
+
+    final updatedDocument = currentList[currentDocumentIndex].copyWith(
+      clearLoadData: false,
+      loadDocument: loadDocument,
+      isLoading: false,
+      deleteLoading:false,
+    );
+    currentList[currentDocumentIndex] = updatedDocument;
+    emit(state.copyWith(tripDocumentList: currentList));
+  }
+
+
   Future<void> uploadDocument(File file, String fileType, String? title,
       int? documentTypeId, String loadId, int index) async {
     /// upload document = > Create Document = > Map Document with load
     try {
       uploadLoadingStatus(index, null);
-      Result result = await _loadDetailsRepository.uploadDocument(
-          file, fileType);
+      Result result = await _loadDetailsRepository.uploadDocument(file, fileType);
       if (result is Success<UploadDamageFileModel>) {
         ///Create Document
-        await createDocument(title ?? "", documentTypeId ?? 1, result.value)
-            .then((value) async {
+        await createDocument(title ?? "", documentTypeId ?? 1, result.value).then((value) async {
           if (value != null) {
             /// Map document with load
             await saveDocument(value, loadId).then((value) {
@@ -307,6 +342,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
             uploadLoadingStatus(index, null);
           }
         },);
+
       }
       if (result is Error) {
         uploadLoadingStatus(index, null);
@@ -339,14 +375,21 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
-    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
 
     final updatedDocument = currentDocument.copyWith(
-      loadDocument: currentDocument.loadDocument ?? loadDocument,
+      loadDocument: [
+        ...currentDocument.loadDocument??[],
+        if(loadDocument!=null) ...[loadDocument]
+      ],
       isLoading: !(currentDocument.isLoading ?? false),
     );
     currentList[index] = updatedDocument;
+
+    /// TODO:
+    /// This is for multiple documents
+
     emit(state.copyWith(tripDocumentList: currentList));
   }
 
@@ -361,6 +404,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     currentList[index] = updatedDocument;
     emit(state.copyWith(tripDocumentList: currentList));
   }
+
 
 
   Future<CreateDocumentResponse?> createDocument(String title,
@@ -382,6 +426,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       ).then((value) {
         if (value is Success<CreateDocumentResponse>) {
           return value.value;
+        } else if(value is Error<CreateDocumentResponse>){
+          ToastMessages.error(message: getErrorMsg(
+              errorType: value.type
+          ));
         }
         return null;
       },);
@@ -399,6 +447,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           loadId: loadId
       ).then((value) {
         if (value is Success<LoadDocument>) {
+
           return value.value;
         }
         return null;
@@ -408,7 +457,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
-  Future viewDocument(String documentId, int index) async {
+  Future downloadDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
       return await _loadDetailsRepository.viewDocument(
@@ -430,6 +479,31 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
+  Future<ViewDocumentResponse?> fetchDocumentById(String documentId) async {
+   return _loadDetailsRepository.viewDocument(
+      documentId: documentId,
+    ).then((result) => (result is Success<ViewDocumentResponse>) ? result.value:null);
+  }
+
+
+  Future getAllDamagesImages({bool getFromDetails=false})async{
+    List<DamageReport> damageListData=  getFromDetails ? List.from(state.loadDetailsUIState?.data?.data?.damageShortage??[]):List.from(state.damageListUIState?.data?.data??[]);
+   List<String> imageList=[];
+   for(int i=0;i<(damageListData.length);i++){
+     final getDamageData= damageListData[i];
+     if((getDamageData.image??[]).isEmpty){
+       return;
+     }
+     String typeId=getDamageData.image!.first;
+     await fetchDocumentById(typeId).then((value) {
+       imageList.add(value?.filePath??"");
+       },);}
+       emit(state.copyWith(
+     allDamageImageList: imageList
+    ));
+  }
+
+
   void resetDeleteDamageUIState(){
     emit(state.copyWith(deleteDamageUIState: resetUIState<DeleteDamageModel>(state.deleteDamageUIState)));
   }
@@ -446,7 +520,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   void resetSettlementUIState() {
-    emit(state.copyWith(settlementUIState: resetUIState<DamageModel>(
+    emit(state.copyWith(settlementUIState: resetUIState<SettlementApiResponse>(
         state.settlementUIState)));
   }
 
@@ -468,23 +542,19 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     ));
   }
 
+
+
+
   void resetTripScheduleUIState(){
     emit(state.copyWith(scheduleTripResponse: resetUIState<ScheduleTripResponse>(state.scheduleTripResponse)));
   }
 
 
     setTripDocuments(List<LoadDocument>? loadDocument) {
-      List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+    List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
       for (DocumentEntity item in documentList) {
         /// find load item for api response set into local document entity
-        try {
-          item.loadDocument = loadDocument!.firstWhere(
-                (element) =>
-            element.documentDetails?.documentType == item.documentType,
-          );
-        } catch (e) {
-          item.loadDocument = null;
-        }
+        item.loadDocument=filterLoadDocumentById(loadDocument,item);
       }
       emit(state.copyWith(
           tripDocumentList: documentList
@@ -494,25 +564,102 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
     try {
-      DocumentEntity? document = documentEntity.firstWhere((element) =>
-      element.loadDocument == null && element.visible==true);
-      return document == null;
+      DocumentEntity? document = documentEntity.firstWhere((element) {
+
+      return (element.loadDocument??[]).isEmpty && element.visible==true;
+      });
+      return document == null || document.fileType==DocumentFileType.uploadOtherDocument.name;
     } catch (e) {
       return true;
     }
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true}) {
     switch(loadStatus){
       case LoadStatus.assigned:
-        return memo!=null;
+        return (checkMemo??true) ? memo!=null:true;
         case LoadStatus.loading:
-      return driverConsent==1 && checkIsDocumentUploaded(documentEntity);
+          return  checkIsDocumentUploaded(documentEntity);
       case LoadStatus.unloading:
         return checkIsDocumentUploaded(documentEntity);
       default:
         return true;
     }
   }
+
+  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  dynamic memo, LoadStatus? loadStatus}) {
+    switch(loadStatus){
+
+      case LoadStatus.loading:
+      return  checkLoadingDocumentAddedOrNot(documentList,true);
+
+      case LoadStatus.unloading:
+        return checkLoadingDocumentAddedOrNot(documentList,false);
+      default:
+        return true;
+    }
+
+
+  }
+  bool checkLoadingDocumentAddedOrNot(List<LoadDocument> loadDocumentList,bool? checkPod){
+    List<String> requiredDocument= (checkPod??false)   ?  [
+      navigatorKey.currentState?.context.appText.lorryReceipt??"",
+      navigatorKey.currentState?.context.appText.ewayBill??"",
+      navigatorKey.currentState?.context.appText.materialInvoice??"",
+
+    ]:[
+      navigatorKey.currentState?.context.appText.pod??""
+    ];
+
+    bool isAdded=false;
+    for(var item in requiredDocument){
+
+      try{
+        loadDocumentList.firstWhere((element) => element.documentDetails?.documentType==item);
+        isAdded=true;
+      }catch(e){
+        return false;
+      }
+    }
+    return isAdded;
+  }
+
+
+ List<LoadDocument> filterLoadDocumentById(List<LoadDocument>? loadDocument,DocumentEntity item){
+    try {
+      if(item.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments){
+        LoadDocument? foundedDocument = loadDocument!.firstWhere(
+              (element) =>
+          element.documentDetails?.documentType == item.documentType,
+        );
+
+        return [foundedDocument];
+      } else {
+        return loadDocument!.where(
+              (element) =>
+          element.documentDetails?.documentType == item.documentType,
+        ).toList();
+      }} catch (e) {
+      return [];
+    }
+  }
+
+
+  bool isVisibleAddMoreDocument(){
+    try{
+      DocumentEntity? tripDocumentList= state.tripDocumentList?.firstWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments,);
+      return (tripDocumentList?.loadDocument?.length??0)<5;
+    }catch(e){
+      return false;
+    }
+  }
+
+
+
+
+
+
+
+
 }

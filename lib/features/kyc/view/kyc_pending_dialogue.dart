@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -16,12 +17,12 @@ final Function() onPressed;
       spacing: 10,
       children: [
         Center(child: SvgPicture.asset(AppImage.svg.kycPending)),
-        Text("KYC Pending",style: AppTextStyle.orangeTextColor26w700,),
-        Text("Please complete your KYC to accept load",style: AppTextStyle.textDarkGreyColor14w400),
+        Text(context.appText.kycPending,style: AppTextStyle.orangeTextColor26w700,),
+        Text(context.appText.completeKycAlertDescription,style: AppTextStyle.textDarkGreyColor14w400),
         20.height,
         AppButton(
           onPressed: onPressed,
-          title: "Go to KYC",
+          title:context.appText.goToKyc ,
         )
 
       ],

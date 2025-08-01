@@ -79,6 +79,24 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     return selectedMake != null && selectedModel != null;
   }
 
+  /// Determines if a field should be enabled based on previous selections
+  bool _isFieldEnabled(String fieldName) {
+    switch (fieldName) {
+      case 'make':
+        return true; // Make is always enabled
+      case 'model':
+        return selectedMake != null; // Model enabled when make is selected
+      case 'engine':
+        return selectedMake != null && selectedModel != null; // Engine enabled when make and model are selected
+      case 'tankType':
+        return selectedMake != null && selectedModel != null && selectedEngine != null; // Tank type enabled when make, model, and engine are selected
+      case 'deviceType':
+        return selectedMake != null && selectedModel != null && selectedEngine != null && selectedTankType != null; // Device type enabled when make, model, engine, and tank type are selected
+      default:
+        return false;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(  
@@ -139,6 +157,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
       labelText: "Make",
       mandatoryStar: true,
       dropdownValue: selectedMake,
+      enabled: _isFieldEnabled('make'),
       dropDownList: [
         DropdownMenuItem<String>(
           value: null,
@@ -174,6 +193,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
       labelText: "Model",
       mandatoryStar: true,
       dropdownValue: selectedModel,
+      enabled: _isFieldEnabled('model'),
       dropDownList: [
         DropdownMenuItem<String>(
           value: null,
@@ -187,6 +207,10 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
       onChanged: (val) {
         setState(() {
           selectedModel = val;
+          // Reset dependent fields when model changes
+          selectedEngine = null;
+          selectedTankType = null;
+          selectedDeviceType = null;
           _updatePreferences();
         });
       },
@@ -203,6 +227,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     return AppDropdown(
       labelText: "Engine",
       dropdownValue: selectedEngine,
+      enabled: _isFieldEnabled('engine'),
       dropDownList: [
         DropdownMenuItem<String>(
           value: null,
@@ -216,6 +241,9 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
       onChanged: (val) {
         setState(() {
           selectedEngine = val;
+          // Reset dependent fields when engine changes
+          selectedTankType = null;
+          selectedDeviceType = null;
           _updatePreferences();
         });
       },
@@ -232,6 +260,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     return AppDropdown(
       labelText: "Tank Type",
       dropdownValue: selectedTankType,
+      enabled: _isFieldEnabled('tankType'),
       dropDownList: [
         DropdownMenuItem<String>(
           value: null,
@@ -245,6 +274,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
       onChanged: (val) {
         setState(() {
           selectedTankType = val;
+          // Reset dependent fields when tank type changes
+          selectedDeviceType = null;
           _updatePreferences();
         });
       },
@@ -261,6 +292,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     return AppDropdown(
       labelText: "Device Type",
       dropdownValue: selectedDeviceType,
+      enabled: _isFieldEnabled('deviceType'),
       dropDownList: [
         DropdownMenuItem<String>(
           value: null,
@@ -287,9 +319,6 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         (selectedEngine!.toUpperCase().contains('BS4') ||
          selectedEngine!.toUpperCase().contains('BS-4') ||
          selectedEngine!.toUpperCase().contains('BS 4'));
-    
-    // Debug print to see what engine is selected
-            // Engine selection updated
     
     return Row(
       children: [

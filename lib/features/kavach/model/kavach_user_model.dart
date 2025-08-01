@@ -5,9 +5,9 @@ class KavachUserModel {
   final String email;
   final String userName;
   final int status;
-  final List<String> appAccess;
-  final List<String> freightRole;
-  final List<String> fleetRole;
+  final List<AppAccessInfo> appAccess;
+  final List<RoleInfo> freightRole;
+  final List<RoleInfo> fleetRole;
 
   KavachUserModel({
     required this.empId,
@@ -29,9 +29,15 @@ class KavachUserModel {
       email: json['email'] ?? '',
       userName: json['userName'] ?? '',
       status: json['status'] ?? 0,
-      appAccess: List<String>.from(json['AppAccess'] ?? []),
-      freightRole: List<String>.from(json['FreightRole'] ?? []),
-      fleetRole: List<String>.from(json['FleetRole'] ?? []),
+      appAccess: (json['AppAccess'] as List<dynamic>?)
+          ?.map((item) => AppAccessInfo.fromJson(item))
+          .toList() ?? [],
+      freightRole: (json['FreightRole'] as List<dynamic>?)
+          ?.map((item) => RoleInfo.fromJson(item))
+          .toList() ?? [],
+      fleetRole: (json['FleetRole'] as List<dynamic>?)
+          ?.map((item) => RoleInfo.fromJson(item))
+          .toList() ?? [],
     );
   }
 
@@ -43,14 +49,62 @@ class KavachUserModel {
       'email': email,
       'userName': userName,
       'status': status,
-      'AppAccess': appAccess,
-      'FreightRole': freightRole,
-      'FleetRole': fleetRole,
+      'AppAccess': appAccess.map((item) => item.toJson()).toList(),
+      'FreightRole': freightRole.map((item) => item.toJson()).toList(),
+      'FleetRole': fleetRole.map((item) => item.toJson()).toList(),
     };
   }
 
   // Get display name for referral code (userName + empCode)
   String get displayName => '$userName $empCode';
+}
+
+class AppAccessInfo {
+  final String appGroupId;
+  final String appGroupName;
+
+  AppAccessInfo({
+    required this.appGroupId,
+    required this.appGroupName,
+  });
+
+  factory AppAccessInfo.fromJson(Map<String, dynamic> json) {
+    return AppAccessInfo(
+      appGroupId: json['appGroupId'] ?? '',
+      appGroupName: json['appGroupName'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'appGroupId': appGroupId,
+      'appGroupName': appGroupName,
+    };
+  }
+}
+
+class RoleInfo {
+  final String roleId;
+  final String roleName;
+
+  RoleInfo({
+    required this.roleId,
+    required this.roleName,
+  });
+
+  factory RoleInfo.fromJson(Map<String, dynamic> json) {
+    return RoleInfo(
+      roleId: json['roleId'] ?? '',
+      roleName: json['roleName'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'roleId': roleId,
+      'roleName': roleName,
+    };
+  }
 }
 
 class KavachUserListResponse {

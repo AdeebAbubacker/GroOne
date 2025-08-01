@@ -34,6 +34,9 @@ class AppButtonStyle {
       shape: WidgetStateProperty.all(RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))
   );
 
+  /// delete
+  static ButtonStyle deleteTextButton = primary.copyWith(backgroundColor: WidgetStateProperty.all(AppColors.red));
+
   //see all
   static ButtonStyle primaryTextButtonSmall = primary.copyWith(
       elevation: WidgetStateProperty.all(0),
