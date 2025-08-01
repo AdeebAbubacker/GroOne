@@ -1171,7 +1171,6 @@ class _MasterScreenState extends State<MasterScreen>
   // Second API - Vahan verification
       if (vahanState?.status == Status.SUCCESS) {
         ToastMessages.success(message: context.appText.licenseNoVerified);
-          print('----licnese--------');
         onVerificationResult(true); 
 
       } else if (vahanState?.status == Status.ERROR) {
