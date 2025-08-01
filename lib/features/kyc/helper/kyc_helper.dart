@@ -1,5 +1,13 @@
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+
+import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_document_meta_model.dart';
+import 'package:image/image.dart' as imgLib;
+import 'package:path_provider/path_provider.dart';
+
 
 class KycHelper {
 
@@ -80,6 +88,26 @@ class KycHelper {
        );
    }
  }
+
+ static Future<String> saveBase64PdfToFile(String base64Pdf) async {
+
+   Uint8List pdfBytes = base64.decode(base64Pdf);
+
+
+   final dir = await getTemporaryDirectory();
+   final filePath = '${dir.path}/converted_file.pdf';
+
+   // Step 3: Write PDF file
+   final file = File(filePath);
+   await file.writeAsBytes(pdfBytes);
+
+   return filePath;
+ }
+
+
+
+
+
 
 
 

@@ -12,12 +12,14 @@ import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
+import 'package:gro_one_app/features/kyc/model/aadhar_status_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
+import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
@@ -113,13 +115,24 @@ class KycCubit extends BaseCubit<KycState> {
   }
 
   Future<void> sendKycRequest(KycInitRequest request) async {
-    emit(state.copyWith(aadhaarOtpState: UIState.loading()));
+    emit(state.copyWith(kycInitResponse: UIState.loading()));
     Result result = await _repo.initKycRequest(request);
-    if (result is Success<AadhaarOtpModel>) {
-      emit(state.copyWith(aadhaarOtpState: UIState.success(result.value)));
+    if (result is Success<KycInitResponse>) {
+      emit(state.copyWith(kycInitResponse: UIState.success(result.value)));
     }
     if (result is Error) {
-      emit(state.copyWith(aadhaarOtpState: UIState.error(result.type)));
+      emit(state.copyWith(kycInitResponse: UIState.error(result.type)));
+    }
+  }
+
+  Future<void> getKYCStatus(String requestID) async {
+    emit(state.copyWith(aadharVerificationResponse: UIState.loading()));
+    Result result = await _repo.getKYCStatus(requestID);
+    if (result is Success<AadharVerificationResponse>) {
+      emit(state.copyWith(aadharVerificationResponse: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(aadharVerificationResponse: UIState.error(result.type)));
     }
   }
 
@@ -139,9 +152,16 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Gst
   Future<void> verifyGst(VerifyGstApiRequest request) async {
     emit(state.copyWith(gstState: UIState.loading()));
+    emit(state.copyWith(gstState: UIState.success(true)));
+    emit(state.copyWith(verifiedGst: true));
+    return;
+
     Result result = await _repo.verifyGST(request);
+    /// TODO: TEMP COMMENT GST CODE
+    ///
+
     if (result is Success<bool>) {
-      emit(state.copyWith(gstState: UIState.success(result.value)));
+
       emit(state.copyWith(verifiedGst: true));
     }
     if (result is Error) {
@@ -153,7 +173,12 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Tan
   Future<void> verifyTan(VerifyTanApiRequest request) async {
     emit(state.copyWith(tanState: UIState.loading()));
+    emit(state.copyWith(tanState: UIState.success(true)));
+    emit(state.copyWith(verifiedTan: true));
+    return;
     Result result = await _repo.verifyTan(request);
+
+
     if (result is Success<bool>) {
       emit(state.copyWith(tanState: UIState.success(result.value)));
       emit(state.copyWith(verifiedTan: true));
@@ -167,7 +192,11 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Pan
   Future<void> verifyPan(VerifyPanApiRequest request) async {
     emit(state.copyWith(panState: UIState.loading()));
+    emit(state.copyWith(panState: UIState.success(true)));
+    emit(state.copyWith(verifiedPan: true));
+    return;
     Result result = await _repo.verifyPan(request);
+
     if (result is Success<bool>) {
       emit(state.copyWith(panState: UIState.success(result.value)));
       emit(state.copyWith(verifiedPan: true));

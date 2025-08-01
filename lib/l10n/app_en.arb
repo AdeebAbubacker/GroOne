@@ -1101,8 +1101,10 @@
   "selectFiltersHint": "Select filters and tap 'Show Report' to begin.",
   "noReportTypesFound": "No report types found",
   "loadProvider":"Load Provider",
+  "name":"Name",
   "destination":"destination",
   "unloadingDate":"Unloading date",
+  "name":"name",
   "destination":"Destination",
   "unloadingDate":"Unloading date",
   "addDriver":"Add Driver",
@@ -1160,5 +1162,8 @@
    "totalTransportationCost":"Total transportation cost",
   "viewTripStatement":"View Trip Statement",
   "noFAQFound":"No FAQ Found",
-  "noSearchResults":"No results matched your search."
+  "noSearchResults":"No results matched your search.",
+  "viewTripStatement":"View Trip Statement",
+  "alreadyVerified":"Already Verified",
+  "preferredLanes":"Preferred Lanes Required"
 }

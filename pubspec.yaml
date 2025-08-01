@@ -88,7 +88,10 @@ dependencies:
   firebase_storage: ^12.4.9
   flutter_image_compress: ^2.4.0
   # Notification
-  flutter_local_notifications: ^19.2.0
+  flutter_local_notifications: ^19.3.1
+
+
+
 
 
   # Environment

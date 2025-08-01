@@ -3,6 +3,8 @@ part of 'kyc_cubit.dart';
 class KycState extends Equatable {
   final Map<KycDocType, UIState<dynamic>> uploadStates;
   final UIState<AadhaarOtpModel>? aadhaarOtpState;
+  final UIState<KycInitResponse>? kycInitResponse;
+  final UIState<AadharVerificationResponse>? aadharVerificationState;
   final UIState<AadhaarVerifyOtpModel>? aadhaarVerifyOtpState;
   final UIState<UploadCancelledCheckedDocumentModel>? uploadCancelledUIState;
   final UIState<UploadGSTDocumentModel>? uploadGSTDocUIState;
@@ -26,6 +28,7 @@ class KycState extends Equatable {
     this.uploadStates = const {},
     this.aadhaarOtpState,
     this.aadhaarVerifyOtpState,
+    this.kycInitResponse,
     this.uploadCancelledUIState,
     this.uploadGSTDocUIState,
     this.uploadPanDocUIState,
@@ -43,11 +46,14 @@ class KycState extends Equatable {
     this.verifiedPan,
     this.verifiedGst,
     this.verifiedTan,
+    this.aadharVerificationState,
+
   });
 
   KycState copyWith({
     Map<KycDocType, UIState<dynamic>>? uploadStates,
     UIState<AadhaarOtpModel>? aadhaarOtpState,
+    UIState<AadharVerificationResponse>? aadharVerificationResponse,
     UIState<AadhaarVerifyOtpModel>? aadhaarVerifyOtpState,
     UIState<UploadCancelledCheckedDocumentModel>? uploadCancelledUIState,
     UIState<UploadGSTDocumentModel>? uploadGSTDocUIState,
@@ -66,8 +72,12 @@ class KycState extends Equatable {
     bool? verifiedPan,
     bool? verifiedGst,
     bool? verifiedTan,
+    UIState<KycInitResponse>? kycInitResponse
   }) {
     return KycState(
+      aadharVerificationState: aadharVerificationResponse ?? this.aadharVerificationState,
+
+      kycInitResponse: kycInitResponse??this.kycInitResponse,
       uploadStates: uploadStates ?? this.uploadStates,
       aadhaarOtpState: aadhaarOtpState ?? this.aadhaarOtpState,
       aadhaarVerifyOtpState: aadhaarVerifyOtpState ?? this.aadhaarVerifyOtpState,
@@ -113,6 +123,8 @@ class KycState extends Equatable {
     verifiedPan,
     verifiedGst,
     verifiedTan,
+    kycInitResponse,
+    aadharVerificationState
   ];
 }
 

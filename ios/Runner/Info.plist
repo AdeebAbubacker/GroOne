@@ -78,6 +78,18 @@
 	</array>
 	<key>FirebaseAppDelegateProxyEnabled</key>
     <false/>
-
+	<key>NSLocalNetworkUsageDescription</key>
+    <string>This app requires access to the local network for debugging.</string>
+    <key>NSBonjourServices</key>
+    <array>
+        <string>_dartobservatory._tcp</string>
+    </array>
+    <key>UIBackgroundModes</key>
+    <array>
+      <string>fetch</string>
+      <string>remote-notification</string>
+    </array>
+    <key>FirebaseAppDelegateProxyEnabled</key>
+    <true/>
 </dict>
 </plist>
