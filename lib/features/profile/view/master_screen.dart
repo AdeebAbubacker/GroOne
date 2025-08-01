@@ -1336,12 +1336,22 @@ class _MasterScreenState extends State<MasterScreen>
     final truckMakeModelController = TextEditingController(
       text: vehcile?.modelNumber ?? '',
     );
-    final rcNumberController = TextEditingController();
+    final rcNumberController = TextEditingController(text: vehcile?.rcNumber ?? '',);
     final capacityController = TextEditingController(
       text: vehcile?.tonnage ?? '',
     );
     TruckTypeModel? selectedTruckType;
-
+    if (vehcile?.truckType != null) {
+      selectedTruckType = TruckTypeModel(
+      id: vehcile!.truckType!.id,
+      type: vehcile.truckType!.type,
+      subType: vehcile.truckType!.subType,
+      iconUrl: vehcile.truckType!.iconUrl,
+      status: vehcile.truckType!.status,
+      createdAt: vehcile.truckType!.createdAt,
+      deletedAt: vehcile.truckType!.deletedAt,
+    );
+  }
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
@@ -1569,7 +1579,7 @@ class _MasterScreenState extends State<MasterScreen>
                   // acceptableCommodities:
                   //     selectedCommodities.map(int.parse).toList(),
                  
-                  vehicleStatus: isVehicleActive ? 1 : 2,
+                 // vehicleStatus: isVehicleActive ? 1 : 2,
                 ),
                   );
                 } else {

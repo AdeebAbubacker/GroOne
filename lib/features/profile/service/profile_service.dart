@@ -451,10 +451,11 @@ class ProfileService {
         print("driver GenericError");
         return Error(GenericError());
       }
-    } catch (e) {
-      print("driver e");
-      return Error(DeserializationError());
-    }
+    } catch (e, stackTrace) { 
+    print("driver Exception: $e");
+    print("driver StackTrace:\n$stackTrace");
+    return Error(DeserializationError());
+  }
   }
 
   /// update driver
