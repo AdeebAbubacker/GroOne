@@ -1158,5 +1158,6 @@
   "othersDocument":"Others Document",
   "viewTripStatement":"View Trip Statement",
    "totalTransportationCost":"Total transportation cost",
-  "viewTripStatement":"View Trip Statement"
+  "viewTripStatement":"View Trip Statement",
+  "alreadyVerified":"Already Verified"
 }

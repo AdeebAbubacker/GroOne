@@ -301,6 +301,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // Verify GST api call
   Future<void> verifyGstApiCall(String gstNumber, BuildContext context) async {
+
     final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: true);
     await kycCubit.verifyGst(apiRequest);
     if (kycCubit.state.gstState?.status == Status.SUCCESS && context.mounted) {
@@ -834,10 +835,12 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // GST Text Field & Upload GST
   Widget _buildGstWidget(){
+    print("gstin number");
     return BlocBuilder<KycCubit, KycState>(
         bloc: kycCubit,
         builder: (context, state) {
           bool verified = state.verifiedGst != null && state.verifiedGst!;
+          print("verified is $verified");
           return Column(
             children: [
               // Enter GST Number

@@ -10,7 +10,10 @@ import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
+import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_verification_webview.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -24,12 +27,14 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/aadhaar_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
+
 
 
 class EnterAadhaarNumberBottomSheet extends StatefulWidget {
@@ -88,18 +93,44 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
     );
   }
 
+  /// _checkKYCVerified
+
+  Future<void> _checkVerification(KycInitResponse? kycInitResponse) async {
+    String? sdkUrl=kycInitResponse?.sdkUrl??"";
+    String? requestID=kycInitResponse?.requestId??"";
+    String? statusVerified=kycInitResponse?.status;
+
+    if(statusVerified=="VERIFIED"){
+
+    String? path= await KycHelper.saveBase64PdfToFile(kycInitResponse?.dataPdf??"");
+
+    }
+
+
+    if(sdkUrl.isNotEmpty){
+    final isVerified= await Navigator.push(context, commonRoute(KycVerificationWebView(
+        url: sdkUrl,
+      )));
+     if(isVerified!=null && isVerified){
+       kycBloc.getKYCStatus(requestID);
+     }
+    } else{
+      CustomLog.info(this, context.appText.alreadyVerified);
+    }
+  }
+
   /// Body
   Widget _buildBodyWidget() {
     return BlocConsumer<KycCubit, KycState>(
       bloc: kycBloc,
       listener: (context, state) {
 
-        final otpState = state.aadhaarOtpState;
-        if (otpState?.status == Status.SUCCESS) {
-          requestID = otpState?.data?.data?.requestId ?? '123456';
-          showOtpFieldAadhaarNotifier.value = true;
-        }
+        final initState = state.kycInitResponse;
 
+        if (initState?.status == Status.SUCCESS) {
+          requestID = initState?.data?.requestId ?? '123456';
+          _checkVerification(initState?.data);
+        }
         final verifyState = state.aadhaarVerifyOtpState;
         if (verifyState?.status == Status.SUCCESS) {
           showOtpFieldAadhaarNotifier.value = false;
@@ -113,15 +144,24 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
             }
           });
         }
+        final aadharVerificationResponse = state.aadharVerificationState;
+        if(aadharVerificationResponse?.status==Status.SUCCESS){
 
-        if (otpState?.status == Status.ERROR) {
-          analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_FAILED, {"message" : getErrorMsg(errorType: otpState!.errorType!)});
-          ToastMessages.error(message: getErrorMsg(errorType: otpState.errorType!));
+
         }
+
+
+
+
+
+        // if (verifyState?.status == Status.ERROR) {
+        //   analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_FAILED, {"message" : getErrorMsg(errorType: verifyState!.errorType!)});
+        //   ToastMessages.error(message: getErrorMsg(errorType: verifyState.errorType!));
+        // }
       },
       builder: (context, state) {
-        final otpState = state.aadhaarOtpState;
-        final isLoading = otpState?.status == Status.LOADING;
+        final kycInitState = state.kycInitResponse;
+        final isLoading = kycInitState?.status == Status.LOADING;
         return ValueListenableBuilder<bool>(
           valueListenable: showOtpFieldAadhaarNotifier,
           builder: (context, showOtp, _) {
@@ -168,6 +208,20 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
             isLoading: isLoading,
             title: context.appText.verifyAadhaar,
             onPressed:  aadhaarNumberTextController.text.length == 14 ?  () async {
+              /// TODO
+              /// 1 : TEMP navigation
+              /// 2 : REMOVE AFTER THIS IS STATED WORKING
+              /// 3:  REMOVE return; statement
+              Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text))).then((v) {
+                if(v != null && v == true){
+                  profileCubit.fetchProfileDetail();
+                  aadhaarNumberTextController.clear();
+                  aadhaarNumberOtpTextController.clear();
+                }
+              });
+              return;
+
+
                // Navigator.of(context).push(commonRoute(KycScreen(aadhaarNumber: aadhaarNumberTextController.text)));
                 if (formKey.currentState!.validate()) {
                   final request = KycInitRequest(aadharNumber:  aadhaarValue ?? "");

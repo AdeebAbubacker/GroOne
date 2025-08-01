@@ -255,5 +255,7 @@ class ApiUrls {
   /// DIGI LOCKER
 
   static final String digiLockerInit = "https://groone-uat.letsgro.co/aadhar/api/v1/digilocker/init";
+  static final String adharStatus = "https://groone-uat.letsgro.co/aadhar/api/v1/aadhar_status/";
+
 
 }

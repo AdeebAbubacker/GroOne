@@ -10,11 +10,13 @@ import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
+import 'package:gro_one_app/features/kyc/model/aadhar_status_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
@@ -353,18 +355,46 @@ class KycService {
     }
   }
 
-  Future<Result<DeleteDocumentModel>> initKycRequest(KycInitRequest initKycRequest) async {
+  Future<Result<KycInitResponse>> initKycRequest(KycInitRequest initKycRequest) async {
     try {
       final url = ApiUrls.digiLockerInit;
       final xApiKey = ApiUrls.xApiKey;
-      final UDID = ApiUrls.fetchUDID;
+      final udid = ApiUrls.fetchUDID;
       final result = await _apiService.post(
           customHeaders: {
-
+            "X-API-Key":xApiKey,
+            "X-Application-UDID":udid
           },
           url,body:initKycRequest.toJson());
       if (result is Success) {
-        final data = DeleteDocumentModel.fromJson(result.value);
+        final data = KycInitResponse.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+
+
+  Future<Result<AadharVerificationResponse>> getAadharStatus(String request) async {
+    try {
+      final url = ApiUrls.adharStatus;
+      final xApiKey = ApiUrls.xApiKey;
+      final udid = ApiUrls.fetchUDID;
+      final result = await _apiService.get(
+         url,
+          customHeaders: {
+            "X-API-Key":xApiKey,
+            "X-Application-UDID":udid
+          },
+          );
+      if (result is Success) {
+        final data = AadharVerificationResponse.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);
