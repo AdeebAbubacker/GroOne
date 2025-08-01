@@ -170,5 +170,34 @@ class Validator {
     
     return null;
   }
+  static String? indianLicenseNumber(String? value, {required String fieldName}) {
+  if (value == null || value.trim().isEmpty) {
+    return '$fieldName is required';
+  }
+
+  final trimmedValue = value.trim().toUpperCase();
+
+  // Indian driving license format:
+  // - Two uppercase letters (State code, e.g., DL, MH, KA)
+  // - Optional space or hyphen
+  // - Two digits (RTO code)
+  // - Optional space or hyphen
+  // - Four digits (Year of issue)
+  // - Optional space or hyphen
+  // - 6 or 7 digits (Unique license number)
+  //
+  // Examples: DL-0420110149646, MH1220110149646, KA-05-201500123456
+  final regex = RegExp(
+    r'^[A-Z]{2}[- ]?\d{2}[- ]?\d{4}[- ]?\d{6,7}$',
+    caseSensitive: false,
+  );
+
+  if (!regex.hasMatch(trimmedValue)) {
+    return '$fieldName is invalid. Example: DL-0420110149646';
+  }
+
+  return null;
+}
 
 }
+
