@@ -1044,6 +1044,8 @@
   "speedLimitUpdatedSuccess": "गति सीमा सफलतापूर्वक अपडेट की गई!",
   "speedLimitUpdateFailed": "गति सीमा अपडेट विफल रही।",
   "multipleSharingFailed": "मल्टीपल शेयरिंग विफल",
-  "noLocationToShare": "साझा करने के लिए कोई स्थान डेटा उपलब्ध नहीं"
+  "noLocationToShare": "साझा करने के लिए कोई स्थान डेटा उपलब्ध नहीं",
+  "noFAQFound": "कोई अक्सर पूछे जाने वाले प्रश्न नहीं मिले",
+  "noSearchResults": "आपकी खोज से कोई परिणाम नहीं मिला"
 
 }

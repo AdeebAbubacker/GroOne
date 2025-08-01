@@ -92,7 +92,9 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
 
     return  GestureDetector(
       onTap: () {
-        Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadData.loadId)));
+        Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadData.loadId))).then((value) {
+          lpHomeCubit.fetchGetLoadList();
+        },);
       },
       child: Container(
         padding: EdgeInsets.all(15).copyWith(top: 0),

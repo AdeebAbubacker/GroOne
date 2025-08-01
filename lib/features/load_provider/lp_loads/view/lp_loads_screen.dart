@@ -300,6 +300,15 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     loadPostedDateController.clear();
   }
 
+  Future<void> _onPullToRefresh() async{
+    final selectedType = _tabController!.index;
+    final loadStatus = selectedType == 0 ? null : selectedType + 1;
+    lpLoadLocator.getLpLoadsByType(
+     loadListApiRequest: LoadListApiRequest(
+     loadStatus: loadStatus, page: paginationController.currentPage),
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -434,10 +443,19 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             itemBuilder: (context, index) {
               if (index < loadList.length) {
                 final loadItem = loadList[index];
-                return LPLoadListBodyWidget(
-                  loadItem: loadItem,
-                  lpLoadLocator: lpLoadLocator,
-                ).paddingSymmetric(vertical: 7);
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(
+                        loadId: loadItem.loadId
+                    ))).then((value) {
+                      _onPullToRefresh();
+                    },);
+                  },
+                  child: LPLoadListBodyWidget(
+                    loadItem: loadItem,
+                    lpLoadLocator: lpLoadLocator,
+                  ).paddingSymmetric(vertical: 7),
+                );
               } else {
                 // loader for bottom pagination
                 return const Padding(

@@ -1,38 +1,79 @@
+import 'address_response.dart';
+
 class FaqResponse {
   FaqResponse({
     required this.message,
-    required this.faqs,
+    required this.data,
   });
 
   final String message;
-  final List<Faq> faqs;
+  final FAQ? data;
 
   FaqResponse copyWith({
     String? message,
-    List<Faq>? faqs,
+    FAQ? data,
   }) {
     return FaqResponse(
       message: message ?? this.message,
-      faqs: faqs ?? this.faqs,
+      data: data ?? this.data,
     );
   }
 
   factory FaqResponse.fromJson(Map<String, dynamic> json){
     return FaqResponse(
       message: json["message"] ?? "",
-      faqs: json["data"] == null ? [] : List<Faq>.from(json["data"]!.map((x) => Faq.fromJson(x))),
+      data: json["data"] == null ? null : FAQ.fromJson(json["data"]),
     );
   }
 
   Map<String, dynamic> toJson() => {
     "message": message,
-    "data": faqs.map((x) => x.toJson()).toList(),
+    "data": data?.toJson(),
   };
 
 }
 
-class Faq {
-  Faq({
+class FAQ {
+  FAQ({
+    required this.data,
+    required this.total,
+    required this.pageMeta,
+  });
+
+  final List<FAQList> data;
+  final int total;
+  final PaginationInfo? pageMeta;
+
+  FAQ copyWith({
+    List<FAQList>? data,
+    int? total,
+    PaginationInfo? pageMeta,
+  }) {
+    return FAQ(
+      data: data ?? this.data,
+      total: total ?? this.total,
+      pageMeta: pageMeta ?? this.pageMeta,
+    );
+  }
+
+  factory FAQ.fromJson(Map<String, dynamic> json){
+    return FAQ(
+      data: json["data"] == null ? [] : List<FAQList>.from(json["data"]!.map((x) => FAQList.fromJson(x))),
+      total: json["total"] ?? 0,
+      pageMeta: json["pageMeta"] == null ? null : PaginationInfo.fromJson(json["pageMeta"]),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "data": data.map((x) => x?.toJson()).toList(),
+    "total": total,
+    "pageMeta": pageMeta?.toJson(),
+  };
+
+}
+
+class FAQList {
+  FAQList({
     required this.id,
     required this.question,
     required this.answer,
@@ -48,7 +89,7 @@ class Faq {
   final DateTime? createdAt;
   final DateTime? updatedAt;
 
-  Faq copyWith({
+  FAQList copyWith({
     int? id,
     String? question,
     String? answer,
@@ -56,7 +97,7 @@ class Faq {
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
-    return Faq(
+    return FAQList(
       id: id ?? this.id,
       question: question ?? this.question,
       answer: answer ?? this.answer,
@@ -66,8 +107,8 @@ class Faq {
     );
   }
 
-  factory Faq.fromJson(Map<String, dynamic> json){
-    return Faq(
+  factory FAQList.fromJson(Map<String, dynamic> json){
+    return FAQList(
       id: json["id"] ?? 0,
       question: json["question"] ?? "",
       answer: json["answer"] ?? "",

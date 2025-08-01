@@ -75,6 +75,7 @@ import 'package:gro_one_app/features/login/service/login_service.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
 import 'package:gro_one_app/features/otp_verification/repository/mobile_otp_verification_repository.dart';
 import 'package:gro_one_app/features/otp_verification/service/mobile_otp_verification_service.dart';
+import 'package:gro_one_app/features/payments/cubit/payment_cubit.dart';
 import 'package:gro_one_app/features/privacy_policy/bloc/privacy_policy_bloc.dart';
 import 'package:gro_one_app/features/privacy_policy/repository/privacy_repository.dart';
 import 'package:gro_one_app/features/privacy_policy/service/privacy_policy_service.dart';
@@ -657,6 +658,9 @@ void initLocator() {
     locator.registerLazySingleton(
       () => PathReplayCubit(locator<PathReplayRepository>()),
     );
+
+    locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
+
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

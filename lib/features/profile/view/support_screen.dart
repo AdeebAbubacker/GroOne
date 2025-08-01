@@ -44,7 +44,6 @@ class _LpSupportState extends State<LpSupport> {
 
   TextEditingController searchController = TextEditingController();
   final profileCubit = locator<ProfileCubit>();
-  TicketStatus? selectedMethod;
 
 
   @override
@@ -138,7 +137,7 @@ class _LpSupportState extends State<LpSupport> {
     return CommonAppBar(
       title: context.appText.support,
       scrolledUnderElevation: 0,
-      leading: SizedBox(),
+      isLeading: widget.showBackButton ? true : false,
       actions: [
         GestureDetector(
           onTap: () {
@@ -180,11 +179,12 @@ class _LpSupportState extends State<LpSupport> {
           },
         ).expand(),
         8.width,
-        AppIconButton(
-          onPressed: filterPopUp,
-          style: AppButtonStyle.primaryIconButtonStyle,
-          icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
-        ),
+        if(selectedTabIndex == 1)
+          AppIconButton(
+            onPressed: filterPopUp,
+            style: AppButtonStyle.primaryIconButtonStyle,
+            icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
+          ),
       ],
     );
   }
@@ -206,7 +206,16 @@ class _LpSupportState extends State<LpSupport> {
           return genericErrorWidget(error: uiState.errorType).expand();
         }
 
-        final faqList = uiState.data?.faqs ?? [];
+        final faqList = uiState.data?.data?.data ?? [];
+
+        final isSearching = searchController.text.isNotEmpty;
+
+        if (faqList.isEmpty) {
+          final message = isSearching
+              ? context.appText.noSearchResults
+              : context.appText.noFAQFound;
+          return Text(message).center().expand();
+        }
 
         return Expanded(
           child: ListView.separated(
@@ -255,10 +264,15 @@ class _LpSupportState extends State<LpSupport> {
 
         final ticketList = uiState.data?.data ?? [];
 
+        final isSearching = searchController.text.isNotEmpty;
+
         if(ticketList.isEmpty) {
+          final message = isSearching
+              ? context.appText.noSearchResults
+              : context.appText.noTicketsFound;
           return Column(
             children: [
-              Text(context.appText.noTicketsFound).center().expand(),
+              Text(message).center().expand(),
               buildCreateTicketButton()
             ],
           ).expand();
@@ -272,8 +286,8 @@ class _LpSupportState extends State<LpSupport> {
                   itemCount: ticketList.length,
                   separatorBuilder: (_, __) => 12.height,
                   itemBuilder: (_, index) {
-                    final isCompleted = index % 2 == 0;
                     final ticket = ticketList[index];
+                    final isCompleted = ticket.ticketStatusKey == 'COMPLETED';
                     return Container(
                       padding: const EdgeInsets.all(16),
                       decoration: commonContainerDecoration(borderColor: AppColors.lightGrey200),
@@ -283,7 +297,7 @@ class _LpSupportState extends State<LpSupport> {
                           // Ticket ID & Status
                           Row(
                             children: [
-                              Text(ticket.ticketId.substring(0, 8), style: AppTextStyle.h5),
+                              Text(ticket.ticketSeriesId ?? '', style: AppTextStyle.h5),
                               20.width,
                               Container(
                                 padding: const EdgeInsets.symmetric(
@@ -298,7 +312,7 @@ class _LpSupportState extends State<LpSupport> {
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
-                                  isCompleted ? "Completed" : "Pending",
+                                  ticket.ticketStatusKey ?? '',
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
@@ -374,6 +388,7 @@ class _LpSupportState extends State<LpSupport> {
           }
           searchController.clear();
           FocusManager.instance.primaryFocus?.unfocus();
+          setState(() {});
         },
         child: Container(
           height: 42,

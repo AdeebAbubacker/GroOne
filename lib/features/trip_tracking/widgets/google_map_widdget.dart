@@ -227,9 +227,14 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     await Future.delayed(const Duration(milliseconds: 300));
 
 
-    googleMapController?.animateCamera(
-      CameraUpdate.newLatLngBounds(bounds, padding),
-    );
+    try {
+      await googleMapController?.animateCamera(
+        CameraUpdate.newLatLngBounds(bounds, padding),
+      );
+    } catch (e) {
+      debugPrint("animateCamera failed: $e");
+    }
+
 
 
 

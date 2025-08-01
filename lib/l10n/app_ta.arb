@@ -1080,5 +1080,7 @@
   "speedLimitUpdatedSuccess": "வேக வரம்பு வெற்றிகரமாக புதுப்பிக்கப்பட்டது!",
   "speedLimitUpdateFailed": "வேக வரம்பு புதுப்பிக்க முடியவில்லை.",
   "multipleSharingFailed": "பல பகிர்வு தோல்வியுற்றது",
-  "noLocationToShare": "பகிர்வதற்கான இடத் தகவல் கிடைக்கவில்லை"
+  "noLocationToShare": "பகிர்வதற்கான இடத் தகவல் கிடைக்கவில்லை",
+  "noFAQFound": "கேள்விகள் எதுவும் இல்லை",
+  "noSearchResults": "உங்கள் தேடலுக்கு எந்த விளைவுகளும் இல்லை"
 }

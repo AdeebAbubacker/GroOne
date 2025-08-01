@@ -182,7 +182,7 @@ class PaymentWidget extends StatelessWidget {
             title: isAdvancePaid ? context.appText.advancePaid : context.appText.payableAdvance,
             amount: advanceDueToShow,
             context: context,
-            isPending: !isAdvancePaid,
+            isPending: loadStatus == LoadStatus.inTransit && !isAdvancePaid,
             isPaid: isAdvancePaid
           ),
 
@@ -195,6 +195,7 @@ class PaymentWidget extends StatelessWidget {
               amount: balanceDueToShow,
               context: context,
               isPaid: isBalancePaid,
+              isPending: loadStatus == LoadStatus.completed && !isBalancePaid
             ),
 
           12.height,
@@ -262,7 +263,7 @@ class PaymentWidget extends StatelessWidget {
                 richTextWidget: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    if(!isAdvancePaid)
+                    if((loadStatus == LoadStatus.inTransit && !isAdvancePaid) || (loadStatus == LoadStatus.completed && !isBalancePaid))
                       SvgPicture.asset(
                         AppIcons.svg.alertWarning,
                         height: 18,
