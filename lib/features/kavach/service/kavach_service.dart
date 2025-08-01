@@ -769,18 +769,26 @@ class KavachService {
   /// Verifies a vehicle number
   Future<Result<bool>> verifyVehicle(String vehicleNumber, {bool force = true}) async {
     try {
+      // Custom headers for the new vehicle verification API
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+      
       final response = await _apiService.post(
         ApiUrls.kavachVehicleVerification,
         body: {
           "vehicle_number": vehicleNumber,
-          "force": force,
         },
+        customHeaders: customHeaders,
       );
 
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => data['status'] == true,
+              (data) => data['success'] == true,
         );
       } else {
         return Error(response is Error ? response.type : GenericError());

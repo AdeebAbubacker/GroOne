@@ -17,6 +17,7 @@ class EnDhanState extends Equatable {
   final UIState<AadhaarVerifyOtpResponse>? aadhaarVerifyOtpState;
   final UIState<PanVerificationResponse>? panVerificationState;
   final UIState<VehicleVerificationResponse>? vehicleVerificationState;
+  final UIState<PincodeResponse>? pincodeState;
 
   // KYC Form fields
   final String aadhaar;
@@ -80,6 +81,7 @@ class EnDhanState extends Equatable {
   final String roDistrict;
   final int? selectedStateId;
   final int? selectedDistrictId;
+  final String? selectedDistrictName; // For displaying district name from pincode API
   final int? selectedZonalOfficeId;
   final int? selectedRegionalOfficeId;
   final List<CardFormData> cards;
@@ -107,6 +109,7 @@ class EnDhanState extends Equatable {
     this.aadhaarVerifyOtpState,
     this.panVerificationState,
     this.vehicleVerificationState,
+    this.pincodeState,
     this.aadhaar = '',
     this.pan = '',
     this.addressProofFront = '',
@@ -152,6 +155,7 @@ class EnDhanState extends Equatable {
     this.roDistrict = '',
     this.selectedStateId,
     this.selectedDistrictId,
+    this.selectedDistrictName,
     this.selectedZonalOfficeId,
     this.selectedRegionalOfficeId,
     this.cards = const [CardFormData()],
@@ -200,6 +204,7 @@ class EnDhanState extends Equatable {
       aadhaarVerifyOtpState: null,
       panVerificationState: null,
       vehicleVerificationState: null,
+      pincodeState: null,
       
       // Clear verification data
       aadhaarRequestId: null,
@@ -223,6 +228,7 @@ class EnDhanState extends Equatable {
     UIState<AadhaarVerifyOtpResponse>? aadhaarVerifyOtpState,
     UIState<PanVerificationResponse>? panVerificationState,
     UIState<VehicleVerificationResponse>? vehicleVerificationState,
+    UIState<PincodeResponse>? pincodeState,
     String? aadhaar,
     String? pan,
     String? addressProofFront,
@@ -268,6 +274,7 @@ class EnDhanState extends Equatable {
     String? roDistrict,
     int? selectedStateId,
     int? selectedDistrictId,
+    String? selectedDistrictName,
     int? selectedZonalOfficeId,
     int? selectedRegionalOfficeId,
     List<CardFormData>? cards,
@@ -293,6 +300,7 @@ class EnDhanState extends Equatable {
       aadhaarVerifyOtpState: aadhaarVerifyOtpState ?? this.aadhaarVerifyOtpState,
       panVerificationState: panVerificationState ?? this.panVerificationState,
       vehicleVerificationState: vehicleVerificationState ?? this.vehicleVerificationState,
+      pincodeState: pincodeState ?? this.pincodeState,
       aadhaar: aadhaar ?? this.aadhaar,
       pan: pan ?? this.pan,
       addressProofFront: addressProofFront ?? this.addressProofFront,
@@ -338,6 +346,7 @@ class EnDhanState extends Equatable {
       roDistrict: roDistrict ?? this.roDistrict,
       selectedStateId: selectedStateId ?? this.selectedStateId,
       selectedDistrictId: selectedDistrictId ?? this.selectedDistrictId,
+      selectedDistrictName: selectedDistrictName ?? this.selectedDistrictName,
       selectedZonalOfficeId: selectedZonalOfficeId ?? this.selectedZonalOfficeId,
       selectedRegionalOfficeId: selectedRegionalOfficeId ?? this.selectedRegionalOfficeId,
       cards: cards ?? this.cards,
@@ -377,6 +386,7 @@ class EnDhanState extends Equatable {
     aadhaarVerifyOtpState,
     panVerificationState,
     vehicleVerificationState,
+    pincodeState,
     aadhaar,
     pan,
     addressProofFront,

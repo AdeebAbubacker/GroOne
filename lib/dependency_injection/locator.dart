@@ -75,6 +75,7 @@ import 'package:gro_one_app/features/login/service/login_service.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
 import 'package:gro_one_app/features/otp_verification/repository/mobile_otp_verification_repository.dart';
 import 'package:gro_one_app/features/otp_verification/service/mobile_otp_verification_service.dart';
+import 'package:gro_one_app/features/payments/cubit/payment_cubit.dart';
 import 'package:gro_one_app/features/privacy_policy/bloc/privacy_policy_bloc.dart';
 import 'package:gro_one_app/features/privacy_policy/repository/privacy_repository.dart';
 import 'package:gro_one_app/features/privacy_policy/service/privacy_policy_service.dart';
@@ -111,7 +112,9 @@ import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+
 import '../features/gps_feature/cubit/get_vehicle_extra_info_cubit.dart';
+import '../features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import '../features/gps_feature/cubit/gps_login_cubit.dart';
 import '../features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
 import '../features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
@@ -400,6 +403,9 @@ void initLocator() {
     locator.registerLazySingleton(
       () => GpsVehicleExtraInfoCubit(locator<GpsVehicleExtraInfoRepository>()),
     );
+    locator.registerLazySingleton(
+      () => GpsInfoWindowDetailsCubit(locator<GpsVehicleExtraInfoRepository>()),
+    );
 
     // Bloc
     locator.registerLazySingleton(
@@ -533,7 +539,12 @@ void initLocator() {
       ),
     );
     locator.registerLazySingleton(
-      () => ProfileCubit(locator<ProfileRepository>(), locator<VpCreationRepository>(),locator<LpHomeRepository>(),locator<KavachRepository>(),),
+      () => ProfileCubit(
+        locator<ProfileRepository>(),
+        locator<VpCreationRepository>(),
+        locator<LpHomeRepository>(),
+        locator<KavachRepository>(),
+      ),
     );
     locator.registerLazySingleton(
       () => LpCreateAccountCubit(locator<LpCreateRepository>()),
@@ -647,6 +658,9 @@ void initLocator() {
     locator.registerLazySingleton(
       () => PathReplayCubit(locator<PathReplayRepository>()),
     );
+
+    locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
+
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

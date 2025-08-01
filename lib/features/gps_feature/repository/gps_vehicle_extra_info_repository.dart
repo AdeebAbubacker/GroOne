@@ -6,35 +6,45 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../model/gps_vehicle_extra_info_model.dart';
+import '../model/gps_info_window_details_model.dart';
 import '../model/gps_vehicle_extra_info_mapper.dart';
+import '../model/gps_vehicle_extra_info_model.dart';
 import '../service/gps_realm_service.dart';
 
 class GpsVehicleExtraInfoRepository {
   final GpsVehicleExtraInfoService _gpsVehicleExtraInfoService;
   final GpsRealmService _realmService;
 
-  GpsVehicleExtraInfoRepository(this._gpsVehicleExtraInfoService, this._realmService);
+  GpsVehicleExtraInfoRepository(
+    this._gpsVehicleExtraInfoService,
+    this._realmService,
+  );
 
-  Future<Result<List<GpsVehicleExtraInfo>>> getVehicleExtraInfo(String deviceId) async {
+  Future<Result<List<GpsVehicleExtraInfo>>> getVehicleExtraInfo(
+    String deviceId,
+  ) async {
     try {
       if (!HasInternetConnection.isInternet) {
         return Error(InternetNetworkError());
       }
 
-      final result = await _gpsVehicleExtraInfoService.getVehicleExtraInfo(deviceId);
-      
+      final result = await _gpsVehicleExtraInfoService.getVehicleExtraInfo(
+        deviceId,
+      );
+
       // If API call is successful, save to Realm
       if (result is Success<List<GpsVehicleExtraInfo>>) {
         try {
-          final realmDataList = GpsVehicleExtraInfoMapper.toRealmList(result.value);
+          final realmDataList = GpsVehicleExtraInfoMapper.toRealmList(
+            result.value,
+          );
           await _realmService.saveVehicleExtraInfo(realmDataList);
         } catch (e) {
           // Log error but don't fail the operation
           debugPrint("⚠️ Failed to save vehicle extra info to Realm: $e");
         }
       }
-      
+
       return result;
     } catch (e) {
       return Error(GenericError());
@@ -90,7 +100,8 @@ class GpsVehicleExtraInfoRepository {
   }
 
   /// Get vehicle extra info from Realm (offline data)
-  Future<Result<List<GpsVehicleExtraInfo>>> getVehicleExtraInfoFromRealm() async {
+  Future<Result<List<GpsVehicleExtraInfo>>>
+  getVehicleExtraInfoFromRealm() async {
     try {
       final realmDataList = await _realmService.getAllVehicleExtraInfo();
       final domainList = GpsVehicleExtraInfoMapper.fromRealmList(realmDataList);
@@ -140,11 +151,13 @@ class GpsVehicleExtraInfoRepository {
   }) async {
     try {
       CustomLog.info(this, "Starting Live Location Share...");
-      
+
       // Calculate valid till timestamp
       final DateTime now = DateTime.now();
       final DateTime validTill = now.add(Duration(hours: hours));
-      final String validTillString = DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(validTill);
+      final String validTillString = DateFormat(
+        "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
+      ).format(validTill);
 
       // Get device category
       final String deviceCategory = await _getDeviceCategory(deviceId);
@@ -161,7 +174,9 @@ class GpsVehicleExtraInfoRepository {
       if (result is Success<String>) {
         final String token = result.value;
         final String shareText = _generateLiveShareLink(token);
-        SharePlus.instance.share(ShareParams(text: shareText, subject: 'Vehicle Live Location'));
+        SharePlus.instance.share(
+          ShareParams(text: shareText, subject: 'Vehicle Live Location'),
+        );
         return Success("Live location shared successfully");
       } else {
         return Error(GenericError());
@@ -180,13 +195,13 @@ class GpsVehicleExtraInfoRepository {
   }) async {
     try {
       CustomLog.info(this, "Starting Current Location Share...");
-      
+
       if (!_hasValidLatLng(location)) {
         return Error(GenericError());
       }
 
       final String cleanLocation = location.replaceAll(' ', '');
-      
+
       final String formattedDate = _formatDateTime(lastUpdate);
       final String shareText = '''
 Vehicle Name - $vehicleNumber
@@ -195,8 +210,10 @@ Date - $formattedDate
 Map - https://www.google.com/maps/search/?api=1&query=$cleanLocation
 Sent via gro fleet
 ''';
-      
-      SharePlus.instance.share(ShareParams(text: shareText, subject: 'Vehicle Location'));
+
+      SharePlus.instance.share(
+        ShareParams(text: shareText, subject: 'Vehicle Location'),
+      );
       return Success("Current location shared successfully");
     } catch (e) {
       CustomLog.error(this, "Error in current location sharing", e);
@@ -234,9 +251,10 @@ Sent via gro fleet
       return false;
     }
 
-    final String cleanLocation = location.replaceAll(' ', '').toLowerCase().trim();
-    
-    if (cleanLocation == 'locationnotavailable' || 
+    final String cleanLocation =
+        location.replaceAll(' ', '').toLowerCase().trim();
+
+    if (cleanLocation == 'locationnotavailable' ||
         cleanLocation == 'nolocation' ||
         cleanLocation == 'n/a' ||
         cleanLocation == 'unknown' ||
@@ -265,6 +283,28 @@ Sent via gro fleet
     } catch (e) {
       CustomLog.error(this, "Failed to get device category: $e", e);
       return 'vehicle'; // Default fallback
+    }
+  }
+
+  /// Get info window details for a specific device
+  Future<Result<GpsInfoWindowDetails>> getInfoWindowDetails({
+    required String token,
+    required String deviceId,
+  }) async {
+    try {
+      if (!HasInternetConnection.isInternet) {
+        return Error(InternetNetworkError());
+      }
+
+      final result = await _gpsVehicleExtraInfoService.getInfoWindowDetails(
+        token: token,
+        deviceId: deviceId,
+      );
+
+      return result;
+    } catch (e) {
+      CustomLog.error(this, "Error getting info window details", e);
+      return Error(GenericError());
     }
   }
 }

@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 
 part 'en_dhan_state.dart';
 
@@ -128,6 +129,26 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         return '';
       }
 
+      // Helper function to get PAN document URL
+      String getPanDocumentUrl(List documents) {
+        if (documents.isNotEmpty) {
+          final document = documents.first;
+          if (document is Map && document['path'] != null) {
+            final path = document['path'].toString();
+            if (path.startsWith('http')) {
+              // It's an uploaded URL, use it directly
+              return path;
+            } else {
+              // It's a local file path, we need to upload it first
+              // This should not happen in normal flow as documents should be uploaded before submission
+              print('Warning: PAN document is still a local file path, should be uploaded first');
+              return '';
+            }
+          }
+        }
+        return '';
+      }
+
       final request = EnDhanKycApiRequest(
         aadhar: state.aadhaar,
         pan: state.pan,
@@ -135,7 +156,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         addressProofBack: getDocumentPath(state.addressBackDocuments),
         identityProofFront: getDocumentPath(state.identityFrontDocuments),
         identityProofBack: getDocumentPath(state.identityBackDocuments),
-        panImage: getDocumentPath(state.panDocuments),
+        panImage: getPanDocumentUrl(state.panDocuments), // Use URL instead of file path
       );
 
       final result = await _repository.uploadKycDocuments(request, customerId);
@@ -181,7 +202,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       File? addressProofBackFile;
       File? identityProofFrontFile;
       File? identityProofBackFile;
-      File? panImageFile;
+      String? panImageUrl; // Changed from File to String for PAN document
 
       if (state.addressFrontDocuments.isNotEmpty) {
         final document = state.addressFrontDocuments.first;
@@ -209,8 +230,19 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       }
       if (state.panDocuments.isNotEmpty) {
         final document = state.panDocuments.first;
-        if (document is Map && document['path'] != null) {
-          panImageFile = File(document['path']);
+        if (document is Map) {
+          // Check if it's an uploaded URL (starts with http) or local file path
+          if (document['path'] != null) {
+            final path = document['path'].toString();
+            if (path.startsWith('http')) {
+              // It's an uploaded URL, use it directly
+              panImageUrl = path;
+            } else {
+              // It's a local file path, we need to upload it first
+              // This should not happen in normal flow as documents should be uploaded before submission
+              print('Warning: PAN document is still a local file path, should be uploaded first');
+            }
+          }
         }
       }
 
@@ -221,7 +253,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         addressProofBack: addressProofBackFile,
         identityProofFront: identityProofFrontFile,
         identityProofBack: identityProofBackFile,
-        panImage: panImageFile,
+        panImage: panImageUrl, // Pass as string URL instead of file
       );
 
       final result = await _repository.uploadKycDocumentsMultipart(request, customerId);
@@ -412,8 +444,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
     try {
       final request = PanVerificationRequest(
-        pan: state.pan,
-        force: true,
+        panNumber: state.pan,
+        name: state.customerName.isNotEmpty ? state.customerName : "Test User",
       );
 
       final result = await _repository.verifyPan(request);
@@ -486,7 +518,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       if (result is Success<VehicleVerificationResponse>) {
         final response = result.value;
         
-        if (response.status) {
+        if (response.success) {
           // Mark this vehicle number as verified
           final updatedVerifiedVehicles = Map<int, bool>.from(state.verifiedVehicleNumbers);
           updatedVerifiedVehicles[cardIndex] = true;
@@ -510,6 +542,113 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   void _setVehicleVerificationUIState(UIState<VehicleVerificationResponse> uiState) {
     if (!_isClosed) {
       emit(state.copyWith(vehicleVerificationState: uiState));
+    }
+  }
+
+  /// Get Pincode Details
+  Future<void> getPincode(String pincode) async {
+    if (_isClosed) return;
+
+    if (pincode.isEmpty || pincode.length != 6) {
+      return;
+    }
+
+    print('DEBUG: getPincode called with pincode: $pincode');
+    
+    _setPincodeUIState(UIState.loading());
+
+    try {
+      final result = await _repository.getPincode(pincode);
+
+      if (_isClosed) return;
+
+      if (result is Success<PincodeResponse>) {
+        final response = result.value;
+        print('DEBUG: Pincode API response received: ${response.success}');
+        
+        if (response.success && response.data != null) {
+          print('DEBUG: Pincode API data: ${response.data}');
+          // Auto-populate the fields with API data
+          final data = response.data!;
+          
+          // Local variables to store the final state values
+          int? finalZonalOfficeId;
+          int? finalRegionalOfficeId;
+          int? finalStateId;
+          int? finalDistrictId;
+          String? finalDistrictName;
+          
+          // Master data should already be loaded at this point
+          print('DEBUG: Processing pincode response - states: ${state.states.length}, zonalOffices: ${state.zonalOffices.length}');
+          print('DEBUG: Pincode data - zonal: ${data.zonal?.name} (${data.zonal?.id}), regional: ${data.region?.name} (${data.region?.id}), state: ${data.state?.name} (${data.state?.id}), district: ${data.district?.name} (${data.district?.id})');
+          
+          // Set zonal office and fetch regional offices
+          if (data.zonal != null) {
+            print('DEBUG: Setting zonal office ID: ${data.zonal!.id}');
+            finalZonalOfficeId = data.zonal!.id;
+            // Fetch regional offices for this zonal office
+            await fetchRegionalOffices(data.zonal!.id);
+          }
+          
+          // Set regional office
+          if (data.region != null) {
+            print('DEBUG: Setting regional office ID: ${data.region!.id}');
+            finalRegionalOfficeId = data.region!.id;
+          }
+          
+          // Set state and fetch districts
+          if (data.state != null) {
+            print('DEBUG: Setting state ID: ${data.state!.id}');
+            finalStateId = data.state!.id;
+            // Fetch districts for this state
+            await fetchDistricts(data.state!.id);
+            
+            // Set district after districts are loaded
+            if (data.district != null) {
+              finalDistrictId = data.district!.id;
+              finalDistrictName = data.district!.name;
+            }
+          } else {
+            // Set district if no state change
+            if (data.district != null) {
+              finalDistrictId = data.district!.id;
+            }
+          }
+          
+                              // Single emit call with all the updated values
+                    if (!_isClosed) {
+                      print('DEBUG: Final emit with districtName: $finalDistrictName, districtId: $finalDistrictId');
+                      print('DEBUG: Final emit with zonalOfficeId: $finalZonalOfficeId, regionalOfficeId: $finalRegionalOfficeId, stateId: $finalStateId');
+                      emit(state.copyWith(
+                        selectedZonalOfficeId: finalZonalOfficeId,
+                        selectedRegionalOfficeId: finalRegionalOfficeId,
+                        selectedStateId: finalStateId,
+                        selectedDistrictId: finalDistrictId,
+                        selectedDistrictName: finalDistrictName,
+                      ));
+                      print('DEBUG: After emit - state.selectedZonalOfficeId: ${state.selectedZonalOfficeId}');
+                      print('DEBUG: After emit - state.selectedRegionalOfficeId: ${state.selectedRegionalOfficeId}');
+                      print('DEBUG: After emit - state.selectedStateId: ${state.selectedStateId}');
+                      print('DEBUG: After emit - state.selectedDistrictId: ${state.selectedDistrictId}');
+                      print('DEBUG: After emit - state.selectedDistrictName: ${state.selectedDistrictName}');
+                    }
+        }
+        
+        _setPincodeUIState(UIState.success(response));
+      } else if (result is Error) {
+        _setPincodeUIState(UIState.error((result as Error).type));
+      }
+    } catch (e) {
+      if (!_isClosed) {
+        _setPincodeUIState(UIState.error(GenericError()));
+      }
+    }
+  }
+
+  /// Set Pincode UI State
+  void _setPincodeUIState(UIState<PincodeResponse> uiState) {
+    if (!_isClosed) {
+      emit(state.copyWith(pincodeState: uiState));
     }
   }
 
@@ -537,7 +676,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
             .map(
               (card) => EnDhanCardDetailRequest(
                 vechileNo: card.vehicleNumber.replaceAll(' ', ''),
-                mobileNo: (card.mobile != null && card.mobile.trim().isNotEmpty) ? card.mobile : null,
+                mobileNo: card.mobile.trim().isNotEmpty ? card.mobile : null,
                 vehicleType: card.vehicleType ?? '',
                 vinNumber: card.vinNumber,
                 rcDocument:
@@ -594,7 +733,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       if (result is Success<api_models.EnDhanStateResponse>) {
         final states =
             result.value.document
-                .map((state) => {'id': state.id, 'name': state.name})
+                .map((state) => {'id': state.id, 'state_name': state.name})
                 .toList();
         emit(state.copyWith(states: states));
         _setStatesUIState(UIState.success(result.value));
@@ -623,6 +762,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
                   },
                 )
                 .toList();
+        print('DEBUG: fetchDistricts - loaded ${districts.length} districts for state $stateId');
         emit(state.copyWith(districts: districts));
         _setDistrictsUIState(UIState.success(result.value));
       } else if (result is Error) {
@@ -1065,6 +1205,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   // Set selected district ID
   void setSelectedDistrictId(int? value) {
     emit(state.copyWith(selectedDistrictId: value));
+  }
+
+  // Set selected district name
+  void setSelectedDistrictName(String? value) {
+    emit(state.copyWith(selectedDistrictName: value));
   }
 
   // Set selected zonal office ID

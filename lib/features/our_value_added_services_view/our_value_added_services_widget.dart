@@ -18,7 +18,6 @@ import '../fastag/views/fastag_new_user_screen.dart';
 import '../gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import '../gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import '../gps_feature/gps_order_repo/gps_order_api_repository.dart';
-import '../gps_feature/models/gps_order_list_models.dart';
 import '../gps_feature/views/gps_home_screen.dart';
 import '../gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import '../login/repository/user_information_repository.dart';
@@ -46,7 +45,7 @@ class _OurValueAddedServicesWidgetState
       final currentScroll = _scrollController.position.pixels;
       setState(() {
         _scrollProgress =
-        maxScroll == 0 ? 0 : (currentScroll / maxScroll).clamp(0.0, 1.0);
+            maxScroll == 0 ? 0 : (currentScroll / maxScroll).clamp(0.0, 1.0);
       });
     });
   }
@@ -59,7 +58,6 @@ class _OurValueAddedServicesWidgetState
 
   @override
   Widget build(BuildContext context) {
-
     final List<Widget> services = [
       _buildServicesWidget(
         title: context.appText.gps,
@@ -80,9 +78,7 @@ class _OurValueAddedServicesWidgetState
               context: context,
               barrierDismissible: false,
               builder: (BuildContext context) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+                return const Center(child: CircularProgressIndicator());
               },
             );
 
@@ -102,36 +98,32 @@ class _OurValueAddedServicesWidgetState
                 final orderListCubit = GpsOrderListCubit(
                   locator<GpsOrderApiRepository>(),
                 );
-                
+
                 // Show loading dialog for order list check
                 showDialog(
                   context: context,
                   barrierDismissible: false,
                   builder: (BuildContext context) {
-                    return const Center(
-                      child: CircularProgressIndicator(),
-                    );
+                    return const Center(child: CircularProgressIndicator());
                   },
                 );
-                
+
                 // Get order list
                 await orderListCubit.getOrderList(customerId: customerId);
-                
+
                 // Close loading dialog
                 if (context.mounted) {
                   Navigator.of(context).pop();
                 }
-                
+
                 // Navigate based on order list
                 if (context.mounted) {
                   if (orderListCubit.state is GpsOrderListLoaded) {
-                    final orderState = orderListCubit.state as GpsOrderListLoaded;
+                    final orderState =
+                        orderListCubit.state as GpsOrderListLoaded;
                     if (orderState.orderList.data.rows.isNotEmpty) {
                       // Scenario 1: KYC done and has orders - show GPS home screen
-                      Navigator.push(
-                        context,
-                        commonRoute(GpsHomeScreen()),
-                      );
+                      Navigator.push(context, commonRoute(GpsHomeScreen()));
                     } else {
                       // Scenario 2: KYC done but no orders - show benefits screen
                       Navigator.push(
@@ -147,7 +139,7 @@ class _OurValueAddedServicesWidgetState
                     );
                   }
                 }
-                
+
                 // Dispose the temporary cubits
                 orderListCubit.close();
               } else {
@@ -248,10 +240,7 @@ class _OurValueAddedServicesWidgetState
         imageString: AppImage.png.enDhan,
         onClick: () {
           //context.push(AppRouteName.enDhanCard);
-          Navigator.push(
-            context,
-            commonRoute(EndhanNewUserAndCardScreen()),
-          );
+          Navigator.push(context, commonRoute(EndhanNewUserAndCardScreen()));
         },
       ),
       _buildServicesWidget(
@@ -314,51 +303,52 @@ class _OurValueAddedServicesWidgetState
           20.height,
           Padding(
             padding: EdgeInsets.symmetric(horizontal: commonSafeAreaPadding),
-            child: widget.isGridLayout
-                ? GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              crossAxisSpacing: 20,
-              mainAxisSpacing: 20,
-              childAspectRatio: 1.3,
-              physics: const NeverScrollableScrollPhysics(),
-              children: services,
-            )
-                : SizedBox(
-              height: 101,
-              child: ListView.separated(
-                controller: _scrollController,
-                scrollDirection: Axis.horizontal,
-                itemCount: services.length,
-                separatorBuilder: (_, __) => 12.width,
-                itemBuilder: (context, index) => services[index],
-              ),
-            ),
-          ),
-          20.height,
-          if (!widget.isGridLayout)
-            ...[
-              Container(
-                width: 100,
-                height: 4,
-                decoration:
-                commonContainerDecoration(color: AppColors.borderColor),
-                child: Stack(
-                  children: [
-                    FractionallySizedBox(
-                      widthFactor: _scrollProgress,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: AppColors.primaryColor,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
+            child:
+                widget.isGridLayout
+                    ? GridView.count(
+                      crossAxisCount: 2,
+                      shrinkWrap: true,
+                      crossAxisSpacing: 20,
+                      mainAxisSpacing: 20,
+                      childAspectRatio: 1.3,
+                      physics: const NeverScrollableScrollPhysics(),
+                      children: services,
+                    )
+                    : SizedBox(
+                      height: 101,
+                      child: ListView.separated(
+                        controller: _scrollController,
+                        scrollDirection: Axis.horizontal,
+                        itemCount: services.length,
+                        separatorBuilder: (_, __) => 12.width,
+                        itemBuilder: (context, index) => services[index],
                       ),
                     ),
-                  ],
-                ),
+          ),
+          20.height,
+          if (!widget.isGridLayout) ...[
+            Container(
+              width: 100,
+              height: 4,
+              decoration: commonContainerDecoration(
+                color: AppColors.borderColor,
               ),
-              20.height,
-            ]
+              child: Stack(
+                children: [
+                  FractionallySizedBox(
+                    widthFactor: _scrollProgress,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.primaryColor,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            20.height,
+          ],
         ],
       ),
     );

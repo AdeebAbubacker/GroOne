@@ -264,7 +264,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     4.height,
                     if (status == LoadStatus.kycPending || status == LoadStatus.matching)
                       Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)),
-                    if((status == LoadStatus.inTransit && !(loadItem.lpPaymentsData?.data.payments.isNotEmpty == true)))
+                    if((status == LoadStatus.inTransit && (loadItem.lpPaymentsData == null)))
                       Row(
                         children: [
                           const Icon(Icons.error, size: 16, color: AppColors.iconRed),

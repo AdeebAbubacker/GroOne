@@ -222,18 +222,18 @@ class GpsAadhaarVerifyOtpRequest {
 }
 
 class GpsPanVerificationRequest {
-  final String pan;
-  final bool force;
+  final String panNumber;
+  final String name;
 
   const GpsPanVerificationRequest({
-    required this.pan,
-    this.force = true,
+    required this.panNumber,
+    required this.name,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'pan': pan,
-      'force': force,
+      'pan_number': panNumber,
+      'name': name,
     };
   }
 }
@@ -1124,12 +1124,20 @@ class GpsOrderApiRequest {
   /// Verify vehicle
   Future<Result<bool>> verifyVehicle(String vehicleNumber) async {
     try {
+      // Custom headers for the new vehicle verification API
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+      
       final result = await _apiService.post(
-        'https://gro-devapi.letsgro.co/external/api/v1/verification/vehicle',
+        'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number',
         body: {
           'vehicle_number': vehicleNumber,
-          'force': true,
         },
+        customHeaders: customHeaders,
       );
 
       if (result is Success) {
@@ -1140,13 +1148,13 @@ class GpsOrderApiRequest {
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
 
-          // Check if it has status field
-          if (response.containsKey('status')) {
-            final isVerified = response['status'] == true;
+          // Check if it has success field
+          if (response.containsKey('success')) {
+            final isVerified = response['success'] == true;
             print('✅ Vehicle verification result: $isVerified');
             return Success(isVerified);
           } else {
-            return Error(ErrorWithMessage(message: 'Invalid response format - missing status field'));
+            return Error(ErrorWithMessage(message: 'Invalid response format - missing success field'));
           }
         } else {
           return Error(ErrorWithMessage(message: 'Invalid response format'));

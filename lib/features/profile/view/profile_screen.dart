@@ -272,8 +272,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             imageString: AppImage.svg.support,
             text: context.appText.support,
             onTap: () {
-              Navigator.pushReplacement(context, commonRoute(LpBottomNavigation()));
-              LpBottomNavigation.selectedIndexNotifier.value = 2;
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
           ),
           commonDivider(),

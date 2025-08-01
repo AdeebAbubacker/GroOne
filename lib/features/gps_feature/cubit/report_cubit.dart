@@ -32,6 +32,10 @@ class GpsReportCubit extends Cubit<GpsReportState> {
     );
   }
 
+  void resetState() {
+    emit(GpsReportState());
+  }
+
   void updateToDate(DateTime date) {
     emit(
       state.copyWith(

@@ -172,33 +172,25 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
   Widget build(BuildContext context) {
     final loadStatus = LpHomeHelper.getLoadStatusFromString(widget.loadItem.loadStatusDetails?.loadStatus);
 
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadItem.loadId)),
-        );
-      },
-      child: Container(
-          padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-          decoration: commonContainerDecoration(
-            borderColor: AppColors.primaryColor,
-            borderWidth: 1,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              buildLoadIdDetailsWidget(loadStatus),
-              commonDivider(),
-              buildPickupAndDropAddressWidget(),
-              20.height,
-              buildRateWidget(),
-              10.height,
-              if(loadStatus == LoadStatus.assigned && widget.loadItem.isAgreed == 0)
-              buildAgreeButtonWidget(context)
-            ],
-          )
-      ),
+    return Container(
+        padding: EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        decoration: commonContainerDecoration(
+          borderColor: AppColors.primaryColor,
+          borderWidth: 1,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            buildLoadIdDetailsWidget(loadStatus),
+            commonDivider(),
+            buildPickupAndDropAddressWidget(),
+            20.height,
+            buildRateWidget(),
+            10.height,
+            if(loadStatus == LoadStatus.assigned && widget.loadItem.isAgreed == 0)
+            buildAgreeButtonWidget(context)
+          ],
+        )
     );
   }
 

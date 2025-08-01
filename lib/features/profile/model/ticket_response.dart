@@ -1,3 +1,5 @@
+import 'address_response.dart';
+
 class TicketResponse {
   TicketResponse({
     required this.data,
@@ -50,6 +52,8 @@ class Ticket {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    required this.ticketSeriesId,
+    required this.ticketStatusKey
   });
 
   final String ticketId;
@@ -63,6 +67,8 @@ class Ticket {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
+  final String? ticketSeriesId;
+  final String? ticketStatusKey;
 
   Ticket copyWith({
     String? ticketId,
@@ -76,6 +82,8 @@ class Ticket {
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
+    String? ticketSeriesId,
+    String? ticketStatusKey,
   }) {
     return Ticket(
       ticketId: ticketId ?? this.ticketId,
@@ -89,6 +97,8 @@ class Ticket {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      ticketSeriesId: ticketSeriesId ?? this.ticketSeriesId,
+      ticketStatusKey: ticketStatusKey ?? this.ticketStatusKey,
     );
   }
 
@@ -105,6 +115,8 @@ class Ticket {
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
+      ticketSeriesId: json["ticketSeriesId"],
+      ticketStatusKey: json["ticketStatusKey"],
     );
   }
 
@@ -120,57 +132,8 @@ class Ticket {
     "createdAt": createdAt?.toIso8601String(),
     "updatedAt": updatedAt?.toIso8601String(),
     "deletedAt": deletedAt,
-  };
-
-}
-
-class PaginationInfo {
-  PaginationInfo({
-    required this.page,
-    required this.pageCount,
-    required this.nextPage,
-    required this.pageSize,
-    required this.total,
-  });
-
-  final int page;
-  final int pageCount;
-  final dynamic nextPage;
-  final int pageSize;
-  final int total;
-
-  PaginationInfo copyWith({
-    int? page,
-    int? pageCount,
-    dynamic? nextPage,
-    int? pageSize,
-    int? total,
-  }) {
-    return PaginationInfo(
-      page: page ?? this.page,
-      pageCount: pageCount ?? this.pageCount,
-      nextPage: nextPage ?? this.nextPage,
-      pageSize: pageSize ?? this.pageSize,
-      total: total ?? this.total,
-    );
-  }
-
-  factory PaginationInfo.fromJson(Map<String, dynamic> json){
-    return PaginationInfo(
-      page: json["page"] ?? 0,
-      pageCount: json["pageCount"] ?? 0,
-      nextPage: json["nextPage"],
-      pageSize: json["pageSize"] ?? 0,
-      total: json["total"] ?? 0,
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-    "page": page,
-    "pageCount": pageCount,
-    "nextPage": nextPage,
-    "pageSize": pageSize,
-    "total": total,
+    "ticketSeriesId": ticketSeriesId,
+    "ticketStatusKey": ticketStatusKey,
   };
 
 }

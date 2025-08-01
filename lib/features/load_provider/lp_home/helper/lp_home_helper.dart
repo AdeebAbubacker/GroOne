@@ -100,6 +100,8 @@ class LpHomeHelper {
        return 'Unloading';
      case 'Unloading Held':
        return 'Unloading Held';
+     case 'POD Dispatch':
+       return 'POD Dispatch';
      case 'Completed':
        return 'Completed';
      default:
@@ -130,6 +132,8 @@ class LpHomeHelper {
        return AppColors.lightGreenBox; // Light yellow
      case "unloading held":
        return AppColors.red; // Light yellow
+     case "pod dispatch":
+       return Color(0xff42A5F5); // Light yellow
      case "completed":
        return AppColors.greenColor; // Light yellow
      default:
@@ -182,7 +186,7 @@ static Color getLoadStatusTextColor(String loadType) {
      case "completed":
        return AppColors.white; // Dark green
      default:
-       return Colors.black;
+       return Colors.white;
    }
  }
 
