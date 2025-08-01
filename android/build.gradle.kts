@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 allprojects {
     repositories {
         google()
@@ -7,6 +10,10 @@ allprojects {
 
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.value(newBuildDir)
+
+val keystoreProperties = Properties().apply {
+    load(FileInputStream(rootProject.file("key.properties")))
+}
 
 subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
