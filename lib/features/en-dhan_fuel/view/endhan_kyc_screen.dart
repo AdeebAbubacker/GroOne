@@ -523,9 +523,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                                   onTap: state.isPanValid ? () {
                                     cubit.verifyPan();
                                   } : null,
-                                  child: Padding(
-                                    padding: EdgeInsets.symmetric(horizontal: 12),
-                                    child: Text(
+                                  child: Text(
                                       context.appText.verify,
                                       style: AppTextStyle.body3.copyWith(
                                         color: state.isPanValid ? AppColors.primaryColor : Colors.grey,
@@ -533,8 +531,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                                         fontWeight: state.isPanValid ? FontWeight.w500 : FontWeight.normal,
                                         decorationColor: state.isPanValid ? AppColors.primaryColor : Colors.grey,
                                       ),
-                                    ),
-                                  ),
+                                    ).paddingSymmetric(horizontal: 12),
                                 ),
                         ),
                       ),
@@ -633,13 +630,10 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             },
                           ),
                           if (state.panDocuments.isEmpty && state.hasAttemptedSubmit)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
+                            Text(
                                 context.appText.panDocumentRequired,
                                 style: AppTextStyle.body3.copyWith(color: AppColors.activeRedColor),
-                              ),
-                            ),
+                              ).paddingOnly(top: 8.0),
                         ],
                       ),
 
@@ -668,13 +662,10 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             },
                           ),
                           if (state.identityFrontDocuments.isEmpty && state.hasAttemptedSubmit)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
+                            Text(
                                 context.appText.identityProofFrontRequired,
                                 style: AppTextStyle.body3.copyWith(color: AppColors.activeRedColor),
-                              ),
-                            ),
+                              ).paddingOnly(top: 8.0),
                         ],
                       ),
 
@@ -700,13 +691,10 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             },
                           ),
                           if (state.identityBackDocuments.isEmpty && state.hasAttemptedSubmit)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 8.0),
-                              child: Text(
+                           Text(
                                 context.appText.identityProofBackRequired,
                                 style: AppTextStyle.body3.copyWith(color: AppColors.activeRedColor),
-                              ),
-                            ),
+                              ).paddingOnly(top: 8.0)
                         ],
                       ),
 
