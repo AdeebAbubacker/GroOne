@@ -1352,16 +1352,23 @@ class _MasterScreenState extends State<MasterScreen>
       deletedAt: vehcile.truckType!.deletedAt,
     );
   }
+   final localRcDocList = <Map<String, dynamic>>[];
+   if (vehcile?.rcDocLink != null && vehcile!.rcDocLink.isNotEmpty) {
+      final doc = createFileFromLink(vehcile.rcDocLink!);
+      if (doc != null) {
+        localRcDocList.add(doc);
+      }
+    }
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
-          List<Map<String, dynamic>> localVehicleDocList = List.from(
+          List<Map<String, dynamic>> localRcDocList = List.from(
             vehicleDocList,
           );
-          final vehicleDocUpload =
-              context.watch<ProfileCubit>().state.vehicleDocUpload;
-          final isUploading = vehicleDocUpload?.status == Status.LOADING;
+          final rcDocUpload =
+              context.watch<ProfileCubit>().state.licenseDocUpload;
+          final isUploading = rcDocUpload?.status == Status.LOADING;
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -1411,19 +1418,19 @@ class _MasterScreenState extends State<MasterScreen>
                     16.height,
                     // Upload RC Book
                     UploadAttachmentFiles(
-                      multiFilesList: localVehicleDocList,
+                      multiFilesList: localRcDocList,
                       isSingleFile: true,
                       isLoading: isUploading,
                       thenUploadFileToSever: () async {
                         final result = await _uploadRCBookCall(
                           context,
-                          localVehicleDocList,
+                          localRcDocList,
                         );
                         if (result is Success) {
                           setState(() {
                             // Update the persistent vehicleDocList field in State class as well if needed
                             vehicleDocList.clear();
-                            vehicleDocList.addAll(localVehicleDocList);
+                            vehicleDocList.addAll(localRcDocList);
                           });
                         }
                       },
@@ -1486,6 +1493,7 @@ class _MasterScreenState extends State<MasterScreen>
                       keyboardType: TextInputType.phone,
                     ),
                     16.height,
+                    if(! isEdit )
                     Builder(
                       builder: (context) {
                         final state = gpsVehicleCubit.state;
@@ -1645,12 +1653,12 @@ class _MasterScreenState extends State<MasterScreen>
       text: driver?.mobile?.replaceFirst('+91', '') ?? "",
     );
     final emailController = TextEditingController(text: driver?.email ?? "");
-    final localVehicleDocList = <Map<String, dynamic>>[];
+    final localLicenseDocList = <Map<String, dynamic>>[];
 
     if (driver?.licenseDocLink != null && driver!.licenseDocLink!.isNotEmpty) {
       final doc = createFileFromLink(driver.licenseDocLink!);
       if (doc != null) {
-        localVehicleDocList.add(doc);
+        localLicenseDocList.add(doc);
       }
     }
     bool isInitialized = false;
@@ -1669,7 +1677,7 @@ class _MasterScreenState extends State<MasterScreen>
           if (!isInitialized && driver?.licenseDocLink?.isNotEmpty == true) {
             final doc = createFileFromLink(driver!.licenseDocLink!);
             if (doc != null) {
-              localVehicleDocList
+              localLicenseDocList
                 ..clear()
                 ..add(doc);
               vehicleDocList
@@ -1707,6 +1715,24 @@ class _MasterScreenState extends State<MasterScreen>
                     },
                   ),
                   16.height,
+                  UploadAttachmentFiles(
+                    multiFilesList: localLicenseDocList,
+                    isSingleFile: true,
+                    isLoading: isUploading,
+                    thenUploadFileToSever: () async {
+                      final result = await _uploadLicenseCopy(
+                        context,
+                        localLicenseDocList,
+                      );
+                      if (result is Success) {
+                        setState(() {
+                          vehicleDocList.clear();
+                          vehicleDocList.addAll(localLicenseDocList);
+                        });
+                      }
+                    },
+                  ),
+                 16.height,
                   AppTextField(
                     readOnly: isLicenseVerified ? false : true,
                     validator: (value) => Validator.fieldRequired(value),
@@ -1719,7 +1745,6 @@ class _MasterScreenState extends State<MasterScreen>
                       FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
                     ],
                   ),
-
                   16.height,
 
                   ///License Expiry date
@@ -1790,24 +1815,7 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                   ),
 
-                  16.height,
-                  UploadAttachmentFiles(
-                    multiFilesList: localVehicleDocList,
-                    isSingleFile: true,
-                    isLoading: isUploading,
-                    thenUploadFileToSever: () async {
-                      final result = await _uploadLicenseCopy(
-                        context,
-                        localVehicleDocList,
-                      );
-                      if (result is Success) {
-                        setState(() {
-                          vehicleDocList.clear();
-                          vehicleDocList.addAll(localVehicleDocList);
-                        });
-                      }
-                    },
-                  ),
+                  
                   16.height,
                   AppTextField(
                     readOnly: isLicenseVerified ? false : true,
@@ -1871,8 +1879,8 @@ class _MasterScreenState extends State<MasterScreen>
                         ).format(DateFormat('dd/MM/yyyy').parse(selectedDoB!))
                         : null;
                 final rcDocLink =
-                    localVehicleDocList.isNotEmpty
-                        ? localVehicleDocList.first['path']
+                    localLicenseDocList.isNotEmpty
+                        ? localLicenseDocList.first['path']
                         : '';
 
                 final request = DriverRequest(
