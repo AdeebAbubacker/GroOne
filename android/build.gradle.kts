@@ -1,3 +1,6 @@
+import java.util.Properties
+import java.io.FileInputStream
+
 // ✅ FIXED build.gradle.kts (project-level)
 buildscript {
     repositories {
@@ -20,6 +23,10 @@ allprojects {
 // Optional: custom build output directory
 val newBuildDir = rootProject.layout.buildDirectory.dir("../../build").get()
 rootProject.layout.buildDirectory.set(newBuildDir)
+
+val keystoreProperties = Properties().apply {
+    load(FileInputStream(rootProject.file("key.properties")))
+}
 
 subprojects {
     val newSubprojectBuildDir = newBuildDir.dir(project.name)
