@@ -30,11 +30,6 @@ class DriverRequest {
     String? licenseDocLink,
     String? licenseExpiryDate,
     String? dateOfBirth,
-    String? experience,
-    int? bloodGroup,
-    int? licenseCategory,
-    int? specialLicense,
-    String? communicationPreference,
     int? driverStatus,
   }) {
     return DriverRequest(
@@ -46,7 +41,7 @@ class DriverRequest {
       licenseDocLink: licenseDocLink ?? this.licenseDocLink,
       licenseExpiryDate: licenseExpiryDate ?? this.licenseExpiryDate,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
-      driverStatus: driverStatus ?? this.driverStatus
+      driverStatus: driverStatus ?? this.driverStatus,
     );
   }
 
@@ -60,21 +55,25 @@ class DriverRequest {
       licenseDocLink: json["licenseDocLink"] ?? "",
       licenseExpiryDate: json["licenseExpiryDate"] ?? "",
       dateOfBirth: json["dateOfBirth"] ?? "",
-      driverStatus: json['driverStatus'] ?? 1,
+      driverStatus: json["driverStatus"] ?? 1,
     );
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      "customerId": customerId,
-      "name": name,
-      "mobile": mobile,
-      "email": email,
-      "licenseNumber": licenseNumber,
-      "licenseDocLink": licenseDocLink,
-      "licenseExpiryDate": licenseExpiryDate,
-      "dateOfBirth": dateOfBirth,
-      "driverStatus": driverStatus,
-    };
+    final Map<String, dynamic> data = {};
+
+    if (customerId.isNotEmpty) data["customerId"] = customerId;
+    if (name.isNotEmpty) data["name"] = name;
+    if (mobile.isNotEmpty) data["mobile"] = mobile;
+    if (email.isNotEmpty) data["email"] = email;
+    if (licenseNumber.isNotEmpty) data["licenseNumber"] = licenseNumber;
+    if (licenseDocLink.isNotEmpty) data["licenseDocLink"] = licenseDocLink;
+    if (licenseExpiryDate.isNotEmpty) {
+      data["licenseExpiryDate"] = licenseExpiryDate;
+    }
+    if (dateOfBirth.isNotEmpty) data["dateOfBirth"] = dateOfBirth;
+    data["driverStatus"] = driverStatus;
+
+    return data;
   }
 }

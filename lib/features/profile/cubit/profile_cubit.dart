@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
+import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
@@ -31,6 +32,7 @@ import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
+import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
@@ -560,6 +562,25 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
+  // Verfy License from vahan
+  void _setVerifyvahanLicenseUIState(UIState<VerifedLicenseVahanData>? uiState){
+    emit(state.copyWith(verifiedLicenseVahanState: uiState));
+  }
+
+  Future<void> verifyLicenseFromVahan({ required LicenseVahanRequest request}) async {
+    _setCreateTicketsUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.verifyLicenseVahan(request: request);
+    if (result is Success<VerifedLicenseVahanData>) {
+      _setVerifyvahanLicenseUIState(UIState.success(result.value));
+      fetchTickets(request: TicketRequest());
+    }
+    if (result is Error) {
+      _setVerifyvahanLicenseUIState(UIState.error(result.type));
+    }
+  }
+
   void updateTempTicketStatus(TicketStatus? status) {
     emit(state.copyWith(tempSelectedTicketStatus: status));
   }
@@ -577,6 +598,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     fetchTickets(request: TicketRequest());
   }
 
+ void resetVahanVerificationState(){
+  emit(state.copyWith(
+    verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
+  ));
+}
 
 
   // Reset State
@@ -584,6 +610,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(
       logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
       profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
+      verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
     ));
   }
 

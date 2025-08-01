@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
+import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
@@ -37,6 +38,7 @@ import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
+import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -663,6 +665,30 @@ class ProfileService {
     }
   }
 
+  /// Verify License Vahan
+  Future<Result<VerifedLicenseVahanData>> verifyLicenseVahan({required LicenseVahanRequest request}) async {
+    try {
+      final url = "https://groone-uat.letsgro.co/driving_license/api/v1/send_license_number";
+      // Custom headers from your cURL request
+    final customHeaders = {
+      "Accept": "application/json",
+      "X-API-Key": "5f522b06263423e4cab5eb45d27f2be4",
+      "X-Application-UDID": "52e3dcc8-52ef-4f52-8756-3a06996757cd",
+      "Content-Type": "application/json",
+    };
+      final response = await _apiService.post(url, body: request.toJson(),customHeaders: customHeaders,);
+      if (response is Success) {
+        final loads = VerifedLicenseVahanData.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
 
   /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {
