@@ -222,7 +222,7 @@ class EnDhanKycMultipartApiRequest {
   final File? addressProofBack;
   final File? identityProofFront;
   final File? identityProofBack;
-  final File? panImage;
+  final String? panImage; // Changed from File? to String? to handle uploaded URL
 
   const EnDhanKycMultipartApiRequest({
     required this.aadhar,
@@ -236,10 +236,17 @@ class EnDhanKycMultipartApiRequest {
 
   /// Get form fields (string data)
   Map<String, String> getFormFields() {
-    return {
+    final Map<String, String> fields = {
       'aadhar': aadhar,
       'pan': pan,
     };
+    
+    // Add PAN image URL to form fields if available
+    if (panImage != null && panImage!.isNotEmpty) {
+      fields['panImage'] = panImage!;
+    }
+    
+    return fields;
   }
 
   /// Get files for multipart upload
@@ -258,16 +265,14 @@ class EnDhanKycMultipartApiRequest {
     if (identityProofBack != null) {
       files['identityProofBack'] = identityProofBack!;
     }
-    if (panImage != null) {
-      files['panImage'] = panImage!;
-    }
+    // PAN image is now handled as string URL, not as file
     
     return files;
   }
 
   @override
   String toString() {
-    return 'EnDhanKycMultipartApiRequest{aadhar: $aadhar, pan: $pan, addressProofFront: ${addressProofFront?.path}, addressProofBack: ${addressProofBack?.path}, identityProofFront: ${identityProofFront?.path}, identityProofBack: ${identityProofBack?.path}, panImage: ${panImage?.path}}';
+    return 'EnDhanKycMultipartApiRequest{aadhar: $aadhar, pan: $pan, addressProofFront: ${addressProofFront?.path}, addressProofBack: ${addressProofBack?.path}, identityProofFront: ${identityProofFront?.path}, identityProofBack: ${identityProofBack?.path}, panImage: $panImage}';
   }
 }
 
@@ -311,18 +316,18 @@ class AadhaarVerifyOtpRequest {
 }
 
 class PanVerificationRequest {
-  final String pan;
-  final bool force;
+  final String panNumber;
+  final String name;
 
   const PanVerificationRequest({
-    required this.pan,
-    this.force = true,
+    required this.panNumber,
+    required this.name,
   });
 
   Map<String, dynamic> toJson() {
     return {
-      'pan': pan,
-      'force': force,
+      'pan_number': panNumber,
+      'name': name,
     };
   }
 }

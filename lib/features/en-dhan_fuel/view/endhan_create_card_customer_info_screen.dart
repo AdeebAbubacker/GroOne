@@ -34,6 +34,7 @@ import '../widgets/zonal_office_autocomplete_textfield.dart';
 import '../widgets/regional_office_autocomplete_textfield.dart';
 import '../widgets/state_autocomplete_textfield.dart';
 import '../widgets/district_autocomplete_textfield.dart';
+import '../widgets/enhanced_dropdown_field.dart';
 
 class EndhanCreateCardCustomerInfoScreen extends StatefulWidget {
   const EndhanCreateCardCustomerInfoScreen({super.key});
@@ -49,7 +50,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
   final stateController = TextEditingController();
   final districtController = TextEditingController();
   // Email controller removed since field is now read-only
-  // PAN controller removed since field is now read-only
+  final panController = TextEditingController(); // Add PAN controller
   final address1Controller = TextEditingController();
   final address2Controller = TextEditingController();
   final cityNameController = TextEditingController();
@@ -63,7 +64,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     stateController.dispose();
     districtController.dispose();
     // Email controller disposal removed since field is now read-only
-    // PAN controller disposal removed since field is now read-only
+    panController.dispose();
     address1Controller.dispose();
     address2Controller.dispose();
     cityNameController.dispose();
@@ -112,9 +113,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       cubit.setCommunicationCityName(cleanedValue);
     });
     
-    pincodeController.addListener(() {
-      cubit.setPincode(pincodeController.text);
-    });
+    // Remove pincode listener to avoid circular updates causing cursor jumping
   }
 
   @override
@@ -124,11 +123,11 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     // Initialize controllers with current state values immediately
     final cubit = locator<EnDhanCubit>();
     // Email controller initialization removed since field is now read-only
-    // PAN controller initialization removed since field is now read-only
+    // Don't initialize PAN controller to avoid cursor jumping
     address1Controller.text = cubit.state.address1;
     address2Controller.text = cubit.state.address2;
     cityNameController.text = cubit.state.cityName;
-    pincodeController.text = cubit.state.pincode;
+    // Don't initialize pincode controller to avoid cursor jumping
     referralCodeController.text = cubit.state.referralCode;
     
     // Add listeners to sync controllers with cubit state
@@ -221,6 +220,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     return BlocBuilder<EnDhanCubit, EnDhanState>(
       bloc: cubit,
       builder: (context, state) {
+        print('DEBUG: BlocBuilder rebuild - selectedZonalOfficeId: ${state.selectedZonalOfficeId}, selectedRegionalOfficeId: ${state.selectedRegionalOfficeId}, selectedStateId: ${state.selectedStateId}, selectedDistrictId: ${state.selectedDistrictId}, selectedDistrictName: ${state.selectedDistrictName}');
+        print('DEBUG: BlocBuilder rebuild - states: ${state.states.length}, zonalOffices: ${state.zonalOffices.length}, regionalOffices: ${state.regionalOffices.length}, districts: ${state.districts.length}');
         // Auto-populate PAN from KYC data if available and not already set
         if (state.kycCheckState?.status == Status.SUCCESS && 
             state.hasKycDocuments && 
@@ -372,14 +373,17 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           AppTextField(
                             labelText: '${context.appText.panNumber} *',
                             hintText: 'ABCDE1234F',
-                            controller: TextEditingController(text: state.pan),
-                            readOnly: true,
+                            controller: panController,
+                            readOnly: state.pan.isNotEmpty, // Read-only if PAN is already present (from KYC or manual entry)
                             maxLength: 10,
                             textCapitalization: TextCapitalization.characters,
                             inputFormatters: [
                               FilteringTextInputFormatter.allow(panNumberInputRegex),
                               LengthLimitingTextInputFormatter(10),
                             ],
+                            onChanged: state.pan.isEmpty ? (value) {
+                              cubit.setPan(value);
+                            } : null,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return context.appText.panNumberRequired;
@@ -395,8 +399,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             },
                             decoration: commonInputDecoration(
                               hintText: 'ABCDE1234F',
-                              fillColor: AppColors.disabledFieldBackgroundColor,
-                              focusColor: AppColors.disabledFieldBackgroundColor,
+                              fillColor: state.pan.isNotEmpty ? AppColors.disabledFieldBackgroundColor : null,
+                              focusColor: state.pan.isNotEmpty ? AppColors.disabledFieldBackgroundColor : null,
                             ),
                           ),
                           16.height,
@@ -434,6 +438,17 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             keyboardType: TextInputType.number,
                             maxLength: 6,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            onChanged: (value) {
+                              print('DEBUG: Pincode onChanged called with value: $value, length: ${value.length}');
+                              cubit.setPincode(value);
+                              // Call API when pincode is 6 digits
+                              if (value.length == 6) {
+                                print('DEBUG: Calling getPincode with value: $value');
+                                cubit.getPincode(value);
+                              } else {
+                                print('DEBUG: Pincode length is ${value.length}, not calling API');
+                              }
+                            },
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return 'Pincode is required';
@@ -452,45 +467,60 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           
 
                           16.height,
-                          // Zonal Office Dropdown
-                          ZonalOfficeAutoCompleteTextField(
-                            controller: zonalOfficeController,
-                            labelText: '${context.appText.zonalOffice} *',
-                            onSelected: (value) {
-                              // The widget will handle setting the text
-                            },
-                            onZonalOfficeSelected: (zoneId) {
-                              cubit.setSelectedZonalOfficeId(zoneId);
-                              cubit.fetchRegionalOffices(zoneId);
-                              // Clear regional office selection when zonal office changes
-                              regionalOfficeController.clear();
-                            },
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return context.appText.selectZonalOffice;
-                              }
-                              return null;
-                            },
-                          ),
+                                                     // Zonal Office Dropdown
+                           Builder(
+                             builder: (context) {
+                               print('DEBUG: Zonal field - selectedZonalOfficeId: ${state.selectedZonalOfficeId}, zonalOffices count: ${state.zonalOffices.length}');
+                               return EnhancedDropdownField(
+                                 labelText: '${context.appText.zonalOffice} *',
+                                 hintText: 'Select zonal office',
+                                 value: state.selectedZonalOfficeId?.toString(),
+                                 options: state.zonalOffices.map((office) => {
+                                   'id': office['id'],
+                                   'name': office['zone_name'],
+                                 }).toList(),
+                                 onChanged: (zoneId) {
+                                   cubit.setSelectedZonalOfficeId(int.parse(zoneId));
+                                   cubit.fetchRegionalOffices(int.parse(zoneId));
+                                   // Clear regional office selection when zonal office changes
+                                   regionalOfficeController.clear();
+                                 },
+                                 isLoading: state.zonalOfficesState?.status == Status.LOADING,
+                                 validator: (value) {
+                                   if (value == null || value.trim().isEmpty) {
+                                     return context.appText.selectZonalOffice;
+                                   }
+                                   return null;
+                                 },
+                               );
+                             },
+                           ),
                           16.height,
-                          // Regional Office Dropdown
-                          RegionalOfficeAutoCompleteTextField(
-                            controller: regionalOfficeController,
-                            labelText: '${context.appText.regionalOffice} *',
-                            zonalOfficeId: state.selectedZonalOfficeId,
-                            onSelected: (value) {
-                              // The widget will handle setting the text
-                            },
-                            onRegionalOfficeSelected: (regionalId) {
-                              cubit.setSelectedRegionalOfficeId(regionalId);
-                            },
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return context.appText.selectRegionalOffice;
-                              }
-                              return null;
-                            },
-                          ),
+                                                     // Regional Office Dropdown
+                           Builder(
+                             builder: (context) {
+                               print('DEBUG: Regional field - selectedRegionalOfficeId: ${state.selectedRegionalOfficeId}, regionalOffices count: ${state.regionalOffices.length}');
+                               return EnhancedDropdownField(
+                                 labelText: '${context.appText.regionalOffice} *',
+                                 hintText: 'Select regional office',
+                                 value: state.selectedRegionalOfficeId?.toString(),
+                                 options: state.regionalOffices.map((office) => {
+                                   'id': office['id'],
+                                   'name': office['region_name'],
+                                 }).toList(),
+                                 onChanged: (regionalId) {
+                                   cubit.setSelectedRegionalOfficeId(int.parse(regionalId));
+                                 },
+                                 isLoading: state.regionalOfficesState?.status == Status.LOADING,
+                                 validator: (value) {
+                                   if (value == null || value.trim().isEmpty) {
+                                     return context.appText.selectRegionalOffice;
+                                   }
+                                   return null;
+                                 },
+                               );
+                             },
+                           ),
                           16.height,
                           AppTextField(
                             labelText: '${context.appText.addressLine1} *',
@@ -517,45 +547,63 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           ),
                           16.height,
 
-                          // State Dropdown
-                          StateAutoCompleteTextField(
-                            controller: stateController,
-                            labelText: '${context.appText.state} *',
-                            onSelected: (value) {
-                              // The widget will handle setting the text
-                            },
-                            onStateSelected: (stateId) {
-                              cubit.setSelectedStateId(stateId);
-                              cubit.fetchDistricts(stateId);
-                              // Clear district selection when state changes
-                              districtController.clear();
-                            },
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return context.appText.pleaseSelectState;
-                              }
-                              return null;
-                            },
-                          ),
-                          16.height,
-                          // District Dropdown
-                          DistrictAutoCompleteTextField(
-                            controller: districtController,
-                            labelText: '${context.appText.district} *',
-                            stateId: state.selectedStateId,
-                            onSelected: (value) {
-                              // The widget will handle setting the text
-                            },
-                            onDistrictSelected: (districtId) {
-                              cubit.setSelectedDistrictId(districtId);
-                            },
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please select a district';
-                              }
-                              return null;
-                            },
-                          ),
+                                                     // State Dropdown
+                           Builder(
+                             builder: (context) {
+                               print('DEBUG: State field - selectedStateId: ${state.selectedStateId}, states count: ${state.states.length}');
+                               return EnhancedDropdownField(
+                                 labelText: '${context.appText.state} *',
+                                 hintText: 'Select state',
+                                 value: state.selectedStateId?.toString(),
+                                 options: state.states.map((state) => {
+                                   'id': state['id'],
+                                   'name': state['state_name'],
+                                 }).toList(),
+                                 onChanged: (stateId) {
+                                   cubit.setSelectedStateId(int.parse(stateId));
+                                   cubit.fetchDistricts(int.parse(stateId));
+                                   // Clear district selection when state changes
+                                   districtController.clear();
+                                 },
+                                 isLoading: state.statesState?.status == Status.LOADING,
+                                 validator: (value) {
+                                   if (value == null || value.trim().isEmpty) {
+                                     return context.appText.pleaseSelectState;
+                                   }
+                                   return null;
+                                 },
+                               );
+                             },
+                           ),
+                           16.height,
+                                                       // District Dropdown
+                            Builder(
+                              builder: (context) {
+                                final districtValue = state.selectedDistrictName?.isNotEmpty == true 
+                                    ? state.selectedDistrictName 
+                                    : state.selectedDistrictId?.toString();
+                                print('DEBUG: District field - selectedDistrictName: ${state.selectedDistrictName}, selectedDistrictId: ${state.selectedDistrictId}, districtValue: $districtValue, districts count: ${state.districts.length}');
+                                return EnhancedDropdownField(
+                                  labelText: '${context.appText.district} *',
+                                  hintText: 'Select district',
+                                  value: districtValue,
+                                  options: state.districts.map((district) => {
+                                    'id': district['id'],
+                                    'name': district['district_name'],
+                                  }).toList(),
+                                  onChanged: (districtId) {
+                                    cubit.setSelectedDistrictId(int.parse(districtId));
+                                  },
+                                  isLoading: state.districtsState?.status == Status.LOADING,
+                                  validator: (value) {
+                                    if (value == null || value.trim().isEmpty) {
+                                      return 'Please select a district';
+                                    }
+                                    return null;
+                                  },
+                                );
+                              },
+                            ),
 
                           16.height,
                           AppTextField(
