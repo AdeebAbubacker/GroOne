@@ -668,14 +668,13 @@ class ProfileService {
   /// Verify License Vahan
   Future<Result<VerifedLicenseVahanData>> verifyLicenseVahan({required LicenseVahanRequest request}) async {
     try {
-      final url = "https://groone-uat.letsgro.co/driving_license/api/v1/send_license_number";
-      // Custom headers from your cURL request
-    final customHeaders = {
-      "Accept": "application/json",
-      "X-API-Key": "5f522b06263423e4cab5eb45d27f2be4",
-      "X-Application-UDID": "52e3dcc8-52ef-4f52-8756-3a06996757cd",
-      "Content-Type": "application/json",
-    };
+      final url = ApiUrls.licenseVahanVerfification;
+      final customHeaders = {
+        "Accept": "application/json",
+        "X-API-Key": "5f522b06263423e4cab5eb45d27f2be4",
+        "X-Application-UDID": "52e3dcc8-52ef-4f52-8756-3a06996757cd",
+        "Content-Type": "application/json",
+      };
       final response = await _apiService.post(url, body: request.toJson(),customHeaders: customHeaders,);
       if (response is Success) {
         final loads = VerifedLicenseVahanData.fromJson(response.value);
