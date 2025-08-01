@@ -100,7 +100,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     vsync: this,
     initialIndex: widget.initialTabIndex,
   );
- WidgetsBinding.instance.addPostFrameCallback((_) {_tabScrollController.jumpTo(50);});
+ WidgetsBinding.instance.addPostFrameCallback((_) {});
  _tabController!.addListener(() {
   if (_tabController!.index != selectedTabIndex && !_tabController!.indexIsChanging) {
     setState(() {
