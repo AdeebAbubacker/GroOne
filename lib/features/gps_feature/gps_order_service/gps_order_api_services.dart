@@ -327,7 +327,15 @@ class GpsOrderApiService {
       CustomLog.debug(this, "🔐 GPS PAN Verification - URL: $url");
       CustomLog.debug(this, "🔐 GPS PAN Verification - Request: ${request.toJson()}");
 
-      final result = await _apiService.post(url, body: request.toJson());
+      // Custom headers for the new PAN verification API
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+
+      final result = await _apiService.post(url, body: request.toJson(), customHeaders: customHeaders);
 
       if (result is Success) {
         return await _apiService.getResponseStatus(

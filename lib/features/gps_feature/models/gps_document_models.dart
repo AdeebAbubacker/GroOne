@@ -369,22 +369,21 @@ class GpsPanVerificationResponse {
   });
 
   factory GpsPanVerificationResponse.fromJson(Map<String, dynamic> json) {
-    // Handle the actual API response structure
-    final status = json['status'] as bool? ?? false;
+    // New API format: {success: true, message: "PAN validation has been verified - from cache.", data: null}
+    final success = json['success'] as bool? ?? false;
     final message = json['message'] as String? ?? '';
     
-    // Check if verification was successful based on status and data
+    // Determine if verification was successful based on success flag and message
     bool isVerified = false;
-    if (status) {
-      final data = json['data'] as Map<String, dynamic>?;
-      if (data != null) {
-        final dataMessage = data['message'] as String? ?? '';
-        isVerified = dataMessage.toLowerCase().contains('verified successfully');
-      }
+    if (success) {
+      final messageLower = message.toLowerCase();
+      isVerified = messageLower.contains('verified') || 
+                   messageLower.contains('validation') ||
+                   messageLower.contains('success');
     }
     
     return GpsPanVerificationResponse(
-      success: status,
+      success: success,
       message: message,
       isVerified: isVerified,
     );

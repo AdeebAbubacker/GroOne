@@ -83,7 +83,7 @@ class ApiUrls {
   static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
   static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
   static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
-  static final String  panVerification = "$_verification/pan";
+  static final String  panVerification = "https://groone-uat.letsgro.co/pan/api/v1/send_pan";
   static final String  gst = "$_kucDocUpload/gst";
   static final String  tan = "$_kucDocUpload/tan";
   static final String  pan = "$_kucDocUpload/pan";
@@ -156,7 +156,7 @@ class ApiUrls {
   static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/address";
   static String  kavachTruckType = "$_loadBaseUrl/truck-types/types";
   static String  kavachTruckSubType = "$_loadBaseUrl/truck-types/sub-types";
-  static String  kavachVehicleVerification = "$verification/vehicle";
+  static String  kavachVehicleVerification = "https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number";
   static final String kavachPayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
   //static final String  kavachtruckType = "$loadTruckType/truck-types/distinct/types";
 
@@ -176,6 +176,7 @@ class ApiUrls {
   static final String enDhanRegional = "$_fetchUrl$_vendor$_path$_v1/dtplus/regional/";
   static final String enDhanVehicleTypes = "$_fetchUrl$_vendor$_path$_v1/dtplus/vehicleType";
   static final String enDhanTransaction = "$_fetchUrl$_vendor$_path$_v1/dtplus/getTransaction";
+  static String enDhanGetPincode(String pincode) => "$_fetchUrl$_vendor$_path$_v1/dtplus/getPincode/$pincode";
 
   /// GPS
   static final String gpsDocumentUpload = ApiUrls.enDhanKycUpload;

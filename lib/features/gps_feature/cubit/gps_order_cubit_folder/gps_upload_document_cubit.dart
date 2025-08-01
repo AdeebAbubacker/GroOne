@@ -323,9 +323,16 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     _setPanVerificationUIState(UIState.loading());
 
     try {
+      // Get user name from repository
+      final userRepository = locator<UserInformationRepository>();
+      final userName = await userRepository.getUsername();
+      final customerName = userName?.isNotEmpty == true ? userName! : "Test User";
+      
+      print('🔍 GPS PAN Verification Debug: Using customer name: "$customerName"');
+
       final request = GpsPanVerificationRequest(
-        pan: state.pan,
-        force: true,
+        panNumber: state.pan,
+        name: customerName,
       );
 
       final result = await _repository.verifyPan(request);

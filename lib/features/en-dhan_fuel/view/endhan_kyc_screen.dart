@@ -505,7 +505,6 @@ class _EndhanKycScreenContent extends StatelessWidget {
                       _buildLabelWithInfoIcon(context, context.appText.pan, isMandatory: true, isVerified: state.isPanVerified),
                       10.height,
 
-
                       AppTextField(
                         mandatoryStar: true,
                         hintText: context.appText.enterPanNumber,
@@ -559,22 +558,78 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
                       10.height,
 
+                      // PAN Document Upload
                       Column(
                         children: [
                           EndhanDocumentUploadWidget(
                             feildTitle: context.appText.uploadDocument,
                             multiFilesList: state.panDocuments,
                             isSingleFile: true,
-                            onFilesChanged: (newList) {
+                            onFilesChanged: (newList) async {
+                              // Update the documents list first
                               cubit.updatePanDocuments(newList);
+                              
                               // Reset upload flag if document is removed
                               if (newList.isEmpty) {
                                 cubit.setPanImageUploaded(false);
+                                return;
+                              }
+                              
+                              // Handle upload for new documents
+                              if (newList.isNotEmpty) {
+                                final document = newList.first;
+                                final filePath = document['path'];
+
+                                if (filePath != null) {
+                                  try {
+                                    final uploadResponse = await cubit.uploadDocument(File(filePath));
+
+                                    if (uploadResponse != null && uploadResponse.data?.url != null) {
+                                      final uploadedUrl = uploadResponse.data!.url!;
+
+                                      // Update the documents list with the uploaded URL
+                                      final updatedDocuments = [
+                                        {
+                                          'fileName': uploadedUrl,
+                                          'path': uploadedUrl, // Use URL as path for uploaded files
+                                        }
+                                      ];
+
+                                      cubit.updatePanDocuments(updatedDocuments);
+                                      cubit.setPanImageUploaded(true);
+
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(context.appText.documentUploadedSuccessfully),
+                                        ),
+                                      );
+                                    } else {
+                                      cubit.setPanImageUploaded(false);
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(context.appText.uploadFailedNoUrl),
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    cubit.setPanImageUploaded(false);
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('${context.appText.uploadFailed} $e'),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(context.appText.noFilePathFound),
+                                    ),
+                                  );
+                                }
                               }
                             },
                             thenUploadFileToSever: () {
-                              // Set upload flag immediately when document is uploaded
-                              cubit.setPanImageUploaded(true);
+                              // This callback is no longer needed as upload is handled in onFilesChanged
                             },
                           ),
                           if (state.panDocuments.isEmpty && state.hasAttemptedSubmit)
