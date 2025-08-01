@@ -1159,5 +1159,6 @@
   "viewTripStatement":"View Trip Statement",
    "totalTransportationCost":"Total transportation cost",
   "viewTripStatement":"View Trip Statement",
-  "alreadyVerified":"Already Verified"
+  "alreadyVerified":"Already Verified",
+  "preferredLanes":"Preferred Lanes Required"
 }

@@ -99,7 +99,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
 
       /// SET TRIP DOCUMENT
-      print("Calling set trip documents");
+
       setTripDocuments(
           state.loadDetailsUIState?.data?.data?.loadDocument ?? []);
     }
