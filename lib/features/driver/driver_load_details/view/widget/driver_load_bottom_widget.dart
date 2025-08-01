@@ -369,7 +369,7 @@ if (loadStatus == 4) {
                                     children: [
                                       20.height,
                                       _buildAdableSectionHeader(
-                                        showAddButton: LpHomeHelper.getLoadStatusFromString(loadDetails?.data?.loadStatusDetails?.loadStatus) != LoadStatus.completed,
+                                        showAddButton: state.loadStatus != LoadStatus.completed ,
                                         context: context,
                                         title:  context.appText.damageAndShortage,
                                         onAdd: () {
@@ -408,7 +408,7 @@ if (loadStatus == 4) {
                                       20.height,
                                       _buildAdableSectionHeader(
                                         context: context,
-                                         showAddButton: LpHomeHelper.getLoadStatusFromString(loadDetails?.data?.loadStatusDetails?.loadStatus) != LoadStatus.completed,
+                                         showAddButton: state.loadStatus != LoadStatus.completed,
                                         title: 'Settlements',
                                         onAdd: () {
                                            Navigator.push(
