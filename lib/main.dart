@@ -47,13 +47,14 @@ void main() async {
     // Note: SecuredSharedPreferences should be initialized in initializeApp()
     final secureStorage = FlutterSecureStorage();
     final securedSharedPrefs = SecuredSharedPreferences(secureStorage);
+
     await NotificationService().init(navigatorKey, securedSharedPrefs);
 
     // Run the app
     runApp(BlocProvider(create: (_) => LocaleBloc(), child: const MyApp()));
   } catch (e) {
     // Handle initialization errors gracefully
-    print('App initialization error: $e');
+    print('❌ App initialization error: $e');
     // You might want to show an error widget or retry mechanism
     runApp(const ErrorApp());
   }
