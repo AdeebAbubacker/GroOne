@@ -1158,5 +1158,7 @@
   "othersDocument":"Others Document",
   "viewTripStatement":"View Trip Statement",
    "totalTransportationCost":"Total transportation cost",
-  "viewTripStatement":"View Trip Statement"
+  "viewTripStatement":"View Trip Statement",
+  "noFAQFound":"No FAQ Found",
+  "noSearchResults":"No results matched your search."
 }

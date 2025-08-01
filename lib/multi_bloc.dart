@@ -23,6 +23,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_posting/loa
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_truck_type/load_truck_type_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/payments/cubit/payment_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
@@ -102,6 +103,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<DriverLoadDetailsCubit>(create: (_) => locator<DriverLoadDetailsCubit>()),
         BlocProvider<GpsVehicleCubit>(create: (_) => locator<GpsVehicleCubit>()),
         BlocProvider<VpTripStatementCubit>(create: (_) => locator<VpTripStatementCubit>()),
+        BlocProvider<PaymentCubit>(create: (_) => locator<PaymentCubit>()),
        ],
       child: child,
     );
