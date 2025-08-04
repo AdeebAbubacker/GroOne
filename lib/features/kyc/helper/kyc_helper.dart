@@ -92,15 +92,10 @@ class KycHelper {
  static Future<String> saveBase64PdfToFile(String base64Pdf) async {
 
    Uint8List pdfBytes = base64.decode(base64Pdf);
-
-
    final dir = await getTemporaryDirectory();
    final filePath = '${dir.path}/converted_file.pdf';
-
-   // Step 3: Write PDF file
    final file = File(filePath);
    await file.writeAsBytes(pdfBytes);
-
    return filePath;
  }
 

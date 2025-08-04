@@ -39,6 +39,7 @@ const String CHECKED_FILE_TYPE = "cancelled_cheque";
 const String VP_DOCUMENT = "vp_document";
 const String LP_DOCUMENT = "lp_document";
 const String CUSTOMER_DOCUMENT = "customer_document";
+const String AADHAAR_CARD = "aadhaar_card";
 const String DAMAGES_AND_SHORTAGES = "damages_and_shortages";
 
 

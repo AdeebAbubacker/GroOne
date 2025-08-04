@@ -1,5 +1,5 @@
-class UploadTDSDocumentModel {
-  UploadTDSDocumentModel({
+class UploadAadharDocumentModel {
+  UploadAadharDocumentModel({
     required this.url,
     required this.filePath,
     required this.originalName,
@@ -13,14 +13,14 @@ class UploadTDSDocumentModel {
   final int size;
   final String mimeType;
 
-  UploadTDSDocumentModel copyWith({
+  UploadAadharDocumentModel copyWith({
     String? url,
     String? filePath,
     String? originalName,
     int? size,
     String? mimeType,
   }) {
-    return UploadTDSDocumentModel(
+    return UploadAadharDocumentModel(
       url: url ?? this.url,
       filePath: filePath ?? this.filePath,
       originalName: originalName ?? this.originalName,
@@ -29,8 +29,8 @@ class UploadTDSDocumentModel {
     );
   }
 
-  factory UploadTDSDocumentModel.fromJson(Map<String, dynamic> json){
-    return UploadTDSDocumentModel(
+  factory UploadAadharDocumentModel.fromJson(Map<String, dynamic> json){
+    return UploadAadharDocumentModel(
       url: json["url"] ?? "",
       filePath: json["filePath"] ?? "",
       originalName: json["originalName"] ?? "",
@@ -38,6 +38,7 @@ class UploadTDSDocumentModel {
       mimeType: json["mimeType"] ?? "",
     );
   }
+
 }
 
 

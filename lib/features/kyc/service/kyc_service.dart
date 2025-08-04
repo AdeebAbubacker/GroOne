@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
+import 'package:gro_one_app/features/kyc/mock_response.dart';
 import 'package:gro_one_app/features/kyc/model/aadhar_status_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
@@ -19,6 +20,7 @@ import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
+import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
@@ -201,6 +203,33 @@ class KycService {
     }
   }
 
+  /// Upload Aadhar Doc
+  Future<Result<UploadAadharDocumentModel>> uploadAadharDoc({required File file, required String fileType,required String userId, required String documentType}) async {
+    try {
+      final url = ApiUrls.upload;
+      final result = await _apiService.multipart(
+        url,
+        file,
+        pathName: "file",
+        fields: {
+          "userId" : userId,
+          "fileType" : fileType,
+          "documentType" : documentType,
+        },
+      );
+      if (result is Success) {
+        final data = UploadAadharDocumentModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
 
   /// Upload Cancelled Check File Repo Service
   Future<Result<UploadCancelledCheckedDocumentModel>> uploadCancelledCheckedDoc({required File file, required String fileType,required String userId, required String documentType}) async {
@@ -356,6 +385,12 @@ class KycService {
   }
 
   Future<Result<KycInitResponse>> initKycRequest(KycInitRequest initKycRequest) async {
+
+    /// TODO:
+    /// Temp RETURN Mock response for reduce api calling
+    final data = KycInitResponse.fromJson(kycInitMockResponse);
+    return Success(data);
+
     try {
       final url = ApiUrls.digiLockerInit;
       final xApiKey = ApiUrls.xApiKey;
@@ -382,6 +417,11 @@ class KycService {
 
 
   Future<Result<AadharVerificationResponse>> getAadharStatus(String request) async {
+    /// TODO:
+    /// Temp RETURN Mock response for reduce api calling
+    final data = AadharVerificationResponse.fromJson(statusCheckMockResponse);
+    return Success(data);
+
     try {
       final url = ApiUrls.adharStatus;
       final xApiKey = ApiUrls.xApiKey;

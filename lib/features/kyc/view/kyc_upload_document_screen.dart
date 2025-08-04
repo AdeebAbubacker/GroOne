@@ -53,7 +53,8 @@ import 'package:gro_one_app/utils/validator.dart';
 
 class KycUploadDocumentScreen extends StatefulWidget {
   final String? aadhaarNumber;
-  const KycUploadDocumentScreen({super.key, this.aadhaarNumber});
+  final String? pdfPath;
+  const KycUploadDocumentScreen({super.key, this.aadhaarNumber,this.pdfPath});
 
   @override
   State<KycUploadDocumentScreen> createState() => _KycUploadDocumentScreenState();
@@ -301,7 +302,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // Verify GST api call
   Future<void> verifyGstApiCall(String gstNumber, BuildContext context) async {
-
     final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: true);
     await kycCubit.verifyGst(apiRequest);
     if (kycCubit.state.gstState?.status == Status.SUCCESS && context.mounted) {
@@ -477,7 +477,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     debugPrint("panDocId : $panDocId");
     debugPrint("tanDocId : $tanDocId");
     if(_formKey.currentState!.validate()){
-
       final ok = validateDocs(
         userRole: kycCubit.userRole ?? 0,
         companyId: companyId,
@@ -835,12 +834,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // GST Text Field & Upload GST
   Widget _buildGstWidget(){
-    print("gstin number");
     return BlocBuilder<KycCubit, KycState>(
         bloc: kycCubit,
         builder: (context, state) {
           bool verified = state.verifiedGst != null && state.verifiedGst!;
-          print("verified is $verified");
+
           return Column(
             children: [
               // Enter GST Number
