@@ -181,7 +181,7 @@ class DriverLoadDetailsModelData {
     final LoadMemo? loadMemo;
     final List<LoadDocument> loadDocument;
     final DriverloadSettlement? loadSettlement;
-    final dynamic podDispatch;
+    final PodDispatchModel? podDispatch;
     final dynamic loadApproval;
      final List<DamageReport>? damageShortage;
     final TrackingDetails? trackingDetails;
@@ -225,7 +225,7 @@ class DriverLoadDetailsModelData {
         LoadMemo? loadMemo,
         List<LoadDocument>? loadDocument,
         DriverloadSettlement? loadSettlement,
-        dynamic? podDispatch,
+        PodDispatchModel? podDispatch,
         dynamic? loadApproval,
         List<DamageReport>? damageShortage,
         TrackingDetails? trackingDetails,
@@ -316,7 +316,7 @@ class DriverLoadDetailsModelData {
             loadMemo: json["loadMemo"] == null ? null : LoadMemo.fromJson(json["loadMemo"]),
             loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) => LoadDocument.fromJson(x))),
             loadSettlement: json["loadSettlement"] == null ? null : DriverloadSettlement.fromJson(json["loadSettlement"]),
-            podDispatch: json["podDispatch"],
+            podDispatch: json["podDispatch"] == null ? null : PodDispatchModel.fromJson(json["podDispatch"]),
             loadApproval: json["loadApproval"],
              damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
             trackingDetails: (json["trackingDetails"] is Map<String, dynamic>)
@@ -1821,6 +1821,75 @@ class DriverloadSettlement {
             debitPenalities: json["debitPenalities"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             updatedAt: json["updatedAt"],
+            deletedAt: json["deletedAt"],
+        );
+    }
+
+}
+
+
+class PodDispatchModel {
+    PodDispatchModel({
+        required this.loadPodId,
+        required this.loadId,
+        required this.courierCompany,
+        required this.awbNumber,
+        required this.podTrackingLink,
+        required this.podCenterId,
+        required this.podCenterName,
+        required this.status,
+        required this.createAt,
+        required this.deletedAt,
+    });
+
+    final String loadPodId;
+    final String loadId;
+    final String courierCompany;
+    final String awbNumber;
+    final dynamic podTrackingLink;
+    final String podCenterId;
+    final String podCenterName;
+    final int status;
+    final DateTime? createAt;
+    final dynamic deletedAt;
+
+    PodDispatchModel copyWith({
+        String? loadPodId,
+        String? loadId,
+        String? courierCompany,
+        String? awbNumber,
+        dynamic? podTrackingLink,
+        String? podCenterId,
+        String? podCenterName,
+        int? status,
+        DateTime? createAt,
+        dynamic? deletedAt,
+    }) {
+        return PodDispatchModel(
+            loadPodId: loadPodId ?? this.loadPodId,
+            loadId: loadId ?? this.loadId,
+            courierCompany: courierCompany ?? this.courierCompany,
+            awbNumber: awbNumber ?? this.awbNumber,
+            podTrackingLink: podTrackingLink ?? this.podTrackingLink,
+            podCenterId: podCenterId ?? this.podCenterId,
+            podCenterName: podCenterName ?? this.podCenterName,
+            status: status ?? this.status,
+            createAt: createAt ?? this.createAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory PodDispatchModel.fromJson(Map<String, dynamic> json){ 
+        return PodDispatchModel(
+            loadPodId: json["loadPodId"] ?? "",
+            loadId: json["loadId"] ?? "",
+            courierCompany: json["courierCompany"] ?? "",
+            awbNumber: json["awbNumber"] ?? "",
+            podTrackingLink: json["podTrackingLink"],
+            podCenterId: json["podCenterId"] ?? "",
+            podCenterName: json["podCenterName"] ?? "",
+            status: json["status"] ?? 0,
+            createAt: DateTime.tryParse(json["createAt"] ?? ""),
             deletedAt: json["deletedAt"],
         );
     }

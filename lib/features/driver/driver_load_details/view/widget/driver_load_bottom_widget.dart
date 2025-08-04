@@ -428,8 +428,7 @@ if (loadStatus == 4) {
                                                     if (mounted) {
                                                       getLoadDetails();
                                                     }
-                                      });               
-  
+                                      });                
                                         },
                                       ),
                                       _submittedSettlementInfoWidget(
@@ -443,6 +442,18 @@ if (loadStatus == 4) {
                                
                               ],
                             ),
+                            if ((loads!.data!.loadStatusId ?? 0) > 8)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                     _buildHeading(text: context.appText.podDispatch),
+                                     _submittedPodInfoWidget(
+                                loadDetails?.data?.podDispatch,
+                                context,
+                              ),
+                            ],),
+                            16.height,
+
                               Text(
                                   context.appText.timeLine,
                                   style: AppTextStyle.h4,
@@ -958,3 +969,36 @@ Widget _submittedSettlementInfoWidget(
     ).paddingSymmetric(horizontal: 15),
   );
 }
+
+
+//Submitted settlement
+Widget _submittedPodInfoWidget(
+  PodDispatchModel? loadSettlement,
+  BuildContext context,
+) {
+  if (loadSettlement == null) {
+    return SizedBox.shrink();
+  }
+  final courierCompany = loadSettlement.courierCompany ?? "1";
+  final awbNumber = loadSettlement.awbNumber?? "1";
+
+  return Padding(
+    padding: EdgeInsets.only(top: 15),
+    child: Column(
+      spacing: 15,
+      children: [
+        InformationView(
+          title:
+             context.appText.courierCompany,
+          amount: courierCompany,
+        ),
+        InformationView(
+          title: context.appText.loadingCharges,
+          amount: awbNumber,
+        ),      
+      ],
+    ).paddingSymmetric(horizontal: 15),
+  );
+}
+
+
