@@ -5,11 +5,11 @@ class VehicleVerificationSuccess {
     });
 
     final String message;
-    final bool data;
+    final VehicleVerificationData? data;
 
     VehicleVerificationSuccess copyWith({
         String? message,
-        bool? data,
+        VehicleVerificationData? data,
     }) {
         return VehicleVerificationSuccess(
             message: message ?? this.message,
@@ -20,11 +20,122 @@ class VehicleVerificationSuccess {
     factory VehicleVerificationSuccess.fromJson(Map<String, dynamic> json){ 
         return VehicleVerificationSuccess(
             message: json["message"] ?? "",
-            data: json["data"] ?? false,
+            data: json["data"] == null ? null : VehicleVerificationData.fromJson(json["data"]),
         );
     }
 
 }
+
+class VehicleVerificationData {
+    VehicleVerificationData({
+        required this.vehicleId,
+        required this.customerId,
+        required this.truckNo,
+        required this.ownerName,
+        required this.registrationDate,
+        required this.tonnage,
+        required this.truckTypeId,
+        required this.modelNumber,
+        required this.rcNumber,
+        required this.rcDocLink,
+        required this.insurancePolicyNumber,
+        required this.insuranceValidityDate,
+        required this.fcExpiryDate,
+        required this.pucExpiryDate,
+        required this.status,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.deletedAt,
+    });
+
+    final String vehicleId;
+    final String customerId;
+    final String truckNo;
+    final dynamic ownerName;
+    final dynamic registrationDate;
+    final String tonnage;
+    final int truckTypeId;
+    final String modelNumber;
+    final String rcNumber;
+    final String rcDocLink;
+    final dynamic insurancePolicyNumber;
+    final dynamic insuranceValidityDate;
+    final dynamic fcExpiryDate;
+    final dynamic pucExpiryDate;
+    final int status;
+    final DateTime? createdAt;
+    final dynamic updatedAt;
+    final dynamic deletedAt;
+
+    VehicleVerificationData copyWith({
+        String? vehicleId,
+        String? customerId,
+        String? truckNo,
+        dynamic? ownerName,
+        dynamic? registrationDate,
+        String? tonnage,
+        int? truckTypeId,
+        String? modelNumber,
+        String? rcNumber,
+        String? rcDocLink,
+        dynamic? insurancePolicyNumber,
+        dynamic? insuranceValidityDate,
+        dynamic? fcExpiryDate,
+        dynamic? pucExpiryDate,
+        int? status,
+        DateTime? createdAt,
+        dynamic? updatedAt,
+        dynamic? deletedAt,
+    }) {
+        return VehicleVerificationData(
+            vehicleId: vehicleId ?? this.vehicleId,
+            customerId: customerId ?? this.customerId,
+            truckNo: truckNo ?? this.truckNo,
+            ownerName: ownerName ?? this.ownerName,
+            registrationDate: registrationDate ?? this.registrationDate,
+            tonnage: tonnage ?? this.tonnage,
+            truckTypeId: truckTypeId ?? this.truckTypeId,
+            modelNumber: modelNumber ?? this.modelNumber,
+            rcNumber: rcNumber ?? this.rcNumber,
+            rcDocLink: rcDocLink ?? this.rcDocLink,
+            insurancePolicyNumber: insurancePolicyNumber ?? this.insurancePolicyNumber,
+            insuranceValidityDate: insuranceValidityDate ?? this.insuranceValidityDate,
+            fcExpiryDate: fcExpiryDate ?? this.fcExpiryDate,
+            pucExpiryDate: pucExpiryDate ?? this.pucExpiryDate,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory VehicleVerificationData.fromJson(Map<String, dynamic> json){ 
+        return VehicleVerificationData(
+            vehicleId: json["vehicleId"] ?? "",
+            customerId: json["customerId"] ?? "",
+            truckNo: json["truckNo"] ?? "",
+            ownerName: json["ownerName"],
+            registrationDate: json["registrationDate"],
+            tonnage: json["tonnage"] ?? "",
+            truckTypeId: json["truckTypeId"] ?? 0,
+            modelNumber: json["modelNumber"] ?? "",
+            rcNumber: json["rcNumber"] ?? "",
+            rcDocLink: json["rcDocLink"] ?? "",
+            insurancePolicyNumber: json["insurancePolicyNumber"],
+            insuranceValidityDate: json["insuranceValidityDate"],
+            fcExpiryDate: json["fcExpiryDate"],
+            pucExpiryDate: json["pucExpiryDate"],
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            updatedAt: json["updatedAt"],
+            deletedAt: json["deletedAt"],
+        );
+    }
+
+}
+
+
+
 class LicenseVerificationSuccess {
     LicenseVerificationSuccess({
         required this.message,
