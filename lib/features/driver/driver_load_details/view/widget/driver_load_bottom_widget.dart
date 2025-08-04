@@ -253,7 +253,7 @@ if (loadStatus == 4) {
                                                     .data
                                                     ?.trackingDetails
                                                     ?.truckNumber ??
-                                                'TN AY 3467',
+                                                'N/A',
                                             style: AppTextStyle.body3.copyWith(
                                               color: AppColors.black,
                                             ),
