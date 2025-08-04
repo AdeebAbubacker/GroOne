@@ -32,11 +32,11 @@ class LicenseVerificationSuccess {
     });
 
     final String message;
-    final Data? data;
+    final LicenseVerificationData? data;
 
     LicenseVerificationSuccess copyWith({
         String? message,
-        Data? data,
+        LicenseVerificationData? data,
     }) {
         return LicenseVerificationSuccess(
             message: message ?? this.message,
@@ -47,14 +47,14 @@ class LicenseVerificationSuccess {
     factory LicenseVerificationSuccess.fromJson(Map<String, dynamic> json){ 
         return LicenseVerificationSuccess(
             message: json["message"] ?? "",
-            data: json["data"] == null ? null : Data.fromJson(json["data"]),
+            data: json["data"] == null ? null : LicenseVerificationData.fromJson(json["data"]),
         );
     }
 
 }
 
-class Data {
-    Data({
+class LicenseVerificationData {
+    LicenseVerificationData({
         required this.driverId,
         required this.name,
         required this.mobile,
@@ -90,7 +90,7 @@ class Data {
     final String communicationPreference;
     final dynamic companyDetails;
 
-    Data copyWith({
+    LicenseVerificationData copyWith({
         String? driverId,
         String? name,
         String? mobile,
@@ -108,7 +108,7 @@ class Data {
         String? communicationPreference,
         dynamic? companyDetails,
     }) {
-        return Data(
+        return LicenseVerificationData(
             driverId: driverId ?? this.driverId,
             name: name ?? this.name,
             mobile: mobile ?? this.mobile,
@@ -128,8 +128,8 @@ class Data {
         );
     }
 
-    factory Data.fromJson(Map<String, dynamic> json){ 
-        return Data(
+    factory LicenseVerificationData.fromJson(Map<String, dynamic> json){ 
+        return LicenseVerificationData(
             driverId: json["driverId"] ?? "",
             name: json["name"] ?? "",
             mobile: json["mobile"] ?? "",

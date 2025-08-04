@@ -7,12 +7,12 @@ class VerifedVehicleVahanData {
 
     final bool success;
     final String message;
-    final Data? data;
+    final VerifiedVehicleData? data;
 
     VerifedVehicleVahanData copyWith({
         bool? success,
         String? message,
-        Data? data,
+        VerifiedVehicleData? data,
     }) {
         return VerifedVehicleVahanData(
             success: success ?? this.success,
@@ -25,14 +25,14 @@ class VerifedVehicleVahanData {
         return VerifedVehicleVahanData(
             success: json["success"] ?? false,
             message: json["message"] ?? "",
-            data: json["data"] == null ? null : Data.fromJson(json["data"]),
+            data: json["data"] == null ? null : VerifiedVehicleData.fromJson(json["data"]),
         );
     }
 
 }
 
-class Data {
-    Data({
+class VerifiedVehicleData {
+    VerifiedVehicleData({
         required this.userName,
         required this.rcRegistrationDate,
         required this.vehicleGrossWeight,
@@ -54,7 +54,7 @@ class Data {
     final String rcExpiryDate;
     final bool isValidVehicleType;
 
-    Data copyWith({
+    VerifiedVehicleData copyWith({
         String? userName,
         String? rcRegistrationDate,
         String? vehicleGrossWeight,
@@ -65,7 +65,7 @@ class Data {
         String? rcExpiryDate,
         bool? isValidVehicleType,
     }) {
-        return Data(
+        return VerifiedVehicleData(
             userName: userName ?? this.userName,
             rcRegistrationDate: rcRegistrationDate ?? this.rcRegistrationDate,
             vehicleGrossWeight: vehicleGrossWeight ?? this.vehicleGrossWeight,
@@ -78,8 +78,8 @@ class Data {
         );
     }
 
-    factory Data.fromJson(Map<String, dynamic> json){ 
-        return Data(
+    factory VerifiedVehicleData.fromJson(Map<String, dynamic> json){ 
+        return VerifiedVehicleData(
             userName: json["user_name"] ?? "",
             rcRegistrationDate: json["rc_registration_date"] ?? "",
             vehicleGrossWeight: json["vehicle_gross_weight"] ?? "",
