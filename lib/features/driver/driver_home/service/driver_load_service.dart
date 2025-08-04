@@ -18,16 +18,27 @@ class DriverLoadService {
     required String driverId,
     String search = "",
     int? laneId,
+    int? truckTypeId,
+    int? commodityTypeId,
     bool forceRefresh = false
   }) async {
     try {
        String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
        if (status != null && status != 3) {
       url += "&loadStatus=$status";
-    }
-    if (search.isNotEmpty) {
-      url += "&search=$search"; 
-    }
+      }
+      if (search.isNotEmpty) {
+        url += "&search=$search"; 
+      }
+      if (truckTypeId != null) {
+        url += "&truckTypeId=$truckTypeId";
+      }
+      if (commodityTypeId != null) {
+        url += "&commodityId=$commodityTypeId";
+      }
+      if (laneId != null) {
+        url += "&laneId=$laneId";
+      }
       final response = await _apiService.get(
         url,
         forceRefresh: forceRefresh,

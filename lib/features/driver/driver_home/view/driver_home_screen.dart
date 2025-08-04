@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -6,24 +7,23 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
-import 'package:gro_one_app/features/profile/view/profile_screen.dart';
-import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
-import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -36,7 +36,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
-import 'package:intl/intl.dart';
+
 
 class DriverHomeScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -55,27 +55,34 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   final driverLoadLocator = locator<DriverLoadsBloc>();
   final driverProfileCubit = locator<DriverProfileCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
+  final loadCommodityBloc = locator<LoadCommodityBloc>();
+  final lpLoadLocator = locator<LpLoadCubit>();
   late DriverLoadsBloc driverLoadBloc;
   String? truckTypeDropDownValue;
   String? selectedDropDownValueId;
   String? routeDropDownValue;
   int? selectedFromLocation;
   int? selectedToLocation;
-  
-  
+  int? selectedTruckTypeId;
+  int? selectedRoute;
+  String? selectedCommodity;
+  int? selectedCommodityId;
   final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
   int selectedTabIndex = 0;
   TabController? _tabController;
-  final tabLabels = [
-     'All Loads ',
-     'Assigned',
-     'Loading',
-     'In Transit',
-     'Unloading',
-     'Pod Dispatch',
-     'Completed'
+  List<String> getTabLabels(BuildContext context) {
+  return [
+    context.appText.allLoads,
+    context.appText.assigned,
+    context.appText.loading,
+    context.appText.inTransit,
+    context.appText.unloading,
+    context.appText.podDispatch,
+    context.appText.completed,
   ];
+}
+
 
   @override
   void initState() {
@@ -91,6 +98,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
   void initFunction() => frameCallback(() async{
      driverProfileCubit.fetchProfileDetail();
+     lpLoadLocator.getTruckType();
+     lpLoadLocator.getRouteDetails();
+     loadCommodityBloc.add(LoadCommodity());
       setState(() {});
      await lpHomeBloc.getUserId();
     setState(() {});
@@ -100,14 +110,20 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     vsync: this,
     initialIndex: widget.initialTabIndex,
   );
- WidgetsBinding.instance.addPostFrameCallback((_) {_tabScrollController.jumpTo(50);});
+ WidgetsBinding.instance.addPostFrameCallback((_) {});
  _tabController!.addListener(() {
   if (_tabController!.index != selectedTabIndex && !_tabController!.indexIsChanging) {
     setState(() {
       selectedTabIndex = _tabController!.index;
+      clearAllFilterValues();
       _loadDataByTab(index: selectedTabIndex);
+        lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
+        lpLoadLocator.getTruckType();
+        lpLoadLocator.getRouteDetails();
     });
   }
+
+    setState(() {});
 });
 
   _loadDataByTab(index: widget.initialTabIndex);
@@ -121,7 +137,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     3: 6,    // In Transit
     4: 7,    // Unloading
     5: 8,    // POD Dispatch
-    6: 9,   // Completed (adjust if needed for backend)
+    6: 9,   // Completed
   };
 
   void _onSearchChanged(String query) {
@@ -133,7 +149,159 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     ));
   });
   }
+  
+    void filterPopUp () {
+    var selectedTabIndexForFilter = lpLoadLocator.state.selectedTabIndex;
+  var loadStatus = tabIndexToStatusId[selectedTabIndexForFilter];
+    AppDialog.show(context, child: CommonDialogView(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      hideCloseButton: true,
+      showYesNoButtonButtons: true,
+      noButtonText: context.appText.cancel,
+      yesButtonText: context.appText.apply,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(context.appText.filter, style: AppTextStyle.body1.copyWith(fontSize: 20)),
+          10.height,
+          Text(context.appText.truckType, style: AppTextStyle.body3),
+          5.height,
+          BlocBuilder<LpLoadCubit, LpLoadState>(
+              builder: (context, state) {
+                final uiState = state.lpLoadTruckTypes;
+                final truckTypes = uiState?.data ?? [];
+                final truckTypeLabels = truckTypes.map((e) => '${e.type} Truck - ${e.subType}').toList();
+                final truckTypeLabelIdMap = Map.fromEntries(
+                    truckTypes.map((e) => MapEntry('${e.type} Truck - ${e.subType}', e.id))
+                );
 
+                return DropdownSearch<String>(
+                validator: (value) => Validator.fieldRequired(value),
+                items: (filter, _) => truckTypeLabels
+                    .where((element) => element.toLowerCase().contains(filter.toLowerCase()))
+                    .toList(),
+                popupProps: PopupProps.menu(
+                  menuProps: MenuProps(backgroundColor: AppColors.white)
+                ),
+                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
+                selectedItem: truckTypeDropDownValue,
+                onChanged: (value) {
+                  truckTypeDropDownValue = value;
+                  selectedTruckTypeId = truckTypeLabelIdMap[value];
+                  setState(() {});
+                },
+              );
+            }
+          ),
+          15.height,
+          Text(context.appText.route, style: AppTextStyle.body3),
+          5.height,
+          BlocBuilder<LpLoadCubit, LpLoadState>(
+            builder: (context, state) {
+              final uiState = state.lpLoadRouteDetails;
+              final routeList = uiState?.data?.data?.routeList ?? [];
+
+              return DropdownSearch<RouteList>(
+                items: (filter, _) {
+                  final filteredList = filter.isEmpty
+                      ? routeList
+                      : routeList.where((item) {
+                    final fromName = (item.fromLocation?['name'] ?? '').toString().toLowerCase();
+                    final toName = (item.toLocation?['name'] ?? '').toString().toLowerCase();
+                    return fromName.contains(filter.toLowerCase()) ||
+                        toName.contains(filter.toLowerCase());
+                  }).toList();
+                  return filteredList;
+                },
+
+                selectedItem: routeList.where((e) => e.status.toString() == routeDropDownValue).firstOrNull,
+                compareFn: (item, selectedItem) => item.status == selectedItem?.status,
+
+                itemAsString: (item) =>
+                "${item.fromLocation?['name'] ?? ''} → ${item.toLocation?['name'] ?? ''}",
+
+                popupProps: PopupProps.menu(
+                    constraints: const BoxConstraints(maxHeight: 200),
+                    menuProps: MenuProps(backgroundColor: AppColors.white)
+                ),
+
+                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
+                onChanged: (value) {
+                  routeDropDownValue = value?.status.toString();
+                  selectedRoute = value?.masterLaneId;
+                  setState(() {});
+                },
+              );
+            },
+          ),
+
+          15.height,
+          Text(context.appText.commodity, style: AppTextStyle.body3),
+          5.height,
+          BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
+          builder: (context, state) {
+            if (state is LoadCommodityLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+            if (state is LoadCommoditySuccess) {
+              final commodities = state.commodityListModel;
+              final commodityNames = commodities.map((e) => e.name ?? '').toList();
+              final commodityNameIdMap = Map.fromEntries(
+                commodities.map((e) => MapEntry(e.name ?? '', e.id))
+              );
+
+              return DropdownSearch<String>(
+                validator: (value) => Validator.fieldRequired(value),
+                items: (filter, _) => commodityNames
+                    .where((element) => element.toLowerCase().contains(filter.toLowerCase()))
+                    .toList(),
+                popupProps: PopupProps.menu(
+                  menuProps: MenuProps(backgroundColor: AppColors.white)
+                ),
+                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
+                selectedItem: selectedCommodity,
+                onChanged: (value) {
+                  selectedCommodity = value;
+                  selectedCommodityId = commodityNameIdMap[value];
+                  setState(() {});
+                },
+              );
+            }
+            return const SizedBox();
+          },
+        ),
+        ],
+      ),
+      onClickYesButton: () {
+
+        Navigator.pop(context);
+         driverLoadBloc.add(FetchDriverLoads(
+          loadStatus: loadStatus, 
+          laneId: selectedRoute,
+          truckTypeId: selectedTruckTypeId,
+          commodityTypeId: selectedCommodityId
+          ));
+      },
+      onClickNoButton: () {
+        Navigator.pop(context);
+        driverLoadBloc.add(FetchDriverLoads(
+          loadStatus: loadStatus, 
+          ));
+        clearAllFilterValues();
+      },
+    ));
+  }
+  
+  void clearAllFilterValues() {
+    selectedRoute = null;
+    routeDropDownValue = null;
+    selectedTruckTypeId = null;
+    truckTypeDropDownValue = null;
+    selectedCommodity = null;     
+    selectedCommodityId = null; 
+    loadPostedDateController.clear();
+  }
+  
   void disposeFunction() => frameCallback(() {
     _tabController!.dispose();
     searchController.dispose();
@@ -241,7 +409,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     if (_tabController == null) {
       return const SizedBox();
     }
-
+    final tabLabels = getTabLabels(context);
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
@@ -292,7 +460,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         ).expand(),
         8.width,
         AppIconButton(
-          onPressed: (){},
+           onPressed: filterPopUp,
           style: AppButtonStyle.primaryIconButtonStyle,
           icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
         ),
@@ -309,7 +477,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     if (_tabController == null) {
       return const SizedBox();
     }
-
+  final tabLabels = getTabLabels(context);
     return Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -329,120 +497,63 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             ),
           );
          }
-
-        Widget buildDriverLoadTab(int tabIndex) {
-              return RefreshIndicator(
-          onRefresh: () async {
-            _loadDataByTab(index: tabIndex, forceRefresh: true);
-          },
+       Widget buildDriverLoadTab(int tabIndex) {
+        return RefreshIndicator(
+          onRefresh: () async => _loadDataByTab(index: tabIndex, forceRefresh: true),
           child: BlocConsumer<DriverLoadsBloc, DriverLoadsState>(
             bloc: driverLoadBloc,
             listener: (context, state) {
-                if (state is DriverLoadStatusChanged) {
-                  ToastMessages.success(message: "Load status updated successfully");
-          _loadDataByTab(index: tabIndex, forceRefresh: true);
-                } else if (state is DriverLoadStatusChangeFailed) {
+              if (state is DriverLoadStatusChanged) {
+                ToastMessages.success(message: "Load status updated successfully");
                 _loadDataByTab(index: tabIndex, forceRefresh: true);
-                  ToastMessages.error(message: "Failed to update load status");
-        
-                }
-              },
+              } else if (state is DriverLoadStatusChangeFailed) {
+                ToastMessages.error(message: "Failed to update load status");
+              }
+            },
             builder: (context, state) {
               if (state is DriverLoadsLoading) {
                 return const Center(child: CircularProgressIndicator());
-              } else if (state is DriverLoadsLoaded) {
+              }
+              if (state is DriverLoadsLoaded) {
                 if (state.loads.isEmpty) {
                   return const Center(child: Text("No loads found."));
                 }
-          
                 return ListView.builder(
                   padding: EdgeInsets.all(commonSafeAreaPadding),
-                  shrinkWrap: true,
                   itemCount: state.loads.length,
                   itemBuilder: (context, index) {
                     final load = state.loads[index];
-                    switch (tabIndex) {
-                      case 0: 
                     return DriverLoadWidget(
-                        driverLoadDetails: state.loads[index],
-                        
-                   onClickAssignDriver: () {
-                  final currentStatus = state.loads[index].loadStatusId;
-                  if (currentStatus == 8) {
-                        Navigator.push(
-                          context,
-                          commonRoute(
-                          DriverLoadsLocationDetailsScreen(
-                              loadId: state.loads[index].loadId,
+                      driverLoadDetails: load,
+                      onClickAssignDriver: () {
+                        final currentStatus = load.loadStatusId;
+                        if (currentStatus == 8) {
+                          Navigator.push(
+                            context,
+                            commonRoute(
+                              DriverLoadsLocationDetailsScreen(
+                                loadId: load.loadId,
+                              ),
                             ),
-                          ),
-                        );
-                      } else if (currentStatus <= 7) {
-                        context.read<DriverLoadsBloc>().add(
-                          ChangeDriverLoadStatus(
-                            loadId: state.loads[index].loadId,  
-                            loadStatus: currentStatus +1 ,         
-                            customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-                          ),
-                        );}
-                            },
-                          ).paddingSymmetric(vertical: 7);
-              
-                      case 1:
-                      return   DriverLoadWidget( driverLoadDetails: state.loads[index],
-                  onClickAssignDriver: () {
-                    final currentStatus = state.loads[index].loadStatusId;
-                    if (currentStatus == 8) {
-                        Navigator.push(
-                          context,
-                          commonRoute(
-                          DriverLoadsLocationDetailsScreen(
-                              loadId: state.loads[index].loadId,
+                          );
+                        } else if (currentStatus <= 7) {
+                          context.read<DriverLoadsBloc>().add(
+                            ChangeDriverLoadStatus(
+                              loadId: load.loadId,
+                              loadStatus: currentStatus + 1,
+                              customerId: load.vpCustomer?.customerId ?? '',
                             ),
-                          ),
-                        );
+                          );
                         }
-            if (currentStatus <= 7) {
-              context.read<DriverLoadsBloc>().add(
-                ChangeDriverLoadStatus(
-                  loadId: state.loads[index].loadId,  
-                  loadStatus: currentStatus +1 ,         
-                  customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-                ),
-              );}
-                  },
-                ).paddingSymmetric(vertical: 7);
-                      default:
-                          return   DriverLoadWidget( 
-                            driverLoadDetails: state.loads[index],
-                  onClickAssignDriver: () {
-                  final currentStatus = state.loads[index].loadStatusId;
-                  if (currentStatus == 8) {
-                    Navigator.push(
-                      context,
-                      commonRoute(
-                      DriverLoadsLocationDetailsScreen(
-                          loadId: state.loads[index].loadId,
-                        ),
-                      ),
-                    );
-                  }
-                  },
-                ).paddingSymmetric(vertical: 7);
-                    }
+                      },
+                    ).paddingSymmetric(vertical: 7);
                   },
                 );
-              } else if (state is DriverLoadsError) { 
-                return Center(child: Text(state.message));
-              } else {
-                return const SizedBox.shrink();
               }
+              return const SizedBox();
             },
           ),
         );
-      }    
-
-
-
+      }
 }
 

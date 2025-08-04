@@ -258,5 +258,6 @@ class ApiUrls {
   static final String digiLockerInit = "https://groone-uat.letsgro.co/aadhar/api/v1/digilocker/init";
   static final String adharStatus = "https://groone-uat.letsgro.co/aadhar/api/v1/aadhar_status/";
 
-
+  static final String licenseVahanVerfification = "https://groone-uat.letsgro.co/driving_license/api/v1/send_license_number";
+  static final String vehicleVahanVerfification = "https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number";
 }

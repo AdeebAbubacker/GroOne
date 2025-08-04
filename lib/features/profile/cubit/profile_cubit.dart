@@ -13,9 +13,11 @@ import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
+import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
@@ -31,6 +33,8 @@ import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
+import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
+import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
@@ -296,14 +300,14 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
    // Check License Excistence
-  void _setCheckLicenseExcistence(UIState<VehicleVerificationSuccess>? uiState){
+  void _setCheckLicenseExcistence(UIState<LicenseVerificationSuccess>? uiState){
     emit(state.copyWith(licenseVerficationState: uiState));
   }
    Future<void> fetchLicenseExcistence({required String licenseNo}) async {
     _setCheckLicenseExcistence(UIState.loading());
 
     dynamic result = await _repo.fetchLicenseVerification(licenseNo: licenseNo);
-    if (result is Success<VehicleVerificationSuccess>) {
+    if (result is Success<LicenseVerificationSuccess>) {
       _setCheckLicenseExcistence(UIState.success(result.value));
     }
     if (result is Error) {
@@ -560,6 +564,42 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
+  // Verfy License from vahan
+  void _setVerifyvahanLicenseUIState(UIState<VerifedLicenseVahanData>? uiState){
+    emit(state.copyWith(verifiedLicenseVahanState: uiState));
+  }
+
+  Future<void> verifyLicenseFromVahan({ required LicenseVahanRequest request}) async {
+    _setVerifyvahanLicenseUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.verifyLicenseVahan(request: request);
+    if (result is Success<VerifedLicenseVahanData>) {
+      _setVerifyvahanLicenseUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setVerifyvahanLicenseUIState(UIState.error(result.type));
+    }
+  }
+
+   // Verfy Vehicle from vahan
+  void _setVerifyvahanVehicleUIState(UIState<VerifedVehicleVahanData>? uiState){
+    emit(state.copyWith(verifiedVehicleVahanState: uiState));
+  }
+
+  Future<void> verifyVehcileFromVahan({ required VehicleVahanRequest request}) async {
+    _setVerifyvahanVehicleUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.verifyVehcileVahan(request: request);
+    if (result is Success<VerifedVehicleVahanData>) {
+      _setVerifyvahanVehicleUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setVerifyvahanVehicleUIState(UIState.error(result.type));
+    }
+  }
+
   void updateTempTicketStatus(TicketStatus? status) {
     emit(state.copyWith(tempSelectedTicketStatus: status));
   }
@@ -577,13 +617,24 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     fetchTickets(request: TicketRequest());
   }
 
+ void resetlicenseVahanVerificationState(){
+  emit(state.copyWith(
+    verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
+  ));
+}
 
+ void resetVehicleVerificationState(){
+  emit(state.copyWith(
+    verifiedVehicleVahanState: resetUIState<VerifedVehicleVahanData>(state.verifiedVehicleVahanState)
+  ));
+}
 
   // Reset State
   void resetState(){
     emit(state.copyWith(
       logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
       profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
+      verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
     ));
   }
 

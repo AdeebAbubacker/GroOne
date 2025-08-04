@@ -151,28 +151,54 @@ void initLocator() {
 
     // Auth Services
     locator.registerLazySingleton<Dio>(() => Dio());
-    locator.registerLazySingleton(() => ApiService(locator<Dio>(), locator<SecuredSharedPreferences>()));
+    locator.registerLazySingleton(
+      () => ApiService(locator<Dio>(), locator<SecuredSharedPreferences>()),
+    );
 
     // Service
-    locator.registerLazySingleton(() => SplashService(locator<SecuredSharedPreferences>()));
-    locator.registerLazySingleton(() => NotificationService(locator<SecuredSharedPreferences>()));
+    locator.registerLazySingleton(
+      () => SplashService(locator<SecuredSharedPreferences>()),
+    );
+    locator.registerLazySingleton(() => NotificationService());
     locator.registerLazySingleton(() => LocationService());
     locator.registerLazySingleton(() => LoginInService(locator<ApiService>()));
-    locator.registerLazySingleton(() => MobileOtpVerificationService(locator<ApiService>()));
-    locator.registerLazySingleton(() => VpCreationService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => MobileOtpVerificationService(locator<ApiService>()),
+    );
+    locator.registerLazySingleton(
+      () => VpCreationService(locator<ApiService>()),
+    );
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
-    locator.registerLazySingleton(() => VpTripStatementService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => VpTripStatementService(locator<ApiService>()),
+    );
     locator.registerLazySingleton(() => KycService(locator<ApiService>()));
-    locator.registerLazySingleton(() => ProfileService(locator<ApiService>(), locator<SecuredSharedPreferences>(), locator<UserInformationRepository>(), locator<AuthRepository>()));
+    locator.registerLazySingleton(
+      () => ProfileService(
+        locator<ApiService>(),
+        locator<SecuredSharedPreferences>(),
+        locator<UserInformationRepository>(),
+        locator<AuthRepository>(),
+      ),
+    );
     locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
-    locator.registerLazySingleton(() => KavachService(locator<ApiService>(), locator<SecuredSharedPreferences>()));
+    locator.registerLazySingleton(
+      () => KavachService(
+        locator<ApiService>(),
+        locator<SecuredSharedPreferences>(),
+      ),
+    );
     locator.registerLazySingleton(() => GpsService(locator<ApiService>()));
     locator.registerLazySingleton(() => LanguageService(locator<ApiService>()));
     locator.registerLazySingleton(() => VpLoadService(locator<ApiService>()));
-    locator.registerLazySingleton(() => EmailVerificationService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => EmailVerificationService(locator<ApiService>()),
+    );
     locator.registerLazySingleton(() => LpLoadService(locator<ApiService>()));
-    locator.registerLazySingleton(() => VpDetailsService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => VpDetailsService(locator<ApiService>()),
+    );
     locator.registerLazySingleton(
       () => EnDhanService(
         locator<ApiService>(),
@@ -507,7 +533,10 @@ void initLocator() {
       () => EmailVerificationCubit(locator<EmailVerificationRepository>()),
     );
     locator.registerLazySingleton(
-      () => LpLoadCubit(locator<LpLoadRepository>(), locator<LoadDetailsRepository>()),
+      () => LpLoadCubit(
+        locator<LpLoadRepository>(),
+        locator<LoadDetailsRepository>(),
+      ),
     );
     locator.registerLazySingleton(
       () => LoadDetailsCubit(
@@ -660,7 +689,6 @@ void initLocator() {
     );
 
     locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
-
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 //import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -13,67 +14,47 @@ import '../features/gps_feature/helper/gps_session_manager.dart';
 
 /// --- App Initialization Function ---
 Future<void> initializeApp() async {
-  // Firebase Initialization
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  debugPrint("Firebase Initialized");
+  try {
+    // Firebase Initialization
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+    debugPrint("Firebase Initialized");
+    await FirebaseMessaging.instance.requestPermission();
 
-  // Firebase Secondary App Initialization
+    // Firebase Secondary App Initialization
   await FirebaseService.initializeSecondaryApp();
   debugPrint("Firebase Secondary App Initialized");
 
   // Crashlytics
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
 
-  // Load Environment Variables
-  await dotenv.load(
-    fileName: kDebugMode ? "./assets/env/.env.dev" : "./assets/env/.env.dev",
-  );
+    // Load Environment Variables
+    try {
+      await dotenv.load(fileName: kDebugMode ? "assets/env/.env.dev" : "assets/env/.env.production");
+      debugPrint("Environment variables loaded successfully");
+    } catch (e) {
+      debugPrint("Failed to load environment variables: $e");
+      // Continue execution even if env file fails to load
+    }
 
-  // Dependency Injection
-  initLocator();
+    // Dependency Injection
+    initLocator();
+
+    // ✅ Don't request permission again here.
+    // 🔐 FCM token logic only — assuming NotificationService.init() already handled permission
+
+    if (Platform.isIOS) {
+      String? apnsToken = await FirebaseMessaging.instance.getAPNSToken();
+      debugPrint("📱 APNs Token (iOS): $apnsToken");
+    }
+
+    String? fcmToken = await FirebaseMessaging.instance.getToken();
+    debugPrint("🔐 FCM Token: $fcmToken");
+  } catch (e) {
+    debugPrint("App initialization error: $e");
+    // Don't rethrow the error to prevent app crash
+  }
 }
-
-// Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-//   await Firebase.initializeApp(); // Ensure Firebase is initialized
-//   await _handleFirebaseMessage(message);
-// }
-
-// Future<void> _handleFirebaseMessage(RemoteMessage message) async {
-//
-//   final uri = await GpsSessionManager.getNotificationToneUriSafe();
-//
-//   final androidDetails = AndroidNotificationDetails(
-//     uri != null ? 'channel_id_${uri.hashCode}' : 'default_channel_id',
-//     'Custom Notifications',
-//     channelDescription: 'User selected tones',
-//     importance: Importance.max,
-//     priority: Priority.high,
-//     sound: uri != null ? UriAndroidNotificationSound(uri) : null,
-//   );
-//
-//   final notificationDetails = NotificationDetails(
-//     android: androidDetails,
-//     iOS: const DarwinNotificationDetails(),
-//   );
-//
-//   try {
-//     await flutterLocalNotificationsPlugin.show(
-//       DateTime.now().millisecondsSinceEpoch ~/ 1000,
-//       message.notification?.title ?? "New Alert",
-//       message.notification?.body ?? "",
-//       notificationDetails,
-//     );
-//   } catch (e, stack) {
-//     FirebaseCrashlytics.instance.recordError(
-//       e,
-//       stack,
-//       reason: 'Error showing notification',
-//     );
-//   }
-// }
-
-

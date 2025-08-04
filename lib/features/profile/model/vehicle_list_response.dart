@@ -41,6 +41,8 @@ class VehicleDetailsData {
         required this.tonnage,
         required this.truckTypeId,
         required this.modelNumber,
+        required this.rcNumber,
+        required this.rcDocLink,
         required this.insurancePolicyNumber,
         required this.insuranceValidityDate,
         required this.fcExpiryDate,
@@ -50,44 +52,51 @@ class VehicleDetailsData {
         required this.updatedAt,
         required this.deletedAt,
         required this.companyName,
+        required this.truckType,
     });
 
     final String vehicleId;
     final String customerId;
     final String truckNo;
-    final String ownerName;
-    final DateTime? registrationDate;
+    final dynamic ownerName;
+    final dynamic registrationDate;
     final String tonnage;
     final int truckTypeId;
     final String modelNumber;
-    final String insurancePolicyNumber;
-    final DateTime? insuranceValidityDate;
-    final DateTime? fcExpiryDate;
-    final DateTime? pucExpiryDate;
+    final String rcNumber;
+    final String rcDocLink;
+    final dynamic insurancePolicyNumber;
+    final dynamic insuranceValidityDate;
+    final dynamic fcExpiryDate;
+    final dynamic pucExpiryDate;
     final int status;
     final DateTime? createdAt;
-    final DateTime? updatedAt;
+    final dynamic updatedAt;
     final dynamic deletedAt;
-    final String? companyName;
+    final String companyName;
+    final TruckType? truckType;
 
     VehicleDetailsData copyWith({
         String? vehicleId,
         String? customerId,
         String? truckNo,
-        String? ownerName,
-        DateTime? registrationDate,
+        dynamic? ownerName,
+        dynamic? registrationDate,
         String? tonnage,
         int? truckTypeId,
         String? modelNumber,
-        String? insurancePolicyNumber,
-        DateTime? insuranceValidityDate,
-        DateTime? fcExpiryDate,
-        DateTime? pucExpiryDate,
+        String? rcNumber,
+        String? rcDocLink,
+        dynamic? insurancePolicyNumber,
+        dynamic? insuranceValidityDate,
+        dynamic? fcExpiryDate,
+        dynamic? pucExpiryDate,
         int? status,
         DateTime? createdAt,
-        DateTime? updatedAt,
+        dynamic? updatedAt,
         dynamic? deletedAt,
         String? companyName,
+        TruckType? truckType,
     }) {
         return VehicleDetailsData(
             vehicleId: vehicleId ?? this.vehicleId,
@@ -98,6 +107,8 @@ class VehicleDetailsData {
             tonnage: tonnage ?? this.tonnage,
             truckTypeId: truckTypeId ?? this.truckTypeId,
             modelNumber: modelNumber ?? this.modelNumber,
+            rcNumber: rcNumber ?? this.rcNumber,
+            rcDocLink: rcDocLink ?? this.rcDocLink,
             insurancePolicyNumber: insurancePolicyNumber ?? this.insurancePolicyNumber,
             insuranceValidityDate: insuranceValidityDate ?? this.insuranceValidityDate,
             fcExpiryDate: fcExpiryDate ?? this.fcExpiryDate,
@@ -107,6 +118,7 @@ class VehicleDetailsData {
             updatedAt: updatedAt ?? this.updatedAt,
             deletedAt: deletedAt ?? this.deletedAt,
             companyName: companyName ?? this.companyName,
+            truckType: truckType ?? this.truckType,
         );
     }
 
@@ -115,24 +127,84 @@ class VehicleDetailsData {
             vehicleId: json["vehicleId"] ?? "",
             customerId: json["customerId"] ?? "",
             truckNo: json["truckNo"] ?? "",
-            ownerName: json["ownerName"] ?? "",
-            registrationDate: DateTime.tryParse(json["registrationDate"] ?? ""),
+            ownerName: json["ownerName"],
+            registrationDate: json["registrationDate"],
             tonnage: json["tonnage"] ?? "",
             truckTypeId: json["truckTypeId"] ?? 0,
             modelNumber: json["modelNumber"] ?? "",
-            insurancePolicyNumber: json["insurancePolicyNumber"] ?? "",
-            insuranceValidityDate: DateTime.tryParse(json["insuranceValidityDate"] ?? ""),
-            fcExpiryDate: DateTime.tryParse(json["fcExpiryDate"] ?? ""),
-            pucExpiryDate: DateTime.tryParse(json["pucExpiryDate"] ?? ""),
+            rcNumber: json["rcNumber"] ?? "",
+            rcDocLink: json["rcDocLink"] ?? "",
+            insurancePolicyNumber: json["insurancePolicyNumber"],
+            insuranceValidityDate: json["insuranceValidityDate"],
+            fcExpiryDate: json["fcExpiryDate"],
+            pucExpiryDate: json["pucExpiryDate"],
             status: json["status"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+            updatedAt: json["updatedAt"],
             deletedAt: json["deletedAt"],
-            companyName: json["companyName"],
+            companyName: json["companyName"] ?? "",
+            truckType: (json["truckType"] != null && json["truckType"] is Map<String, dynamic>)
+            ? TruckType.fromJson(json["truckType"])
+            : null,
         );
     }
 
 }
+
+class TruckType {
+    TruckType({
+        required this.id,
+        required this.type,
+        required this.subType,
+        required this.iconUrl,
+        required this.status,
+        required this.createdAt,
+        required this.deletedAt,
+    });
+
+    final int id;
+    final String type;
+    final String subType;
+    final dynamic iconUrl;
+    final int status;
+    final DateTime? createdAt;
+    final dynamic deletedAt;
+
+    TruckType copyWith({
+        int? id,
+        String? type,
+        String? subType,
+        dynamic? iconUrl,
+        int? status,
+        DateTime? createdAt,
+        dynamic? deletedAt,
+    }) {
+        return TruckType(
+            id: id ?? this.id,
+            type: type ?? this.type,
+            subType: subType ?? this.subType,
+            iconUrl: iconUrl ?? this.iconUrl,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory TruckType.fromJson(Map<String, dynamic> json){ 
+        return TruckType(
+            id: json["id"] ?? 0,
+            type: json["type"] ?? "",
+            subType: json["subType"] ?? "",
+            iconUrl: json["iconUrl"],
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+        );
+    }
+
+}
+
+
 
 class PageMeta {
     PageMeta({

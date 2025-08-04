@@ -7,9 +7,11 @@ class FetchDriverLoads extends DriverLoadsEvent {
   final int? loadStatus;
   final String search;
   final int? laneId;
+  final int? truckTypeId;
+  final int? commodityTypeId;
   final bool forceRefresh;
 
-  FetchDriverLoads({this.loadStatus , this.search = "", this.laneId, this.forceRefresh = false});
+  FetchDriverLoads({this.loadStatus , this.search = "", this.laneId, this.truckTypeId,this.commodityTypeId, this.forceRefresh = false});
 }
 
 class ChangeDriverLoadStatus extends DriverLoadsEvent {

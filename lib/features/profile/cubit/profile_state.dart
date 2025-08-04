@@ -26,7 +26,9 @@ class ProfileState extends Equatable {
   final UIState<KavachVehicleDocumentUploadModel>? vehicleDocUpload;
   final UIState<KavachVehicleDocumentUploadModel>? licenseDocUpload;
   final UIState<VehicleVerificationSuccess>? vehicleVerificationState;
-  final UIState<VehicleVerificationSuccess>? licenseVerficationState;
+  final UIState<LicenseVerificationSuccess>? licenseVerficationState;
+  final UIState<VerifedLicenseVahanData>? verifiedLicenseVahanState;
+  final UIState<VerifedVehicleVahanData>? verifiedVehicleVahanState;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -53,7 +55,9 @@ class ProfileState extends Equatable {
     this.ticketState,
     this.createTicketState,
     this.selectedTicketStatus,
-    this.tempSelectedTicketStatus
+    this.tempSelectedTicketStatus,
+    this.verifiedLicenseVahanState,
+    this.verifiedVehicleVahanState,
   });
 
   ProfileState copyWith({
@@ -77,7 +81,9 @@ class ProfileState extends Equatable {
     UIState<KavachVehicleDocumentUploadModel>? licenseDocUpload,
     UIState<FaqResponse>? faqUIState,
     UIState<VehicleVerificationSuccess>? vehicleVerificationState,
-    UIState<VehicleVerificationSuccess>? licenseVerficationState,
+    UIState<LicenseVerificationSuccess>? licenseVerficationState,
+    UIState<VerifedLicenseVahanData>? verifiedLicenseVahanState,
+    UIState<VerifedVehicleVahanData>? verifiedVehicleVahanState,
     UIState<TicketResponse>? ticketState,
     UIState<Ticket>? createTicketState,
     TicketStatus? selectedTicketStatus,
@@ -113,6 +119,8 @@ class ProfileState extends Equatable {
       createTicketState: createTicketState ?? this.createTicketState,
       selectedTicketStatus: selectedTicketStatus ?? this.selectedTicketStatus,
       tempSelectedTicketStatus: tempSelectedTicketStatus ?? this.tempSelectedTicketStatus,
+      verifiedLicenseVahanState: verifiedLicenseVahanState ?? this.verifiedLicenseVahanState,
+      verifiedVehicleVahanState: verifiedVehicleVahanState ?? this.verifiedVehicleVahanState,
     );
   }
 
@@ -143,6 +151,8 @@ class ProfileState extends Equatable {
     ticketState,
     createTicketState,
     selectedTicketStatus,
-    tempSelectedTicketStatus
+    tempSelectedTicketStatus,
+    verifiedLicenseVahanState,
+    verifiedVehicleVahanState,
   ];
 }

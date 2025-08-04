@@ -13,11 +13,13 @@ import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
+import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
@@ -37,6 +39,8 @@ import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
+import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
+import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -451,10 +455,11 @@ class ProfileService {
         print("driver GenericError");
         return Error(GenericError());
       }
-    } catch (e) {
-      print("driver e");
-      return Error(DeserializationError());
-    }
+    } catch (e, stackTrace) { 
+    print("driver Exception: $e");
+    print("driver StackTrace:\n$stackTrace");
+    return Error(DeserializationError());
+  }
   }
 
   /// update driver
@@ -537,12 +542,12 @@ class ProfileService {
 
      /// fetch check license excists or not
 
- Future<Result<VehicleVerificationSuccess>> fetchCheckDrivingLicenseExcists({required String licenseId}) async {
+ Future<Result<LicenseVerificationSuccess>> fetchCheckDrivingLicenseExcists({required String licenseId}) async {
     try {
       final url = '${ApiUrls.checkLicenseNumber}${licenseId}';
       final response = await _apiService.get(url);
       if (response is Success) {
-        final loads = VehicleVerificationSuccess.fromJson(response.value);
+        final loads = LicenseVerificationSuccess.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
@@ -662,6 +667,53 @@ class ProfileService {
     }
   }
 
+  /// Verify License Vahan
+  Future<Result<VerifedLicenseVahanData>> verifyLicenseVahan({required LicenseVahanRequest request}) async {
+    try {
+      final url = ApiUrls.licenseVahanVerfification;
+      final customHeaders = {
+        "Accept": "application/json",
+        "X-API-Key": "5f522b06263423e4cab5eb45d27f2be4",
+        "X-Application-UDID": "52e3dcc8-52ef-4f52-8756-3a06996757cd",
+        "Content-Type": "application/json",
+      };
+      final response = await _apiService.post(url, body: request.toJson(),customHeaders: customHeaders,);
+      if (response is Success) {
+        final loads = VerifedLicenseVahanData.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Verify Vehicle Vahan
+  Future<Result<VerifedVehicleVahanData>> verifyVehicelVahan({required VehicleVahanRequest request}) async {
+    try {
+      final url = ApiUrls.vehicleVahanVerfification;
+      final customHeaders = {
+        "Accept": "application/json",
+        "X-API-Key": "5f522b06263423e4cab5eb45d27f2be4",
+        "X-Application-UDID": "52e3dcc8-52ef-4f52-8756-3a06996757cd",
+        "Content-Type": "application/json",
+      };
+      final response = await _apiService.post(url, body: request.toJson(),customHeaders: customHeaders,);
+      if (response is Success) {
+        final loads = VerifedVehicleVahanData.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
 
   /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {
