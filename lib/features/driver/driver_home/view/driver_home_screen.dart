@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -67,15 +68,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   final ScrollController _listController = ScrollController();
   int selectedTabIndex = 0;
   TabController? _tabController;
-  final tabLabels = [
-     'All Loads ',
-     'Assigned',
-     'Loading',
-     'In Transit',
-     'Unloading',
-     'Pod Dispatch',
-     'Completed'
+  List<String> getTabLabels(BuildContext context) {
+  return [
+    context.appText.allLoads,
+    context.appText.assigned,
+    context.appText.loading,
+    context.appText.inTransit,
+    context.appText.unloading,
+    context.appText.podDispatch,
+    context.appText.completed,
   ];
+}
+
 
   @override
   void initState() {
@@ -121,7 +125,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     3: 6,    // In Transit
     4: 7,    // Unloading
     5: 8,    // POD Dispatch
-    6: 9,   // Completed (adjust if needed for backend)
+    6: 9,   // Completed
   };
 
   void _onSearchChanged(String query) {
@@ -241,7 +245,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     if (_tabController == null) {
       return const SizedBox();
     }
-
+    final tabLabels = getTabLabels(context);
     return Container(
       alignment: Alignment.center,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
@@ -309,7 +313,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     if (_tabController == null) {
       return const SizedBox();
     }
-
+  final tabLabels = getTabLabels(context);
     return Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -330,119 +334,63 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           );
          }
 
-        Widget buildDriverLoadTab(int tabIndex) {
-              return RefreshIndicator(
-          onRefresh: () async {
-            _loadDataByTab(index: tabIndex, forceRefresh: true);
-          },
+       Widget buildDriverLoadTab(int tabIndex) {
+        return RefreshIndicator(
+          onRefresh: () async => _loadDataByTab(index: tabIndex, forceRefresh: true),
           child: BlocConsumer<DriverLoadsBloc, DriverLoadsState>(
             bloc: driverLoadBloc,
             listener: (context, state) {
-                if (state is DriverLoadStatusChanged) {
-                  ToastMessages.success(message: "Load status updated successfully");
-          _loadDataByTab(index: tabIndex, forceRefresh: true);
-                } else if (state is DriverLoadStatusChangeFailed) {
+              if (state is DriverLoadStatusChanged) {
+                ToastMessages.success(message: "Load status updated successfully");
                 _loadDataByTab(index: tabIndex, forceRefresh: true);
-                  ToastMessages.error(message: "Failed to update load status");
-        
-                }
-              },
+              } else if (state is DriverLoadStatusChangeFailed) {
+                ToastMessages.error(message: "Failed to update load status");
+              }
+            },
             builder: (context, state) {
               if (state is DriverLoadsLoading) {
                 return const Center(child: CircularProgressIndicator());
-              } else if (state is DriverLoadsLoaded) {
+              }
+              if (state is DriverLoadsLoaded) {
                 if (state.loads.isEmpty) {
                   return const Center(child: Text("No loads found."));
                 }
-          
                 return ListView.builder(
                   padding: EdgeInsets.all(commonSafeAreaPadding),
-                  shrinkWrap: true,
                   itemCount: state.loads.length,
                   itemBuilder: (context, index) {
                     final load = state.loads[index];
-                    switch (tabIndex) {
-                      case 0: 
                     return DriverLoadWidget(
-                        driverLoadDetails: state.loads[index],
-                        
-                   onClickAssignDriver: () {
-                  final currentStatus = state.loads[index].loadStatusId;
-                  if (currentStatus == 8) {
-                        Navigator.push(
-                          context,
-                          commonRoute(
-                          DriverLoadsLocationDetailsScreen(
-                              loadId: state.loads[index].loadId,
+                      driverLoadDetails: load,
+                      onClickAssignDriver: () {
+                        final currentStatus = load.loadStatusId;
+                        if (currentStatus == 8) {
+                          Navigator.push(
+                            context,
+                            commonRoute(
+                              DriverLoadsLocationDetailsScreen(
+                                loadId: load.loadId,
+                              ),
                             ),
-                          ),
-                        );
-                      } else if (currentStatus <= 7) {
-                        context.read<DriverLoadsBloc>().add(
-                          ChangeDriverLoadStatus(
-                            loadId: state.loads[index].loadId,  
-                            loadStatus: currentStatus +1 ,         
-                            customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-                          ),
-                        );}
-                            },
-                          ).paddingSymmetric(vertical: 7);
-              
-                      case 1:
-                      return   DriverLoadWidget( driverLoadDetails: state.loads[index],
-                  onClickAssignDriver: () {
-                    final currentStatus = state.loads[index].loadStatusId;
-                    if (currentStatus == 8) {
-                        Navigator.push(
-                          context,
-                          commonRoute(
-                          DriverLoadsLocationDetailsScreen(
-                              loadId: state.loads[index].loadId,
+                          );
+                        } else if (currentStatus <= 7) {
+                          context.read<DriverLoadsBloc>().add(
+                            ChangeDriverLoadStatus(
+                              loadId: load.loadId,
+                              loadStatus: currentStatus + 1,
+                              customerId: load.vpCustomer?.customerId ?? '',
                             ),
-                          ),
-                        );
+                          );
                         }
-            if (currentStatus <= 7) {
-              context.read<DriverLoadsBloc>().add(
-                ChangeDriverLoadStatus(
-                  loadId: state.loads[index].loadId,  
-                  loadStatus: currentStatus +1 ,         
-                  customerId: state.loads[index].vpCustomer?.customerId ?? '', 
-                ),
-              );}
-                  },
-                ).paddingSymmetric(vertical: 7);
-                      default:
-                          return   DriverLoadWidget( 
-                            driverLoadDetails: state.loads[index],
-                  onClickAssignDriver: () {
-                  final currentStatus = state.loads[index].loadStatusId;
-                  if (currentStatus == 8) {
-                    Navigator.push(
-                      context,
-                      commonRoute(
-                      DriverLoadsLocationDetailsScreen(
-                          loadId: state.loads[index].loadId,
-                        ),
-                      ),
-                    );
-                  }
-                  },
-                ).paddingSymmetric(vertical: 7);
-                    }
+                      },
+                    ).paddingSymmetric(vertical: 7);
                   },
                 );
-              } else if (state is DriverLoadsError) { 
-                return Center(child: Text(state.message));
-              } else {
-                return const SizedBox.shrink();
               }
+              return const SizedBox();
             },
           ),
         );
-      }    
-
-
-
+      }
 }
 
