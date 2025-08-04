@@ -806,9 +806,11 @@ static Widget _stateDropdown(BuildContext context, String? selected,ValueChanged
   final stateList = stateUI?.data?.map((e) => e.name ?? '').toList() ?? [];
 
   return SearchableDropdown(
+    labelText: context.appText.state,
+    mandatoryStar: true,
     selectedItem: selected,
     items: stateList,
-    hintText: "Select State",
+    hintText: context.appText.selectState,
     onChanged: (String? newValue) {
       if (newValue != null) {
           onStateChanged(newValue); 
@@ -822,7 +824,7 @@ static Widget _stateDropdown(BuildContext context, String? selected,ValueChanged
       }
       return Row(
         children: [
-          Text(selectedItem, style: AppTextStyle.h6),
+          Text(selectedItem),
         ],
       );
     },
@@ -839,9 +841,11 @@ static Widget _cityDropdown(BuildContext context, String? selected,bool isStateS
   return AbsorbPointer(
     absorbing: !isStateSelected, 
     child: SearchableDropdown(
+      labelText: context.appText.city,
+        mandatoryStar: true,
       selectedItem: selected,
       items: cityList,
-      hintText: "Select City",
+      hintText: context.appText.selectCity,
       onChanged: (String? newValue) {
         if (newValue != null) {
          context.read<KycCubit>().fetchCityList(newValue);
@@ -856,7 +860,7 @@ static Widget _cityDropdown(BuildContext context, String? selected,bool isStateS
         }
         return Row(
           children: [
-            Text(selectedItem, style: AppTextStyle.h6),
+            Text(selectedItem, ),
           ],
         );
       },
