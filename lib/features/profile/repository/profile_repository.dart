@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/profile/api_request/profile_upload_request.
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
@@ -34,6 +35,7 @@ import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
+import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -159,7 +161,7 @@ class ProfileRepository {
   }
 
   /// fetch license verfifcation
-  Future<Result<VehicleVerificationSuccess>> fetchLicenseVerification({required String licenseNo}) async {
+  Future<Result<LicenseVerificationSuccess>> fetchLicenseVerification({required String licenseNo}) async {
     try {
       return await _profileService.fetchCheckDrivingLicenseExcists(licenseId: licenseNo);
     } catch (e) {
@@ -313,6 +315,15 @@ Future<Result<bool>> deleteVehicle({
   Future<Result<VerifedLicenseVahanData>> verifyLicenseVahan({required LicenseVahanRequest request}) async {
     try {
       return await _profileService.verifyLicenseVahan(request: request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  } 
+
+  /// Verify Vehcile vahan
+  Future<Result<VerifedVehicleVahanData>> verifyVehcileVahan({required VehicleVahanRequest request}) async {
+    try {
+      return await _profileService.verifyVehicelVahan(request: request);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

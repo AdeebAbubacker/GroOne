@@ -1165,5 +1165,6 @@
   "noSearchResults":"No results matched your search.",
   "viewTripStatement":"View Trip Statement",
   "alreadyVerified":"Already Verified",
-  "preferredLanes":"Preferred Lanes Required"
+  "preferredLanes":"Preferred Lanes Required",
+  "allLoads":"All Loads"
 }

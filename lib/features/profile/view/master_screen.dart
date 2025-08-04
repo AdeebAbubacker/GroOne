@@ -16,6 +16,7 @@ import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
@@ -1072,24 +1073,35 @@ class _MasterScreenState extends State<MasterScreen>
   }) {
     return BlocConsumer<ProfileCubit, ProfileState>(
       bloc: profileCubit,
-      listenWhen:
-          (previous, current) =>
-              previous.vehicleVerificationState !=
-              current.vehicleVerificationState,
-      listener: (context, state) {
-        final s = state.vehicleVerificationState;
-        final status = s?.status;
+      listenWhen: (previous, current) =>
+    previous.vehicleVerificationState != current.vehicleVerificationState ||
+    previous.verifiedVehicleVahanState != current.verifiedVehicleVahanState,
+    listener: (context, state) {
+      //  (vehicle existence)
+      if (state.vehicleVerificationState?.status == Status.ERROR) {
+        ToastMessages.error(
+          message: context.appText.vehicleRegNoAlreadyExcist,
+        );
+        onVerificationResult(false);
+        return; 
+      }
 
-        if (status == Status.SUCCESS) {
-          ToastMessages.success(message: context.appText.vehicleRegNoVerified);
-          onVerificationResult(true);
-        } else if (status == Status.ERROR) {
-          ToastMessages.error(
-            message: context.appText.vehicleRegNoAlreadyExcist,
-          );
-          onVerificationResult(false);
-        }
-      },
+      //  Vahan verification 
+      if (state.verifiedVehicleVahanState?.status == Status.SUCCESS) {
+        ToastMessages.success(
+          message: context.appText.vehicleRegNoVerified,
+        );
+        onVerificationResult(true);
+      } else if (state.verifiedVehicleVahanState?.status == Status.ERROR) {
+        ToastMessages.error(
+          message: getErrorMsg(
+            errorType:
+                state.verifiedVehicleVahanState?.errorType ?? GenericError(),
+          ),
+        );
+        onVerificationResult(false);
+      }
+    },
       builder: (context, state) {
         return AppTextField(
           validator: (value) => Validator.fieldRequired(value),
@@ -1116,17 +1128,23 @@ class _MasterScreenState extends State<MasterScreen>
               ],
             ),
             suffixOnTap: () {
-              final String? validation = Validator.fieldRequired(
-                vehicleNoController.text,
-              );
-              if (validation == null) {
-                profileCubit.fetchVehicleExcistence(
-                  vehicleId: vehicleNoController.text.trim(),
+          final String? validation = Validator.fieldRequired(vehicleNoController.text);
+          if (validation == null) {
+
+            profileCubit.fetchVehicleExcistence(
+              vehicleId: vehicleNoController.text.trim(),
+            ).then((_) {
+              final vehicleVerificationState = profileCubit.state.vehicleVerificationState;
+              if (vehicleVerificationState?.status == Status.SUCCESS) {
+                profileCubit.verifyVehcileFromVahan(
+                request:  VehicleVahanRequest(vehicleNumber: vehicleNoController.text), // Call Vahan API
                 );
-              } else {
-                ToastMessages.alert(message: validation);
               }
-            },
+            });
+          } else {
+            ToastMessages.alert(message: validation);
+          }
+        },
           ),
         );
       },
@@ -1134,6 +1152,7 @@ class _MasterScreenState extends State<MasterScreen>
   }
 
   Widget buildLicenseVerificationFieldWidget({
+    required bool isEdit,
     required TextEditingController licenseNoController,
     required String selectedDoB,
      required void Function(String) onDobChanged,
@@ -1192,7 +1211,7 @@ class _MasterScreenState extends State<MasterScreen>
               keyboardType: TextInputType.text,
               decoration: commonInputDecoration(
                 hintText: "Enter License No",
-                suffixIcon: Row(
+                suffixIcon:  Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -1420,6 +1439,7 @@ class _MasterScreenState extends State<MasterScreen>
     BuildContext context, {
     VehicleDetailsData? vehcile,
   }) {
+    context.read<ProfileCubit>().resetVehicleVerificationState();
     bool isVehicleVerified = vehcile != null;
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
@@ -1453,6 +1473,7 @@ class _MasterScreenState extends State<MasterScreen>
         localRcDocList.add(doc);
       }
     }
+    bool isInitialized = false;
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
@@ -1461,8 +1482,20 @@ class _MasterScreenState extends State<MasterScreen>
             vehicleDocList,
           );
           final rcDocUpload =
-              context.watch<ProfileCubit>().state.licenseDocUpload;
+              context.watch<ProfileCubit>().state.vehicleDocUpload;
           final isUploading = rcDocUpload?.status == Status.LOADING;
+           final verifiedVehicleData = context.watch<ProfileCubit>().state.verifiedVehicleVahanState;
+        if (verifiedVehicleData?.status == Status.SUCCESS &&
+            verifiedVehicleData?.data?.data != null &&
+            !isInitialized) {
+          final vahanData = verifiedVehicleData!.data!.data!;
+          setState(() {
+            truckMakeModelController.text = vahanData.vehicleMakeModel ?? truckMakeModelController.text;
+            capacityController.text = vahanData.vehicleGrossWeight ?? capacityController.text;
+            isVehicleVerified = true;
+            isInitialized = true;
+          });
+        }
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -1726,7 +1759,7 @@ class _MasterScreenState extends State<MasterScreen>
   }
 
   void showAddDriverPopup(BuildContext context, {DriverDetailsData? driver}) {
-    context.read<ProfileCubit>().resetVahanVerificationState();
+    context.read<ProfileCubit>().resetlicenseVahanVerificationState();
     bool isLicenseVerified = driver != null;
 
     final formKey = GlobalKey<FormState>();
@@ -1825,6 +1858,7 @@ class _MasterScreenState extends State<MasterScreen>
                   ),
                   20.height,
                   buildLicenseVerificationFieldWidget(
+                    isEdit: isEdit,
                     licenseNoController: licenseNumberController,
                     onVerificationResult: (value) {
                       setState(() {

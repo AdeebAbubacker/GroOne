@@ -16,7 +16,14 @@ class DriverLoadsBloc extends Bloc<DriverLoadsEvent, DriverLoadsState> {
   DriverLoadsBloc(this.repo) : super(DriverLoadsInitial()) {
     on<FetchDriverLoads>((event, emit) async {
       emit(DriverLoadsLoading());
-      final result = await repo.fetchDriverLoads(loadStatus: event.loadStatus,search: event.search,laneId: event.laneId, forceRefresh: event.forceRefresh);
+      final result = await repo.fetchDriverLoads(
+        loadStatus: event.loadStatus,
+        search: event.search,
+        laneId: event.laneId,
+        truckTypeId: event.truckTypeId, 
+        commodityTypeId: event.commodityTypeId,  
+        forceRefresh: event.forceRefresh
+        );
       if (result is Success<List<DriverLoadDetails>>) {
         emit(DriverLoadsLoaded(result.value));
       } else {
