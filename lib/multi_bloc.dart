@@ -104,6 +104,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<GpsVehicleCubit>(create: (_) => locator<GpsVehicleCubit>()),
         BlocProvider<VpTripStatementCubit>(create: (_) => locator<VpTripStatementCubit>()),
         BlocProvider<PaymentCubit>(create: (_) => locator<PaymentCubit>()),
+      
        ],
       child: child,
     );
