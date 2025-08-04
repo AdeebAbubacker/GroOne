@@ -16,11 +16,21 @@ class DriverLoadRepository {
     int? loadStatus,
     int? laneId,
     String search = "",
+    int? truckTypeId,
+    int? commodityTypeId,
     bool forceRefresh = false
   }) async {
     try{
     final customerId = await userRepo.getUserID() ?? '';
-    return service.fetchDriverLoads(driverId: customerId,status: loadStatus ?? 3, search: search,laneId: laneId, forceRefresh: forceRefresh);
+    return service.fetchDriverLoads(
+      driverId: customerId,
+      status: loadStatus ?? 3, 
+      search: search,
+      laneId: laneId,
+      truckTypeId: truckTypeId,
+      commodityTypeId: commodityTypeId, 
+      forceRefresh: forceRefresh)
+      ;
  
     }catch (e) {
       CustomLog.error(this, "Failed to fetch loads by ID data", e);

@@ -121,6 +121,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   if (_tabController!.index != selectedTabIndex && !_tabController!.indexIsChanging) {
     setState(() {
       selectedTabIndex = _tabController!.index;
+      clearAllFilterValues();
       _loadDataByTab(index: selectedTabIndex);
         lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
         lpLoadLocator.getTruckType();
@@ -156,7 +157,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   }
   
     void filterPopUp () {
-    var loadStatusType = lpLoadLocator.state.selectedTabIndex;
+    var selectedTabIndexForFilter = lpLoadLocator.state.selectedTabIndex;
+  var loadStatus = tabIndexToStatusId[selectedTabIndexForFilter];
     AppDialog.show(context, child: CommonDialogView(
       crossAxisAlignment: CrossAxisAlignment.start,
       hideCloseButton: true,
@@ -279,19 +281,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
       onClickYesButton: () {
 
         Navigator.pop(context);
-        lpLoadLocator.getLpLoadsByType(
-            loadListApiRequest: LoadListApiRequest(
-              loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
-              laneId:selectedRoute,
-              truckTypeId: selectedTruckTypeId.toString(),
-              loadPostDate: loadPostedDateController.text
-            ));
+         driverLoadBloc.add(FetchDriverLoads(
+          loadStatus: loadStatus, 
+          laneId: selectedRoute,
+          truckTypeId: selectedTruckTypeId,
+          commodityTypeId: selectedCommodityId
+          ));
       },
       onClickNoButton: () {
         Navigator.pop(context);
-        lpLoadLocator.getLpLoadsByType(
-            loadListApiRequest: LoadListApiRequest(
-            loadStatus: loadStatusType == 0 ? null : loadStatusType + 1));
+        driverLoadBloc.add(FetchDriverLoads(
+          loadStatus: loadStatus, 
+          ));
         clearAllFilterValues();
       },
     ));
@@ -302,6 +303,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     routeDropDownValue = null;
     selectedTruckTypeId = null;
     truckTypeDropDownValue = null;
+    selectedCommodity = null;     
+    selectedCommodityId = null; 
     loadPostedDateController.clear();
   }
   
