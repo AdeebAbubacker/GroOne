@@ -7,7 +7,6 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
@@ -16,20 +15,15 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
-import 'package:gro_one_app/features/profile/view/profile_screen.dart';
-import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
-import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -42,7 +36,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
-import 'package:intl/intl.dart';
+
 
 class DriverHomeScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -503,7 +497,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             ),
           );
          }
-
        Widget buildDriverLoadTab(int tabIndex) {
         return RefreshIndicator(
           onRefresh: () async => _loadDataByTab(index: tabIndex, forceRefresh: true),
