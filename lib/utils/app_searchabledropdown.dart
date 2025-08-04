@@ -10,6 +10,7 @@ class SearchableDropdown extends StatelessWidget {
   final bool showSearchBox;
   final DropdownSearchBuilder<String>? dropdownBuilder;
   final Widget Function(BuildContext, String)? emptyBuilder;
+  
 
   const SearchableDropdown({
     super.key,
