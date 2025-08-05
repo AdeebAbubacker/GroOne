@@ -29,6 +29,9 @@ class ProfileState extends Equatable {
   final UIState<LicenseVerificationSuccess>? licenseVerficationState;
   final UIState<VerifedLicenseVahanData>? verifiedLicenseVahanState;
   final UIState<VerifedVehicleVahanData>? verifiedVehicleVahanState;
+  final UIState<UploadTicketResponse>? uploadTicketDocUIState;
+  final UIState<CreateDocumentModel>? createDocumentUIState;
+
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -54,8 +57,10 @@ class ProfileState extends Equatable {
     this.faqUIState,
     this.ticketState,
     this.createTicketState,
+    this.uploadTicketDocUIState,
     this.selectedTicketStatus,
     this.tempSelectedTicketStatus,
+    this.createDocumentUIState,
     this.verifiedLicenseVahanState,
     this.verifiedVehicleVahanState,
   });
@@ -86,8 +91,11 @@ class ProfileState extends Equatable {
     UIState<VerifedVehicleVahanData>? verifiedVehicleVahanState,
     UIState<TicketResponse>? ticketState,
     UIState<Ticket>? createTicketState,
+    UIState<UploadTicketResponse>? uploadTicketDocUIState,
+    UIState<CreateDocumentModel>? createDocumentUIState,
     TicketStatus? selectedTicketStatus,
     TicketStatus? tempSelectedTicketStatus,
+    UIState<VehcileUpdatedStatusModel>? vehicleStatusUpdate,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -117,6 +125,8 @@ class ProfileState extends Equatable {
       faqUIState: faqUIState ?? this.faqUIState,
       ticketState: ticketState ?? this.ticketState,
       createTicketState: createTicketState ?? this.createTicketState,
+      uploadTicketDocUIState: uploadTicketDocUIState ?? this.uploadTicketDocUIState,
+      createDocumentUIState: createDocumentUIState ?? this.createDocumentUIState,
       selectedTicketStatus: selectedTicketStatus ?? this.selectedTicketStatus,
       tempSelectedTicketStatus: tempSelectedTicketStatus ?? this.tempSelectedTicketStatus,
       verifiedLicenseVahanState: verifiedLicenseVahanState ?? this.verifiedLicenseVahanState,
@@ -150,6 +160,8 @@ class ProfileState extends Equatable {
     licenseVerficationState,
     ticketState,
     createTicketState,
+    uploadTicketDocUIState,
+    createDocumentUIState,
     selectedTicketStatus,
     tempSelectedTicketStatus,
     verifiedLicenseVahanState,

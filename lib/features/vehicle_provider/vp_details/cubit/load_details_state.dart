@@ -30,7 +30,6 @@ class LoadDetailsState extends Equatable {
   final UIState<GetDamageListModel>? damageListUIState;
   final bool? isUpdateDamage;
   final String? damageId;
-
   final List<DocumentEntity>? tripDocumentList;
   final UIState<TrackingDistanceResponse>? trackingDistance;
   final int? loadStatusId;
@@ -41,6 +40,7 @@ class LoadDetailsState extends Equatable {
     this.directionApiResponse,
     this.scheduleTripResponse,
     this.locationDistance,
+    
     this.loadStatus = LoadStatus.matching,
     this.loadDetailsUIState,
     this.createDamageUIState,

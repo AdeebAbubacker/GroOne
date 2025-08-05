@@ -1,5 +1,7 @@
-import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
+import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart' hide LoadStatusDetails;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+
+import 'lp_load_response.dart';
 
 class LoadGetByIdResponse {
   LoadGetByIdResponse({
@@ -215,6 +217,8 @@ class LoadData {
   }
 
   factory LoadData.fromJson(Map<String, dynamic> json){
+    final rawPodDispatch = json['podDispatch'];
+
     return LoadData(
       loadId: json["loadId"] ?? "",
       loadSeriesId: json["loadSeriesId"] ?? "",
@@ -250,7 +254,9 @@ class LoadData {
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocumentData>.from(json["loadDocument"]!.map((x) => LoadDocumentData.fromJson(x))),
       trackingDetails: json["trackingDetails"] == null ? null : TrackingDetails.fromJson(json["trackingDetails"]),
       loadApproval: json["loadApproval"] == null ? null : LoadApproval.fromJson(json["loadApproval"]),
-      podDispatch: json["podDispatch"] == null ? null : PodDispatch.fromJson(json["podDispatch"]),
+      podDispatch: (rawPodDispatch != null && rawPodDispatch is Map)
+          ? PodDispatch.fromJson(Map<String, dynamic>.from(rawPodDispatch))
+          : null,
       loadSettlement: json["loadSettlement"] == null ? null : LoadSettlement.fromJson(json["loadSettlement"]),
       timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
       damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
@@ -742,53 +748,6 @@ class LoadRoute {
 
 }
 
-class LoadStatusDetails {
-  LoadStatusDetails({
-    required this.id,
-    required this.loadStatus,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.deletedAt,
-  });
-
-  final int id;
-  final String loadStatus;
-  final int status;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final dynamic deletedAt;
-
-  LoadStatusDetails copyWith({
-    int? id,
-    String? loadStatus,
-    int? status,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    dynamic? deletedAt,
-  }) {
-    return LoadStatusDetails(
-      id: id ?? this.id,
-      loadStatus: loadStatus ?? this.loadStatus,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-    );
-  }
-
-  factory LoadStatusDetails.fromJson(Map<String, dynamic> json){
-    return LoadStatusDetails(
-      id: json["id"] ?? 0,
-      loadStatus: json["loadStatus"] ?? "",
-      status: json["status"] ?? 0,
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-      deletedAt: json["deletedAt"],
-    );
-  }
-
-}
 
 class ScheduleTripDetails {
   ScheduleTripDetails({
@@ -1568,6 +1527,7 @@ class Timeline {
     required this.commodity,
     required this.truckType,
     required this.loadProvider,
+    required this.latestTransitData,
   });
 
   final int id;
@@ -1577,6 +1537,7 @@ class Timeline {
   final TimelineCommodity? commodity;
   final TimelineTruckType? truckType;
   final LoadProvider? loadProvider;
+  final LatestTransitData? latestTransitData;
 
   Timeline copyWith({
     int? id,
@@ -1586,6 +1547,7 @@ class Timeline {
     TimelineCommodity? commodity,
     TimelineTruckType? truckType,
     LoadProvider? loadProvider,
+    LatestTransitData? latestTransitData,
   }) {
     return Timeline(
       id: id ?? this.id,
@@ -1595,6 +1557,7 @@ class Timeline {
       commodity: commodity ?? this.commodity,
       truckType: truckType ?? this.truckType,
       loadProvider: loadProvider ?? this.loadProvider,
+      latestTransitData: latestTransitData ?? this.latestTransitData,
     );
   }
 
@@ -1607,8 +1570,42 @@ class Timeline {
       commodity: json["commodity"] == null ? null : TimelineCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : TimelineTruckType.fromJson(json["truckType"]),
       loadProvider: json["loadProvider"] == null ? null : LoadProvider.fromJson(json["loadProvider"]),
+      latestTransitData: json["latestTransitData"] == null ? null : LatestTransitData.fromJson(json["latestTransitData"]),
     );
   }
+
+}
+
+class LatestTransitData {
+  LatestTransitData({
+    required this.location,
+    required this.latestDate,
+  });
+
+  final String location;
+  final DateTime? latestDate;
+
+  LatestTransitData copyWith({
+    String? location,
+    DateTime? latestDate,
+  }) {
+    return LatestTransitData(
+      location: location ?? this.location,
+      latestDate: latestDate ?? this.latestDate,
+    );
+  }
+
+  factory LatestTransitData.fromJson(Map<String, dynamic> json){
+    return LatestTransitData(
+      location: json["location"] ?? "",
+      latestDate: DateTime.tryParse(json["latestDate"] ?? ""),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "location": location,
+    "latestDate": latestDate?.toIso8601String(),
+  };
 
 }
 
@@ -1951,6 +1948,17 @@ class LpPaymentDetails {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    required this.payableAgreedPrice,
+    required this.receivableAdvancePaidFlg,
+    required this.receivableBalancePaidFlg,
+    required this.receivableAdvancePaidDate,
+    required this.receivableBalancePaidDate,
+    required this.payableAdvancePaidFlg,
+    required this.payableBalancePaidFlg,
+    required this.payableAdvancePaidDate,
+    required this.payableBalancePaidDate,
+    required this.payableAdvanceErpReqFlg,
+    required this.payableBalanceErpReqFlg,
   });
 
   final String id;
@@ -1975,6 +1983,17 @@ class LpPaymentDetails {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
+  final String payableAgreedPrice;
+  final bool receivableAdvancePaidFlg;
+  final bool receivableBalancePaidFlg;
+  final DateTime? receivableAdvancePaidDate;
+  final DateTime? receivableBalancePaidDate;
+  final bool payableAdvancePaidFlg;
+  final bool payableBalancePaidFlg;
+  final dynamic payableAdvancePaidDate;
+  final dynamic payableBalancePaidDate;
+  final bool payableAdvanceErpReqFlg;
+  final bool payableBalanceErpReqFlg;
 
   LpPaymentDetails copyWith({
     String? id,
@@ -1999,6 +2018,17 @@ class LpPaymentDetails {
     DateTime? createdAt,
     DateTime? updatedAt,
     dynamic? deletedAt,
+    String? payableAgreedPrice,
+    bool? receivableAdvancePaidFlg,
+    bool? receivableBalancePaidFlg,
+    DateTime? receivableAdvancePaidDate,
+    DateTime? receivableBalancePaidDate,
+    bool? payableAdvancePaidFlg,
+    bool? payableBalancePaidFlg,
+    dynamic? payableAdvancePaidDate,
+    dynamic? payableBalancePaidDate,
+    bool? payableAdvanceErpReqFlg,
+    bool? payableBalanceErpReqFlg,
   }) {
     return LpPaymentDetails(
       id: id ?? this.id,
@@ -2023,6 +2053,17 @@ class LpPaymentDetails {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
+      payableAgreedPrice: payableAgreedPrice ?? this.payableAgreedPrice,
+      receivableAdvancePaidFlg: receivableAdvancePaidFlg ?? this.receivableAdvancePaidFlg,
+      receivableBalancePaidFlg: receivableBalancePaidFlg ?? this.receivableBalancePaidFlg,
+      receivableAdvancePaidDate: receivableAdvancePaidDate ?? this.receivableAdvancePaidDate,
+      receivableBalancePaidDate: receivableBalancePaidDate ?? this.receivableBalancePaidDate,
+      payableAdvancePaidFlg: payableAdvancePaidFlg ?? this.payableAdvancePaidFlg,
+      payableBalancePaidFlg: payableBalancePaidFlg ?? this.payableBalancePaidFlg,
+      payableAdvancePaidDate: payableAdvancePaidDate ?? this.payableAdvancePaidDate,
+      payableBalancePaidDate: payableBalancePaidDate ?? this.payableBalancePaidDate,
+      payableAdvanceErpReqFlg: payableAdvanceErpReqFlg ?? this.payableAdvanceErpReqFlg,
+      payableBalanceErpReqFlg: payableBalanceErpReqFlg ?? this.payableBalanceErpReqFlg,
     );
   }
 
@@ -2050,6 +2091,17 @@ class LpPaymentDetails {
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
+      payableAgreedPrice: json["payableAgreedPrice"] ?? "",
+      receivableAdvancePaidFlg: json["receivableAdvancePaidFlg"] ?? false,
+      receivableBalancePaidFlg: json["receivableBalancePaidFlg"] ?? false,
+      receivableAdvancePaidDate: DateTime.tryParse(json["receivableAdvancePaidDate"] ?? ""),
+      receivableBalancePaidDate: DateTime.tryParse(json["receivableBalancePaidDate"] ?? ""),
+      payableAdvancePaidFlg: json["payableAdvancePaidFlg"] ?? false,
+      payableBalancePaidFlg: json["payableBalancePaidFlg"] ?? false,
+      payableAdvancePaidDate: json["payableAdvancePaidDate"],
+      payableBalancePaidDate: json["payableBalancePaidDate"],
+      payableAdvanceErpReqFlg: json["payableAdvanceErpReqFlg"] ?? false,
+      payableBalanceErpReqFlg: json["payableBalanceErpReqFlg"] ?? false,
     );
   }
 
@@ -2076,6 +2128,17 @@ class LpPaymentDetails {
     "createdAt": createdAt?.toIso8601String(),
     "updatedAt": updatedAt?.toIso8601String(),
     "deletedAt": deletedAt,
+    "payableAgreedPrice": payableAgreedPrice,
+    "receivableAdvancePaidFlg": receivableAdvancePaidFlg,
+    "receivableBalancePaidFlg": receivableBalancePaidFlg,
+    "receivableAdvancePaidDate": receivableAdvancePaidDate?.toIso8601String(),
+    "receivableBalancePaidDate": receivableBalancePaidDate?.toIso8601String(),
+    "payableAdvancePaidFlg": payableAdvancePaidFlg,
+    "payableBalancePaidFlg": payableBalancePaidFlg,
+    "payableAdvancePaidDate": payableAdvancePaidDate,
+    "payableBalancePaidDate": payableBalancePaidDate,
+    "payableAdvanceErpReqFlg": payableAdvanceErpReqFlg,
+    "payableBalanceErpReqFlg": payableBalanceErpReqFlg,
   };
 
 }
@@ -2389,6 +2452,7 @@ class LoadMemoDetails {
         required this.id,
         required this.loadId,
         required this.memoNumber,
+        required this.vpAmount,
         required this.netFreight,
         required this.advance,
         required this.advancePercentage,
@@ -2406,6 +2470,7 @@ class LoadMemoDetails {
     final String id;
     final String loadId;
     final String memoNumber;
+    final String vpAmount;
     final String netFreight;
     final String advance;
     final String advancePercentage;
@@ -2423,6 +2488,7 @@ class LoadMemoDetails {
         String? id,
         String? loadId,
         String? memoNumber,
+        String? vpAmount,
         String? netFreight,
         String? advance,
         String? advancePercentage,
@@ -2440,6 +2506,7 @@ class LoadMemoDetails {
             id: id ?? this.id,
             loadId: loadId ?? this.loadId,
             memoNumber: memoNumber ?? this.memoNumber,
+            vpAmount: vpAmount ?? this.vpAmount,
             netFreight: netFreight ?? this.netFreight,
             advance: advance ?? this.advance,
             advancePercentage: advancePercentage ?? this.advancePercentage,
@@ -2460,6 +2527,7 @@ class LoadMemoDetails {
             id: json["id"] ?? "",
             loadId: json["loadId"] ?? "",
             memoNumber: json["memoNumber"] ?? "",
+            vpAmount: json["vpAmount"] ?? "",
             netFreight: json["netFreight"] ?? "",
             advance: json["advance"] ?? "",
             advancePercentage: json["advancePercentage"] ?? "",

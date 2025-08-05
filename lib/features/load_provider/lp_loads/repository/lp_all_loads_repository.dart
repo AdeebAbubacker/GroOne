@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_o
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_create_order_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
@@ -85,6 +86,15 @@ class  LpLoadRepository {
       return service.fetchRouteList();
     } catch (e) {
       CustomLog.error(this, "Failed to fetch route list data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<List<LoadStatusResponse>>> fetchLoadStatus() async {
+    try {
+      return service.fetchLoadStatus();
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch load Status data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart' as api_models;
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
@@ -12,6 +13,7 @@ import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
+import 'package:gro_one_app/features/kyc/model/state_response_mode.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
@@ -281,5 +283,6 @@ class KycRepository {
     return await _userInformationRepository.getCustomerTypeID();
   }
 
+  
 
 }

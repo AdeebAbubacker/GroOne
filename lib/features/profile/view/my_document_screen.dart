@@ -28,6 +28,7 @@ class MyDocumentScreen extends StatefulWidget {
 class _MyDocumentScreenState extends State<MyDocumentScreen> {
   final profileCubit = locator<ProfileCubit>();
   final lpLoadCubit = locator<LpLoadCubit>();
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -48,43 +49,54 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
         backgroundColor: AppColors.backgroundColor,
         title: Text(context.appText.myDocuments, style: AppTextStyle.body1),
       ),
-      body: BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, state) {
-          final uiState = state.documentState;
+      body: RefreshIndicator(
+        onRefresh: () async => initFunction(),
+        child: BlocBuilder<ProfileCubit, ProfileState>(
+          builder: (context, state) {
+            final uiState = state.documentState;
 
-          if (uiState == null || uiState.status == Status.LOADING) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (uiState.status == Status.ERROR) {
-            return genericErrorWidget(error: uiState.errorType);
-          }
-
-          final docs = uiState.data?.documents;
-
-          if (docs == null) {
-            return genericErrorWidget(error: NotFoundError(message: context.appText.noDocumentsFound));
-          }
-
-          List<Widget> tiles = [];
-          void addTile(String? val, bool? enabled, var details) {
-            if ((enabled ?? true) && (val?.isNotEmpty ?? false)) {
-              tiles.add(docTile(details?.title ?? context.appText.unknown, DateTimeHelper.formatCustomDateTimeIST(details?.createdAt), details?.documentId ?? ''));
+            if (uiState == null || uiState.status == Status.LOADING) {
+              return const Center(child: CircularProgressIndicator());
             }
-          }
 
-          addTile(docs.gstin, docs.isGstin, docs.gstinDocLinkDetails);
-          addTile(docs.tan, docs.isTan, docs.tanDocLinkDetails);
-          addTile(docs.pan, docs.isPan, docs.panDocLinkDetails);
-          addTile(docs.tdsDocLink, true, docs.tdsDocLinkDetails);
-          addTile(docs.chequeDocLink, true, docs.chequeDocLinkDetails);
+            if (uiState.status == Status.ERROR) {
+              return genericErrorWidget(error: uiState.errorType);
+            }
 
-          if (tiles.isEmpty) {
-            return Center(child: Text(context.appText.noDocumentsFound));
-          }
+            final docs = uiState.data?.documents;
 
-          return Column(children: tiles).paddingAll(20);
-        },
+            if (docs == null) {
+              return genericErrorWidget(error: NotFoundError(message: context.appText.noDocumentsFound));
+            }
+
+            List<Widget> tiles = [];
+            void addTile(String? val, bool? enabled, var details) {
+              if ((enabled ?? true) && (val?.isNotEmpty ?? false)) {
+                tiles.add(docTile(details?.title ?? context.appText.unknown, DateTimeHelper.formatCustomDateTimeIST(details?.createdAt), details?.documentId ?? ''));
+              }
+            }
+
+            addTile(docs.gstin, docs.isGstin, docs.gstinDocLinkDetails);
+            addTile(docs.tan, docs.isTan, docs.tanDocLinkDetails);
+            addTile(docs.pan, docs.isPan, docs.panDocLinkDetails);
+            addTile(docs.tdsDocLink, true, docs.tdsDocLinkDetails);
+            addTile(docs.chequeDocLink, true, docs.chequeDocLinkDetails);
+
+            if (tiles.isEmpty) {
+              return genericErrorWidget(error: NotFoundError(message: context.appText.noDocumentsFound));
+            }
+
+            return Stack(
+              children: [
+                if(lpLoadCubit.state.lpDocumentById?.status == Status.LOADING) CircularProgressIndicator().center(),
+                ListView(
+                  padding: const EdgeInsets.all(20),
+                  children: tiles,
+                ),
+              ],
+            );
+            },
+        ),
       ),
     );
   }
@@ -93,6 +105,9 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
 
     return GestureDetector(
       onTap: () async {
+        setState(() {
+          isLoading = true;
+        });
         await lpLoadCubit.getDocumentById(docId: documentId);
 
         final uiState = lpLoadCubit.state.lpDocumentById;
@@ -106,6 +121,10 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
           ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
           return;
         }
+
+        setState(() {
+          isLoading = false;
+        });
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 10),

@@ -38,7 +38,7 @@ class LoadTimelineWidget extends StatelessWidget {
                 if (index != timelineList.length - 1)
                   Container(
                     width: 2,
-                    height: 40,
+                    height: item.latestTransitData != null ? 50 : 40,
                     color: isCurrent || isCompleted
                         ? AppColors.primaryIconColor
                         : AppColors.greyTextColor,
@@ -62,6 +62,13 @@ class LoadTimelineWidget extends StatelessWidget {
                         : '',
                     style: AppTextStyle.body4.copyWith(color: AppColors.textGreyDetailColor),
                   ),
+
+                  if(item.latestTransitData != null)
+                    ...[
+                      5.height,
+                      Text(item.latestTransitData?.location ?? ''),
+                      5.height
+                    ]
                 ],
               ),
             )

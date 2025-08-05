@@ -250,13 +250,13 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       },
                       child: Container(
                         decoration: commonContainerDecoration(
-                          color: LpHomeHelper.getLoadStatusColor(statusData),
+                          color: LpHomeHelper.getColor(loadItem.loadStatusDetails?.statusBgColor ?? ''),
                         ),
                         // width: 80,
                         child: Text(
                           LpHomeHelper.getLoadTypeDisplayText(statusData),
                           style: AppTextStyle.body3.copyWith(
-                            color: LpHomeHelper.getLoadStatusTextColor(statusData),
+                            color: LpHomeHelper.getColor(loadItem.loadStatusDetails?.statusTxtColor ?? ''),
                           ),
                         ).center().paddingSymmetric(vertical: 4,horizontal: 10),
                       ),
@@ -271,6 +271,17 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                           4.width,
                           Text(
                             context.appText.advanceUnpaid,
+                            style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
+                          ),
+                        ],
+                      ),
+                    if((status == LoadStatus.completed && (loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)))
+                      Row(
+                        children: [
+                          const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                          4.width,
+                          Text(
+                            context.appText.balanceUnpaid,
                             style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
                           ),
                         ],
@@ -289,7 +300,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
   /// Support
   Widget buildFloatingWidget(status) {
     final screenHeight = MediaQuery.of(context).size.height;
-    final bottomWidgetMaxHeight = screenHeight * 0.45;
+    final bottomWidgetMaxHeight = status == LoadStatus.matching ? screenHeight * 0.35 : screenHeight * 0.45;
 
     return Positioned(
         right: 5, bottom: bottomWidgetMaxHeight + 10,child: Column(

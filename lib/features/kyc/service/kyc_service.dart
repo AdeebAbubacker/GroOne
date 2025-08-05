@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
@@ -19,6 +20,7 @@ import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
+import 'package:gro_one_app/features/kyc/model/state_response_mode.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
@@ -434,6 +436,7 @@ class KycService {
       return Error(DeserializationError());
     }
   }
+ 
 
 
 }

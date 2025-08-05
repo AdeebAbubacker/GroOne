@@ -7,8 +7,11 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_truck_length_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
+import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
+import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
@@ -32,6 +35,7 @@ import 'package:gro_one_app/features/profile/model/settings_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
 import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
@@ -332,7 +336,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-   // Update Driver
+   // Update Vehicle
   Future<void> updateVehicle({required String vehicleId, required VehicleRequest request}) async {
     userId = await _repo.getUserId();
 
@@ -408,7 +412,24 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
      return result;
   }
+  
+  //   // Update vehicle status from api call
+  // void _setUpdateVehicleStatusUIState(UIState<PaginatedVehicleList>? uiState){
+  //   emit(state.copyWith(vehicleState: uiState));
+  // }
 
+  // Future<void> fetchVehicle({bool isLoading = true,String? search}) async {
+  //   if(isLoading) _setUpdateVehicleStatusUIState(UIState.loading());
+  //   userId = await _repo.getUserId();
+
+  //   dynamic result = await _repo.fetchVehicle(userId: userId ?? '',search: search);
+  //   if (result is Success<PaginatedVehicleList>) {
+  //     _setUpdateVehicleStatusUIState(UIState.success(result.value));
+  //   }
+  //   if (result is Error) {
+  //     _setUpdateVehicleStatusUIState(UIState.error(result.type));
+  //   }
+  // }
 
     // Create New driver from api call
   void _setCreateDriverUIState(UIState<DriverNewModel>? uiState){
@@ -622,6 +643,36 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
   ));
 }
+  // // Upload Ticket File
+  void _setUploadTicketUIState(UIState<UploadTicketResponse>? uiState){
+    emit(state.copyWith(uploadTicketDocUIState: uiState));
+  }
+  Future<void> uploadTicketDoc(File file) async {
+    _setUploadTicketUIState(UIState.loading());
+    Result result = await _repo.getUploadTicketData(file);
+    if (result is Success<UploadTicketResponse>) {
+      _setUploadTicketUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setUploadTicketUIState(UIState.error(result.type));
+    }
+  }
+
+  // Create Document
+  void _setCreateDocumentUIState(UIState<CreateDocumentModel>? uiState){
+    emit(state.copyWith(createDocumentUIState: uiState));
+  }
+  Future<void> createDocument(CreateDocumentApiRequest request) async {
+    _setCreateDocumentUIState(UIState.loading());
+    Result result = await _repo.getCreateDocumentData(request);
+    if (result is Success<CreateDocumentModel>) {
+      _setCreateDocumentUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateDocumentUIState(UIState.error(result.type));
+    }
+  }
+
 
  void resetVehicleVerificationState(){
   emit(state.copyWith(
