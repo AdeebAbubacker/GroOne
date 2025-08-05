@@ -88,6 +88,7 @@ class ProfileState extends Equatable {
     UIState<Ticket>? createTicketState,
     TicketStatus? selectedTicketStatus,
     TicketStatus? tempSelectedTicketStatus,
+    UIState<VehcileUpdatedStatusModel>? vehicleStatusUpdate,
     bool? showSuccessKyc,
     String? blueId,
 

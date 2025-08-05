@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/profile/api_request/profile_upload_request.
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
@@ -33,6 +34,7 @@ import 'package:gro_one_app/features/profile/model/settings_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
 import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
@@ -185,7 +187,15 @@ class ProfileRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-
+  
+    /// update Status of vehicle
+  Future<Result<VehcileUpdatedStatusModel>> updateVehicleStatus({required String vehicleId, required VehicleStatusUpdateRequest request}) async {
+    try {
+      return await _profileService.updateVehicleStatus(vehicleId: vehicleId, request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
   /// Get Vehicle
   Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId,String? search}) async {
     try {

@@ -1719,8 +1719,7 @@ class _MasterScreenState extends State<MasterScreen>
                   rcNumber: rcNumberController.text.trim(),
                   rcDocLink: rcDocLink,
                   tonnage: capacityController.text.trim(),
-                  truckTypeId: selectedTruckType?.id ?? 1,
-                 
+                  truckTypeId: selectedTruckType?.id ?? 1,      
                   // acceptableCommodities:
                   //     selectedCommodities.map(int.parse).toList(),
                  

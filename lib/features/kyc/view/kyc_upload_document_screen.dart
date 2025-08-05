@@ -701,13 +701,17 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                           },),
 
                           16.height,
-
-                          // City Dropdown
                           _cityDropdown(
-                            context,
-                            selectedCity,
-                            selectedState != null && selectedState!.isNotEmpty,
-                          ),
+                        context,
+                        selectedCity,
+                        selectedState != null && selectedState!.isNotEmpty,
+                        (value) {
+                          setState(() {
+                            selectedCity = value;
+                          });
+                        },
+                      ),
+
                           16.height,
 
 
@@ -800,7 +804,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     );
   }
 
-static Widget _stateDropdown(BuildContext context, String? selected,ValueChanged<String?> onStateChanged,) {
+  static Widget _stateDropdown(BuildContext context, String? selected,ValueChanged<String?> onStateChanged,) {
   final stateUI = context.watch<KycCubit>().state.stateUIState;
 
   final stateList = stateUI?.data?.map((e) => e.name ?? '').toList() ?? [];
@@ -833,39 +837,40 @@ static Widget _stateDropdown(BuildContext context, String? selected,ValueChanged
   );
 }
 
-static Widget _cityDropdown(BuildContext context, String? selected,bool isStateSelected,) {
-  final cityUI = context.watch<KycCubit>().state.cityUIState;
 
+  static Widget _cityDropdown(
+  BuildContext context,
+  String? selected,
+  bool isStateSelected,
+  ValueChanged<String?> onCityChanged,
+) {
+  final cityUI = context.watch<KycCubit>().state.cityUIState;
   final cityList = cityUI?.data?.map((e) => e.city ?? '').toList() ?? [];
 
   return AbsorbPointer(
-    absorbing: !isStateSelected, 
+    absorbing: !isStateSelected,
     child: SearchableDropdown(
       labelText: context.appText.city,
-        mandatoryStar: true,
+      mandatoryStar: true,
       selectedItem: selected,
       items: cityList,
       hintText: context.appText.selectCity,
       onChanged: (String? newValue) {
         if (newValue != null) {
-         context.read<KycCubit>().fetchCityList(newValue);
-          selected = newValue;
+          onCityChanged(newValue);   // call callback to update state
         }
       },
       dropdownBuilder: (context, selectedItem) {
         if (selectedItem == null || selectedItem.isEmpty) {
-          if (selectedItem == null || selectedItem.isEmpty) {
           return SizedBox.shrink();
-        }
         }
         return Row(
           children: [
-            Text(selectedItem, ),
+            Text(selectedItem),
           ],
         );
       },
-      emptyBuilder: (context, _) =>
-          const Center(child: Text("No cities found")),
+      emptyBuilder: (context, _) => const Center(child: Text("No cities found")),
     ),
   );
 }
