@@ -1085,7 +1085,7 @@ class _MasterScreenState extends State<MasterScreen>
     listener: (context, state) {
       //  (vehicle existence)
       if (state.vehicleVerificationState?.status == Status.ERROR) {
-        print("--------");
+        print("--------eerror ${state.vehicleVerificationState?.data?.message}");
         ToastMessages.error(
           message: context.appText.vehicleRegNoAlreadyExcist,
         );
@@ -1095,11 +1095,13 @@ class _MasterScreenState extends State<MasterScreen>
 
       //  Vahan verification 
       if (state.verifiedVehicleVahanState?.status == Status.SUCCESS) {
+           print("--------success ${state.vehicleVerificationState?.data?.message}");
         ToastMessages.success(
           message: context.appText.vehicleRegNoVerified,
         );
         onVerificationResult(true);
       } else if (state.verifiedVehicleVahanState?.status == Status.ERROR) {
+           print("--------vahan ${state.verifiedVehicleVahanState?.data?.message}");
         ToastMessages.error(
           message: getErrorMsg(
             errorType:
@@ -1144,7 +1146,7 @@ class _MasterScreenState extends State<MasterScreen>
               final vehicleVerificationState = profileCubit.state.vehicleVerificationState;
               if (vehicleVerificationState?.status == Status.SUCCESS) {
                 profileCubit.verifyVehcileFromVahan(
-                request:  VehicleVahanRequest(vehicleNumber: vehicleNoController.text), // Call Vahan API
+                request:  VehicleVahanRequest(vehicleNumber: vehicleNoController.text),
                 );
               }
             });

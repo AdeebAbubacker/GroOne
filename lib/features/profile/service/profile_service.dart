@@ -528,14 +528,18 @@ class ProfileService {
       final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
       final response = await _apiService.get(url);
       if (response is Success) {
+        print("-----------${response.toString()}");
         final loads = VehicleVerificationSuccess.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
+         print("-----------${response.toString()}");
         return Error(response.type);
       } else {
+         print("-----------${response.toString()}");
         return Error(GenericError());
       }
     } catch (e) {
+       print("-----------${e.toString()}");
       return Error(DeserializationError());
     }
   }
