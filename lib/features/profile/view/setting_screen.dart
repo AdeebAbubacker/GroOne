@@ -70,7 +70,10 @@ class _LpSettingState extends State<LpSetting> {
             return genericErrorWidget(error: settingState?.errorType ?? customerState?.errorType);
           }
 
-          final settingsList = settingState?.data ?? [];
+          final settingsList = (settingState?.data ?? [])
+              .where((element) => element.section != "Security")
+              .toList();
+
           final customerData = customerState?.data;
 
           // Group settings by section

@@ -1046,6 +1046,10 @@
   "multipleSharingFailed": "मल्टीपल शेयरिंग विफल",
   "noLocationToShare": "साझा करने के लिए कोई स्थान डेटा उपलब्ध नहीं",
   "noFAQFound": "कोई अक्सर पूछे जाने वाले प्रश्न नहीं मिले",
-  "noSearchResults": "आपकी खोज से कोई परिणाम नहीं मिला"
+  "noSearchResults": "आपकी खोज से कोई परिणाम नहीं मिला",
+  "uploadLicense": "लाइसेंस अपलोड करें",
+  "allLoads": "सभी लोड्स",
+  "ticketCreatedSuccess": "टिकट सफलतापूर्वक बनाया गया!",
+  "balanceUnpaid": "बकाया शेष"
 
 }

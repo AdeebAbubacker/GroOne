@@ -11,7 +11,7 @@ class CreateTicketRequest {
   final String issueCategory;
   final String title;
   final String description;
-  final List<String> attachmentLink;
+  final List<dynamic> attachmentLink;
 
   CreateTicketRequest copyWith({
     String? customerId,

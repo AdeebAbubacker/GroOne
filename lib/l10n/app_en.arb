@@ -830,7 +830,7 @@
   "networkError" : "Your internet not working,\n Please try again later.",
   "tokenExpireError" : "Authentication Failed, Login Session Expired.",
   "invalidTokenError" : "Authentication Failed, Invalid Token.",
-  "deserializationError" : "Deserialization Error,\n Something went wrong while loading the data.",
+  "deserializationError" : "Deserialization error: JSON parsing failed due to type mismatch or missing fields.",
   "requestCancelledError" : "Request Cancelled,\n Please check your entry and try again.",
   "invalidInput" : "Invalid Input,\n Please check your entry and try again.",
   "timeOutError" : "Time out!!,\n Please check your entry and try again.",
@@ -1101,10 +1101,8 @@
   "selectFiltersHint": "Select filters and tap 'Show Report' to begin.",
   "noReportTypesFound": "No report types found",
   "loadProvider":"Load Provider",
-  "name":"Name",
   "destination":"destination",
   "unloadingDate":"Unloading date",
-  "name":"name",
   "destination":"Destination",
   "unloadingDate":"Unloading date",
   "addDriver":"Add Driver",
@@ -1169,5 +1167,8 @@
   "allLoads":"All Loads",
    "docSupportWithoutPdf": "*Only support .jpg, .png & .heic files not more than 5 mb.",
   "uploadRC": "Upload RC",
-  "uploadLicense": "Upload License"  
+  "uploadLicense": "Upload License",
+  "allLoads":"All Loads",
+  "ticketCreatedSuccess":"Ticket created successfully!",
+  "balanceUnpaid":"Balance Unpaid"
 }

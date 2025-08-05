@@ -40,6 +40,7 @@ const String VP_DOCUMENT = "vp_document";
 const String LP_DOCUMENT = "lp_document";
 const String CUSTOMER_DOCUMENT = "customer_document";
 const String DAMAGES_AND_SHORTAGES = "damages_and_shortages";
+const String SUPPORT_TICKET = "support_ticket";
 
 
 const String indianCurrencySymbol = "₹";

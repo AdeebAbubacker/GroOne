@@ -132,7 +132,6 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   void initFunction() => frameCallback(() async {
     profileCubit.fetchProfileDetail();
-    lpHomeCubit.setBluIDFlag();
     await profileCubit.fetchUserRole().then((val) {
       if(val != 4) {
         loadCommodityBloc.add(LoadCommodity());
@@ -550,6 +549,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
             await profileCubit.startKycSuccessTimer(true);
             // Set flag that popup is shown
             await  profileCubit.saveHasShowBluePopup(false);
+            lpHomeCubit.setBluIDFlag();
           }
 
           profileCubit.startKycSuccessTimer(false);

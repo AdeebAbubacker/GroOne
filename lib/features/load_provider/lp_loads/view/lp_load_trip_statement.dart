@@ -1,7 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/helper/lp_payment_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/trip_statement_response.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -9,23 +11,24 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import '../model/lp_load_get_by_id_response.dart';
 
 class LpLoadSummaryScreen extends StatefulWidget {
-  const LpLoadSummaryScreen({super.key, required this.loadId});
+  const LpLoadSummaryScreen({super.key, required this.loadId, required this.loadItem});
 
   final String loadId;
+  final LoadData loadItem;
 
   @override
   State<LpLoadSummaryScreen> createState() => _LpLoadSummaryScreenState();
 }
 
 class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
-  final lpLoadLocator = locator<LpLoadCubit>();
+  final lpLoadCubit = locator<LpLoadCubit>();
 
   @override
   void initState() {
@@ -34,7 +37,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
   }
 
   void initFunction() => frameCallback(() {
-    lpLoadLocator.getLpLoadsTripDetails(loadId: widget.loadId);
+    lpLoadCubit.getLpLoadsTripDetails(loadId: widget.loadId);
   });
 
   @override
@@ -76,12 +79,53 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
                   buildTruckSupplierWidget(tripDetails),
 
                   20.height,
-                  AppButton(
-                    title: context.appText.payBalance,
-                    onPressed: () {
-                      // Your pay balance logic
-                    },
-                  ),
+                  if (widget.loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)
+                    LpPaymentHelper.buildPaymentActionButton(
+                      context: context,
+                      label: context.appText.payBalance,
+                      showWarningIcon: false,
+                      onPressed: () {
+                        LpPaymentHelper.showPaymentMethodDialog(
+                          context: context,
+                          isLoading: lpLoadCubit.state.lpCreateOrder?.status == Status.LOADING,
+                          onNeftTap: () {
+                            LpPaymentHelper.showBankDetailsDialog(context, widget.loadItem.bankDetails);
+                          },
+                          onOnlineTap: () {
+                            LpPaymentHelper.navigateToPaymentScreen(
+                              context: context,
+                              loadId: widget.loadItem.loadId,
+                              lpLoadCubit: lpLoadCubit,
+                              request: CreateOrderIdRequest(
+                                memoid: widget.loadItem.loadMemoDetails?.id ?? '',
+                                lpId: widget.loadItem.customer?.customerId ?? '',
+                                lpName: widget.loadItem.customer?.customerName ?? '',
+                                lpEmailId: widget.loadItem.customer?.emailId ?? '',
+                                lpMobile: widget.loadItem.customer?.mobileNumber ?? '',
+                                vpId: widget.loadItem.vpCustomer?.customerId ?? '',
+                                memoNumber: widget.loadItem.loadMemoDetails?.memoNumber ?? '',
+                                netFreight: widget.loadItem.loadMemoDetails?.netFreight ?? '',
+                                advance: widget.loadItem.loadMemoDetails?.advance ?? '',
+                                advancePercentage: widget.loadItem.loadMemoDetails?.advancePercentage ?? '',
+                                balance: widget.loadItem.loadMemoDetails?.balance ?? '',
+                                balancePercentage: widget.loadItem.loadMemoDetails?.balancePercentage ?? '',
+                                vpAdvance: widget.loadItem.loadMemoDetails?.vpAdvance ?? '',
+                                vpAdvancePercentage: widget.loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
+                                vpBalance: widget.loadItem.loadMemoDetails?.vpBalance ?? '',
+                                vpBalancePercentage: widget.loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
+                                amount: widget.loadItem.lpPaymentsData?.receivableBalance ?? '',
+                                type: 'online',
+                                action: 'balance',
+                                vpAmount: widget.loadItem.loadMemoDetails?.vpAmount ?? ''
+                              ),
+                              onSuccess: () {
+                                initFunction();
+                              },
+                            );
+                          },
+                        );
+                      },
+                    ),
                   40.height,
                 ],
               ),

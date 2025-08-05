@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_o
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_create_order_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
@@ -145,6 +146,24 @@ class LpLoadService {
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = LpLoadRouteResponse.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<List<LoadStatusResponse>>> fetchLoadStatus() async {
+    try {
+      final url = ApiUrls.getLoadStatus;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final List<dynamic> list = response.value;
+        final loads = list.map((e) => LoadStatusResponse.fromJson(e)).toList();
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);

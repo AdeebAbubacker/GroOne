@@ -6,6 +6,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/helper/lp_payment_helper.dart';
 import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -54,111 +55,14 @@ class PaymentWidget extends StatelessWidget {
     final String paymentAdvanceDue = paymentData?.receivableAdvance ?? '';
     final String paymentBalanceDue = paymentData?.receivableBalance ?? '';
 
-    final isAdvancePaid = loadItem.lpPaymentsData != null && paymentData?.receivableAdvancePaid == paymentData?.receivableAdvance;
-    final isBalancePaid = loadItem.lpPaymentsData != null && paymentData?.receivableBalancePaid == paymentData?.receivableBalance;
+    final isAdvancePaid = paymentData?.receivableAdvancePaidFlg ?? false;
+    final isBalancePaid = paymentData?.receivableBalancePaidFlg ?? false;
 
     final agreedPriceToShow = isUsingMemo ? memoAgreedPrice : paymentAgreedPrice;
     final advanceDueToShow = isUsingMemo ? memoAdvanceDue : paymentAdvanceDue;
     final balanceDueToShow = isUsingMemo ? memoBalanceDue : paymentBalanceDue;
 
     final paymentActionType = paymentData != null ? 'balance' : 'advance';
-
-
-    void showBankDetails() {
-      AppDialog.show(context,dismissible: true, child: Builder(
-          builder: (dialogContext) {
-
-            var bankDetails = loadItem.bankDetails;
-            return CommonDialogView(
-              hideCloseButton: true,
-              onSingleButtonText: 'Close',
-              onTapSingleButton: () {
-                Navigator.pop(dialogContext);
-              },
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                spacing: 20,
-                children: [
-                  Text(
-                    context.appText.bankDetails,
-                    style: AppTextStyle.h5.copyWith(color: AppColors.textBlackColor, fontWeight: FontWeight.w700),
-                  ),
-                  buildBankRowDetails(label: context.appText.beneficiaryName, value: bankDetails?.beneficiaryName ?? ''),
-                  buildBankRowDetails(label: context.appText.bankName, value: bankDetails?.bankName ?? ''),
-                  buildBankRowDetails(label: context.appText.accountNumber, value: bankDetails?.accountNumber ?? ''),
-                  buildBankRowDetails(label: context.appText.ifscCode, value:  bankDetails?.ifscCode ?? ''),
-                  buildBankRowDetails(label: context.appText.branchName, value: bankDetails?.branchName ?? ''),
-                ],
-              ),
-            );
-          }
-      ));
-    }
-
-    void navigateToPaymentView() async {
-      final selectedAmountString = isAdvancePaid ? balanceDueToShow : advanceDueToShow;
-      final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
-
-
-      // Create Order
-      await lpLoadCubit.createOrder(
-          loadId: loadItem.loadId,
-          createOrderIdRequest: CreateOrderIdRequest(
-              memoid: loadItem.loadMemoDetails?.id ?? '',
-              lpId: loadItem.customer?.customerId ?? '',
-              lpName: loadItem.customer?.customerName ?? '',
-              lpEmailId: loadItem.customer?.emailId ?? '',
-              lpMobile: loadItem.customer?.mobileNumber ?? '',
-              vpId: loadItem.vpCustomer?.customerId ?? '',
-              memoNumber: loadItem.loadMemoDetails?.memoNumber ?? '',
-              netFreight: loadItem.loadMemoDetails?.netFreight ?? '',
-              advance: loadItem.loadMemoDetails?.advance ?? '',
-              advancePercentage: loadItem.loadMemoDetails?.advancePercentage ?? '',
-              balance: loadItem.loadMemoDetails?.balance ?? '',
-              balancePercentage: loadItem.loadMemoDetails?.balancePercentage ?? '',
-              vpAdvance: loadItem.loadMemoDetails?.vpAdvance ?? '',
-              vpAdvancePercentage: loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
-              vpBalance: loadItem.loadMemoDetails?.vpBalance ?? '',
-              vpBalancePercentage: loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
-              amount: paymentAmount.toString(),
-              type: 'online',
-              action: paymentActionType
-          )
-      );
-
-      final createOrderState = lpLoadCubit.state.lpCreateOrder;
-
-      if (createOrderState?.status == Status.SUCCESS) {
-
-        final url = createOrderState?.data?.data?.data?.tinyUrl;
-
-        if(url != '') {
-          final result = await Navigator.of(context).push(
-              commonRoute(
-                PaymentsScreen(
-                  url: url ?? '',
-                  loadId: loadItem.loadId,
-                ),
-              ));
-
-
-          if (result == true) {
-            Navigator.pop(context);
-
-            lpLoadCubit.getLpLoadsById(loadId: loadItem.loadId);
-          } else {
-            ToastMessages.error(message: context.appText.paymentFailed);
-          }
-        }
-
-
-      } else {
-        Navigator.pop(context);
-        final error = createOrderState?.errorType;
-        ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-      }
-    }
-
 
     return Container(
       padding: const EdgeInsets.all(10),
@@ -219,9 +123,41 @@ class PaymentWidget extends StatelessWidget {
                           onClickYesButton: () async {
                             if(selectedMethod == PaymentMethod.neft) {
                               Navigator.pop(context);
-                              showBankDetails();
+                              LpPaymentHelper.showBankDetailsDialog(context, loadItem.bankDetails);
                             } else {
-                              navigateToPaymentView();
+                              final selectedAmountString = isAdvancePaid ? balanceDueToShow : advanceDueToShow;
+                              final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
+                              LpPaymentHelper.navigateToPaymentScreen(
+                                context: context,
+                                loadId: loadItem.loadId,
+                                lpLoadCubit: lpLoadCubit,
+                                request: CreateOrderIdRequest(
+                                  memoid: loadItem.loadMemoDetails?.id ?? '',
+                                  lpId: loadItem.customer?.customerId ?? '',
+                                  lpName: loadItem.customer?.customerName ?? '',
+                                  lpEmailId: loadItem.customer?.emailId ?? '',
+                                  lpMobile: loadItem.customer?.mobileNumber ?? '',
+                                  vpId: loadItem.vpCustomer?.customerId ?? '',
+                                  memoNumber: loadItem.loadMemoDetails?.memoNumber ?? '',
+                                  netFreight: loadItem.loadMemoDetails?.netFreight ?? '',
+                                  advance: loadItem.loadMemoDetails?.advance ?? '',
+                                  advancePercentage: loadItem.loadMemoDetails?.advancePercentage ?? '',
+                                  balance: loadItem.loadMemoDetails?.balance ?? '',
+                                  balancePercentage: loadItem.loadMemoDetails?.balancePercentage ?? '',
+                                  vpAdvance: loadItem.loadMemoDetails?.vpAdvance ?? '',
+                                  vpAdvancePercentage: loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
+                                  vpBalance: loadItem.loadMemoDetails?.vpBalance ?? '',
+                                  vpBalancePercentage: loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
+                                  amount: paymentAmount.toString(),
+                                  type: 'online',
+                                  action: paymentActionType,
+                                  vpAmount: loadItem.loadMemoDetails?.vpAmount ?? ''
+                                ),
+                                onSuccess: () {
+                                  Navigator.pop(context);
+                                  lpLoadCubit.getLpLoadsById(loadId: loadItem.loadId);
+                                },
+                              );
                             }
                           },
                           child: Column(
@@ -283,7 +219,6 @@ class PaymentWidget extends StatelessWidget {
     );
   }
 
-
   Widget _buildPaymentRow({
     required String title,
     required String amount,
@@ -343,16 +278,4 @@ class PaymentWidget extends StatelessWidget {
       ],
     );
   }
-
-
-  Widget buildBankRowDetails({required String label, required String value}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: AppTextStyle.body3),
-        Text(value, style: AppTextStyle.body2),
-      ],
-    );
-  }
-
 }
