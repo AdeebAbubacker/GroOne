@@ -2127,7 +2127,13 @@ Widget buildReadOnlyField(
           borderRadius: BorderRadius.circular(commonTexFieldRadius),
           borderColor: AppColors.borderDisableColor,
         ),
-        child: Text(value, style: AppTextStyle.textFiled),
+        child: Row(
+          children: [
+            Text(value, style: AppTextStyle.textFiled),
+            Spacer(),
+            SvgPicture.asset(AppIcons.svg.calendar)
+          ],
+        ),
       ),
     ],
   );
