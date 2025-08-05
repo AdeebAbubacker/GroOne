@@ -33,7 +33,7 @@ class LpPaymentHelper {
         builder: (dialogContext) {
           return CommonDialogView(
             hideCloseButton: true,
-            onSingleButtonText: 'Close',
+            onSingleButtonText: context.appText.continueText,
             onTapSingleButton: () => Navigator.pop(dialogContext),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
