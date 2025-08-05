@@ -748,15 +748,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                           });
                         },
                       ),
-
-                              ],);
-
-
-                            }
-                          ),
-                          16.height,
-
-
+                              16.height,
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
