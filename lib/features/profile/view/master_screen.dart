@@ -934,7 +934,7 @@ class _MasterScreenState extends State<MasterScreen>
                 title: context.appText.edit,
               ).expand(),
             ],
-          ),
+          ).paddingSymmetric(horizontal: 15),
         ],
       ),
     );
@@ -1061,7 +1061,7 @@ class _MasterScreenState extends State<MasterScreen>
                 title: context.appText.edit,
               ).expand(),
             ],
-          ),
+          ).paddingSymmetric(horizontal: 15),
         ],
       ),
     );
@@ -1548,6 +1548,7 @@ class _MasterScreenState extends State<MasterScreen>
                       multiFilesList: localRcDocList,
                       isSingleFile: true,
                       isLoading: isUploading,
+                      uploadTextField: context.appText.uploadRC,
                       thenUploadFileToSever: () async {
                         final result = await _uploadRCBookCall(
                           context,
@@ -1878,6 +1879,7 @@ class _MasterScreenState extends State<MasterScreen>
                   UploadAttachmentFiles(
                     multiFilesList: localLicenseDocList,
                     isSingleFile: true,
+                    uploadTextField: context.appText.uploadLicense,
                     isLoading: isUploading,
                     thenUploadFileToSever: () async {
                       final result = await _uploadLicenseCopy(
@@ -2084,7 +2086,7 @@ class _MasterScreenState extends State<MasterScreen>
       validator: (value) => Validator.fieldRequired(value, fieldName: label),
       controller: controller,
       labelText: label,
-      inputFormatters: [FilteringTextInputFormatter.allow(pattern)],
+      inputFormatters: [FilteringTextInputFormatter.allow(pattern), LengthLimitingTextInputFormatter(100), ],
     );
   }
 }

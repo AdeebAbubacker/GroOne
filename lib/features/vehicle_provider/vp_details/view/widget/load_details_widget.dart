@@ -611,15 +611,7 @@ class LoadDetailsWidget extends StatelessWidget {
               height: 24,
               width: 24,
             ),
-
-            Text(
-              "$locationDistance ${context.appText.km}",
-              style: AppTextStyle.bodyGreyColorW500.copyWith(
-                color: AppColors.veryLightGreyColor,
-                fontSize: 12,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
+             Text(cubit.state.locationDistance ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
           ],
         ),
       ],
