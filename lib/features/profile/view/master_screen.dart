@@ -633,12 +633,18 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
+  // String formatMobileNumber(String number) {
+  //   if (!number.startsWith("+91") && number.length == 10) {
+  //     return "+91$number";
+  //   }
+  //   return number;
+  // }
   String formatMobileNumber(String number) {
-    if (!number.startsWith("+91") && number.length == 10) {
-      return "+91$number";
-    }
-    return number;
+  if (number.startsWith("+91")) {
+    return number.substring(3); // Removes first 3 characters: "+91"
   }
+  return number;
+}
 
   Widget buildDriverTab() {
     return Column(
@@ -1079,6 +1085,7 @@ class _MasterScreenState extends State<MasterScreen>
     listener: (context, state) {
       //  (vehicle existence)
       if (state.vehicleVerificationState?.status == Status.ERROR) {
+        print("--------");
         ToastMessages.error(
           message: context.appText.vehicleRegNoAlreadyExcist,
         );
