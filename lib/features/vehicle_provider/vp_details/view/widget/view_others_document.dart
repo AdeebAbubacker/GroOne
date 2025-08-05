@@ -45,7 +45,6 @@ class ViewOtherDocuments extends StatelessWidget {
                     showViewMoreButton: false,
                       onClickViewMoreIcon: () {},
                       showAddMoreButton:false ,
-
                       showDeleteIcon:cubit?.state.loadStatus==LoadStatus.loading ,
                       showDeleteLoader: false,
                       onClickDeleteIcon: () {

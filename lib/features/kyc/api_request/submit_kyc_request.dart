@@ -24,6 +24,7 @@ class SubmitKycApiRequest extends Serializable<SubmitKycApiRequest>{
      this.bankName,
      this.branchName,
      this.ifscCode,
+     this.adharDocLink,
   });
 
   final String? aadhar;
@@ -36,6 +37,7 @@ class SubmitKycApiRequest extends Serializable<SubmitKycApiRequest>{
   final bool? isGstin;
   final String? tan;
   final String? tanDocLink;
+  final String? adharDocLink;
   final bool? isTan;
   final String? chequeDocLink;
   final String? tdsDocLink;
@@ -52,12 +54,14 @@ class SubmitKycApiRequest extends Serializable<SubmitKycApiRequest>{
   @override
   Map<String, dynamic> toJson() => {
     "aadhar": aadhar ?? "",
+
     "isAadhar": isAadhar ?? false,
     "pan": pan ?? "",
     "panDocLink": panDocLink ?? "",
     "isPan": isPan ?? false,
     "gstin": gstin ?? "",
     "gstinDocLink": gstinDocLink ?? "",
+    "aadhar_doc_link": adharDocLink ?? "",
     "isGstin": isGstin ?? false,
     "tan": tan ?? "",
     "tanDocLink": tanDocLink ?? "",

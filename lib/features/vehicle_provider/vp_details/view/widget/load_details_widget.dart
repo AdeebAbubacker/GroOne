@@ -76,6 +76,7 @@ class LoadDetailsWidget extends StatelessWidget {
   });
 
   changeLoadStatus(BuildContext context, String? id, {int? loadStatus}) async {
+    print("calling here");
     if (cubit.state.loadStatus == LoadStatus.accepted) {
       await Navigator.push(
         context,
@@ -85,6 +86,7 @@ class LoadDetailsWidget extends StatelessWidget {
       });
       return;
     }
+
     String? userId = await vpHomeBloc.getUserId();
     await cubit
         .changedLoadStatus(
@@ -506,7 +508,7 @@ class LoadDetailsWidget extends StatelessWidget {
       child: Column(
         children: [
           Visibility(
-            visible: loadStatusID<4,
+
             child: Row(
               mainAxisAlignment:
                   isAccepted
@@ -623,6 +625,8 @@ class LoadDetailsWidget extends StatelessWidget {
     LoadDetailsState state,
     BuildContext context,
   ) {
+
+    bool isPriceIntoRange=checkPriceIntoRange(loadDetails?.loadPrice?.vpRate??"0",loadDetails?.loadPrice?.vpMaxRate??"0");
     return Container(
       decoration: commonContainerDecoration(
         color: Colors.white,
@@ -635,7 +639,7 @@ class LoadDetailsWidget extends StatelessWidget {
         spacing: 10,
         children: [
           ...[
-            if (state.loadStatus == LoadStatus.matching)
+            if (state.loadStatus == LoadStatus.matching && !isPriceIntoRange)
               AppButton(
                 title: context.appText.support,
                 style: AppButtonStyle.outline.copyWith(
@@ -656,7 +660,7 @@ class LoadDetailsWidget extends StatelessWidget {
                 state.loadStatus == LoadStatus.podDispatched)
               AppButton(
                 isLoading: state.vpLoadStatus?.status == Status.LOADING,
-                title: getButtonText(state.loadStatus ?? LoadStatus.matching),
+                title: getButtonText(state.loadStatus ?? LoadStatus.matching,priceIntoRange: isPriceIntoRange),
                 style: AppButtonStyle.primary.copyWith(
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
@@ -665,6 +669,12 @@ class LoadDetailsWidget extends StatelessWidget {
                   ),
                 ),
                 onPressed: () async {
+
+                  if(isPriceIntoRange){
+                    await callRedirect(SUPPORT_NUMBER);
+                    return;
+                  }
+
                   if (state.loadStatus == LoadStatus.completed) {
                     Navigator.push(context, commonRoute(VpTripStatementScreen(
                       loadDetailModelData: loadDetails,

@@ -107,12 +107,13 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           listener: (context, state) {
             if (state is VpVehicleListSuccess) {
               setState(() {
-                vehicleDetail = state.vehicleListResponse.data;
+                vehicleDetail = state.vehicleListResponse.data.where((element) => element.status==1).toList();
               });
             }
             if (state is VpDriverListSuccess) {
+
               setState(() {
-                driverDetails = state.driverListResponse.data;
+                driverDetails = state.driverListResponse.data.where((element) => element.status==1).toList();
               });
             }
           },
@@ -139,7 +140,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                               truckType = truckId;
                             });
                           },
-                          vehicleDetail,  
+                          vehicleDetail,
                         ),
 
                           GestureDetector(
@@ -160,7 +161,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                               driverType = driverId;
                             });
                           },
-                          driverDetails,  
+                          driverDetails,
                         ),
                           GestureDetector(
                               onTap: () => addVehicleAndDriver(),
@@ -273,7 +274,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
       ],
     );
   }
-  
+
 
 
     static Widget truckNoSearchableDropdown(
@@ -320,7 +321,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
         emptyBuilder: (context, _) => const Center(child: Text("No trucks found")),
       );
       }
-      
+
 
 
     static Widget driverDropdown(
@@ -367,8 +368,8 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     emptyBuilder: (context, _) => const Center(child: Text("No Driver found")),
   );
   }
-    
-  
+
+
   }
 
-  
+

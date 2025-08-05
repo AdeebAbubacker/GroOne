@@ -82,6 +82,7 @@
   "ownedTrucks": "Owned Trucks",
   "attachedTrucks": "Attached Trucks",
   "preferredLanes": "Preferred Lanes",
+  "preferredLanesText": "Preferred Lanes",
   "businessProof": "Business Proof",
   "uploadRC": "Upload RC (for 1 Truck)",
   "uploadDocument": "Upload document",
@@ -198,7 +199,7 @@
   "packageDetails": "Package Details",
   "approxWeight": "Approx. Weight",
   "category": "Category",
-  "tons": "Tons",
+  "tons": "Ton",
   "logoutSubHeading": "You'll be signed out from your account. Come back soon!",
   "email": "Email",
   "emailHint": "Enter your email",
@@ -943,7 +944,7 @@
   "possibleDeliveryDate":"Possible Delivery date",
   "scheduleTrip":"Schedule trip",
   "possibleDeliveryDateValidation":"Possible Delivery date is required",
-  "tonn":"Tonn",
+  "tonn":"Ton",
   "kycPending":"KYC Pending",
   "completeKycAlertDescription":"Please complete your KYC to accept load",
   "goToKyc":"Go to KYC",
@@ -1170,5 +1171,8 @@
   "uploadLicense": "Upload License",
   "allLoads":"All Loads",
   "ticketCreatedSuccess":"Ticket created successfully!",
-  "balanceUnpaid":"Balance Unpaid"
+  "balanceUnpaid":"Balance Unpaid",
+  "allLoads":"All Loads",
+  "adminContact":"Contact Admin",
+  "kycInProgress":"Your KYC verification is currently in progress. Please wait.."
 }

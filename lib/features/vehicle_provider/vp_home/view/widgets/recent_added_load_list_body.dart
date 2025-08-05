@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
@@ -30,7 +31,8 @@ class RecentAddedLoadListBody extends StatefulWidget {
   final VpRecentLoadData data;
   final bool isKycDone;
   final num companyTypeId;
-  const RecentAddedLoadListBody({super.key, required this.data, required this.isKycDone, required this.companyTypeId});
+  final int kycStatus;
+  const RecentAddedLoadListBody({super.key, required this.data, required this.isKycDone, required this.companyTypeId,required this.kycStatus});
 
   @override
   State<RecentAddedLoadListBody> createState() => _RecentAddedLoadListBodyState();
@@ -43,11 +45,13 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
   @override
   Widget build(BuildContext context) {
-    String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
+    String amount =
+
+    (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
-    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
+    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "--";
 
-
+    bool isPriceIntoRange=checkPriceIntoRange(widget.data.vpRate, widget.data.vpMaxRate??"");
 
     return GestureDetector(
       onTap: (){
@@ -178,6 +182,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
               builder: (context, state) {
                 return Row(
                   children: [
+                    if(!isPriceIntoRange)
                     IconButton(
                       onPressed: () {
                         commonSupportDialog(context);
@@ -202,7 +207,13 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                     10.width,
                     AppButton(
                       buttonHeight: 40,
-                      onPressed: () {
+                      onPressed: () async {
+
+                        if(isPriceIntoRange){
+                          await callRedirect(SUPPORT_NUMBER);
+                          return;
+                        }
+
                         if (widget.isKycDone) {
                           bloc.add(
                             VpAcceptLoad(loadId: widget.data.id.toString()),
@@ -211,6 +222,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                           commonBottomSheetWithBGBlur(
                             context: context,
                             screen: KycPendingDialogue(
+                              hideButton:widget.kycStatus==2 ,
                               onPressed: () {
                                 context.pop();
                                 if (widget.companyTypeId == 2 || widget.companyTypeId == 1) {
@@ -224,7 +236,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                         }
                       },
                       isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
-                      title: context.appText.acceptLoad,
+                      title:   isPriceIntoRange ? context.appText.adminContact: context.appText.acceptLoad,
                     ).expand(),
                   ],
                 );

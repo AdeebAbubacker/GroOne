@@ -89,7 +89,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                   itemBuilder: (ctx, index) {
 
                     if (widget.multiFilesList.length == index && !widget.isSingleFile!) {
-                      if (widget.multiFilesList.length <= 7) {
+                      if (widget.multiFilesList.length < 5) {
                         return GestureDetector(
                           onTap: !isFile ? () {
                             commonHideKeyboard(context);

@@ -106,7 +106,9 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
                         separatorBuilder: (context, index) => 20.height,
                         itemBuilder: (context, index) {
                           final companyId = VpVariables.companyId ?? 0;
-                          return RecentAddedLoadListBody(data: state.vpRecentLoadResponse.data[index],isKycDone: widget.isKycDone, companyTypeId: companyId);
+                          return RecentAddedLoadListBody(
+                              kycStatus: 0,
+                              data: state.vpRecentLoadResponse.data[index],isKycDone: widget.isKycDone, companyTypeId: companyId);
                         },
                       ),
                     );

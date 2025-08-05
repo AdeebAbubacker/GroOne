@@ -38,7 +38,7 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
               print("url ${url}");
               if(url.contains('https://gro-devadmin.letsgro.co')){
                 _isBack=true;
-                Navigator.pop(context);
+                Navigator.pop(context,true);
               }
            }
 

@@ -86,14 +86,22 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
+  void resetTripDocumentState(){
+    emit(state.copyWith(
+        tripDocumentList: documentTypeList));
+  }
+
+
   Future<void> getLoadDetails(String loadId) async {
-    emit(state.copyWith(loadDetailsUIState: UIState.loading()));
+    emit(state.copyWith(
+        loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
     if (result is Success<LoadDetailModel>) {
       emit(state.copyWith(
           loadDetailsUIState: UIState.success(result.value)));
       getAllDamagesImages(getFromDetails: true);
+
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
 
       /// SET TRIP DOCUMENT

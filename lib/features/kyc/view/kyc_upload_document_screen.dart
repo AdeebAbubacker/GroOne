@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -45,6 +46,7 @@ import 'package:gro_one_app/utils/textFieldInputFormatter/bank_account_number_fo
 import 'package:gro_one_app/utils/textFieldInputFormatter/gst_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/ifsc_code_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/pan_card_input_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/remove_space_inpur_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/tan_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -54,7 +56,8 @@ import 'package:gro_one_app/utils/validator.dart';
 
 class KycUploadDocumentScreen extends StatefulWidget {
   final String? aadhaarNumber;
-  const KycUploadDocumentScreen({super.key, this.aadhaarNumber});
+  final String? pdfPath;
+  const KycUploadDocumentScreen({super.key, this.aadhaarNumber,this.pdfPath});
 
   @override
   State<KycUploadDocumentScreen> createState() => _KycUploadDocumentScreenState();
@@ -96,6 +99,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   String? uploadLink;
   String? gstDocId;
+  String? aadharDocId;
   String? panDocId;
   String? tdsDocId;
   String? tanDocId;
@@ -132,6 +136,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     } else {
       aadhaarNumberTextController.text = "";
     }
+    uploadAadharDocument();
   });
   
   void disposeFunction()=> frameCallback((){
@@ -150,6 +155,33 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     tanFocusNode.dispose();
     panFocusNode.dispose();
     kycCubit.resetState();
+  });
+
+  void uploadAadharDocument()=>frameCallback(() async {
+    if(widget.pdfPath==null && widget.pdfPath!.isEmpty){
+      return;
+    }
+    await kycCubit.uploadAadharDoc(File(widget.pdfPath??""));
+    final status = kycCubit.state.uploadAadharDocumentModel?.status;
+    UploadAadharDocumentModel? uploadAadharDocumentModel = kycCubit.state.uploadAadharDocumentModel?.data;
+    if(status!=null && status==Status.SUCCESS){
+      final apiRequest = CreateDocumentApiRequest(
+        documentTypeId : KycHelper.getDocumentTypeId(KycDocType.aadharCard),
+        title : KycHelper.getMeta(KycDocType.aadharCard).title,
+        description : KycHelper.getMeta(KycDocType.aadharCard).description,
+        originalFilename : uploadAadharDocumentModel?.originalName,
+        filePath : uploadAadharDocumentModel?.filePath,
+        fileSize : uploadAadharDocumentModel?.size,
+        mimeType : KycHelper.getMimeTypeFromExtension(uploadAadharDocumentModel?.filePath.split(".").last??""),
+        fileExtension : uploadAadharDocumentModel?.filePath.split(".").last,
+      );
+      await createDocumentApiCall(apiRequest);
+      if(kycCubit.state.createDocumentUIState?.status == Status.SUCCESS){
+        if(kycCubit.state.createDocumentUIState?.data != null && kycCubit.state.createDocumentUIState?.data?.data != null){
+          aadharDocId = kycCubit.state.createDocumentUIState!.data!.data!.documentId;
+        }
+      }
+    }
   });
 
 
@@ -302,7 +334,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // Verify GST api call
   Future<void> verifyGstApiCall(String gstNumber, BuildContext context) async {
-
     final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: true);
     await kycCubit.verifyGst(apiRequest);
     if (kycCubit.state.gstState?.status == Status.SUCCESS && context.mounted) {
@@ -478,7 +509,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     debugPrint("panDocId : $panDocId");
     debugPrint("tanDocId : $tanDocId");
     if(_formKey.currentState!.validate()){
-
       final ok = validateDocs(
         userRole: kycCubit.userRole ?? 0,
         companyId: companyId,
@@ -492,6 +522,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
 
       final kycRequest = SubmitKycApiRequest(
+        adharDocLink: aadharDocId,
         aadhar: widget.aadhaarNumber,
         addressName: addressNameTextController.text.trim(),
         fullAddress: fullAddressTextController.text.trim(),
@@ -679,6 +710,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 controller: addressNameTextController,
                                 mandatoryStar: true,
                                 labelText: context.appText.addressName,
+                                inputFormatters: [
+                                  NoLeadingSpaceFormatter()
+                                ],
                                 hintText: context.appText.enterAddressName1,
                               ),
                               20.height,
@@ -690,13 +724,16 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 mandatoryStar: true,
                                 labelText: context.appText.fullAddress,
                                 hintText: context.appText.enterFullAddress,
+                                inputFormatters: [
+                                  NoLeadingSpaceFormatter()
+                                ],
                               ),
                            16.height,
                          // State Dropdown
                           _stateDropdown(context, selectedState,(value) {
                             setState(() {
                               selectedState = value;
-                              selectedCity = null; 
+                              selectedCity = null;
                             });
                           },),
 
@@ -711,10 +748,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                           });
                         },
                       ),
-
-                          16.height,
-
-
+                              16.height,
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
@@ -817,7 +851,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     hintText: context.appText.selectState,
     onChanged: (String? newValue) {
       if (newValue != null) {
-          onStateChanged(newValue); 
+          onStateChanged(newValue);
         // Fetch cities for selected state
         context.read<KycCubit>().fetchCityList(newValue);
       }
@@ -877,12 +911,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // GST Text Field & Upload GST
   Widget _buildGstWidget(){
-    print("gstin number");
     return BlocBuilder<KycCubit, KycState>(
         bloc: kycCubit,
         builder: (context, state) {
           bool verified = state.verifiedGst != null && state.verifiedGst!;
-          print("verified is $verified");
+
           return Column(
             children: [
               // Enter GST Number

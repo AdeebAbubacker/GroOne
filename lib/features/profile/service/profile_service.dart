@@ -113,6 +113,7 @@ class ProfileService {
         return Error(GenericError());
       }
     } catch(e) {
+
       return Error(DeserializationError());
     }
   }
@@ -512,7 +513,7 @@ class ProfileService {
 /// fetch Driver
  Future<Result<PaginatedDriverList>> fetchDriver({required String customerId,String? search}) async {
   try {
-      final baseUrl = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
+      final baseUrl = "${ApiUrls.driverListUrl}?&customerId=$customerId";
 
     // Append search properly using &
     final url = (search != null && search.trim().isNotEmpty)
@@ -556,6 +557,7 @@ class ProfileService {
     try {
       final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
       final response = await _apiService.get(url);
+
       if (response is Success) {
         print("-----------${response.toString()}");
         final loads = VehicleVerificationSuccess.fromJson(response.value);

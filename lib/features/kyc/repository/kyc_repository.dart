@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_response_mode.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
+import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
@@ -162,6 +163,21 @@ class KycRepository {
           file : file,
           userId: await _userInformationRepository.getUserID() ?? "",
           fileType: TDS_FILE_TYPE,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload tds document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Upload TDS Repo
+  Future<Result<UploadAadharDocumentModel>> getUploadAadharDocument(File file) async {
+    try {
+      return await _service.uploadAadharDoc(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: AADHAAR_CARD,
           documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
       );
     } catch (e) {

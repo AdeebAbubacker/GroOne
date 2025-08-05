@@ -283,7 +283,6 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           // debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
 
           if (blueIdFromApi.isNotEmpty && blueIdFlag) {
-
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
             blueMembershipDialog(context, blueIdFromApi);
@@ -527,7 +526,10 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                     separatorBuilder: (_, __) => 20.height,
                     itemBuilder: (context, index) {
                       final companyId = int.parse(profileCubit.companyTypeId ?? "0");
+
+
                       return RecentAddedLoadListBody(
+                        kycStatus: VpVariables.kycStatus,
                         data: loads[index],
                         isKycDone: VpVariables.isKycVerified,
                         companyTypeId: companyId,
