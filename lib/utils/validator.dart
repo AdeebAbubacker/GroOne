@@ -153,6 +153,24 @@ class Validator {
     return null;
   }
 
+
+  static String? validateVpPinCode(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return "Pincode is required";
+    }
+
+    if (value.length != 6) {
+      return "Pincode must be exactly 6 digits";
+    }
+
+    if (RegExp(r'^0+$').hasMatch(value)) {
+      return "Pincode cannot be all zeros";
+    }
+
+    return null; // valid
+  }
+
+
   static String? rcBookNumberValidator(String? value, {required String fieldName}) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName is required';

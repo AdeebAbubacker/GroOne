@@ -385,12 +385,6 @@ class KycService {
   }
 
   Future<Result<KycInitResponse>> initKycRequest(KycInitRequest initKycRequest) async {
-
-    /// TODO:
-    /// Temp RETURN Mock response for reduce api calling
-    final data = KycInitResponse.fromJson(kycInitMockResponse);
-    return Success(data);
-
     try {
       final url = ApiUrls.digiLockerInit;
       final xApiKey = ApiUrls.xApiKey;
@@ -417,13 +411,8 @@ class KycService {
 
 
   Future<Result<AadharVerificationResponse>> getAadharStatus(String request) async {
-    /// TODO:
-    /// Temp RETURN Mock response for reduce api calling
-    final data = AadharVerificationResponse.fromJson(statusCheckMockResponse);
-    return Success(data);
-
     try {
-      final url = ApiUrls.adharStatus;
+      final url = ApiUrls.adharStatus+request;
       final xApiKey = ApiUrls.xApiKey;
       final udid = ApiUrls.fetchUDID;
       final result = await _apiService.get(

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_state.dart';
@@ -47,7 +48,9 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
 
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
-    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
+    (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "--";
+
+    bool isPriceIntoRange=checkPriceIntoRange(widget.data.vpRate, widget.data.vpMaxRate??"");
 
     return GestureDetector(
       onTap: () async {
@@ -196,6 +199,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
               builder: (context, state) {
                 return Row(
                   children: [
+                    if(!isPriceIntoRange)
                     IconButton(
                       onPressed: () {
                         commonSupportDialog(context);
@@ -222,13 +226,21 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                     // Accept Load
                     AppButton(
                       buttonHeight: 40,
-                      onPressed: () {
+                      onPressed: () async {
+                        if(isPriceIntoRange){
+                          await callRedirect(SUPPORT_NUMBER);
+                          return;
+                        }
+
                         if (VpVariables.isKycVerified) {
                           bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
                         } else {
+
+
                           commonBottomSheetWithBGBlur(
                             context: context,
                             screen: KycPendingDialogue(
+                              hideButton:VpVariables.kycStatus==2 ,
                               onPressed: () {
                                 context.pop();
                                 commonBottomSheetWithBGBlur(
@@ -244,7 +256,9 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                         }
                       },
                       isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
-                      title:  context.appText.acceptLoad,
+                      title:  isPriceIntoRange ? context.appText.adminContact:
+
+                      context.appText.acceptLoad,
                     ).expand(),
                   ],
                 );

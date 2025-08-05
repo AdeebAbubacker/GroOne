@@ -22,6 +22,7 @@ class StateModel {
   }
 
   factory StateModel.fromJson(Map<String, dynamic> json){
+
     return StateModel(
       data: json["data"] == null ? [] : List<StateModelList>.from(json["data"]!.map((x) => StateModelList.fromJson(x))),
       total: json["total"] ?? 0,

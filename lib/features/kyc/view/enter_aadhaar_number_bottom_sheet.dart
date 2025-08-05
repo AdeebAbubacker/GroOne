@@ -23,6 +23,7 @@ import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -62,6 +63,8 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
   // bool showOtpFieldAadhaar = false;
   final ValueNotifier<bool> showOtpFieldAadhaarNotifier = ValueNotifier(false);
 
+  String? aadharRequestId;
+
 
 
   @override
@@ -98,7 +101,8 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
      String? statusVerified=aadharVerificationData?.status;
      if(statusVerified=="VERIFIED"){
        String? path= await KycHelper.saveBase64PdfToFile(aadharVerificationData?.dataPdf??"");
-       Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text,pdfPath: path,))).then((v) {
+       Navigator.pop(context);
+       Navigator.of(navigatorKey.currentState!.context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text,pdfPath: path,))).then((v) {
          if(v != null && v == true){
            profileCubit.fetchProfileDetail();
            aadhaarNumberTextController.clear();
@@ -113,14 +117,15 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
 
   Future<void> _checkVerification(KycInitResponse? kycInitResponse) async {
     String? sdkUrl=kycInitResponse?.sdkUrl??"";
-    String? requestID=kycInitResponse?.requestId??"";
+    aadharRequestId??=kycInitResponse?.requestId??"";
+
     if(sdkUrl.isNotEmpty){
     final isVerified= await Navigator.push(context, commonRoute(KycVerificationWebView(
         url: sdkUrl,
       )));
 
      if(isVerified!=null && isVerified){
-       kycBloc.getKYCStatus(requestID);
+       kycBloc.getKYCStatus(aadharRequestId??"");
      }
     }
   }

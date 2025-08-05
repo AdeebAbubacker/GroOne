@@ -382,12 +382,12 @@ class ImagePickerFrom {
 
 /// Multiple File Picker
 Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
-  print("working here");
   try {
     final result = await FilePicker.platform.pickFiles(
       allowMultiple: false,
       withData: true,
       withReadStream: true,
+
 
     );
 
@@ -399,7 +399,6 @@ Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
     final defaultAllowedExtensions = <String>{
       "jpg",
       "jpeg",
-      "gif",
       "bmp",
       "pdf",
       "png",

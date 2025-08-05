@@ -163,11 +163,13 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             label: "${context.appText.advance} (${statementData?.advancePercentage??""}%)",
             value: statementData?.advanceAmount??"",
           ),
+          if(loadSettlement?.debitDamages!=null)
           buildDTripStatementWidget(
             label: context.appText.damageCharges,
             value: '(-) ${loadSettlement?.debitDamages??"--"}',
             isNegative: true,
           ),
+          if(loadSettlement?.debitShortages!=null)
           buildDTripStatementWidget(
             label: context.appText.shortages,
             value: '(-) ${loadSettlement?.debitShortages??"--"}',
@@ -178,14 +180,17 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             value: '(-) 0',
             isNegative: true,
           ),
+          if(loadSettlement?.loadingCharge!=null)
           buildDTripStatementWidget(
             label: context.appText.loadingCharges,
             value: loadSettlement?.loadingCharge.toString() ??"",
           ),
+          if(loadSettlement?.unloadingCharge!=null)
           buildDTripStatementWidget(
             label: context.appText.unloadingCharges,
             value: loadSettlement?.unloadingCharge.toString() ??"",
           ),
+          if(loadSettlement?.loadingCharge!=null)
           buildDTripStatementWidget(
             label: context.appText.detentions,
             value: detentionsAmount,

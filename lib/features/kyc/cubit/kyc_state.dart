@@ -62,7 +62,7 @@ class KycState extends Equatable {
     UIState<UploadCancelledCheckedDocumentModel>? uploadCancelledUIState,
     UIState<UploadGSTDocumentModel>? uploadGSTDocUIState,
     UIState<UploadPANDocumentModel>? uploadPanDocUIState,
-    UIState<UploadAadharDocumentModel>? uploadAadharDocumentModel,
+    UIState<UploadAadharDocumentModel>? uploadAadharDocUIState,
     UIState<UploadTANDocumentModel>? uploadTanDocUIState,
     UIState<UploadTDSDocumentModel>? uploadTDSDocUIState,
     UIState<List<CityModelList>>? cityUIState,
@@ -81,7 +81,7 @@ class KycState extends Equatable {
 
   }) {
     return KycState(
-      uploadAadharDocumentModel: uploadAadharDocumentModel??this.uploadAadharDocumentModel,
+      uploadAadharDocumentModel: uploadAadharDocUIState??this.uploadAadharDocumentModel,
       aadharVerificationState: aadharVerificationResponse ?? this.aadharVerificationState,
 
       kycInitResponse: kycInitResponse??this.kycInitResponse,

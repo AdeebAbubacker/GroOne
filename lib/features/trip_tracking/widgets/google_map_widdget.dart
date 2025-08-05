@@ -100,6 +100,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
            infoWindow: InfoWindow(title: '${navigatorKey.currentState!.context.appText.drop}: ${widget.dropLocation}'),
          ),
        );
+
        double distanceInMeters = Geolocator.distanceBetween(
          pickupLatLng.latitude,
          pickupLatLng.longitude,
@@ -118,10 +119,12 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
            ),
          );
        }
+
        await vpDetailsCubit.getMapRouting(
            dropLong: dropLatLng.longitude.toString(),
            dropLat: dropLatLng.latitude.toString(),
            pickUpLat: pickupLatLng.latitude.toString(),pickUpLong:  pickupLatLng.longitude.toString());
+
      }else{
        _polylineCoordinates.clear();
        List<PointLatLng> result = PolylinePoints().decodePolyline(points ?? "");
@@ -256,6 +259,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
       builder:(context, state)  {
         if(state.directionApiResponse?.status==Status.SUCCESS){
           if((state.directionApiResponse?.data?.routes??[]).isNotEmpty){
+
             setMapMarkers(addMarker: false,points: state.directionApiResponse?.data?.routes.first.overviewPolyline.points);
           }
         }

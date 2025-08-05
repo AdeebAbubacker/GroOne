@@ -38,6 +38,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/remove_space_inpur_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -96,13 +97,17 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
     // TODO: implement initState
 
     initFunction();
+    listenEmailChanges();
     super.initState();
   }
 
+
+
   @override
   void dispose() {
-    // TODO: implement dispose
+
     disposeFunction();
+
     super.dispose();
   }
 
@@ -128,7 +133,16 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
     multiFilesList.clear();
     verifyEmailCubit.resetState();
     vpCreationCubit.resetState();
+
   });
+
+
+  listenEmailChanges(){
+    emailTextController.addListener(() {
+      verifyEmailCubit.checkIfEmailChanged(emailTextController.text);
+    });
+  }
+
 
   // Vp Creation Api call
   Future<void> vpCreationApiCall(VpCreateAccountState state) async {
@@ -155,8 +169,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         ToastMessages.alert(message: context.appText.preferredLanes);
         return;
       }
-
-      print("we can are good to go");
 
       final request = VpCreationApiRequest(
         customerName: nameTextController.text,
@@ -244,6 +256,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           keyboardType: TextInputType.name,
           inputFormatters: [
             FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+            NoLeadingSpaceFormatter()
           ],
         ),
         20.height,
@@ -281,7 +294,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Pin code Truck
         AppTextField(
-          validator: (value) => Validator.fieldRequired(value),
+          validator: (value) => Validator.validateVpPinCode(value),
           controller: pinCodeTextController,
           labelText: context.appText.pinCode,
           hintText: "${context.appText.enter} ${context.appText.pinCode}",
@@ -315,7 +328,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               isForward: true,
             ),
           );
-          verifyEmailCubit.setVerifiedEmail(result == true);
+          verifyEmailCubit.setVerifiedEmail(result == true,email: result ? emailTextController.text:null);
         }
 
         if (status == Status.ERROR) {
@@ -332,7 +345,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           controller: emailTextController,
           labelText: context.appText.email,
           mandatoryStar: true,
-          readOnly: state.isVerifiedEmail,
           keyboardType: TextInputType.emailAddress,
           decoration: commonInputDecoration(
             hintText: context.appText.emailHint,
@@ -362,6 +374,8 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               ],
             ),
             suffixOnTap: () async {
+              if (state.isVerifiedEmail) return;
+
               final String? validation = Validator.email(
                 emailTextController.text,
               );
@@ -393,11 +407,15 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Company Name
         AppTextField(
+          inputFormatters: [
+            NoLeadingSpaceFormatter()
+          ],
           validator: (value) => Validator.fieldRequired(value),
           controller: companyNameTextController,
           labelText: context.appText.companyName,
           hintText: "${context.appText.enter} ${context.appText.companyName}",
           mandatoryStar: true,
+
         ),
         20.height,
 
@@ -576,17 +594,13 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               }else{
                 selectedPrefLanesTypeList=[];
               }
-
-
-
-
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
                     children: [
                       Text(
-                        context.appText.preferredLanes,
+                        context.appText.preferredLanesText,
                         style: AppTextStyle.textFiled,
                       ),
                       Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
@@ -703,6 +717,16 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
             final isLoading =
                 state.uploadRcFileUIState?.status == Status.LOADING;
             return UploadAttachmentFiles(
+              allowedExtensions: [
+                "jpg",
+                "jpeg",
+                "pdf",
+                "png",
+                "doc",
+                "docx",
+                "xls",
+                "xlsx"
+              ],
               multiFilesList: multiFilesList,
               title: context.appText.uploadRC,
               isSingleFile: true,

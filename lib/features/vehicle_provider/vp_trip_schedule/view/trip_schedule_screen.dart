@@ -106,12 +106,13 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           listener: (context, state) {
             if (state is VpVehicleListSuccess) {
               setState(() {
-                vehicleDetail = state.vehicleListResponse.data;
+                vehicleDetail = state.vehicleListResponse.data.where((element) => element.status==1).toList();
               });
             }
             if (state is VpDriverListSuccess) {
+
               setState(() {
-                driverDetails = state.driverListResponse.data;
+                driverDetails = state.driverListResponse.data.where((element) => element.status==1).toList();
               });
             }
           },
@@ -137,8 +138,9 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                             mandatoryStar: true,
                             dropdownValue: truckType,
                             decoration: commonInputDecoration(fillColor: Colors.white),
-                            dropDownList: vehicleDetail.map((e) => DropdownMenuItem(
+                            dropDownList: vehicleDetail.map((e) =>  DropdownMenuItem(
                               value: e.id.toString(),
+
                               child: Text(e.truckNumber, style: AppTextStyle.body),
                             ),
                             ).toList(),

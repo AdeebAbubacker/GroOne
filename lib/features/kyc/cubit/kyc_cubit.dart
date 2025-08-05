@@ -247,7 +247,6 @@ class KycCubit extends BaseCubit<KycState> {
     emit(state.copyWith(uploadPanDocUIState: uiState));
   }
   Future<void> uploadPanDoc(File file) async {
-    print("pan doc ${file.path}");
     _setUploadPanDocUIState(UIState.loading());
     Result result = await _repo.getUploadPanData(file);
     if (result is Success<UploadPANDocumentModel>) {
@@ -258,8 +257,8 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-  void _setUploadAadharDocUIState(UIState<UploadPANDocumentModel>? uiState){
-    emit(state.copyWith(uploadPanDocUIState: uiState));
+  void _setUploadAadharDocUIState(UIState<UploadAadharDocumentModel>? uiState){
+    emit(state.copyWith(uploadAadharDocUIState: uiState));
   }
 
 
@@ -268,7 +267,7 @@ class KycCubit extends BaseCubit<KycState> {
   Future<void> uploadAadharDoc(File file) async {
     _setUploadAadharDocUIState(UIState.loading());
     Result result = await _repo.getUploadAadharDocument(file);
-    if (result is Success<UploadPANDocumentModel>) {
+    if (result is Success<UploadAadharDocumentModel>) {
       _setUploadAadharDocUIState(UIState.success(result.value));
     }
     if (result is Error) {
