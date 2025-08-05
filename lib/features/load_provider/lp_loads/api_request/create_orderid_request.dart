@@ -22,6 +22,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
     required this.amount,
     required this.type,
     required this.action,
+    required this.vpAmount,
   });
 
   final String memoid;
@@ -43,6 +44,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
   final String amount;
   final String type;
   final String action;
+  final String vpAmount;
 
   CreateOrderIdRequest copyWith({
     String? memoid,
@@ -64,6 +66,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
     String? amount,
     String? type,
     String? action,
+    String? vpAmount,
   }) {
     return CreateOrderIdRequest(
       memoid: memoid ?? this.memoid,
@@ -85,6 +88,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
       amount: amount ?? this.amount,
       type: type ?? this.type,
       action: action ?? this.action,
+      vpAmount: vpAmount ?? this.vpAmount,
     );
   }
 
@@ -109,6 +113,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
       amount: json["amount"] ?? 0,
       type: json["type"] ?? "",
       action: json["action"] ?? "",
+      vpAmount: json["vpAmount"] ?? "",
     );
   }
 
@@ -132,6 +137,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
     "amount": amount,
     "type": type,
     "action": action,
+    "vpAmount": vpAmount,
   };
 
 }

@@ -20,6 +20,7 @@ class LpLoadState extends Equatable {
   final UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee;
   final UIState<OrderAddedSuccess>? lpAddCustomerPaymentOption;
   final UIState<LpCreateOrderResponse>? lpCreateOrder;
+  final UIState<List<LoadStatusResponse>>? loadStatus;
   final int selectedTabIndex;
   final String? matchingText;
   final Advance? selectedAdvance;
@@ -62,6 +63,7 @@ class LpLoadState extends Equatable {
     this.isFeedbackAdded = false,
     this.downloadedFiles = const {},
     this.allDamageImageList,
+    this.loadStatus
   });
 
   LpLoadState copyWith({
@@ -84,6 +86,7 @@ class LpLoadState extends Equatable {
     UIState<ConsigneAddedSuccessModel>? lpUpdateConsignee,
     UIState<OrderAddedSuccess>? lpAddCustomerPaymentOption,
     UIState<LpCreateOrderResponse>? lpCreateOrder,
+    UIState<List<LoadStatusResponse>>? loadStatus,
     int? selectedTabIndex,
     String? matchingText,
     Advance? selectedAdvance,
@@ -123,6 +126,7 @@ class LpLoadState extends Equatable {
       isFeedbackAdded: isFeedbackAdded ?? this.isFeedbackAdded,
       downloadedFiles: downloadedFiles ?? this.downloadedFiles,
       allDamageImageList: allDamageImageList ?? this.allDamageImageList,
+      loadStatus: loadStatus ?? this.loadStatus,
     );
   }
 
@@ -156,5 +160,6 @@ class LpLoadState extends Equatable {
     isFeedbackAdded,
     downloadedFiles,
     allDamageImageList,
+    loadStatus,
   ];
 }

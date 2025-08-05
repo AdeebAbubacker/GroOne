@@ -1,3 +1,6 @@
+import '../../lp_loads/model/lp_load_get_by_id_response.dart';
+import '../../lp_loads/model/lp_load_response.dart';
+
 class LpGetLoadModel {
   LpGetLoadModel({
     required this.message,
@@ -816,53 +819,6 @@ class LoadRoute {
 
 }
 
-class LoadStatusDetails {
-  LoadStatusDetails({
-    required this.id,
-    required this.loadStatus,
-    required this.status,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.deletedAt,
-  });
-
-  final int id;
-  final String loadStatus;
-  final int status;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final dynamic deletedAt;
-
-  LoadStatusDetails copyWith({
-    int? id,
-    String? loadStatus,
-    int? status,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    dynamic? deletedAt,
-  }) {
-    return LoadStatusDetails(
-      id: id ?? this.id,
-      loadStatus: loadStatus ?? this.loadStatus,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-    );
-  }
-
-  factory LoadStatusDetails.fromJson(Map<String, dynamic> json){
-    return LoadStatusDetails(
-      id: json["id"] ?? 0,
-      loadStatus: json["loadStatus"] ?? "",
-      status: json["status"] ?? 0,
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-      deletedAt: json["deletedAt"],
-    );
-  }
-
-}
 
 class TruckType {
   TruckType({

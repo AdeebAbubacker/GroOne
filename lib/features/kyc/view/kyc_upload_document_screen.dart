@@ -1012,6 +1012,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 isSingleFile: true,
                 isLoading: state.uploadTanDocUIState?.status == Status.LOADING,
                 hideDeleteButton: verified,
+                allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
                 thenUploadFileToSever: () async {
                   final Result result = await uploadTanDocumentApiCall(tanDoc);
                   if(result is Success) {
@@ -1104,6 +1105,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 isSingleFile: true,
                 isLoading: state.uploadPanDocUIState?.status == Status.LOADING,
                 hideDeleteButton: verified,
+                allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
                 thenUploadFileToSever: () async {
                   final Result result = await uploadPanDocumentApiCall(panDoc);
                   if(result is Success) {
@@ -1163,6 +1165,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               multiFilesList: checkDocLink,
               isSingleFile: true,
               isLoading: cancelledCheckUploadState == Status.LOADING,
+              allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               thenUploadFileToSever: () async {
                 final Result result = await uploadCancelledChequeDocumentApiCall(checkDocLink);
                 if(result is Success) {
@@ -1222,6 +1225,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               multiFilesList: tdsDocLink,
               isSingleFile: true,
               isLoading: tdsUploadState == Status.LOADING,
+              allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               thenUploadFileToSever: () async {
                 final Result result = await uploadTdsDocumentApiCall(tdsDocLink);
                 if(result is Success) {
