@@ -19,6 +19,7 @@ import 'package:gro_one_app/features/profile/api_request/profile_upload_request.
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
@@ -38,6 +39,7 @@ import 'package:gro_one_app/features/profile/model/settings_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
 import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
@@ -371,7 +373,31 @@ class ProfileService {
     }
   }
 
- 
+  
+    /// Update vehicle Status
+    Future<Result<VehcileUpdatedStatusModel>> updateVehicleStatus(
+    VehicleStatusUpdateRequest request, {
+    required String vehicleId,
+  }) async {
+    try {
+      final url = "${ApiUrls.getVehicleList}status/$vehicleId";
+      final result = await _apiService.put(url, body: request.toJson());
+
+      if (result is Success) {
+         final loads = VehcileUpdatedStatusModel.fromJson(result.value);
+        return Success(loads);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+}
+
+
+
    /// create Vehicle
   Future<Result<VehicleNewModel>> createVehicle({required VehicleRequest request}) async {
     try {
@@ -528,14 +554,18 @@ class ProfileService {
       final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
       final response = await _apiService.get(url);
       if (response is Success) {
+        print("-----------${response.toString()}");
         final loads = VehicleVerificationSuccess.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
+         print("-----------${response.toString()}");
         return Error(response.type);
       } else {
+         print("-----------${response.toString()}");
         return Error(GenericError());
       }
     } catch (e) {
+       print("-----------${e.toString()}");
       return Error(DeserializationError());
     }
   }

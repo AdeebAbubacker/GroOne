@@ -369,7 +369,7 @@ if (loadStatus == 4) {
                                     children: [
                                       20.height,
                                       _buildAdableSectionHeader(
-                                        showAddButton: state.loadStatus != LoadStatus.completed ,
+                                        showAddButton:   state.loadStatus != LoadStatus.completed &&   state.loadStatus != LoadStatus.podDispatched,
                                         context: context,
                                         title:  context.appText.damageAndShortage,
                                         onAdd: () {
@@ -408,7 +408,8 @@ if (loadStatus == 4) {
                                       20.height,
                                       _buildAdableSectionHeader(
                                         context: context,
-                                         showAddButton: state.loadStatus != LoadStatus.completed,
+                                         showAddButton: state.loadStatus != LoadStatus.completed &&
+                                        loads?.data?.loadSettlement == null,
                                         title: 'Settlements',
                                         onAdd: () {
                                            Navigator.push(
@@ -428,8 +429,7 @@ if (loadStatus == 4) {
                                                     if (mounted) {
                                                       getLoadDetails();
                                                     }
-                                      });               
-  
+                                      });                
                                         },
                                       ),
                                       _submittedSettlementInfoWidget(
@@ -443,6 +443,18 @@ if (loadStatus == 4) {
                                
                               ],
                             ),
+                            if ((loads!.data!.loadStatusId ?? 0) > 8)
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                
+                                _submittedPodInfoWidget(
+                                loadDetails?.data?.podDispatch,
+                                context,
+                              ),
+                            ],),
+                            16.height,
+
                               Text(
                                   context.appText.timeLine,
                                   style: AppTextStyle.h4,
@@ -491,8 +503,7 @@ if (loadStatus == 4) {
                             context,
                             MaterialPageRoute(
                               builder: (context) => DriverPodDispatchScreen(
-                                loadId: loads.data!.loadId ?? '',
-                                currentStatus: loads.data!.loadStatusId ?? 8, // pass status 8
+                                loadId: loads.data!.loadId ?? '',                            
                               ),
                             ),
                           ).then((value) {
@@ -958,3 +969,42 @@ Widget _submittedSettlementInfoWidget(
     ).paddingSymmetric(horizontal: 15),
   );
 }
+
+
+//Submitted settlement
+Widget _submittedPodInfoWidget(
+  PodDispatchModel? loadSettlement,
+  BuildContext context,
+) {
+  if (loadSettlement == null) {
+    return SizedBox.shrink();
+  }
+  final courierCompany = loadSettlement.courierCompany ?? "1";
+  final awbNumber = loadSettlement.awbNumber?? "1";
+
+  return Padding(
+    padding: EdgeInsets.only(top: 15),
+    child:  Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        commonDivider(thickness: 3, height: 15),
+        15.height,
+        _buildHeading(text: context.appText.podDispatch),
+        15.height,
+        InformationView(
+          title: context.appText.courierCompany,
+          amount:courierCompany ,
+        ).paddingSymmetric(horizontal: 15),
+        10.height,
+        InformationView(
+          title: context.appText.awbNumber,
+          amount:awbNumber ,
+        ).paddingSymmetric(horizontal: 15),
+        10.height,
+        commonDivider(thickness: 3, height: 15),
+      ],
+    ),
+  );
+}
+
+

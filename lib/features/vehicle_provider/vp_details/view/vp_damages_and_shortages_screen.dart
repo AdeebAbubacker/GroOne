@@ -336,6 +336,9 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
             labelText: context.appText.description,
             hintText: context.appText.tvCrackedScreenNote,
             maxLines: 2,
+            inputFormatters: [
+            LengthLimitingTextInputFormatter(500), 
+          ],
           ),
           30.height,
 
@@ -495,6 +498,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
       builder: (context, state) {
         final isLoading = state.uploadDamageUIState?.status == Status.LOADING;
         return UploadAttachmentFiles(
+          isdocSupportWithoutPdf: false,
           title: context.appText.productPhoto,
           multiFilesList: multiFilesList,
           isMultipleSelectionFile: false,

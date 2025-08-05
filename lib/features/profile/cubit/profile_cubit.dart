@@ -32,6 +32,7 @@ import 'package:gro_one_app/features/profile/model/settings_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
 import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
@@ -332,7 +333,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-   // Update Driver
+   // Update Vehicle
   Future<void> updateVehicle({required String vehicleId, required VehicleRequest request}) async {
     userId = await _repo.getUserId();
 
@@ -408,7 +409,24 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
      return result;
   }
+  
+  //   // Update vehicle status from api call
+  // void _setUpdateVehicleStatusUIState(UIState<PaginatedVehicleList>? uiState){
+  //   emit(state.copyWith(vehicleState: uiState));
+  // }
 
+  // Future<void> fetchVehicle({bool isLoading = true,String? search}) async {
+  //   if(isLoading) _setUpdateVehicleStatusUIState(UIState.loading());
+  //   userId = await _repo.getUserId();
+
+  //   dynamic result = await _repo.fetchVehicle(userId: userId ?? '',search: search);
+  //   if (result is Success<PaginatedVehicleList>) {
+  //     _setUpdateVehicleStatusUIState(UIState.success(result.value));
+  //   }
+  //   if (result is Error) {
+  //     _setUpdateVehicleStatusUIState(UIState.error(result.type));
+  //   }
+  // }
 
     // Create New driver from api call
   void _setCreateDriverUIState(UIState<DriverNewModel>? uiState){

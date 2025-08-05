@@ -1166,5 +1166,8 @@
   "viewTripStatement":"View Trip Statement",
   "alreadyVerified":"Already Verified",
   "preferredLanes":"Preferred Lanes Required",
-  "allLoads":"All Loads"
+  "allLoads":"All Loads",
+   "docSupportWithoutPdf": "*Only support .jpg, .png & .heic files not more than 5 mb.",
+  "uploadRC": "Upload RC",
+  "uploadLicense": "Upload License"  
 }

@@ -22,10 +22,12 @@ import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 class UploadAttachmentFiles extends StatefulWidget {
   final List multiFilesList;
   final bool? isSingleFile;
+  final bool isdocSupportWithoutPdf;
   final bool isMultipleSelectionFile;
   final bool? isLoading;
   final bool? hideDeleteButton;
   final String? title;
+  final String? uploadTextField;
   final Function? thenUploadFileToSever;
   final void Function(int)? onDelete;
   final List? allowedExtensions;
@@ -38,7 +40,9 @@ class UploadAttachmentFiles extends StatefulWidget {
     this.isLoading = false,
     this.hideDeleteButton = false,
     this.onDelete,
+    this.uploadTextField,
     this.allowedExtensions,
+    this.isdocSupportWithoutPdf = false,
   });
 
   @override
@@ -202,7 +206,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
 
             if (widget.title != null)...[
               Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
-              Text(context.appText.docSupport, style: AppTextStyle.body4GreyColor),
+              Text(widget.isdocSupportWithoutPdf? context.appText.docSupport :context.appText.docSupportWithoutPdf, style: AppTextStyle.body4GreyColor),
               10.height,
             ],
 
@@ -246,7 +250,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                          Text(context.appText.uploadDocument, style: AppTextStyle.textFiled),
+                         Text(widget.uploadTextField ?? context.appText.uploadDocument, style: AppTextStyle.textFiled),
                           10.width,
                           SvgPicture.asset(AppIcons.svg.documentUpload, width: 16, colorFilter: AppColors.svg(AppColors.iconColor)),
                         ],

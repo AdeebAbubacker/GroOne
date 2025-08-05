@@ -414,11 +414,10 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     return (distanceInMeters / 1000).toStringAsFixed(2);
   }
   
-  // Updates the UI state related to tracking distance.
+      // Updates the UI state related to tracking distance.
   void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
     emit(state.copyWith(trackingDistance: uiState));
   }
-
 
   // Lp load tracking distance
   Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
@@ -427,6 +426,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     Result result = await _lpLoadRepository.getTrackingDistance(request: request);
 
     if (result is Success<TrackingDistanceResponse>) {
+      emit(state.copyWith(locationDistance: result.value.overalldistance));
       _setTrackingDistanceState(UIState.success(result.value));
     } else if (result is Error) {
       _setTrackingDistanceState(UIState.error(result.type));

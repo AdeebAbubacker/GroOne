@@ -633,12 +633,18 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
+  // String formatMobileNumber(String number) {
+  //   if (!number.startsWith("+91") && number.length == 10) {
+  //     return "+91$number";
+  //   }
+  //   return number;
+  // }
   String formatMobileNumber(String number) {
-    if (!number.startsWith("+91") && number.length == 10) {
-      return "+91$number";
-    }
-    return number;
+  if (number.startsWith("+91")) {
+    return number.substring(3); // Removes first 3 characters: "+91"
   }
+  return number;
+}
 
   Widget buildDriverTab() {
     return Column(
@@ -934,7 +940,7 @@ class _MasterScreenState extends State<MasterScreen>
                 title: context.appText.edit,
               ).expand(),
             ],
-          ),
+          ).paddingSymmetric(horizontal: 15),
         ],
       ),
     );
@@ -1061,7 +1067,7 @@ class _MasterScreenState extends State<MasterScreen>
                 title: context.appText.edit,
               ).expand(),
             ],
-          ),
+          ).paddingSymmetric(horizontal: 15),
         ],
       ),
     );
@@ -1079,6 +1085,7 @@ class _MasterScreenState extends State<MasterScreen>
     listener: (context, state) {
       //  (vehicle existence)
       if (state.vehicleVerificationState?.status == Status.ERROR) {
+        print("--------eerror ${state.vehicleVerificationState?.data?.message}");
         ToastMessages.error(
           message: context.appText.vehicleRegNoAlreadyExcist,
         );
@@ -1088,11 +1095,13 @@ class _MasterScreenState extends State<MasterScreen>
 
       //  Vahan verification 
       if (state.verifiedVehicleVahanState?.status == Status.SUCCESS) {
+           print("--------success ${state.vehicleVerificationState?.data?.message}");
         ToastMessages.success(
           message: context.appText.vehicleRegNoVerified,
         );
         onVerificationResult(true);
       } else if (state.verifiedVehicleVahanState?.status == Status.ERROR) {
+           print("--------vahan ${state.verifiedVehicleVahanState?.data?.message}");
         ToastMessages.error(
           message: getErrorMsg(
             errorType:
@@ -1137,7 +1146,7 @@ class _MasterScreenState extends State<MasterScreen>
               final vehicleVerificationState = profileCubit.state.vehicleVerificationState;
               if (vehicleVerificationState?.status == Status.SUCCESS) {
                 profileCubit.verifyVehcileFromVahan(
-                request:  VehicleVahanRequest(vehicleNumber: vehicleNoController.text), // Call Vahan API
+                request:  VehicleVahanRequest(vehicleNumber: vehicleNoController.text),
                 );
               }
             });
@@ -1548,6 +1557,7 @@ class _MasterScreenState extends State<MasterScreen>
                       multiFilesList: localRcDocList,
                       isSingleFile: true,
                       isLoading: isUploading,
+                      uploadTextField: context.appText.uploadRC,
                       thenUploadFileToSever: () async {
                         final result = await _uploadRCBookCall(
                           context,
@@ -1709,8 +1719,7 @@ class _MasterScreenState extends State<MasterScreen>
                   rcNumber: rcNumberController.text.trim(),
                   rcDocLink: rcDocLink,
                   tonnage: capacityController.text.trim(),
-                  truckTypeId: selectedTruckType?.id ?? 1,
-                 
+                  truckTypeId: selectedTruckType?.id ?? 1,      
                   // acceptableCommodities:
                   //     selectedCommodities.map(int.parse).toList(),
                  
@@ -1878,6 +1887,7 @@ class _MasterScreenState extends State<MasterScreen>
                   UploadAttachmentFiles(
                     multiFilesList: localLicenseDocList,
                     isSingleFile: true,
+                    uploadTextField: context.appText.uploadLicense,
                     isLoading: isUploading,
                     thenUploadFileToSever: () async {
                       final result = await _uploadLicenseCopy(
@@ -2084,7 +2094,7 @@ class _MasterScreenState extends State<MasterScreen>
       validator: (value) => Validator.fieldRequired(value, fieldName: label),
       controller: controller,
       labelText: label,
-      inputFormatters: [FilteringTextInputFormatter.allow(pattern)],
+      inputFormatters: [FilteringTextInputFormatter.allow(pattern), LengthLimitingTextInputFormatter(100), ],
     );
   }
 }
