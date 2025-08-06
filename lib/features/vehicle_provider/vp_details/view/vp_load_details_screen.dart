@@ -60,8 +60,11 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   @override
   void initState() {
     getLoadDetails();
+    _resetPreviousDocumentState();
     super.initState();
   }
+
+
 
   callApi(LoadDetailModelData loadItem) async {
     if(loadItem.trackingDetails==null){
@@ -75,6 +78,10 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
       destLat: loadItem.trackingDetails?.destinationLat ?? 0.0,
       destLong: loadItem.trackingDetails?.destinationLong ?? 0.0,
     ));
+  }
+
+  void _resetPreviousDocumentState(){
+    cubit.resetTripDocumentState();
   }
 
   @override

@@ -125,9 +125,14 @@ class TripDetails extends StatelessWidget {
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text("${loadDetails?.loadRoute?.pickUpLocation.split(",").first} ",maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                          Text("${loadDetails?.loadRoute?.pickUpLocation.split(",").first} ",maxLines: 1,overflow: TextOverflow.ellipsis,).expand(),
                                           Icon(Icons.arrow_forward, size: 12),
-                                          Text("${loadDetails?.loadRoute?.dropLocation?.split(",").first}",maxLines: 1,overflow: TextOverflow.ellipsis,),
+                                          Text(
+                                            "${loadDetails?.loadRoute?.dropLocation.split(",").first}",maxLines: 1,overflow: TextOverflow.ellipsis,
+                                            textAlign: TextAlign.end,
+
+
+                                          ).expand(),
                                         ],
                                       ),
                                     ),

@@ -15,7 +15,7 @@ class EmailVerificationCubit extends BaseCubit<EmailVerificationState> {
   final EmailVerificationRepository _repository;
   Timer? _timer;
   EmailVerificationCubit(this._repository) : super(EmailVerificationState());
-
+  String? _lastVerifiedEmail;
 
   // Set Otp
   void setOtp(String? value) {
@@ -28,8 +28,11 @@ class EmailVerificationCubit extends BaseCubit<EmailVerificationState> {
   }
 
   // Enable verify button
-  void setVerifiedEmail(bool value){
+  void setVerifiedEmail(bool value,{String? email}){
     emit(state.copyWith(isVerifiedEmail: value));
+    if (state.isVerifiedEmail && email != null) {
+      _lastVerifiedEmail = email;
+    }
   }
 
 
@@ -88,6 +91,13 @@ class EmailVerificationCubit extends BaseCubit<EmailVerificationState> {
       verifyOtpState: resetUIState<VerifyEmailOtpModel>(state.verifyOtpState),
       resendOtpState: resetUIState<ResendEmailOtpModel>(state.resendOtpState),
     ));
+  }
+
+  /// check modified email
+  void checkIfEmailChanged(String currentEmail) {
+
+    final isSame = currentEmail.trim() == _lastVerifiedEmail?.trim();
+    emit(state.copyWith(isVerifiedEmail: isSame));
   }
 
 

@@ -1,8 +1,10 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -14,6 +16,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
+import 'package:mime/mime.dart';
 
 
 class AddNewTicketScreen extends StatefulWidget {
@@ -30,7 +33,8 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
   final descriptionController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  final List<String> _uploadedFiles = [];
+  final List<dynamic> ticketList = [];
+  String? ticketDocId;
 
   @override
   void dispose() {
@@ -47,14 +51,17 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
           issueCategory: issueCategoryController.text.trim(),
           title: titleController.text.trim(),
           description: descriptionController.text.trim(),
-          attachmentLink: _uploadedFiles,
+          attachmentLink: ticketDocId != null ? [ticketDocId] : [],
         ),
       );
 
        var uiState = profileCubit.state.createTicketState;
 
        if (uiState?.status == Status.SUCCESS) {
-         Navigator.pop(context);
+         WidgetsBinding.instance.addPostFrameCallback((_) {
+           Navigator.pop(context);
+           ToastMessages.success(message: context.appText.ticketCreatedSuccess);
+         });
        }
 
 
@@ -104,9 +111,38 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
 
               UploadAttachmentFiles(
                 title: context.appText.attachment,
-                multiFilesList: _uploadedFiles,
+                multiFilesList: ticketList,
                 isSingleFile: true,
                 allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
+                thenUploadFileToSever: () async {
+                  final Result result = await uploadTicketDocumentApiCall(ticketList);
+                  if(result is Success) {
+                    final ticketData = profileCubit.state.uploadTicketDocUIState?.data;
+                    if(ticketData != null &&  ticketList.isNotEmpty){
+                      final mimeType = lookupMimeType(ticketList.first['extension']);
+                      final apiRequest =  CreateDocumentApiRequest(
+                        documentTypeId : 342,
+                        title : 'Support Ticket',
+                        description : 'Ticket',
+                        originalFilename : ticketData.originalName,
+                        filePath : ticketData.filePath,
+                        fileSize : ticketData.size,
+                        mimeType : mimeType,
+                        fileExtension : ticketList.first['extension'],
+                      );
+                      await createDocumentApiCall(apiRequest);
+                      if(profileCubit.state.createDocumentUIState?.status == Status.SUCCESS){
+                        if(profileCubit.state.createDocumentUIState?.data != null && profileCubit.state.createDocumentUIState?.data?.data != null){
+                          ticketDocId = profileCubit.state.createDocumentUIState!.data!.data!.documentId;
+                        }
+                      }
+                      debugPrint("ticketDocId : $ticketDocId");
+                    }
+                  }
+                },
+                  onDelete: (index) {
+                    ticketList.remove(index);
+                  }
               ),
 
               const Spacer(),
@@ -120,5 +156,37 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
         ),
       ),
     );
+  }
+
+  Future<Result<bool>> uploadTicketDocumentApiCall(List<dynamic> multiFilesList) async {
+    await profileCubit.uploadTicketDoc(File(multiFilesList.first['path']));
+    final status = profileCubit.state.uploadTicketDocUIState?.status;
+    if (status != null &&  status == Status.SUCCESS) {
+      final data = profileCubit.state.uploadTicketDocUIState?.data;
+      final url = data?.url ?? '';
+      if (url.isNotEmpty) {
+        ticketList.first['path'] = url;
+        return Success(true);
+      }
+    }
+    if (status == Status.ERROR) {
+      final errorType = profileCubit.state.uploadTicketDocUIState?.errorType;
+      ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()));
+    }
+    return Error(GenericError());
+  }
+
+  // Create Document Api Call
+  Future<Result<bool>> createDocumentApiCall(CreateDocumentApiRequest request) async {
+    await profileCubit.createDocument(request);
+    final status = profileCubit.state.createDocumentUIState?.status;
+    if (status == Status.SUCCESS) {
+      return Success(true);
+    }
+    if (status == Status.ERROR) {
+      final error = profileCubit.state.createDocumentUIState?.errorType;
+      return Error(error ?? GenericError());
+    }
+    return Error(GenericError());
   }
 }

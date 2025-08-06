@@ -231,9 +231,16 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
 
  // Or Divider
+ // Or Divider
   Widget orDivider() {
     return Row(
       children: [
+         Expanded(
+          child: Divider(
+            thickness: 1,
+          color: AppColors.primaryColor,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(

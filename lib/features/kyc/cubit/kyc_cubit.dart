@@ -22,6 +22,7 @@ import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
+import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
@@ -126,7 +127,9 @@ class KycCubit extends BaseCubit<KycState> {
   }
 
   Future<void> getKYCStatus(String requestID) async {
-    emit(state.copyWith(aadharVerificationResponse: UIState.loading()));
+    emit(state.copyWith(
+        kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
+        aadharVerificationResponse: UIState.loading()));
     Result result = await _repo.getKYCStatus(requestID);
     if (result is Success<AadharVerificationResponse>) {
       emit(state.copyWith(aadharVerificationResponse: UIState.success(result.value)));
@@ -254,6 +257,24 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
+  void _setUploadAadharDocUIState(UIState<UploadAadharDocumentModel>? uiState){
+    emit(state.copyWith(uploadAadharDocUIState: uiState));
+  }
+
+
+
+  // Upload Aadhar DOC
+  Future<void> uploadAadharDoc(File file) async {
+    _setUploadAadharDocUIState(UIState.loading());
+    Result result = await _repo.getUploadAadharDocument(file);
+    if (result is Success<UploadAadharDocumentModel>) {
+      _setUploadAadharDocUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setUploadAadharDocUIState(UIState.error(result.type));
+    }
+  }
+
 
   // // Upload TDS File
   void _setUploadTdsDocUIState(UIState<UploadTDSDocumentModel>? uiState){
@@ -342,6 +363,9 @@ class KycCubit extends BaseCubit<KycState> {
       uploadTanDocUIState: resetUIState<UploadTANDocumentModel>(state.uploadTanDocUIState),
       uploadGSTDocUIState: resetUIState<UploadGSTDocumentModel>(state.uploadGSTDocUIState),
       aadhaarVerifyOtpState: resetUIState<AadhaarVerifyOtpModel>(state.aadhaarVerifyOtpState),
+      aadharVerificationResponse: resetUIState<AadharVerificationResponse>(state.aadharVerificationState),
+      kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
+
       // stateUIState: resetUIState<List<StateModelList>>(state.stateUIState?.data ?? []),
       // cityUIState: resetUIState<List<CityModel>>(state.cityUIState),
       aadhaarOtpState: resetUIState<AadhaarOtpModel>(state.aadhaarOtpState),

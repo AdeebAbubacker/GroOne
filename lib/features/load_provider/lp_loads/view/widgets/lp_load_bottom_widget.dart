@@ -176,7 +176,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
       left: 0,
       right: 0,
       child: Container(
-        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.45),
+        constraints: BoxConstraints(maxHeight: widget.loadStatus == LoadStatus.matching ? MediaQuery.of(context).size.height * 0.35 : MediaQuery.of(context).size.height * 0.45),
         decoration: commonContainerDecoration(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
@@ -563,7 +563,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
               ),
             if(widget.loadStatus == LoadStatus.completed)
               AppButton(onPressed: () {
-                Navigator.push(context, commonRoute(LpLoadSummaryScreen(loadId: widget.loadItem.loadId)));
+                Navigator.push(context, commonRoute(LpLoadSummaryScreen(loadId: widget.loadItem.loadId, loadItem: widget.loadItem)));
               }, title: context.appText.tripSettlement).paddingSymmetric(horizontal: 10, vertical: 10)
           ],
         ),

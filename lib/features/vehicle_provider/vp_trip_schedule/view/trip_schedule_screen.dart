@@ -19,6 +19,7 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -49,7 +50,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
   String? truckType;
   String? driverType;
-
+  List<VehicleDetail> vehicleList = [];
 
   String? possibleDeliveryDate;
   final formKey = GlobalKey<FormState>();
@@ -106,12 +107,13 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           listener: (context, state) {
             if (state is VpVehicleListSuccess) {
               setState(() {
-                vehicleDetail = state.vehicleListResponse.data;
+                vehicleDetail = state.vehicleListResponse.data.where((element) => element.status==1).toList();
               });
             }
             if (state is VpDriverListSuccess) {
+
               setState(() {
-                driverDetails = state.driverListResponse.data;
+                driverDetails = state.driverListResponse.data.where((element) => element.status==1).toList();
               });
             }
           },
@@ -130,22 +132,16 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          AppDropdown(
-                            validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.truckNumber),
-                            hintText: context.appText.truckNumber,
-                            labelText: context.appText.truckNumber,
-                            mandatoryStar: true,
-                            dropdownValue: truckType,
-                            decoration: commonInputDecoration(fillColor: Colors.white),
-                            dropDownList: vehicleDetail.map((e) => DropdownMenuItem(
-                              value: e.id.toString(),
-                              child: Text(e.truckNumber, style: AppTextStyle.body),
-                            ),
-                            ).toList(),
-                            onChanged: (onChangeValue) {
-                              truckType = onChangeValue;
-                            },
-                          ),
+                          truckNoSearchableDropdown(
+                          context,
+                          truckType,
+                          (truckId) {
+                            setState(() {
+                              truckType = truckId;
+                            });
+                          },
+                          vehicleDetail,
+                        ),
 
                           GestureDetector(
                               onTap: () => addVehicleAndDriver(),
@@ -157,22 +153,16 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         spacing: 8,
                         children: [
-                          AppDropdown(
-                            labelText: context.appText.driverNameAndNumber,
-                            mandatoryStar: true,
-                            validator: (value) => Validator.fieldRequired(value),
-                            hintText: context.appText.selectDriver,
-                            dropdownValue: driverType,
-                            decoration: commonInputDecoration(fillColor: Colors.white),
-                            dropDownList: driverDetails.map((e) => DropdownMenuItem(
-                              value: e.id.toString(),
-                              child: Text(e.name, style: AppTextStyle.body),
-                            ),
-                            ).toList(),
-                            onChanged: (onChangeValue) {
-                              driverType = onChangeValue;
-                            },
-                          ),
+                           driverDropdown(
+                          context,
+                          driverType,
+                          (driverId) {
+                            setState(() {
+                              driverType = driverId;
+                            });
+                          },
+                          driverDetails,
+                        ),
                           GestureDetector(
                               onTap: () => addVehicleAndDriver(),
                               child: Text(context.appText.addDriver)),
@@ -285,4 +275,101 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     );
   }
 
+
+
+    static Widget truckNoSearchableDropdown(
+      BuildContext context,
+      String? selectedTruckId,
+      ValueChanged<String?> onTruckChanged,
+      List<VehicleDetail> vehicleList,
+    ) {
+      // Create a list of truck numbers for dropdown items
+      final truckNumbers = vehicleList.map((e) => e.truckNumber).toList();
+
+      return SearchableDropdown(
+        labelText: context.appText.truckNumber,
+        mandatoryStar: true,
+        selectedItem: selectedTruckId != null
+            ? vehicleList.firstWhere(
+                (v) => v.id == selectedTruckId,
+              ).truckNumber
+            : null,
+        items: truckNumbers,
+        hintText: context.appText.select,
+        onChanged: (String? newTruckNumber) {
+          if (newTruckNumber != null) {
+            final selectedVehicle = vehicleList.firstWhere(
+              (v) => v.truckNumber == newTruckNumber,
+            );
+            if (selectedVehicle.id != null && selectedVehicle.id!.isNotEmpty) {
+              onTruckChanged(selectedVehicle.id);
+            } else {
+              onTruckChanged(null);
+            }
+          }
+        },
+        dropdownBuilder: (context, selectedItem) {
+          if (selectedItem == null || selectedItem.isEmpty) {
+            return SizedBox.shrink();
+          }
+          return Row(
+            children: [
+              Text(selectedItem),
+            ],
+          );
+        },
+        emptyBuilder: (context, _) => const Center(child: Text("No trucks found")),
+      );
+      }
+
+
+
+    static Widget driverDropdown(
+  BuildContext context,
+  String? selectedDriverId,
+  ValueChanged<String?> onDriverChanged,
+  List<DriverDetails> driverList,
+) {
+  // Create a list of truck numbers for dropdown items
+  final truckNumbers = driverList.map((e) => e.name).toList();
+
+  return SearchableDropdown(
+    labelText: context.appText.driverNameAndNumber,
+    mandatoryStar: true,
+    selectedItem: selectedDriverId != null
+        ? driverList.firstWhere(
+            (v) => v.id == selectedDriverId,
+          ).name
+        : null,
+    items: truckNumbers,
+    hintText: context.appText.select,
+    onChanged: (String? newDriver) {
+      if (newDriver != null) {
+        final selectedDriver = driverList.firstWhere(
+          (v) => v.name == newDriver,
+        );
+        if (selectedDriver.id != null && selectedDriver.id!.isNotEmpty) {
+          onDriverChanged(selectedDriver.id);
+        } else {
+          onDriverChanged(null);
+        }
+      }
+    },
+    dropdownBuilder: (context, selectedItem) {
+      if (selectedItem == null || selectedItem.isEmpty) {
+        return SizedBox.shrink();
+      }
+      return Row(
+        children: [
+          Text(selectedItem),
+        ],
+      );
+    },
+    emptyBuilder: (context, _) => const Center(child: Text("No Driver found")),
+  );
   }
+
+
+  }
+
+

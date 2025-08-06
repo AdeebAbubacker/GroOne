@@ -38,7 +38,6 @@ class UploadTDSDocumentModel {
       mimeType: json["mimeType"] ?? "",
     );
   }
-
 }
 
 

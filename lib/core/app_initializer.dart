@@ -33,7 +33,7 @@ Future<void> initializeApp() async {
 
     // Load Environment Variables
     try {
-      await dotenv.load(fileName: kDebugMode ? "assets/env/.env.dev" : "assets/env/.env.prod");
+      await dotenv.load(fileName: kDebugMode ? "assets/env/.env.dev" : "assets/env/.env.production");
       debugPrint("Environment variables loaded successfully");
     } catch (e) {
       debugPrint("Failed to load environment variables: $e");

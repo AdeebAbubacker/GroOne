@@ -312,6 +312,9 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
             labelText: context.appText.description,
             hintText: context.appText.tvCrackedScreenNote,
             maxLines: 2,
+            inputFormatters: [
+            LengthLimitingTextInputFormatter(500), 
+          ],
           ),
           30.height,
 
@@ -471,6 +474,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
         debugPrint("Multi File List : ${multiFilesList.length}");
         debugPrint("Upload Damage File List : ${uploadedDamageFileList.length}");
         return UploadAttachmentFiles(
+          isdocSupportWithoutPdf: false,
           title: "Product Photo",
           multiFilesList: multiFilesList,
           isMultipleSelectionFile: false,

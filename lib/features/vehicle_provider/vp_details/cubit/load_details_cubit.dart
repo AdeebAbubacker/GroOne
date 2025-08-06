@@ -43,8 +43,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LoadDetailsRepository _loadDetailsRepository;
   final VpHomeRepository _vHomeRepository;
   final LpLoadRepository _lpLoadRepository;
+  final LpLoadRepository _lpLoadsrepository;
 
-  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadRepository)
+  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadRepository,this._lpLoadsrepository)
       : super(LoadDetailsState(
       tripDocumentList: documentTypeList
   ));
@@ -85,17 +86,22 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
+  void resetTripDocumentState(){
+    emit(state.copyWith(
+        tripDocumentList: documentTypeList));
+  }
+
+
   Future<void> getLoadDetails(String loadId) async {
-    emit(state.copyWith(loadDetailsUIState: UIState.loading()));
+    emit(state.copyWith(
+        loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
     if (result is Success<LoadDetailModel>) {
       emit(state.copyWith(
-          locationDistance: getDistance(
-              result.value.data?.loadRoute?.pickUpLatlon ?? "0",
-              result.value.data?.loadRoute?.dropLatlon ?? "0"),
           loadDetailsUIState: UIState.success(result.value)));
       getAllDamagesImages(getFromDetails: true);
+
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
 
       /// SET TRIP DOCUMENT
@@ -353,19 +359,19 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
-  // Updates the UI state related to tracking distance.
+   // Updates the UI state related to tracking distance.
   void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
     emit(state.copyWith(trackingDistance: uiState));
   }
-
 
   // Lp load tracking distance
   Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
     _setTrackingDistanceState(UIState.loading());
 
-    Result result = await _lpLoadRepository.getTrackingDistance(request: request);
+    Result result = await _lpLoadsrepository.getTrackingDistance(request: request);
 
     if (result is Success<TrackingDistanceResponse>) {
+      emit(state.copyWith(locationDistance: result.value.overalldistance));
       _setTrackingDistanceState(UIState.success(result.value));
     } else if (result is Error) {
       _setTrackingDistanceState(UIState.error(result.type));

@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
+import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
+import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
@@ -15,6 +17,7 @@ import 'package:gro_one_app/features/profile/api_request/profile_upload_request.
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
@@ -31,13 +34,16 @@ import 'package:gro_one_app/features/profile/model/profile_update_response.dart'
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
 import 'package:gro_one_app/features/profile/model/settings_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_response.dart';
+import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
 import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class ProfileRepository {
@@ -185,7 +191,15 @@ class ProfileRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-
+  
+    /// update Status of vehicle
+  Future<Result<VehcileUpdatedStatusModel>> updateVehicleStatus({required String vehicleId, required VehicleStatusUpdateRequest request}) async {
+    try {
+      return await _profileService.updateVehicleStatus(vehicleId: vehicleId, request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
   /// Get Vehicle
   Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId,String? search}) async {
     try {
@@ -386,6 +400,32 @@ Future<Result<bool>> deleteVehicle({
       return Success(blueId);
     } catch (e) {
       CustomLog.error(this, "Failed to get blue id", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Upload Ticket
+  Future<Result<UploadTicketResponse>> getUploadTicketData(File file) async {
+    try {
+      return await _profileService.fetchUploadTicketData(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: SUPPORT_TICKET,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload ticket document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Create Document Repo
+  Future<Result<CreateDocumentModel>> getCreateDocumentData(CreateDocumentApiRequest request) async {
+    try {
+      final userId = await _userInformationRepository.getUserID();
+      return await _profileService.createDocument(request.copyWith(createdBy: userId));
+    } catch (e) {
+      CustomLog.error(this, "Failed to get create document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_o
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_consignee_add_success_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_create_order_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
@@ -273,6 +274,24 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setRouteDetailsState(UIState.success(result.value));
     } else if (result is Error) {
       _setRouteDetailsState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to load status.
+  void _setLoadStatusState(UIState<List<LoadStatusResponse>>? uiState) {
+    emit(state.copyWith(loadStatus: uiState));
+  }
+
+  // Fetches the LP load route Details.
+  Future<void> getLoadStatus() async {
+    _setLoadStatusState(UIState.loading());
+
+    Result result = await _repository.fetchLoadStatus();
+
+    if (result is Success<List<LoadStatusResponse>>) {
+      _setLoadStatusState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setLoadStatusState(UIState.error(result.type));
     }
   }
 

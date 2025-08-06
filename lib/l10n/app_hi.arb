@@ -1056,4 +1056,10 @@
   "realTimeExpenseDesc": "प्रत्येक ड्राइवर या वाहन द्वारा उपयोग की गई राशि की रीयल-टाइम दृश्यता देता है।",
   "easyReconciliation": "आसान पुनर्मिलान",
   "easyReconciliationDesc": "डिजिटल रिकॉर्ड से कागजी कार्य कम होते हैं और GST इनपुट क्रेडिट में मदद मिलती है।"
+  "noSearchResults": "आपकी खोज से कोई परिणाम नहीं मिला",
+  "uploadLicense": "लाइसेंस अपलोड करें",
+  "allLoads": "सभी लोड्स",
+  "ticketCreatedSuccess": "टिकट सफलतापूर्वक बनाया गया!",
+  "balanceUnpaid": "बकाया शेष"
+
 }

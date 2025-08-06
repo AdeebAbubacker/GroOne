@@ -61,6 +61,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
 
+    bool isPriceIntoRange=checkPriceIntoRange(widget.data.vpRate, widget.data.vpMaxRate);
+
     return Container(
       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       decoration: commonContainerDecoration(
@@ -210,12 +212,17 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   ///Add document list once it get from api
                   VpMyLoadUIHelper.loadStatusButtonWidget(
                     status: widget.data.loadStatusDetails!.loadStatus,
+                    isIntoRangePrice: isPriceIntoRange,
                     enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                       loadStatus: widget.data.loadStatusValues ,
                       documentList: widget.data.loadDocument??[]
                     ),
                       context: context,
-                    onPressed: () {
+                    onPressed: () async {
+                      if(isPriceIntoRange){
+                        await callRedirect(SUPPORT_NUMBER);
+                        return;
+                      }
                       _handleOnTap(widget.data.loadStatusDetails,widget.data.loadStatusValues,widget.data.id,widget.data.loadStatus.toInt());
                     }
                 ).expand(),
@@ -254,7 +261,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
   _handleOnTap(LoadStatusDetailsResponse? loadStatus,LoadStatus? loadStatusValues,String? id,int? loadStatusId) async {
      String? userId = await vpHomeBloc.getUserId();
-      if((loadStatusValues?.index??0)>LoadStatus.assigned.index && loadStatusValues!=LoadStatus.completed){
+      if((loadStatusValues?.index??0)>LoadStatus.assigned.index && loadStatusValues!=LoadStatus.completed && loadStatusValues!=LoadStatus.podDispatched){
+        print("coming here");
        await loadDetailsCubit.changedLoadStatus(
             id??"0",
             customerId: userId??"",

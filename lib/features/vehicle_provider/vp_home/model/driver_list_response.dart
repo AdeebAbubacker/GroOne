@@ -59,7 +59,7 @@ class DriverDetails {
       email: json["email"] ?? "",
       licenseNumber: json["licenseNumber"] ?? "",
       licenseDocLink: json["licenseDocLink"] ?? "",
-      status: json["status"] ?? 0,
+      status: json["driverStatus"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
       licenseExpiryDate: DateTime.tryParse(json["licenseExpiryDate"] ?? ""),
