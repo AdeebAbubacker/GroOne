@@ -1,0 +1,68 @@
+
+
+import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
+import 'package:gro_one_app/utils/app_searchabledropdown.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+
+class VpCompanyTypeSearchableDropdown extends StatelessWidget {
+  final String? selectedCompanyTypeId;
+  final ValueChanged<String?> onCompanyTypeChanged;
+  final List<VpCompanyTypeModel> companyTypeList;
+  final String labelText;
+  final String hintText;
+  final bool mandatoryStar;
+
+  const VpCompanyTypeSearchableDropdown({
+    Key? key,
+    required this.selectedCompanyTypeId,
+    required this.onCompanyTypeChanged,
+    required this.companyTypeList,
+    required this.labelText,
+    required this.hintText,
+    this.mandatoryStar = false,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final companyTypeNames = companyTypeList.map((e) => e.companyType.toString()).toList();
+
+    final selectedItem = selectedCompanyTypeId != null
+        ? companyTypeList.firstWhere(
+            (e) => e.id.toString() == selectedCompanyTypeId,
+          ).companyType.toString()
+        : null;
+
+    return SearchableDropdown(
+      labelText: labelText,
+      mandatoryStar: mandatoryStar,
+      selectedItem: selectedItem?.isEmpty ?? true ? null : selectedItem,
+      items: companyTypeNames,
+      hintText: hintText,
+      onChanged: (String? newCompanyTypeName) {
+        if (newCompanyTypeName != null) {
+          final selectedCompanyType = companyTypeList.firstWhere(
+            (e) => e.companyType.toString() == newCompanyTypeName,
+          );
+          if (selectedCompanyType.id != null) {
+            onCompanyTypeChanged(selectedCompanyType.id.toString());
+          } else {
+            onCompanyTypeChanged(null);
+          }
+        }
+      },
+      dropdownBuilder: (context, selectedItem) {
+        if (selectedItem == null || selectedItem.isEmpty) {
+          return SizedBox.shrink();
+        }
+        return Row(
+          children: [
+            Text(selectedItem, style: AppTextStyle.body),
+          ],
+        );
+      },
+      emptyBuilder: (context, _) => Center(child: Text("No company types found")),
+    );
+  }
+}

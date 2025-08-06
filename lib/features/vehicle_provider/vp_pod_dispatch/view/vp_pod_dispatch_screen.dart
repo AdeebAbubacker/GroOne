@@ -1,4 +1,70 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/api_request/submit_pod_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/alpha_only_formatter.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:gro_one_app/utils/validator.dart';
+
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/api_request/submit_pod_api_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dropdown.dart';
+import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:gro_one_app/utils/validator.dart';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -39,8 +105,6 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
   final awbNumberTextController = TextEditingController();
 
   String? podCenterIdDropDownValue;
-  String? podCenterNameDropDownValue;
-
   bool isPodCenterDropDownEnabled = false;
 
 
@@ -57,7 +121,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
   }
 
   void initFunction() => frameCallback(() async {
-    cubit.fetchPodCenterList();
+    
   });
 
   void disposeFunction() => frameCallback(() {
@@ -72,14 +136,11 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
   void clearDropDownFields() {
     podCenterIdDropDownValue = null;
-    podCenterNameDropDownValue = null;
-    isPodCenterDropDownEnabled = false;
   }
 
 
   // Submit Pod Api call
-  void submitPodApiCall() {
-  // Check loadId first
+ void submitPodApiCall() {
   if (widget.loadId == null || widget.loadId!.isEmpty) {
     ToastMessages.error(
       message: "${context.appText.somethingWentWrong} - "
@@ -88,19 +149,22 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
     return;
   }
 
-  // Either POD center OR both Courier & AWB
-  final bool isPodCenterSelected =
-      podCenterIdDropDownValue != null && podCenterIdDropDownValue!.isNotEmpty;
+  final bool isCourierEntered = courierCompanyTextController.text.trim().isNotEmpty;
+  final bool isAwbEntered = awbNumberTextController.text.trim().isNotEmpty;
+  
+  // Both fields are now required (since Pod Center is removed)
+  if (!isCourierEntered || !isAwbEntered) {
+    if (!isCourierEntered) {
+      ToastMessages.alert(
+        message: context.appText.pleaseEnterCourierCompany,
+      );
+    }
 
-  final bool isCourierAndAwbEntered =
-      courierCompanyTextController.text.trim().isNotEmpty &&
-      awbNumberTextController.text.trim().isNotEmpty;
-
-  if (!isPodCenterSelected && !isCourierAndAwbEntered) {
-    ToastMessages.alert(
-      message:
-          context.appText.eitherEnterPodCenterOrAwbNumber,
-    );
+    if (!isAwbEntered) {
+      ToastMessages.alert(
+        message: context.appText.pleaseEnterawbNumber,
+      );
+    }
     return;
   }
 
@@ -108,12 +172,16 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
     loadId: widget.loadId!,
     courierCompany: courierCompanyTextController.text.trim(),
     awbNumber: awbNumberTextController.text.trim(),
-    podCenterId: podCenterIdDropDownValue ?? "",
-    podCenterName: podCenterNameDropDownValue ?? "",
+    podCenterId: "", // no pod center id because field removed
+    podCenterName: "",
   );
 
   cubit.submitPod(request);
 }
+
+
+
+
 
 
 
@@ -140,8 +208,9 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
             validator: (value) => Validator.fieldRequired(value),
             controller: courierCompanyTextController,
             labelText: context.appText.courierCompany,
-            hintText:  context.appText.courierCompany,
+            hintText: context.appText.enterCourierCompany,
             textInputAction: TextInputAction.next,
+            inputFormatters: [AlphaOnlyTextFormatter(),],
             onChanged: (value){
               clearDropDownFields();
             },
@@ -158,55 +227,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
               clearDropDownFields();
             },
           ),
-
-          orDivider(),
-
-
-          // POD Center
-          BlocConsumer<PodDispatchCubit, PodDispatchState>(
-            bloc: cubit,
-            listenWhen: (previous, current) =>  previous.podCenterListUIState?.status != current.podCenterListUIState?.status,
-            listener: (context, state) {
-              final status = state.podCenterListUIState?.status;
-
-              if (status == Status.ERROR) {
-                final error = state.podCenterListUIState?.errorType;
-                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-              }
-
-            },
-            builder: (context, state) {
-              final data = state.podCenterListUIState?.data;
-              if(data != null && data.data.isNotEmpty){
-                return Column(
-                  children: [
-                    AppDropdown(
-                      labelText: context.appText.podCenter,
-                      hintText: context.appText.selectPodCenter,
-                      dropdownValue: podCenterIdDropDownValue,
-                      decoration: commonInputDecoration(fillColor: Colors.white),
-                      dropDownList: data.data.map((e) => DropdownMenuItem(
-                        value: e.podCenterId,
-                        child: Text(e.podCenterName.capitalize, style: AppTextStyle.body),
-                        onTap: (){
-                          podCenterIdDropDownValue = e.podCenterId;
-                          podCenterNameDropDownValue = e.podCenterName;
-                        },
-                      )).toList(),
-                      onChanged: (onChangeValue) {
-                        podCenterIdDropDownValue = onChangeValue;
-                        isPodCenterDropDownEnabled = true;
-                        clearTextFields();
-                      },
-                    ),
-                  ],
-                );
-              }
-              return const SizedBox();
-            },
-          ),
-
-        ],
+       ],
       ),
     );
   }
@@ -239,7 +260,6 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
   }
 
 
- // Or Divider
  // Or Divider
   Widget orDivider() {
     return Row(
