@@ -20,6 +20,7 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 import '../constants/app_constants.dart';
 import '../widgets/map_floating_menu.dart';
+import '../widgets/nearby_places_bottom_sheet.dart';
 
 class VehicleListScreen extends StatelessWidget {
   const VehicleListScreen({super.key});
@@ -169,10 +170,11 @@ class VehicleListView extends StatelessWidget {
                         );
                       },
                       onNearbyPlaces: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Nearby Places feature coming soon!'),
-                          ),
+                        showModalBottomSheet(
+                          context: context,
+                          backgroundColor: Colors.transparent,
+                          isScrollControlled: true,
+                          builder: (context) => const NearbyPlacesBottomSheet(),
                         );
                       },
                       isTrafficEnabled: state.trafficEnabled,
@@ -778,7 +780,7 @@ class VehicleListView extends StatelessWidget {
     return BlocBuilder<VehicleListCubit, VehicleListState>(
       builder: (context, state) {
         return Container(
-          color: AppConstants.primaryColor,
+          color: AppConstants.buyBannerColor,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           child: Row(
             children: [
@@ -794,7 +796,7 @@ class VehicleListView extends StatelessWidget {
               ElevatedButton(
                 onPressed: () {},
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.white,
+                  backgroundColor: AppConstants.buttonBackgroundColor,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -802,7 +804,7 @@ class VehicleListView extends StatelessWidget {
                 child: Text(
                   context.appText.buyNow,
                   style: const TextStyle(
-                    color: AppConstants.primaryColor,
+                    color: AppConstants.cardColor,
                     fontWeight: FontWeight.w600,
                     fontSize: 12,
                   ),

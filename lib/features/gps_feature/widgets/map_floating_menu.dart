@@ -10,7 +10,7 @@ class MapFloatingMenu extends StatefulWidget {
   final bool isSatellite;
 
   const MapFloatingMenu({
-    Key? key,
+    super.key,
     this.onToggleTraffic,
     this.onToggleMapType,
     this.onReachability,
@@ -18,7 +18,7 @@ class MapFloatingMenu extends StatefulWidget {
     this.onNearbyPlaces,
     this.isTrafficEnabled = false,
     this.isSatellite = false,
-  }) : super(key: key);
+  });
 
   @override
   State<MapFloatingMenu> createState() => _MapFloatingMenuState();
@@ -84,11 +84,26 @@ class _MapFloatingMenuState extends State<MapFloatingMenu>
   @override
   Widget build(BuildContext context) {
     final options = [
-      {'label': 'Reachability', 'icon': Icons.traffic},
-      {'label': 'Traffic', 'icon': Icons.traffic},
-      {'label': 'Nearby Vehicles', 'icon': Icons.directions_car},
-      {'label': 'Satellite Map', 'icon': Icons.satellite},
-      {'label': 'Nearby Places', 'icon': Icons.place},
+      {
+        'label': 'Reachability',
+        'iconPath': 'assets/icons/png/traffic_light_icon.png',
+      },
+      {
+        'label': 'Traffic',
+        'iconPath': 'assets/icons/png/traffic_light_icon.png',
+      },
+      {
+        'label': 'Nearby Vehicles',
+        'iconPath': 'assets/icons/png/delivery_truck_icon.png',
+      },
+      {
+        'label': 'Satellite Map',
+        'iconPath': 'assets/icons/png/map_geofence_satellite.png',
+      },
+      {
+        'label': 'Nearby Places',
+        'iconPath': 'assets/icons/png/map_pins_icon.png',
+      },
     ];
 
     return Column(
@@ -139,9 +154,14 @@ class _MapFloatingMenuState extends State<MapFloatingMenu>
                       const SizedBox(width: 8),
                       CircleAvatar(
                         backgroundColor: Colors.white,
-                        child: Icon(
-                          entry.value['icon'] as IconData,
-                          color: Colors.blue,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8),
+                          child: Image.asset(
+                            entry.value['iconPath'] as String,
+                            width: 20,
+                            height: 20,
+                            fit: BoxFit.contain,
+                          ),
                         ),
                       ),
                     ],

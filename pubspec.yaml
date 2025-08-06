@@ -90,10 +90,6 @@ dependencies:
   # Notification
   flutter_local_notifications: ^19.3.1
 
-
-
-
-
   # Environment
   flutter_dotenv: ^5.2.1
 
@@ -172,6 +168,7 @@ flutter:
     - assets/icons/png/
     - assets/icons/svg/
     - assets/icons/gif/
+    - assets/icons/vehicle_icons/
     - assets/images/svg/
     - assets/images/png/
     - assets/images/jpg/
