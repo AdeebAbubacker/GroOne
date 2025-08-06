@@ -11,6 +11,7 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
+import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
@@ -37,6 +38,7 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
+import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -81,7 +83,7 @@ class _MasterScreenState extends State<MasterScreen>
   Timer? vehicleSearchDebounce;
   Timer? addressSearchDebounce;
   Timer? driverSearchDebounce;
-
+  final kycCubit = locator<KycCubit>();
   String? selectedTruckType;
   String? selectedTruckLength;
   String? truckLengthDropdownValue;
@@ -92,8 +94,10 @@ class _MasterScreenState extends State<MasterScreen>
   bool _hasLicensetoastShown = false;
   @override
   void initState() {
-    initFunction();
     super.initState();
+     _tabController = TabController(length: 3, vsync: this);
+     kycCubit.fetchStateList(); 
+     initFunction();
   }
 
   @override
@@ -102,10 +106,11 @@ class _MasterScreenState extends State<MasterScreen>
     super.dispose();
   }
 
-  void initFunction() {
-    _tabController = TabController(length: 3, vsync: this);
+  void initFunction()=> frameCallback(() async {
+     await kycCubit.fetchUserRole();
+   
     _checkAuthenticationAndLoadData();
-  }
+   });
 
   /// Check authentication status before loading data
   Future<void> _checkAuthenticationAndLoadData() async {
@@ -644,18 +649,18 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
-  // String formatMobileNumber(String number) {
-  //   if (!number.startsWith("+91") && number.length == 10) {
-  //     return "+91$number";
-  //   }
-  //   return number;
-  // }
   String formatMobileNumber(String number) {
-  if (number.startsWith("+91")) {
-    return number.substring(3); // Removes first 3 characters: "+91"
+    if (!number.startsWith("+91") && number.length == 10) {
+      return "+91$number";
+    }
+    return number;
   }
-  return number;
-}
+//   String formatMobileNumber(String number) {
+//   if (number.startsWith("+91")) {
+//     return number.substring(3); // Removes first 3 characters: "+91"
+//   }
+//   return number;
+// }
 
   Widget buildDriverTab() {
     return Column(
@@ -1403,114 +1408,182 @@ class _MasterScreenState extends State<MasterScreen>
     final pinCodeController = TextEditingController(
       text: address?.pincode ?? '',
     );
-
+  String? selectedState;
+  String? selectedCity;
     AppDialog.show(
       context,
-      child: MasterCommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        yesButtonText: isEdit ? context.appText.update : context.appText.save,
-        noButtonText: context.appText.cancel,
-        child: SingleChildScrollView(
-          child: Form(
-            key: formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  isEdit
-                      ? context.appText.editAddress
-                      : context.appText.addNewAddress,
-                  style: AppTextStyle.h4,
-                ),
-                20.height,
-                _buildTextField(
-                  context,
-                  addressNameController,
-                  context.appText.addressName,
-                  alphanumericWithSpaceRegex,
-                ),
-                16.height,
-                _buildTextField(
-                  context,
-                  addressController,
-                  context.appText.address,
-                  alphanumericWithSpaceRegex,
-                ),
-                16.height,
-                _buildTextField(
-                  context,
-                  stateController,
-                  context.appText.state,
-                  alphabetWithSpaceRegex,
-                ),
-                16.height,
-                _buildTextField(
-                  context,
-                  cityController,
-                  context.appText.city,
-                  alphabetWithSpaceRegex,
-                ),
-                16.height,
-                AppTextField(
-                  validator: Validator.pincode,
-                  controller: pinCodeController,
-                  labelText: context.appText.pincode,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    LengthLimitingTextInputFormatter(6),
-                  ],
-                  keyboardType: iosNumberKeyboard,
-                ),
-                20.height,
-              ],
-            ),
+      child: StatefulBuilder(
+        builder: (context, setState) {
+          return MasterCommonDialogView(
+            hideCloseButton: true,
+            showYesNoButtonButtons: true,
+            yesButtonText: isEdit ? context.appText.update : context.appText.save,
+            noButtonText: context.appText.cancel,
+            child: SingleChildScrollView(
+              child: Form(
+                key: formKey,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      isEdit
+                          ? context.appText.editAddress
+                          : context.appText.addNewAddress,
+                      style: AppTextStyle.h4,
+                    ),
+                    20.height,
+                    _buildTextField(
+                      context,
+                      addressNameController,
+                      context.appText.addressName,
+                      alphanumericWithSpaceRegex,
+                    ),
+                    16.height,
+                    _buildTextField(
+                      context,
+                      addressController,
+                      context.appText.address,
+                      alphanumericWithSpaceRegex,
+                    ),
+                    16.height,
+                    // _buildTextField(
+                    //   context,
+                    //   stateController,
+                    //   context.appText.state,
+                    //   alphabetWithSpaceRegex,
+                    // ),
+                    // 16.height,
+                    // _buildTextField(
+                    //   context,
+                    //   cityController,
+                    //   context.appText.city,
+                    //   alphabetWithSpaceRegex,
+                    // ),
+               StateDropdown(
+            selected: selectedState,
+            onStateChanged: (value) {
+              setState(() {
+          selectedState = value;
+          selectedCity = null; 
+          print("selected state is ${selectedCity}");
+              });
+            },
           ),
-        ),
-        onClickYesButton: () async {
-          if (formKey.currentState!.validate()) {
-            final existingAddresses = profileCubit.state.addressState?.data?.addresses ?? [];
-            final request = AddressRequest(
-              addrName: addressNameController.text.trim(),
-              addr: addressController.text.trim(),
-              city: cityController.text.trim(),
-              state: stateController.text.trim(),
-              pincode: pinCodeController.text.trim(),
-              isDefault: isEdit ? address?.isDefault ?? false  : existingAddresses.isEmpty, 
-            );
-
-            if (isEdit) {
-              await profileCubit.updateAddress(
-                addressId: address.preferedAddressId,
-                request: request,
-              );
-            } else {
-              await profileCubit.createAddress(request: request);
-            }
-
-            final state = profileCubit.state.createAddressState;
-            if (state?.status == Status.SUCCESS) {
-              if (context.mounted) Navigator.pop(context);
-              profileCubit.fetchAddress(isLoading: false);
-              ToastMessages.success(
-                message:
-                    isEdit
-                        ? context.appText.addressUpdatedSuccessfully
-                        : context.appText.addressAddedSuccess,
-              );
-            } else {
-              ToastMessages.error(
-                message: getErrorMsg(
-                  errorType: state?.errorType ?? GenericError(),
+          
+          16.height,
+          
+          CityDropdown(
+            selected: selectedCity,
+            isStateSelected: selectedState != null && selectedState!.isNotEmpty,
+            onCityChanged: (value) {
+              setState(() {
+          selectedCity = value;
+              });
+            },
+          )
+          
+          ,
+                    16.height,
+                    AppTextField(
+                      validator: Validator.pincode,
+                      controller: pinCodeController,
+                      labelText: context.appText.pincode,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        LengthLimitingTextInputFormatter(6),
+                      ],
+                      keyboardType: iosNumberKeyboard,
+                    ),
+                    20.height,
+                  ],
                 ),
-              );
-            }
-          }
-        },
+              ),
+            ),
+            onClickYesButton: () async {
+              if (formKey.currentState!.validate()) {
+                final existingAddresses = profileCubit.state.addressState?.data?.addresses ?? [];
+                final request = AddressRequest(
+                  addrName: addressNameController.text.trim(),
+                  addr: addressController.text.trim(),
+                  city: selectedCity ?? "",
+                  state: selectedState ?? "",
+                  pincode: pinCodeController.text.trim(),
+                  isDefault: isEdit ? address?.isDefault ?? false  : existingAddresses.isEmpty, 
+                );
+          
+                if (isEdit) {
+                  await profileCubit.updateAddress(
+                    addressId: address.preferedAddressId,
+                    request: request,
+                  );
+                } else {
+                  await profileCubit.createAddress(request: request);
+                }
+          
+                final state = profileCubit.state.createAddressState;
+                if (state?.status == Status.SUCCESS) {
+                  if (context.mounted) Navigator.pop(context);
+                  profileCubit.fetchAddress(isLoading: false);
+                  ToastMessages.success(
+                    message:
+                        isEdit
+                            ? context.appText.addressUpdatedSuccessfully
+                            : context.appText.addressAddedSuccess,
+                  );
+                } else {
+                  ToastMessages.error(
+                    message: getErrorMsg(
+                      errorType: state?.errorType ?? GenericError(),
+                    ),
+                  );
+                }
+              }
+            },
+          );
+        }
       ),
     );
   }
+ 
+
+
+  static Widget _cityDropdown(
+  BuildContext context,
+  String? selected,
+  bool isStateSelected,
+  ValueChanged<String?> onCityChanged,
+) {
+  final cityUI = context.watch<KycCubit>().state.cityUIState;
+  final cityList = cityUI?.data?.map((e) => e.city ?? '').toList() ?? [];
+
+  return AbsorbPointer(
+    absorbing: !isStateSelected,
+    child: SearchableDropdown(
+      labelText: context.appText.city,
+      mandatoryStar: true,
+      selectedItem: selected,
+      items: cityList,
+      hintText: context.appText.selectCity,
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          onCityChanged(newValue);   // call callback to update state
+        }
+      },
+      dropdownBuilder: (context, selectedItem) {
+        if (selectedItem == null || selectedItem.isEmpty) {
+          return SizedBox.shrink();
+        }
+        return Row(
+          children: [
+            Text(selectedItem),
+          ],
+        );
+      },
+      emptyBuilder: (context, _) => const Center(child: Text("No cities found")),
+    ),
+  );
+}
 
   void showAddVehiclePopup(
     BuildContext context, {
@@ -1880,7 +1953,8 @@ class _MasterScreenState extends State<MasterScreen>
 
     return {"fileName": fileName, "path": url, "extension": extension};
   }
-
+  
+  
   void showAddDriverPopup(BuildContext context, {DriverDetailsData? driver}) async{
    final cubit = context.read<ProfileCubit>();
   await cubit.resetlicenseVahanVerificationState();
@@ -2263,7 +2337,7 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
-  
+    
 
   
   Widget _buildTextField(
@@ -2319,4 +2393,89 @@ Widget buildReadOnlyField(
       ),
     ],
   );
+}
+class StateDropdown extends StatelessWidget {
+  final String? selected;
+  final ValueChanged<String?> onStateChanged;
+
+  const StateDropdown({
+    Key? key,
+    required this.selected,
+    required this.onStateChanged,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    final stateUI = context.watch<KycCubit>().state.stateUIState;
+    final stateList = stateUI?.data?.map((e) => e.name ?? '').toList() ?? [];
+
+    return SearchableDropdown(
+      labelText: context.appText.state,
+      mandatoryStar: true,
+      selectedItem: selected,
+      items: stateList,
+      hintText: context.appText.selectState,
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          // 1️⃣ Update parent state
+          onStateChanged(newValue);
+
+          // 2️⃣ Trigger city list fetch immediately (like in KYC)
+          context.read<KycCubit>().fetchCityList(newValue);
+        }
+      },
+      dropdownBuilder: (context, selectedItem) {
+        if (selectedItem == null || selectedItem.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Row(children: [Text(selectedItem)]);
+      },
+      emptyBuilder: (context, _) =>
+          const Center(child: Text("No states found")),
+    );
+  }
+}
+
+
+class CityDropdown extends StatelessWidget {
+  final String? selected;
+  final bool isStateSelected;
+  final ValueChanged<String?> onCityChanged;
+
+  const CityDropdown({
+    super.key,
+    required this.selected,
+    required this.isStateSelected,
+    required this.onCityChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final cityUI = context.watch<KycCubit>().state.cityUIState;
+    final cityList = cityUI?.data?.map((e) => e.city ?? '').toList() ?? [];
+
+    return AbsorbPointer(
+      absorbing: !isStateSelected,
+      child: SearchableDropdown(
+        labelText: context.appText.city,
+        mandatoryStar: true,
+        selectedItem: selected,
+        items: cityList,
+        hintText: context.appText.selectCity,
+        onChanged: (String? newValue) {
+          if (newValue != null) {
+            onCityChanged(newValue);
+          }
+        },
+        dropdownBuilder: (context, selectedItem) {
+          if (selectedItem == null || selectedItem.isEmpty) {
+            return const SizedBox.shrink();
+          }
+          return Row(children: [Text(selectedItem)]);
+        },
+        emptyBuilder: (context, _) =>
+            const Center(child: Text("No cities found")),
+      ),
+    );
+  }
 }
