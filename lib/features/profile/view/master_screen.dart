@@ -655,6 +655,13 @@ class _MasterScreenState extends State<MasterScreen>
     }
     return number;
   }
+
+  String removeformatMobileNumber(String number) {
+    if (!number.startsWith("+91") && number.length == 10) {
+      return "$number";
+    }
+    return number;
+  }
 //   String formatMobileNumber(String number) {
 //   if (number.startsWith("+91")) {
 //     return number.substring(3); // Removes first 3 characters: "+91"
@@ -734,9 +741,10 @@ class _MasterScreenState extends State<MasterScreen>
                     driverStatus: driver.driverStatus,
                     onEdit:  () async {
                     await profileCubit.resetlicenseVahanVerificationState();
-                    await Future.delayed(const Duration(milliseconds: 50)); // allow UI to see cleared state
+                    await Future.delayed(const Duration(milliseconds: 50)); 
                     showAddDriverPopup(
                       context,
+                      driver: driver
                     );},
 
                     onDelete:
@@ -2065,6 +2073,8 @@ class _MasterScreenState extends State<MasterScreen>
                     localLicenseDocList.add(doc);
                   }
                 }
+                emailController.text = localData.email ?? emailController.text;
+                mobileController.text = localData.mobile ?? mobileController.text;
                 isLicenseVerified = true;
                 isInitialized = true;
               });
