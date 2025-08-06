@@ -350,7 +350,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             final uiState = state.loadStatus;
 
             if (uiState == null || uiState.status == Status.LOADING) {
-              return const Center(child: CircularProgressIndicator());
+              return Container();
             }
 
             if (uiState.status == Status.ERROR) {
