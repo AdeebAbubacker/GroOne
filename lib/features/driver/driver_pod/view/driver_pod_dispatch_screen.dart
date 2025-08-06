@@ -205,7 +205,7 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
             validator: (value) => Validator.fieldRequired(value),
             controller: courierCompanyTextController,
             labelText: context.appText.courierCompany,
-            hintText: "LED TV 42”",
+            hintText: context.appText.enterCourierCompany,
             textInputAction: TextInputAction.next,
             onChanged: (value){
               clearDropDownFields();

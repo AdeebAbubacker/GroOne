@@ -140,7 +140,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
             validator: (value) => Validator.fieldRequired(value),
             controller: courierCompanyTextController,
             labelText: context.appText.courierCompany,
-            hintText: "LED TV 42”",
+            hintText:  context.appText.courierCompany,
             textInputAction: TextInputAction.next,
             onChanged: (value){
               clearDropDownFields();
