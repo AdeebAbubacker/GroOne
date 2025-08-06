@@ -1173,7 +1173,7 @@
   "realTimeExpense": "Real-Time Expense Tracking",
   "realTimeExpenseDesc": "Gives real-time visibility of fund usage by each driver or vehicle.",
   "easyReconciliation": "Easy Reconciliation",
-  "easyReconciliationDesc": "Automated digital records reduce paperwork and help with GST input credit and accounting."
+  "easyReconciliationDesc": "Automated digital records reduce paperwork and help with GST input credit and accounting.",
   "allLoads":"All Loads",
    "docSupportWithoutPdf": "*Only support .jpg, .png & .heic files not more than 5 mb.",
   "uploadRC": "Upload RC",
