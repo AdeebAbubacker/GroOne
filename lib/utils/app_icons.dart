@@ -40,6 +40,7 @@ class PngIcons {
   final String fastagIdfcIcon = "${_pngBasePath}idfc_icon.png";
   final String fastagListCardIcon = "${_pngBasePath}list_card_icon.png";
   final String fastagTollIcon = "${_pngBasePath}toll_icon.png";
+  final String fastagBuyIcon = "${_pngBasePath}buy_fastag_icon.png";
 }
 
 /// GIF Icons

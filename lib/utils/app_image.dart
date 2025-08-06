@@ -87,6 +87,7 @@ class PngImages {
 
   //fastag images
   final String fastagNewUser = "${_pngImageBasePath}fasttag-no-user.png";
+  final String fastagBenefitsBanner = "${_pngImageBasePath}fastag_benefit_banner.png";
 }
 
 class SvgImages {

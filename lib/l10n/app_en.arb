@@ -1166,5 +1166,13 @@
   "viewTripStatement":"View Trip Statement",
   "alreadyVerified":"Already Verified",
   "preferredLanes":"Preferred Lanes Required",
-  "allLoads":"All Loads"
+  "allLoads":"All Loads",
+  "buyFastag": "Buy FASTag",
+  "fastagBenefits": "Benefits of FASTag",
+  "cashlessFuelToll": "Cashless Fuel & Toll Payments",
+  "cashlessFuelTollDesc": "Enables cashless fuel and toll payments, reducing risk and hassle.",
+  "realTimeExpense": "Real-Time Expense Tracking",
+  "realTimeExpenseDesc": "Gives real-time visibility of fund usage by each driver or vehicle.",
+  "easyReconciliation": "Easy Reconciliation",
+  "easyReconciliationDesc": "Automated digital records reduce paperwork and help with GST input credit and accounting."
 }
