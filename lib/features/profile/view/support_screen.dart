@@ -358,6 +358,7 @@ class _LpSupportState extends State<LpSupport> {
                   },
                 ),
               ),
+              10.height,
               buildCreateTicketButton()
             ],
           ),
@@ -369,7 +370,9 @@ class _LpSupportState extends State<LpSupport> {
   Widget buildCreateTicketButton() {
     return AppButton(
       onPressed: () {
-        Navigator.push(context, commonRoute(AddNewTicketScreen()));
+        Navigator.push(context, commonRoute(AddNewTicketScreen())).then((val) {
+          profileCubit.fetchTickets(request: TicketRequest());
+        });
       },
       title: context.appText.createNewTicket,
     );

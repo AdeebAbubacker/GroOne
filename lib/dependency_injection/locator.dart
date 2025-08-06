@@ -543,6 +543,7 @@ void initLocator() {
         locator<LoadDetailsRepository>(),
         locator<VpHomeRepository>(),
         locator<LpLoadRepository>(),
+        locator<LpLoadRepository>(),
       ),
     );
     locator.registerLazySingleton(

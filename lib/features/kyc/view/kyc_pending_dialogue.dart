@@ -8,8 +8,9 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class KycPendingDialogue extends StatelessWidget {
-  const KycPendingDialogue({super.key,required this.onPressed});
+  const KycPendingDialogue({super.key,required this.onPressed,this.hideButton=false});
 final Function() onPressed;
+final bool hideButton;
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetBody(hideDivider: false,body: Column(
@@ -18,9 +19,15 @@ final Function() onPressed;
       children: [
         Center(child: SvgPicture.asset(AppImage.svg.kycPending)),
         Text(context.appText.kycPending,style: AppTextStyle.orangeTextColor26w700,),
+        if(hideButton)
+           Text(context.appText.kycInProgress,
+             textAlign: TextAlign.center,
+             style: AppTextStyle.textDarkGreyColor14w400,)
+          else
         Text(context.appText.completeKycAlertDescription,style: AppTextStyle.textDarkGreyColor14w400),
         20.height,
-        AppButton(
+        if(!hideButton)
+          AppButton(
           onPressed: onPressed,
           title:context.appText.goToKyc ,
         )

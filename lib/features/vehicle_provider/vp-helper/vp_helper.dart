@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:open_filex/open_filex.dart';
@@ -116,8 +117,14 @@ enum DocumentFileType {
   const DocumentFileType(this.value);
 }
 
-String getButtonText(LoadStatus status){
+String getButtonText(LoadStatus status,{bool? priceIntoRange}){
   BuildContext context=navigatorKey.currentState!.context;
+
+  if(priceIntoRange??false){
+    return context.appText.adminContact;
+  }
+
+
   switch(status){
     case LoadStatus.completed:
       return context.appText.viewTripStatement;
@@ -128,6 +135,15 @@ String getButtonText(LoadStatus status){
       default:
       return context.appText.acceptLoad;
   }
+}
+
+ bool checkPriceIntoRange( String? vpRate, String? vpMaxRate){
+  final vpLoadPrice =
+  (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")
+      ? PriceHelper.formatINR(vpRate)
+      : '${PriceHelper.formatINR(vpRate)} - ${PriceHelper.formatINR(vpMaxRate)}';
+
+  return vpLoadPrice.contains("-");
 }
 
 

@@ -115,6 +115,10 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
           profileResponse = state.profileDetailUIState?.data;
           bool isKyc = profileResponse?.customer?.isKyc == 3;
 
+          print("kyc status ${ profileResponse?.customer?.isKyc}");
+
+
+
           VpVariables.setIsKycVerified(
             isKycStatus: profileResponse?.customer?.isKyc ?? 0,
             isKyc: isKyc,
@@ -182,7 +186,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
 }
 
 class VpVariables {
-  static int isKycStatus = 0;
+  static int kycStatus = 0;
   static bool isKycVerified = false;
   static num? companyId;
   static ProfileDetailModel? profileResponse;
@@ -194,7 +198,7 @@ class VpVariables {
     ProfileDetailModel? profileDetailModel,
   }) {
     isKycVerified = isKyc;
-    isKycStatus = isKycStatus;
+    kycStatus = isKycStatus.toInt();
     companyId = companyId;
     profileResponse = profileDetailModel;
   }

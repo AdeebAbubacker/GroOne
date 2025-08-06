@@ -104,6 +104,8 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
           key: _formKey,
           child: BlocBuilder<GpsUploadDocumentCubit, GpsUploadDocumentState>(
             builder: (context, state) {
+              ///todo aadhar bypassed
+              const bool bypassAadhaar = true;
               return SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -154,12 +156,18 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         }
                       },
                       child: AppButton(
-                        onPressed:
-                            (state.isAadhaarValid && !state.isAadhaarVerified)
-                                ? () {
-                                  cubit.sendAadhaarOtp();
-                                }
-                                : () {},
+                        ///todo aadhar bypassed
+                        // onPressed:
+                        //     (state.isAadhaarValid && !state.isAadhaarVerified)
+                        //         ? () {
+                        //           cubit.sendAadhaarOtp();
+                        //         }
+                        //         : () {},
+                      onPressed: (!bypassAadhaar && state.isAadhaarValid && !state.isAadhaarVerified)
+                          ? () {
+                        cubit.sendAadhaarOtp();
+                      }
+                          : () {},
                         title:
                             state.isAadhaarVerified
                                 ? context.appText.verified
@@ -265,8 +273,13 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         },
         builder: (context, state) {
           final bool isLoading = state.uploadKycState?.status == Status.LOADING;
-          final bool isFormValid =
-              state.isAadhaarVerified; // Only Aadhaar verification is required, PAN is optional
+          ///todo aadhar bypassed
+          // final bool isFormValid =
+          //     state.isAadhaarVerified; // Only Aadhaar verification is required, PAN is optional
+
+          const bool bypassAadhaar = true;
+          final bool isFormValid = bypassAadhaar || state.isAadhaarVerified;
+
 
           return AppButton(
             onPressed:

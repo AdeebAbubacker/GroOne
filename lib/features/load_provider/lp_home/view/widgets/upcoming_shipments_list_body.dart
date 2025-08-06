@@ -125,8 +125,8 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                   children: [
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                      decoration: commonContainerDecoration(color: LpHomeHelper.getLoadStatusColor(statusData)),
-                      child: Text(statusData, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getLoadStatusTextColor(statusData))),
+                      decoration: commonContainerDecoration(color: LpHomeHelper.getColor(widget.loadData.loadStatusDetails?.statusBgColor ?? '')),
+                      child: Text(statusData, style: AppTextStyle.body4PrimaryColor.copyWith(color:  LpHomeHelper.getColor(widget.loadData.loadStatusDetails?.statusTxtColor ?? ''))),
                     ),
                     5.height,
 

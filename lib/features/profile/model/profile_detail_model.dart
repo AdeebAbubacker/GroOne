@@ -193,8 +193,6 @@ class Customer {
     required this.kycRejectReason,
     required this.password,
     required this.companyName,
-    required this.otp,
-    required this.otpAttempt,
     required this.isKyc,
     required this.preferredLanes,
     required this.roleId,
@@ -217,8 +215,7 @@ class Customer {
   final dynamic kycRejectReason;
   final dynamic password;
   final String companyName;
-  final String otp;
-  final dynamic otpAttempt;
+
   final int isKyc;
   final dynamic preferredLanes;
   final int roleId;
@@ -265,8 +262,7 @@ class Customer {
       kycRejectReason: kycRejectReason ?? this.kycRejectReason,
       password: password ?? this.password,
       companyName: companyName ?? this.companyName,
-      otp: otp ?? this.otp,
-      otpAttempt: otpAttempt ?? this.otpAttempt,
+
       isKyc: isKyc ?? this.isKyc,
       preferredLanes: preferredLanes ?? this.preferredLanes,
       roleId: roleId ?? this.roleId,
@@ -292,8 +288,8 @@ class Customer {
       kycRejectReason: json["kycRejectReason"],
       password: json["password"],
       companyName: json["companyName"] ?? "",
-      otp: json["otp"] ?? "",
-      otpAttempt: json["otpAttempt"],
+
+
       isKyc: json["isKyc"] ?? 0,
       preferredLanes: json["preferredLanes"],
       roleId: json["roleId"] ?? 0,

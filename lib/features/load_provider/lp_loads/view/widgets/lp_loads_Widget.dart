@@ -247,11 +247,11 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             children: [
               Container(
                 decoration: commonContainerDecoration(
-                  color: LpHomeHelper.getLoadStatusColor(statusData)
+                  color: LpHomeHelper.getColor(widget.loadItem.loadStatusDetails?.statusBgColor ?? '')
                 ),
                 child: Text(
                   statusData,
-                  style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getLoadStatusTextColor(statusData)),
+                  style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getColor(widget.loadItem.loadStatusDetails?.statusTxtColor ?? '')),
                   textAlign: TextAlign.center,
                 ).center().paddingSymmetric(vertical: 4,horizontal: 10),
               ),

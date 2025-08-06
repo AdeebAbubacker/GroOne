@@ -60,6 +60,8 @@ class _StateAutoCompleteTextFieldState
       setState(() {
         allStates = List.from(cubit.state.states);
         isLoading = false;
+
+        print("allStates is ${allStates}");
       });
     } catch (e) {
       setState(() {
@@ -75,7 +77,7 @@ class _StateAutoCompleteTextFieldState
     if (query.isNotEmpty) {
       filteredStates = allStates
           .where((state) => 
-              (state['name'] ?? '').toString().toLowerCase().contains(query))
+              (state['state_name'] ?? '').toString().toLowerCase().contains(query))
           .toList();
 
       if (filteredStates.isNotEmpty) {
@@ -132,7 +134,7 @@ class _StateAutoCompleteTextFieldState
                 itemCount: filteredStates.length,
                 itemBuilder: (context, index) {
                   final state = filteredStates[index];
-                  final stateName = state['name'] ?? '';
+                  final stateName = state['state_name'] ?? '';
                   final stateId = state['id'];
                   
                   return ListTile(
@@ -170,6 +172,7 @@ class _StateAutoCompleteTextFieldState
 
   @override
   Widget build(BuildContext context) {
+
     return CompositedTransformTarget(
       link: _layerLink,
       child: Column(

@@ -64,7 +64,7 @@ class DocumentWidgetView extends StatelessWidget {
         documentEntity: documentEntity!,
         loadDocument: documentEntity!.loadDocument!.first).paddingTop(15)
         : Visibility(
-      visible: documentEntity?.visible??true,
+      visible: documentEntity?.visible??false,
           child: GestureDetector(
             onTap: () {
               pickFile(context);

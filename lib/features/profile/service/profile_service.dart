@@ -7,6 +7,8 @@ import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
+import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
+import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
@@ -19,6 +21,7 @@ import 'package:gro_one_app/features/profile/api_request/profile_upload_request.
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
@@ -36,8 +39,10 @@ import 'package:gro_one_app/features/profile/model/profile_update_response.dart'
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
 import 'package:gro_one_app/features/profile/model/settings_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_response.dart';
+import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
+import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
 import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
@@ -108,6 +113,7 @@ class ProfileService {
         return Error(GenericError());
       }
     } catch(e) {
+
       return Error(DeserializationError());
     }
   }
@@ -371,7 +377,31 @@ class ProfileService {
     }
   }
 
- 
+  
+    /// Update vehicle Status
+    Future<Result<VehcileUpdatedStatusModel>> updateVehicleStatus(
+    VehicleStatusUpdateRequest request, {
+    required String vehicleId,
+  }) async {
+    try {
+      final url = "${ApiUrls.getVehicleList}status/$vehicleId";
+      final result = await _apiService.put(url, body: request.toJson());
+
+      if (result is Success) {
+         final loads = VehcileUpdatedStatusModel.fromJson(result.value);
+        return Success(loads);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+}
+
+
+
    /// create Vehicle
   Future<Result<VehicleNewModel>> createVehicle({required VehicleRequest request}) async {
     try {
@@ -483,7 +513,7 @@ class ProfileService {
 /// fetch Driver
  Future<Result<PaginatedDriverList>> fetchDriver({required String customerId,String? search}) async {
   try {
-      final baseUrl = "${ApiUrls.driverListUrl}?status=1&customerId=$customerId";
+      final baseUrl = "${ApiUrls.driverListUrl}?&customerId=$customerId";
 
     // Append search properly using &
     final url = (search != null && search.trim().isNotEmpty)
@@ -523,22 +553,28 @@ class ProfileService {
 
    /// fetch check vehicle excists or not
 
- Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
+  Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
     try {
       final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
       final response = await _apiService.get(url);
+
       if (response is Success) {
+        print("-----------${response.toString()}");
         final loads = VehicleVerificationSuccess.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
+         print("-----------${response.toString()}");
         return Error(response.type);
       } else {
+         print("-----------${response.toString()}");
         return Error(GenericError());
       }
     } catch (e) {
+       print("-----------${e.toString()}");
       return Error(DeserializationError());
     }
   }
+
 
      /// fetch check license excists or not
 
@@ -659,6 +695,51 @@ class ProfileService {
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Upload Ticket
+  Future<Result<UploadTicketResponse>> fetchUploadTicketData({required File file, required String fileType,required String userId, required String documentType}) async {
+    try {
+      final url = ApiUrls.upload;
+      final result = await _apiService.multipart(
+        url,
+        file,
+        pathName: "file",
+        fields: {
+          "userId" : userId,
+          "fileType" : fileType,
+          "documentType" : documentType,
+        },
+      );
+      if (result is Success) {
+        final data = UploadTicketResponse.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Create Document Service
+  Future<Result<CreateDocumentModel>> createDocument(CreateDocumentApiRequest request) async {
+    try {
+      final url = ApiUrls.createDocument;
+      final result = await _apiService.post(url, body: request.toJson());
+      if (result is Success) {
+        final data = CreateDocumentModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
       } else {
         return Error(GenericError());
       }

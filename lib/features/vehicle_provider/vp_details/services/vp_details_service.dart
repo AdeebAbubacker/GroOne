@@ -43,6 +43,7 @@ class VpDetailsService{
         return Error(GenericError());
       }
     } catch(e){
+
       return Error(DeserializationError());
     }
   }

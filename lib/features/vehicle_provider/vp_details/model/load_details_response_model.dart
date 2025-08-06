@@ -357,7 +357,7 @@ class Consignee {
   }
 
   factory Consignee.fromJson(Map<String, dynamic> json){
-    print("Consignee is ${json}");
+
     return Consignee(
       id: json["id"] ?? 0,
       name: json["name"] ?? "",
@@ -379,9 +379,9 @@ class Customer {
     required this.kycRejectReason,
     required this.password,
     required this.companyName,
-    required this.otp,
+
     required this.ememoOtp,
-    required this.otpAttempt,
+
     required this.isKyc,
     required this.preferredLanes,
     required this.roleId,
@@ -406,9 +406,9 @@ class Customer {
   final dynamic kycRejectReason;
   final dynamic password;
   final String companyName;
-  final String otp;
+
   final dynamic ememoOtp;
-  final String otpAttempt;
+
   final int isKyc;
   final dynamic preferredLanes;
   final int roleId;
@@ -460,9 +460,9 @@ class Customer {
       kycRejectReason: kycRejectReason ?? this.kycRejectReason,
       password: password ?? this.password,
       companyName: companyName ?? this.companyName,
-      otp: otp ?? this.otp,
+
       ememoOtp: ememoOtp ?? this.ememoOtp,
-      otpAttempt: otpAttempt ?? this.otpAttempt,
+
       isKyc: isKyc ?? this.isKyc,
       preferredLanes: preferredLanes ?? this.preferredLanes,
       roleId: roleId ?? this.roleId,
@@ -490,9 +490,9 @@ class Customer {
       kycRejectReason: json["kycRejectReason"],
       password: json["password"],
       companyName: json["companyName"] ?? "",
-      otp: json["otp"] ?? "",
+
       ememoOtp: json["ememo_otp"],
-      otpAttempt: json["otpAttempt"] ?? "",
+
       isKyc: json["isKyc"] ?? 0,
       preferredLanes: json["preferredLanes"],
       roleId: json["roleId"] ?? 0,

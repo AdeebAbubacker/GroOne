@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -29,6 +30,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -44,6 +46,7 @@ import 'package:gro_one_app/utils/textFieldInputFormatter/bank_account_number_fo
 import 'package:gro_one_app/utils/textFieldInputFormatter/gst_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/ifsc_code_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/pan_card_input_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/remove_space_inpur_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/tan_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -53,7 +56,8 @@ import 'package:gro_one_app/utils/validator.dart';
 
 class KycUploadDocumentScreen extends StatefulWidget {
   final String? aadhaarNumber;
-  const KycUploadDocumentScreen({super.key, this.aadhaarNumber});
+  final String? pdfPath;
+  const KycUploadDocumentScreen({super.key, this.aadhaarNumber,this.pdfPath});
 
   @override
   State<KycUploadDocumentScreen> createState() => _KycUploadDocumentScreenState();
@@ -95,6 +99,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   String? uploadLink;
   String? gstDocId;
+  String? aadharDocId;
   String? panDocId;
   String? tdsDocId;
   String? tanDocId;
@@ -131,6 +136,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     } else {
       aadhaarNumberTextController.text = "";
     }
+    uploadAadharDocument();
   });
   
   void disposeFunction()=> frameCallback((){
@@ -149,6 +155,33 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     tanFocusNode.dispose();
     panFocusNode.dispose();
     kycCubit.resetState();
+  });
+
+  void uploadAadharDocument()=>frameCallback(() async {
+    if(widget.pdfPath==null && widget.pdfPath!.isEmpty){
+      return;
+    }
+    await kycCubit.uploadAadharDoc(File(widget.pdfPath??""));
+    final status = kycCubit.state.uploadAadharDocumentModel?.status;
+    UploadAadharDocumentModel? uploadAadharDocumentModel = kycCubit.state.uploadAadharDocumentModel?.data;
+    if(status!=null && status==Status.SUCCESS){
+      final apiRequest = CreateDocumentApiRequest(
+        documentTypeId : KycHelper.getDocumentTypeId(KycDocType.aadharCard),
+        title : KycHelper.getMeta(KycDocType.aadharCard).title,
+        description : KycHelper.getMeta(KycDocType.aadharCard).description,
+        originalFilename : uploadAadharDocumentModel?.originalName,
+        filePath : uploadAadharDocumentModel?.filePath,
+        fileSize : uploadAadharDocumentModel?.size,
+        mimeType : KycHelper.getMimeTypeFromExtension(uploadAadharDocumentModel?.filePath.split(".").last??""),
+        fileExtension : uploadAadharDocumentModel?.filePath.split(".").last,
+      );
+      await createDocumentApiCall(apiRequest);
+      if(kycCubit.state.createDocumentUIState?.status == Status.SUCCESS){
+        if(kycCubit.state.createDocumentUIState?.data != null && kycCubit.state.createDocumentUIState?.data?.data != null){
+          aadharDocId = kycCubit.state.createDocumentUIState!.data!.data!.documentId;
+        }
+      }
+    }
   });
 
 
@@ -301,7 +334,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // Verify GST api call
   Future<void> verifyGstApiCall(String gstNumber, BuildContext context) async {
-
     final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: true);
     await kycCubit.verifyGst(apiRequest);
     if (kycCubit.state.gstState?.status == Status.SUCCESS && context.mounted) {
@@ -477,7 +509,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     debugPrint("panDocId : $panDocId");
     debugPrint("tanDocId : $tanDocId");
     if(_formKey.currentState!.validate()){
-
       final ok = validateDocs(
         userRole: kycCubit.userRole ?? 0,
         companyId: companyId,
@@ -491,6 +522,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
 
       final kycRequest = SubmitKycApiRequest(
+        adharDocLink: aadharDocId,
         aadhar: widget.aadhaarNumber,
         addressName: addressNameTextController.text.trim(),
         fullAddress: fullAddressTextController.text.trim(),
@@ -678,6 +710,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 controller: addressNameTextController,
                                 mandatoryStar: true,
                                 labelText: context.appText.addressName,
+                                inputFormatters: [
+                                  NoLeadingSpaceFormatter()
+                                ],
                                 hintText: context.appText.enterAddressName1,
                               ),
                               20.height,
@@ -689,60 +724,31 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 mandatoryStar: true,
                                 labelText: context.appText.fullAddress,
                                 hintText: context.appText.enterFullAddress,
+                                inputFormatters: [
+                                  NoLeadingSpaceFormatter()
+                                ],
                               ),
                            16.height,
                          // State Dropdown
-                         BlocBuilder<EnDhanCubit, EnDhanState>(
-                          bloc: endhancubit,
-                             builder: (context, state) {
-                              return Column(children: [
-                                 StateAutoCompleteTextField(
-                                controller: stateController,
-                                labelText: '${context.appText.state} *',
-                                onSelected: (value) {
-                                  // The widget will handle setting the text
-                                },
-                                onStateSelected: (stateId) {
-                                  endhancubit.setSelectedStateId(stateId);
-                                  endhancubit.fetchDistricts(stateId);
-                                  // Clear district selection when state changes
-                                  districtController.clear();
-                                },
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return context.appText.pleaseSelectState;
-                                  }
-                                  return null;
-                                },
-                              ),
-                               16.height,
-                               // District Dropdown
-                          DistrictAutoCompleteTextField(
-                            controller: districtController,
-                            labelText: '${context.appText.district} *',
-                            stateId: state.selectedStateId,
-                            onSelected: (value) {
-                              // The widget will handle setting the text
-                            },
-                            onDistrictSelected: (districtId) {
-                              endhancubit.setSelectedDistrictId(districtId);
-                            },
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return 'Please select a district';
-                              }
-                              return null;
-                            },
-                          ),
+                          _stateDropdown(context, selectedState,(value) {
+                            setState(() {
+                              selectedState = value;
+                              selectedCity = null;
+                            });
+                          },),
 
-                              ],);
-
-
-                            }
-                          ),
                           16.height,
-
-
+                          _cityDropdown(
+                        context,
+                        selectedCity,
+                        selectedState != null && selectedState!.isNotEmpty,
+                        (value) {
+                          setState(() {
+                            selectedCity = value;
+                          });
+                        },
+                      ),
+                              16.height,
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
                                 controller: pinCodeTextController,
@@ -832,15 +838,84 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     );
   }
 
+  static Widget _stateDropdown(BuildContext context, String? selected,ValueChanged<String?> onStateChanged,) {
+  final stateUI = context.watch<KycCubit>().state.stateUIState;
+
+  final stateList = stateUI?.data?.map((e) => e.name ?? '').toList() ?? [];
+
+  return SearchableDropdown(
+    labelText: context.appText.state,
+    mandatoryStar: true,
+    selectedItem: selected,
+    items: stateList,
+    hintText: context.appText.selectState,
+    onChanged: (String? newValue) {
+      if (newValue != null) {
+          onStateChanged(newValue);
+        // Fetch cities for selected state
+        context.read<KycCubit>().fetchCityList(newValue);
+      }
+    },
+    dropdownBuilder: (context, selectedItem) {
+      if (selectedItem == null || selectedItem.isEmpty) {
+        return SizedBox.shrink();
+      }
+      return Row(
+        children: [
+          Text(selectedItem),
+        ],
+      );
+    },
+    emptyBuilder: (context, _) =>
+        const Center(child: Text("No states found")),
+  );
+}
+
+
+  static Widget _cityDropdown(
+  BuildContext context,
+  String? selected,
+  bool isStateSelected,
+  ValueChanged<String?> onCityChanged,
+) {
+  final cityUI = context.watch<KycCubit>().state.cityUIState;
+  final cityList = cityUI?.data?.map((e) => e.city ?? '').toList() ?? [];
+
+  return AbsorbPointer(
+    absorbing: !isStateSelected,
+    child: SearchableDropdown(
+      labelText: context.appText.city,
+      mandatoryStar: true,
+      selectedItem: selected,
+      items: cityList,
+      hintText: context.appText.selectCity,
+      onChanged: (String? newValue) {
+        if (newValue != null) {
+          onCityChanged(newValue);   // call callback to update state
+        }
+      },
+      dropdownBuilder: (context, selectedItem) {
+        if (selectedItem == null || selectedItem.isEmpty) {
+          return SizedBox.shrink();
+        }
+        return Row(
+          children: [
+            Text(selectedItem),
+          ],
+        );
+      },
+      emptyBuilder: (context, _) => const Center(child: Text("No cities found")),
+    ),
+  );
+}
 
   // GST Text Field & Upload GST
   Widget _buildGstWidget(){
-    print("gstin number");
     return BlocBuilder<KycCubit, KycState>(
         bloc: kycCubit,
         builder: (context, state) {
           bool verified = state.verifiedGst != null && state.verifiedGst!;
-          print("verified is $verified");
+
           return Column(
             children: [
               // Enter GST Number
@@ -970,6 +1045,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 isSingleFile: true,
                 isLoading: state.uploadTanDocUIState?.status == Status.LOADING,
                 hideDeleteButton: verified,
+                allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
                 thenUploadFileToSever: () async {
                   final Result result = await uploadTanDocumentApiCall(tanDoc);
                   if(result is Success) {
@@ -1062,6 +1138,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 isSingleFile: true,
                 isLoading: state.uploadPanDocUIState?.status == Status.LOADING,
                 hideDeleteButton: verified,
+                allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
                 thenUploadFileToSever: () async {
                   final Result result = await uploadPanDocumentApiCall(panDoc);
                   if(result is Success) {
@@ -1121,6 +1198,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               multiFilesList: checkDocLink,
               isSingleFile: true,
               isLoading: cancelledCheckUploadState == Status.LOADING,
+              allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               thenUploadFileToSever: () async {
                 final Result result = await uploadCancelledChequeDocumentApiCall(checkDocLink);
                 if(result is Success) {
@@ -1180,6 +1258,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               multiFilesList: tdsDocLink,
               isSingleFile: true,
               isLoading: tdsUploadState == Status.LOADING,
+              allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               thenUploadFileToSever: () async {
                 final Result result = await uploadTdsDocumentApiCall(tdsDocLink);
                 if(result is Success) {

@@ -58,7 +58,17 @@ class VpMyLoadUIHelper {
 
   // Showing Status Button
   static Widget loadStatusButtonWidget({
-    required String status, bool isLoading = false, required void Function() onPressed,required BuildContext context,bool? enable=true}) {
+    required String status, bool isLoading = false, required void Function() onPressed,required BuildContext context,bool? enable=true,bool? isIntoRangePrice}) {
+
+    if(isIntoRangePrice??false){
+      return AppButton(
+        buttonHeight: commonButtonHeight2,
+        onPressed: isLoading ? () {} : onPressed,
+        isLoading: isLoading,
+        title:context.appText.adminContact,
+      );
+
+    }
     switch (status) {
       case "Confirmed":
         return AppButton(
@@ -85,13 +95,23 @@ class VpMyLoadUIHelper {
           sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: context.appText.swipeToCompleteLoading,
+
+
+          alignment: Alignment.center,
+
           textStyle: AppTextStyle.button.copyWith(
               color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
           onSubmit: (){
             onPressed.call();
             return;
           },
+          child: Align(
+              alignment: Alignment.center,
+              child: Text(context.appText.swipeToCompleteLoading,
+              style:  AppTextStyle.button.copyWith(
+                fontSize: 15,
+                  color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+              )).paddingLeft(12),
         );
 
       case "Unloading":
@@ -105,10 +125,15 @@ class VpMyLoadUIHelper {
           sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: context.appText.swipeToCompleteUnLoading,
 
-          textStyle: AppTextStyle.button.copyWith(
-              color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+          child:  Align(
+    alignment: Alignment.center,
+    child: Text(context.appText.swipeToCompleteUnLoading,
+    style:  AppTextStyle.button.copyWith(
+        fontSize: 15,
+        color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
+    )).paddingLeft(12),
+
           onSubmit: (){
             onPressed.call();
             return;

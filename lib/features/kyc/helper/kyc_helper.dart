@@ -53,7 +53,9 @@ class KycHelper {
      case KycDocType.tds:
        return 112;     // "TDS"
      case KycDocType.cheque:
-       return 106;     // "Cancelled Cheque"
+       return 106;
+       case KycDocType.aadharCard:
+       return 1;     // "Cancelled Cheque"
    }
  }
 
@@ -86,21 +88,21 @@ class KycHelper {
          title: "Cancelled Cheque",
          description: "Bank account verification via cancelled cheque",
        );
+     case KycDocType.aadharCard:
+       return const KycDocumentMeta(
+         title: "Aadhaar Card",
+         description: "Aadhaar Card",
+       );
    }
  }
 
  static Future<String> saveBase64PdfToFile(String base64Pdf) async {
 
    Uint8List pdfBytes = base64.decode(base64Pdf);
-
-
    final dir = await getTemporaryDirectory();
    final filePath = '${dir.path}/converted_file.pdf';
-
-   // Step 3: Write PDF file
    final file = File(filePath);
    await file.writeAsBytes(pdfBytes);
-
    return filePath;
  }
 
