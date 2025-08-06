@@ -552,10 +552,11 @@ class ProfileService {
 
    /// fetch check vehicle excists or not
 
- Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
+  Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
     try {
       final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
       final response = await _apiService.get(url);
+
       if (response is Success) {
         print("-----------${response.toString()}");
         final loads = VehicleVerificationSuccess.fromJson(response.value);
@@ -572,6 +573,7 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+
 
      /// fetch check license excists or not
 

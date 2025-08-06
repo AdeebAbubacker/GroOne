@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/kyc/api_request/create_document_api_request
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
@@ -289,7 +290,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   void _setCheckVehicleExcistence(UIState<VehicleVerificationSuccess>? uiState){
     emit(state.copyWith(vehicleVerificationState: uiState));
   }
-   Future<void> fetchVehicleExcistence({required String vehicleId}) async {
+
+  Future<void> fetchVehicleExcistence({required String vehicleId}) async {
     _setCheckVehicleExcistence(UIState.loading());
 
     dynamic result = await _repo.fetchVehicleVerification(vehicleId: vehicleId);
@@ -414,22 +416,22 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
   
   //   // Update vehicle status from api call
-  // void _setUpdateVehicleStatusUIState(UIState<PaginatedVehicleList>? uiState){
-  //   emit(state.copyWith(vehicleState: uiState));
-  // }
+  void _setUpdateVehicleStatusUIState(UIState<VehcileUpdatedStatusModel>? uiState){
+    emit(state.copyWith(vehicleStatusUpdate: uiState));
+  }
 
-  // Future<void> fetchVehicle({bool isLoading = true,String? search}) async {
-  //   if(isLoading) _setUpdateVehicleStatusUIState(UIState.loading());
-  //   userId = await _repo.getUserId();
+  Future<void> vehicleupdateStatus({bool isLoading = true,String? vehicleId,required VehicleStatusUpdateRequest request}) async {
+    if(isLoading) _setUpdateVehicleStatusUIState(UIState.loading());
+    userId = await _repo.getUserId();
 
-  //   dynamic result = await _repo.fetchVehicle(userId: userId ?? '',search: search);
-  //   if (result is Success<PaginatedVehicleList>) {
-  //     _setUpdateVehicleStatusUIState(UIState.success(result.value));
-  //   }
-  //   if (result is Error) {
-  //     _setUpdateVehicleStatusUIState(UIState.error(result.type));
-  //   }
-  // }
+    dynamic result = await _repo.updateVehicleStatus(request: request, vehicleId: vehicleId ??"");
+    if (result is Success<VehcileUpdatedStatusModel>) {
+      _setUpdateVehicleStatusUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setUpdateVehicleStatusUIState(UIState.error(result.type));
+    }
+  }
 
     // Create New driver from api call
   void _setCreateDriverUIState(UIState<DriverNewModel>? uiState){
@@ -674,11 +676,17 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
 
- void resetVehicleVerificationState(){
+  Future<void> resetVehicleVerificationState() async {
   emit(state.copyWith(
-    verifiedVehicleVahanState: resetUIState<VerifedVehicleVahanData>(state.verifiedVehicleVahanState)
+    vehicleVerificationState: null,
+    verifiedVehicleVahanState: null,
   ));
+  // Optionally add a short delay if UI rebuild lags:
+  await Future.delayed(Duration(milliseconds: 100));
 }
+
+
+
 
   // Reset State
   void resetState(){
