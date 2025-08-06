@@ -31,7 +31,7 @@ class ProfileState extends Equatable {
   final UIState<VerifedVehicleVahanData>? verifiedVehicleVahanState;
   final UIState<UploadTicketResponse>? uploadTicketDocUIState;
   final UIState<CreateDocumentModel>? createDocumentUIState;
-
+  final UIState<VehcileUpdatedStatusModel>? vehicleUpdateUIState;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -63,6 +63,7 @@ class ProfileState extends Equatable {
     this.createDocumentUIState,
     this.verifiedLicenseVahanState,
     this.verifiedVehicleVahanState,
+    this.vehicleUpdateUIState,
   });
 
   ProfileState copyWith({
@@ -131,6 +132,7 @@ class ProfileState extends Equatable {
       tempSelectedTicketStatus: tempSelectedTicketStatus ?? this.tempSelectedTicketStatus,
       verifiedLicenseVahanState: verifiedLicenseVahanState ?? this.verifiedLicenseVahanState,
       verifiedVehicleVahanState: verifiedVehicleVahanState ?? this.verifiedVehicleVahanState,
+      vehicleUpdateUIState: vehicleStatusUpdate ?? this.vehicleUpdateUIState,
     );
   }
 
@@ -166,5 +168,6 @@ class ProfileState extends Equatable {
     tempSelectedTicketStatus,
     verifiedLicenseVahanState,
     verifiedVehicleVahanState,
+    vehicleUpdateUIState,
   ];
 }
