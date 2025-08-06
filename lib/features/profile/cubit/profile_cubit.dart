@@ -640,11 +640,15 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     fetchTickets(request: TicketRequest());
   }
 
- void resetlicenseVahanVerificationState(){
+  Future<void> resetlicenseVahanVerificationState() async {
   emit(state.copyWith(
-    verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
+    verifiedLicenseVahanState: null,
+    licenseVerficationState: null,
   ));
+  // Optionally add a short delay if UI rebuild lags:
+  await Future.delayed(Duration(milliseconds: 100));
 }
+
   // // Upload Ticket File
   void _setUploadTicketUIState(UIState<UploadTicketResponse>? uiState){
     emit(state.copyWith(uploadTicketDocUIState: uiState));
