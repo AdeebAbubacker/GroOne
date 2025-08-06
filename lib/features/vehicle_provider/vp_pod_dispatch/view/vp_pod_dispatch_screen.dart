@@ -79,33 +79,42 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
   // Submit Pod Api call
   void submitPodApiCall() {
-    if (widget.loadId == null && widget.loadId!.isEmpty) {
-      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${context.appText.loadId} : ${widget.loadId}");
-      return;
-    }
-
-    if(isPodCenterDropDownEnabled){
-      if (podCenterNameDropDownValue != null && podCenterNameDropDownValue!.isEmpty) {
-        ToastMessages.alert(message: "${context.appText.somethingWentWrong} - ${context.appText.podCenterName} : $podCenterNameDropDownValue");
-        return;
-      }
-    } else {
-      if(awbNumberTextController.text.isEmpty && courierCompanyTextController.text.isEmpty){
-        ToastMessages.alert(message: context.appText.thisFieldIsRequired);
-        return;
-      }
-    }
-
-    final request = SubmitPodApiRequest(
-        loadId: widget.loadId!,
-        courierCompany: courierCompanyTextController.text,
-        awbNumber: awbNumberTextController.text,
-        podCenterId: podCenterIdDropDownValue!,
-        podCenterName: podCenterNameDropDownValue!
+  // Check loadId first
+  if (widget.loadId == null || widget.loadId!.isEmpty) {
+    ToastMessages.error(
+      message: "${context.appText.somethingWentWrong} - "
+          "${context.appText.loadId} : ${widget.loadId}",
     );
-    cubit.submitPod(request);
-
+    return;
   }
+
+  // Either POD center OR both Courier & AWB
+  final bool isPodCenterSelected =
+      podCenterIdDropDownValue != null && podCenterIdDropDownValue!.isNotEmpty;
+
+  final bool isCourierAndAwbEntered =
+      courierCompanyTextController.text.trim().isNotEmpty &&
+      awbNumberTextController.text.trim().isNotEmpty;
+
+  if (!isPodCenterSelected && !isCourierAndAwbEntered) {
+    ToastMessages.alert(
+      message:
+          context.appText.eitherEnterPodCenterOrAwbNumber,
+    );
+    return;
+  }
+
+  final request = SubmitPodApiRequest(
+    loadId: widget.loadId!,
+    courierCompany: courierCompanyTextController.text.trim(),
+    awbNumber: awbNumberTextController.text.trim(),
+    podCenterId: podCenterIdDropDownValue ?? "",
+    podCenterName: podCenterNameDropDownValue ?? "",
+  );
+
+  cubit.submitPod(request);
+}
+
 
 
   @override

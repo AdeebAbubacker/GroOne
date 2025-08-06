@@ -1183,5 +1183,6 @@
   "balanceUnpaid":"Balance Unpaid",
   "allLoads":"All Loads",
   "adminContact":"Contact Admin",
-  "kycInProgress":"Your KYC verification is currently in progress. Please wait.."
+  "kycInProgress":"Your KYC verification is currently in progress. Please wait..",
+  "eitherEnterPodCenterOrAwbNumber" : "Either select POD center OR enter both Courier Company and AWB Number"
 }
