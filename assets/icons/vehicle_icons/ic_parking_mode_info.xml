@@ -1,0 +1,30 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="88.61"
+    android:viewportHeight="88.61">
+    <path
+        android:fillColor="@color/lightBlack"
+        android:pathData="M13.1,88.61A13.12,13.12 0,0 1,0 75.51V13.1A13.12,13.12 0,0 1,13.1 0H75.51a13.12,13.12 0,0 1,13.1 13.1V75.51a13.12,13.12 0,0 1,-13.1 13.1Z" />
+    <path
+        android:fillColor="@color/lightGreen"
+        android:pathData="M13.1,4.82L75.52,4.82A8.28,8.28 0,0 1,83.8 13.1L83.8,75.52A8.28,8.28 0,0 1,75.52 83.8L13.1,83.8A8.28,8.28 0,0 1,4.82 75.52L4.82,13.1A8.28,8.28 0,0 1,13.1 4.82z" />
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M32,73.66c-1.87,0 -3.22,-1.13 -3.22,-2.68V18.32a2.67,2.67 0,0 1,2.8 -2.53H45.85c10.7,0 16.6,6.06 16.6,17.06v0.77c0,14.91 -10.5,17.14 -16.75,17.14H35.24V71C35.24,72.72 33.57,73.66 32,73.66ZM45.7,45C52.54,45 56,41.27 56,33.87v-0.93c0,-7.35 -3.47,-11.08 -10.31,-11.08H35.24V45Z" />
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M12.79,58a2.41,2.41 0,0 1,-2.41 -2.41v-0.7a2.41,2.41 0,0 1,4.82 0v0.7A2.41,2.41 0,0 1,12.79 58Z" />
+    <path
+        android:fillColor="@color/white"
+        android:pathData="M12.79,78.36a2.41,2.41 0,0 1,-2.41 -2.41V61.87a2.41,2.41 0,1 1,4.82 0V75.95A2.41,2.41 0,0 1,12.79 78.36Z" />
+    <path
+        android:fillColor="@color/lightBlack"
+        android:pathData="M65.84,66.82a1.33,1.33 0,0 0,-0.66 2.48v1.48H66.5V69.3a1.33,1.33 0,0 0,-0.66 -2.48Z" />
+    <path
+        android:fillColor="@color/lightBlack"
+        android:pathData="M65.84,60.38a2,2 0,0 0,-2 2v2.16h4V62.4A2,2 0,0 0,65.84 60.38Z" />
+    <path
+        android:fillColor="@color/lightBlack"
+        android:pathData="M65.84,53.07A12.77,12.77 0,1 0,78.61 65.84,12.77 12.77,0 0,0 65.84,53.07ZM69.77,72.41L61.91,72.41a1.5,1.5 0,0 1,-1.5 -1.5L60.41,66.06a1.5,1.5 0,0 1,1.19 -1.47L61.6,62.4a4.23,4.23 0,1 1,8.47 0v2.19a1.5,1.5 0,0 1,1.19 1.47v4.85h0A1.5,1.5 0,0 1,69.76 72.41Z" />
+</vector>
