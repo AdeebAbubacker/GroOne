@@ -367,6 +367,7 @@ class GpsKycCheckModel {
 class GpsKycUploadRequest {
   final String aadhar;
   final bool isAadhar;
+  final String? aadharDocLink;
   final String? pan;
   final String? panDocLink;
   final bool? isPan;
@@ -377,12 +378,14 @@ class GpsKycUploadRequest {
     this.pan,
     this.panDocLink,
     this.isPan,
+    this.aadharDocLink,
   });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = {
       'aadhar': aadhar,
       'isAadhar': isAadhar,
+      'aadhar_doc_link': aadharDocLink
     };
 
     // Only include PAN fields if PAN is provided
@@ -399,7 +402,7 @@ class GpsKycUploadRequest {
 
   @override
   String toString() {
-    return 'GpsKycUploadRequest{aadhar: $aadhar, isAadhar: $isAadhar, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
+    return 'GpsKycUploadRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
   }
 }
 

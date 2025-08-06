@@ -63,11 +63,11 @@ class EnDhanService {
   ) async {
     try {
       final url = ApiUrls.enDhanKycUpload;
-      
+
       // Add customerId to the request body
       final requestBody = request.toJson();
       requestBody['customerId'] = customerId;
-      
+
       final result = await _apiService.post(url, body: requestBody);
 
       if (result is Success) {
@@ -384,7 +384,7 @@ class EnDhanService {
       final url = ApiUrls.enDhanKycUpload;
 
       // Get form fields (string data)
-      final fields = request.getFormFields();
+      final fields = {};
       
       // Add customerId to the form fields
       fields['customerId'] = customerId;

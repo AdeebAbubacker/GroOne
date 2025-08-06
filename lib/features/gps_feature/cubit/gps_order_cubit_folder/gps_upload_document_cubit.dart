@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
@@ -375,6 +376,52 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     }
   }
 
+  Future<void> uploadAadhaarPdfFile(File file) async {
+    if (_isClosed) return;
+
+    print('📄 Uploading Aadhaar PDF...');
+    // Get customer ID
+    final userRepository = locator<UserInformationRepository>();
+    final customerId = await userRepository.getUserID();
+
+    if (customerId == null || customerId.isEmpty) {
+      print('🔍 GPS Customer ID is null or empty, returning early');
+      _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Unable to get customer ID')));
+      return;
+    }
+
+    print('🔍 GPS Customer ID: $customerId');
+
+    final apiService = locator<ApiService>();
+
+    final result = await apiService.multipart(
+      ApiUrls.documentUpload,
+      file,
+      fields: {
+        'userId': customerId,
+        'fileType': 'aadhar_document',
+        'documentType': 'kyc_document',
+      },
+      pathName: 'file',
+    );
+
+    if (_isClosed) return;
+
+    if (result is Success) {
+      final data = result.value;
+      if (data is Map<String, dynamic> && data['url'] != null) {
+        final link = data['url'] as String;
+        print('✅ Aadhaar PDF uploaded. Link: $link');
+        emit(state.copyWith(aadhaarDocLink: link));
+      } else {
+        print('❌ Invalid Aadhaar PDF upload response');
+      }
+    } else if (result is Error) {
+      print('❌ Aadhaar PDF upload failed: ${result.type}');
+    }
+  }
+
+
   Future<void> uploadKycDocuments() async {
     print('🔍 GPS uploadKycDocuments called, cubit closed: $_isClosed');
     if (_isClosed) {
@@ -400,14 +447,10 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       return;
     }
 
-    ///todo - aadhar bypassed
-    // if (!state.isAadhaarVerified) {
-    //   print('🔍 GPS Aadhaar is not verified, returning early');
-    //   return;
-    // }
-    // Temporarily bypass Aadhaar verification
-    print('⚠️ Bypassing Aadhaar verification for now');
-    emit(state.copyWith(isAadhaarVerified: true));
+    if (!state.isAadhaarVerified) {
+      print('🔍 GPS Aadhaar is not verified, returning early');
+      return;
+    }
 
     print('🔍 GPS Setting upload KYC UI state to loading...');
     _setUploadKycUIState(UIState.loading());
@@ -444,7 +487,9 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
         pan: state.pan.isNotEmpty ? state.pan : null,
         panDocLink: panDocLink,
         isPan: state.pan.isNotEmpty ? true : null,
+        aadharDocLink: state.aadhaarDocLink, // ✅ Add this
       );
+
 
       print('🔍 GPS KYC upload request: ${request.toJson()}');
 

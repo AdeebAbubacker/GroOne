@@ -648,8 +648,22 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                 title: context.appText.buyNewFuelCard,
                 onPressed: (){
                   if (showKycScreen) {
-                    // Navigate to KYC screen if user doesn't have KYC documents
-                    Navigator.push(context,commonRoute(EndhanKycScreen()));
+                    final kycData = context.read<EnDhanCubit>().state.kycData;
+                    final document = kycData?.document;
+
+                    Navigator.push(
+                      context,
+                      commonRoute(
+                        EndhanKycScreen(
+                          aadhaarPrefill: document?.aadhar?.replaceAll(' ', ''),
+                          panPrefill: document?.pan,
+                          isAadhaarVerified: document?.aadhar?.isNotEmpty ?? false, // or true if you add logic for it
+                          isPanVerified: document?.panImage != null && document!.panImage!.isNotEmpty,
+                          // panPrefill: 'AXSPA8900K',
+                          // isPanVerified: true,
+                        ),
+                      ),
+                    );
                   } else {
                     // Navigate to create card screen if user has KYC documents but no cards
                     Navigator.push(context,commonRoute(EndhanCreateCardCustomerInfoScreen()));

@@ -14,6 +14,10 @@ import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 
+import '../../../data/network/api_service.dart';
+import '../../../dependency_injection/locator.dart';
+import '../../profile/cubit/profile_cubit.dart';
+
 part 'en_dhan_state.dart';
 
 class EnDhanCubit extends BaseCubit<EnDhanState> {
@@ -28,6 +32,15 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     _isClosed = true;
     return super.close();
   }
+
+  void setAadhaarDocUrl(String url) {
+    emit(state.copyWith(aadhaarDocLink: url));
+  }
+
+  void setAadhaarVerified(bool value) {
+    emit(state.copyWith(isAadhaarVerified: value));
+  }
+
 
   /// Reset the cubit state and reopen it for use
   void resetCubit() {
@@ -67,21 +80,43 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       
       if (_isClosed) return;
 
+      // if (result is Success<EnDhanKycCheckModel>) {
+      //   final response = result.value;
+      //
+      //   // Handle "Document not found" as a valid response
+      //   if (response.data == "Document not found") {
+      //     // Document not found - this is expected for new users
+      //   }
+      //
+      //   // Update the state with KYC check results
+      //   emit(state.copyWith(
+      //     kycCheckState: UIState.success(response),
+      //     hasKycDocuments: response.hasKycDocuments,
+      //     kycData: response.kycData,
+      //   ));
+      // }
       if (result is Success<EnDhanKycCheckModel>) {
         final response = result.value;
-        
-        // Handle "Document not found" as a valid response
-        if (response.data == "Document not found") {
-          // Document not found - this is expected for new users
+
+        bool shouldNavigateToKyc = false;
+
+        final document = response.kycData?.document;
+
+        if (document == null ||
+            document.identityProofFront == null ||
+            document.identityProofFront!.trim().isEmpty) {
+          shouldNavigateToKyc = true;
         }
-        
-        // Update the state with KYC check results
+
         emit(state.copyWith(
           kycCheckState: UIState.success(response),
-          hasKycDocuments: response.hasKycDocuments,
+          hasKycDocuments: !shouldNavigateToKyc,
           kycData: response.kycData,
         ));
-      } else if (result is Error) {
+      }
+
+
+      else if (result is Error) {
         _setKycCheckUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
@@ -96,6 +131,38 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   /// Mark that form submission has been attempted
   void markFormSubmitted() {
     emit(state.copyWith(hasAttemptedSubmit: true));
+  }
+
+  /// Upload a single document and return the URL
+  Future<Result<String>> _uploadDocument(File file, String customerId) async {
+    try {
+      final apiService = locator<ApiService>();
+      final result = await apiService.multipart(
+        'https://gro-devapi.letsgro.co/document/api/v1/upload',
+        file,
+        fields: {
+          'userId': customerId,
+          'fileType': 'pan_document',
+          'documentType': 'kyc_document',
+        },
+        pathName: 'file',
+      );
+
+      if (result is Success) {
+        final responseData = result.value;
+        if (responseData is Map<String, dynamic>) {
+          if (responseData.containsKey('url')) {
+            return Success(responseData['url']);
+          }
+        }
+        return Error(ErrorWithMessage(message: 'Invalid upload response format'));
+      } else {
+        return Error(result is Error ? result.type : GenericError());
+      }
+    } catch (e) {
+      print('❌ Document upload error: $e');
+      return Error(GenericError());
+    }
   }
 
   /// Uploads KYC documents to En-Dhan API
@@ -118,45 +185,38 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     }
 
     try {
-      // Helper function to get path from document
-      String getDocumentPath(List documents) {
-        if (documents.isNotEmpty) {
-          final document = documents.first;
-          if (document is Map && document['path'] != null) {
-            return document['path'];
+      String? panDocLink;
+
+      // Upload PAN document if provided
+      if (state.panDocuments.isNotEmpty && state.pan.isNotEmpty) {
+        final document = state.panDocuments.first;
+        if (document['path'] != null) {
+          final panImageFile = File(document['path']);
+          print('🔍 GPS Uploading PAN document: ${panImageFile.path}');
+
+          // Upload the PAN document first to get the URL
+          final uploadResult = await _uploadDocument(panImageFile, customerId);
+          if (uploadResult is Success<String>) {
+            panDocLink = uploadResult.value;
+            print('🔍 GPS PAN document uploaded successfully: $panDocLink');
+          } else {
+            print('❌ GPS PAN document upload failed');
+            _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Failed to upload PAN document')));
+            return;
           }
         }
-        return '';
+      } else {
+        print('🔍 GPS No PAN document provided - proceeding with Aadhaar only');
       }
 
-      // Helper function to get PAN document URL
-      String getPanDocumentUrl(List documents) {
-        if (documents.isNotEmpty) {
-          final document = documents.first;
-          if (document is Map && document['path'] != null) {
-            final path = document['path'].toString();
-            if (path.startsWith('http')) {
-              // It's an uploaded URL, use it directly
-              return path;
-            } else {
-              // It's a local file path, we need to upload it first
-              // This should not happen in normal flow as documents should be uploaded before submission
-              print('Warning: PAN document is still a local file path, should be uploaded first');
-              return '';
-            }
-          }
-        }
-        return '';
-      }
 
       final request = EnDhanKycApiRequest(
         aadhar: state.aadhaar,
+        isAadhar: true,
         pan: state.pan,
-        addressProofFront: getDocumentPath(state.addressFrontDocuments),
-        addressProofBack: getDocumentPath(state.addressBackDocuments),
-        identityProofFront: getDocumentPath(state.identityFrontDocuments),
-        identityProofBack: getDocumentPath(state.identityBackDocuments),
-        panImage: getPanDocumentUrl(state.panDocuments), // Use URL instead of file path
+        panDocLink: panDocLink,
+        isPan: state.pan.isNotEmpty ? true : null,
+        aadharDocLink: state.aadhaarDocLink,
       );
 
       final result = await _repository.uploadKycDocuments(request, customerId);
@@ -202,7 +262,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       File? addressProofBackFile;
       File? identityProofFrontFile;
       File? identityProofBackFile;
-      String? panImageUrl; // Changed from File to String for PAN document
 
       if (state.addressFrontDocuments.isNotEmpty) {
         final document = state.addressFrontDocuments.first;
@@ -228,32 +287,12 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           identityProofBackFile = File(document['path']);
         }
       }
-      if (state.panDocuments.isNotEmpty) {
-        final document = state.panDocuments.first;
-        if (document is Map) {
-          // Check if it's an uploaded URL (starts with http) or local file path
-          if (document['path'] != null) {
-            final path = document['path'].toString();
-            if (path.startsWith('http')) {
-              // It's an uploaded URL, use it directly
-              panImageUrl = path;
-            } else {
-              // It's a local file path, we need to upload it first
-              // This should not happen in normal flow as documents should be uploaded before submission
-              print('Warning: PAN document is still a local file path, should be uploaded first');
-            }
-          }
-        }
-      }
 
       final request = EnDhanKycMultipartApiRequest(
-        aadhar: state.aadhaar,
-        pan: state.pan,
         addressProofFront: addressProofFrontFile,
         addressProofBack: addressProofBackFile,
         identityProofFront: identityProofFrontFile,
         identityProofBack: identityProofBackFile,
-        panImage: panImageUrl, // Pass as string URL instead of file
       );
 
       final result = await _repository.uploadKycDocumentsMultipart(request, customerId);
@@ -443,9 +482,24 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     _setPanVerificationUIState(UIState.loading());
 
     try {
+      final userRepository = locator<UserInformationRepository>();
+      final userName = await userRepository.getUsername();
+      String customerName = "Test User";
+      final profileCubit = locator<ProfileCubit>();
+
+      if (userName == null || userName.isEmpty) {
+        await profileCubit.fetchProfileDetail();
+        final profileState = profileCubit.state;
+
+        if (profileState.profileDetailUIState?.data?.customer != null) {
+          final customer = profileState.profileDetailUIState!.data!.customer!;
+          customerName = customer.customerName;
+        }
+      }
+
       final request = PanVerificationRequest(
         panNumber: state.pan,
-        name: state.customerName.isNotEmpty ? state.customerName : "Test User",
+        name: customerName,
       );
 
       final result = await _repository.verifyPan(request);
@@ -853,20 +907,10 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // ==================== Form Field Updates ====================
 
-  ///todo - Aadhar bypassed
   // Set Aadhaar number
-  // void setAadhaar(String value) {
-  //   if (!_isClosed) {
-  //     emit(state.copyWith(aadhaar: value));
-  //   }
-  // }
   void setAadhaar(String value) {
     if (!_isClosed) {
-      emit(state.copyWith(
-        aadhaar: value,
-        isAadhaarValid: true,        // ✅ Auto-mark valid
-        isAadhaarVerified: true,     // ✅ Auto-mark verified
-      ));
+      emit(state.copyWith(aadhaar: value));
     }
   }
 
@@ -939,13 +983,9 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   }
 
   // Get Aadhaar validation error (only if form has been submitted)
-  ///todo - Aadhar bypassed
-  // String? getAadhaarValidationError(String value) {
-  //   if (!state.hasAttemptedSubmit) return null;
-  //   return _validateAadhaar(value);
-  // }
   String? getAadhaarValidationError(String value) {
-    return null; // ✅ Bypass all Aadhaar validation
+    if (!state.hasAttemptedSubmit) return null;
+    return _validateAadhaar(value);
   }
 
   // Get PAN validation error (only if form has been submitted)
@@ -1656,4 +1696,20 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       );
     }
   }
+  void setInitialKycData({
+    String? aadhaar,
+    String? pan,
+    bool isAadhaarVerified = false,
+    bool isPanVerified = false,
+  }) {
+    emit(state.copyWith(
+      aadhaar: aadhaar ?? '',
+      pan: pan ?? '',
+      isAadhaarVerified: isAadhaarVerified,
+      isPanVerified: isPanVerified,
+      isAadhaarValid: isAadhaarVerified,
+      isPanValid: pan != null && pan.length == 10,
+    ));
+  }
+
 }
