@@ -12,6 +12,8 @@ import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
+import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
+import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
@@ -549,6 +551,43 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setFetchFaqUIState(UIState.error(result.type));
     }
   }
+  
+    // Fetch Blood Group from api call
+  void _setFetchBloodGroupUIState(UIState<List<BloodGroupResponseModel>>? uiState){
+    emit(state.copyWith(bloodGroupResponseUIState: uiState));
+  }
+
+  Future<void> fetchBloodGroup({bool isLoading = true,String? search}) async {
+    if(isLoading) _setFetchBloodGroupUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchBloodGroup();
+    if (result is Success<List<BloodGroupResponseModel>>) {
+      _setFetchBloodGroupUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchBloodGroupUIState(UIState.error(result.type));
+    }
+  }
+ 
+    // Fetch Licnese category from api call
+  void _setFetchLicneseUIState(UIState<List<LicenseCategoryResponseModel>>? uiState){
+    emit(state.copyWith(licneseCategoryResponseUIState: uiState));
+  }
+
+  Future<void> fetchLicenseCategory({bool isLoading = true,String? search}) async {
+    if(isLoading) _setFetchLicneseUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchLicenseCategory();
+    if (result is Success<List<LicenseCategoryResponseModel>>) {
+      _setFetchLicneseUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchLicneseUIState(UIState.error(result.type));
+    }
+  }
+  
 
   // Fetch tickets from api call
   void _setTicketsUIState(UIState<TicketResponse>? uiState){

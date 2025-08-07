@@ -2,19 +2,19 @@
 
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
-class VpCompanyTypeSearchableDropdown extends StatelessWidget {
+class DriverRouteSearchDropdown extends StatelessWidget {
   final String? selectedCompanyTypeId;
   final ValueChanged<String?> onCompanyTypeChanged;
-  final List<VpCompanyTypeModel> companyTypeList;
+  final List<RouteList> companyTypeList;
   final String labelText;
   final String hintText;
   final bool mandatoryStar;
 
-  const VpCompanyTypeSearchableDropdown({
+  const DriverRouteSearchDropdown({
     super.key,
     required this.selectedCompanyTypeId,
     required this.onCompanyTypeChanged,
@@ -26,12 +26,12 @@ class VpCompanyTypeSearchableDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final companyTypeNames = companyTypeList.map((e) => e.companyType.toString()).toList();
+    final companyTypeNames = companyTypeList.map((e) => e.fromLocation.toString()).toList();
 
     final selectedItem = selectedCompanyTypeId != null
         ? companyTypeList.firstWhere(
-            (e) => e.id.toString() == selectedCompanyTypeId,
-          ).companyType.toString()
+            (e) => e.masterLaneId.toString() == selectedCompanyTypeId,
+          ).fromLocation.toString()
         : null;
 
     return SearchableDropdown(
@@ -43,10 +43,10 @@ class VpCompanyTypeSearchableDropdown extends StatelessWidget {
       onChanged: (String? newCompanyTypeName) {
         if (newCompanyTypeName != null) {
           final selectedCompanyType = companyTypeList.firstWhere(
-            (e) => e.companyType.toString() == newCompanyTypeName,
+            (e) => e.fromLocation.toString() == newCompanyTypeName,
           );
-          if (selectedCompanyType.id != null) {
-            onCompanyTypeChanged(selectedCompanyType.id.toString());
+          if (selectedCompanyType.masterLaneId != null) {
+            onCompanyTypeChanged(selectedCompanyType.masterLaneId.toString());
           } else {
             onCompanyTypeChanged(null);
           }

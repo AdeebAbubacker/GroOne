@@ -8,6 +8,8 @@ class DriverRequest {
     required this.licenseDocLink,
     required this.licenseExpiryDate,
     required this.dateOfBirth,
+    this.licenseCategory,
+    this.bloodGroup,
     required this.driverStatus,
   });
 
@@ -17,8 +19,10 @@ class DriverRequest {
   final String email;
   final String licenseNumber;
   final String licenseDocLink;
-  final String licenseExpiryDate; // ISO string format
-  final String dateOfBirth; // ISO string format
+  final String licenseExpiryDate; 
+  final String dateOfBirth; 
+  final int? licenseCategory; 
+  final int? bloodGroup; 
   final int driverStatus;
 
   DriverRequest copyWith({
@@ -30,6 +34,8 @@ class DriverRequest {
     String? licenseDocLink,
     String? licenseExpiryDate,
     String? dateOfBirth,
+    int? licenseCategory,
+    int? bloodGroup,
     int? driverStatus,
   }) {
     return DriverRequest(
@@ -41,6 +47,8 @@ class DriverRequest {
       licenseDocLink: licenseDocLink ?? this.licenseDocLink,
       licenseExpiryDate: licenseExpiryDate ?? this.licenseExpiryDate,
       dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      licenseCategory: licenseCategory ?? this.licenseCategory,
+      bloodGroup: bloodGroup ?? this.bloodGroup,
       driverStatus: driverStatus ?? this.driverStatus,
     );
   }
@@ -55,6 +63,8 @@ class DriverRequest {
       licenseDocLink: json["licenseDocLink"] ?? "",
       licenseExpiryDate: json["licenseExpiryDate"] ?? "",
       dateOfBirth: json["dateOfBirth"] ?? "",
+      bloodGroup: json["bloodGroup"], 
+      licenseCategory: json["licenseCategory"],
       driverStatus: json["driverStatus"] ?? 1,
     );
   }
@@ -72,6 +82,9 @@ class DriverRequest {
       data["licenseExpiryDate"] = licenseExpiryDate;
     }
     if (dateOfBirth.isNotEmpty) data["dateOfBirth"] = dateOfBirth;
+    if (licenseCategory != null) data["licenseCategory"] = licenseCategory;
+    if (bloodGroup != null) data["bloodGroup"] = bloodGroup;
+
     data["driverStatus"] = driverStatus;
 
     return data;

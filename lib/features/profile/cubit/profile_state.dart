@@ -32,6 +32,8 @@ class ProfileState extends Equatable {
   final UIState<UploadTicketResponse>? uploadTicketDocUIState;
   final UIState<CreateDocumentModel>? createDocumentUIState;
   final UIState<VehcileUpdatedStatusModel>? vehicleUpdateUIState;
+  final UIState<List<BloodGroupResponseModel>>? bloodGroupResponseUIState;
+  final UIState<List<LicenseCategoryResponseModel>>? licneseCategoryResponseUIState;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -64,6 +66,8 @@ class ProfileState extends Equatable {
     this.verifiedLicenseVahanState,
     this.verifiedVehicleVahanState,
     this.vehicleUpdateUIState,
+    this.bloodGroupResponseUIState,
+    this.licneseCategoryResponseUIState,
   });
 
   ProfileState copyWith({
@@ -97,6 +101,8 @@ class ProfileState extends Equatable {
     TicketStatus? selectedTicketStatus,
     TicketStatus? tempSelectedTicketStatus,
     UIState<VehcileUpdatedStatusModel>? vehicleStatusUpdate,
+    UIState<List<BloodGroupResponseModel>>? bloodGroupResponseUIState,
+    UIState<List<LicenseCategoryResponseModel>>? licneseCategoryResponseUIState,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -133,6 +139,8 @@ class ProfileState extends Equatable {
       verifiedLicenseVahanState: verifiedLicenseVahanState ?? this.verifiedLicenseVahanState,
       verifiedVehicleVahanState: verifiedVehicleVahanState ?? this.verifiedVehicleVahanState,
       vehicleUpdateUIState: vehicleStatusUpdate ?? this.vehicleUpdateUIState,
+      bloodGroupResponseUIState : bloodGroupResponseUIState ?? this.bloodGroupResponseUIState,
+      licneseCategoryResponseUIState : licneseCategoryResponseUIState ?? this.licneseCategoryResponseUIState,
     );
   }
 
@@ -169,5 +177,7 @@ class ProfileState extends Equatable {
     verifiedLicenseVahanState,
     verifiedVehicleVahanState,
     vehicleUpdateUIState,
+    bloodGroupResponseUIState,
+    licneseCategoryResponseUIState,
   ];
 }

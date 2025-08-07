@@ -19,9 +19,14 @@ import 'package:gro_one_app/features/profile/api_request/license_vahan_request.d
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/helper/master_helper.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
+import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
+import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
+import 'package:gro_one_app/features/profile/view/widgets/blood_category_dropdown.dart';
+import 'package:gro_one_app/features/profile/view/widgets/license_category_dropdown.dart';
 import 'package:gro_one_app/features/profile/view/widgets/master_dialogue_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
@@ -189,6 +194,8 @@ class _MasterScreenState extends State<MasterScreen>
     gpsVehicleCubit.fetchTruckTypes();
     gpsVehicleCubit.fetchCommodities();
     vpCreationCubit.fetchTruckType();
+    profileCubit.fetchBloodGroup();
+    profileCubit.fetchLicenseCategory();
   }
 
   void disposeFunction() => frameCallback(() {
@@ -920,60 +927,89 @@ class _MasterScreenState extends State<MasterScreen>
               ),
 
               // Active Tag
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color:
-                      driverStatus == 1
-                          ? Colors.green.shade100
-                          : Colors.red.shade100,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  driverStatus == 1
-                      ? context.appText.active
-                      : context.appText.inactive,
-                  style: AppTextStyle.body.copyWith(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color:
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end ,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color:
+                            driverStatus == 1
+                                ? Colors.green.shade100
+                                : Colors.red.shade100,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
                         driverStatus == 1
-                            ? Color(0XFF0E6027)
-                            : Color(0XFFE31B25),
-                  ),
+                            ? context.appText.active
+                            : context.appText.inactive,
+                        style: AppTextStyle.body.copyWith(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          color:
+                              driverStatus == 1
+                                  ? Color(0XFF0E6027)
+                                  : Color(0XFFE31B25),
+                        ),
+                      ),
+                    ),
+                     Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                onPressed: onEdit,
+                icon: SvgPicture.asset(
+                  AppIcons.svg.edit,
+                  color: AppColors.primaryColor,
+                ),
+                splashRadius: 20,
+              ),
+              IconButton(
+                onPressed: onDelete,
+                icon: SvgPicture.asset(
+                  AppIcons.svg.delete,
+                  color: AppColors.iconRed,
+                ),
+                splashRadius: 20,
+              ),
+            ],
+            ),
+                  ],
                 ),
               ),
             ],
           ),
-          16.height,
+          8.height,
 
-          // Action Buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              AppButton(
-                buttonHeight: commonButtonHeight2,
-                style: AppButtonStyle.logout,
-                isLoading: false,
-                onPressed: onDelete,
-                title: context.appText.delete,
-                textStyle: TextStyle(color: Colors.red),
-              ).expand(),
-              16.width,
+          // // Action Buttons
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          //   children: [
+          //     AppButton(
+          //       buttonHeight: commonButtonHeight2,
+          //       style: AppButtonStyle.logout,
+          //       isLoading: false,
+          //       onPressed: onDelete,
+          //       title: context.appText.delete,
+          //       textStyle: TextStyle(color: Colors.red),
+          //     ).expand(),
+          //     16.width,
 
-              // Yes Button
-              AppButton(
-                buttonHeight: commonButtonHeight2,
-                style: AppButtonStyle.outline,
-                isLoading: false,
-                onPressed: onEdit,
-                title: context.appText.edit,
-              ).expand(),
-            ],
-          ).paddingSymmetric(horizontal: 15),
+          //     // Yes Button
+          //     AppButton(
+          //       buttonHeight: commonButtonHeight2,
+          //       style: AppButtonStyle.outline,
+          //       isLoading: false,
+          //       onPressed: onEdit,
+          //       title: context.appText.edit,
+          //     ).expand(),
+          //   ],
+          // ).paddingSymmetric(horizontal: 15),
+        
         ],
       ),
     );
@@ -1052,55 +1088,58 @@ class _MasterScreenState extends State<MasterScreen>
               ),
 
               // Active Tag
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 4,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.end ,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.green.shade100,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Text(
+                        context.appText.active,
+                        style: AppTextStyle.body.copyWith(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 12,
+                          color:
+                              driverStatus == 1
+                                  ? Color(0XFF0E6027)
+                                  : Color(0XFFE31B25),
+                        ),
+                      ),
+                    ),
+                             Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              IconButton(
+                onPressed: onEdit,
+                icon: SvgPicture.asset(
+                  AppIcons.svg.edit,
+                  color: AppColors.primaryColor,
                 ),
-                decoration: BoxDecoration(
-                  color: Colors.green.shade100,
-                  borderRadius: BorderRadius.circular(20),
+                splashRadius: 20,
+              ),
+              IconButton(
+                onPressed: onDelete,
+                icon: SvgPicture.asset(
+                  AppIcons.svg.delete,
+                  color: AppColors.iconRed,
                 ),
-                child: Text(
-                  context.appText.active,
-                  style: AppTextStyle.body.copyWith(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 12,
-                    color:
-                        driverStatus == 1
-                            ? Color(0XFF0E6027)
-                            : Color(0XFFE31B25),
-                  ),
-                ),
+                splashRadius: 20,
               ),
             ],
-          ),
-          16.height,
-
-          // Action Buttons
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              AppButton(
-                buttonHeight: commonButtonHeight2,
-                style: AppButtonStyle.logout,
-                isLoading: false,
-                onPressed: onDelete,
-                title: context.appText.delete,
-                textStyle: TextStyle(color: Colors.red),
-              ).expand(),
-              16.width,
-
-              // Yes Button
-              AppButton(
-                buttonHeight: commonButtonHeight2,
-                style: AppButtonStyle.outline,
-                isLoading: false,
-                onPressed: onEdit,
-                title: context.appText.edit,
-              ).expand(),
+            ),
             ],
-          ).paddingSymmetric(horizontal: 15),
+          ),
+         ),  
+        ],
+          ),
+            8.height,   
         ],
       ),
     );
@@ -1418,6 +1457,7 @@ class _MasterScreenState extends State<MasterScreen>
     );
   String? selectedState;
   String? selectedCity;
+  
     AppDialog.show(
       context,
       child: StatefulBuilder(
@@ -1455,43 +1495,26 @@ class _MasterScreenState extends State<MasterScreen>
                       alphanumericWithSpaceRegex,
                     ),
                     16.height,
-                    // _buildTextField(
-                    //   context,
-                    //   stateController,
-                    //   context.appText.state,
-                    //   alphabetWithSpaceRegex,
-                    // ),
-                    // 16.height,
-                    // _buildTextField(
-                    //   context,
-                    //   cityController,
-                    //   context.appText.city,
-                    //   alphabetWithSpaceRegex,
-                    // ),
-               StateDropdown(
-            selected: selectedState,
-            onStateChanged: (value) {
-              setState(() {
-          selectedState = value;
-          selectedCity = null; 
-          print("selected state is ${selectedCity}");
-              });
-            },
-          ),
-          
-          16.height,
-          
-          CityDropdown(
-            selected: selectedCity,
-            isStateSelected: selectedState != null && selectedState!.isNotEmpty,
-            onCityChanged: (value) {
-              setState(() {
-          selectedCity = value;
-              });
-            },
-          )
-          
-          ,
+                    StateDropdown(
+                      selected: selectedState,
+                      onStateChanged: (value) {
+                        setState(() {
+                    selectedState = value;
+                    selectedCity = null; 
+                    print("selected state is ${selectedCity}");
+                        });
+                      },
+                    ),
+                  16.height,       
+                  CityDropdown(
+                    selected: selectedCity,
+                    isStateSelected: selectedState != null && selectedState!.isNotEmpty,
+                    onCityChanged: (value) {
+                      setState(() {
+                  selectedCity = value;
+                      });
+                    },
+                  ),
                     16.height,
                     AppTextField(
                       validator: Validator.pincode,
@@ -1987,9 +2010,11 @@ class _MasterScreenState extends State<MasterScreen>
     final mobileController = TextEditingController(
       text: driver?.mobile?.replaceFirst('+91', '') ?? "",
     );
+    int? selectedLicneseId = driver?.licenseCategory;
+    int? selectedBloodId = driver?.bloodGroup;
     final emailController = TextEditingController(text: driver?.email ?? "");
     final localLicenseDocList = <Map<String, dynamic>>[];
-
+      
     if (driver?.licenseDocLink != null && driver!.licenseDocLink!.isNotEmpty) {
       final doc = createFileFromLink(driver.licenseDocLink!);
       if (doc != null) {
@@ -2000,8 +2025,12 @@ class _MasterScreenState extends State<MasterScreen>
      String previousLicenseNo = licenseNumberController.text.trim();
     bool isActive = driver != null ? (driver.driverStatus == 1) : true;
     bool listenerAdded = false;
-
-
+    String? selectedLicense;  
+    String? selectedBloodGroup;
+    selectedBloodGroup = MasterHelper.mapBloodGroupIdToName(driver?.bloodGroup);
+    selectedBloodId = driver?.bloodGroup;
+    selectedLicense = MasterHelper.mapLicenseCategoryIdToName(driver?.licenseCategory);
+    selectedLicneseId = driver?.licenseCategory;
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
@@ -2011,19 +2040,19 @@ class _MasterScreenState extends State<MasterScreen>
         ) {
           
              if (!listenerAdded) {
-    licenseNumberController.addListener(() {
-      final currentText = licenseNumberController.text.trim();
-      if (currentText != previousLicenseNo) {
-        previousLicenseNo = currentText;
-        profileCubit.resetlicenseVahanVerificationState();
-        setState(() {
-          isInitialized = false;
-          isLicenseVerified = false;
-        });
-      }
-    });
-    listenerAdded = true;
-  }
+            licenseNumberController.addListener(() {
+              final currentText = licenseNumberController.text.trim();
+              if (currentText != previousLicenseNo) {
+                previousLicenseNo = currentText;
+                profileCubit.resetlicenseVahanVerificationState();
+                setState(() {
+                  isInitialized = false;
+                  isLicenseVerified = false;
+                });
+              }
+            });
+            listenerAdded = true;
+          }
 
           final licenseDocUpload =
               context.watch<ProfileCubit>().state.licenseDocUpload;
@@ -2064,7 +2093,10 @@ class _MasterScreenState extends State<MasterScreen>
                 selectedDate = localData.licenseExpiryDate != null
                     ? DateFormat('dd/MM/yyyy').format(localData.licenseExpiryDate!)
                     : selectedDate;
-
+                selectedBloodGroup = MasterHelper.mapBloodGroupIdToName(localData.bloodGroup);
+                selectedBloodId = localData.bloodGroup;
+                selectedLicense = MasterHelper.mapLicenseCategoryIdToName(localData.licenseCategory);
+                selectedLicneseId = localData.licenseCategory;
                 localLicenseDocList.clear();
                 if (localData.licenseDocLink != null &&
                     localData.licenseDocLink!.isNotEmpty) {
@@ -2092,6 +2124,10 @@ class _MasterScreenState extends State<MasterScreen>
           final vahanData = driverVerifiedData!.data!.data!;
           setState(() {
             nameController.text = vahanData.userFullName ?? nameController.text;
+            selectedBloodGroup = vahanData.userBloodGroup;
+            selectedLicense = vahanData.vehicleCategory;
+            selectedBloodId = MasterHelper.mapBloodGroupToId(vahanData.userBloodGroup);
+            selectedLicneseId = MasterHelper.mapLicenseCategoryToId(vahanData.vehicleCategory);
             selectedDoB = vahanData.userDob != null
                 ? DateFormat('dd/MM/yyyy').format(
                     DateFormat('dd-MM-yyyy').parse(vahanData.userDob!),
@@ -2193,30 +2229,51 @@ class _MasterScreenState extends State<MasterScreen>
                   ),
                   16.height,
                   AppTextField(
-          readOnly: isLicenseVerified ? false : true,
-          validator:  (value) => Validator.phone(value),
-          controller: mobileController,
-          labelText: context.appText.phoneNumber,
-          maxLength: 10,
+                  readOnly: isLicenseVerified ? false : true,
+                  validator:  (value) => Validator.phone(value),
+                  controller: mobileController,
+                  labelText: context.appText.phoneNumber,
+                  maxLength: 10,
 
-          inputFormatters: [phoneNumberInputFormatter],
-          keyboardType: TextInputType.phone,
-          decoration: commonInputDecoration(
-            fillColor: AppColors.lightGreyBackgroundColor,
-            focusColor: AppColors.borderColor,
-            hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
-            prefixIcon: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Image.asset(AppImage.png.flag),
-                10.width,
-                Text("+91", style: AppTextStyle.textFiled),
-              ],
-            ).paddingOnly(left: 20, right: 5),
-          ),
-        ),
+                  inputFormatters: [phoneNumberInputFormatter],
+                  keyboardType: TextInputType.phone,
+                  decoration: commonInputDecoration(
+                    fillColor: AppColors.lightGreyBackgroundColor,
+                    focusColor: AppColors.borderColor,
+                    hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
+                    prefixIcon: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(AppImage.png.flag),
+                        10.width,
+                        Text("+91", style: AppTextStyle.textFiled),
+                      ],
+                    ).paddingOnly(left: 20, right: 5),
+                  ),
+                ),
                   16.height,
+                  LicenseCategoryDropdown(
+                  selected: selectedLicense,
+                  onChanged: (LicenseCategoryResponseModel? category) {
+                  setState(() {
+                    selectedLicense = category?.categoryName;
+                    selectedLicneseId = category?.id; 
+                    print("selected licesne id ${selectedLicneseId}");
+                  });
+                },),
+                  16.height,
+                 BloodCategoryDropdown(
+                  selected: selectedBloodGroup,
+                  onChanged: (BloodGroupResponseModel? category) {
+                  setState(() {
+                    selectedBloodGroup = category?.groupName;
+                    selectedBloodId = category?.id; 
+                    print("selected blood id ${selectedLicneseId}");
+                  });
+                },
+                ),
+                16.height,
                   AppTextField(
                     readOnly: isLicenseVerified ? false : true,
                     labelText: '${context.appText.emailId}(optional)',
@@ -2228,8 +2285,7 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                   ),
 
-                  20.height,
-
+                   16.height,
                   /// Active Switch
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2308,6 +2364,8 @@ class _MasterScreenState extends State<MasterScreen>
                   licenseDocLink: rcDocLink,
                   licenseExpiryDate: licenseExpiryIso ?? '',
                   dateOfBirth: dateOfBirthIso ?? '',
+                  licenseCategory: selectedLicneseId ,
+                  bloodGroup: selectedBloodId,
                   driverStatus: isActive ? 1 : 2,
                 );
                 if (isEdit) {
