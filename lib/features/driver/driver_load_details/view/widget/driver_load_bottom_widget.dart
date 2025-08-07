@@ -8,7 +8,6 @@ import 'package:gro_one_app/features/driver/driver_damages_and_shortages/view/dr
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_damages_list_view.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_document_widget_view.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_timeline_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_source_destination_widget.dart';
@@ -16,17 +15,11 @@ import 'package:gro_one_app/features/driver/driver_pod/view/driver_pod_dispatch_
 import 'package:gro_one_app/features/driver/driver_settlements/view/driver_settlements_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/document_widget_view.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/information_view.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/view/vp_pod_dispatch_screen.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -35,7 +28,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
-import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -46,7 +38,6 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import '../../../../../data/ui_state/status.dart';
-
 
 class DriverLoadBottomWidget extends StatefulWidget {
   final DriverLoadDetailsCubit cubit;
@@ -62,29 +53,32 @@ class DriverLoadBottomWidget extends StatefulWidget {
 }
 
 class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
-final driverLoadDetailsCubit = locator<DriverLoadDetailsCubit>();
-Future<void> getLoadDetails() async {
-  frameCallback(() async{
-      await driverLoadDetailsCubit.getDriverLoadsById(loadId: widget.loadItem.data?.loadId ?? '');
+  final driverLoadDetailsCubit = locator<DriverLoadDetailsCubit>();
+  Future<void> getLoadDetails() async {
+    frameCallback(() async {
+      await driverLoadDetailsCubit.getDriverLoadsById(
+        loadId: widget.loadItem.data?.loadId ?? '',
+      );
 
-  final statusId = driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
+      final statusId =
+          driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
 
-  if (statusId != null) {
-    driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
+      if (statusId != null) {
+        driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
+      }
+    });
   }
-  },);
 
-}
   @override
-void initState() {
-  super.initState();
+  void initState() {
+    super.initState();
 
-  WidgetsBinding.instance.addPostFrameCallback((_) {
-    final currentStatus = widget.loadItem.data?.loadStatusId;
-   
-    widget.cubit.updatePODVisibilityBasedOnStatus(currentStatus);
-  });
-}
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final currentStatus = widget.loadItem.data?.loadStatusId;
+
+      widget.cubit.updatePODVisibilityBasedOnStatus(currentStatus);
+    });
+  }
 
   List<dynamic> lorryReceiptFiles = [];
   List<String> uploadedLorryReceipts = [];
@@ -96,60 +90,65 @@ void initState() {
   List<String> uploadedMaterialInvoices = [];
   final loadDetailsCubit = locator<LoadDetailsCubit>();
 
-
-   changeLoadStatus(BuildContext context, {required int loadStatus , required String loadId}) async {
-
-      String? userId = await widget.cubit.getUserId();
-      await widget.cubit
-          .fupdateLoadStatus(customerId:userId.toString(),loadStatus: loadStatus,loadid: loadId)
-          .then((value) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          widget.cubit.getDriverLoadsById(loadId:  loadId ?? "0");
-          widget.cubit.updatePODVisibilityBasedOnStatus(loadStatus);
+  changeLoadStatus(
+    BuildContext context, {
+    required int loadStatus,
+    required String loadId,
+  }) async {
+    String? userId = await widget.cubit.getUserId();
+    await widget.cubit
+        .fupdateLoadStatus(
+          customerId: userId.toString(),
+          loadStatus: loadStatus,
+          loadid: loadId,
+        )
+        .then((value) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            widget.cubit.getDriverLoadsById(loadId: loadId ?? "0");
+            widget.cubit.updatePODVisibilityBasedOnStatus(loadStatus);
+          });
         });
-      });
-    }
-
-    bool isChangeStatusButtonEnabled({
-      required int? loadStatus,
-      required int driverConsent,
-      required List<DocumentEntity>? tripDocumentList,
-       required bool isMemoUploaded,
-    }) {
-      if (loadStatus == null) return false;
-if (loadStatus == 4) {
-    return isMemoUploaded; // Only return true if memo is uploaded
   }
-/// TODO: need to change driver code also regarding document
-      if (loadStatus == 5) {
-      if (tripDocumentList == null || !widget.cubit.areRequiredDocsUploaded(tripDocumentList)) return false;
-      }
 
-      if (loadStatus == 7) {
-        if (tripDocumentList == null || !widget.cubit.isPODUploaded(tripDocumentList)) return false;
-      }
-
-      return true;
+  bool isChangeStatusButtonEnabled({
+    required int? loadStatus,
+    required int driverConsent,
+    required List<DocumentEntity>? tripDocumentList,
+    required bool isMemoUploaded,
+  }) {
+    if (loadStatus == null) return false;
+    if (loadStatus == 4) {
+      return isMemoUploaded; // Only return true if memo is uploaded
     }
 
+    if (loadStatus == 5) {
+      if (tripDocumentList == null ||
+          !widget.cubit.areRequiredDocsUploaded(tripDocumentList))
+        return false;
+    }
+
+    if (loadStatus == 7) {
+      if (tripDocumentList == null ||
+          !widget.cubit.isPODUploaded(tripDocumentList))
+        return false;
+    }
+
+    return true;
+  }
 
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
       bloc: widget.cubit,
-       buildWhen: (previous, current) => current!=previous,
-      listener: (context, state) {
-        
-    
-      },
+      buildWhen: (previous, current) => current != previous,
+      listener: (context, state) {},
       builder: (context, state) {
-         DriverLoadDetailsModel? loadDetails;
+        DriverLoadDetailsModel? loadDetails;
         if (state.lpLoadById?.status == Status.LOADING) {
           return CircularProgressIndicator().center();
         }
         if (state.lpLoadById?.status == Status.ERROR) {
-          return genericErrorWidget(
-              error: state.loadStatusUIState?.errorType);
+          return genericErrorWidget(error: state.loadStatusUIState?.errorType);
         }
         if (state.lpLoadById?.status == Status.SUCCESS) {
           final loads = state.lpLoadById?.data;
@@ -157,462 +156,525 @@ if (loadStatus == 4) {
           if (loads?.data == null) {
             return genericErrorWidget(error: NotFoundError());
           }
-          loadDetails= loads;
-     
-          bool showButton(int status, bool onHold) {
-          if (status == 9) return false; 
-          if (onHold) return false;
-          return true;
-        }
+          loadDetails = loads;
 
-        return Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            constraints: BoxConstraints(
-              maxHeight: MediaQuery.of(context).size.height * 0.45,
-            ),
-            decoration:commonContainerDecoration(
+          bool showButton(int status, bool onHold) {
+            if (status == 9) return false;
+            if (onHold) return false;
+            return true;
+          }
+
+          return Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.of(context).size.height * 0.45,
+              ),
+              decoration: commonContainerDecoration(
                 color: AppColors.white,
                 borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(30),
                   topRight: Radius.circular(30),
                 ),
-                shadow: true
+                shadow: true,
               ),
-            child: Column(
-              children: [
-                Flexible(
-                  child: RefreshIndicator(
-                      onRefresh: () async{
-                         return;
-                        },
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          10.height,
-                          if(loads!.data!.driverConsent == 0 && loads!.data!.loadStatusId > 4)
-                          Center(
-                            child: Text("No SIM tracking consent from driver",
-                                        style: AppTextStyle.textBlackColor16w400.copyWith(
-                                        color: AppColors.iconRed,
-                                        ),),
-                          ),
-                          20.height,
-                          // Truck Type Row
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Image.asset(
-                                AppImage.png.dummyTruckLoad,
-                                width: 57,
-                                height: 42,
+              child: Column(
+                children: [
+                  Flexible(
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        return;
+                      },
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            10.height,
+                            if (loads!.data!.driverConsent == 0 &&
+                                loads!.data!.loadStatusId > 4)
+                              Center(
+                                child: Text(
+                                  "No SIM tracking consent from driver",
+                                  style: AppTextStyle.textBlackColor16w400
+                                      .copyWith(color: AppColors.iconRed),
+                                ),
                               ),
-                              12.width,
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  if (loads!.data!.loadStatusId <
-                                      LoadStatus.assigned.index) ...[
-                                    Text(
-                                      context.appText.requested,
-                                      style: AppTextStyle.body3.copyWith(
-                                        color: Colors.grey,
+                            20.height,
+                            // Truck Type Row
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Image.asset(
+                                  AppImage.png.dummyTruckLoad,
+                                  width: 57,
+                                  height: 42,
+                                ),
+                                12.width,
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    if (loads!.data!.loadStatusId <
+                                        LoadStatus.assigned.index) ...[
+                                      Text(
+                                        context.appText.requested,
+                                        style: AppTextStyle.body3.copyWith(
+                                          color: Colors.grey,
+                                        ),
                                       ),
-                                    ),
-                                    4.height,
-                                    Text(
-                                      '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
-                                      style: AppTextStyle.body1.copyWith(
-                                        fontSize: 14,
-                                        color: AppColors.black,
+                                      4.height,
+                                      Text(
+                                        '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
+                                        style: AppTextStyle.body1.copyWith(
+                                          fontSize: 14,
+                                          color: AppColors.black,
+                                        ),
                                       ),
-                                    ),
-                                  ],
-                                  if (widget.loadItem.data!.loadStatusId >=
-                                      LoadStatus.assigned.index) ...[
-                                    5.height,
-                                    Row(
-                                      children: [
-                                        Container(
-                                          decoration: commonContainerDecoration(
-                                            color: Color(0xffFFC100),
-                                            borderRadius: BorderRadius.circular(4),
-                                          ),
-                                          padding: EdgeInsets.symmetric(
-                                            horizontal: 4,
-                                          ),
-                                          child: Text(
-                                            widget
-                                                    .loadItem
-                                                    .data
-                                                    ?.trackingDetails
-                                                    ?.truckNumber ??
-                                                'N/A',
-                                            style: AppTextStyle.body3.copyWith(
-                                              color: AppColors.black,
+                                    ],
+                                    if (widget.loadItem.data!.loadStatusId >=
+                                        LoadStatus.assigned.index) ...[
+                                      5.height,
+                                      Row(
+                                        children: [
+                                          Container(
+                                            decoration:
+                                                commonContainerDecoration(
+                                                  color: Color(0xffFFC100),
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                            padding: EdgeInsets.symmetric(
+                                              horizontal: 4,
+                                            ),
+                                            child: Text(
+                                              widget
+                                                      .loadItem
+                                                      .data
+                                                      ?.trackingDetails
+                                                      ?.truckNumber ??
+                                                  'N/A',
+                                              style: AppTextStyle.body3
+                                                  .copyWith(
+                                                    color: AppColors.black,
+                                                  ),
                                             ),
                                           ),
-                                        ),
-                                        8.width,
-                                        Text(
-                                          '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
-                                          style: AppTextStyle.body3.copyWith(
-                                            color: AppColors.greyIconColor,
+                                          8.width,
+                                          Text(
+                                            '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
+                                            style: AppTextStyle.body3.copyWith(
+                                              color: AppColors.greyIconColor,
+                                            ),
                                           ),
-                                        ),
-                                      ],
-                                    ),
-                                    5.height,
+                                        ],
+                                      ),
+                                      5.height,
+                                    ],
                                   ],
-                                ],
-                              ),
-                            ],
-                          ).paddingSymmetric(horizontal: 15),
-                    
-                          20.height,
-                          Divider(color: Color(0xffE1E1E1), thickness: 3),
-                          20.height,
-                            if(((state.loadStatusId??0) >4))
-                            ...[
-                           Builder(
+                                ),
+                              ],
+                            ).paddingSymmetric(horizontal: 15),
+
+                            20.height,
+                            Divider(color: Color(0xffE1E1E1), thickness: 3),
+                            20.height,
+                            if (((state.loadStatusId ?? 0) > 4)) ...[
+                              Builder(
                                 builder: (context) {
-                                  final trackingData = state.trackingDistance?.data;
+                                  final trackingData =
+                                      state.trackingDistance?.data;
                                   if (trackingData == null) {
                                     return SizedBox();
                                   }
                                   return TrackingProgress(
-                                    progressPercentage: trackingData.coverPercentage??0,
-                                    remainingDistance: trackingData.currentdistance ?? '--',
-                                    totalDistance: trackingData.overalldistance ?? '--',
+                                    progressPercentage:
+                                        trackingData.coverPercentage ?? 0,
+                                    remainingDistance:
+                                        trackingData.currentdistance ?? '--',
+                                    totalDistance:
+                                        trackingData.overalldistance ?? '--',
                                     eta: trackingData.durationValue,
                                   ).paddingSymmetric(horizontal: 15);
                                 },
                               ),
-                             20.height, 
-                            ], 
-                          DriverSourceDestinationWidget(
-                            pickUpLocation:
-                                loads!.data!.loadRoute?.pickUpLocation,
-                            dropLocation:
-                                loads!.data!.loadRoute?.dropLocation,
-                          ).paddingSymmetric(horizontal: 15),
-                          20.height,
-                          15.height,
-                          _buildLoadEntityWidget(
-                            commodities: loads?.data?.commodity?.name?.toString() ?? '',
-                            weight: loads?.data?.weight?.value?.toString() ?? '',
-                            locationDistance: state.locationDistance,
-                            context: context,
-                          ),
-
-                           if (loads!.data!.consignees != null &&
-                                    widget.loadItem.data!.consignees.isNotEmpty)
-                                  _buildConsigneeDetail(
-                                    context: context,
-                                    email:
-                                        widget
-                                            .loadItem
-                                            .data
-                                            ?.consignees
-                                            .last
-                                            .email ??
-                                        '',
-                                    name:
-                                        widget
-                                            .loadItem
-                                            .data
-                                            ?.consignees
-                                            .last
-                                            .name ??
-                                        '',
-                                    phoneNo:
-                                        widget
-                                            .loadItem
-                                            .data
-                                            ?.consignees
-                                            .last
-                                            .mobileNumber ??
-                                        '',
-                                  ),
-                                20.height,
-                          if ((loads!.data!.loadStatusId ?? 0) > 4)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                if (widget.loadItem.data!.loadStatusId > 4) ...[
-                                  20.height,
-                                   Text(
-                                  context.appText.tripDocument,
-                                  style: AppTextStyle.h4,
-                                ).paddingSymmetric(horizontal: 15),
-                                15.height,
-                    
-                                  buildAttachmentView(
-                                  context,                         
-                                  widget.loadItem?.data?.loadId,
-                                  state,
-                                  widget.cubit,
-                                ),
-                                 ],
-                                20.height,
-                    
-                           
-                                if (widget.loadItem.data!.loadStatusId > 6)
-                                  Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      20.height,
-                                      _buildAdableSectionHeader(
-                                        showAddButton:   state.loadStatus != LoadStatus.completed &&   state.loadStatus != LoadStatus.podDispatched,
-                                        context: context,
-                                        title:  context.appText.damageAndShortage,
-                                        onAdd: () {
-                                          Navigator.push(
-                                          context,
-                                          commonRoute(
-                                            DriverDamagesAndShortagesScreen(
-                                                vehicleId:
-                                                    widget
-                                                        .loadItem
-                                                        .data
-                                                        ?.scheduleTripDetails
-                                                        ?.vehicleId,
-                                                loadId:
-                                                    loads!.data!.loadId,
-                                              ),
-                                              isForward: true,
-                                            ),
-                                          ).then((value) {
-                                                    if (mounted) {
-                                                      getLoadDetails();
-                                                    }
-                                      });                                 
-                                        }     
-                                      ),
-                                       Visibility(
-                                      visible:(loads!.data!.damageShortage??[]).isNotEmpty,
-                                      child: Column(
-                                        children: [
-                                          20.height,
-                                          AddedDamageWidget(
-                                            damageReport: loads!.data!.damageShortage,
-                                          ),
-                                        ],
-                                      ).paddingSymmetric(horizontal: 20)),
-                                      20.height,
-                                      _buildAdableSectionHeader(
-                                        context: context,
-                                         showAddButton: state.loadStatus != LoadStatus.completed &&
-                                        loads?.data?.loadSettlement == null,
-                                        title: 'Settlements',
-                                        onAdd: () {
-                                           Navigator.push(
-                                          context,
-                                          commonRoute(
-                                            DriverSettlementsScreen(
-                                                vehicleID:
-                                                    loads!.data!
-                                                        ?.scheduleTripDetails
-                                                        ?.vehicleId,
-                                                loadId:
-                                                      loads!.data!.loadId,
-                                              ),
-                                              isForward: true,
-                                            ),
-                                          ).then((value) {
-                                                    if (mounted) {
-                                                      getLoadDetails();
-                                                    }
-                                      });                
-                                        },
-                                      ),
-                                      _submittedSettlementInfoWidget(
-                                      loadDetails?.data?.loadSettlement,
-                                      context,
-                                    ),
-                                    ],
-                                  ),
-                                20.height,
-                               
-                               
-                              ],
+                              20.height,
+                            ],
+                            DriverSourceDestinationWidget(
+                              pickUpLocation:
+                                  loads!.data!.loadRoute?.pickUpLocation,
+                              dropLocation:
+                                  loads!.data!.loadRoute?.dropLocation,
+                            ).paddingSymmetric(horizontal: 15),
+                            20.height,
+                            15.height,
+                            _buildLoadEntityWidget(
+                              commodities:
+                                  loads?.data?.commodity?.name?.toString() ??
+                                  '',
+                              weight:
+                                  loads?.data?.weight?.value?.toString() ?? '',
+                              locationDistance: state.locationDistance,
+                              context: context,
                             ),
-                            if ((loads!.data!.loadStatusId ?? 0) > 8)
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                
-                                _submittedPodInfoWidget(
-                                loadDetails?.data?.podDispatch,
-                                context,
+
+                            if (loads!.data!.consignees != null &&
+                                widget.loadItem.data!.consignees.isNotEmpty)
+                              _buildConsigneeDetail(
+                                context: context,
+                                email:
+                                    widget
+                                        .loadItem
+                                        .data
+                                        ?.consignees
+                                        .last
+                                        .email ??
+                                    '',
+                                name:
+                                    widget
+                                        .loadItem
+                                        .data
+                                        ?.consignees
+                                        .last
+                                        .name ??
+                                    '',
+                                phoneNo:
+                                    widget
+                                        .loadItem
+                                        .data
+                                        ?.consignees
+                                        .last
+                                        .mobileNumber ??
+                                    '',
                               ),
-                            ],),
+                            20.height,
+                            if ((loads!.data!.loadStatusId ?? 0) > 4)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  if (widget.loadItem.data!.loadStatusId >
+                                      4) ...[
+                                    20.height,
+                                    Text(
+                                      context.appText.tripDocument,
+                                      style: AppTextStyle.h4,
+                                    ).paddingSymmetric(horizontal: 15),
+                                    15.height,
+
+                                    buildAttachmentView(
+                                      context,
+                                      widget.loadItem?.data?.loadId,
+                                      state,
+                                      widget.cubit,
+                                    ),
+                                  ],
+                                  20.height,
+
+                                  if (widget.loadItem.data!.loadStatusId > 6)
+                                    Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        20.height,
+                                        _buildAdableSectionHeader(
+                                          showAddButton:
+                                              state.loadStatus !=
+                                                  LoadStatus.completed &&
+                                              state.loadStatus !=
+                                                  LoadStatus.podDispatched,
+                                          context: context,
+                                          title:
+                                              context.appText.damageAndShortage,
+                                          onAdd: () {
+                                            Navigator.push(
+                                              context,
+                                              commonRoute(
+                                                DriverDamagesAndShortagesScreen(
+                                                  vehicleId:
+                                                      widget
+                                                          .loadItem
+                                                          .data
+                                                          ?.scheduleTripDetails
+                                                          ?.vehicleId,
+                                                  loadId: loads!.data!.loadId,
+                                                ),
+                                                isForward: true,
+                                              ),
+                                            ).then((value) {
+                                              if (mounted) {
+                                                getLoadDetails();
+                                              }
+                                            });
+                                          },
+                                        ),
+                                        Visibility(
+                                          visible:
+                                              (loads!.data!.damageShortage ??
+                                                      [])
+                                                  .isNotEmpty,
+                                          child: Column(
+                                            children: [
+                                              20.height,
+                                              AddedDamageWidget(
+                                                damageReport:
+                                                    loads!.data!.damageShortage,
+                                              ),
+                                            ],
+                                          ).paddingSymmetric(horizontal: 20),
+                                        ),
+                                        20.height,
+                                        _buildAdableSectionHeader(
+                                          context: context,
+                                          showAddButton:
+                                              state.loadStatus !=
+                                                  LoadStatus.completed &&
+                                              loads?.data?.loadSettlement ==
+                                                  null,
+                                          title: 'Settlements',
+                                          onAdd: () {
+                                            Navigator.push(
+                                              context,
+                                              commonRoute(
+                                                DriverSettlementsScreen(
+                                                  vehicleID:
+                                                      loads!
+                                                          .data!
+                                                          ?.scheduleTripDetails
+                                                          ?.vehicleId,
+                                                  loadId: loads!.data!.loadId,
+                                                ),
+                                                isForward: true,
+                                              ),
+                                            ).then((value) {
+                                              if (mounted) {
+                                                getLoadDetails();
+                                              }
+                                            });
+                                          },
+                                        ),
+                                        _submittedSettlementInfoWidget(
+                                          loadDetails?.data?.loadSettlement,
+                                          context,
+                                        ),
+                                      ],
+                                    ),
+                                  20.height,
+                                ],
+                              ),
+                            if ((loads!.data!.loadStatusId ?? 0) > 8)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _submittedPodInfoWidget(
+                                    loadDetails?.data?.podDispatch,
+                                    context,
+                                  ),
+                                ],
+                              ),
                             16.height,
 
-                              Text(
-                                  context.appText.timeLine,
-                                  style: AppTextStyle.h4,
-                                ).paddingSymmetric(horizontal: 15),
-                                20.height,
-                             DriverLoadTimelineWidget(
-                                  timelineList:
-                                      loads!.data!.timeline ?? [],
-                                ).paddingSymmetric(horizontal: 15),
-                      ],
+                            Text(
+                              context.appText.timeLine,
+                              style: AppTextStyle.h4,
+                            ).paddingSymmetric(horizontal: 15),
+                            20.height,
+                            DriverLoadTimelineWidget(
+                              timelineList: loads!.data!.timeline ?? [],
+                            ).paddingSymmetric(horizontal: 15),
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                    if (showButton(loads!.data!.loadStatusId, loads.data?.loadOnhold ?? false))
-              BlocListener<DriverLoadDetailsCubit, DriverLoadDetailsState>(
-                bloc: widget.cubit,
-                listener: (context, state) {
-                  final loadStatusState = state.loadStatusUIState;
+                  if (showButton(
+                    loads!.data!.loadStatusId,
+                    loads.data?.loadOnhold ?? false,
+                  ))
+                    BlocListener<
+                      DriverLoadDetailsCubit,
+                      DriverLoadDetailsState
+                    >(
+                      bloc: widget.cubit,
+                      listener: (context, state) {
+                        final loadStatusState = state.loadStatusUIState;
 
-                  if (loadStatusState is Success) {
-                    ToastMessages.success(message: "Load status updated successfully");
-                    widget.cubit.getDriverLoadsById(loadId: loads!.data!.loadId ?? '');
-                  }
-                  if (loadStatusState is Error) {
-                    ToastMessages.error(message: "Failed to update load status");
-                    widget.cubit.getDriverLoadsById(loadId: loads!.data!.loadId ?? '');
-                  }
-                },
-                child: SizedBox(
-                  height: 60,
-                  width: MediaQuery.of(context).size.width * 0.90,
-                  child: (loads.data!.loadStatusId == 8)
-                      ? AppButton(
-                          isLoading: false,
-                          title: getButtonText(state.loadStatus ?? LoadStatus.matching),
-                          style: AppButtonStyle.primary.copyWith(
-                            shape: WidgetStatePropertyAll(
-                              RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
-                          onPressed: () {
-                            Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => DriverPodDispatchScreen(
-                                loadId: loads.data!.loadId ?? '',                            
-                              ),
-                            ),
-                          ).then((value) {
-                            if (value == true) {
-                              widget.cubit.getDriverLoadsById(loadId: loads.data!.loadId ?? '');
-                              changeLoadStatus(context, loadId: loads.data!.loadId ?? '',loadStatus: loads.data!.loadStatusId + 1);
-                            }
-                          });
+                        if (loadStatusState is Success) {
+                          ToastMessages.success(
+                            message: "Load status updated successfully",
+                          );
+                          widget.cubit.getDriverLoadsById(
+                            loadId: loads!.data!.loadId ?? '',
+                          );
+                        }
+                        if (loadStatusState is Error) {
+                          ToastMessages.error(
+                            message: "Failed to update load status",
+                          );
+                          widget.cubit.getDriverLoadsById(
+                            loadId: loads!.data!.loadId ?? '',
+                          );
+                        }
+                      },
+                      child: SizedBox(
+                        height: 60,
+                        width: MediaQuery.of(context).size.width * 0.90,
+                        child:
+                            (loads.data!.loadStatusId == 8)
+                                ? AppButton(
+                                  isLoading: false,
+                                  title: getButtonText(
+                                    state.loadStatus ?? LoadStatus.matching,
+                                  ),
+                                  style: AppButtonStyle.primary.copyWith(
+                                    shape: WidgetStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder:
+                                            (context) =>
+                                                DriverPodDispatchScreen(
+                                                  loadId:
+                                                      loads.data!.loadId ?? '',
+                                                ),
+                                      ),
+                                    ).then((value) {
+                                      if (value == true) {
+                                        widget.cubit.getDriverLoadsById(
+                                          loadId: loads.data!.loadId ?? '',
+                                        );
+                                        changeLoadStatus(
+                                          context,
+                                          loadId: loads.data!.loadId ?? '',
+                                          loadStatus:
+                                              loads.data!.loadStatusId + 1,
+                                        );
+                                      }
+                                    });
+                                  },
+                                )
+                                : CustomSwipeButton(
+                                  padding: 0,
+                                  price: 0,
+                                  loadId: loads.data!.loadId.toString(),
+                                  enable: isChangeStatusButtonEnabled(
+                                    isMemoUploaded:
+                                        loads.data?.loadMemo != null,
+                                    loadStatus: loads.data?.loadStatusId,
+                                    driverConsent:
+                                        loads.data?.driverConsent ?? 0,
+                                    tripDocumentList: state.tripDocumentList,
+                                  ),
+                                  text: DriverLoadHelper.getBottomButtonTitle(
+                                    loads.data!.loadStatusId,
+                                  ),
+                                  onSubmit: () {
+                                    // Check for sim consent and trip doc
+                                    if (loads.data?.loadStatusId == 5) {
+                                      final tripDocumentList =
+                                          state.tripDocumentList ?? [];
+                                      if (!widget.cubit.areRequiredDocsUploaded(
+                                        tripDocumentList,
+                                      )) {
+                                        ToastMessages.error(
+                                          message:
+                                              'Please upload Lorry Receipt, E-Way Bill, and Material Invoice',
+                                        );
+                                        return;
+                                      }
+                                    }
 
-                          },
-                        )
-                      : CustomSwipeButton(
-                          padding: 0,
-                          price: 0,
-                          loadId: loads.data!.loadId.toString(),
-                          enable: isChangeStatusButtonEnabled(
-                            isMemoUploaded: loads.data?.loadMemo != null,
-                            loadStatus: loads.data?.loadStatusId,
-                            driverConsent: loads.data?.driverConsent ?? 0,
-                            tripDocumentList: state.tripDocumentList,
-                          ),
-                          text: DriverLoadHelper.getBottomButtonTitle(loads.data!.loadStatusId),
-                          onSubmit: () {
-                            // Check for sim consent and trip doc
-                            if (loads.data?.loadStatusId == 5) {
-                              final tripDocumentList = state.tripDocumentList ?? [];
-                              if (!widget.cubit.areRequiredDocsUploaded(tripDocumentList)) {
-                                ToastMessages.error(
-                                    message:
-                                        'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
-                                return;
-                              }
-                            }
+                                    // Check for POD doc
+                                    if (loads.data?.loadStatusId == 7) {
+                                      final tripDocumentList =
+                                          state.tripDocumentList ?? [];
+                                      if (!widget.cubit.isPODUploaded(
+                                        tripDocumentList,
+                                      )) {
+                                        ToastMessages.error(
+                                          message: 'Please upload POD document',
+                                        );
+                                        return;
+                                      }
+                                    }
 
-                            // Check for POD doc
-                            if (loads.data?.loadStatusId == 7) {
-                              final tripDocumentList = state.tripDocumentList ?? [];
-                              if (!widget.cubit.isPODUploaded(tripDocumentList)) {
-                                ToastMessages.error(message: 'Please upload POD document');
-                                return;
-                              }
-                            }
+                                    final loadId = loads!.data!.loadId ?? '';
+                                    final currentStatus =
+                                        loads!.data!.loadStatusId ?? 4;
 
-                            final loadId = loads!.data!.loadId ?? '';
-                            final currentStatus = loads!.data!.loadStatusId ?? 4;
-
-                            if (currentStatus <= 8) {
-                              changeLoadStatus(
-                                  context, loadStatus: currentStatus + 1, loadId: loadId);
-                            }
-                          },
-                        ),
-                ),
-              )
-
-                       
-              ],
-             ).paddingTop(15),
-          ),
-        );
-    
-    
-        } return genericErrorWidget(error: GenericError());
-          },
+                                    if (currentStatus <= 8) {
+                                      changeLoadStatus(
+                                        context,
+                                        loadStatus: currentStatus + 1,
+                                        loadId: loadId,
+                                      );
+                                    }
+                                  },
+                                ),
+                      ),
+                    ),
+                ],
+              ).paddingTop(15),
+            ),
+          );
+        }
+        return genericErrorWidget(error: GenericError());
+      },
     );
-    
   }
 
+  bool _shouldEnableButton(DriverLoadDetailsModel? load) {
+    if (load == null) return false;
 
-bool _shouldEnableButton(DriverLoadDetailsModel? load) {
-  if (load == null) return false;
+    final currentStatus = load.data?.loadStatusId ?? 0;
 
-  final currentStatus = load.data?.loadStatusId ?? 0;
+    // For status 5: Consent + Required documents
+    if (currentStatus == 5) {
+      final isConsentGiven = load.data?.driverConsent == 1;
 
-  // For status 5: Consent + Required documents
-  if (currentStatus == 5) {
-    final isConsentGiven =load.data?.driverConsent == 1;
+      final nestedDocuments = load.data?.loadDocument ?? [];
 
-    final nestedDocuments = load.data?.loadDocument ?? [];
+      const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
 
-    const requiredDocs = [
-      'lorry receipt',
-      'eway bill',
-      'material invoice',
-    ];
+      final uploadedTypes =
+          nestedDocuments
+              .where((doc) => doc.status == 1)
+              .map(
+                (doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '',
+              )
+              .toSet();
 
-    final uploadedTypes = nestedDocuments
-        .where((doc) => doc.status == 1)
-        .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
-        .toSet();
+      final allRequiredDocsUploaded = requiredDocs.every(
+        uploadedTypes.contains,
+      );
 
-    final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+      return isConsentGiven && allRequiredDocsUploaded;
+    }
 
-    return isConsentGiven && allRequiredDocsUploaded;
+    // For status 7: POD document uploaded
+    if (currentStatus == 7) {
+      final nestedDocuments = load.data?.loadDocument ?? [];
+
+      final podDocExists = nestedDocuments.any(
+        (doc) =>
+            (doc.documentDetails?.documentType?.toLowerCase() ==
+                    'proof of document' ||
+                doc.documentDetails?.title?.toLowerCase().contains('pod') ==
+                    true) &&
+            doc.status == 1,
+      );
+
+      return podDocExists;
+    }
+
+    // Default case for other statuses
+    return true;
   }
-
-  // For status 7: POD document uploaded
-  if (currentStatus == 7) {
-    final nestedDocuments = load.data?.loadDocument ?? [];
-
-    final podDocExists = nestedDocuments.any((doc) =>
-        (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
-         doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
-        doc.status == 1);
-
-    return podDocExists;
-  }
-
-  // Default case for other statuses
-  return true;
-}
-
 
   Widget buildUploadDocumentWidget({
     required String title,
@@ -666,30 +728,41 @@ bool _shouldEnableButton(DriverLoadDetailsModel? load) {
     );
   }
 
- Widget buildAttachmentView(BuildContext context,String? loadId,DriverLoadDetailsState state, DriverLoadDetailsCubit cubit){
+  Widget buildAttachmentView(
+    BuildContext context,
+    String? loadId,
+    DriverLoadDetailsState state,
+    DriverLoadDetailsCubit cubit,
+  ) {
+    final tripDocumentList = state.tripDocumentList ?? [];
 
-    final tripDocumentList=state.tripDocumentList??[];
-
-      for (final doc in tripDocumentList) {
-        print("Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}");
-      }
+    for (final doc in tripDocumentList) {
+      print(
+        "Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}",
+      );
+    }
     return Column(
-        children: List.generate(tripDocumentList.length, (index) => DriverDocumentWidgetView(
-       index: index,
-       driverLoadDetailsCubit: cubit,
-     hintText: tripDocumentList[index].title,
-     documentEntity:tripDocumentList[index],
-     onGetFile: (p0) {
-       cubit.uploadDocument(File(p0),tripDocumentList[index].fileType??"",
-           tripDocumentList[index].title,
-           tripDocumentList[index].documentTypeId,
-           loadId??"",
-           index
-       );
-     },
-   ).paddingSymmetric(horizontal: 15)));
+      children: List.generate(
+        tripDocumentList.length,
+        (index) => DriverDocumentWidgetView(
+          index: index,
+          driverLoadDetailsCubit: cubit,
+          hintText: tripDocumentList[index].title,
+          documentEntity: tripDocumentList[index],
+          onGetFile: (p0) {
+            cubit.uploadDocument(
+              File(p0),
+              tripDocumentList[index].fileType ?? "",
+              tripDocumentList[index].title,
+              tripDocumentList[index].documentTypeId,
+              loadId ?? "",
+              index,
+            );
+          },
+        ).paddingSymmetric(horizontal: 15),
+      ),
+    );
   }
-
 }
 
 // Consignee Details
@@ -788,7 +861,7 @@ Widget _buildLoadEntityWidget({
   required String commodities,
   required String weight,
   String? locationDistance,
- required BuildContext context,
+  required BuildContext context,
 }) {
   return Row(
     crossAxisAlignment: CrossAxisAlignment.center,
@@ -845,7 +918,7 @@ Widget _buildLoadEntityWidget({
           ),
 
           Text(
-           "$locationDistance ${context.appText.km}",
+            "$locationDistance ${context.appText.km}",
             style: AppTextStyle.bodyGreyColorW500.copyWith(
               color: AppColors.veryLightGreyColor,
               fontSize: 12,
@@ -859,52 +932,47 @@ Widget _buildLoadEntityWidget({
 }
 
 // From Vp Side
-Widget _buildBottomButtonWidget(BuildContext context,DriverLoadDetailsState driverLoadDetailsState, DriverLoadDetailsModel driverLoadDetailsModel) {
-   
-   int loadstatus = 1;
-   return  Container(
-      decoration: commonContainerDecoration(
-          color: Colors.white,
-          blurRadius: 30,
-        
-      ), child: Row(
+Widget _buildBottomButtonWidget(
+  BuildContext context,
+  DriverLoadDetailsState driverLoadDetailsState,
+  DriverLoadDetailsModel driverLoadDetailsModel,
+) {
+  int loadstatus = 1;
+  return Container(
+    decoration: commonContainerDecoration(color: Colors.white, blurRadius: 30),
+    child: Row(
       spacing: 10,
-      children:   [
+      children: [
         ...[
-           if(loadstatus == 2)
+          if (loadstatus == 2)
             AppButton(
               title: context.appText.support,
-             style: AppButtonStyle.outline.copyWith(
-               shape: WidgetStatePropertyAll(
-                 RoundedRectangleBorder(
-                   borderRadius: BorderRadius.circular(8),
-                 ),
-               ),
-             ),
-             onPressed: () {
-               commonSupportDialog(context);
-             },
-             textStyle: TextStyle(fontSize: 14),
-           ).expand(),
-           if(loadstatus == 2)
-           AppButton(
-             isLoading:false,
-             title:'f',
-             style: AppButtonStyle.primary.copyWith(
-               shape: WidgetStatePropertyAll(
-                 RoundedRectangleBorder(
-                   borderRadius: BorderRadius.circular(8),
-                 ),
-               ),
-             ),
-             onPressed:   () async {
-          
-             },
-             textStyle: TextStyle(
-               fontSize: 14,
-               color: AppColors.white,
-             ),
-           ).expand(),
+              style: AppButtonStyle.outline.copyWith(
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              onPressed: () {
+                commonSupportDialog(context);
+              },
+              textStyle: TextStyle(fontSize: 14),
+            ).expand(),
+          if (loadstatus == 2)
+            AppButton(
+              isLoading: false,
+              title: 'f',
+              style: AppButtonStyle.primary.copyWith(
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              ),
+              onPressed: () async {},
+              textStyle: TextStyle(fontSize: 14, color: AppColors.white),
+            ).expand(),
           if (loadstatus == 6)
             SizedBox(
               height: 60,
@@ -914,16 +982,14 @@ Widget _buildBottomButtonWidget(BuildContext context,DriverLoadDetailsState driv
                 price: 0,
                 loadId: "",
 
-                text:' gf',
-                onSubmit: () {
-                 
-                },
+                text: ' gf',
+                onSubmit: () {},
               ),
             ),
         ],
       ],
     ).paddingSymmetric(horizontal: 15, vertical: 12),
-    );
+  );
 }
 
 //Submitted settlement
@@ -967,7 +1033,6 @@ Widget _submittedSettlementInfoWidget(
   );
 }
 
-
 //Submitted settlement
 Widget _submittedPodInfoWidget(
   PodDispatchModel? loadSettlement,
@@ -977,11 +1042,11 @@ Widget _submittedPodInfoWidget(
     return SizedBox.shrink();
   }
   final courierCompany = loadSettlement.courierCompany ?? "1";
-  final awbNumber = loadSettlement.awbNumber?? "1";
+  final awbNumber = loadSettlement.awbNumber ?? "1";
 
   return Padding(
     padding: EdgeInsets.only(top: 15),
-    child:  Column(
+    child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         commonDivider(thickness: 3, height: 15),
@@ -990,12 +1055,12 @@ Widget _submittedPodInfoWidget(
         15.height,
         InformationView(
           title: context.appText.courierCompany,
-          amount:courierCompany ,
+          amount: courierCompany,
         ).paddingSymmetric(horizontal: 15),
         10.height,
         InformationView(
           title: context.appText.awbNumber,
-          amount:awbNumber ,
+          amount: awbNumber,
         ).paddingSymmetric(horizontal: 15),
         10.height,
         commonDivider(thickness: 3, height: 15),
@@ -1003,5 +1068,3 @@ Widget _submittedPodInfoWidget(
     ),
   );
 }
-
-
