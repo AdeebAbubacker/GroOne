@@ -9,10 +9,8 @@ import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helpe
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_load_bottom_widget.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -158,7 +156,7 @@ Future<void> getLoadDetails() async {
                   ),
                 ),
                 buildTopLocationWidget(loadItem!),
-                DriverLoadBottomWidget(loadItem: loadItem,kilometers: '34',cubit: driverLoadDetailsCubit,),
+                DriverLoadBottomWidget(loadItem: loadItem,cubit: driverLoadDetailsCubit,),
                 buildFloatingWidget(context),
                 buildSimConsentWidget(loadItem.data?.driverConsent ?? 0),
               ],

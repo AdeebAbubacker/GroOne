@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -35,6 +36,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/alpha_only_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/no_space_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
@@ -210,7 +212,7 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
             labelText: context.appText.courierCompany,
             hintText: context.appText.enterCourierCompany,
             textInputAction: TextInputAction.next,
-            inputFormatters: [AlphaOnlyTextFormatter(),],
+            inputFormatters: [AlphaOnlyTextFormatter(),LengthLimitingTextInputFormatter(50)],
             onChanged: (value){
               clearDropDownFields();
             },
@@ -223,6 +225,7 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
             labelText: context.appText.awbNumber,
             hintText: "54678765436898",
             textInputAction: TextInputAction.next,
+            inputFormatters: [LengthLimitingTextInputFormatter(50),NoSpaceTextFormatter()],
             onChanged: (value){
               clearDropDownFields();
             },

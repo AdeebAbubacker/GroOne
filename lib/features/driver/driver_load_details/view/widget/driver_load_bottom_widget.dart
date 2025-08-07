@@ -45,18 +45,15 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
-import 'package:gro_one_app/utils/validator.dart';
 import '../../../../../data/ui_state/status.dart';
-import '../../../../load_provider/lp_home/helper/lp_home_helper.dart' hide LoadStatus;
+
 
 class DriverLoadBottomWidget extends StatefulWidget {
   final DriverLoadDetailsCubit cubit;
   final DriverLoadDetailsModel loadItem;
-  final String kilometers;
   const DriverLoadBottomWidget({
     super.key,
     required this.loadItem,
-    required this.kilometers,
     required this.cubit,
   });
 
