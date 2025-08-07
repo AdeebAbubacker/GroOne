@@ -56,7 +56,6 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonOnboardingAppbar(
-        showBackButton: false,
         showTranslateButton: false,
         isCrossLeadingIcon: widget.isCloseButton,
       ),
