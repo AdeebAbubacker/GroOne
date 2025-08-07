@@ -152,7 +152,7 @@ class _LoginScreenState extends BaseState<LoginScreen> {
                       // Get Otp Button
                       AppButton(
                         isLoading: isLoading,
-                        title: "Get OTP",
+                        title: context.appText.getOtp,
                         style:
                             (phoneNumber.text.length == 10 &&
                                     checkBoxBool == true)
