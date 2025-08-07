@@ -98,15 +98,12 @@ class _MasterScreenState extends State<MasterScreen>
   bool showValidationErrors = false;
   List<Map<String, dynamic>> vehicleDocList = [];
   bool _hasCalledVahanVerification = false;
-  bool _hasCalledLicenseVerification = false;
-  // bool _hasShownSuccessToast = false;
-  // bool _hasLicensetoastShown = false;
   @override
   void initState() {
     super.initState();
-     _tabController = TabController(length: 3, vsync: this);
-     kycCubit.fetchStateList(); 
-     initFunction();
+    _tabController = TabController(length: 3, vsync: this);
+    kycCubit.fetchStateList();
+    initFunction();
   }
 
   @override
@@ -115,11 +112,11 @@ class _MasterScreenState extends State<MasterScreen>
     super.dispose();
   }
 
-  void initFunction()=> frameCallback(() async {
-     await kycCubit.fetchUserRole();
-   
+  void initFunction() => frameCallback(() async {
+    await kycCubit.fetchUserRole();
+
     _checkAuthenticationAndLoadData();
-   });
+  });
 
   /// Check authentication status before loading data
   Future<void> _checkAuthenticationAndLoadData() async {
@@ -213,127 +210,55 @@ class _MasterScreenState extends State<MasterScreen>
     driverSearchController.dispose();
   });
 
-  void deletePopUp(BuildContext context, String addressId) {
-    return AppDialog.show(
-      context,
-      dismissible: true,
-      child: CommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        noButtonText: context.appText.cancel,
-        yesButtonText: context.appText.delete,
-        yesButtonTextStyle: AppButtonStyle.deleteTextButton,
-        child: Column(
-          children: [
-            Lottie.asset(
-              AppJSON.alertRed,
-              repeat: true,
-              frameRate: FrameRate(200),
-            ),
+  /// Delete Popup
+  void showDeletePopUp({
+  required BuildContext context,
+  required String confirmMessage,
+  required String successMessage,
+  required Future<dynamic> Function() onDelete,
+}) {
+  AppDialog.show(
+    context,
+    dismissible: true,
+    child: CommonDialogView(
+      hideCloseButton: true,
+      showYesNoButtonButtons: true,
+      noButtonText: context.appText.cancel,
+      yesButtonText: context.appText.delete,
+      yesButtonTextStyle: AppButtonStyle.deleteTextButton,
+      child: Column(
+        children: [
+          Lottie.asset(
+            AppJSON.alertRed,
+            repeat: true,
+            frameRate: FrameRate(200),
+          ),
           Center(
-          child: Text(
-            context.appText.areYouSureToDeleteThisAddress,
-            textAlign: TextAlign.center,
-          ),
-          ),
-          ],
-        ),
-        onClickYesButton: () async {
-          final result = await profileCubit.deleteAddress(addressId: addressId);
-
-          if (result is Success) {
-            if (context.mounted) {
-              Navigator.of(context).pop();
-              ToastMessages.success(
-                message: context.appText.addressDeletedSuccessfully,
-              );
-            }
-          } else if (result is Error) {
-            ToastMessages.error(message: getErrorMsg(errorType: result.type));
-          }
-        },
-      ),
-    );
-  }
-
-  void deletePopUpForVehicle(BuildContext context, String vehicleId) {
-    return AppDialog.show(
-      context,
-      dismissible: true,
-      child: CommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        noButtonText: context.appText.cancel,
-        yesButtonText: context.appText.delete,
-        yesButtonTextStyle: AppButtonStyle.deleteTextButton,
-        child: Column(
-          children: [
-            Lottie.asset(
-              AppJSON.alertRed,
-              repeat: true,
-              frameRate: FrameRate(200),
+            child: Text(
+              confirmMessage,
+              textAlign: TextAlign.center,
             ),
-            Center(child: Text(context.appText.areYouSureToDeleteThisVehicle)),
-          ],
-        ),
-        onClickYesButton: () async {
-          final result = await profileCubit.deleteVehicle(
-            vehicleId: vehicleId,
-            request: DeleteVehicleRequest(status: 3),
+          ),
+        ],
+      ),
+      onClickYesButton: () async {
+        final result = await onDelete();
+
+        if (result is Success) {
+          if (context.mounted) {
+            Navigator.of(context).pop();
+            ToastMessages.success(message: successMessage);
+          }
+        } else if (result is Error) {
+          ToastMessages.error(
+            message: getErrorMsg(errorType: result.type),
           );
+        }
+      },
+    ),
+  );
+}
 
-          if (result is Success) {
-            if (context.mounted) {
-              Navigator.of(context).pop();
-              ToastMessages.success(
-                message: context.appText.vehicleDeletedSuccessfully,
-              );
-            }
-          } else if (result is Error) {
-            ToastMessages.error(message: getErrorMsg(errorType: result.type));
-          }
-        },
-      ),
-    );
-  }
-
-  void deletePopUpForDriver(BuildContext context, String addressId) {
-    return AppDialog.show(
-      context,
-      dismissible: true,
-      child: CommonDialogView(
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        noButtonText: context.appText.cancel,
-        yesButtonText: context.appText.delete,
-        yesButtonTextStyle: AppButtonStyle.deleteTextButton,
-        child: Column(
-          children: [
-            Lottie.asset(
-              AppJSON.alertRed,
-              repeat: true,
-              frameRate: FrameRate(200),
-            ),
-            Center(child: Text(context.appText.areYouSureToDeleteThisDriver))
-          ],
-        ),
-        onClickYesButton: () async {
-          final result = await profileCubit.deleteDriver(driverId: addressId);
-
-          if (result is Success) {
-            if (context.mounted) {
-              Navigator.of(context).pop();
-              ToastMessages.success(
-                message: context.appText.driverDeletedSuccessfully,
-              );
-            }
-          } else if (result is Error) {
-            ToastMessages.error(message: getErrorMsg(errorType: result.type));
-          }
-        },
-      ),
-    );
-  }
 
   /// Upload RC book
   Future<Result<bool>> _uploadRCBookCall(
@@ -387,7 +312,6 @@ class _MasterScreenState extends State<MasterScreen>
 
   @override
   Widget build(BuildContext context) {
-    int? role = profileCubit.userRole;
     return Scaffold(
       backgroundColor: Colors.grey.shade100,
       appBar: CommonAppBar(
@@ -439,7 +363,8 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
-
+  
+  /// Tab view for Address
   Widget buildAddressTab() {
     return Column(
       children: [
@@ -457,12 +382,12 @@ class _MasterScreenState extends State<MasterScreen>
             );
           },
           onClear: () {
-        setState(() {
-          addressSearchController.text = '';
-          addressSearchController.clear();         
-        });
-        profileCubit.fetchAddress(search: ''); 
-      },
+            setState(() {
+              addressSearchController.text = '';
+              addressSearchController.clear();
+            });
+            profileCubit.fetchAddress(search: '');
+          },
         ).paddingSymmetric(horizontal: 20),
         Expanded(
           child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -523,8 +448,12 @@ class _MasterScreenState extends State<MasterScreen>
                     isPrimary: address.isDefault,
                     onEdit:
                         () => showAddAddressPopup(context, address: address),
-                    onDelete:
-                        () => deletePopUp(context, address.preferedAddressId),
+                    onDelete: () => showDeletePopUp(
+                    context: context,
+                    confirmMessage: context.appText.areYouSureToDeleteThisAddress,
+                    successMessage: context.appText.addressDeletedSuccessfully,
+                    onDelete: () => profileCubit.deleteAddress(addressId: address.preferedAddressId),
+                  ),
                     onSetPrimary: () async {
                       await profileCubit.setPrimaryAddress(
                         addressId: address.preferedAddressId,
@@ -569,6 +498,7 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
+  /// Tab view for Vehicle
   Widget buildVehicleTab() {
     return Column(
       children: [
@@ -586,12 +516,12 @@ class _MasterScreenState extends State<MasterScreen>
             );
           },
           onClear: () {
-        setState(() {
-          vehicleSearchController.text = '';
-          vehicleSearchController.clear();         
-        });
-        profileCubit.fetchVehicle(search: ''); 
-      },
+            setState(() {
+              vehicleSearchController.text = '';
+              vehicleSearchController.clear();
+            });
+            profileCubit.fetchVehicle(search: '');
+          },
         ).paddingSymmetric(horizontal: 20),
         Expanded(
           child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -608,7 +538,8 @@ class _MasterScreenState extends State<MasterScreen>
 
               final vehicleList = uiState.data?.data ?? [];
               final List<VehicleDetailsData> filteredVehicleList =
-                  vehicleList.where((v) => v.status == 1).toList();
+              vehicleList.where((v) => v.status == 1 || v.status == 2).toList();
+
 
               if (filteredVehicleList.isEmpty) {
                 return Center(
@@ -643,20 +574,20 @@ class _MasterScreenState extends State<MasterScreen>
                     name: vehicleDetailsData.truckNo,
                     phone: vehicleDetailsData.companyName ?? '',
                     driverStatus: vehicleDetailsData.status,
-                   onEdit: () async {
-                    await profileCubit.resetVehicleVerificationState();
-                    await Future.delayed(const Duration(milliseconds: 50)); 
-                    showAddVehiclePopup(
-                      context,
-                      vehcile: vehicleDetailsData,
-                    );
-                  },
-
-                    onDelete:
-                        () => deletePopUpForVehicle(
-                          context,
-                          vehicleDetailsData.vehicleId,
-                        ),
+                    onEdit: () async {
+                      await profileCubit.resetVehicleVerificationState();
+                      await Future.delayed(const Duration(milliseconds: 50));
+                      showAddVehiclePopup(context, vehcile: vehicleDetailsData);
+                    },
+                    onDelete: () => showDeletePopUp(
+                    context: context,
+                    confirmMessage: context.appText.areYouSureToDeleteThisVehicle,
+                    successMessage: context.appText.vehicleDeletedSuccessfully,
+                    onDelete: () => profileCubit.deleteVehicle(
+                      vehicleId: vehicleDetailsData.vehicleId,
+                      request: DeleteVehicleRequest(status: 3),
+                    ),
+                  ),
                     context: context,
                   );
                 },
@@ -668,12 +599,13 @@ class _MasterScreenState extends State<MasterScreen>
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: AppButton(
             title: context.appText.addNewVehicle,
-           onPressed: () async {
-          await profileCubit.resetVehicleVerificationState();
-          await Future.delayed(const Duration(milliseconds: 50)); // make sure state is cleared
-          showAddVehiclePopup(context);
-        },
-
+            onPressed: () async {
+              await profileCubit.resetVehicleVerificationState();
+              await Future.delayed(
+                const Duration(milliseconds: 50),
+              ); // make sure state is cleared
+              showAddVehiclePopup(context);
+            },
           ),
         ),
       ],
@@ -694,7 +626,7 @@ class _MasterScreenState extends State<MasterScreen>
     return number;
   }
 
-
+ /// Tab view for Driver
   Widget buildDriverTab() {
     return Column(
       children: [
@@ -708,13 +640,13 @@ class _MasterScreenState extends State<MasterScreen>
               profileCubit.fetchDriver(search: query);
             });
           },
-           onClear: () {
-          setState(() {
-            driverSearchController.text = '';
-            driverSearchController.clear();         
-          });
-          profileCubit.fetchDriver(search: ''); 
-      },
+          onClear: () {
+            setState(() {
+              driverSearchController.text = '';
+              driverSearchController.clear();
+            });
+            profileCubit.fetchDriver(search: '');
+          },
         ).paddingSymmetric(horizontal: 20),
         Expanded(
           child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -772,16 +704,18 @@ class _MasterScreenState extends State<MasterScreen>
                     name: driver.name,
                     phone: driver.mobile,
                     driverStatus: driver.driverStatus,
-                    onEdit:  () async {
-                    await profileCubit.resetlicenseVahanVerificationState();
-                    await Future.delayed(const Duration(milliseconds: 50)); 
-                    showAddDriverPopup(
-                      context,
-                      driver: driver
-                    );},
+                    onEdit: () async {
+                      await profileCubit.resetlicenseVahanVerificationState();
+                      await Future.delayed(const Duration(milliseconds: 50));
+                      showAddDriverPopup(context, driver: driver);
+                    },
+                    onDelete: () => showDeletePopUp(
+                    context: context,
+                    confirmMessage: context.appText.areYouSureToDeleteThisDriver,
+                    successMessage: context.appText.driverDeletedSuccessfully,
+                    onDelete: () => profileCubit.deleteDriver(driverId: driver.driverId),
+                  ),
 
-                    onDelete:
-                        () => deletePopUpForDriver(context, driver.driverId),
                     context: context,
                   );
                 },
@@ -794,18 +728,17 @@ class _MasterScreenState extends State<MasterScreen>
           child: AppButton(
             title: context.appText.addNewDriver,
             onPressed: () async {
-                    await profileCubit.resetlicenseVahanVerificationState();
-                    await Future.delayed(const Duration(milliseconds: 50));
-                    showAddDriverPopup(
-                      context,
-                    );
-                  },
+              await profileCubit.resetlicenseVahanVerificationState();
+              await Future.delayed(const Duration(milliseconds: 50));
+              showAddDriverPopup(context);
+            },
           ),
         ),
       ],
     );
   }
-
+  
+  /// Master Address Widget
   Widget masterInfoWidget({
     required String title,
     required String address,
@@ -886,7 +819,8 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
-
+ 
+  /// Master Driver Widget
   Widget masterDriverInfoWidget({
     required String name,
     required String phone,
@@ -955,7 +889,7 @@ class _MasterScreenState extends State<MasterScreen>
               // Active Tag
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end ,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -983,64 +917,39 @@ class _MasterScreenState extends State<MasterScreen>
                         ),
                       ),
                     ),
-                     Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: onEdit,
-                icon: SvgPicture.asset(
-                  AppIcons.svg.edit,
-                  color: AppColors.primaryColor,
-                ),
-                splashRadius: 20,
-              ),
-              IconButton(
-                onPressed: onDelete,
-                icon: SvgPicture.asset(
-                  AppIcons.svg.delete,
-                  color: AppColors.iconRed,
-                ),
-                splashRadius: 20,
-              ),
-            ],
-            ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: onEdit,
+                          icon: SvgPicture.asset(
+                            AppIcons.svg.edit,
+                            color: AppColors.primaryColor,
+                          ),
+                          splashRadius: 20,
+                        ),
+                        IconButton(
+                          onPressed: onDelete,
+                          icon: SvgPicture.asset(
+                            AppIcons.svg.delete,
+                            color: AppColors.iconRed,
+                          ),
+                          splashRadius: 20,
+                        ),
+                      ],
+                    ),
                   ],
                 ),
               ),
             ],
           ),
           8.height,
-
-          // // Action Buttons
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          //   children: [
-          //     AppButton(
-          //       buttonHeight: commonButtonHeight2,
-          //       style: AppButtonStyle.logout,
-          //       isLoading: false,
-          //       onPressed: onDelete,
-          //       title: context.appText.delete,
-          //       textStyle: TextStyle(color: Colors.red),
-          //     ).expand(),
-          //     16.width,
-
-          //     // Yes Button
-          //     AppButton(
-          //       buttonHeight: commonButtonHeight2,
-          //       style: AppButtonStyle.outline,
-          //       isLoading: false,
-          //       onPressed: onEdit,
-          //       title: context.appText.edit,
-          //     ).expand(),
-          //   ],
-          // ).paddingSymmetric(horizontal: 15),
-        
         ],
       ),
     );
   }
-
+ 
+  /// Master Vehicle Widget
   Widget masterVehicleInfoWidget({
     required String name,
     required String phone,
@@ -1111,12 +1020,11 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                   ],
                 ),
-              ),
-
+              ), 
               // Active Tag
               Expanded(
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.end ,
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
@@ -1124,11 +1032,16 @@ class _MasterScreenState extends State<MasterScreen>
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.shade100,
+                        color:
+                            driverStatus == 1
+                                ? Colors.green.shade100
+                                : Colors.red.shade100,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        context.appText.active,
+                        driverStatus == 1
+                            ? context.appText.active
+                            : context.appText.inactive,
                         style: AppTextStyle.body.copyWith(
                           fontWeight: FontWeight.w400,
                           fontSize: 12,
@@ -1139,57 +1052,65 @@ class _MasterScreenState extends State<MasterScreen>
                         ),
                       ),
                     ),
-                             Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              IconButton(
-                onPressed: onEdit,
-                icon: SvgPicture.asset(
-                  AppIcons.svg.edit,
-                  color: AppColors.primaryColor,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        IconButton(
+                          onPressed: onEdit,
+                          icon: SvgPicture.asset(
+                            AppIcons.svg.edit,
+                            color: AppColors.primaryColor,
+                          ),
+                          splashRadius: 20,
+                        ),
+                        IconButton(
+                          onPressed: onDelete,
+                          icon: SvgPicture.asset(
+                            AppIcons.svg.delete,
+                            color: AppColors.iconRed,
+                          ),
+                          splashRadius: 20,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                splashRadius: 20,
               ),
-              IconButton(
-                onPressed: onDelete,
-                icon: SvgPicture.asset(
-                  AppIcons.svg.delete,
-                  color: AppColors.iconRed,
-                ),
-                splashRadius: 20,
-              ),
-            ],
-            ),
-            ],
+           
+             ],
           ),
-         ),  
-        ],
-          ),
-            8.height,   
+          8.height,
         ],
       ),
     );
   }
-
-      Widget buildVehicleVerificationFieldWidget({
-        required TextEditingController vehicleNoController,
-        required void Function(bool) onVerificationResult,
-      }) {
-        return BlocConsumer<ProfileCubit, ProfileState>(
-          bloc: profileCubit,
-          listenWhen: (previous, current) =>
-        previous.vehicleVerificationState != current.vehicleVerificationState ||
-        previous.verifiedVehicleVahanState != current.verifiedVehicleVahanState, 
-        listener: (context, state) async {
+  
+  /// Verify RC No
+  Widget buildVehicleVerificationFieldWidget({
+    required TextEditingController vehicleNoController,
+    required void Function(bool) onVerificationResult,
+  }) {
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      bloc: profileCubit,
+      listenWhen:
+          (previous, current) =>
+              previous.vehicleVerificationState !=
+                  current.vehicleVerificationState ||
+              previous.verifiedVehicleVahanState !=
+                  current.verifiedVehicleVahanState,
+      listener: (context, state) async {
         final verificationState = state.vehicleVerificationState;
         final status = verificationState?.status;
         final vehicleData = verificationState?.data?.data;
 
-        if (status == Status.SUCCESS && (vehicleData == null || vehicleData == false)) {
+        if (status == Status.SUCCESS &&
+            (vehicleData == null || vehicleData == false)) {
           if (!_hasCalledVahanVerification) {
             _hasCalledVahanVerification = true;
             await profileCubit.verifyVehcileFromVahan(
-              request: VehicleVahanRequest(vehicleNumber: vehicleNoController.text.trim()),
+              request: VehicleVahanRequest(
+                vehicleNumber: vehicleNoController.text.trim(),
+              ),
             );
             return;
           }
@@ -1204,8 +1125,12 @@ class _MasterScreenState extends State<MasterScreen>
 
         if (state.verifiedVehicleVahanState?.status == Status.SUCCESS) {
           _hasCalledVahanVerification = true;
-   
-          ToastMessages.success(message: state.verifiedVehicleVahanState?.data?.message ?? "Vehicle verified via Vahan");
+
+          ToastMessages.success(
+            message:
+                state.verifiedVehicleVahanState?.data?.message ??
+                "Vehicle verified via Vahan",
+          );
           onVerificationResult(true);
           return;
         }
@@ -1215,24 +1140,29 @@ class _MasterScreenState extends State<MasterScreen>
 
           ToastMessages.error(
             message: getErrorMsg(
-              errorType: state.verifiedVehicleVahanState?.errorType ?? GenericError(),
+              errorType:
+                  state.verifiedVehicleVahanState?.errorType ?? GenericError(),
             ),
           );
           onVerificationResult(false);
           return;
         }
       },
-     builder: (context, state) {
-       final currentVehicleNumber = vehicleNoController.text.trim();
+      builder: (context, state) {
+        final currentVehicleNumber = vehicleNoController.text.trim();
 
-        final vehicleVerifiedLocally = state.vehicleVerificationState?.status == Status.SUCCESS &&
-            state.vehicleVerificationState?.data?.data?.truckNo?.trim() == currentVehicleNumber;
+        final vehicleVerifiedLocally =
+            state.vehicleVerificationState?.status == Status.SUCCESS &&
+            state.vehicleVerificationState?.data?.data?.truckNo?.trim() ==
+                currentVehicleNumber;
 
-        final vehicleVerifiedFromVahan = state.verifiedVehicleVahanState?.status == Status.SUCCESS &&
-            state.vehicleVerificationState?.data?.data?.truckNo?.trim() == currentVehicleNumber;
+        final vehicleVerifiedFromVahan =
+            state.verifiedVehicleVahanState?.status == Status.SUCCESS &&
+            state.vehicleVerificationState?.data?.data?.truckNo?.trim() ==
+                currentVehicleNumber;
 
-
-        final bool isVerified = vehicleVerifiedLocally || vehicleVerifiedFromVahan;               
+        final bool isVerified =
+            vehicleVerifiedLocally || vehicleVerifiedFromVahan;
         return AppTextField(
           validator: (value) => Validator.fieldRequired(value),
           controller: vehicleNoController,
@@ -1245,47 +1175,56 @@ class _MasterScreenState extends State<MasterScreen>
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                 Text(
-                isVerified
-                    ? "Verified"
-                    : (state.vehicleVerificationState?.status == Status.LOADING
-                        ? "Verifying..."
-                        : "Verify"),
-                style: AppTextStyle.body3.copyWith(
-                  color: isVerified ? Colors.green : AppColors.primaryColor,
-                  fontWeight: isVerified ? FontWeight.bold : FontWeight.normal,
-                  decoration: isVerified
-                      ? TextDecoration.none
-                      : TextDecoration.underline,
-                  decorationColor:
-                      isVerified ? Colors.transparent : AppColors.primaryColor,
+                Text(
+                  isVerified
+                      ? "Verified"
+                      : (state.vehicleVerificationState?.status ==
+                              Status.LOADING
+                          ? "Verifying..."
+                          : "Verify"),
+                  style: AppTextStyle.body3.copyWith(
+                    color: isVerified ? Colors.green : AppColors.primaryColor,
+                    fontWeight:
+                        isVerified ? FontWeight.bold : FontWeight.normal,
+                    decoration:
+                        isVerified
+                            ? TextDecoration.none
+                            : TextDecoration.underline,
+                    decorationColor:
+                        isVerified
+                            ? Colors.transparent
+                            : AppColors.primaryColor,
+                  ),
                 ),
-              ),
               ],
             ),
-            suffixOnTap: () async{
-            final String? validation = Validator.fieldRequired(vehicleNoController.text,fieldName: 'dsfsdf');
-            if (validation == null) {
-            await profileCubit.resetVehicleVerificationState();
-             await Future.delayed(Duration(milliseconds: 100));
-             await profileCubit.fetchVehicleExcistence(
-                vehicleId: vehicleNoController.text.trim(),
+            suffixOnTap: () async {
+              final String? validation = Validator.fieldRequired(
+                vehicleNoController.text,
+                fieldName: 'dsfsdf',
               );
-            } else {
-              ToastMessages.alert(message: validation);
-            }
-          },
+              if (validation == null) {
+                await profileCubit.resetVehicleVerificationState();
+                await Future.delayed(Duration(milliseconds: 100));
+                await profileCubit.fetchVehicleExcistence(
+                  vehicleId: vehicleNoController.text.trim(),
+                );
+              } else {
+                ToastMessages.alert(message: validation);
+              }
+            },
           ),
         );
       },
     );
   }
-
+  
+  /// Verify License
   Widget buildLicenseVerificationFieldWidget({
     required bool isEdit,
     required TextEditingController licenseNoController,
     required String selectedDoB,
-     required void Function(String) onDobChanged,
+    required void Function(String) onDobChanged,
     required TextEditingController nameController,
     required void Function(bool) onVerificationResult,
   }) {
@@ -1295,184 +1234,208 @@ class _MasterScreenState extends State<MasterScreen>
           (previous, current) =>
               previous.licenseVerficationState !=
               current.licenseVerficationState,
-      listener: (context, state) async{
-    // if (_hasLicensetoastShown) return;   
-  final licenseExistState = state.licenseVerficationState;
-  final vahanState = state.verifiedLicenseVahanState;
-  final status = licenseExistState?.status;
-  final driverData = licenseExistState?.data?.data;
+      listener: (context, state) async {
+        // if (_hasLicensetoastShown) return;
+        final licenseExistState = state.licenseVerficationState;
+        final vahanState = state.verifiedLicenseVahanState;
+        final status = licenseExistState?.status;
+        final driverData = licenseExistState?.data?.data;
 
-  // First API - License existence
-  if (status == Status.SUCCESS && (driverData == null || driverData == false)) {
-    if (!_hasCalledVahanVerification) {
-      _hasCalledVahanVerification = true;
-      await profileCubit.verifyLicenseFromVahan(
-        request: LicenseVahanRequest(
-          licenseNumber: licenseNoController.text.trim(),
-          name: nameController.text,
-          dob: selectedDoB,
-        ),
-      );
-      return; 
-    }
-  }
-  
-  //  License exists directly
-  if (status == Status.SUCCESS && driverData != null) {
-    _hasCalledVahanVerification = false;
-    ToastMessages.success(message: "License verified successfully");
-    onVerificationResult(true);
-    return;
-  }
+        // First API - License existence
+        if (status == Status.SUCCESS &&
+            (driverData == null || driverData == false)) {
+          if (!_hasCalledVahanVerification) {
+            _hasCalledVahanVerification = true;
+            await profileCubit.verifyLicenseFromVahan(
+              request: LicenseVahanRequest(
+                licenseNumber: licenseNoController.text.trim(),
+                name: nameController.text,
+                dob: selectedDoB,
+              ),
+            );
+            return;
+          }
+        }
 
-  // Vahan verification
-  if (vahanState?.status == Status.SUCCESS) {
-    _hasCalledVahanVerification = false;
-    ToastMessages.success(message: context.appText.licenseNoVerified);
-    onVerificationResult(true);
-     
-    return;
-  }
+        //  License exists directly
+        if (status == Status.SUCCESS && driverData != null) {
+          _hasCalledVahanVerification = false;
+          ToastMessages.success(message: "License verified successfully");
+          onVerificationResult(true);
+          return;
+        }
 
-  // Vahan Error cases
-  if (vahanState?.status == Status.ERROR) {
-    _hasCalledVahanVerification = false;
-     ToastMessages.error(
-            message: getErrorMsg(errorType: state.verifiedLicenseVahanState?.errorType ?? GenericError()),
+        // Vahan verification
+        if (vahanState?.status == Status.SUCCESS) {
+          _hasCalledVahanVerification = false;
+          ToastMessages.success(message: context.appText.licenseNoVerified);
+          onVerificationResult(true);
+
+          return;
+        }
+
+        // Vahan Error cases
+        if (vahanState?.status == Status.ERROR) {
+          _hasCalledVahanVerification = false;
+          ToastMessages.error(
+            message: getErrorMsg(
+              errorType:
+                  state.verifiedLicenseVahanState?.errorType ?? GenericError(),
+            ),
           );
-       return;
-     }
-    },
+          return;
+        }
+      },
       builder: (context, state) {
         final currentLicenseNumber = licenseNoController.text.trim();
 
-      final licenseVerifiedLocally = state.licenseVerficationState?.status == Status.SUCCESS &&
-            state.licenseVerficationState?.data?.data?.licenseNumber == currentLicenseNumber;
+        final licenseVerifiedLocally =
+            state.licenseVerficationState?.status == Status.SUCCESS &&
+            state.licenseVerficationState?.data?.data?.licenseNumber ==
+                currentLicenseNumber;
 
-      final licenseVerifiedFromVahan = state.verifiedLicenseVahanState?.status == Status.SUCCESS  &&
-            state.licenseVerficationState?.data?.data?.licenseNumber == currentLicenseNumber;
+        final licenseVerifiedFromVahan =
+            state.verifiedLicenseVahanState?.status == Status.SUCCESS &&
+            state.licenseVerficationState?.data?.data?.licenseNumber ==
+                currentLicenseNumber;
 
-      final bool isVerified = licenseVerifiedLocally || licenseVerifiedFromVahan;
+        final bool isVerified =
+            licenseVerifiedLocally || licenseVerifiedFromVahan;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             AppTextField(
-             validator: (value) => Validator.indianLicenseNumber(value, fieldName: "License No"),
+              validator:
+                  (value) => Validator.indianLicenseNumber(
+                    value,
+                    fieldName: "License No",
+                  ),
               controller: licenseNoController,
               labelText: "License No",
               mandatoryStar: true,
               keyboardType: TextInputType.text,
               decoration: commonInputDecoration(
                 hintText: "Enter License No",
-                suffixIcon:  Row(
+                suffixIcon: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                     Text(
-                isVerified
-                    ? "Verified"
-                    : (state.licenseVerficationState?.status == Status.LOADING
-                        ? "Verifying..."
-                        : "Verify"),
-                style: AppTextStyle.body3.copyWith(
-                  color: isVerified ? Colors.green : AppColors.primaryColor,
-                  fontWeight: isVerified ? FontWeight.bold : FontWeight.normal,
-                  decoration: isVerified
-                      ? TextDecoration.none
-                      : TextDecoration.underline,
-                  decorationColor:
-                      isVerified ? Colors.transparent : AppColors.primaryColor,
-                ),
-              ),
+                    Text(
+                      isVerified
+                          ? "Verified"
+                          : (state.licenseVerficationState?.status ==
+                                  Status.LOADING
+                              ? "Verifying..."
+                              : "Verify"),
+                      style: AppTextStyle.body3.copyWith(
+                        color:
+                            isVerified ? Colors.green : AppColors.primaryColor,
+                        fontWeight:
+                            isVerified ? FontWeight.bold : FontWeight.normal,
+                        decoration:
+                            isVerified
+                                ? TextDecoration.none
+                                : TextDecoration.underline,
+                        decorationColor:
+                            isVerified
+                                ? Colors.transparent
+                                : AppColors.primaryColor,
+                      ),
+                    ),
                   ],
                 ),
-                suffixOnTap: () async{
-                await profileCubit.resetLcienseVerificationState();
-                final String? licenseValidation = Validator.indianLicenseNumber(
-                licenseNoController.text,
-                fieldName: "License No",
-              );
+                suffixOnTap: () async {
+                  await profileCubit.resetLcienseVerificationState();
+                  final String? licenseValidation =
+                      Validator.indianLicenseNumber(
+                        licenseNoController.text,
+                        fieldName: "License No",
+                      );
 
-                final String? dobValidation = Validator.fieldRequired(selectedDoB);
-                final String? nameValidation = Validator.fieldRequired(nameController.text);
+                  final String? dobValidation = Validator.fieldRequired(
+                    selectedDoB,
+                  );
+                  final String? nameValidation = Validator.fieldRequired(
+                    nameController.text,
+                  );
 
-                if (licenseValidation != null) {
-                  ToastMessages.alert(message: licenseValidation);
-                  return;
-                }
-                if (dobValidation != null) {
-                  ToastMessages.alert(message: "Please select Date of Birth");
-                  return;
-                }
-                if (nameValidation != null) {
-                  ToastMessages.alert(message: "Please enter Driver Name");
-                  return;
-                }
+                  if (licenseValidation != null) {
+                    ToastMessages.alert(message: licenseValidation);
+                    return;
+                  }
+                  if (dobValidation != null) {
+                    ToastMessages.alert(message: "Please select Date of Birth");
+                    return;
+                  }
+                  if (nameValidation != null) {
+                    ToastMessages.alert(message: "Please enter Driver Name");
+                    return;
+                  }
 
-                // All validations passed → call API
-                profileCubit.fetchLicenseExcistence(
-                  licenseNo: licenseNoController.text.trim(),
-                );
-              },
-
+                  // All validations passed → call API
+                  profileCubit.fetchLicenseExcistence(
+                    licenseNo: licenseNoController.text.trim(),
+                  );
+                },
               ),
             ),
-             16.height,
-                   ///Date of Birth
-                  InkWell(
-                    onTap: () async {
-                              final DateTime today = DateTime.now();
-                              final DateTime eighteenYearsAgo = DateTime(
-                                today.year - 18,
-                                today.month,
-                                today.day,
-                              );
+            16.height,
 
-                              final DateTime? pickedDate = await showDatePicker(
-                                context: context,
-                                initialDate: eighteenYearsAgo,
-                                firstDate: DateTime(1900),
-                                lastDate: eighteenYearsAgo,
-                              );
+            ///Date of Birth
+            InkWell(
+              onTap: () async {
+                final DateTime today = DateTime.now();
+                final DateTime eighteenYearsAgo = DateTime(
+                  today.year - 18,
+                  today.month,
+                  today.day,
+                );
 
-                              if (pickedDate != null) {
-                                final formattedDate = DateFormat(
-                                  'dd/MM/yyyy',
-                                ).format(pickedDate);
-                                setState(() {
-                                  selectedDoB = formattedDate;
-                                });
-                                 onDobChanged(formattedDate);
-                              }
-                            },
-                    child: buildReadOnlyField(
-                      context.appText.dateOdBirth,
-                      selectedDoB ?? 'DOB',
-                      fillColor: Colors.white,
-                      mandatoryStar: true,
-                    ),
-                  ),
+                final DateTime? pickedDate = await showDatePicker(
+                  context: context,
+                  initialDate: eighteenYearsAgo,
+                  firstDate: DateTime(1900),
+                  lastDate: eighteenYearsAgo,
+                );
 
-                  
-                  16.height,
-                  AppTextField(
-                    readOnly:   false ,
-                    validator: (value) => Validator.fieldRequired(value),
-                    controller: nameController,
-                    labelText: context.appText.driverName,
-                    hintText: context.appText.driverName,
-                    mandatoryStar: true,
-                    keyboardType: TextInputType.name,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
-                    ],
-                  ),
-           ],
+                if (pickedDate != null) {
+                  final formattedDate = DateFormat(
+                    'dd/MM/yyyy',
+                  ).format(pickedDate);
+                  setState(() {
+                    selectedDoB = formattedDate;
+                  });
+                  onDobChanged(formattedDate);
+                }
+              },
+              child: buildReadOnlyField(
+                context.appText.dateOdBirth,
+                selectedDoB ?? 'DOB',
+                fillColor: Colors.white,
+                mandatoryStar: true,
+              ),
+            ),
+
+            16.height,
+            AppTextField(
+              readOnly: false,
+              validator: (value) => Validator.fieldRequired(value),
+              controller: nameController,
+              labelText: context.appText.driverName,
+              hintText: context.appText.driverName,
+              mandatoryStar: true,
+              keyboardType: TextInputType.name,
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+              ],
+            ),
+          ],
         );
       },
     );
   }
-
+ 
+ /// Add Address Popup
   void showAddAddressPopup(BuildContext context, {CustomerAddress? address}) {
     final formKey = GlobalKey<FormState>();
     final isEdit = address != null;
@@ -1484,9 +1447,9 @@ class _MasterScreenState extends State<MasterScreen>
     final pinCodeController = TextEditingController(
       text: address?.pincode ?? '',
     );
-  String? selectedState = address?.state;
-  String? selectedCity = address?.city;
-  
+    String? selectedState = address?.state;
+    String? selectedCity = address?.city;
+
     AppDialog.show(
       context,
       child: StatefulBuilder(
@@ -1494,7 +1457,8 @@ class _MasterScreenState extends State<MasterScreen>
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
-            yesButtonText: isEdit ? context.appText.update : context.appText.save,
+            yesButtonText:
+                isEdit ? context.appText.update : context.appText.save,
             noButtonText: context.appText.cancel,
             child: SingleChildScrollView(
               child: Form(
@@ -1528,22 +1492,23 @@ class _MasterScreenState extends State<MasterScreen>
                       selected: selectedState,
                       onStateChanged: (value) {
                         setState(() {
-                    selectedState = value;
-                    selectedCity = null; 
-                    print("selected state is ${selectedCity}");
+                          selectedState = value;
+                          selectedCity = null;
+                          print("selected state is ${selectedCity}");
                         });
                       },
                     ),
-                  16.height,       
-                  CityDropdown(
-                    selected: selectedCity,
-                    isStateSelected: selectedState != null && selectedState!.isNotEmpty,
-                    onCityChanged: (value) {
-                      setState(() {
-                  selectedCity = value;
-                      });
-                    },
-                  ),
+                    16.height,
+                    CityDropdown(
+                      selected: selectedCity,
+                      isStateSelected:
+                          selectedState != null && selectedState!.isNotEmpty,
+                      onCityChanged: (value) {
+                        setState(() {
+                          selectedCity = value;
+                        });
+                      },
+                    ),
                     16.height,
                     AppTextField(
                       validator: Validator.pincode,
@@ -1562,16 +1527,20 @@ class _MasterScreenState extends State<MasterScreen>
             ),
             onClickYesButton: () async {
               if (formKey.currentState!.validate()) {
-                final existingAddresses = profileCubit.state.addressState?.data?.addresses ?? [];
+                final existingAddresses =
+                    profileCubit.state.addressState?.data?.addresses ?? [];
                 final request = AddressRequest(
                   addrName: addressNameController.text.trim(),
                   addr: addressController.text.trim(),
                   city: selectedCity ?? "",
                   state: selectedState ?? "",
                   pincode: pinCodeController.text.trim(),
-                  isDefault: isEdit ? address?.isDefault ?? false  : existingAddresses.isEmpty, 
+                  isDefault:
+                      isEdit
+                          ? address?.isDefault ?? false
+                          : existingAddresses.isEmpty,
                 );
-          
+
                 if (isEdit) {
                   await profileCubit.updateAddress(
                     addressId: address.preferedAddressId,
@@ -1580,7 +1549,7 @@ class _MasterScreenState extends State<MasterScreen>
                 } else {
                   await profileCubit.createAddress(request: request);
                 }
-          
+
                 final state = profileCubit.state.createAddressState;
                 if (state?.status == Status.SUCCESS) {
                   if (context.mounted) Navigator.pop(context);
@@ -1601,54 +1570,16 @@ class _MasterScreenState extends State<MasterScreen>
               }
             },
           );
-        }
+        },
       ),
     );
   }
- 
 
-
-  static Widget _cityDropdown(
-  BuildContext context,
-  String? selected,
-  bool isStateSelected,
-  ValueChanged<String?> onCityChanged,
-) {
-  final cityUI = context.watch<KycCubit>().state.cityUIState;
-  final cityList = cityUI?.data?.map((e) => e.city ?? '').toList() ?? [];
-
-  return AbsorbPointer(
-    absorbing: !isStateSelected,
-    child: SearchableDropdown(
-      labelText: context.appText.city,
-      mandatoryStar: true,
-      selectedItem: selected,
-      items: cityList,
-      hintText: context.appText.selectCity,
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          onCityChanged(newValue);   // call callback to update state
-        }
-      },
-      dropdownBuilder: (context, selectedItem) {
-        if (selectedItem == null || selectedItem.isEmpty) {
-          return SizedBox.shrink();
-        }
-        return Row(
-          children: [
-            Text(selectedItem),
-          ],
-        );
-      },
-      emptyBuilder: (context, _) => const Center(child: Text("No cities found")),
-    ),
-  );
-}
-
+  /// Add Vehicle Popup
   void showAddVehiclePopup(
     BuildContext context, {
     VehicleDetailsData? vehcile,
-  }) async{
+  }) async {
     context.read<ProfileCubit>().resetVehicleVerificationState();
     bool isVehicleVerified = vehcile != null;
     final formKey = GlobalKey<FormState>();
@@ -1660,92 +1591,96 @@ class _MasterScreenState extends State<MasterScreen>
     final truckMakeModelController = TextEditingController(
       text: vehcile?.modelNumber ?? '',
     );
-    final rcNumberController = TextEditingController(text: vehcile?.rcNumber ?? '',);
+    final rcNumberController = TextEditingController(
+      text: vehcile?.rcNumber ?? '',
+    );
     String? selectedWeightDropDownValue;
     selectedWeightDropDownValue = vehcile?.tonnage;
     TruckTypeModel? selectedTruckType;
     if (vehcile?.truckType != null) {
       selectedTruckType = TruckTypeModel(
-      id: vehcile!.truckType!.id,
-      type: vehcile.truckType!.type,
-      subType: vehcile.truckType!.subType,
-      iconUrl: vehcile.truckType!.iconUrl,
-      status: vehcile.truckType!.status,
-      createdAt: vehcile.truckType!.createdAt,
-      deletedAt: vehcile.truckType!.deletedAt,
-    );
-  }
-   final localRcDocList = <Map<String, dynamic>>[];
-   if (vehcile?.rcDocLink != null && vehcile!.rcDocLink.isNotEmpty) {
+        id: vehcile!.truckType!.id,
+        type: vehcile.truckType!.type,
+        subType: vehcile.truckType!.subType,
+        iconUrl: vehcile.truckType!.iconUrl,
+        status: vehcile.truckType!.status,
+        createdAt: vehcile.truckType!.createdAt,
+        deletedAt: vehcile.truckType!.deletedAt,
+      );
+    }
+    final localRcDocList = <Map<String, dynamic>>[];
+    if (vehcile?.rcDocLink != null && vehcile!.rcDocLink.isNotEmpty) {
       final doc = createFileFromLink(vehcile.rcDocLink!);
       if (doc != null) {
         localRcDocList.add(doc);
       }
     }
     bool isInitialized = false;
-     String previousVehicleNo = truckNumberController.text.trim();
-  bool listenerAdded = false;
+    String previousVehicleNo = truckNumberController.text.trim();
+    bool listenerAdded = false;
 
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
           if (!listenerAdded) {
-    truckNumberController.addListener(() {
-      final currentText = truckNumberController.text.trim();
-      if (currentText != previousVehicleNo) {
-        previousVehicleNo = currentText;
-        profileCubit.resetVehicleVerificationState();
-        setState(() {
-          isInitialized = false;
-          isVehicleVerified = false;
-        });
-      }
-    });
-    listenerAdded = true;
-  }
-          List<Map<String, dynamic>> localRcDocList = List.from(
-            vehicleDocList,
-          );
+            truckNumberController.addListener(() {
+              final currentText = truckNumberController.text.trim();
+              if (currentText != previousVehicleNo) {
+                previousVehicleNo = currentText;
+                profileCubit.resetVehicleVerificationState();
+                setState(() {
+                  isInitialized = false;
+                  isVehicleVerified = false;
+                });
+              }
+            });
+            listenerAdded = true;
+          }
+          List<Map<String, dynamic>> localRcDocList = List.from(vehicleDocList);
           final rcDocUpload =
               context.watch<ProfileCubit>().state.vehicleDocUpload;
           final isUploading = rcDocUpload?.status == Status.LOADING;
-           final verifiedVehicleData = context.watch<ProfileCubit>().state.verifiedVehicleVahanState;
-           final localVehicleVerificationState = context.watch<ProfileCubit>().state.vehicleVerificationState;
-        if (verifiedVehicleData?.status == Status.SUCCESS &&
-            verifiedVehicleData?.data?.data != null &&
-            !isInitialized) {
-          final vahanData = verifiedVehicleData!.data!.data!;
-          setState(() {
-            truckMakeModelController.text = vahanData.vehicleMakeModel ?? truckMakeModelController.text;
-            selectedWeightDropDownValue =  vahanData.vehicleGrossWeight;
-            isVehicleVerified = true;
-            isInitialized = true;
-          }); 
-        }
-         // Auto-populate from local DB verification success
+          final verifiedVehicleData =
+              context.watch<ProfileCubit>().state.verifiedVehicleVahanState;
+          final localVehicleVerificationState =
+              context.watch<ProfileCubit>().state.vehicleVerificationState;
+          if (verifiedVehicleData?.status == Status.SUCCESS &&
+              verifiedVehicleData?.data?.data != null &&
+              !isInitialized) {
+            final vahanData = verifiedVehicleData!.data!.data!;
+            setState(() {
+              truckMakeModelController.text =
+                  vahanData.vehicleMakeModel ?? truckMakeModelController.text;
+              selectedWeightDropDownValue = vahanData.vehicleGrossWeight;
+              isVehicleVerified = true;
+              isInitialized = true;
+            });
+          }
+          // Auto-populate from local DB verification success
           else if (localVehicleVerificationState?.status == Status.SUCCESS &&
-        localVehicleVerificationState?.data?.data != null &&
-        localVehicleVerificationState!.data!.data!.truckNo == truckNumberController.text.trim() &&
-        !isInitialized) {
-        final localData = localVehicleVerificationState!.data!.data!;
-        print('old local data excist still ${localData.modelNumber}');
-        setState(() {
-          truckMakeModelController.text =  localData.modelNumber;
-          selectedWeightDropDownValue =   localData.tonnage;
-          rcNumberController.text = localData.rcNumber;
-          localRcDocList.clear();
-          if (localData.rcDocLink.isNotEmpty) {
-            final doc = createFileFromLink(localData.rcDocLink);
-            if (doc != null) {
-              localRcDocList.add(doc);
-            }
+              localVehicleVerificationState?.data?.data != null &&
+              localVehicleVerificationState!.data!.data!.truckNo ==
+                  truckNumberController.text.trim() &&
+              !isInitialized) {
+            final localData = localVehicleVerificationState!.data!.data!;
+            print('old local data excist still ${localData.modelNumber}');
+            setState(() {
+              truckMakeModelController.text = localData.modelNumber;
+              selectedWeightDropDownValue = localData.tonnage;
+              rcNumberController.text = localData.rcNumber;
+              localRcDocList.clear();
+              if (localData.rcDocLink.isNotEmpty) {
+                final doc = createFileFromLink(localData.rcDocLink);
+                if (doc != null) {
+                  localRcDocList.add(doc);
+                }
+              }
+              isVehicleVerified = true;
+              isInitialized = true;
+            });
           }
-          isVehicleVerified = true;
-            isInitialized = true;
-          });
-          }
-        
+
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -1812,7 +1747,7 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                     16.height,
                     Text(context.appText.truckType, style: AppTextStyle.body3),
-                     5.height,
+                    5.height,
                     // TrucK Type
                     BlocBuilder<VpCreateAccountCubit, VpCreateAccountState>(
                       builder: (context, state) {
@@ -1831,9 +1766,10 @@ class _MasterScreenState extends State<MasterScreen>
 
                         final uiState = state.truckTypeUIState?.data;
                         final truckTypes = uiState ?? [];
-                        final truckTypeLabels = truckTypes
-                            .map((e) => '${e.type} - ${e.subType}')
-                            .toList();
+                        final truckTypeLabels =
+                            truckTypes
+                                .map((e) => '${e.type} - ${e.subType}')
+                                .toList();
                         final truckTypeLabelMap = Map.fromEntries(
                           truckTypes.map(
                             (e) => MapEntry('${e.type} - ${e.subType}', e),
@@ -1843,9 +1779,10 @@ class _MasterScreenState extends State<MasterScreen>
                         return SearchableDropdown(
                           hintText: context.appText.truckType,
                           items: truckTypeLabels,
-                          selectedItem: selectedTruckType == null
-                              ? null
-                              : '${selectedTruckType!.type} - ${selectedTruckType!.subType}',
+                          selectedItem:
+                              selectedTruckType == null
+                                  ? null
+                                  : '${selectedTruckType!.type} - ${selectedTruckType!.subType}',
                           onChanged: (value) {
                             selectedTruckType = truckTypeLabelMap[value];
                             setState(() {});
@@ -1854,66 +1791,72 @@ class _MasterScreenState extends State<MasterScreen>
                       },
                     ),
                     16.height,
-                     Text(context.appText.capacity, style: AppTextStyle.body3),
-                     5.height,
+                    Text(context.appText.capacity, style: AppTextStyle.body3),
+                    5.height,
                     BlocBuilder<LPHomeCubit, LPHomeState>(
-                    builder: (context, state) {
-                      final uiState = state.loadWeightUIState;
-                      final weights = uiState?.data ?? [];
-                      final weightLabels = weights.map((e) => '${e.value} Ton').toList();
-                      final weightLabelIdMap = Map.fromEntries(
-                        weights.map((e) => MapEntry('${e.value} Ton', e.id)),
-                      );
+                      builder: (context, state) {
+                        final uiState = state.loadWeightUIState;
+                        final weights = uiState?.data ?? [];
+                        final weightLabels =
+                            weights.map((e) => '${e.value} Ton').toList();
+                        final weightLabelIdMap = Map.fromEntries(
+                          weights.map((e) => MapEntry('${e.value} Ton', e.id)),
+                        );
 
-                      return SearchableDropdown(
-                        hintText: context.appText.capacity,
-                        items: weightLabels,
-                        selectedItem: selectedWeightDropDownValue,
-                        onChanged: (value) {
-                          selectedWeightDropDownValue = value;
-                          setState(() {});
-                        },
-                      );
-                    },
-                  ),
-                    16.height,
-                    if(! isEdit )
-                    Builder(
-                      builder: (context) {
-                        final state = gpsVehicleCubit.state;
-
-                        if (state.commodities.status == Status.LOADING) {
-                          return const SizedBox.shrink();
-                        } else if (state.commodities.status == Status.SUCCESS) {
-                          final items =
-                              state.commodities.data!.map((commodity) {
-                                return DropdownItem<String>(
-                                  label: commodity.name,
-                                  value: commodity.id.toString(),
-                                );
-                              }).toList();
-                          return AppMultiSelectionDropdown<String>(
-                            labelText: context.appText.acceptableCommodities,
-                            hintText: context.appText.select,
-                            mandatoryStar: true,
-                            controller: acceptableCommoditiesController,
-                            items: items,
-                            onSelectionChange: (selected) {
-                              selectedCommodities = selected;
-                            },
-                            validator:
-                                (value) =>
-                                    value == null || value.isEmpty
-                                        ? context.appText.pleaseSelectCommodity
-                                        : null,
-                            showValidationError: showValidationErrors,
-                          );
-                        } else if (state.commodities.status == Status.ERROR) {
-                          return Text('Error: ${state.commodities.errorType}');
-                        }
-                        return const SizedBox.shrink();
+                        return SearchableDropdown(
+                          hintText: context.appText.capacity,
+                          items: weightLabels,
+                          selectedItem: selectedWeightDropDownValue,
+                          onChanged: (value) {
+                            selectedWeightDropDownValue = value;
+                            setState(() {});
+                          },
+                        );
                       },
                     ),
+                    16.height,
+                    if (!isEdit)
+                      Builder(
+                        builder: (context) {
+                          final state = gpsVehicleCubit.state;
+
+                          if (state.commodities.status == Status.LOADING) {
+                            return const SizedBox.shrink();
+                          } else if (state.commodities.status ==
+                              Status.SUCCESS) {
+                            final items =
+                                state.commodities.data!.map((commodity) {
+                                  return DropdownItem<String>(
+                                    label: commodity.name,
+                                    value: commodity.id.toString(),
+                                  );
+                                }).toList();
+                            return AppMultiSelectionDropdown<String>(
+                              labelText: context.appText.acceptableCommodities,
+                              hintText: context.appText.select,
+                              mandatoryStar: true,
+                              controller: acceptableCommoditiesController,
+                              items: items,
+                              onSelectionChange: (selected) {
+                                selectedCommodities = selected;
+                              },
+                              validator:
+                                  (value) =>
+                                      value == null || value.isEmpty
+                                          ? context
+                                              .appText
+                                              .pleaseSelectCommodity
+                                          : null,
+                              showValidationError: showValidationErrors,
+                            );
+                          } else if (state.commodities.status == Status.ERROR) {
+                            return Text(
+                              'Error: ${state.commodities.errorType}',
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
 
                     16.height,
 
@@ -1924,8 +1867,15 @@ class _MasterScreenState extends State<MasterScreen>
                         Text(context.appText.active),
                         Switch(
                           value: isVehicleActive,
-                          onChanged: (val) =>
-                                      setState(() => isVehicleActive = val),
+                         onChanged: (val) {
+                        setState(() => isVehicleActive = val);                     
+                        if (vehcile != null) {
+                          profileCubit.deleteVehicle(
+                            vehicleId: vehcile!.vehicleId,
+                            request: DeleteVehicleRequest(status: val ? 1 : 2),
+                          );
+                        }
+                      },
                         ),
                       ],
                     ),
@@ -1935,15 +1885,20 @@ class _MasterScreenState extends State<MasterScreen>
               ),
             ),
             onClickYesButton: () async {
-                final String? validation = Validator.fieldRequired(truckNumberController.text.trim(),fieldName: 'Vehicle Reg No');
-                  if (validation != null) {
-                    ToastMessages.alert(message: validation); 
-                    return;
-                  }
-                 if (!isVehicleVerified) {
-                  ToastMessages.alert(message: "Please verify the Vehcile Reg No before proceeding");
-                  return;
-                }
+              final String? validation = Validator.fieldRequired(
+                truckNumberController.text.trim(),
+                fieldName: 'Vehicle Reg No',
+              );
+              if (validation != null) {
+                ToastMessages.alert(message: validation);
+                return;
+              }
+              if (!isVehicleVerified) {
+                ToastMessages.alert(
+                  message: "Please verify the Vehcile Reg No before proceeding",
+                );
+                return;
+              }
               if (formKey.currentState!.validate()) {
                 final rcDocLink =
                     vehicleDocList.isNotEmpty
@@ -1954,7 +1909,7 @@ class _MasterScreenState extends State<MasterScreen>
                   truckNo: truckNumberController.text.trim(),
                   rcNumber: rcNumberController.text.trim(),
                   rcDocLink: rcDocLink,
-                  tonnage:  selectedWeightDropDownValue,
+                  tonnage: selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
                   truckMakeAndModel: truckMakeModelController.text.trim(),
                   acceptableCommodities:
@@ -1967,17 +1922,17 @@ class _MasterScreenState extends State<MasterScreen>
                   await profileCubit.updateVehicle(
                     vehicleId: vehcile.vehicleId,
                     request: VehicleRequest(
-                  customerId: profileCubit.userId ?? "",
-                  truckNo: truckNumberController.text.trim(),
-                  rcNumber: rcNumberController.text.trim(),
-                  rcDocLink: rcDocLink,
-                  tonnage:  selectedWeightDropDownValue,
-                  truckTypeId: selectedTruckType?.id ?? 1,      
-                  // acceptableCommodities:
-                  //     selectedCommodities.map(int.parse).toList(),
-                 
-                 // vehicleStatus: isVehicleActive ? 1 : 2,
-                ),
+                      customerId: profileCubit.userId ?? "",
+                      truckNo: truckNumberController.text.trim(),
+                      rcNumber: rcNumberController.text.trim(),
+                      rcDocLink: rcDocLink,
+                      tonnage: selectedWeightDropDownValue,
+                      truckTypeId: selectedTruckType?.id ?? 1,
+                      // acceptableCommodities:
+                      //     selectedCommodities.map(int.parse).toList(),
+
+                      // vehicleStatus: isVehicleActive ? 1 : 2,
+                    ),
                   );
                 } else {
                   await profileCubit.createVehicle(request: request);
@@ -2002,10 +1957,10 @@ class _MasterScreenState extends State<MasterScreen>
                 }
               }
             },
-          onClickNoButton: () async{
-            await profileCubit.resetVehicleVerificationState();
-             Navigator.pop(context);
-          },
+            onClickNoButton: () async {
+              await profileCubit.resetVehicleVerificationState();
+              Navigator.pop(context);
+            },
           );
         },
       ),
@@ -2023,12 +1978,15 @@ class _MasterScreenState extends State<MasterScreen>
 
     return {"fileName": fileName, "path": url, "extension": extension};
   }
-  
-  
-  void showAddDriverPopup(BuildContext context, {DriverDetailsData? driver}) async{
-   final cubit = context.read<ProfileCubit>();
-  await cubit.resetlicenseVahanVerificationState();
-    
+
+  /// Add Driver Popup
+  void showAddDriverPopup(
+    BuildContext context, {
+    DriverDetailsData? driver,
+  }) async {
+    final cubit = context.read<ProfileCubit>();
+    await cubit.resetlicenseVahanVerificationState();
+
     bool isLicenseVerified = driver != null;
 
     final formKey = GlobalKey<FormState>();
@@ -2053,7 +2011,7 @@ class _MasterScreenState extends State<MasterScreen>
     int? selectedBloodId = driver?.bloodGroup;
     final emailController = TextEditingController(text: driver?.email ?? "");
     final localLicenseDocList = <Map<String, dynamic>>[];
-      
+
     if (driver?.licenseDocLink != null && driver!.licenseDocLink!.isNotEmpty) {
       final doc = createFileFromLink(driver.licenseDocLink!);
       if (doc != null) {
@@ -2061,14 +2019,16 @@ class _MasterScreenState extends State<MasterScreen>
       }
     }
     bool isInitialized = false;
-     String previousLicenseNo = licenseNumberController.text.trim();
+    String previousLicenseNo = licenseNumberController.text.trim();
     bool isActive = driver != null ? (driver.driverStatus == 1) : true;
     bool listenerAdded = false;
-    String? selectedLicense;  
+    String? selectedLicense;
     String? selectedBloodGroup;
     selectedBloodGroup = MasterHelper.mapBloodGroupIdToName(driver?.bloodGroup);
     selectedBloodId = driver?.bloodGroup;
-    selectedLicense = MasterHelper.mapLicenseCategoryIdToName(driver?.licenseCategory);
+    selectedLicense = MasterHelper.mapLicenseCategoryIdToName(
+      driver?.licenseCategory,
+    );
     selectedLicneseId = driver?.licenseCategory;
     MasterDialogueWidget.show(
       context,
@@ -2077,8 +2037,7 @@ class _MasterScreenState extends State<MasterScreen>
           BuildContext context,
           void Function(void Function()) setState,
         ) {
-          
-             if (!listenerAdded) {
+          if (!listenerAdded) {
             licenseNumberController.addListener(() {
               final currentText = licenseNumberController.text.trim();
               if (currentText != previousLicenseNo) {
@@ -2109,78 +2068,98 @@ class _MasterScreenState extends State<MasterScreen>
             }
             isInitialized = true;
           }
-              /// Local DB verification result
-        final localLicenseVerificationState =
-            context.watch<ProfileCubit>().state.licenseVerficationState;
 
-        /// Vahan verification result
-        final driverVerifiedData =
-            context.watch<ProfileCubit>().state.verifiedLicenseVahanState;
+          /// Local DB verification result
+          final localLicenseVerificationState =
+              context.watch<ProfileCubit>().state.licenseVerficationState;
 
-        // Auto‑populate from Local DB (if found)
-        if (localLicenseVerificationState?.status == Status.SUCCESS &&
-        localLicenseVerificationState?.data?.data != null &&
-        localLicenseVerificationState!.data!.data!.licenseNumber?.trim() ==
-            licenseNumberController.text.trim() &&
-        !isInitialized) {
-              final localData = localLicenseVerificationState!.data!.data!;
-              setState(() {
-                nameController.text = localData.name ?? nameController.text;
-                selectedDoB = localData.dateOfBirth != null
-                    ? DateFormat('dd/MM/yyyy').format(localData.dateOfBirth!)
-                    : selectedDoB;
-                selectedDate = localData.licenseExpiryDate != null
-                    ? DateFormat('dd/MM/yyyy').format(localData.licenseExpiryDate!)
-                    : selectedDate;
-                selectedBloodGroup = MasterHelper.mapBloodGroupIdToName(localData.bloodGroup);
-                selectedBloodId = localData.bloodGroup;
-                selectedLicense = MasterHelper.mapLicenseCategoryIdToName(localData.licenseCategory);
-                selectedLicneseId = localData.licenseCategory;
-                localLicenseDocList.clear();
-                if (localData.licenseDocLink != null &&
-                    localData.licenseDocLink!.isNotEmpty) {
-                  final doc = createFileFromLink(localData.licenseDocLink!);
-                  if (doc != null) {
-                    localLicenseDocList.add(doc);
-                  }
+          /// Vahan verification result
+          final driverVerifiedData =
+              context.watch<ProfileCubit>().state.verifiedLicenseVahanState;
+
+          // Auto‑populate from Local DB (if found)
+          if (localLicenseVerificationState?.status == Status.SUCCESS &&
+              localLicenseVerificationState?.data?.data != null &&
+              localLicenseVerificationState!.data!.data!.licenseNumber
+                      ?.trim() ==
+                  licenseNumberController.text.trim() &&
+              !isInitialized) {
+            final localData = localLicenseVerificationState!.data!.data!;
+            setState(() {
+              nameController.text = localData.name ?? nameController.text;
+              selectedDoB =
+                  localData.dateOfBirth != null
+                      ? DateFormat('dd/MM/yyyy').format(localData.dateOfBirth!)
+                      : selectedDoB;
+              selectedDate =
+                  localData.licenseExpiryDate != null
+                      ? DateFormat(
+                        'dd/MM/yyyy',
+                      ).format(localData.licenseExpiryDate!)
+                      : selectedDate;
+              selectedBloodGroup = MasterHelper.mapBloodGroupIdToName(
+                localData.bloodGroup,
+              );
+              selectedBloodId = localData.bloodGroup;
+              selectedLicense = MasterHelper.mapLicenseCategoryIdToName(
+                localData.licenseCategory,
+              );
+              selectedLicneseId = localData.licenseCategory;
+              localLicenseDocList.clear();
+              if (localData.licenseDocLink != null &&
+                  localData.licenseDocLink!.isNotEmpty) {
+                final doc = createFileFromLink(localData.licenseDocLink!);
+                if (doc != null) {
+                  localLicenseDocList.add(doc);
                 }
-                emailController.text = localData.email ?? emailController.text;
-                mobileController.text =  localData.mobile?.replaceFirst('+91', '') ?? "";
-                isLicenseVerified = true;
-                isInitialized = true;
-              });
-            }
-
-        //  Auto‑populate from Vahan API (if found)
-        else if (driverVerifiedData?.status == Status.SUCCESS &&
-        driverVerifiedData?.data?.data != null &&
-        selectedDoB != null &&
-        driverVerifiedData!.data!.data!.userDob != null &&
-        DateFormat('dd/MM/yyyy').format(
-          DateFormat('dd-MM-yyyy').parse(driverVerifiedData!.data!.data!.userDob!),
-        ) == selectedDoB &&
-        !isInitialized){
-          final vahanData = driverVerifiedData!.data!.data!;
-          setState(() {
-            nameController.text = vahanData.userFullName ?? nameController.text;
-            selectedBloodGroup = vahanData.userBloodGroup;
-            selectedLicense = vahanData.vehicleCategory;
-            selectedBloodId = MasterHelper.mapBloodGroupToId(vahanData.userBloodGroup);
-            selectedLicneseId = MasterHelper.mapLicenseCategoryToId(vahanData.vehicleCategory);
-            selectedDoB = vahanData.userDob != null
-                ? DateFormat('dd/MM/yyyy').format(
-                    DateFormat('dd-MM-yyyy').parse(vahanData.userDob!),
-                  )
-                : selectedDoB;
-            selectedDate = vahanData.expiryDate != null
-                ? DateFormat('dd/MM/yyyy').format(
-                    DateFormat('dd-MM-yyyy').parse(vahanData.expiryDate!),
-                  )
-                : selectedDate;
-            isLicenseVerified = true;
-            isInitialized = true;
-          });
-        }
+              }
+              emailController.text = localData.email ?? emailController.text;
+              mobileController.text =
+                  localData.mobile?.replaceFirst('+91', '') ?? "";
+              isLicenseVerified = true;
+              isInitialized = true;
+            });
+          }
+          //  Auto‑populate from Vahan API (if found)
+          else if (driverVerifiedData?.status == Status.SUCCESS &&
+              driverVerifiedData?.data?.data != null &&
+              selectedDoB != null &&
+              driverVerifiedData!.data!.data!.userDob != null &&
+              DateFormat('dd/MM/yyyy').format(
+                    DateFormat(
+                      'dd-MM-yyyy',
+                    ).parse(driverVerifiedData!.data!.data!.userDob!),
+                  ) ==
+                  selectedDoB &&
+              !isInitialized) {
+            final vahanData = driverVerifiedData!.data!.data!;
+            setState(() {
+              nameController.text =
+                  vahanData.userFullName ?? nameController.text;
+              selectedBloodGroup = vahanData.userBloodGroup;
+              selectedLicense = vahanData.vehicleCategory;
+              selectedBloodId = MasterHelper.mapBloodGroupToId(
+                vahanData.userBloodGroup,
+              );
+              selectedLicneseId = MasterHelper.mapLicenseCategoryToId(
+                vahanData.vehicleCategory,
+              );
+              selectedDoB =
+                  vahanData.userDob != null
+                      ? DateFormat('dd/MM/yyyy').format(
+                        DateFormat('dd-MM-yyyy').parse(vahanData.userDob!),
+                      )
+                      : selectedDoB;
+              selectedDate =
+                  vahanData.expiryDate != null
+                      ? DateFormat('dd/MM/yyyy').format(
+                        DateFormat('dd-MM-yyyy').parse(vahanData.expiryDate!),
+                      )
+                      : selectedDate;
+              isLicenseVerified = true;
+              isInitialized = true;
+            });
+          }
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -2212,10 +2191,10 @@ class _MasterScreenState extends State<MasterScreen>
                     nameController: nameController,
                     selectedDoB: selectedDoB ?? "",
                     onDobChanged: (dob) {
-                    setState(() {
-                      selectedDoB = dob;
-                    });
-                  },
+                      setState(() {
+                        selectedDoB = dob;
+                      });
+                    },
                   ),
                   16.height,
                   UploadAttachmentFiles(
@@ -2236,28 +2215,28 @@ class _MasterScreenState extends State<MasterScreen>
                       }
                     },
                   ),
-                
+
                   16.height,
 
                   ///License Expiry date
                   InkWell(
                     onTap: () async {
-                              final DateTime today = DateTime.now();
-                              final DateTime? pickedDate = await showDatePicker(
-                                context: context,
-                                initialDate: today,
-                                firstDate: today,
-                                lastDate: DateTime(2100),
-                              );
-                              if (pickedDate != null) {
-                                final formattedDate = DateFormat(
-                                  'dd/MM/yyyy',
-                                ).format(pickedDate);
-                                setState(() {
-                                  selectedDate = formattedDate;
-                                });
-                              }
-                            },
+                      final DateTime today = DateTime.now();
+                      final DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: today,
+                        firstDate: today,
+                        lastDate: DateTime(2100),
+                      );
+                      if (pickedDate != null) {
+                        final formattedDate = DateFormat(
+                          'dd/MM/yyyy',
+                        ).format(pickedDate);
+                        setState(() {
+                          selectedDate = formattedDate;
+                        });
+                      }
+                    },
                     child: buildReadOnlyField(
                       context.appText.licenseExpiryDate,
                       selectedDate ?? 'Select date',
@@ -2267,48 +2246,50 @@ class _MasterScreenState extends State<MasterScreen>
                   ),
                   16.height,
                   AppTextField(
-                  validator:  (value) => Validator.phone(value),
-                  controller: mobileController,
-                  labelText: context.appText.phoneNumber,
-                  maxLength: 10,
-                  inputFormatters: [phoneNumberInputFormatter],
-                  keyboardType: TextInputType.phone,
-                  decoration: commonInputDecoration(
-                    focusColor: AppColors.borderColor,
-                    hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
-                    prefixIcon: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Image.asset(AppImage.png.flag),
-                        10.width,
-                        Text("+91", style: AppTextStyle.textFiled),
-                      ],
-                    ).paddingOnly(left: 20, right: 5),
+                    validator: (value) => Validator.phone(value),
+                    controller: mobileController,
+                    labelText: context.appText.phoneNumber,
+                    maxLength: 10,
+                    inputFormatters: [phoneNumberInputFormatter],
+                    keyboardType: TextInputType.phone,
+                    decoration: commonInputDecoration(
+                      focusColor: AppColors.borderColor,
+                      hintText:
+                          "${context.appText.enter} ${context.appText.phoneNumber}",
+                      prefixIcon: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Image.asset(AppImage.png.flag),
+                          10.width,
+                          Text("+91", style: AppTextStyle.textFiled),
+                        ],
+                      ).paddingOnly(left: 20, right: 5),
+                    ),
                   ),
-                ),
                   16.height,
                   LicenseCategoryDropdown(
-                  selected: selectedLicense,
-                  onChanged: (LicenseCategoryResponseModel? category) {
-                  setState(() {
-                    selectedLicense = category?.categoryName;
-                    selectedLicneseId = category?.id; 
-                    print("selected licesne id ${selectedLicneseId}");
-                  });
-                },),
+                    selected: selectedLicense,
+                    onChanged: (LicenseCategoryResponseModel? category) {
+                      setState(() {
+                        selectedLicense = category?.categoryName;
+                        selectedLicneseId = category?.id;
+                        print("selected licesne id ${selectedLicneseId}");
+                      });
+                    },
+                  ),
                   16.height,
-                 BloodCategoryDropdown(
-                  selected: selectedBloodGroup,
-                  onChanged: (BloodGroupResponseModel? category) {
-                  setState(() {
-                    selectedBloodGroup = category?.groupName;
-                    selectedBloodId = category?.id; 
-                    print("selected blood id ${selectedLicneseId}");
-                  });
-                },
-                ),
-                16.height,
+                  BloodCategoryDropdown(
+                    selected: selectedBloodGroup,
+                    onChanged: (BloodGroupResponseModel? category) {
+                      setState(() {
+                        selectedBloodGroup = category?.groupName;
+                        selectedBloodId = category?.id;
+                        print("selected blood id ${selectedLicneseId}");
+                      });
+                    },
+                  ),
+                  16.height,
                   AppTextField(
                     labelText: '${context.appText.emailId}(optional)',
                     hintText: 'example@email.com',
@@ -2319,7 +2300,8 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                   ),
 
-                   16.height,
+                  16.height,
+
                   /// Active Switch
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2335,17 +2317,21 @@ class _MasterScreenState extends State<MasterScreen>
               ),
             ),
             onClickYesButton: () async {
-              final String? validation = Validator.fieldRequired(licenseNumberController.text.trim(),fieldName: 'License No');
-                  if (validation != null) {
-                    ToastMessages.alert(message: validation); 
-                    return;
-                  }
+              final String? validation = Validator.fieldRequired(
+                licenseNumberController.text.trim(),
+                fieldName: 'License No',
+              );
+              if (validation != null) {
+                ToastMessages.alert(message: validation);
+                return;
+              }
               if (!isLicenseVerified) {
-                  ToastMessages.alert(message: "Please verify the License before proceeding");
-                  return;
-                }
+                ToastMessages.alert(
+                  message: "Please verify the License before proceeding",
+                );
+                return;
+              }
               if (formKey.currentState!.validate()) {
-                
                 if (licenseNumberController.text.trim().isEmpty) {
                   ToastMessages.alert(message: "Please enter License Number");
                   return;
@@ -2362,7 +2348,9 @@ class _MasterScreenState extends State<MasterScreen>
                 }
 
                 if (selectedDate == null || selectedDate!.isEmpty) {
-                  ToastMessages.alert(message: "Please select License Expiry Date");
+                  ToastMessages.alert(
+                    message: "Please select License Expiry Date",
+                  );
                   return;
                 }
 
@@ -2372,12 +2360,14 @@ class _MasterScreenState extends State<MasterScreen>
                 }
 
                 if (localLicenseDocList.isEmpty) {
-                  ToastMessages.alert(message: "Please upload License Document");
+                  ToastMessages.alert(
+                    message: "Please upload License Document",
+                  );
                   return;
                 }
-               if (!formKey.currentState!.validate()) {
-                return;
-              }
+                if (!formKey.currentState!.validate()) {
+                  return;
+                }
                 final licenseExpiryIso =
                     selectedDate != null
                         ? DateFormat(
@@ -2405,7 +2395,7 @@ class _MasterScreenState extends State<MasterScreen>
                   licenseDocLink: rcDocLink,
                   licenseExpiryDate: licenseExpiryIso ?? '',
                   dateOfBirth: dateOfBirthIso ?? '',
-                  licenseCategory: selectedLicneseId ,
+                  licenseCategory: selectedLicneseId,
                   bloodGroup: selectedBloodId,
                   driverStatus: isActive ? 1 : 2,
                 );
@@ -2437,18 +2427,16 @@ class _MasterScreenState extends State<MasterScreen>
                 }
               }
             },
-            onClickNoButton: () async{
-            await profileCubit.resetLcienseVerificationState();
-             Navigator.pop(context);
-          },
+            onClickNoButton: () async {
+              await profileCubit.resetLcienseVerificationState();
+              Navigator.pop(context);
+            },
           );
         },
       ),
     );
   }
-    
 
-  
   Widget _buildTextField(
     BuildContext context,
     TextEditingController controller,
@@ -2459,11 +2447,15 @@ class _MasterScreenState extends State<MasterScreen>
       validator: (value) => Validator.fieldRequired(value, fieldName: label),
       controller: controller,
       labelText: label,
-      inputFormatters: [FilteringTextInputFormatter.allow(pattern), LengthLimitingTextInputFormatter(100), ],
+      inputFormatters: [
+        FilteringTextInputFormatter.allow(pattern),
+        LengthLimitingTextInputFormatter(100),
+      ],
     );
   }
 }
 
+/// Read Only Textfield
 Widget buildReadOnlyField(
   String label,
   String value, {
@@ -2496,13 +2488,15 @@ Widget buildReadOnlyField(
           children: [
             Text(value, style: AppTextStyle.textFiled),
             Spacer(),
-            SvgPicture.asset(AppIcons.svg.calendar)
+            SvgPicture.asset(AppIcons.svg.calendar),
           ],
         ),
       ),
     ],
   );
 }
+
+/// State Dropdown
 class StateDropdown extends StatelessWidget {
   final String? selected;
   final ValueChanged<String?> onStateChanged;
@@ -2539,13 +2533,13 @@ class StateDropdown extends StatelessWidget {
         }
         return Row(children: [Text(selectedItem)]);
       },
-      emptyBuilder: (context, _) =>
-          const Center(child: Text("No states found")),
+      emptyBuilder:
+          (context, _) => const Center(child: Text("No states found")),
     );
   }
 }
 
-
+/// City Dropdwon
 class CityDropdown extends StatelessWidget {
   final String? selected;
   final bool isStateSelected;
@@ -2582,8 +2576,8 @@ class CityDropdown extends StatelessWidget {
           }
           return Row(children: [Text(selectedItem)]);
         },
-        emptyBuilder: (context, _) =>
-            const Center(child: Text("No cities found")),
+        emptyBuilder:
+            (context, _) => const Center(child: Text("No cities found")),
       ),
     );
   }
