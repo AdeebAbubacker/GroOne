@@ -36,7 +36,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:mime/mime.dart';
-
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' as lpHelper;
 import 'load_details_state.dart';
 
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
@@ -101,7 +101,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       emit(state.copyWith(
           loadDetailsUIState: UIState.success(result.value)));
       getAllDamagesImages(getFromDetails: true);
-
+       await _handleTrackingBasedOnStatus(result.value);
       acceptLoad(state.loadDetailsUIState?.data?.data?.loadStatusId);
 
       /// SET TRIP DOCUMENT
@@ -136,6 +136,44 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       emit(state.copyWith(vpLoadStatus: UIState.error(result.type)));
       ToastMessages.error(
           message: getErrorMsg(errorType: state.vpLoadStatus!.errorType!));
+    }
+  }
+ 
+
+  Future<void> _handleTrackingBasedOnStatus(LoadDetailModel data) async {
+    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data.data?.loadStatusDetails?.loadStatus);
+    final route = data.data?.loadRoute;
+
+    if (status != null && route != null) {
+      late final TrackingDistanceApiRequest request;
+
+      if (status.index <= LoadStatus.assigned.index) {
+        // Use pickup & drop coordinates
+        final pickup = route.pickUpLatlon.split(',');
+        final drop = route.dropLatlon.split(',');
+
+        request = TrackingDistanceApiRequest(
+          originLat: double.tryParse(pickup.first) ?? 0.0,
+          originLong: double.tryParse(pickup.last) ?? 0.0,
+          currentLat: double.tryParse(pickup.first) ?? 0.0,
+          currentLong: double.tryParse(pickup.last) ?? 0.0,
+          destLat: double.tryParse(drop.first) ?? 0.0,
+          destLong: double.tryParse(drop.last) ?? 0.0,
+        );
+      } else {
+        // Use trackingDetails
+        final tracking = data.data?.trackingDetails;
+        request = TrackingDistanceApiRequest(
+          originLat: tracking?.originLat ?? 0.0,
+          originLong: tracking?.originLong ?? 0.0,
+          currentLat: tracking?.currentLat ?? 0.0,
+          currentLong: tracking?.currentLong ?? 0.0,
+          destLat: tracking?.destinationLat ?? 0.0,
+          destLong: tracking?.destinationLong ?? 0.0,
+        );
+      }
+
+      await getTrackingDistance(request: request);
     }
   }
 
@@ -363,7 +401,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
     emit(state.copyWith(trackingDistance: uiState));
   }
-
+  
+  
   // Lp load tracking distance
   Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
     _setTrackingDistanceState(UIState.loading());

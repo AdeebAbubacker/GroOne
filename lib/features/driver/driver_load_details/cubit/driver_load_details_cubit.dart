@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' as lpHelper;
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
@@ -68,6 +68,7 @@ Future<void> getDriverLoadsById({required String loadId}) async {
           loadStatusId:result.value.data?.loadStatusId ,
           loadStatus: loadStatus
           ));
+      await _handleTrackingBasedOnStatus(result.value);     
     setTripDocuments(result.value.data!.loadDocument);
   } else if (result is Error) {
     _setLoadByIdUIState(UIState.error(result.type));
@@ -414,6 +415,43 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     return (distanceInMeters / 1000).toStringAsFixed(2);
   }
   
+  Future<void> _handleTrackingBasedOnStatus(DriverLoadDetailsModel data) async {
+    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data.data?.loadStatusDetails?.loadStatus);
+    final route = data.data?.loadRoute;
+
+    if (status != null && route != null) {
+      late final TrackingDistanceApiRequest request;
+
+      if (status.index <= LoadStatus.assigned.index) {
+        // Use pickup & drop coordinates
+        final pickup = route.pickUpLatlon.split(',');
+        final drop = route.dropLatlon.split(',');
+
+        request = TrackingDistanceApiRequest(
+          originLat: double.tryParse(pickup.first) ?? 0.0,
+          originLong: double.tryParse(pickup.last) ?? 0.0,
+          currentLat: double.tryParse(pickup.first) ?? 0.0,
+          currentLong: double.tryParse(pickup.last) ?? 0.0,
+          destLat: double.tryParse(drop.first) ?? 0.0,
+          destLong: double.tryParse(drop.last) ?? 0.0,
+        );
+      } else {
+        // Use trackingDetails
+        final tracking = data.data?.trackingDetails;
+        request = TrackingDistanceApiRequest(
+          originLat: tracking?.originLat ?? 0.0,
+          originLong: tracking?.originLong ?? 0.0,
+          currentLat: tracking?.currentLat ?? 0.0,
+          currentLong: tracking?.currentLong ?? 0.0,
+          destLat: tracking?.destinationLat ?? 0.0,
+          destLong: tracking?.destinationLong ?? 0.0,
+        );
+      }
+
+      await getTrackingDistance(request: request);
+    }
+  }
+
       // Updates the UI state related to tracking distance.
   void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
     emit(state.copyWith(trackingDistance: uiState));

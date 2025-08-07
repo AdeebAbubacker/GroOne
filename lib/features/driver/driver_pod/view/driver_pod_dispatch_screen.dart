@@ -34,6 +34,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/alpha_only_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
@@ -104,8 +105,6 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
   final awbNumberTextController = TextEditingController();
 
   String? podCenterIdDropDownValue;
-  String? podCenterNameDropDownValue;
-
   bool isPodCenterDropDownEnabled = false;
 
 
@@ -122,7 +121,7 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
   }
 
   void initFunction() => frameCallback(() async {
-    cubit.fetchPodCenterList();
+    
   });
 
   void disposeFunction() => frameCallback(() {
@@ -137,40 +136,53 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
 
   void clearDropDownFields() {
     podCenterIdDropDownValue = null;
-    podCenterNameDropDownValue = null;
-    isPodCenterDropDownEnabled = false;
   }
 
 
   // Submit Pod Api call
-  void submitPodApiCall() {
-    if (widget.loadId == null && widget.loadId!.isEmpty) {
-      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${context.appText.loadId} : ${widget.loadId}");
-      return;
-    }
-
-    if(isPodCenterDropDownEnabled){
-      if (podCenterNameDropDownValue != null && podCenterNameDropDownValue!.isEmpty) {
-        ToastMessages.alert(message: "${context.appText.somethingWentWrong} - ${context.appText.podCenterName} : $podCenterNameDropDownValue");
-        return;
-      }
-    } else {
-      if(awbNumberTextController.text.isEmpty && courierCompanyTextController.text.isEmpty){
-        ToastMessages.alert(message: context.appText.thisFieldIsRequired);
-        return;
-      }
-    }
-
-    final request = SubmitPodApiRequest(
-        loadId: widget.loadId!,
-        courierCompany: courierCompanyTextController.text,
-        awbNumber: awbNumberTextController.text,
-        podCenterId: podCenterIdDropDownValue!,
-        podCenterName: podCenterNameDropDownValue!
+ void submitPodApiCall() {
+  if (widget.loadId == null || widget.loadId!.isEmpty) {
+    ToastMessages.error(
+      message: "${context.appText.somethingWentWrong} - "
+          "${context.appText.loadId} : ${widget.loadId}",
     );
-    cubit.submitPod(request);
-
+    return;
   }
+
+  final bool isCourierEntered = courierCompanyTextController.text.trim().isNotEmpty;
+  final bool isAwbEntered = awbNumberTextController.text.trim().isNotEmpty;
+  
+  // Both fields are now required (since Pod Center is removed)
+  if (!isCourierEntered || !isAwbEntered) {
+    if (!isCourierEntered) {
+      ToastMessages.alert(
+        message: context.appText.pleaseEnterCourierCompany,
+      );
+    }
+
+    if (!isAwbEntered) {
+      ToastMessages.alert(
+        message: context.appText.pleaseEnterawbNumber,
+      );
+    }
+    return;
+  }
+
+  final request = SubmitPodApiRequest(
+    loadId: widget.loadId!,
+    courierCompany: courierCompanyTextController.text.trim(),
+    awbNumber: awbNumberTextController.text.trim(),
+    podCenterId: "", // no pod center id because field removed
+    podCenterName: "",
+  );
+
+  cubit.submitPod(request);
+}
+
+
+
+
+
 
 
   @override
@@ -196,8 +208,9 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
             validator: (value) => Validator.fieldRequired(value),
             controller: courierCompanyTextController,
             labelText: context.appText.courierCompany,
-            hintText: "LED TV 42”",
+            hintText: context.appText.enterCourierCompany,
             textInputAction: TextInputAction.next,
+            inputFormatters: [AlphaOnlyTextFormatter(),],
             onChanged: (value){
               clearDropDownFields();
             },
@@ -214,55 +227,7 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
               clearDropDownFields();
             },
           ),
-
-          orDivider(),
-
-
-          // POD Center
-          BlocConsumer<PodDispatchCubit, PodDispatchState>(
-            bloc: cubit,
-            listenWhen: (previous, current) =>  previous.podCenterListUIState?.status != current.podCenterListUIState?.status,
-            listener: (context, state) {
-              final status = state.podCenterListUIState?.status;
-
-              if (status == Status.ERROR) {
-                final error = state.podCenterListUIState?.errorType;
-                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-              }
-
-            },
-            builder: (context, state) {
-              final data = state.podCenterListUIState?.data;
-              if(data != null && data.data.isNotEmpty){
-                return Column(
-                  children: [
-                    AppDropdown(
-                      labelText: context.appText.podCenter,
-                      hintText: context.appText.selectPodCenter,
-                      dropdownValue: podCenterIdDropDownValue,
-                      decoration: commonInputDecoration(fillColor: Colors.white),
-                      dropDownList: data.data.map((e) => DropdownMenuItem(
-                        value: e.podCenterId,
-                        child: Text(e.podCenterName.capitalize, style: AppTextStyle.body),
-                        onTap: (){
-                          podCenterIdDropDownValue = e.podCenterId;
-                          podCenterNameDropDownValue = e.podCenterName;
-                        },
-                      )).toList(),
-                      onChanged: (onChangeValue) {
-                        podCenterIdDropDownValue = onChangeValue;
-                        isPodCenterDropDownEnabled = true;
-                        clearTextFields();
-                      },
-                    ),
-                  ],
-                );
-              }
-              return const SizedBox();
-            },
-          ),
-
-        ],
+       ],
       ),
     );
   }

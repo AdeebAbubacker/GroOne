@@ -1183,5 +1183,13 @@
   "balanceUnpaid":"Balance Unpaid",
   "allLoads":"All Loads",
   "adminContact":"Contact Admin",
-  "kycInProgress":"Your KYC verification is currently in progress. Please wait.."
+  "kycInProgress":"Your KYC verification is currently in progress. Please wait..",
+  "eitherEnterPodCenterOrAwbNumber" : "Either select POD center OR enter both Courier Company and AWB Number",
+  "enterCourierCompany" : "Enter Courier Company",
+  "pleaseEnterCourierCompany" : "Please Enter Courier Company",
+  "pleaseEnterawbNumber" : "Please Enter AWB Number",
+  "bloodGroup" : "Blood Group",
+  "selectbloodGroup" : "Select Blood Group",
+  "licenseCategory" : "License Category",
+  "selectLicenseCategory" : "Select License Category"
 }
