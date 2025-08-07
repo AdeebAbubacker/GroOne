@@ -3,24 +3,20 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/localization_bloc/localization_bloc.dart';
 import 'package:gro_one_app/core/localization_bloc/localization_event.dart';
-import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
-import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/choose_language_screen/bloc/language_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
-import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_image.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import '../../../dependency_injection/locator.dart';
-import '../../../routing/app_route_name.dart';
-import '../../../utils/app_application_bar.dart';
-import '../../../utils/app_colors.dart';
-import '../../../utils/app_image.dart';
-import '../../../utils/common_functions.dart';
-import '../../../utils/extra_utils.dart';
 
 class ChooseLanguageScreen extends StatefulWidget {
   final bool isCloseButton;
@@ -31,24 +27,43 @@ class ChooseLanguageScreen extends StatefulWidget {
 }
 
 class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
-
-  final _languageBlock = locator<LanguageBloc>();
+  final _languageCubit = locator<LanguageCubit>();
 
   @override
   void initState() {
-    _languageBlock.add(LoadLanguages());
     super.initState();
+    _loadSavedLanguage();
+  }
+
+  Future<void> _loadSavedLanguage() async {
+    final prefs = locator<SecuredSharedPreferences>();
+    final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
+
+    await _languageCubit.loadLanguages();
+
+    if (savedLangCode != null) {
+      final state = _languageCubit.state;
+      final index = state.languages.indexWhere(
+            (lang) => lang.name.toLowerCase().startsWith(savedLangCode.toLowerCase()),
+      );
+      if (index != -1) {
+        _languageCubit.changeIndex(index);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonOnboardingAppbar(showBackButton: false,
-          showTranslateButton: false,
-          isCrossLeadingIcon: widget.isCloseButton),
+      appBar: CommonOnboardingAppbar(
+        showBackButton: false,
+        showTranslateButton: false,
+        isCrossLeadingIcon: widget.isCloseButton,
+      ),
       body: SafeArea(
-        minimum: EdgeInsets.all(commonSafeAreaPadding),
-        child: BlocBuilder<LanguageBloc, LanguageState>(
+        minimum: const EdgeInsets.all(commonSafeAreaPadding),
+        child: BlocBuilder<LanguageCubit, LanguageState>(
+          bloc: _languageCubit,
           builder: (context, state) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -68,29 +83,32 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     ],
                   ),
                 ),
-
                 30.height,
-                ListView.separated(
-                  shrinkWrap: true,
-                  physics: NeverScrollableScrollPhysics(),
-                  separatorBuilder: (context, index) => 15.height,
-                  itemCount: state.languages.length,
-                  itemBuilder: (context, index) {
-                    final lang = state.languages[index];
-                    return chooseLanguageTile(
-                      text1: lang.languageText,
-                      text2: lang.name,
-                      isSelected: state.index == index,
-                      imageString: getImgPath(lang.name),
-                      onTap: () {
-                        context.read<LanguageBloc>().add(ChangeIndex(index: index));
-                        final langCode = lang.name.toLowerCase().substring(0,2);
-                        context.read<LocaleBloc>().add(ChangeLocale(Locale(langCode)));
-                      },
-                    );
-                  },
-                ),
-                Spacer(),
+                if (state.languages.isEmpty)
+                  CircularProgressIndicator().center()
+                else
+                  ListView.separated(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    separatorBuilder: (_, __) => 15.height,
+                    itemCount: state.languages.length,
+                    itemBuilder: (context, index) {
+                      final lang = state.languages[index];
+                      return chooseLanguageTile(
+                        title: lang.languageText,
+                        subtitle: lang.name,
+                        isSelected: state.index == index,
+                        imageString: getImage(lang.name),
+                        onTap: () async {
+                          _languageCubit.changeIndex(index);
+                          final langCode = lang.name.toLowerCase().substring(0, 2);
+                          context.read<LocaleBloc>().add(ChangeLocale(Locale(langCode)));
+                          await locator<SecuredSharedPreferences>().saveKey(AppString.sessionKey.selectedLanguage, lang.name);
+                        },
+                      );
+                    },
+                  ),
+                const Spacer(),
                 Column(
                   children: [
                     Text(
@@ -99,21 +117,18 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     ).align(Alignment.center),
                     10.height,
                     AppButton(
-
                       title: context.appText.next,
                       onPressed: () {
-                        if(widget.isCloseButton){
+                        if (widget.isCloseButton) {
                           Navigator.of(context).pop();
-                        }else{
+                        } else {
                           context.push(AppRouteName.login);
                         }
                       },
                     ),
                     10.height,
-
                   ],
                 ),
-
               ],
             );
           },
@@ -123,12 +138,14 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
   }
 
   Widget chooseLanguageTile({
-    required String text1,
+    required String title,
     required bool isSelected,
-    required String text2,
+    required String subtitle,
     required GestureTapCallback onTap,
     required String imageString,
   }) {
+    final shouldShowSubtitle = subtitle.isNotEmpty && title != 'English';
+
     return Container(
       height: 70,
       decoration: BoxDecoration(
@@ -145,17 +162,14 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
           leading: Container(
             decoration: BoxDecoration(
               border: Border.all(
-                color:
-                isSelected
-                    ? AppColors.primaryColor
-                    : AppColors.disableColor,
+                color: isSelected ? AppColors.primaryColor : AppColors.disableColor,
                 width: 1,
               ),
               borderRadius: BorderRadius.circular(50),
             ),
             height: 18,
             width: 18,
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             child: Container(
               decoration: BoxDecoration(
                 color: isSelected ? AppColors.primaryColor : Colors.transparent,
@@ -163,29 +177,19 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
               ),
             ),
           ),
-          subtitle:
-          text2.isNotEmpty
-              ? text1 == 'English' ? null : Text(
-              text2, style: AppTextStyle.textGreyColor14w400)
+          title: Text(title, style: AppTextStyle.textBlackColor20w500),
+          subtitle: shouldShowSubtitle
+              ? Text(subtitle, style: AppTextStyle.textGreyColor14w400)
               : null,
-          title: Text(text1, style: AppTextStyle.textBlackColor20w500),
           trailing: Image.asset(width: 78, height: 50, imageString),
         ),
       ),
     );
   }
 
-  String getImgPath(String name) {
-    if (name.contains('Tamil')) {
-      return AppImage.png.tamilLanguage;
-    } else if (name.contains('Hindi')) {
-      return AppImage.png.hindiLanguage;
-    } else {
-      return AppImage.png.englishLanguage;
-    }
+  String getImage(String name) {
+    if (name.contains('Tamil')) return AppImage.png.tamilLanguage;
+    if (name.contains('Hindi')) return AppImage.png.hindiLanguage;
+    return AppImage.png.englishLanguage;
   }
-
-
-
-
 }

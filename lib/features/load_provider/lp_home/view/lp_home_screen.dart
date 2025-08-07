@@ -315,7 +315,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   }
 
   // Blue Membership Dialog
-  void blueMembershipDialog(BuildContext context, String blueId)=> frameCallback(() {
+  void blueMembershipDialog(BuildContext context, String blueId, parameters)=> frameCallback(() {
     AppDialog.show(
       context,
       child: CommonDialogView(
@@ -323,7 +323,6 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
         child: BlueMembershipDialogView(
           blueId: blueId,
           afterDismiss: (){
-            var parameters = {"blueId": blueId};
             analyticsHelper.logEvent(AnalyticEventName.LP_BLUE_MEMBERSHIP_ID, parameters);
           }
         ),
@@ -356,13 +355,13 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   // Store Kyc Status Event
-  void logKycStatusEvent(int kycFlag){
+  void logKycStatusEvent(int kycFlag, customerDetails){
     if (kycFlag == 1) {
-      analyticsHelper.logEvent(AnalyticEventName.KYC_PENDING);
+      analyticsHelper.logEvent(AnalyticEventName.KYC_PENDING, customerDetails);
     } else if (kycFlag == 2) {
-      analyticsHelper.logEvent(AnalyticEventName.KYC_IN_PROGRESS);
+      analyticsHelper.logEvent(AnalyticEventName.KYC_IN_PROGRESS, customerDetails);
     } else if (kycFlag == 3) {
-      analyticsHelper.logEvent(AnalyticEventName.KYC_COMPLETED);
+      analyticsHelper.logEvent(AnalyticEventName.KYC_COMPLETED, customerDetails);
     }
   }
 
@@ -544,7 +543,12 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
-            blueMembershipDialog(context, blueIdFromApi);
+            var customerDetails = {
+              "customerId": profileState.data?.customer?.customerId ?? '',
+              "customerName": profileState.data?.customer?.customerName ?? '',
+              "blueId": blueIdFromApi
+            };
+            blueMembershipDialog(context, blueIdFromApi, customerDetails);
 
             await profileCubit.startKycSuccessTimer(true);
             // Set flag that popup is shown
@@ -566,8 +570,13 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
           final customer = profileState.data!.customer!;
           final companyId = profileState.data?.customer?.companyTypeId;
 
+          var customerDetails = {
+            "customerId": customer.customerId,
+            "customerName": customer.customerName,
+          };
+
           isKycValid = customer.isKyc.toInt();
-          logKycStatusEvent(customer.isKyc.toInt());
+          logKycStatusEvent(customer.isKyc.toInt(), customerDetails);
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {

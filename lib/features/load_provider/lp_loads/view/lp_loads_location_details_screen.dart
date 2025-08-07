@@ -228,65 +228,68 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                 // Spacer(),
 
                 // Load status & matching time
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        if(loadItem.loadOnhold) {
-                          AppDialog.show(context, dismissible: true, child: CommonDialogView(
-                          hideCloseButton: true,
-                          child: Column(
-                            children: [
-                              Lottie.asset(AppJSON.alertRed, repeat: true, frameRate: FrameRate(200)),
-                              Text(context.appText.unloadingHeld, style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
-                              10.height,
-                              Text(context.appText.yourShipmentIsHeld, textAlign: TextAlign.center, style: AppTextStyle.body3),
-                              10.height,
-                            ],
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxWidth: 100),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          if(loadItem.loadOnhold) {
+                            AppDialog.show(context, dismissible: true, child: CommonDialogView(
+                            hideCloseButton: true,
+                            child: Column(
+                              children: [
+                                Lottie.asset(AppJSON.alertRed, repeat: true, frameRate: FrameRate(200)),
+                                Text(context.appText.unloadingHeld, style: AppTextStyle.h3.copyWith(fontSize: 26, color: AppColors.orangeTextColor)),
+                                10.height,
+                                Text(context.appText.yourShipmentIsHeld, textAlign: TextAlign.center, style: AppTextStyle.body3),
+                                10.height,
+                              ],
+                            ),
+                          ));
+                          }
+                        },
+                        child: Container(
+                          decoration: commonContainerDecoration(
+                            color: loadItem.loadOnhold ? AppColors.red : LpHomeHelper.getColor(loadItem.loadStatusDetails?.statusBgColor ?? ''),
                           ),
-                        ));
-                        }
-                      },
-                      child: Container(
-                        decoration: commonContainerDecoration(
-                          color: LpHomeHelper.getColor(loadItem.loadStatusDetails?.statusBgColor ?? ''),
+                          // width: 80,
+                          child: Text(
+                            LpHomeHelper.getLoadTypeDisplayText(statusData),
+                            style: AppTextStyle.body3.copyWith(
+                              color: loadItem.loadOnhold ? AppColors.white : LpHomeHelper.getColor(loadItem.loadStatusDetails?.statusTxtColor ?? ''),
+                            ),
+                          ).center().paddingSymmetric(vertical: 4,horizontal: 10),
                         ),
-                        // width: 80,
-                        child: Text(
-                          LpHomeHelper.getLoadTypeDisplayText(statusData),
-                          style: AppTextStyle.body3.copyWith(
-                            color: LpHomeHelper.getColor(loadItem.loadStatusDetails?.statusTxtColor ?? ''),
-                          ),
-                        ).center().paddingSymmetric(vertical: 4,horizontal: 10),
                       ),
-                    ),
-                    4.height,
-                    if (status == LoadStatus.kycPending || status == LoadStatus.matching)
-                      Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)),
-                    if((status == LoadStatus.inTransit && (loadItem.lpPaymentsData == null)))
-                      Row(
-                        children: [
-                          const Icon(Icons.error, size: 16, color: AppColors.iconRed),
-                          4.width,
-                          Text(
-                            context.appText.advanceUnpaid,
-                            style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
-                          ),
-                        ],
-                      ),
-                    if((status == LoadStatus.completed && (loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)))
-                      Row(
-                        children: [
-                          const Icon(Icons.error, size: 16, color: AppColors.iconRed),
-                          4.width,
-                          Text(
-                            context.appText.balanceUnpaid,
-                            style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
-                          ),
-                        ],
-                      )
-                  ],
+                      4.height,
+                      if (status == LoadStatus.kycPending || status == LoadStatus.matching)
+                        Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)),
+                      if((status == LoadStatus.inTransit && (loadItem.lpPaymentsData == null)))
+                        Row(
+                          children: [
+                            const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                            4.width,
+                            Text(
+                              context.appText.advanceUnpaid,
+                              style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
+                            ).flexible(),
+                          ],
+                        ),
+                      if((status == LoadStatus.completed && (loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)))
+                        Row(
+                          children: [
+                            const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                            4.width,
+                            Text(
+                              context.appText.balanceUnpaid,
+                              style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
+                            ).flexible(),
+                          ],
+                        )
+                    ],
+                  ),
                 ),
               ],
             )

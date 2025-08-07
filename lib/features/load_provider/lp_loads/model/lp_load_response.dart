@@ -62,6 +62,7 @@ class LpLoadItem {
     required this.loadStatusDetails,
     required this.loadPrice,
     required this.customer,
+    required this.lpPaymentsData,
   });
 
   final String loadId;
@@ -91,6 +92,8 @@ class LpLoadItem {
   final ScheduleTripDetails? scheduleTripDetails;
   final LoadPrice? loadPrice;
   final Customer? customer;
+  final LpPaymentDetails? lpPaymentsData;
+
 
   LpLoadItem copyWith({
     String? loadId,
@@ -120,6 +123,7 @@ class LpLoadItem {
     LoadStatusDetails? loadStatusDetails,
     LoadPrice? loadPrice,
     Customer? customer,
+    LpPaymentDetails? lpPaymentsData
   }) {
     return LpLoadItem(
       loadId: loadId ?? this.loadId,
@@ -149,6 +153,7 @@ class LpLoadItem {
       loadStatusDetails: loadStatusDetails ?? this.loadStatusDetails,
       loadPrice: loadPrice ?? this.loadPrice,
       customer: customer ?? this.customer,
+      lpPaymentsData: lpPaymentsData ?? this.lpPaymentsData,
     );
   }
 
@@ -181,6 +186,7 @@ class LpLoadItem {
       loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+      lpPaymentsData: json["lpPaymentsData"] == null ? null : LpPaymentDetails.fromJson(json["lpPaymentsData"]),
     );
   }
 

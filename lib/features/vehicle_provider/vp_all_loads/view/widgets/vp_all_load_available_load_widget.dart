@@ -188,6 +188,8 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
               listener: (context, state) {
                 if(state is VpAcceptLoadSuccess){
                   var parameter = {
+                    "customerId": widget.data.customerId,
+                    "customerName": widget.data.customer?.customerName ?? '',
                     "loadId": widget.data.id.toString(),
                     "status": "accepted",
                     "amount": amount,

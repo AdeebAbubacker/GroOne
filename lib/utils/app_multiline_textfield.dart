@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -8,6 +9,8 @@ class AppMultilineTextField extends StatelessWidget {
   final int maxLines;
   final FocusNode? focusNode;
   final Function(String)? onChanged;
+  final List<TextInputFormatter>? inputFormatters;
+
 
   const AppMultilineTextField({
     super.key,
@@ -16,6 +19,7 @@ class AppMultilineTextField extends StatelessWidget {
     this.maxLines = 5,
     this.focusNode,
     this.onChanged,
+    this.inputFormatters
   });
 
   @override
@@ -27,6 +31,7 @@ class AppMultilineTextField extends StatelessWidget {
       onChanged: onChanged,
       style: AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
       decoration: commonInputDecoration(hintText: hintText),
+      inputFormatters: inputFormatters ?? [],
     );
   }
 }

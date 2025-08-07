@@ -72,9 +72,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
             }
 
             if (uiState.status == Status.ERROR) {
-              return Center(
-                child: Text(context.appText.failedToLoadMemo, style: TextStyle(fontSize: 16)),
-              );
+              return genericErrorWidget(error: uiState.errorType, onRefresh: initFunction);
             }
 
             if (uiState.status == Status.SUCCESS && (uiState.data == null || uiState.data!.loadId.isEmpty)) {

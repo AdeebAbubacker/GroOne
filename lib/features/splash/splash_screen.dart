@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_json.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
@@ -42,7 +44,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
 
   //  Init Function
-  Future<void> init(BuildContext context) async {
+  Future<void> init1(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 4), () async {
        await splashViewModel.fetchIsUserLogin();
     });
@@ -62,6 +64,38 @@ class _SplashScreenState extends State<SplashScreen> {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
     }
   }
+
+  Future<void> init(BuildContext context) async {
+    await Future.delayed(const Duration(seconds: 4));
+
+    final prefs = locator<SecuredSharedPreferences>();
+    final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
+
+    await splashViewModel.fetchIsUserLogin();
+
+    final loginState = splashViewModel.checkIsUserLoginUIState;
+
+    if (loginState != null && loginState.status == Status.SUCCESS) {
+      if (loginState.data == true) {
+        if (!context.mounted) return;
+        await _checkUserType(context); // Go to home screen
+      } else {
+        if (!context.mounted) return;
+        context.go(AppRouteName.login); // Go to login screen
+      }
+    } else if (loginState != null && loginState.status == Status.ERROR) {
+      if (!context.mounted) return;
+      if (savedLangCode == null) {
+        context.go(AppRouteName.chooseLanguage); // First-time user, no language
+      } else {
+        context.go(AppRouteName.login); // Language exists, go to login
+      }
+    } else {
+      ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
+    }
+  }
+
+
 
 
   // Check user type (1 LP, 2 VP, 3 Both, 4)
