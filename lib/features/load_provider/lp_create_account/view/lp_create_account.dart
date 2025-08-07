@@ -177,6 +177,9 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
             controller: companyNameTextController,
             labelText: context.appText.companyName,
             mandatoryStar: true,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(50),
+            ],
             hintText: "${context.appText.enter} ${context.appText.companyName}",
           ),
           20.height,
@@ -229,7 +232,8 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
             mandatoryStar: true,
             keyboardType: TextInputType.name,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+              FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
+              LengthLimitingTextInputFormatter(50),
             ],
           ),
           20.height,
@@ -313,6 +317,9 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
             mandatoryStar: true,
             readOnly: state.isVerifiedEmail,
             keyboardType: TextInputType.emailAddress,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(50),
+            ],
             decoration: commonInputDecoration(
                 focusColor: state.isVerifiedEmail ? AppColors.borderColor : AppColors.primaryColor,
                 hintText: context.appText.emailHint,

@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/core/localization_bloc/localization_bloc.dart';
 import 'package:gro_one_app/core/localization_bloc/localization_event.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
@@ -16,6 +17,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_switch_toggle.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -38,6 +40,7 @@ class LpSetting extends StatefulWidget {
 
 class _LpSettingState extends State<LpSetting> {
   final profileCubit = locator<ProfileCubit>();
+  final prefs = locator<SecuredSharedPreferences>();
 
   @override
   void initState() {
@@ -48,6 +51,8 @@ class _LpSettingState extends State<LpSetting> {
   void initFunction() => frameCallback(()  async{
     await profileCubit.fetchSettings();
     await profileCubit.fetchCustomerSettings();
+    final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
+    _updateLanguage(savedLangCode ?? '');
   });
 
   @override
@@ -162,12 +167,12 @@ class _LpSettingState extends State<LpSetting> {
   Widget languageRadio(String text, bool selected) {
     return InkWell(
       onTap: () {
-        _updateLanguage(context, text);
+        _updateLanguage(text);
       },
       child: Row(
         children: [
           RadioButton(radioBool: selected, onChanged: () {
-            _updateLanguage(context, text);
+            _updateLanguage(text);
           }),
           Text(text, style: AppTextStyle.blackColor14w400),
         ],
@@ -175,9 +180,10 @@ class _LpSettingState extends State<LpSetting> {
     );
   }
 
-  void _updateLanguage(BuildContext context, String languageCode) {
+  void _updateLanguage(String languageCode) async {
     profileCubit.updateCustomerSettings(request: UpdateSettingsRequest(language: languageCode));
 
+    await prefs.saveKey(AppString.sessionKey.selectedLanguage, languageCode);
     context.read<LocaleBloc>().add(ChangeLocale(Locale(languageCode.toLowerCase().substring(0,2))));
   }
 

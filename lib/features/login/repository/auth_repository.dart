@@ -169,7 +169,7 @@ class AuthRepository {
 
   /// Clear auth & cache
   Future<void> _clearAuthData() async {
-    await _securedSharedPref.reset();
+    await _securedSharedPref.resetPreservingLanguage();
     await _notificationService.clearBadgeCount();
     await _notificationService.clearFcmToken();
   }

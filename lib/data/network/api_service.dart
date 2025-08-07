@@ -379,6 +379,9 @@ class ApiService {
         await _handleUnauthorizedError();
         final msg = response?.data?['error_description'];
         return Error(UnauthenticatedError(message: msg));
+      case 403:
+        final msg = response?.data?['message'];
+        return Error(UnauthenticatedError(message: msg));
       case 404:
         return Error(NotFoundError.fromApiResponse(response?.data));
       case 409:
@@ -418,7 +421,9 @@ class ApiService {
         final currentRoute = GoRouterState.of(appContext).uri.path;
         if (currentRoute != AppRouteName.chooseLanguage) {
           CustomLog.debug(this, "🔐 Redirecting to choose language screen");
-          appContext.pushReplacement(AppRouteName.chooseLanguage);
+          // appContext.pushReplacement(AppRouteName.chooseLanguage);
+          appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
+
         } else {
           CustomLog.debug(
             this,
@@ -437,7 +442,9 @@ class ApiService {
         await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
 
         if (appContext.mounted) {
-          appContext.pushReplacement(AppRouteName.chooseLanguage);
+          // appContext.pushReplacement(AppRouteName.chooseLanguage);
+          appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
+
           LpBottomNavigation.selectedIndexNotifier.value = 0;
         }
       } catch (fallbackError) {

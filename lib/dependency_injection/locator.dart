@@ -3,7 +3,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
-import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/choose_language_screen/bloc/language_cubit.dart';
 import 'package:gro_one_app/features/choose_language_screen/repository/language_repository.dart';
 import 'package:gro_one_app/features/choose_language_screen/service/language_service.dart';
 import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
@@ -435,7 +435,7 @@ void initLocator() {
 
     // Bloc
     locator.registerLazySingleton(
-      () => LanguageBloc(locator<LanguageRepository>()),
+      () => LanguageCubit(locator<LanguageRepository>()),
     );
     locator.registerLazySingleton(() => RoleBloc());
     locator.registerLazySingleton(
