@@ -448,8 +448,6 @@ class _MasterScreenState extends State<MasterScreen>
                     isPrimary: address.isDefault,
                     onEdit:
                         () => showAddAddressPopup(context, address: address),
-                    // onDelete:
-                    //     () => deletePopUp(context, address.preferedAddressId),
                     onDelete: () => showDeletePopUp(
                     context: context,
                     confirmMessage: context.appText.areYouSureToDeleteThisAddress,
@@ -540,7 +538,8 @@ class _MasterScreenState extends State<MasterScreen>
 
               final vehicleList = uiState.data?.data ?? [];
               final List<VehicleDetailsData> filteredVehicleList =
-                  vehicleList.where((v) => v.status == 1).toList();
+              vehicleList.where((v) => v.status == 1 || v.status == 2).toList();
+
 
               if (filteredVehicleList.isEmpty) {
                 return Center(
@@ -580,12 +579,6 @@ class _MasterScreenState extends State<MasterScreen>
                       await Future.delayed(const Duration(milliseconds: 50));
                       showAddVehiclePopup(context, vehcile: vehicleDetailsData);
                     },
-
-                    // onDelete:
-                    //     () => deletePopUpForVehicle(
-                    //       context,
-                    //       vehicleDetailsData.vehicleId,
-                    //     ),
                     onDelete: () => showDeletePopUp(
                     context: context,
                     confirmMessage: context.appText.areYouSureToDeleteThisVehicle,
@@ -716,8 +709,6 @@ class _MasterScreenState extends State<MasterScreen>
                       await Future.delayed(const Duration(milliseconds: 50));
                       showAddDriverPopup(context, driver: driver);
                     },
-                    // onDelete:
-                    //     () => deletePopUpForDriver(context, driver.driverId),
                     onDelete: () => showDeletePopUp(
                     context: context,
                     confirmMessage: context.appText.areYouSureToDeleteThisDriver,
@@ -1029,8 +1020,7 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                   ],
                 ),
-              ),
-
+              ), 
               // Active Tag
               Expanded(
                 child: Column(
@@ -1042,11 +1032,16 @@ class _MasterScreenState extends State<MasterScreen>
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.green.shade100,
+                        color:
+                            driverStatus == 1
+                                ? Colors.green.shade100
+                                : Colors.red.shade100,
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        context.appText.active,
+                        driverStatus == 1
+                            ? context.appText.active
+                            : context.appText.inactive,
                         style: AppTextStyle.body.copyWith(
                           fontWeight: FontWeight.w400,
                           fontSize: 12,
@@ -1081,7 +1076,8 @@ class _MasterScreenState extends State<MasterScreen>
                   ],
                 ),
               ),
-            ],
+           
+             ],
           ),
           8.height,
         ],
@@ -1871,8 +1867,15 @@ class _MasterScreenState extends State<MasterScreen>
                         Text(context.appText.active),
                         Switch(
                           value: isVehicleActive,
-                          onChanged:
-                              (val) => setState(() => isVehicleActive = val),
+                         onChanged: (val) {
+                        setState(() => isVehicleActive = val);                     
+                        if (vehcile != null) {
+                          profileCubit.deleteVehicle(
+                            vehicleId: vehcile!.vehicleId,
+                            request: DeleteVehicleRequest(status: val ? 1 : 2),
+                          );
+                        }
+                      },
                         ),
                       ],
                     ),
