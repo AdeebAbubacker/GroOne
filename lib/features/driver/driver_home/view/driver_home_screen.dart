@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -24,6 +25,7 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
+import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -167,23 +169,21 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           Text(context.appText.truckType, style: AppTextStyle.body3),
           5.height,
           BlocBuilder<LpLoadCubit, LpLoadState>(
-              builder: (context, state) {
-                final uiState = state.lpLoadTruckTypes;
-                final truckTypes = uiState?.data ?? [];
-                final truckTypeLabels = truckTypes.map((e) => '${e.type} Truck - ${e.subType}').toList();
-                final truckTypeLabelIdMap = Map.fromEntries(
-                    truckTypes.map((e) => MapEntry('${e.type} Truck - ${e.subType}', e.id))
-                );
+            builder: (context, state) {
+              final uiState = state.lpLoadTruckTypes;
+              final truckTypes = uiState?.data ?? [];
 
-                return DropdownSearch<String>(
-                validator: (value) => Validator.fieldRequired(value),
-                items: (filter, _) => truckTypeLabels
-                    .where((element) => element.toLowerCase().contains(filter.toLowerCase()))
-                    .toList(),
-                popupProps: PopupProps.menu(
-                  menuProps: MenuProps(backgroundColor: AppColors.white)
-                ),
-                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
+              // Prepare the labels and mapping
+              final truckTypeLabels = truckTypes
+                  .map((e) => '${e.type} Truck - ${e.subType}')
+                  .toList();
+              final truckTypeLabelIdMap = Map.fromEntries(
+                truckTypes.map((e) => MapEntry('${e.type} Truck - ${e.subType}', e.id)),
+              );
+
+              return  SearchableDropdown(
+                hintText: 'Truck Type',
+                items: truckTypeLabels,
                 selectedItem: truckTypeDropDownValue,
                 onChanged: (value) {
                   truckTypeDropDownValue = value;
@@ -191,85 +191,61 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   setState(() {});
                 },
               );
-            }
-          ),
-          15.height,
-          Text(context.appText.route, style: AppTextStyle.body3),
-          5.height,
-          BlocBuilder<LpLoadCubit, LpLoadState>(
-            builder: (context, state) {
-              final uiState = state.lpLoadRouteDetails;
-              final routeList = uiState?.data?.data?.routeList ?? [];
-
-              return DropdownSearch<RouteList>(
-                items: (filter, _) {
-                  final filteredList = filter.isEmpty
-                      ? routeList
-                      : routeList.where((item) {
-                    final fromName = (item.fromLocation?['name'] ?? '').toString().toLowerCase();
-                    final toName = (item.toLocation?['name'] ?? '').toString().toLowerCase();
-                    return fromName.contains(filter.toLowerCase()) ||
-                        toName.contains(filter.toLowerCase());
-                  }).toList();
-                  return filteredList;
-                },
-
-                selectedItem: routeList.where((e) => e.status.toString() == routeDropDownValue).firstOrNull,
-                compareFn: (item, selectedItem) => item.status == selectedItem?.status,
-
-                itemAsString: (item) =>
-                "${item.fromLocation?['name'] ?? ''} → ${item.toLocation?['name'] ?? ''}",
-
-                popupProps: PopupProps.menu(
-                    constraints: const BoxConstraints(maxHeight: 200),
-                    menuProps: MenuProps(backgroundColor: AppColors.white)
-                ),
-
-                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
-                onChanged: (value) {
-                  routeDropDownValue = value?.status.toString();
-                  selectedRoute = value?.masterLaneId;
-                  setState(() {});
-                },
-              );
             },
           ),
 
           15.height,
-          Text(context.appText.commodity, style: AppTextStyle.body3),
-          5.height,
-          BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
+          BlocBuilder<LpLoadCubit, LpLoadState>(
           builder: (context, state) {
-            if (state is LoadCommodityLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
-            if (state is LoadCommoditySuccess) {
-              final commodities = state.commodityListModel;
-              final commodityNames = commodities.map((e) => e.name ?? '').toList();
-              final commodityNameIdMap = Map.fromEntries(
-                commodities.map((e) => MapEntry(e.name ?? '', e.id))
-              );
+            final uiState = state.lpLoadRouteDetails;
+            final routeList = uiState?.data?.data?.routeList ?? [];
 
-              return DropdownSearch<String>(
-                validator: (value) => Validator.fieldRequired(value),
-                items: (filter, _) => commodityNames
-                    .where((element) => element.toLowerCase().contains(filter.toLowerCase()))
-                    .toList(),
-                popupProps: PopupProps.menu(
-                  menuProps: MenuProps(backgroundColor: AppColors.white)
-                ),
-                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
-                selectedItem: selectedCommodity,
-                onChanged: (value) {
-                  selectedCommodity = value;
-                  selectedCommodityId = commodityNameIdMap[value];
-                  setState(() {});
-                },
-              );
-            }
-            return const SizedBox();
+            return RouteSearchableDropdown(
+              labelText: 'Route',
+              hintText: 'Route',
+              routeList: routeList,
+              selectedRouteStatus: routeDropDownValue,
+              onRouteChanged: (RouteList? value) {
+                routeDropDownValue = value?.status.toString();
+                selectedRoute = value?.masterLaneId;
+                setState(() {});
+              },
+            );
           },
         ),
+          15.height,
+          Text(context.appText.commodity, style: AppTextStyle.body3),
+          5.height,
+            BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
+            builder: (context, state) {
+              if (state is LoadCommodityLoading) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              if (state is LoadCommoditySuccess) {
+                final commodities = state.commodityListModel;
+                final commodityNames = commodities.map((e) => e.name ?? '').toList();
+                final commodityNameIdMap = {
+                  for (var e in commodities) e.name ?? '': e.id,
+                };
+
+                return SearchableDropdown(
+                  items: commodityNames,
+                  selectedItem: selectedCommodity,
+                  onChanged: (value) {
+                    selectedCommodity = value;
+                    selectedCommodityId = commodityNameIdMap[value];
+                    setState(() {});
+                  },
+                
+                hintText: context.appText.commodity,
+                );
+              }
+
+              return const SizedBox();
+            },
+          ),
+
         ],
       ),
       onClickYesButton: () {

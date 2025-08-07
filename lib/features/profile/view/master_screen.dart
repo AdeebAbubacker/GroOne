@@ -12,6 +12,8 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
@@ -78,6 +80,7 @@ class _MasterScreenState extends State<MasterScreen>
   final profileCubit = locator<ProfileCubit>();
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final gpsVehicleCubit = locator<GpsVehicleCubit>();
+  final lpHomeCubit = locator<LPHomeCubit>();
   final MultiSelectController<String> acceptableCommoditiesController =
       MultiSelectController<String>();
   List<String> selectedCommodities = [];
@@ -197,6 +200,7 @@ class _MasterScreenState extends State<MasterScreen>
     vpCreationCubit.fetchTruckType();
     profileCubit.fetchBloodGroup();
     profileCubit.fetchLicenseCategory();
+    lpHomeCubit.fetchLoadWeight();
   }
 
   void disposeFunction() => frameCallback(() {
@@ -622,7 +626,7 @@ class _MasterScreenState extends State<MasterScreen>
                     driverStatus: vehicleDetailsData.status,
                    onEdit: () async {
                     await profileCubit.resetVehicleVerificationState();
-                    await Future.delayed(const Duration(milliseconds: 50)); // allow UI to see cleared state
+                    await Future.delayed(const Duration(milliseconds: 50)); 
                     showAddVehiclePopup(
                       context,
                       vehcile: vehicleDetailsData,
@@ -1456,13 +1460,11 @@ class _MasterScreenState extends State<MasterScreen>
       text: address?.addrName ?? '',
     );
     final addressController = TextEditingController(text: address?.addr ?? '');
-    final cityController = TextEditingController(text: address?.city ?? '');
-    final stateController = TextEditingController(text: address?.state ?? '');
     final pinCodeController = TextEditingController(
       text: address?.pincode ?? '',
     );
-  String? selectedState;
-  String? selectedCity;
+  String? selectedState = address?.state;
+  String? selectedCity = address?.city;
   
     AppDialog.show(
       context,
@@ -1638,9 +1640,11 @@ class _MasterScreenState extends State<MasterScreen>
       text: vehcile?.modelNumber ?? '',
     );
     final rcNumberController = TextEditingController(text: vehcile?.rcNumber ?? '',);
-    final capacityController = TextEditingController(
-      text: vehcile?.tonnage ?? '',
-    );
+    // final capacityController = TextEditingController(
+    //   text: vehcile?.tonnage ?? '',
+    // );
+    String? selectedWeightDropDownValue;
+    selectedWeightDropDownValue = vehcile?.tonnage;
     TruckTypeModel? selectedTruckType;
     if (vehcile?.truckType != null) {
       selectedTruckType = TruckTypeModel(
@@ -1696,7 +1700,7 @@ class _MasterScreenState extends State<MasterScreen>
           final vahanData = verifiedVehicleData!.data!.data!;
           setState(() {
             truckMakeModelController.text = vahanData.vehicleMakeModel ?? truckMakeModelController.text;
-            capacityController.text = vahanData.vehicleGrossWeight ?? capacityController.text;
+            selectedWeightDropDownValue =  vahanData.vehicleGrossWeight;
             isVehicleVerified = true;
             isInitialized = true;
           }); 
@@ -1710,7 +1714,7 @@ class _MasterScreenState extends State<MasterScreen>
         print('old local data excist still ${localData.modelNumber}');
         setState(() {
           truckMakeModelController.text = localData.modelNumber;
-          capacityController.text = localData.tonnage;
+          selectedWeightDropDownValue =   localData.tonnage;
           rcNumberController.text = localData.rcNumber;
           localRcDocList.clear();
           if (localData.rcDocLink.isNotEmpty) {
@@ -1784,7 +1788,6 @@ class _MasterScreenState extends State<MasterScreen>
                         );
                         if (result is Success) {
                           setState(() {
-                            // Update the persistent vehicleDocList field in State class as well if needed
                             vehicleDocList.clear();
                             vehicleDocList.addAll(localRcDocList);
                           });
@@ -1839,15 +1842,30 @@ class _MasterScreenState extends State<MasterScreen>
                       },
                     ),
                     16.height,
-                    AppTextField(
-                      readOnly: isVehicleVerified ? false : true,
-                      validator: (value) => Validator.fieldRequired(value),
-                      controller: capacityController,
-                      labelText: context.appText.capacity,
-                      hintText: "2",
-                      inputFormatters: [phoneNumberInputFormatter],
-                      keyboardType: TextInputType.phone,
-                    ),
+                     Text(context.appText.capacity, style: AppTextStyle.body3),
+                     5.height,
+                    BlocBuilder<LPHomeCubit, LPHomeState>(
+                    builder: (context, state) {
+                      final uiState = state.loadWeightUIState;
+                      final weights = uiState?.data ?? [];
+
+                      // Map weight labels (e.g., "10 Ton", "20 Ton", etc.)
+                      final weightLabels = weights.map((e) => '${e.value} Ton').toList();
+                      final weightLabelIdMap = Map.fromEntries(
+                        weights.map((e) => MapEntry('${e.value} Ton', e.id)),
+                      );
+
+                      return SearchableDropdown(
+                        hintText: context.appText.capacity,
+                        items: weightLabels,
+                        selectedItem: selectedWeightDropDownValue,
+                        onChanged: (value) {
+                          selectedWeightDropDownValue = value;
+                          setState(() {});
+                        },
+                      );
+                    },
+                  ),
                     16.height,
                     if(! isEdit )
                     Builder(
@@ -1920,7 +1938,7 @@ class _MasterScreenState extends State<MasterScreen>
                   truckNo: truckNumberController.text.trim(),
                   rcNumber: rcNumberController.text.trim(),
                   rcDocLink: rcDocLink,
-                  tonnage: capacityController.text.trim(),
+                  tonnage:  selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
                   truckMakeAndModel: truckMakeModelController.text.trim(),
                   acceptableCommodities:
@@ -1937,7 +1955,7 @@ class _MasterScreenState extends State<MasterScreen>
                   truckNo: truckNumberController.text.trim(),
                   rcNumber: rcNumberController.text.trim(),
                   rcDocLink: rcDocLink,
-                  tonnage: capacityController.text.trim(),
+                  tonnage:  selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,      
                   // acceptableCommodities:
                   //     selectedCommodities.map(int.parse).toList(),

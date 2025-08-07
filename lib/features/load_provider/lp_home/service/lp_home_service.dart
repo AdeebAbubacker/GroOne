@@ -60,23 +60,28 @@ class LpHomeService{
 
 
   /// Fetch Load Commodity
-  Future<Result<List<LoadCommodityListModel>>> fetchLoadCommodityData() async {
-    try {
-      final url = ApiUrls.loadCommodity;
-      final result = await _apiService.get(url);
-      if (result is Success) {
-        final List<dynamic> list = result.value;
-        final loads = list.map((e) => LoadCommodityListModel.fromJson(e)).toList();
-        return Success(loads);
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      return Error(DeserializationError());
+ Future<Result<List<LoadCommodityListModel>>> fetchLoadCommodityData() async {
+  try {
+    final url = ApiUrls.loadCommodity;
+    final result = await _apiService.get(url);
+
+    if (result is Success) {
+      final List<dynamic> jsonList = result.value;
+      final loads = jsonList
+          .map((e) => LoadCommodityListModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      return Success(loads);
+    } else if (result is Error) {
+      return Error(result.type);
+    } else {
+      return Error(GenericError());
     }
+  } catch (e) {
+    return Error(DeserializationError());
   }
+}
+
 
 
   /// Fetch Truck Type
