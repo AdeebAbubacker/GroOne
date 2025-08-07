@@ -81,14 +81,16 @@ class _SplashScreenState extends State<SplashScreen> {
         await _checkUserType(context); // Go to home screen
       } else {
         if (!context.mounted) return;
-        context.go(AppRouteName.login); // Go to login screen
+        context.go(AppRouteName.login, extra: {"showBackButton": false}); // Go to login screen
+
       }
     } else if (loginState != null && loginState.status == Status.ERROR) {
       if (!context.mounted) return;
       if (savedLangCode == null) {
         context.go(AppRouteName.chooseLanguage); // First-time user, no language
       } else {
-        context.go(AppRouteName.login); // Language exists, go to login
+        context.go(AppRouteName.login, extra: {"showBackButton": false}); // Language exists, go to login
+
       }
     } else {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
