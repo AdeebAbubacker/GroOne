@@ -1264,7 +1264,7 @@ class _MasterScreenState extends State<MasterScreen>
               ],
             ),
             suffixOnTap: () async{
-            final String? validation = Validator.fieldRequired(vehicleNoController.text);
+            final String? validation = Validator.fieldRequired(vehicleNoController.text,fieldName: 'dsfsdf');
             if (validation == null) {
             await profileCubit.resetVehicleVerificationState();
              await Future.delayed(Duration(milliseconds: 100));
@@ -1661,9 +1661,6 @@ class _MasterScreenState extends State<MasterScreen>
       text: vehcile?.modelNumber ?? '',
     );
     final rcNumberController = TextEditingController(text: vehcile?.rcNumber ?? '',);
-    // final capacityController = TextEditingController(
-    //   text: vehcile?.tonnage ?? '',
-    // );
     String? selectedWeightDropDownValue;
     selectedWeightDropDownValue = vehcile?.tonnage;
     TruckTypeModel? selectedTruckType;
@@ -1938,8 +1935,13 @@ class _MasterScreenState extends State<MasterScreen>
               ),
             ),
             onClickYesButton: () async {
+                final String? validation = Validator.fieldRequired(truckNumberController.text.trim(),fieldName: 'Vehicle Reg No');
+                  if (validation != null) {
+                    ToastMessages.alert(message: validation); 
+                    return;
+                  }
                  if (!isVehicleVerified) {
-                  ToastMessages.alert(message: "Please verify the Vehcile Rg before proceeding");
+                  ToastMessages.alert(message: "Please verify the Vehcile Reg No before proceeding");
                   return;
                 }
               if (formKey.currentState!.validate()) {
@@ -2333,6 +2335,11 @@ class _MasterScreenState extends State<MasterScreen>
               ),
             ),
             onClickYesButton: () async {
+              final String? validation = Validator.fieldRequired(licenseNumberController.text.trim(),fieldName: 'License No');
+                  if (validation != null) {
+                    ToastMessages.alert(message: validation); 
+                    return;
+                  }
               if (!isLicenseVerified) {
                   ToastMessages.alert(message: "Please verify the License before proceeding");
                   return;
