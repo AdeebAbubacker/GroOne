@@ -16,6 +16,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -152,6 +153,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   });
   }
   
+  Future<void> _onPullToRefresh() async {
+  final loadStatus = tabIndexToStatusId[_tabController!.index];
+   driverLoadBloc.add(FetchDriverLoads( forceRefresh: true,loadStatus: loadStatus));
+ }
+
     void filterPopUp () {
     var selectedTabIndexForFilter = lpLoadLocator.state.selectedTabIndex;
   var loadStatus = tabIndexToStatusId[selectedTabIndexForFilter];
@@ -214,8 +220,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           },
         ),
           15.height,
-          Text(context.appText.commodity, style: AppTextStyle.body3),
-          5.height,
             BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
             builder: (context, state) {
               if (state is LoadCommodityLoading) {
@@ -229,16 +233,23 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   for (var e in commodities) e.name ?? '': e.id,
                 };
 
-                return SearchableDropdown(
-                  items: commodityNames,
-                  selectedItem: selectedCommodity,
-                  onChanged: (value) {
-                    selectedCommodity = value;
-                    selectedCommodityId = commodityNameIdMap[value];
-                    setState(() {});
-                  },
-                
-                hintText: context.appText.commodity,
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(context.appText.commodity, style: AppTextStyle.body3),
+                    5.height,
+                    SearchableDropdown(
+                      items: commodityNames,
+                      selectedItem: selectedCommodity,
+                      onChanged: (value) {
+                        selectedCommodity = value;
+                        selectedCommodityId = commodityNameIdMap[value];
+                        setState(() {});
+                      },
+                    
+                    hintText: context.appText.commodity,
+                    ),
+                  ],
                 );
               }
 
@@ -492,7 +503,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               }
               if (state is DriverLoadsLoaded) {
                 if (state.loads.isEmpty) {
-                  return const Center(child: Text("No loads found."));
+                  _onPullToRefresh;
+                return genericErrorWidget(error: NotFoundError());
                 }
                 return ListView.builder(
                   padding: EdgeInsets.all(commonSafeAreaPadding),
@@ -525,6 +537,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                     ).paddingSymmetric(vertical: 7);
                   },
                 );
+              }
+              else if (state is DriverLoadsError) {
+              return VpHelper.withSliverRefresh(_onPullToRefresh, child: Center(child: Text(state.message)));
               }
               return const SizedBox();
             },
