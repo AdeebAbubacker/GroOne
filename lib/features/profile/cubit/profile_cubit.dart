@@ -402,9 +402,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
 
 
 
-// Delete Vehicle
-
-
+ // Delete Vehicle
   Future<Result<void>> deleteVehicle({required String vehicleId, required DeleteVehicleRequest request}) async {
 
     Result<void> result = await _repo.deleteVehicle(vehicleId: vehicleId,request: request);

@@ -230,7 +230,12 @@ class _MasterScreenState extends State<MasterScreen>
               repeat: true,
               frameRate: FrameRate(200),
             ),
-            Text(context.appText.areYouSureToDeleteThisAddress).center(),
+          Center(
+          child: Text(
+            context.appText.areYouSureToDeleteThisAddress,
+            textAlign: TextAlign.center,
+          ),
+          ),
           ],
         ),
         onClickYesButton: () async {
@@ -268,7 +273,7 @@ class _MasterScreenState extends State<MasterScreen>
               repeat: true,
               frameRate: FrameRate(200),
             ),
-            Text(context.appText.areYouSureToDeleteThisVehicle).center(),
+            Center(child: Text(context.appText.areYouSureToDeleteThisVehicle)),
           ],
         ),
         onClickYesButton: () async {
@@ -309,7 +314,7 @@ class _MasterScreenState extends State<MasterScreen>
               repeat: true,
               frameRate: FrameRate(200),
             ),
-            Text(context.appText.areYouSureToDeleteThisDriver).center(),
+            Center(child: Text(context.appText.areYouSureToDeleteThisDriver))
           ],
         ),
         onClickYesButton: () async {
@@ -451,6 +456,13 @@ class _MasterScreenState extends State<MasterScreen>
               },
             );
           },
+          onClear: () {
+        setState(() {
+          addressSearchController.text = '';
+          addressSearchController.clear();         
+        });
+        profileCubit.fetchAddress(search: ''); 
+      },
         ).paddingSymmetric(horizontal: 20),
         Expanded(
           child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -573,6 +585,13 @@ class _MasterScreenState extends State<MasterScreen>
               },
             );
           },
+          onClear: () {
+        setState(() {
+          vehicleSearchController.text = '';
+          vehicleSearchController.clear();         
+        });
+        profileCubit.fetchVehicle(search: ''); 
+      },
         ).paddingSymmetric(horizontal: 20),
         Expanded(
           child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -674,12 +693,7 @@ class _MasterScreenState extends State<MasterScreen>
     }
     return number;
   }
-//   String formatMobileNumber(String number) {
-//   if (number.startsWith("+91")) {
-//     return number.substring(3); // Removes first 3 characters: "+91"
-//   }
-//   return number;
-// }
+
 
   Widget buildDriverTab() {
     return Column(
@@ -694,6 +708,13 @@ class _MasterScreenState extends State<MasterScreen>
               profileCubit.fetchDriver(search: query);
             });
           },
+           onClear: () {
+          setState(() {
+            driverSearchController.text = '';
+            driverSearchController.clear();         
+          });
+          profileCubit.fetchDriver(search: ''); 
+      },
         ).paddingSymmetric(horizontal: 20),
         Expanded(
           child: BlocBuilder<ProfileCubit, ProfileState>(
@@ -774,7 +795,7 @@ class _MasterScreenState extends State<MasterScreen>
             title: context.appText.addNewDriver,
             onPressed: () async {
                     await profileCubit.resetlicenseVahanVerificationState();
-                    await Future.delayed(const Duration(milliseconds: 50)); // allow UI to see cleared state
+                    await Future.delayed(const Duration(milliseconds: 50));
                     showAddDriverPopup(
                       context,
                     );
@@ -1713,7 +1734,7 @@ class _MasterScreenState extends State<MasterScreen>
         final localData = localVehicleVerificationState!.data!.data!;
         print('old local data excist still ${localData.modelNumber}');
         setState(() {
-          truckMakeModelController.text = localData.modelNumber;
+          truckMakeModelController.text =  localData.modelNumber;
           selectedWeightDropDownValue =   localData.tonnage;
           rcNumberController.text = localData.rcNumber;
           localRcDocList.clear();
@@ -1758,7 +1779,6 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                     16.height,
                     AppTextField(
-                      readOnly: isVehicleVerified ? false : true,
                       validator: (value) => Validator.fieldRequired(value),
                       controller: truckMakeModelController,
                       labelText: context.appText.truckMakeAndModel,
@@ -1767,7 +1787,6 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                     16.height,
                     AppTextField(
-                      readOnly: isVehicleVerified ? false : true,
                       validator: (value) => Validator.fieldRequired(value),
                       controller: rcNumberController,
                       labelText: context.appText.rcBook,
@@ -1795,6 +1814,8 @@ class _MasterScreenState extends State<MasterScreen>
                       },
                     ),
                     16.height,
+                    Text(context.appText.truckType, style: AppTextStyle.body3),
+                     5.height,
                     // TrucK Type
                     BlocBuilder<VpCreateAccountCubit, VpCreateAccountState>(
                       builder: (context, state) {
@@ -1811,33 +1832,27 @@ class _MasterScreenState extends State<MasterScreen>
                           return const Text("Error loading truck types");
                         }
 
-                        final truckTypeList = truckTypeUIState.data ?? [];
+                        final uiState = state.truckTypeUIState?.data;
+                        final truckTypes = uiState ?? [];
+                        final truckTypeLabels = truckTypes
+                            .map((e) => '${e.type} - ${e.subType}')
+                            .toList();
+                        final truckTypeLabelMap = Map.fromEntries(
+                          truckTypes.map(
+                            (e) => MapEntry('${e.type} - ${e.subType}', e),
+                          ),
+                        );
 
-                        return AppDropdown(
-                          enabled: isVehicleVerified,
-                          labelText: context.appText.truckType,
-                          dropdownValue:
-                              selectedTruckType == null
-                                  ? null
-                                  : "${selectedTruckType!.type} - ${selectedTruckType!.subType}",
-                          dropDownList:
-                              truckTypeList.map((truckType) {
-                                final label =
-                                    "${truckType.type} - ${truckType.subType}";
-                                return DropdownMenuItem<String>(
-                                  value: label,
-                                  child: Text(label),
-                                );
-                              }).toList(),
-                          onChanged: (val) {
-                            setState(() {
-                              selectedTruckType = truckTypeList.firstWhere(
-                                (e) => "${e.type} - ${e.subType}" == val,
-                              );
-                            });
+                        return SearchableDropdown(
+                          hintText: context.appText.truckType,
+                          items: truckTypeLabels,
+                          selectedItem: selectedTruckType == null
+                              ? null
+                              : '${selectedTruckType!.type} - ${selectedTruckType!.subType}',
+                          onChanged: (value) {
+                            selectedTruckType = truckTypeLabelMap[value];
+                            setState(() {});
                           },
-                          validator:
-                              (val) => val == null ? "Select Truck Type" : null,
                         );
                       },
                     ),
@@ -1848,8 +1863,6 @@ class _MasterScreenState extends State<MasterScreen>
                     builder: (context, state) {
                       final uiState = state.loadWeightUIState;
                       final weights = uiState?.data ?? [];
-
-                      // Map weight labels (e.g., "10 Ton", "20 Ton", etc.)
                       final weightLabels = weights.map((e) => '${e.value} Ton').toList();
                       final weightLabelIdMap = Map.fromEntries(
                         weights.map((e) => MapEntry('${e.value} Ton', e.id)),
@@ -1914,11 +1927,8 @@ class _MasterScreenState extends State<MasterScreen>
                         Text(context.appText.active),
                         Switch(
                           value: isVehicleActive,
-                          onChanged:
-                              isVehicleVerified
-                                  ? (val) =>
-                                      setState(() => isVehicleActive = val)
-                                  : null,
+                          onChanged: (val) =>
+                                      setState(() => isVehicleActive = val),
                         ),
                       ],
                     ),
@@ -1928,6 +1938,10 @@ class _MasterScreenState extends State<MasterScreen>
               ),
             ),
             onClickYesButton: () async {
+                 if (!isVehicleVerified) {
+                  ToastMessages.alert(message: "Please verify the Vehcile Rg before proceeding");
+                  return;
+                }
               if (formKey.currentState!.validate()) {
                 final rcDocLink =
                     vehicleDocList.isNotEmpty
@@ -2129,7 +2143,7 @@ class _MasterScreenState extends State<MasterScreen>
                   }
                 }
                 emailController.text = localData.email ?? emailController.text;
-                mobileController.text = localData.mobile ?? mobileController.text;
+                mobileController.text =  localData.mobile?.replaceFirst('+91', '') ?? "";
                 isLicenseVerified = true;
                 isInitialized = true;
               });
@@ -2190,7 +2204,7 @@ class _MasterScreenState extends State<MasterScreen>
                     licenseNoController: licenseNumberController,
                     onVerificationResult: (value) {
                       setState(() {
-                        isLicenseVerified = value;
+                        isLicenseVerified = value || driver != null;
                       });
                     },
                     nameController: nameController,
@@ -2225,7 +2239,7 @@ class _MasterScreenState extends State<MasterScreen>
 
                   ///License Expiry date
                   InkWell(
-                    onTap: isLicenseVerified ? () async {
+                    onTap: () async {
                               final DateTime today = DateTime.now();
                               final DateTime? pickedDate = await showDatePicker(
                                 context: context,
@@ -2241,7 +2255,7 @@ class _MasterScreenState extends State<MasterScreen>
                                   selectedDate = formattedDate;
                                 });
                               }
-                            } : null,
+                            },
                     child: buildReadOnlyField(
                       context.appText.licenseExpiryDate,
                       selectedDate ?? 'Select date',
@@ -2251,16 +2265,13 @@ class _MasterScreenState extends State<MasterScreen>
                   ),
                   16.height,
                   AppTextField(
-                  readOnly: isLicenseVerified ? false : true,
                   validator:  (value) => Validator.phone(value),
                   controller: mobileController,
                   labelText: context.appText.phoneNumber,
                   maxLength: 10,
-
                   inputFormatters: [phoneNumberInputFormatter],
                   keyboardType: TextInputType.phone,
                   decoration: commonInputDecoration(
-                    fillColor: AppColors.lightGreyBackgroundColor,
                     focusColor: AppColors.borderColor,
                     hintText: "${context.appText.enter} ${context.appText.phoneNumber}",
                     prefixIcon: Row(
@@ -2297,7 +2308,6 @@ class _MasterScreenState extends State<MasterScreen>
                 ),
                 16.height,
                   AppTextField(
-                    readOnly: isLicenseVerified ? false : true,
                     labelText: '${context.appText.emailId}(optional)',
                     hintText: 'example@email.com',
                     controller: emailController,
@@ -2315,10 +2325,7 @@ class _MasterScreenState extends State<MasterScreen>
                       Text(context.appText.active),
                       Switch(
                         value: isActive,
-                        onChanged:
-                            isLicenseVerified
-                                ? (val) => setState(() => isActive = val)
-                                : null,
+                        onChanged: (val) => setState(() => isActive = val),
                       ),
                     ],
                   ),
@@ -2326,7 +2333,12 @@ class _MasterScreenState extends State<MasterScreen>
               ),
             ),
             onClickYesButton: () async {
+              if (!isLicenseVerified) {
+                  ToastMessages.alert(message: "Please verify the License before proceeding");
+                  return;
+                }
               if (formKey.currentState!.validate()) {
+                
                 if (licenseNumberController.text.trim().isEmpty) {
                   ToastMessages.alert(message: "Please enter License Number");
                   return;
