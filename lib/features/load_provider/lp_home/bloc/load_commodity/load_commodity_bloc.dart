@@ -18,6 +18,7 @@ class LoadCommodityBloc extends Bloc<LoadCommodityEvent, LoadCommodityState> {
     emit(LoadCommodityLoading());
     dynamic result = await _lpHomeRepository.getLoadCommodityData();
     if (result is Success<List<LoadCommodityListModel>>) {
+      print('load commidtity list ${result.value}');
       emit(LoadCommoditySuccess(result.value));
     } else if (result is Error) {
       emit(LoadCommodityError(result.type));

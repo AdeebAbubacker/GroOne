@@ -32,6 +32,7 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/alpha_only_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -284,6 +285,9 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
             controller: itemNameTextController,
             labelText: context.appText.itemName,
             hintText: "LED TV 42”",
+             inputFormatters: [
+             AlphaOnlyTextFormatter(),
+            ],
           ),
           20.height,
 
