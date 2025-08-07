@@ -96,7 +96,8 @@ class _MasterScreenState extends State<MasterScreen>
   List<Map<String, dynamic>> vehicleDocList = [];
   bool _hasCalledVahanVerification = false;
   bool _hasCalledLicenseVerification = false;
-  bool _hasLicensetoastShown = false;
+  // bool _hasShownSuccessToast = false;
+  // bool _hasLicensetoastShown = false;
   @override
   void initState() {
     super.initState();
@@ -1145,58 +1146,58 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
-  Widget buildVehicleVerificationFieldWidget({
-    required TextEditingController vehicleNoController,
-    required void Function(bool) onVerificationResult,
-  }) {
+      Widget buildVehicleVerificationFieldWidget({
+        required TextEditingController vehicleNoController,
+        required void Function(bool) onVerificationResult,
+      }) {
         return BlocConsumer<ProfileCubit, ProfileState>(
           bloc: profileCubit,
           listenWhen: (previous, current) =>
         previous.vehicleVerificationState != current.vehicleVerificationState ||
-        previous.verifiedVehicleVahanState != current.verifiedVehicleVahanState,
-        listener: (context, state) async{
+        previous.verifiedVehicleVahanState != current.verifiedVehicleVahanState, 
+        listener: (context, state) async {
         final verificationState = state.vehicleVerificationState;
         final status = verificationState?.status;
         final vehicleData = verificationState?.data?.data;
 
         if (status == Status.SUCCESS && (vehicleData == null || vehicleData == false)) {
           if (!_hasCalledVahanVerification) {
-             _hasCalledVahanVerification = true;
-         await  profileCubit.verifyVehcileFromVahan(
-            request: VehicleVahanRequest(vehicleNumber: vehicleNoController.text.trim()),
-          );
-         return; 
-        }
+            _hasCalledVahanVerification = true;
+            await profileCubit.verifyVehcileFromVahan(
+              request: VehicleVahanRequest(vehicleNumber: vehicleNoController.text.trim()),
+            );
+            return;
+          }
         }
 
         if (status == Status.SUCCESS && vehicleData != null) {
-           _hasCalledVahanVerification = false; 
+          _hasCalledVahanVerification = false;
           ToastMessages.success(message: "Vehicle verified successfully");
           onVerificationResult(true);
           return;
         }
 
         if (state.verifiedVehicleVahanState?.status == Status.SUCCESS) {
-           _hasCalledVahanVerification = false; 
-          ToastMessages.success(message: "Vehicle verified via Vahan");
+          _hasCalledVahanVerification = true;
+   
+          ToastMessages.success(message: state.verifiedVehicleVahanState?.data?.message ?? "Vehicle verified via Vahan");
           onVerificationResult(true);
           return;
         }
 
         if (state.verifiedVehicleVahanState?.status == Status.ERROR) {
-           _hasCalledVahanVerification = false; 
+          _hasCalledVahanVerification = false;
+
           ToastMessages.error(
-            message: getErrorMsg(errorType: state.verifiedVehicleVahanState?.errorType ?? GenericError()),
+            message: getErrorMsg(
+              errorType: state.verifiedVehicleVahanState?.errorType ?? GenericError(),
+            ),
           );
           onVerificationResult(false);
           return;
         }
       },
-
-      builder: (context, state) {
-
-   
-
+     builder: (context, state) {
        final currentVehicleNumber = vehicleNoController.text.trim();
 
         final vehicleVerifiedLocally = state.vehicleVerificationState?.status == Status.SUCCESS &&
@@ -1219,23 +1220,30 @@ class _MasterScreenState extends State<MasterScreen>
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text(
-                isVerified ? "Verified" :
-                (state.vehicleVerificationState?.status == Status.LOADING ? "Verifying..." : "Verify"),
+                 Text(
+                isVerified
+                    ? "Verified"
+                    : (state.vehicleVerificationState?.status == Status.LOADING
+                        ? "Verifying..."
+                        : "Verify"),
                 style: AppTextStyle.body3.copyWith(
-                  color: AppColors.primaryColor,
-                  decoration: TextDecoration.underline,
-                  decorationColor: AppColors.primaryColor,
+                  color: isVerified ? Colors.green : AppColors.primaryColor,
+                  fontWeight: isVerified ? FontWeight.bold : FontWeight.normal,
+                  decoration: isVerified
+                      ? TextDecoration.none
+                      : TextDecoration.underline,
+                  decorationColor:
+                      isVerified ? Colors.transparent : AppColors.primaryColor,
                 ),
               ),
-
               ],
             ),
-            suffixOnTap: () {
+            suffixOnTap: () async{
             final String? validation = Validator.fieldRequired(vehicleNoController.text);
             if (validation == null) {
-              // profileCubit.resetVehicleVerificationState();
-              profileCubit.fetchVehicleExcistence(
+            await profileCubit.resetVehicleVerificationState();
+             await Future.delayed(Duration(milliseconds: 100));
+             await profileCubit.fetchVehicleExcistence(
                 vehicleId: vehicleNoController.text.trim(),
               );
             } else {
@@ -1263,7 +1271,7 @@ class _MasterScreenState extends State<MasterScreen>
               previous.licenseVerficationState !=
               current.licenseVerficationState,
       listener: (context, state) async{
-     if (_hasLicensetoastShown) return;   
+    // if (_hasLicensetoastShown) return;   
   final licenseExistState = state.licenseVerficationState;
   final vahanState = state.verifiedLicenseVahanState;
   final status = licenseExistState?.status;
@@ -1286,7 +1294,6 @@ class _MasterScreenState extends State<MasterScreen>
   
   //  License exists directly
   if (status == Status.SUCCESS && driverData != null) {
-     _hasLicensetoastShown = true; 
     _hasCalledVahanVerification = false;
     ToastMessages.success(message: "License verified successfully");
     onVerificationResult(true);
@@ -1296,7 +1303,6 @@ class _MasterScreenState extends State<MasterScreen>
   // Vahan verification
   if (vahanState?.status == Status.SUCCESS) {
     _hasCalledVahanVerification = false;
-    _hasLicensetoastShown = true;
     ToastMessages.success(message: context.appText.licenseNoVerified);
     onVerificationResult(true);
      
@@ -1306,7 +1312,6 @@ class _MasterScreenState extends State<MasterScreen>
   // Vahan Error cases
   if (vahanState?.status == Status.ERROR) {
     _hasCalledVahanVerification = false;
-    _hasLicensetoastShown = true; 
      ToastMessages.error(
             message: getErrorMsg(errorType: state.verifiedLicenseVahanState?.errorType ?? GenericError()),
           );
@@ -1356,7 +1361,8 @@ class _MasterScreenState extends State<MasterScreen>
               ),
                   ],
                 ),
-                suffixOnTap: () {
+                suffixOnTap: () async{
+                await profileCubit.resetLcienseVerificationState();
                 final String? licenseValidation = Validator.indianLicenseNumber(
                 licenseNoController.text,
                 fieldName: "License No",
@@ -1667,7 +1673,6 @@ class _MasterScreenState extends State<MasterScreen>
       final currentText = truckNumberController.text.trim();
       if (currentText != previousVehicleNo) {
         previousVehicleNo = currentText;
-        profileCubit.resetVehicleVerificationState();
         profileCubit.resetVehicleVerificationState();
         setState(() {
           isInitialized = false;
@@ -2167,7 +2172,6 @@ class _MasterScreenState extends State<MasterScreen>
                     licenseNoController: licenseNumberController,
                     onVerificationResult: (value) {
                       setState(() {
-                        print('----licnese--------${value}');
                         isLicenseVerified = value;
                       });
                     },
@@ -2397,7 +2401,7 @@ class _MasterScreenState extends State<MasterScreen>
               }
             },
             onClickNoButton: () async{
-            await profileCubit.resetVehicleVerificationState();
+            await profileCubit.resetLcienseVerificationState();
              Navigator.pop(context);
           },
           );

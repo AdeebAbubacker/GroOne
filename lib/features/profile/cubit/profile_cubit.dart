@@ -721,10 +721,17 @@ class ProfileCubit extends BaseCubit<ProfileState> {
 
   Future<void> resetVehicleVerificationState() async {
   emit(state.copyWith(
-    vehicleVerificationState: null,
-    verifiedVehicleVahanState: null,
+    vehicleVerificationState: resetUIState<VehicleVerificationSuccess>(state.vehicleVerificationState),
+    verifiedVehicleVahanState: resetUIState<VerifedVehicleVahanData>(state.verifiedVehicleVahanState),
   ));
-  // Optionally add a short delay if UI rebuild lags:
+  await Future.delayed(Duration(milliseconds: 100));
+}
+ 
+   Future<void> resetLcienseVerificationState() async {
+  emit(state.copyWith(
+    licenseVerficationState: resetUIState<LicenseVerificationSuccess>(state.licenseVerficationState),
+    verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState),
+  ));
   await Future.delayed(Duration(milliseconds: 100));
 }
 
@@ -736,7 +743,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(
       logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
       profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
-      verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
+     //  verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
     ));
   }
 
