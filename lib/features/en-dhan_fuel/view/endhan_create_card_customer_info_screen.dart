@@ -51,6 +51,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
   final districtController = TextEditingController();
   // Email controller removed since field is now read-only
   final panController = TextEditingController(); // Add PAN controller
+  final nameController = TextEditingController(); // Add PAN controller
   final address1Controller = TextEditingController();
   final address2Controller = TextEditingController();
   final cityNameController = TextEditingController();
@@ -124,11 +125,11 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     final cubit = locator<EnDhanCubit>();
     // Email controller initialization removed since field is now read-only
     // Don't initialize PAN controller to avoid cursor jumping
-    address1Controller.text = cubit.state.address1;
-    address2Controller.text = cubit.state.address2;
-    cityNameController.text = cubit.state.cityName;
-    // Don't initialize pincode controller to avoid cursor jumping
-    referralCodeController.text = cubit.state.referralCode;
+    // address1Controller.text = cubit.state.address1;
+    // address2Controller.text = cubit.state.address2;
+    // cityNameController.text = cubit.state.cityName;
+    // // Don't initialize pincode controller to avoid cursor jumping
+    // referralCodeController.text = cubit.state.referralCode;
     
     // Add listeners to sync controllers with cubit state
     _addControllerListeners();
@@ -164,8 +165,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       await cubit.checkKycDocuments();
       
       // Auto-populate PAN from KYC data if available and not already set
-      if (cubit.state.kycData?.document?.pan != null && 
-          cubit.state.kycData!.document!.pan!.isNotEmpty && 
+      if (cubit.state.kycData?.document?.pan != null &&
+          cubit.state.kycData!.document!.pan!.isNotEmpty &&
           cubit.state.pan.isEmpty) {
         cubit.setPan(cubit.state.kycData!.document!.pan!);
       }
@@ -217,21 +218,32 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       referralCodeController.text = cubit.state.referralCode;
     });
 
-    return BlocBuilder<EnDhanCubit, EnDhanState>(
+    return BlocConsumer<EnDhanCubit, EnDhanState>(
+      listener: (context, state) {
+        if (panController.text != state.pan) {
+          panController.text = state.pan;
+        }
+        nameController.text = state.customerName;
+        address1Controller.text = cubit.state.address1;
+        address2Controller.text = cubit.state.address2;
+        cityNameController.text = cubit.state.cityName;
+        // Don't initialize pincode controller to avoid cursor jumping
+        referralCodeController.text = cubit.state.referralCode;
+      },
       bloc: cubit,
       builder: (context, state) {
         print('DEBUG: BlocBuilder rebuild - selectedZonalOfficeId: ${state.selectedZonalOfficeId}, selectedRegionalOfficeId: ${state.selectedRegionalOfficeId}, selectedStateId: ${state.selectedStateId}, selectedDistrictId: ${state.selectedDistrictId}, selectedDistrictName: ${state.selectedDistrictName}');
         print('DEBUG: BlocBuilder rebuild - states: ${state.states.length}, zonalOffices: ${state.zonalOffices.length}, regionalOffices: ${state.regionalOffices.length}, districts: ${state.districts.length}');
         // Auto-populate PAN from KYC data if available and not already set
-        if (state.kycCheckState?.status == Status.SUCCESS && 
-            state.hasKycDocuments && 
-            state.kycData?.document?.pan != null && 
-            state.kycData!.document!.pan!.isNotEmpty && 
-            state.pan.isEmpty) {
-          // Use Future.microtask to avoid setState during build
-          Future.microtask(() => cubit.setPan(state.kycData!.document!.pan!));
-        }
-        
+        // if (state.kycCheckState?.status == Status.SUCCESS &&
+        //     state.hasKycDocuments &&
+        //     state.kycData?.document?.pan != null &&
+        //     state.kycData!.document!.pan!.isNotEmpty &&
+        //     state.pan.isEmpty) {
+        //   // Use Future.microtask to avoid setState during build
+        //   // Future.microtask(() => cubit.setPan(state.kycData!.document!.pan!));
+        // }
+        //
         return Scaffold(
           backgroundColor: AppColors.white,
 
@@ -329,7 +341,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                   ),
                                   //labelText: 'Name',
                                   hintText: context.appText.enterName,
-                                  controller: TextEditingController(text: state.customerName),
+                                  // controller: TextEditingController(text: state.customerName),
+                                  controller: nameController,
                                   readOnly: true, // Make the field non-editable
                                   onChanged: null, // Remove onChanged since field is disabled
                                   validator: (value) {

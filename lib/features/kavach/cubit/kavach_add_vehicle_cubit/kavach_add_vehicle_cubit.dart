@@ -86,4 +86,19 @@ class KavachAddVehicleFormCubit extends Cubit<KavachAddVehicleFormState> {
       vehicleVerification: UIState.initial(),
     ));
   }
+
+  Future<Result<Map<String, dynamic>>> fetchAndVerifyVehicle(String vehicleNumber) async {
+    emit(state.copyWith(vehicleVerification: UIState.loading()));
+
+    final result = await repository.fetchVehicleData(vehicleNumber);
+
+    if (result is Success<Map<String, dynamic>>) {
+      emit(state.copyWith(vehicleVerification: UIState.success(true)));
+      return result;
+    } else {
+      emit(state.copyWith(vehicleVerification: UIState.error(GenericError())));
+      return Error(GenericError());
+    }
+  }
+
 }

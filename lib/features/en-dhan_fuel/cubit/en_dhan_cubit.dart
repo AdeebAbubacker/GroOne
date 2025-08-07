@@ -508,20 +508,38 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         return;
       }
 
+      // if (result is Success<PanVerificationResponse>) {
+      //   final response = result.value;
+      //
+      //   // Check if verification was successful based on success flag, isVerified, or message
+      //   if (response.isVerified == true ||
+      //       response.success == true ||
+      //       (response.message.toLowerCase().contains('verified successfully') ||
+      //        response.message.toLowerCase().contains('verification successful'))) {
+      //     emit(state.copyWith(isPanVerified: true));
+      //   }
+      //   _setPanVerificationUIState(UIState.success(response));
+      // } else if (result is Error) {
+      //   _setPanVerificationUIState(UIState.error((result as Error).type));
+      // }
       if (result is Success<PanVerificationResponse>) {
         final response = result.value;
-        
-        // Check if verification was successful based on success flag, isVerified, or message
-        if (response.isVerified == true || 
+
+        final isVerified = response.isVerified == true ||
             response.success == true ||
-            (response.message.toLowerCase().contains('verified successfully') || 
-             response.message.toLowerCase().contains('verification successful'))) {
+            (response.message.toLowerCase().contains('verified successfully') ||
+                response.message.toLowerCase().contains('verification successful'));
+
+        if (isVerified) {
           emit(state.copyWith(isPanVerified: true));
+          _setPanVerificationUIState(UIState.success(response));
+        } else {
+          _setPanVerificationUIState(UIState.error(
+            ErrorWithMessage(message:'PAN verification failed'),
+          ));
         }
-        _setPanVerificationUIState(UIState.success(response));
-      } else if (result is Error) {
-        _setPanVerificationUIState(UIState.error((result as Error).type));
       }
+
     } catch (e) {
       if (!_isClosed) {
         _setPanVerificationUIState(UIState.error(GenericError()));
@@ -1708,7 +1726,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       isAadhaarVerified: isAadhaarVerified,
       isPanVerified: isPanVerified,
       isAadhaarValid: isAadhaarVerified,
-      isPanValid: pan != null && pan.length == 10,
+      isPanValid: pan != null,
+      isPanImageUploaded: pan != null
     ));
   }
 

@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/login/repository/user_information_repositor
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 
+import '../../../profile/cubit/profile_cubit.dart';
 import 'gps_upload_document_state.dart';
 
 
@@ -324,10 +325,25 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     _setPanVerificationUIState(UIState.loading());
 
     try {
-      // Get user name from repository
+      // // Get user name from repository
+      // final userRepository = locator<UserInformationRepository>();
+      // final userName = await userRepository.getUsername();
+      // final customerName = userName?.isNotEmpty == true ? userName! : "Test User";
+
       final userRepository = locator<UserInformationRepository>();
       final userName = await userRepository.getUsername();
-      final customerName = userName?.isNotEmpty == true ? userName! : "Test User";
+      String customerName = "Test User";
+      final profileCubit = locator<ProfileCubit>();
+
+      if (userName == null || userName.isEmpty) {
+        await profileCubit.fetchProfileDetail();
+        final profileState = profileCubit.state;
+
+        if (profileState.profileDetailUIState?.data?.customer != null) {
+          final customer = profileState.profileDetailUIState!.data!.customer!;
+          customerName = customer.customerName;
+        }
+      }
       
       print('🔍 GPS PAN Verification Debug: Using customer name: "$customerName"');
 

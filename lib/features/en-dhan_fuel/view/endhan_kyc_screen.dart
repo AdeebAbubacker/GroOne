@@ -822,9 +822,8 @@ class _EndhanKycScreenContent extends StatelessWidget {
                       ),
 
                       10.height,
-
                       // PAN Document Upload
-                      Column(
+                      if(!state.pan.isNotEmpty) Column(
                         children: [
                           EndhanDocumentUploadWidget(
                             feildTitle: context.appText.uploadDocument,
@@ -927,7 +926,6 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             ).paddingOnly(top: 8.0),
                         ],
                       ),
-
                       15.height,
 
                       _buildLabelWithInfoIcon(
@@ -1157,8 +1155,6 @@ class _EndhanKycScreenContent extends StatelessWidget {
               final bool isPanVerified = state.isPanVerified;
               final bool isAadhaarPrefilled = state.aadhaar.isNotEmpty;
               final bool isPanPrefilled = state.pan.isNotEmpty;
-              final bool isPanImagePrefilled = state.panDocuments.isNotEmpty &&
-                  (state.panDocuments.first['path']?.toString().startsWith('http') ?? false);
 
               if (!isAadhaarVerified || !isPanVerified) {
                 String message = '';
@@ -1198,7 +1194,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
               if (isAadhaarPrefilled && !isPanPrefilled) {
                 await cubit.uploadKycDocuments(); // PAN
                 await cubit.uploadKycDocumentsMultipart(); // Identity/Address
-              } else if (isAadhaarPrefilled && isPanPrefilled && isPanImagePrefilled) {
+              } else if (isAadhaarPrefilled && isPanPrefilled) {
                 await cubit.uploadKycDocumentsMultipart();
               } else {
                 await cubit.uploadKycDocuments();

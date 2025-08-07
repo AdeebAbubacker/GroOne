@@ -167,10 +167,26 @@ class _KavachAddVehicleBottomSheetState
                             : verificationState.status == Status.SUCCESS
                             ? const Icon(Icons.verified, color: Colors.green)
                             :  InkWell(
-                          onTap: () {
+                          // onTap: () {
+                          //   final vehicleNumber = truckNumberController.text.trim().toUpperCase();
+                          //
+                          //   // Run validation directly
+                          //   final validationMessage = Validator.validateVehicleNumber(
+                          //     vehicleNumber,
+                          //     fieldName: context.appText.truckNumber,
+                          //   );
+                          //
+                          //   if (validationMessage != null) {
+                          //     ToastMessages.alert(message: validationMessage);
+                          //     return;
+                          //   }
+                          //
+                          //   // If valid, call API to verify
+                          //   context.read<KavachAddVehicleFormCubit>().verifyVehicle(vehicleNumber);
+                          // },
+                          onTap: () async {
                             final vehicleNumber = truckNumberController.text.trim().toUpperCase();
 
-                            // Run validation directly
                             final validationMessage = Validator.validateVehicleNumber(
                               vehicleNumber,
                               fieldName: context.appText.truckNumber,
@@ -181,9 +197,31 @@ class _KavachAddVehicleBottomSheetState
                               return;
                             }
 
-                            // If valid, call API to verify
-                            context.read<KavachAddVehicleFormCubit>().verifyVehicle(vehicleNumber);
+                            // ✅ Call fetch + verify
+                            final result = await context.read<KavachAddVehicleFormCubit>().fetchAndVerifyVehicle(vehicleNumber);
+
+                            if (result is Success<Map<String, dynamic>>) {
+                              final data = result.value;
+
+                              // Autofill truck make/model
+                              final makeModel = data['vehicle_make_model'] ?? data['modelNumber'];
+                              if (makeModel != null) {
+                                truckMakeModelController.text = makeModel.toString();
+                              }
+
+                              // Autofill capacity
+                              final capacity = data['vehicle_gross_weight'] ?? data['tonnage'];
+                              if (capacity != null) {
+                                final numberOnly = RegExp(r'\d+').stringMatch(capacity.toString());
+                                capacityController.text = numberOnly ?? capacity.toString();
+                              }
+
+                              ToastMessages.success(message: "Vehicle verified & data autofilled.");
+                            } else {
+                              ToastMessages.alert(message: "Vehicle verification failed");
+                            }
                           },
+
                           child: Text(
                             "Verify",
                             style: AppTextStyle.body3.copyWith(
@@ -202,6 +240,7 @@ class _KavachAddVehicleBottomSheetState
                   controller: truckMakeModelController,
                   mandatoryStar: true,
                   maxLength: 20,
+                  readOnly: true,
                   labelText: context.appText.truckMakeModel,
                   textCapitalization: TextCapitalization.characters,
                   validator:
@@ -367,6 +406,7 @@ class _KavachAddVehicleBottomSheetState
                   controller: capacityController,
                   labelText: context.appText.capacity,
                   mandatoryStar: true,
+                  readOnly: true,
                   keyboardType: TextInputType.number,
                   maxLength: 10,
                   currentFocus: capacityFocusNode,
