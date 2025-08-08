@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/information_view.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -415,7 +416,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                           child: Column(
                                             children: [
                                               20.height,
-                                              AddedDamageWidget(
+                                              VpAddedDamageWidget(
                                                 damageReport:
                                                     loads!.data!.damageShortage,
                                               ),
