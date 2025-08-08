@@ -1,5 +1,6 @@
 import 'package:gro_one_app/data/network/api_urls.dart';
-import 'package:gro_one_app/features/login/model/notification_request_model.dart';
+import 'package:gro_one_app/features/login/api_request/notification_request_model.dart';
+import 'package:gro_one_app/features/login/model/notification_response_model.dart';
 
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
@@ -29,16 +30,17 @@ class LoginInService {
       return Error(DeserializationError());
     }
   }
-  Future<Result<LoginApiResponseModel>> saveDeviceToken(NotificationRequestModel? notificationRequestModel) async {
+  Future<Result<DeviceTokenModel>> saveDeviceToken(NotificationRequestModel? notificationRequestModel) async {
     try {
       final saveDeviceToken= ApiUrls.saveDeviceToken;
-      print("working calling api ${saveDeviceToken}");
+
       final result = await _apiService.post(
         saveDeviceToken,
         body: notificationRequestModel?.toJson(),
       );
+
       if (result is Success) {
-        final data = LoginApiResponseModel.fromJson(result.value);
+        final data = DeviceTokenModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);

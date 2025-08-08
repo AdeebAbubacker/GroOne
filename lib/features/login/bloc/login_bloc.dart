@@ -7,7 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/login/model/notification_request_model.dart';
+import 'package:gro_one_app/features/login/api_request/notification_request_model.dart';
 import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 
@@ -52,7 +52,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
 
    _saveDeviceToken(String? userId,) async {
-    print("calling api");
     String? fcmToken= await securedSharedPreference.get(
       AppString.sessionKey.fcmToken,
     );

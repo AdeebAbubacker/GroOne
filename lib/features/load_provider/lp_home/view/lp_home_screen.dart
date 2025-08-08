@@ -132,7 +132,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   void initFunction() => frameCallback(() async {
     profileCubit.fetchProfileDetail();
-    String? userId= await profileCubit.fetchUserId();
+
     await profileCubit.fetchUserRole().then((val) {
       if(val != 4) {
         loadCommodityBloc.add(LoadCommodity());
@@ -142,7 +142,6 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
         lpHomeCubit.fetchLoadWeight();
       }
     });
-    loginBloc.add(SaveDeviceToken(userId??""));
     clearAllValues();
   });
 

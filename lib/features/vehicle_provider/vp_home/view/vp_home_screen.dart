@@ -92,11 +92,10 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
   void initFunction() => frameCallback(() async {
     lpHomeBloc.getUserId();
-     String? userId= await profileCubit.fetchUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
-    loginBloc.add(SaveDeviceToken(userId??""));
-    print("working");
+
+
     profileCubit.fetchCompanyTypeId();
     await profileCubit.fetchProfileDetail(instance: this);
   });

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
+import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/otp_verification/api_request/mobile_otp_verification_api_request.dart';
 import 'package:gro_one_app/features/otp_verification/bloc/otp_bloc.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';
@@ -48,8 +49,10 @@ class MobileOtpVerificationScreen extends StatefulWidget {
 class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationScreen> {
 
   final otpBloc = locator<OtpBloc>();
+  final loginBloc = locator<LoginBloc>();
   final analytics = locator<AnalyticsService>();
   final otpTextController = TextEditingController();
+
 
   String otpString = "";
 
@@ -180,7 +183,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
                 },
               );
             } else {
-              // Navigate to respective home based on role
+              loginBloc.add(SaveDeviceToken(data.customerId));
               final role = data.roleId;
               if (role == 1 || role == 4) {
                 loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);

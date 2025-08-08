@@ -753,6 +753,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         final status = state.createAccountUIState?.status;
 
         if (status == Status.SUCCESS) {
+          loginBloc.add(SaveDeviceToken(widget.id));
           navigateToHomeScreen(context);
         }
         if (status == Status.ERROR) {
