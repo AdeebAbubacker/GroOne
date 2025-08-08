@@ -2,11 +2,9 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/email_verification/api_request/verify_email_otp_api_request.dart';
-import 'package:gro_one_app/features/email_verification/model/resend_email_otp_model.dart';
 import 'package:gro_one_app/features/email_verification/model/send_email_otp_model.dart';
 import 'package:gro_one_app/features/email_verification/model/verify_email_otp_model.dart';
-import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
+
 
 class EmailVerificationService {
   final ApiService _apiService;

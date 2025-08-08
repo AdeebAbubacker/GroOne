@@ -7,8 +7,7 @@ import 'package:gro_one_app/features/email_verification/service/email_verificati
 
 class EmailVerificationRepository {
   final EmailVerificationService _emailVerificationService;
-  final  _userInformationRepository;
-  EmailVerificationRepository(this._emailVerificationService, this._userInformationRepository);
+  EmailVerificationRepository(this._emailVerificationService);
 
   /// Send Email Otp Repo
   Future<Result<SendEmailOtpModel>> getSendOtpData(String email, String userId) async {

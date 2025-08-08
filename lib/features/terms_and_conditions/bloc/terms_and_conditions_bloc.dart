@@ -15,7 +15,7 @@ class TermsAndConditionsBloc extends Bloc<TermsAndConditionsEvent, TermsAndCondi
       emit(TermsAndCondtionsLoading());
       Result result = await _tAndCRepository.getTermsAndConditionsData();
 
-      if (result is Success<TermsAndconditionsModel>) {
+      if (result is Success<TermsAndConditionsModel>) {
         emit(TermsAndCondtionsSuccess(result.value));
       } else if (result is Error) {
         emit(TermsAndCondtionsError(result.type));

@@ -13,14 +13,14 @@ class RouteSearchableDropdown extends StatelessWidget {
   final bool mandatoryStar;
 
   const RouteSearchableDropdown({
-    Key? key,
+    super.key,
     required this.selectedRouteStatus,
     required this.onRouteChanged,
     required this.routeList,
     required this.labelText,
     required this.hintText,
     this.mandatoryStar = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

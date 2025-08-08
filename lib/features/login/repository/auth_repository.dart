@@ -1,5 +1,4 @@
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_verification_model.dart';

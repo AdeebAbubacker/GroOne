@@ -319,8 +319,7 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => EmailVerificationRepository(
-        locator<EmailVerificationService>(),
-        locator<UserInformationRepository>(),
+        locator<EmailVerificationService>()
       ),
     );
     locator.registerLazySingleton(
@@ -446,7 +445,6 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => LpHomeBloc(
-        locator<LpHomeRepository>(),
         locator<UserInformationRepository>(),
       ),
     );

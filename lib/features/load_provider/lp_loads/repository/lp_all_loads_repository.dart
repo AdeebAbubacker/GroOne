@@ -25,7 +25,6 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/trip_statement
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 
 
 class  LpLoadRepository {
@@ -40,7 +39,6 @@ class  LpLoadRepository {
       final customerId = await userRepo.getUserID() ?? '';
       return service.fetchLoads(request: request.copyWith(customerId: customerId), forceRefresh: forceRefresh);
     } catch (e) {
-      CustomLog.error(this, "Failed to get fetch loads data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -49,7 +47,6 @@ class  LpLoadRepository {
     try {
       return service.fetchLoadsById(loadId: loadId,forceRefresh: forceRefresh);
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch loads by ID data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -58,7 +55,6 @@ class  LpLoadRepository {
     try {
       return service.fetchMemoDetails(loadId: loadId, forceRefresh: forceRefresh);
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch memo details data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -67,7 +63,6 @@ class  LpLoadRepository {
     try {
       return service.fetchTripDetails(loadId: loadId);
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch trip details data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -76,7 +71,6 @@ class  LpLoadRepository {
     try {
       return service.fetchTruckTypeList();
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch truck list data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -85,7 +79,6 @@ class  LpLoadRepository {
     try {
       return service.fetchRouteList();
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch route list data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -94,7 +87,6 @@ class  LpLoadRepository {
     try {
       return service.fetchLoadStatus();
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch load Status data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -105,7 +97,6 @@ class  LpLoadRepository {
       return service.sendOtp(customerId: customerId, loadId: loadId);
 
     } catch (e) {
-      CustomLog.error(this, "Failed to send OTP data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -115,7 +106,6 @@ class  LpLoadRepository {
       final customerId = await userRepo.getUserID() ?? '';
       return service.verifyOtp(customerId: customerId, otp: otp, loadId: loadId);
     } catch (e) {
-      CustomLog.error(this, "Failed to get verify OTP data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -125,7 +115,6 @@ class  LpLoadRepository {
       final customerId = await userRepo.getUserID() ?? '';
       return service.getCreditCheck(customerId: customerId);
     } catch (e) {
-      CustomLog.error(this, "Failed to get credit check data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -135,7 +124,6 @@ class  LpLoadRepository {
       final customerId = await userRepo.getUserID() ?? '';
       return service.updateCreditCheck(creditLimit: creditLimit, creditUsed: creditUsed, customerId: customerId);
     } catch (e) {
-      CustomLog.error(this, "Failed to get credit check data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -169,7 +157,6 @@ class  LpLoadRepository {
       final customerId = await userRepo.getUserID() ?? '';
       return service.loadAgree(customerId: customerId, loadId: loadId);
     } catch (e) {
-      CustomLog.error(this, "Failed to get load agree data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -179,7 +166,6 @@ class  LpLoadRepository {
       final customerId = await userRepo.getUserID() ?? '';
       return service.verifyAdvance(customerId: customerId, loadId: loadId, percentageId: percentageId);
     } catch (e) {
-      CustomLog.error(this, "Failed to get verify advance data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -188,7 +174,6 @@ class  LpLoadRepository {
     try {
       return service.updateFeedback(loadId: loadId, feedback: feedback);
     } catch (e) {
-      CustomLog.error(this, "Failed to get updateFeedback data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -197,7 +182,6 @@ class  LpLoadRepository {
     try {
       return service.getDocumentById(docId: docId);
     } catch (e) {
-      CustomLog.error(this, "Failed to get DocumentById data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -207,18 +191,15 @@ class  LpLoadRepository {
     try {
       return service.getTrackingDistance(request: request);
     } catch (e) {
-      CustomLog.error(this, "Failed to get DocumentById data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 
   Future<Result<ConsigneAddedSuccessModel>> addConsignee({
   required AddConsigneeApiRequest addConsigneeReq,}) async {
-    print('api call');
     try {
       return service.addConsignee(addConsigneeReq: addConsigneeReq);
     } catch (e) {
-      CustomLog.error(this, "Failed to add consignee", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -227,11 +208,9 @@ class  LpLoadRepository {
   required String consigneeId,
   required UpdateConsigneeApiRequest updateConsigneeReq,
   }) async {
-    print('api call');
     try {
       return service.updateConsignee(consigneId: consigneeId, request: updateConsigneeReq);
     } catch (e) {
-      CustomLog.error(this, "Failed to add consignee", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -246,7 +225,6 @@ Future<Result<OrderAddedSuccess>> initiatePayment({
       initiatePaymentRequest: initiatePaymentRequest
     );
   } catch (e) {
-    CustomLog.error(this, "Failed to add customer payment option", e);
     return Error(ErrorWithMessage(message: e.toString()));
   }
 }
@@ -258,7 +236,6 @@ Future<Result<LpCreateOrderResponse>> createOrder({
   try {
     return service.createLpOrder(loadId: loadId, createOrderIdRequest: createOrderIdRequest);
   } catch (e) {
-    CustomLog.error(this, "Failed to add customer payment option", e);
     return Error(ErrorWithMessage(message: e.toString()));
   }
 }
