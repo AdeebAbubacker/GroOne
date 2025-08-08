@@ -57,6 +57,8 @@ class ApiUrls {
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
   static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
   static final String  deleteDocument = "$_fetchUrl$_document$_path$_v1/documents/";
+  static final String  saveDeviceToken = "$_fetchUrl$_customer$_path$_v1$_customer/device-token";
+
 
   /// Onboarding
   static final String sendEmailOtp = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/send";

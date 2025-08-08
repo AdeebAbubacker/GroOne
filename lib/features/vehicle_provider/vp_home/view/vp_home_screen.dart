@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
+import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
@@ -64,7 +65,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    final lpHomeBloc = locator<LpHomeBloc>();
    final vpHomeScreenBloc = locator<VpHomeBloc>();
    final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
-   final lpHomeCubit = locator<LPHomeCubit>();
+   final loginBloc = locator<LoginBloc>();
 
 
   final searchController = TextEditingController();
@@ -91,10 +92,11 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
   void initFunction() => frameCallback(() async {
     lpHomeBloc.getUserId();
-    await profileCubit.fetchUserId();
+     String? userId= await profileCubit.fetchUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
-    lpHomeCubit.setBluIDFlag();
+    loginBloc.add(SaveDeviceToken(userId??""));
+    print("working");
     profileCubit.fetchCompanyTypeId();
     await profileCubit.fetchProfileDetail(instance: this);
   });

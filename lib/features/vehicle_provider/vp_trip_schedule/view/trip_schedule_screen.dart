@@ -34,6 +34,7 @@ import '../../../../utils/app_dropdown.dart' show AppDropdown;
 
 class TripScheduleScreen extends StatefulWidget {
   final String? loadId;
+
   const TripScheduleScreen({super.key, this.loadId});
 
   @override

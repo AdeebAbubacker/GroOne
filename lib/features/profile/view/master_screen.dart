@@ -69,7 +69,8 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 import '../../../data/ui_state/status.dart';
 
 class MasterScreen extends StatefulWidget {
-  const MasterScreen({super.key});
+  final int? initialIndex;
+  const MasterScreen({super.key,this.initialIndex});
 
   @override
   State<MasterScreen> createState() => _MasterScreenState();
@@ -101,7 +102,10 @@ class _MasterScreenState extends State<MasterScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+        initialIndex: widget.initialIndex??0,
+
+        length: 3, vsync: this);
     kycCubit.fetchStateList();
     initFunction();
   }

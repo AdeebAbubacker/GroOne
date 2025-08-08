@@ -1050,5 +1050,6 @@
   "licenseCategory" : "License Category",
   "selectLicenseCategory" : "Select License Category",
   "commodityType" : "Commodity Type",
-  "selectCommodityType" : "Select Commodity Category"
+  "selectCommodityType" : "Select Commodity Category",
+  "searchedLanes":"Search Lanes"
 }

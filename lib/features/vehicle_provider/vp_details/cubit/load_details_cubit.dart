@@ -142,9 +142,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
 
-  Future<void> _handleTrackingBasedOnStatus(LoadDetailModel data) async {
-    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data.data?.loadStatusDetails?.loadStatus);
-    final route = data.data?.loadRoute;
+  Future<void> _handleTrackingBasedOnStatus(LoadDetailModelData? data) async {
+    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data?.loadStatusDetails?.loadStatus);
+    final route = data?.loadRoute;
 
     if (status != null && route != null) {
       late final TrackingDistanceApiRequest request;
@@ -164,7 +164,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         );
       } else {
         // Use trackingDetails
-        final tracking = data.data?.trackingDetails;
+        final tracking = data?.trackingDetails;
         request = TrackingDistanceApiRequest(
           originLat: tracking?.originLat ?? 0.0,
           originLong: tracking?.originLong ?? 0.0,
@@ -404,42 +404,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     emit(state.copyWith(trackingDistance: uiState));
   }
 
-  Future<void> _handleTrackingBasedOnStatus(LoadDetailModelData? data) async {
-    final status = LpHomeHelper.getLoadStatusFromString(data?.loadStatusDetails?.loadStatus);
-    final route = data?.loadRoute;
 
-    if (status != null && route != null) {
-      late final TrackingDistanceApiRequest request;
-
-      if (status.index <= LoadStatus.assigned.index) {
-        // Use pickup & drop coordinates
-        final pickup = route.pickUpLatlon.split(',');
-        final drop = route.dropLatlon.split(',');
-
-        request = TrackingDistanceApiRequest(
-          originLat: double.tryParse(pickup.first) ?? 0.0,
-          originLong: double.tryParse(pickup.last) ?? 0.0,
-          currentLat: double.tryParse(pickup.first) ?? 0.0,
-          currentLong: double.tryParse(pickup.last) ?? 0.0,
-          destLat: double.tryParse(drop.first) ?? 0.0,
-          destLong: double.tryParse(drop.last) ?? 0.0,
-        );
-      } else {
-        // Use trackingDetails
-        final tracking = data?.trackingDetails;
-        request = TrackingDistanceApiRequest(
-          originLat: tracking?.originLat ?? 0.0,
-          originLong: tracking?.originLong ?? 0.0,
-          currentLat: tracking?.currentLat ?? 0.0,
-          currentLong: tracking?.currentLong ?? 0.0,
-          destLat: tracking?.destinationLat ?? 0.0,
-          destLong: tracking?.destinationLong ?? 0.0,
-        );
-      }
-
-      await getTrackingDistance(request: request);
-    }
-  }
 
   // Lp load tracking distance
   Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {

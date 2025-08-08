@@ -115,11 +115,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
         if (state.profileDetailUIState?.status == Status.SUCCESS) {
           profileResponse = state.profileDetailUIState?.data;
           bool isKyc = profileResponse?.customer?.isKyc == 3;
-
-          print("kyc status ${ profileResponse?.customer?.isKyc}");
-
-
-
           VpVariables.setIsKycVerified(
             isKycStatus: profileResponse?.customer?.isKyc ?? 0,
             isKyc: isKyc,
