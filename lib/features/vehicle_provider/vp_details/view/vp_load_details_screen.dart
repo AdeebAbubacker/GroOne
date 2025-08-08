@@ -66,20 +66,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
 
 
 
-  callApi(LoadDetailModelData loadItem) async {
-    if(loadItem.trackingDetails==null){
-      return;
-    }
-    await cubit.getTrackingDistance(request: TrackingDistanceApiRequest(
-      originLat: loadItem.trackingDetails?.originLat ?? 0.0,
-      originLong: loadItem.trackingDetails?.originLong ?? 0.0,
-      currentLat: loadItem.trackingDetails?.currentLat ?? 0.0,
-      currentLong: loadItem.trackingDetails?.currentLong ?? 0.0,
-      destLat: loadItem.trackingDetails?.destinationLat ?? 0.0,
-      destLong: loadItem.trackingDetails?.destinationLong ?? 0.0,
-    ));
-  }
-
   void _resetPreviousDocumentState(){
     cubit.resetTripDocumentState();
   }
@@ -142,7 +128,6 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
             if (loads?.data !=null) {
               if ((state.loadStatusId??0)>=4 && !_consentStatusCalled) {
                 _consentStatusCalled = true;
-                callApi(loads!.data!);
               }
             }
           }

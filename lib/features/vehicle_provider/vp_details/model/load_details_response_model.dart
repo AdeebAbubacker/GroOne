@@ -226,6 +226,9 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
     if(json["consignees"] != null && (json["consignees"] as List).isNotEmpty){
       consigneeDetails=json["consignees"];
     }
+
+    List<Timeline> timeLine= json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x)));
+    timeLine.removeWhere((element) => element.id==1);
     return LoadDetailModelData(
       podDispatch: json['podDispatch']!=null &&  (json['podDispatch'] as Map).isNotEmpty ? PodDispatch.fromJson(json['podDispatch']):null,
       loadSettlement:json['loadSettlement']!=null ? LoadSettlement.fromJson(json['loadSettlement']):null,
@@ -266,7 +269,8 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
       consignee: (consigneeDetails??[]).isEmpty ? null : Consignee.fromJson(consigneeDetails?[0]),
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
       damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
-      timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
+      timeline: timeLine,
+
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
       weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
@@ -1450,6 +1454,8 @@ class LoadPaymentDetails {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
+  final bool? payableAdvancedPaidFlag;
+  final bool? payableBalancePaidFlag;
 
   LoadPaymentDetails({
     this.id,
@@ -1474,6 +1480,8 @@ class LoadPaymentDetails {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+    this.payableAdvancedPaidFlag,
+    this.payableBalancePaidFlag,
   });
 
   factory LoadPaymentDetails.fromJson(Map<String, dynamic> json) {
@@ -1500,6 +1508,8 @@ class LoadPaymentDetails {
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
       deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+      payableAdvancedPaidFlag: json['payableAdvancePaidFlg']??false,
+      payableBalancePaidFlag: json['payableBalancePaidFlg']??false,
     );
   }
 

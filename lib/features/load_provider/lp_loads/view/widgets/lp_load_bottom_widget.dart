@@ -140,9 +140,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
   }
 
   void showAdvancePaymentDialog(BuildContext context,LoadData loadItem, creditData) async {
-
     await lpLoadLocator.loadAgree(loadId: loadItem.loadId.toString());
-
     final uiState = lpLoadLocator.state.lpLoadAgree;
 
     if (uiState?.status == Status.LOADING) {}
@@ -171,6 +169,8 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     final loadPrice = (widget.loadItem.loadPrice?.maxRate == null || widget.loadItem.loadPrice?.maxRate == 0)
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
+
+    print("disnace ${lpLoadLocator.state.locationDistance ?? ''}");
     return Positioned(
       bottom: 0,
       left: 0,

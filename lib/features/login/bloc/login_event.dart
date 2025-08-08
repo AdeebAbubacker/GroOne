@@ -18,3 +18,9 @@ class ChangeIndex extends LoginEvent{
 
   const ChangeIndex({ required this.index});
 }
+
+class SaveDeviceToken extends LoginEvent{
+ final String userId;
+
+  const SaveDeviceToken(this.userId);
+}

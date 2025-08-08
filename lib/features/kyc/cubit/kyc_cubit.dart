@@ -155,16 +155,8 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Gst
   Future<void> verifyGst(VerifyGstApiRequest request) async {
     emit(state.copyWith(gstState: UIState.loading()));
-    emit(state.copyWith(gstState: UIState.success(true)));
-    emit(state.copyWith(verifiedGst: true));
-    return;
-
     Result result = await _repo.verifyGST(request);
-    /// TODO: TEMP COMMENT GST CODE
-    ///
-
     if (result is Success<bool>) {
-
       emit(state.copyWith(verifiedGst: true));
     }
     if (result is Error) {
@@ -176,12 +168,7 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Tan
   Future<void> verifyTan(VerifyTanApiRequest request) async {
     emit(state.copyWith(tanState: UIState.loading()));
-    emit(state.copyWith(tanState: UIState.success(true)));
-    emit(state.copyWith(verifiedTan: true));
-    return;
     Result result = await _repo.verifyTan(request);
-
-
     if (result is Success<bool>) {
       emit(state.copyWith(tanState: UIState.success(result.value)));
       emit(state.copyWith(verifiedTan: true));
@@ -195,11 +182,7 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Pan
   Future<void> verifyPan(VerifyPanApiRequest request) async {
     emit(state.copyWith(panState: UIState.loading()));
-    emit(state.copyWith(panState: UIState.success(true)));
-    emit(state.copyWith(verifiedPan: true));
-    return;
     Result result = await _repo.verifyPan(request);
-
     if (result is Success<bool>) {
       emit(state.copyWith(panState: UIState.success(result.value)));
       emit(state.copyWith(verifiedPan: true));

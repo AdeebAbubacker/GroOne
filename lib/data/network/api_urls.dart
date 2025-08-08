@@ -57,6 +57,8 @@ class ApiUrls {
   static final String  logout = "$_fetchUrl$_customer$_path$_v1$_auth/logout";
   static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
   static final String  deleteDocument = "$_fetchUrl$_document$_path$_v1/documents/";
+  static final String  saveDeviceToken = "$_fetchUrl$_customer$_path$_v1$_customer/device-token";
+
 
   /// Onboarding
   static final String sendEmailOtp = "$_baseUrl$_customer$_path$_v1$_customer/create-customer/email-otp/send";
@@ -87,12 +89,17 @@ class ApiUrls {
   static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
   static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
   static final String  panVerification = "https://groone-uat.letsgro.co/pan/api/v1/send_pan";
-  static final String  gst = "$_kucDocUpload/gst";
-  static final String  tan = "$_kucDocUpload/tan";
-  static final String  pan = "$_kucDocUpload/pan";
+
+
+
+  static final String  gst = "https://groone-uat.letsgro.co/gst/api/v1/send_gst";
+  static final String  tan = "https://groone-uat.letsgro.co/tan/api/v1/send_tan";
+  static final String  pan = "https://groone-uat.letsgro.co/pan/api/v1/send_pan";
+
   static final String  getCity = "$_baseUrl$_load$_path$_v1/location/city";
   static final String  getState = "$_baseUrl$_load$_path$_v1/location/state";
   static final String  bluIdFlg = "$_baseUrl$_customer$_path$_v1$_customer/blue-id-flg/update/";
+
 
   /// Map
   static final String mapAutoComplete = "$_mapBaseUrl/autocomplete";

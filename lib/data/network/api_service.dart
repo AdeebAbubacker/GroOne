@@ -101,7 +101,7 @@ class ApiService {
       );
       return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
-      print("error diog ${dioError}");
+
       return await _handleDioError(dioError);
     } catch (exception) {
       CustomLog.error(this, "Generic HTTP call error", exception);

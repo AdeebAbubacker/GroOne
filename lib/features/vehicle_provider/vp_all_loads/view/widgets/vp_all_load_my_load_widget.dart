@@ -80,7 +80,11 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(widget.data.loadId, style: AppTextStyle.h5),
+                  Row(
+                    children: [
+                      Text(widget.data.loadId, style: AppTextStyle.h5),
+                    ],
+                  ),
                   Text(
                     formatDateTimeKavach(widget.data.createdAt?.toString() ??DateTime.now().toString()),
                     style: AppTextStyle.primaryColor12w400,
@@ -255,15 +259,15 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
     return Text(
       locationText,
       style: AppTextStyle.blackColor15w500,
-      maxLines: 2,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
   _handleOnTap(LoadStatusDetailsResponse? loadStatus,LoadStatus? loadStatusValues,String? id,int? loadStatusId) async {
      String? userId = await vpHomeBloc.getUserId();
       if((loadStatusValues?.index??0)>LoadStatus.assigned.index && loadStatusValues!=LoadStatus.completed && loadStatusValues!=LoadStatus.podDispatched){
-        print("coming here");
-       await loadDetailsCubit.changedLoadStatus(
+        await loadDetailsCubit.changedLoadStatus(
             id??"0",
             customerId: userId??"",
             loadStatus:(loadStatusId??0)+1

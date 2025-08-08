@@ -15,8 +15,7 @@ class VerifyGstApiRequest {
   }
 
   Map<String, dynamic> toJson() => {
-    "gst": gst,
-    "force": force,
+    "gst_number": gst,
   };
 
 }
