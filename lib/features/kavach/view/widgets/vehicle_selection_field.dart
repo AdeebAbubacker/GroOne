@@ -72,44 +72,74 @@ class _VehicleSelectionFieldState extends State<VehicleSelectionField> {
     _previousText = text;
   }
 
+  // Future<void> _verifyVehicle() async {
+  //   final vehicleNumber = widget.controller.text.trim();
+  //   if (vehicleNumber.isEmpty) {
+  //     ToastMessages.alert(message: 'Please enter a vehicle number');
+  //     return;
+  //   }
+  //
+  //   // Validate vehicle number format
+  //   final validationMessage = Validator.validateVehicleNumber(
+  //     vehicleNumber.toUpperCase(),
+  //     fieldName: 'Vehicle Number',
+  //   );
+  //   if (validationMessage != null) {
+  //     ToastMessages.alert(message: validationMessage);
+  //     return;
+  //   }
+  //
+  //   setState(() {
+  //     isVerifying = true;
+  //   });
+  //
+  //   try {
+  //     final result = await _repository.verifyVehicle(vehicleNumber.toUpperCase());
+  //
+  //     if (result is Success<bool> && result.value) {
+  //       widget.onVehicleVerified?.call(vehicleNumber.toUpperCase());
+  //       ToastMessages.success(message: 'Vehicle verified successfully');
+  //     } else {
+  //       ToastMessages.alert(message: 'Vehicle verification failed');
+  //     }
+  //   } catch (e) {
+  //     ToastMessages.alert(message: 'Vehicle verification failed');
+  //   } finally {
+  //     setState(() {
+  //       isVerifying = false;
+  //     });
+  //   }
+  // }
   Future<void> _verifyVehicle() async {
-    final vehicleNumber = widget.controller.text.trim();
+    final vehicleNumber = widget.controller.text.trim().toUpperCase();
     if (vehicleNumber.isEmpty) {
       ToastMessages.alert(message: 'Please enter a vehicle number');
       return;
     }
 
-    // Validate vehicle number format
-    final validationMessage = Validator.validateVehicleNumber(
-      vehicleNumber.toUpperCase(),
-      fieldName: 'Vehicle Number',
-    );
-    if (validationMessage != null) {
-      ToastMessages.alert(message: validationMessage);
-      return;
-    }
+    setState(() => isVerifying = true);
 
-    setState(() {
-      isVerifying = true;
-    });
+    final result = await _repository.fetchVehicleData(vehicleNumber);
 
-    try {
-      final result = await _repository.verifyVehicle(vehicleNumber.toUpperCase());
-      
-      if (result is Success<bool> && result.value) {
-        widget.onVehicleVerified?.call(vehicleNumber.toUpperCase());
-        ToastMessages.success(message: 'Vehicle verified successfully');
-      } else {
-        ToastMessages.alert(message: 'Vehicle verification failed');
+    setState(() => isVerifying = false);
+
+    if (result is Success<Map<String, dynamic>>) {
+      final data = result.value;
+
+      // ✅ Autofill logic: truck make, model, capacity
+      final makeModel = data['vehicle_make_model'] ?? data['modelNumber'];
+      final capacity = data['vehicle_gross_weight'] ?? data['tonnage'];
+
+      if (makeModel != null || capacity != null) {
+        ToastMessages.success(message: "Vehicle verified: $makeModel, Capacity: $capacity");
       }
-    } catch (e) {
-      ToastMessages.alert(message: 'Vehicle verification failed');
-    } finally {
-      setState(() {
-        isVerifying = false;
-      });
+
+      widget.onVehicleVerified?.call(vehicleNumber);
+    } else {
+      ToastMessages.alert(message: "Vehicle verification failed");
     }
   }
+
 
   Future<void> _openVehicleSelection() async {
     final selectedVehicle = await commonBottomSheet<String?>(

@@ -19,6 +19,7 @@ import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_dropdown.dart';
+import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/common_widgets.dart';
@@ -167,10 +168,9 @@ class _KavachAddVehicleBottomSheetState
                             : verificationState.status == Status.SUCCESS
                             ? const Icon(Icons.verified, color: Colors.green)
                             :  InkWell(
-                          onTap: () {
+                          onTap: () async {
                             final vehicleNumber = truckNumberController.text.trim().toUpperCase();
 
-                            // Run validation directly
                             final validationMessage = Validator.validateVehicleNumber(
                               vehicleNumber,
                               fieldName: context.appText.truckNumber,
@@ -181,9 +181,31 @@ class _KavachAddVehicleBottomSheetState
                               return;
                             }
 
-                            // If valid, call API to verify
-                            context.read<KavachAddVehicleFormCubit>().verifyVehicle(vehicleNumber);
+                            // ✅ Call fetch + verify
+                            final result = await context.read<KavachAddVehicleFormCubit>().fetchAndVerifyVehicle(vehicleNumber);
+
+                            if (result is Success<Map<String, dynamic>>) {
+                              final data = result.value;
+
+                              // Autofill truck make/model
+                              final makeModel = data['vehicle_make_model'] ?? data['modelNumber'];
+                              if (makeModel != null) {
+                                truckMakeModelController.text = makeModel.toString();
+                              }
+
+                              // Autofill capacity
+                              final capacity = data['vehicle_gross_weight'] ?? data['tonnage'];
+                              if (capacity != null) {
+                                final numberOnly = RegExp(r'\d+').stringMatch(capacity.toString());
+                                capacityController.text = numberOnly ?? capacity.toString();
+                              }
+
+                              ToastMessages.success(message: "Vehicle verified & data autofilled.");
+                            } else {
+                              ToastMessages.alert(message: "Vehicle verification failed");
+                            }
                           },
+
                           child: Text(
                             "Verify",
                             style: AppTextStyle.body3.copyWith(
@@ -202,6 +224,7 @@ class _KavachAddVehicleBottomSheetState
                   controller: truckMakeModelController,
                   mandatoryStar: true,
                   maxLength: 20,
+                  readOnly: true,
                   labelText: context.appText.truckMakeModel,
                   textCapitalization: TextCapitalization.characters,
                   validator:
@@ -277,32 +300,21 @@ class _KavachAddVehicleBottomSheetState
                             onTap: () {
                               FocusScope.of(context).unfocus();
                             },
-                            child: AppDropdown(
+                            child: SearchableDropdown(
                               labelText: context.appText.truckType,
-                              dropdownValue: truckTypeDropdownValue,
-                              dropDownList:
-                                  state.truckTypes.data!
-                                      .map(
-                                        (type) => DropdownMenuItem(
-                                          value: type,
-                                          child: Text(type),
-                                        ),
-                                      )
-                                      .toList(),
                               hintText: context.appText.selectTruckType,
                               mandatoryStar: true,
+                              selectedItem: truckTypeDropdownValue,
+                              items: state.truckTypes.data!, // Already List<String>
                               onChanged: (selected) {
                                 setState(() {
                                   truckTypeDropdownValue = selected;
                                   truckLengthDropdownValue = null;
                                 });
-                                cubit.fetchTruckLengths(selected!);
+                                if (selected != null) {
+                                  cubit.fetchTruckLengths(selected);
+                                }
                               },
-                              validator:
-                                  (value) =>
-                                      value == null || value.isEmpty
-                                          ? context.appText.pleaseSelectTruckType
-                                          : null,
                             ),
                           ),
 
@@ -314,20 +326,12 @@ class _KavachAddVehicleBottomSheetState
                             onTap: () {
                               FocusScope.of(context).unfocus();
                             },
-                            child: AppDropdown(
+                            child: SearchableDropdown(
                               labelText: context.appText.truckLength,
-                              dropdownValue: truckLengthDropdownValue,
-                              dropDownList:
-                                  state.truckLengths.data!
-                                      .map(
-                                        (e) => DropdownMenuItem(
-                                          value: e.subType,
-                                          child: Text(e.subType),
-                                        ),
-                                      )
-                                      .toList(),
                               hintText: context.appText.truckLength,
                               mandatoryStar: true,
+                              selectedItem: truckLengthDropdownValue,
+                              items: state.truckLengths.data!.map((e) => e.subType).toList(),
                               onChanged: (selected) {
                                 setState(() {
                                   truckLengthDropdownValue = selected;
@@ -335,27 +339,15 @@ class _KavachAddVehicleBottomSheetState
                                   final selectedModel = state.truckLengths.data!
                                       .firstWhere(
                                         (e) => e.subType == selected,
-                                        orElse:
-                                            () => TruckLengthModel(
-                                              id: 0,
-                                              type: '',
-                                              subType: '',
-                                            ),
-                                      );
+                                    orElse: () => TruckLengthModel(id: 0, type: '', subType: ''),
+                                  );
 
                                   selectedTruckTypeId = selectedModel.id;
                                 });
                               },
-
-                              validator:
-                                  (value) =>
-                                      value == null || value.isEmpty
-                                          ? context
-                                              .appText
-                                              .pleaseSelectTruckLength
-                                          : null,
                             ),
                           ),
+
                       ],
                     );
                   },
@@ -367,6 +359,7 @@ class _KavachAddVehicleBottomSheetState
                   controller: capacityController,
                   labelText: context.appText.capacity,
                   mandatoryStar: true,
+                  readOnly: true,
                   keyboardType: TextInputType.number,
                   maxLength: 10,
                   currentFocus: capacityFocusNode,

@@ -14,6 +14,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../utils/app_image.dart';
+import '../../../../utils/app_searchabledropdown.dart';
 import '../../model/kavach_masters_model.dart';
 import '../../model/kavach_choose_preference_model.dart';
 
@@ -152,26 +153,16 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
   /// Builds the vehicle make dropdown widget
   Widget _buildMakeDropdown(BuildContext context) {
     final makes = widget.vehicleFilters.keys.toList();
-    
-    return AppDropdown(
+
+    return SearchableDropdown(
       labelText: "Make",
       mandatoryStar: true,
-      dropdownValue: selectedMake,
-      enabled: _isFieldEnabled('make'),
-      dropDownList: [
-        DropdownMenuItem<String>(
-          value: null,
-          child: Text('Select'),
-        ),
-        ...makes.map((make) => DropdownMenuItem(
-          value: make,
-          child: Text(make.capitalize),
-        )),
-      ],
+      selectedItem: selectedMake,
+      items: makes,
+      hintText: "Select",
       onChanged: (val) {
         setState(() {
           selectedMake = val;
-          // Reset dependent fields when make changes
           selectedModel = null;
           selectedEngine = null;
           selectedTankType = null;
@@ -184,30 +175,20 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the vehicle model dropdown widget
   Widget _buildModelDropdown(BuildContext context) {
-    final vehicleFilter = selectedMake != null 
+    final vehicleFilter = selectedMake != null
         ? widget.vehicleFilters[selectedMake]
         : null;
     final models = vehicleFilter?.models ?? [];
 
-    return AppDropdown(
+    return SearchableDropdown(
       labelText: "Model",
       mandatoryStar: true,
-      dropdownValue: selectedModel,
-      enabled: _isFieldEnabled('model'),
-      dropDownList: [
-        DropdownMenuItem<String>(
-          value: null,
-          child: Text('Select'),
-        ),
-        ...models.map((model) => DropdownMenuItem(
-          value: model,
-          child: Text(model.capitalize),
-        )),
-      ],
+      selectedItem: selectedModel,
+      items: models,
+      hintText: "Select",
       onChanged: (val) {
         setState(() {
           selectedModel = val;
-          // Reset dependent fields when model changes
           selectedEngine = null;
           selectedTankType = null;
           selectedDeviceType = null;
@@ -219,29 +200,19 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the engine type dropdown widget
   Widget _buildEngineDropdown(BuildContext context) {
-    final vehicleFilter = selectedMake != null 
+    final vehicleFilter = selectedMake != null
         ? widget.vehicleFilters[selectedMake]
         : null;
     final engines = vehicleFilter?.engineType ?? [];
 
-    return AppDropdown(
+    return SearchableDropdown(
       labelText: "Engine",
-      dropdownValue: selectedEngine,
-      enabled: _isFieldEnabled('engine'),
-      dropDownList: [
-        DropdownMenuItem<String>(
-          value: null,
-          child: Text('Select'),
-        ),
-        ...engines.map((engine) => DropdownMenuItem(
-          value: engine,
-          child: Text(engine.toUpperCase()),
-        )),
-      ],
+      selectedItem: selectedEngine,
+      items: engines,
+      hintText: "Select",
       onChanged: (val) {
         setState(() {
           selectedEngine = val;
-          // Reset dependent fields when engine changes
           selectedTankType = null;
           selectedDeviceType = null;
           _updatePreferences();
@@ -252,29 +223,19 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the tank type dropdown widget
   Widget _buildTankTypeDropdown(BuildContext context) {
-    final vehicleFilter = selectedMake != null 
+    final vehicleFilter = selectedMake != null
         ? widget.vehicleFilters[selectedMake]
         : null;
     final tankTypes = vehicleFilter?.tankType ?? [];
 
-    return AppDropdown(
+    return SearchableDropdown(
       labelText: "Tank Type",
-      dropdownValue: selectedTankType,
-      enabled: _isFieldEnabled('tankType'),
-      dropDownList: [
-        DropdownMenuItem<String>(
-          value: null,
-          child: Text('Select'),
-        ),
-        ...tankTypes.map((type) => DropdownMenuItem(
-          value: type,
-          child: Text(type.capitalize),
-        )),
-      ],
+      selectedItem: selectedTankType,
+      items: tankTypes,
+      hintText: "Select",
       onChanged: (val) {
         setState(() {
           selectedTankType = val;
-          // Reset dependent fields when tank type changes
           selectedDeviceType = null;
           _updatePreferences();
         });
@@ -284,25 +245,16 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the device type dropdown widget
   Widget _buildDeviceTypeDropdown(BuildContext context) {
-    final vehicleFilter = selectedMake != null 
+    final vehicleFilter = selectedMake != null
         ? widget.vehicleFilters[selectedMake]
         : null;
     final deviceTypes = vehicleFilter?.deviceType ?? [];
 
-    return AppDropdown(
+    return SearchableDropdown(
       labelText: "Device Type",
-      dropdownValue: selectedDeviceType,
-      enabled: _isFieldEnabled('deviceType'),
-      dropDownList: [
-        DropdownMenuItem<String>(
-          value: null,
-          child: Text('Select'),
-        ),
-        ...deviceTypes.map((type) => DropdownMenuItem(
-          value: type,
-          child: Text(type.capitalize),
-        )),
-      ],
+      selectedItem: selectedDeviceType,
+      items: deviceTypes,
+      hintText: "Select",
       onChanged: (val) {
         setState(() {
           selectedDeviceType = val;

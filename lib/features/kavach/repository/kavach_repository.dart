@@ -274,5 +274,15 @@ class KavachRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+  Future<Result<Map<String, dynamic>>> fetchVehicleData(String vehicleNumber) async {
+    try {
+      return await _service.fetchVehicleData(vehicleNumber);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch vehicle data in repository", e);
+      return Error(GenericError());
+    }
+  }
+
 }
 

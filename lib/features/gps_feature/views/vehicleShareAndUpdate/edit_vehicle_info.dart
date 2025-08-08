@@ -21,6 +21,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../utils/app_button_style.dart';
+import '../../../../utils/app_searchabledropdown.dart';
 import '../../../../utils/common_widgets.dart';
 
 class EditVehicleInfoScreen extends StatelessWidget {
@@ -472,11 +473,13 @@ class EditVehicleInfoView extends StatelessWidget {
 
     return Column(
       children: [
-        AppDropdown(
-          dropdownValue: selectedBrand,
-          dropDownList: _createDropdownItems(brands),
+        SearchableDropdown(
+          selectedItem: selectedBrand,
+          items: brands,
+          hintText: context.appText.select,
           labelText: context.appText.brand,
-          onChanged: (String? value) {
+          mandatoryStar: true,
+          onChanged: (value) {
             context.read<EditVehicleInfoBloc>().add(UpdateBrand(brand: value));
           },
         ),
@@ -723,11 +726,13 @@ class EditVehicleInfoView extends StatelessWidget {
 
     return Column(
       children: [
-        AppDropdown(
-          dropdownValue: selectedModel,
-          dropDownList: _createDropdownItems(models),
+        SearchableDropdown(
+          selectedItem: selectedModel,
+          items: models,
+          hintText: context.appText.select,
           labelText: context.appText.model,
-          onChanged: (String? value) {
+          mandatoryStar: true,
+          onChanged: (value) {
             context.read<EditVehicleInfoBloc>().add(UpdateModel(model: value));
           },
         ),
