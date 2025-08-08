@@ -1,4 +1,5 @@
-import 'package:gro_one_app/features/login/model/notification_request_model.dart';
+import 'package:gro_one_app/features/login/api_request/notification_request_model.dart';
+import 'package:gro_one_app/features/login/model/notification_response_model.dart';
 
 import '../../../data/model/result.dart';
 import '../../../utils/custom_log.dart';
@@ -19,7 +20,7 @@ class LoginInRepository {
     }
   }
 
-  Future<Result<LoginApiResponseModel>> saveDeviceToken(NotificationRequestModel? request) async {
+  Future<Result<DeviceTokenModel>> saveDeviceToken(NotificationRequestModel? request) async {
     try {
       return await _logInService.saveDeviceToken(request);
     } catch (e) {
