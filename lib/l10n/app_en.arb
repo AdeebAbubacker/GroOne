@@ -1082,7 +1082,7 @@
   "startByAddingANewDriver": "Start by adding a new driver.",
   "noDriversfound": "No drivers found",
   "vehicleRegNoVerified" : "Vehicle reg no is verified",
-  "vehicleRegNoAlreadyExcist" : "This vehicle reg no already excist",
+  "vehicleRegNoAlreadyExcist" : "This vehicle reg no already exist",
   "licenseNoVerified" : "License no verified",
   "otherReports": "Other Reports",
   "errorOccurred": "An error occurred",

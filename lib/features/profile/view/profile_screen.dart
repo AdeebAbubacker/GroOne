@@ -225,7 +225,11 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             imageString: AppImage.svg.master,
             text: context.appText.masters,
             onTap: () {
-              Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
+              Navigator.of(context).push(
+
+                  commonRoute(MasterScreen(
+
+                  ), isForward: true));
             },
           ),
           commonDivider(),

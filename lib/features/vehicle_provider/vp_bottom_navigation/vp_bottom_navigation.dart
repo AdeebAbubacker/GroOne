@@ -7,6 +7,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
+import 'package:gro_one_app/features/profile/view/support_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/vp_all_loads_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/vp_home_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -101,7 +102,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
     return [
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
       VpAllLoadsScreen(initialTabIndex: vpAllLoadsInitialTabIndex),
-      Center(child: Text(context.appText.support)),
+      LpSupport(showBackButton: false),
       VpHomeScreen(onViewAllOrSeeMore: changeTab),
     ];
   }

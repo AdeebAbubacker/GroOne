@@ -76,7 +76,6 @@ class LoadDetailsWidget extends StatelessWidget {
   });
 
   changeLoadStatus(BuildContext context, String? id, {int? loadStatus}) async {
-    print("calling here");
     if (cubit.state.loadStatus == LoadStatus.accepted) {
       await Navigator.push(
         context,
@@ -495,7 +494,19 @@ class LoadDetailsWidget extends StatelessWidget {
             : '${PriceHelper.formatINR(vpRate)} - ${PriceHelper.formatINR(vpMaxRate)}';
 
 
-    // final =paymentEntity!=null ?  paymentEntity.payableAdvance :loadMemo?.vpAdvance;
+    final agreedPrice=loadMemo?.vpAdvance??"";
+
+    /// This is for advanced Payment
+    final advancedPayment= paymentEntity?.payableAdvancePaid??"";
+    final advancedPaymentPercentage=paymentEntity?.payableAdvancePercentage??"";
+    final isAdvancedPaid=paymentEntity?.payableAdvancedPaidFlag??false;
+    /// This is for balance Payment
+    final balancePayment=paymentEntity?.payableBalancePaid;
+    final isBalancePaid=paymentEntity?.payableBalancePaidFlag??false;
+
+
+
+
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -508,12 +519,12 @@ class LoadDetailsWidget extends StatelessWidget {
       child: Column(
         children: [
           Visibility(
-
+            visible: loadMemo==null && agreedPrice.isEmpty,
             child: Row(
               mainAxisAlignment:
                   isAccepted
                       ? MainAxisAlignment.spaceBetween
-                      : MainAxisAlignment.spaceAround,
+                      : MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   isAccepted
@@ -531,25 +542,22 @@ class LoadDetailsWidget extends StatelessWidget {
               ],
             ),
           ),
-        //   if(loadStatusID>4 )
-        // ...[
-        //   5.height,
-        //   _buildLoadProviderAdvancePaymentCardViewOnly(
-        //     context: context,
-        //     agreedAdvance: PriceHelper.formatINR(paymentEntity?.payableAdvance??""),
-        //     paymentStatus: paymentEntity!=null && paymentEntity.payableAdvancePaid=="0.00" ? 3 :1,
-        //     advancePayment:PriceHelper.formatINR(paymentEntity?.payableAdvancePaid),
-        //     agreedPrice: vpLoadPrice,
-        //     paymentPercentange: loadMemo.vp,
-        //
-        //     balancePayment: PriceHelper.formatINR( paymentEntity?.payableBalancePaid),
-        //
-        //     onViewTap: () {
-        //       // showPaymentView(context, paymentEntity);
-        //     },
-        //     // tripPrice: "1000",
-        //   ),
-        // ]
+
+        ...[
+          5.height,
+          _buildLoadProviderAdvancePaymentCardViewOnly(
+            context: context,
+            agreedAdvance: (paymentEntity?.payableAdvance??"").isNotEmpty ? PriceHelper.formatINR(paymentEntity?.payableAdvance??""):"",
+            advancePayment:isAdvancedPaid ? PriceHelper.formatINR(advancedPayment):"",
+            agreedPrice:   agreedPrice.isNotEmpty ? PriceHelper.formatINR(agreedPrice):"",
+            advancedPaymentPer: advancedPaymentPercentage,
+            balancePayment: isBalancePaid ?  PriceHelper.formatINR(balancePayment) :"",
+            onViewTap: () {
+
+            },
+            // tripPrice: "1000",
+          ),
+        ]
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
@@ -594,7 +602,7 @@ class LoadDetailsWidget extends StatelessWidget {
             ),
 
             Text(
-              "${loadDetails?.weight?.value} Ton",
+              "${loadDetails?.weight?.value} ${context.appText.ton}",
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
@@ -834,39 +842,40 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   required String agreedAdvance,
   String? advancePayment,
   String? balancePayment,
-  required int paymentStatus,
   VoidCallback? onViewTap,
-  String? paymentPercentange
+  String? advancedPaymentPer
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
+
+      if((agreedPrice??"").isNotEmpty)
         _buildPriceRow(
           context.appText.agreedPrice,
           agreedPrice ?? '',
           context,
           highlight: true,
         ),
-      8.height,
+      if((agreedAdvance??"").isNotEmpty)
+...[      8.height,
       _buildPriceRow(
         context.appText.agreedAdvance,
         agreedAdvance,
         context,
         highlight: true,
-      ),
-      12.height,
-
-      if (paymentStatus == 2 || paymentStatus == 3 || paymentStatus == 4)
-        _buildStatusRow(
-          title: '${context.appText.advancePayment} (80%)',
+      ),],
+      if((advancePayment??"").isNotEmpty)
+     ...[ 12.height,
+      _buildStatusRow(
+          title: '${context.appText.advancePayment} ($advancedPaymentPer%)',
           amount: advancePayment ?? "",
           statusText: context.appText.received,
           statusColor: AppColors.lightGreenBox,
-        ),
+        ),],
 
-      if (paymentStatus == 3)
-        Padding(
+
+      if((balancePayment??"").isNotEmpty)
+   ...[   Padding(
           padding: const EdgeInsets.only(top: 12),
           child: _buildStatusRow(
             title: context.appText.balancePayment,
@@ -876,7 +885,9 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
           ),
         ),
 
-      12.height,
+     12.height,
+   ]
+
       // if (paymentStatus != 4)
       //   Align(
       //     alignment: Alignment.center,

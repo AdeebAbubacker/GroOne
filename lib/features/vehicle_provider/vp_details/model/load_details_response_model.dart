@@ -1450,6 +1450,8 @@ class LoadPaymentDetails {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
+  final bool? payableAdvancedPaidFlag;
+  final bool? payableBalancePaidFlag;
 
   LoadPaymentDetails({
     this.id,
@@ -1474,6 +1476,8 @@ class LoadPaymentDetails {
     this.createdAt,
     this.updatedAt,
     this.deletedAt,
+    this.payableAdvancedPaidFlag,
+    this.payableBalancePaidFlag,
   });
 
   factory LoadPaymentDetails.fromJson(Map<String, dynamic> json) {
@@ -1500,6 +1504,8 @@ class LoadPaymentDetails {
       createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
       updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
       deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+      payableAdvancedPaidFlag: json['payableAdvancePaidFlg']??false,
+      payableBalancePaidFlag: json['payableBalancePaidFlg']??false,
     );
   }
 

@@ -367,7 +367,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       ToastMessages.success(message:  context.appText.panVerifiedSuccessfully);
     }
     if (kycCubit.state.panState?.status == Status.ERROR) {
-      ToastMessages.alert(message: context.appText.invalidTANNumber);
+      ToastMessages.alert(message: context.appText.invalidPANNumber);
     }
   }
 

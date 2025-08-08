@@ -100,11 +100,10 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
         loadId: widget.loadId!,
         courierCompany: courierCompanyTextController.text,
         awbNumber: awbNumberTextController.text,
-        podCenterId: podCenterIdDropDownValue!,
-        podCenterName: podCenterNameDropDownValue!
+        podCenterId: podCenterIdDropDownValue??"",
+        podCenterName: podCenterNameDropDownValue??""
     );
     cubit.submitPod(request);
-
   }
 
 

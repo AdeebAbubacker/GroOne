@@ -59,8 +59,13 @@ import 'package:multi_dropdown/multi_dropdown.dart';
 
 import '../../../data/ui_state/status.dart';
 
+
+
+
 class MasterScreen extends StatefulWidget {
-  const MasterScreen({super.key});
+ final int? initialIndex;
+
+  const MasterScreen({super.key,this.initialIndex});
 
   @override
   State<MasterScreen> createState() => _MasterScreenState();
@@ -101,9 +106,15 @@ class _MasterScreenState extends State<MasterScreen>
   }
 
   void initFunction() {
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+        initialIndex: widget.initialIndex ?? 0,
+        length: 3, vsync: this,
+
+    );
     _checkAuthenticationAndLoadData();
   }
+
+
 
   /// Check authentication status before loading data
   Future<void> _checkAuthenticationAndLoadData() async {
@@ -1085,7 +1096,7 @@ class _MasterScreenState extends State<MasterScreen>
     listener: (context, state) {
       //  (vehicle existence)
       if (state.vehicleVerificationState?.status == Status.ERROR) {
-        print("--------eerror ${state.vehicleVerificationState?.data?.message}");
+
         ToastMessages.error(
           message: context.appText.vehicleRegNoAlreadyExcist,
         );

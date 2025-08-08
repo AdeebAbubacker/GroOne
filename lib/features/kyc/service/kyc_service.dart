@@ -73,8 +73,15 @@ class KycService {
 
   /// Verify Gst Service
   Future<Result<bool>> verifyGst(VerifyGstApiRequest request) async {
+    final xApiKey = ApiUrls.xApiKey;
+    final udid = ApiUrls.fetchUDID;
     try {
-      final result = await _apiService.post(ApiUrls.gst, body: request);
+      final result = await _apiService.post(ApiUrls.gst, body: request.toJson(),
+        customHeaders: {
+          "X-API-Key":xApiKey,
+          "X-Application-UDID":udid
+        },
+      );
       if (result is Success) {
         return Success(true);
       } else if (result is Error) {
@@ -90,8 +97,16 @@ class KycService {
 
   /// Verify Tan Service
   Future<Result<bool>> verifyTan(VerifyTanApiRequest request) async {
+    final xApiKey = ApiUrls.xApiKey;
+    final udid = ApiUrls.fetchUDID;
+
     try {
-      final result = await _apiService.post(ApiUrls.tan, body: request);
+      final result = await _apiService.post(ApiUrls.tan, body: request,
+        customHeaders: {
+          "X-API-Key":xApiKey,
+          "X-Application-UDID":udid
+        },
+      );
       if (result is Success) {
         return Success(true);
       } else if (result is Error) {
@@ -107,8 +122,17 @@ class KycService {
 
   /// Verify Pan Service
   Future<Result<bool>> verifyPan(VerifyPanApiRequest request) async {
+    print("calling here");
+    final xApiKey = ApiUrls.xApiKey;
+    final udid = ApiUrls.fetchUDID;
     try {
-      final result = await _apiService.post(ApiUrls.pan, body: request);
+      final result = await _apiService.post(ApiUrls.pan, body: request.toJson(),
+        customHeaders: {
+          "X-API-Key":xApiKey,
+          "X-Application-UDID":udid
+        },
+
+      );
       if (result is Success) {
         return Success(true);
       } else if (result is Error) {
