@@ -393,7 +393,12 @@ void initLocator() {
     );
 
     // GPS Services
-    locator.registerLazySingleton(() => GpsLoginService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => GpsLoginService(
+        locator<ApiService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
     locator.registerLazySingleton(() => GpsRealmService());
     locator.registerLazySingleton(() => HasInternetConnection());
     locator.registerLazySingleton(() => GpsDataRefreshService());
