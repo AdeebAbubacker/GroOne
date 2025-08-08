@@ -9,7 +9,7 @@ class VehicleListState {
   final bool showMapView;
   final bool trafficEnabled;
   final MapType mapType;
-  
+
   // Dashboard specific state
   final String? selectedVehicleNumber;
   final bool isWeeklyDistanceLoading;
@@ -60,10 +60,13 @@ class VehicleListState {
       showMapView: showMapView ?? this.showMapView,
       trafficEnabled: trafficEnabled ?? this.trafficEnabled,
       mapType: mapType ?? this.mapType,
-      selectedVehicleNumber: selectedVehicleNumber ?? this.selectedVehicleNumber,
-      isWeeklyDistanceLoading: isWeeklyDistanceLoading ?? this.isWeeklyDistanceLoading,
+      selectedVehicleNumber:
+          selectedVehicleNumber ?? this.selectedVehicleNumber,
+      isWeeklyDistanceLoading:
+          isWeeklyDistanceLoading ?? this.isWeeklyDistanceLoading,
       weeklyDistance: weeklyDistance ?? this.weeklyDistance,
-      selectedVehicleDistanceData: selectedVehicleDistanceData ?? this.selectedVehicleDistanceData,
+      selectedVehicleDistanceData:
+          selectedVehicleDistanceData ?? this.selectedVehicleDistanceData,
     );
   }
 

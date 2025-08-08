@@ -1,7 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:ui' as ui;
 
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -25,23 +26,46 @@ class PathReplayCubit extends Cubit<PathReplayState> {
     _loadCustomMarker();
   }
 
+  Future<BitmapDescriptor> _getResizedBitmapDescriptor(
+    String assetPath, {
+    int targetWidth = 32,
+  }) async {
+    final ByteData data = await rootBundle.load(assetPath);
+    final codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: targetWidth,
+    );
+    final frame = await codec.getNextFrame();
+    final ByteData? resizedImage = await frame.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+    return BitmapDescriptor.fromBytes(resizedImage!.buffer.asUint8List());
+  }
+
   Future<void> _loadCustomMarker() async {
     try {
-      final icon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(64, 64)),
-        'assets/icons/png/vehicle_icon.png',
+      // Use the working resizing method with appropriate size for map
+      final icon = await _getResizedBitmapDescriptor(
+        'assets/images/png/red_car.png',
+        targetWidth: 32, // Appropriate size for map display
       );
       emit(state.copyWith(truckIcon: icon));
     } catch (e) {
+      print('Failed to load red car icon: $e');
       // Fallback to the original truck icon if the new one fails to load
       try {
-        final fallbackIcon = await BitmapDescriptor.fromAssetImage(
-          const ImageConfiguration(size: Size(48, 48)),
+        final fallbackIcon = await _getResizedBitmapDescriptor(
           'assets/images/png/vp.png',
+          targetWidth: 32,
         );
         emit(state.copyWith(truckIcon: fallbackIcon));
       } catch (fallbackError) {
-        emit(state.copyWith(errorMessage: 'Failed to load vehicle icon'));
+        print('Failed to load fallback icon: $fallbackError');
+        // Final fallback to a red default marker
+        final finalFallback = BitmapDescriptor.defaultMarkerWithHue(
+          BitmapDescriptor.hueRed,
+        );
+        emit(state.copyWith(truckIcon: finalFallback));
       }
     }
   }

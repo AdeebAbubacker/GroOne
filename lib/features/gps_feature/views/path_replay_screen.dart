@@ -272,61 +272,8 @@ class PathReplayView extends StatelessWidget {
     return Stack(
       children: [
         PathReplayMapWidget(state: state),
-        _buildAddressOverlay(context, state),
         _buildBottomStatsPanel(context, state),
       ],
-    );
-  }
-
-  Widget _buildAddressOverlay(BuildContext context, PathReplayState state) {
-    final hasData =
-        state.pathType == 'ignition'
-            ? state.tripPathPositions.isNotEmpty
-            : state.pathPositions.isNotEmpty;
-
-    if (!hasData) return const SizedBox.shrink();
-
-    // Don't show address overlay for ignition and daily paths since we're not tracking current position
-    if (state.pathType == 'ignition' || state.pathType == 'daily')
-      return const SizedBox.shrink();
-
-    final currentIndex = state.currentIndex.clamp(
-      0,
-      state.pathType == 'ignition'
-          ? state.tripPathPositions.length - 1
-          : state.pathPositions.length - 1,
-    );
-
-    final currentPosition = LatLng(
-      state.pathPositions[currentIndex].latitude!,
-      state.pathPositions[currentIndex].longitude!,
-    );
-
-    return Positioned(
-      top: 120,
-      left: 30,
-      right: 30,
-      child: Center(
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(12),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 8,
-                offset: const Offset(0, 2),
-              ),
-            ],
-          ),
-          child: Text(
-            state.currentAddress,
-            style: const TextStyle(fontSize: 15, color: Colors.black87),
-            textAlign: TextAlign.center,
-          ),
-        ),
-      ),
     );
   }
 
@@ -745,13 +692,15 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
     if (currentPosition != null) {
       if (widget.state.pathType == 'ignition' ||
           widget.state.pathType == 'daily') {
-        // For ignition and daily paths, show static vehicle icon (same as regular path but without rotation)
+        // For ignition and daily paths, show vehicle icon with rotation
         if (widget.state.truckIcon != null) {
+          final cubit = context.read<PathReplayCubit>();
           markers.add(
             Marker(
               markerId: const MarkerId('vehicle'),
               position: currentPosition,
               icon: widget.state.truckIcon!,
+              rotation: cubit.getCurrentRotation(),
               flat: true,
               anchor: const Offset(0.5, 0.5),
               infoWindow: InfoWindow(

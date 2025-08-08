@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 
@@ -168,12 +170,13 @@ class GpsMapHelper {
     BitmapDescriptor vehicleIcon;
 
     try {
-      // Try to load the custom vehicle icon
-      vehicleIcon = await BitmapDescriptor.fromAssetImage(
-        const ImageConfiguration(size: Size(64, 64)),
-        'assets/icons/png/vehicle_icon.png',
+      // Try to load the custom vehicle icon with appropriate size for map
+      vehicleIcon = await _getResizedBitmapDescriptor(
+        'assets/images/png/red_car.png',
+        targetWidth: 32,
       );
     } catch (e) {
+      print('Failed to load red car icon in helper: $e');
       // Fallback to default yellow marker if custom icon fails to load
       vehicleIcon = BitmapDescriptor.defaultMarkerWithHue(
         BitmapDescriptor.hueYellow,
@@ -191,6 +194,23 @@ class GpsMapHelper {
       flat: true,
       anchor: const Offset(0.5, 0.5),
     );
+  }
+
+  /// Helper method to resize bitmap descriptor
+  static Future<BitmapDescriptor> _getResizedBitmapDescriptor(
+    String assetPath, {
+    int targetWidth = 32,
+  }) async {
+    final ByteData data = await rootBundle.load(assetPath);
+    final codec = await ui.instantiateImageCodec(
+      data.buffer.asUint8List(),
+      targetWidth: targetWidth,
+    );
+    final frame = await codec.getNextFrame();
+    final ByteData? resizedImage = await frame.image.toByteData(
+      format: ui.ImageByteFormat.png,
+    );
+    return BitmapDescriptor.fromBytes(resizedImage!.buffer.asUint8List());
   }
 
   /// Creates a geofence circle marker
