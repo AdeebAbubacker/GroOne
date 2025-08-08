@@ -18,6 +18,9 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
   VpCreateAccountCubit(this._repository) : super(VpCreateAccountState());
 
 
+
+
+
   // Create Account Api Call
   void _setSendOtpUIState(UIState<UserModel?>? uiState){
     emit(state.copyWith(createAccountUIState: uiState));
@@ -67,14 +70,41 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
 
 
   // Fetch Pref Lane Api Call
-  void _setPrefLaneUIState(UIState<TruckPrefLaneModel>? uiState){
-    emit(state.copyWith(prefLaneUIState: uiState));
+  void _setPrefLaneUIState(UIState<TruckPrefLaneModel>? uiState,{int? currentPage}){
+    emit(state.copyWith(
+        currentPage: currentPage,
+        prefLaneUIState: uiState));
   }
-  Future<void> fetchPrefLane(String? location) async {
-    _setPrefLaneUIState(UIState.loading());
-    Result result = await _repository.getPrefTruckLaneData(location);
+
+  Future<void> fetchPrefLane(String? location,{bool isInit=false}) async {
+    if(isInit){
+      emit(state.copyWith(currentPage: 1, prefLaneUIState: UIState.loading()));
+    }
+    final existingModel = state.prefLaneUIState?.data;
+    if (!isInit && existingModel != null) {
+      final total = existingModel.data?.total ?? 0;
+      final limit = existingModel.data?.limit ?? 0;
+      List lanesItems = existingModel.data?.items ?? [];
+      final currentPage = state.currentPage ?? 1;
+      if (total <= (currentPage - 1) * limit &&  lanesItems.length>=total) {
+        return; // stop calling API
+      }
+    }
+
+    Result result = await _repository.getPrefTruckLaneData(location,page: state.currentPage??1);
     if (result is Success<TruckPrefLaneModel>) {
-      _setPrefLaneUIState(UIState.success(result.value));
+      List<Item> newLens=result.value.data?.items??[];
+      List<Item> oldLanes=state.prefLaneUIState?.data?.data?.items??[];
+      TruckPrefLaneModel lanesModel=result.value;
+      final newLanesModel=lanesModel.copyWith(
+        data: lanesModel.data?.copyWith(
+          items: [
+            ...newLens,
+            ...oldLanes
+          ]
+        )
+      );
+      _setPrefLaneUIState(UIState.success(newLanesModel), currentPage: (state.currentPage??0)+1);
     }
     if (result is Error) {
       _setPrefLaneUIState(UIState.error(result.type));

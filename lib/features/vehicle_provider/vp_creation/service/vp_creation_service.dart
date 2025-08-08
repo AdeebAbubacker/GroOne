@@ -60,10 +60,16 @@ class VpCreationService {
   }
 
   // Fetch Truck Pref Lane
-  Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location) async {
+  Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location,{int? currentPage}) async {
     try {
       final url = location?.isNotEmpty == true ? "${ApiUrls.truckPrefLane}?search=$location" : ApiUrls.truckPrefLane;
-      final result = await _apiService.get(url);
+      final result = await _apiService.get(url,
+       queryParams: {
+        "limit":10,
+         "page":currentPage
+       }
+
+      );
       if (result is Success) {
         final data = TruckPrefLaneModel.fromJson(result.value);
         return Success(data);
@@ -72,7 +78,8 @@ class VpCreationService {
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch(e,stacktress) {
+      print("stacktress is ${stacktress} $e");
       return Error(DeserializationError());
     }
   }

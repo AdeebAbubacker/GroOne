@@ -6,12 +6,14 @@ class VpCreateAccountState extends Equatable {
   final UIState<List<TruckTypeModel>>? truckTypeUIState;
   final UIState<TruckPrefLaneModel>? prefLaneUIState;
   final UIState<UploadRcTruckFileModel>? uploadRcFileUIState;
+  final int? currentPage;
   const VpCreateAccountState({
     this.createAccountUIState,
     this.companyTypeUIState,
     this.truckTypeUIState,
     this.prefLaneUIState,
     this.uploadRcFileUIState,
+    this.currentPage=1
   });
 
   VpCreateAccountState copyWith({
@@ -20,8 +22,10 @@ class VpCreateAccountState extends Equatable {
     UIState<List<TruckTypeModel>>? truckTypeUIState,
     UIState<TruckPrefLaneModel>? prefLaneUIState,
     UIState<UploadRcTruckFileModel>? uploadRcFileUIState,
+    int? currentPage
   }) {
     return VpCreateAccountState(
+      currentPage: currentPage ?? this.currentPage,
       createAccountUIState: createAccountUIState ?? this.createAccountUIState,
       companyTypeUIState: companyTypeUIState ?? this.companyTypeUIState,
       truckTypeUIState: truckTypeUIState ?? this.truckTypeUIState,
@@ -36,6 +40,7 @@ class VpCreateAccountState extends Equatable {
     companyTypeUIState,
     truckTypeUIState,
     prefLaneUIState,
-    uploadRcFileUIState
+    uploadRcFileUIState,
+    currentPage
   ];
 }

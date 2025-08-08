@@ -1,5 +1,5 @@
-class TermsAndconditionsModel {
-    TermsAndconditionsModel({
+class TermsAndConditionsModel {
+    TermsAndConditionsModel({
         required this.message,
         required this.data,
     });
@@ -7,18 +7,18 @@ class TermsAndconditionsModel {
     final String? message;
     final List<TermsAndConditionsDetails> data;
 
-    TermsAndconditionsModel copyWith({
+    TermsAndConditionsModel copyWith({
         String? message,
         List<TermsAndConditionsDetails>? data,
     }) {
-        return TermsAndconditionsModel(
+        return TermsAndConditionsModel(
             message: message ?? this.message,
             data: data ?? this.data,
         );
     }
 
-    factory TermsAndconditionsModel.fromJson(Map<String, dynamic> json){ 
-        return TermsAndconditionsModel(
+    factory TermsAndConditionsModel.fromJson(Map<String, dynamic> json){
+        return TermsAndConditionsModel(
             message: json["message"],
             data: json["data"] == null ? [] : List<TermsAndConditionsDetails>.from(json["data"]!.map((x) => TermsAndConditionsDetails.fromJson(x))),
         );

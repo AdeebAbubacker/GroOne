@@ -25,6 +25,7 @@ class LoadListApiRequest extends Serializable<LoadListApiRequest>{
     this.loadPostDate,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     if (loadStatus != null) 'loadStatus': loadStatus,
     if (page != null) 'page': page,

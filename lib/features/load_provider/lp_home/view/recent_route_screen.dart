@@ -18,7 +18,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -37,11 +36,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
   final lpHomeCubit = locator<LPHomeCubit>();
 
-
   final searchController = TextEditingController();
-
-  Map<String, dynamic>? destination;
-  Map<String, dynamic>? pickup;
 
   int? selectedRecentRoutes;
 
@@ -156,12 +151,6 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       10.height,
-                      //_buildSearchBarWidget(),
-                      // 20.height,
-
-                      // Title
-                      // Text(context.appText.recentRoutes, style: AppTextStyle.body2),
-                      // 10.height,
 
                       ListView.separated(
                         shrinkWrap: true,
@@ -213,9 +202,6 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // if (data.pickUpAddr.isNotEmpty && data.dropAddr.isNotEmpty)
-            // Text("${data.pickUpAddr} - ${ data.dropAddr}".capitalize, style: AppTextStyle.h5),
-            // 10.height,
             Row(
               children: [
 

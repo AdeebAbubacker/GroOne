@@ -146,27 +146,23 @@ class VpHomeService {
     }
   }
 
+
   Future<DirectionResponse?>  getDirectionRoute({required String? pickupLat,String? pickupLong,String? destinationLat,String? destinationLong}) async {
-     Dio _dio=locator<Dio>();
-
      try {
-      return await _dio.get(
-          ApiUrls.googleDirectionApi,
-          queryParameters: {
-            "origin":"${double.tryParse(pickupLat??"0")},${double.tryParse(pickupLong??"0")}",
-            "destination":"${double.tryParse(destinationLat??"0")},${double.tryParse(destinationLong??"0")}",
-            "key":ApiUrls.fetchedMapKEY
-          }
-      ).then((result) {
-        if(result.statusCode==200){
-          return  DirectionResponse.fromJson(result.data);
-        }
-        return null;
-      },);
-
-    } catch (e) {
-      return  null;
-    }
+       final result = await _apiService.get(
+           ApiUrls.googleDirectionApi,
+           queryParams: {
+              "origin":"${double.tryParse(pickupLat??"0")},${double.tryParse(pickupLong??"0")}",
+             "destination":"${double.tryParse(destinationLat??"0")},${double.tryParse(destinationLong??"0")}",
+           });
+       if (result is Success) {
+         final vpLoadAccepted= DirectionResponse.fromJson(result.value);
+         return vpLoadAccepted;
+       }
+     } catch (e) {
+       return  null;
+     }
+     return null;
   }
 
 

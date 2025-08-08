@@ -137,7 +137,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
           buildHeadingText(context.appText.mainDetails),
           buildDMemoDetailWidget(label: context.appText.loadId, value: memoDetails.loadId),
           buildDMemoDetailWidget(label: context.appText.transporter, value: memoDetails.transporter),
-          buildDMemoDetailWidget(label: context.appText.vehicleNumber, value: memoDetails.vehicleNumber ?? ''),
+          buildDMemoDetailWidget(label: context.appText.vehicleNumber, value: memoDetails.vehicleNumber),
           buildDMemoDetailWidget(label: context.appText.memo, value: memoDetails.memoNumber),
           buildDMemoDetailWidget(label: context.appText.lane, value: memoDetails.lane),
           buildDMemoDetailWidget(label: context.appText.totalFreight, value: PriceHelper.formatINR(memoDetails.totalFreight, symbol: 'Rs ')),

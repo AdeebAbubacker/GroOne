@@ -343,7 +343,7 @@ class Lane {
   }) {
     return Lane(
       id: id ?? this.id,
-      masterLaneId: masterLaneId ?? this.masterLaneId,
+      masterLaneId: masterLaneId,
       fromLocationId: fromLocationId ?? this.fromLocationId,
       toLocationId: toLocationId ?? this.toLocationId,
       fromLocation: fromLocation ?? this.fromLocation,

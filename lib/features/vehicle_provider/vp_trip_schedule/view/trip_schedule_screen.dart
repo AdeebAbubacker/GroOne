@@ -34,14 +34,14 @@ import '../../../../utils/app_dropdown.dart' show AppDropdown;
 
 class TripScheduleScreen extends StatefulWidget {
   final String? loadId;
-  const TripScheduleScreen({super.key,this.loadId});
+
+  const TripScheduleScreen({super.key, this.loadId});
 
   @override
   State<TripScheduleScreen> createState() => _TripScheduleScreenState();
 }
 
 class _TripScheduleScreenState extends State<TripScheduleScreen> {
-
   List<VehicleDetail> vehicleDetail = [];
   List<DriverDetails> driverDetails = [];
   final vpHomeScreenBloc = locator<VpHomeBloc>();
@@ -55,37 +55,35 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   String? possibleDeliveryDate;
   final formKey = GlobalKey<FormState>();
 
-
   @override
   void initState() {
     initFunction();
     super.initState();
   }
 
-
-  void clearValues()=> frameCallback((){
+  void clearValues() => frameCallback(() {
     cubit.resetTripScheduleUIState();
   });
 
-  Future onRefresh() async=>frameCallback(() => initFunction());
-
+  Future onRefresh() async => frameCallback(() => initFunction());
 
   void initFunction() => frameCallback(() async {
     cubit.resetState();
-    String? userId= await vpHomeScreenBloc.getUserId()??"0";
+    String? userId = await vpHomeScreenBloc.getUserId() ?? "0";
 
+    vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId.toString()));
     vpHomeScreenBloc.add(
-      VpVehicleListRequested(userId:userId.toString() ),
-    );
-    vpHomeScreenBloc.add(
-      VpDriverDetailsRequested( userId:userId.toString() ??"" ),
+      VpDriverDetailsRequested(userId: userId.toString() ?? ""),
     );
     //  Call your init methods
   });
 
-
- Future<void> addVehicleAndDriver() async {
-   await Navigator.of(context).push(commonRoute(MasterScreen(), isForward: true));
+  Future<void> addVehicleAndDriver(int index) async {
+    await Navigator.of(
+      context,
+    ).push(commonRoute(MasterScreen(
+      initialIndex:index ,
+    ), isForward: true));
     onRefresh();
   }
 
@@ -93,172 +91,229 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: CommonAppBar(backgroundColor: AppColors.white, title:context.appText.tripScheduling),
-      body:_buildBodyWidget(),
+      appBar: CommonAppBar(
+        backgroundColor: AppColors.white,
+        title: context.appText.tripScheduling,
+      ),
+      body: _buildBodyWidget(),
     );
   }
 
-  Widget _buildBodyWidget(){
+  Widget _buildBodyWidget() {
     return RefreshIndicator(
-      onRefresh: () async=> await onRefresh(),
+      onRefresh: () async => await onRefresh(),
       child: SingleChildScrollView(
         child: BlocListener(
           bloc: vpHomeScreenBloc,
           listener: (context, state) {
             if (state is VpVehicleListSuccess) {
               setState(() {
-                vehicleDetail = state.vehicleListResponse.data.where((element) => element.status==1).toList();
+                vehicleDetail =
+                    state.vehicleListResponse.data
+                        .where((element) => element.status == 1)
+                        .toList();
               });
             }
             if (state is VpDriverListSuccess) {
-
               setState(() {
-                driverDetails = state.driverListResponse.data.where((element) => element.status==1).toList();
+                driverDetails =
+                    state.driverListResponse.data
+                        .where((element) => element.status == 1)
+                        .toList();
               });
             }
           },
-          child: BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
-                bloc:cubit,
-                builder: (context, state)  {
-                  LoadDetailModelData? loadDetails=state.loadDetailsUIState?.data?.data;
-                return Form(
-                  key: formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 20,
-                    children: [
-                      TripDetails(),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                          truckNoSearchableDropdown(
-                          context,
-                          truckType,
-                          (truckId) {
-                            setState(() {
-                              truckType = truckId;
-                            });
-                          },
-                          vehicleDetail,
+          child: BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+            bloc: cubit,
+            builder: (context, state) {
+              LoadDetailModelData? loadDetails =
+                  state.loadDetailsUIState?.data?.data;
+              return Form(
+                key: formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 20,
+                  children: [
+                    TripDetails(),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 8,
+                      children: [
+                        truckNoSearchableDropdown(context, truckType, (
+                          truckId,
+                        ) {
+                          setState(() {
+                            truckType = truckId;
+                          });
+                         }, vehicleDetail),
+
+                        GestureDetector(
+                          onTap: () => addVehicleAndDriver(
+                            1
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(Icons.add_circle_outline,size: 15,),
+                              5.width,
+                              Text(context.appText.addVehicle),
+                            ],
+                          ),
                         ),
+                      ],
+                    ),
 
-                          GestureDetector(
-                              onTap: () => addVehicleAndDriver(),
-                              child: Text(context.appText.addVehicle)),
-                        ],
-                      ),
-
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 8,
-                        children: [
-                           driverDropdown(
-                          context,
-                          driverType,
-                          (driverId) {
-                            setState(() {
-                              driverType = driverId;
-                            });
-                          },
-                          driverDetails,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      spacing: 8,
+                      children: [
+                        driverDropdown(context, driverType, (driverId) {
+                          setState(() {
+                            driverType = driverId;
+                          });
+                        }, driverDetails),
+                        GestureDetector(
+                          onTap: () => addVehicleAndDriver(2),
+                          child: Row(
+                            children: [
+                              Icon(Icons.add_circle_outline,size: 15,),
+                              5.width,
+                              Text(context.appText.addDriver),
+                            ],
+                          ),
                         ),
-                          GestureDetector(
-                              onTap: () => addVehicleAndDriver(),
-                              child: Text(context.appText.addDriver)),
-                        ],
+                      ],
+                    ),
+
+                    ///Scheduled Pickup Date
+                    buildReadOnlyField(
+                      context.appText.schedulePickUpDate,
+                      DateTimeHelper.formatCustomDate(
+                        loadDetails?.pickUpDateTime ?? DateTime.now(),
                       ),
+                      fillColor: Color(0xffEBEBEB),
+                    ),
 
-                      ///Scheduled Pickup Date
-                      buildReadOnlyField(context.appText.schedulePickUpDate,DateTimeHelper.formatCustomDate(loadDetails?.pickUpDateTime??DateTime.now()), fillColor: Color(0xffEBEBEB)),
-
-                      ///Expected Delivery date
-
-                      buildReadOnlyField(context.appText.expectedDeliveryDate,DateTimeHelper.formatCustomDate(loadDetails?.expectedDeliveryDateTime??DateTime.now()), fillColor: Color(0xffEBEBEB)),
-
-                      ///Possible Delivery date
-                      InkWell(
-                          onTap: () async {
-                            final String? date = await commonDatePicker(
-                              context,
-                              firstDate: DateTime.now(),
-                              initialDate: DateTimeHelper.convertToDateTimeWithCurrentTime( DateTime.now().toString()),
-                            );
-                            if(!context.mounted) return;
-                            final String? time = await commonTimePicker(context);
-
-                            if (date != null && time != null) {
-                              cubit.updatePossibleDeliveryDateDate("$date, $time");
-                              possibleDeliveryDate =  DateTimeHelper.convertToApiDateTime(date, time);
-                            }
-                            },
-                          child: buildReadOnlyField(context.appText.possibleDeliveryDate, state.possibleDeliveryDate ?? "Possible Pickup Date", fillColor: Colors.white,mandatoryStar: true)
+                    ///Expected Delivery date
+                    buildReadOnlyField(
+                      context.appText.expectedDeliveryDate,
+                      DateTimeHelper.formatCustomDate(
+                        loadDetails?.expectedDeliveryDateTime ?? DateTime.now(),
                       ),
+                      fillColor: Color(0xffEBEBEB),
+                    ),
 
-                      BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
-                        listener: (context, state) {
-                          if(state.scheduleTripResponse?.status==Status.SUCCESS){
-                            cubit.acceptLoad(4);
-                          }
-                          },
-                        builder: (context, state) {
-                          return AppButton(
-                            isLoading: state.scheduleTripResponse?.status==Status.LOADING,
-                            title: context.appText.scheduleTrip,
-                            style: AppButtonStyle.primary.copyWith(
-                              shape: WidgetStatePropertyAll(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
+                    ///Possible Delivery date
+                    InkWell(
+                      onTap: () async {
+                        final String? date = await commonDatePicker(
+                          context,
+                          firstDate: DateTime.now(),
+                          initialDate:
+                              DateTimeHelper.convertToDateTimeWithCurrentTime(
+                                DateTime.now().toString(),
+                              ),
+                        );
+                        if (!context.mounted) return;
+                        final String? time = await commonTimePicker(context);
+
+                        if (date != null && time != null) {
+                          cubit.updatePossibleDeliveryDateDate("$date, $time");
+                          possibleDeliveryDate =
+                              DateTimeHelper.convertToApiDateTime(date, time);
+                        }
+                      },
+                      child: buildReadOnlyField(
+                        context.appText.possibleDeliveryDate,
+                        state.possibleDeliveryDate ?? "Possible Pickup Date",
+                        fillColor: Colors.white,
+                        mandatoryStar: true,
+                      ),
+                    ),
+
+                    BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+                      listener: (context, state) {
+                        if (state.scheduleTripResponse?.status ==
+                            Status.SUCCESS) {
+                          cubit.acceptLoad(4);
+                        }
+                      },
+                      builder: (context, state) {
+                        return AppButton(
+                          isLoading:
+                              state.scheduleTripResponse?.status ==
+                              Status.LOADING,
+                          title: context.appText.scheduleTrip,
+                          style: AppButtonStyle.primary.copyWith(
+                            shape: WidgetStatePropertyAll(
+                              RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
                               ),
                             ),
-                            onPressed: () async {
-                              if(formKey.currentState!.validate()){
-                                if(possibleDeliveryDate==null){
-                                  ToastMessages.error(message:  context.appText.possibleDeliveryDateValidation);
-                                  return;
-                                }
+                          ),
+                          onPressed: () async {
+                            if (formKey.currentState!.validate()) {
+                              if (possibleDeliveryDate == null) {
+                                ToastMessages.error(
+                                  message:
+                                      context
+                                          .appText
+                                          .possibleDeliveryDateValidation,
+                                );
+                                return;
+                              }
 
-                                String? userId=await vpHomeScreenBloc.getUserId();
-                                cubit.scheduleTripApi(ScheduleTripRequest(
+                              String? userId =
+                                  await vpHomeScreenBloc.getUserId();
+                              cubit.scheduleTripApi(
+                                ScheduleTripRequest(
                                   loadId: loadDetails?.loadId ?? "",
-                                  expectedDeliveryDate: loadDetails?.expectedDeliveryDateTime?.toString(),
+                                  expectedDeliveryDate:
+                                      loadDetails?.expectedDeliveryDateTime
+                                          ?.toString(),
                                   vehicleId: truckType,
                                   driverId: driverType ?? "0",
-                                  acceptedBy: userId??"",
-                                  etaForPickUp: (loadDetails?.pickUpDateTime.toString()??DateTime.now()).toString(),
-                                  possibleDeliveryDate:possibleDeliveryDate,
-                                ),);
-                              }
-                              },
-                          );
-                        },
-                      ),
+                                  acceptedBy: userId ?? "",
+                                  etaForPickUp:
+                                      (loadDetails?.pickUpDateTime.toString() ??
+                                              DateTime.now())
+                                          .toString(),
+                                  possibleDeliveryDate: possibleDeliveryDate,
+                                ),
+                              );
+                            }
+                          },
+                        );
+                      },
+                    ),
 
-                      10.height,
-
-                    ],
-                  ).paddingSymmetric(horizontal: 15),
-                );
-              }
-
-            )
-
+                    10.height,
+                  ],
+                ).paddingSymmetric(horizontal: 15),
+              );
+            },
+          ),
         ),
       ),
     );
   }
 
-  Widget buildReadOnlyField(String label, String value,{Color? fillColor, bool mandatoryStar = false}) {
+  Widget buildReadOnlyField(
+    String label,
+    String value, {
+    Color? fillColor,
+    bool mandatoryStar = false,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Text(label, style: AppTextStyle.textFiled),
-            if(mandatoryStar)
-              Text(" *",
-                  style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            if (mandatoryStar)
+              Text(
+                " *",
+                style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+              ),
           ],
         ),
         6.height,
@@ -266,110 +321,97 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
           decoration: commonContainerDecoration(
-              color: fillColor ?? AppColors.lightGreyBackgroundColor,
-              borderRadius: BorderRadius.circular(commonTexFieldRadius),
-              borderColor: AppColors.borderDisableColor),
+            color: fillColor ?? AppColors.lightGreyBackgroundColor,
+            borderRadius: BorderRadius.circular(commonTexFieldRadius),
+            borderColor: AppColors.borderDisableColor,
+          ),
           child: Text(value, style: AppTextStyle.textFiled),
         ),
       ],
     );
   }
 
+  static Widget truckNoSearchableDropdown(
+    BuildContext context,
+    String? selectedTruckId,
+    ValueChanged<String?> onTruckChanged,
+    List<VehicleDetail> vehicleList,
+  ) {
+    // Create a list of truck numbers for dropdown items
+    final truckNumbers = vehicleList.map((e) => e.truckNumber).toList();
 
-
-    static Widget truckNoSearchableDropdown(
-      BuildContext context,
-      String? selectedTruckId,
-      ValueChanged<String?> onTruckChanged,
-      List<VehicleDetail> vehicleList,
-    ) {
-      // Create a list of truck numbers for dropdown items
-      final truckNumbers = vehicleList.map((e) => e.truckNumber).toList();
-
-      return SearchableDropdown(
-        labelText: context.appText.truckNumber,
-        mandatoryStar: true,
-        selectedItem: selectedTruckId != null
-            ? vehicleList.firstWhere(
-                (v) => v.id == selectedTruckId,
-              ).truckNumber
-            : null,
-        items: truckNumbers,
-        hintText: context.appText.select,
-        onChanged: (String? newTruckNumber) {
-          if (newTruckNumber != null) {
-            final selectedVehicle = vehicleList.firstWhere(
-              (v) => v.truckNumber == newTruckNumber,
-            );
-            if (selectedVehicle.id != null && selectedVehicle.id!.isNotEmpty) {
-              onTruckChanged(selectedVehicle.id);
-            } else {
-              onTruckChanged(null);
-            }
-          }
-        },
-        dropdownBuilder: (context, selectedItem) {
-          if (selectedItem == null || selectedItem.isEmpty) {
-            return SizedBox.shrink();
-          }
-          return Row(
-            children: [
-              Text(selectedItem),
-            ],
+    return SearchableDropdown(
+      labelText: context.appText.truckNumber,
+      mandatoryStar: true,
+      selectedItem:
+          selectedTruckId != null
+              ? vehicleList
+                  .firstWhere((v) => v.id == selectedTruckId)
+                  .truckNumber
+              : null,
+      items: truckNumbers,
+      hintText: context.appText.select,
+      onChanged: (String? newTruckNumber) {
+        if (newTruckNumber != null) {
+          final selectedVehicle = vehicleList.firstWhere(
+            (v) => v.truckNumber == newTruckNumber,
           );
-        },
-        emptyBuilder: (context, _) => const Center(child: Text("No trucks found")),
-      );
-      }
-
-
-
-    static Widget driverDropdown(
-  BuildContext context,
-  String? selectedDriverId,
-  ValueChanged<String?> onDriverChanged,
-  List<DriverDetails> driverList,
-) {
-  // Create a list of truck numbers for dropdown items
-  final truckNumbers = driverList.map((e) => e.name).toList();
-
-  return SearchableDropdown(
-    labelText: context.appText.driverNameAndNumber,
-    mandatoryStar: true,
-    selectedItem: selectedDriverId != null
-        ? driverList.firstWhere(
-            (v) => v.id == selectedDriverId,
-          ).name
-        : null,
-    items: truckNumbers,
-    hintText: context.appText.select,
-    onChanged: (String? newDriver) {
-      if (newDriver != null) {
-        final selectedDriver = driverList.firstWhere(
-          (v) => v.name == newDriver,
-        );
-        if (selectedDriver.id != null && selectedDriver.id!.isNotEmpty) {
-          onDriverChanged(selectedDriver.id);
-        } else {
-          onDriverChanged(null);
+          if (selectedVehicle.id != null && selectedVehicle.id!.isNotEmpty) {
+            onTruckChanged(selectedVehicle.id);
+          } else {
+            onTruckChanged(null);
+          }
         }
-      }
-    },
-    dropdownBuilder: (context, selectedItem) {
-      if (selectedItem == null || selectedItem.isEmpty) {
-        return SizedBox.shrink();
-      }
-      return Row(
-        children: [
-          Text(selectedItem),
-        ],
-      );
-    },
-    emptyBuilder: (context, _) => const Center(child: Text("No Driver found")),
-  );
+      },
+      dropdownBuilder: (context, selectedItem) {
+        if (selectedItem == null || selectedItem.isEmpty) {
+          return SizedBox.shrink();
+        }
+        return Row(children: [Text(selectedItem)]);
+      },
+      emptyBuilder:
+          (context, _) => const Center(child: Text("No trucks found")),
+    );
   }
 
+  static Widget driverDropdown(
+    BuildContext context,
+    String? selectedDriverId,
+    ValueChanged<String?> onDriverChanged,
+    List<DriverDetails> driverList,
+  ) {
+    // Create a list of truck numbers for dropdown items
+    final truckNumbers = driverList.map((e) => e.name).toList();
 
+    return SearchableDropdown(
+      labelText: context.appText.driverNameAndNumber,
+      mandatoryStar: true,
+      selectedItem:
+          selectedDriverId != null
+              ? driverList.firstWhere((v) => v.id == selectedDriverId).name
+              : null,
+      items: truckNumbers,
+      hintText: context.appText.select,
+      onChanged: (String? newDriver) {
+        if (newDriver != null) {
+          final selectedDriver = driverList.firstWhere(
+            (v) => v.name == newDriver,
+          );
+          if (selectedDriver.id != null && selectedDriver.id!.isNotEmpty) {
+            onDriverChanged(selectedDriver.id);
+          } else {
+            onDriverChanged(null);
+          }
+        }
+      },
+      dropdownBuilder: (context, selectedItem) {
+        if (selectedItem == null || selectedItem.isEmpty) {
+          return SizedBox.shrink();
+        }
+        return Row(children: [Text(selectedItem)]);
+      },
+      emptyBuilder:
+          (context, _) => const Center(child: Text("No Driver found")),
+    );
   }
-
-
+}

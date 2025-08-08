@@ -1040,5 +1040,24 @@
   "ticketCreatedSuccess": "टिकट सफलतापूर्वक बनाया गया!",
   "balanceUnpaid": "अवैतनिक शेष राशि",
   "adminContact": "एडमिन से संपर्क करें",
-  "kycInProgress": "आपका KYC सत्यापन प्रगति में है। कृपया प्रतीक्षा करें.."
+  "kycInProgress": "आपका KYC सत्यापन प्रगति में है। कृपया प्रतीक्षा करें..",
+  "ccAvenueUrlIsEmpty": "सीसी एवेन्यू यूआरएल खाली है",
+  "isRequired": "आवश्यक है",
+  "emailIsRequired": "ईमेल आवश्यक है",
+  "passwordIsRequired": "पासवर्ड आवश्यक है",
+  "passwordMustBeAtLeast6Digit": "पासवर्ड कम से कम 6 अक्षरों का होना चाहिए।",
+  "pleaseEnterMobileNumber": "कृपया मोबाइल नंबर दर्ज करें",
+  "pleaseEnter10DigitMobileNumber": "कृपया मान्य 10-अंकीय मोबाइल नंबर दर्ज करें",
+  "mobileNumberCannotStartWith0": "मोबाइल नंबर 0 से शुरू नहीं हो सकता",
+  "mobileNumberCannotHaveSameNumber": "मोबाइल नंबर में सभी अंक एक जैसे नहीं हो सकते",
+  "pleaseEnterPinCode": "कृपया पिनकोड दर्ज करें",
+  "pleaseEnterValidPinCode": "कृपया मान्य पिनकोड दर्ज करें",
+  "searchTruckTypes": "ट्रक प्रकार खोजें",
+  "searchRoutes": "रूट खोजें..."
+
+
+
+
+
+
 }

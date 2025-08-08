@@ -12,7 +12,7 @@ class LpLoadVerifyAdvanceResponse {
   LpLoadVerifyAdvanceResponse copyWith({
     bool? success,
     String? message,
-    dynamic? data,
+    dynamic data,
   }) {
     return LpLoadVerifyAdvanceResponse(
       success: success ?? this.success,

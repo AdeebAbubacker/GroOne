@@ -13,11 +13,11 @@ final class TermsAndConditionsInitial extends TermsAndConditionsState {}
 class TermsAndCondtionsLoading extends TermsAndConditionsState {}
 
 class TermsAndCondtionsSuccess extends TermsAndConditionsState {
-  final TermsAndconditionsModel? termsAndconditionsModel;
-  TermsAndCondtionsSuccess(this.termsAndconditionsModel);
+  final TermsAndConditionsModel? termsAndconditionsModel;
+  const TermsAndCondtionsSuccess(this.termsAndconditionsModel);
 }
 
 class TermsAndCondtionsError extends TermsAndConditionsState {
   final ErrorType errorType;
-  TermsAndCondtionsError(this.errorType);
+  const TermsAndCondtionsError(this.errorType);
 }

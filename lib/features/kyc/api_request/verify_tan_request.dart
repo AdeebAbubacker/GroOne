@@ -15,8 +15,7 @@ class VerifyTanApiRequest {
   }
 
   Map<String, dynamic> toJson() => {
-    "tan": tan,
-    "force": force,
+    "tan_number": tan,
   };
 
 }

@@ -13,14 +13,14 @@ class TruckTypeSearchableDropdown extends StatelessWidget {
   final bool mandatoryStar;
 
   const TruckTypeSearchableDropdown({
-    Key? key,
+    super.key,
     required this.selectedTruckTypeId,
     required this.onTruckTypeChanged,
     required this.truckTypeList,
     required this.labelText,
     required this.hintText,
     this.mandatoryStar = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class TruckTypeSearchableDropdown extends StatelessWidget {
             final selectedTruckType = truckTypeList.firstWhere(
               (e) => '${e.type} Truck - ${e.subType}' == newTruckTypeLabel,
             );
-            onTruckTypeChanged(selectedTruckType.id?.toString());
+            onTruckTypeChanged(selectedTruckType.id.toString());
           } catch (e) {
             onTruckTypeChanged(null);
           }

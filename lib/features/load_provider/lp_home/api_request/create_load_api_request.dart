@@ -9,7 +9,6 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
      this.pickUpLatlon,
      this.dropAddr,
      this.dropLatlon,
-     // this.dueDate,
      this.pickUpDateTime,
      this.weightId,
      this.note,
@@ -34,7 +33,6 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
   final String? dropLatlon;
   final String? pickUpLocation;
   final String? dropLocation;
-  // final String? dueDate;
   final String? pickUpDateTime;
   final int? weightId;
   final String? note;
@@ -55,7 +53,6 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     String? pickUpLatlon,
     String? dropAddr,
     String? dropLatlon,
-    // String? dueDate,
     String? pickUpDateTime,
     int? weightId,
     String? note,
@@ -78,7 +75,6 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
       pickUpLatlon: pickUpLatlon ?? this.pickUpLatlon,
       dropAddr: dropAddr ?? this.dropAddr,
       dropLatlon: dropLatlon ?? this.dropLatlon,
-      // dueDate: dueDate ?? this.dueDate,
       pickUpDateTime: pickUpDateTime ?? this.pickUpDateTime,
       weightId: weightId ?? this.weightId,
       note: note ?? this.note,
@@ -104,7 +100,6 @@ class CreateLoadApiRequest extends Serializable<CreateLoadApiRequest> {
     "pickUpLatlon": pickUpLatlon ?? "",
     "dropAddr": dropAddr ?? "",
     "dropLatlon": dropLatlon ?? "",
-    // "dueDate": dueDate ?? "",
     "pickUpDateTime": pickUpDateTime ?? "",
     "weightId": weightId ?? 0,
     "notes": note  ??"",

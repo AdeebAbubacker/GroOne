@@ -116,7 +116,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
   void initFunction() => frameCallback(() async {
     mobileNumberTextController.text = widget.mobileNumber;
     await vpCreationCubit.fetchCompanyType();
-    await vpCreationCubit.fetchPrefLane(null);
+    await vpCreationCubit.fetchPrefLane(null,isInit: true);
     await vpCreationCubit.fetchTruckType();
   });
 
@@ -135,7 +135,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
     multiFilesList.clear();
     verifyEmailCubit.resetState();
     vpCreationCubit.resetState();
-
   });
 
 
@@ -297,7 +296,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Pin code Truck
         AppTextField(
-          validator: (value) => Validator.validateVpPinCode(value),
+          validator: (value) => Validator.pincode(value),
           controller: pinCodeTextController,
           labelText: context.appText.pinCode,
           hintText: "${context.appText.enter} ${context.appText.pinCode}",

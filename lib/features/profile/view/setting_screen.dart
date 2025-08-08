@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/core/localization_bloc/localization_bloc.dart';
 import 'package:gro_one_app/core/localization_bloc/localization_event.dart';
-import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -19,7 +18,6 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_switch_toggle.dart';
-import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
@@ -27,7 +25,6 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/radio_button.dart';
-import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_text_style.dart';
 
@@ -116,13 +113,13 @@ class _LpSettingState extends State<LpSetting> {
                           },
                         );
                       } else if (setting.type == 'radio') {
-                        final options = setting.options.split(',') ?? [];
+                        final options = setting.options.split(',');
                         return Padding(
                           padding: const EdgeInsets.symmetric(vertical: 10),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              ...options.map((opt) => languageRadio(opt, value == opt)).toList()
+                              ...options.map((opt) => languageRadio(opt, value == opt))
                             ],
                           ),
                         );
@@ -179,12 +176,16 @@ class _LpSettingState extends State<LpSetting> {
       ),
     );
   }
-
   void _updateLanguage(String languageCode) async {
-    profileCubit.updateCustomerSettings(request: UpdateSettingsRequest(language: languageCode));
+    final locale = Locale(languageCode.toLowerCase().substring(0, 2));
+    final localeBloc = context.read<LocaleBloc>();
+
+    profileCubit.updateCustomerSettings(
+      request: UpdateSettingsRequest(language: languageCode),
+    );
 
     await prefs.saveKey(AppString.sessionKey.selectedLanguage, languageCode);
-    context.read<LocaleBloc>().add(ChangeLocale(Locale(languageCode.toLowerCase().substring(0,2))));
+    localeBloc.add(ChangeLocale(locale));
   }
 
   Widget headingText(String text) =>

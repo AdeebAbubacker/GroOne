@@ -2,11 +2,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_bottom_widget.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
@@ -22,9 +20,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
 
 import '../model/lp_load_get_by_id_response.dart';
@@ -42,7 +38,6 @@ class LpLoadsLocationDetailsScreen extends StatefulWidget {
 }
 
 class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScreen> {
-  String kilometers = '';
   final lpLoadLocator = locator<LpLoadCubit>();
   Timer? _ticker;
   String _countDown = "00:00:00";
@@ -135,7 +130,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     driverLong: loadItem.trackingDetails?.currentLong,
                   ),
                   buildTopLocationWidget(loadItem, status),
-                  LpLoadBottomWidget(loadItem: loadItem, kilometers: kilometers, loadStatus: status!),
+                  LpLoadBottomWidget(loadItem: loadItem, loadStatus: status!),
                   buildFloatingWidget(status),
                   if(status.index >= LoadStatus.loading.index)
                     buildSimConsentWidget(loadItem),

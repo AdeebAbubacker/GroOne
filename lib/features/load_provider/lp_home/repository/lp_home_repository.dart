@@ -2,7 +2,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/LPGetLoadModel.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/lp_get_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_detail_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/create_load_model.dart';

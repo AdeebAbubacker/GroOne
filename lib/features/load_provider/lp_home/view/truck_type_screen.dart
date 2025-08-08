@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -11,7 +10,6 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
@@ -26,8 +24,6 @@ class TruckTypesScreen extends StatefulWidget {
 
 class _TruckTypesScreenState extends State<TruckTypesScreen> {
 
-
-  int? selectedIndex;
   String selectedType = 'Open'; // default selected
   int? selectedSubTypeIndex;
 
@@ -40,11 +36,6 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
     AppIcons.svg.trailer,
   ];
 
-  List<String> selectTruckLengthList = [
-    AppIcons.svg.truck20Feet,
-    AppIcons.svg.truck22Feet,
-    AppIcons.svg.truck24Feet,
-  ];
 
 
   List<String> getUniqueTypes(List<LoadTruckTypeListModel> dataList) {
@@ -55,30 +46,6 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
   void setState(fn) {
     if (mounted) super.setState(fn);
   }
-
-  @override
-  void initState() {
-    initFunction();
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    disposeFunction();
-
-    super.dispose();
-  }
-
-
-  void initFunction() => frameCallback(() async {
-
-  });
-
-  void disposeFunction() => frameCallback(() {
-
-  });
-
-
 
   @override
   Widget build(BuildContext context) {

@@ -328,7 +328,6 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
       },
       builder: (context, state) {
         final isLoading = state is CreateLoadLoading;
-        final successState = state is CreateLoadSuccess;
         return Row(
           children: [
             AppButton(

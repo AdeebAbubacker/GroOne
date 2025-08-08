@@ -150,8 +150,11 @@ Widget buildUploadedDocPreviewItem({
             ],
           ),
         ),
-
-        // Add more button
+       Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+             // Add more button
         if (shouldShowAdd)
           IconButton(
             icon: Icon(
@@ -195,6 +198,8 @@ Widget buildUploadedDocPreviewItem({
             ),
             onPressed: onClickDownload,
           ),
+       ],),
+   
       ],
     ),
   );

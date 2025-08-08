@@ -22,7 +22,7 @@ class CustomSwipeButton extends StatelessWidget {
       elevation: 0,
       height: commonButtonHeight,
       innerColor: Colors.transparent,
-      outerColor:enable ?const Color(0xffE5EBFF): AppColors.disableColor.withOpacity(0.5),
+      outerColor:enable ?const Color(0xffE5EBFF): AppColors.disableColor.withValues(alpha: 0.5),
       enabled: enable,
       sliderButtonIcon: Visibility(
         visible: enable,
@@ -44,7 +44,7 @@ class CustomSwipeButton extends StatelessWidget {
         alignment: Alignment.centerLeft,
         children: [
           Positioned(left: 16, child: _buildChevron(const Color(0xFFB3C7FF))),
-          Positioned(left: 8, child: _buildChevron(AppColors.primaryColor.withOpacity(0.50))),
+          Positioned(left: 8, child: _buildChevron(AppColors.primaryColor.withValues(alpha: 0.5))),
           _buildChevron(AppColors.primaryColor),
         ],
       ),

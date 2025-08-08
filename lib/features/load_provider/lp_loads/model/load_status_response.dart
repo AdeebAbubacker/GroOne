@@ -27,7 +27,7 @@ class LoadStatusResponse {
     String? statusTxtColor,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadStatusResponse(
       id: id ?? this.id,

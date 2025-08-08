@@ -2,8 +2,6 @@ import 'package:gro_one_app/features/privacy_policy/model/privacy_policy_model.d
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
 import '../../../data/network/api_urls.dart';
-import '../../../utils/app_string.dart';
-import '../../../utils/custom_log.dart';
 
 
 class PrivacyPolicyService {

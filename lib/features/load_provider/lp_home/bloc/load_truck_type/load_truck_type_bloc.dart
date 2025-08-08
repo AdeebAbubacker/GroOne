@@ -3,7 +3,6 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:meta/meta.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
 
 part 'load_truck_type_event.dart';
 part 'load_truck_type_state.dart';

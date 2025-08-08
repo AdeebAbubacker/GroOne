@@ -31,7 +31,7 @@ class Data {
 
     final List<Item> items;
     final int total;
-    final int page;
+    final int? page;
     final int limit;
 
     Data copyWith({
@@ -52,8 +52,9 @@ class Data {
         return Data(
             items: json["items"] == null ? [] : List<Item>.from(json["items"]!.map((x) => Item.fromJson(x))),
             total: json["total"] ?? 0,
-            page: json["page"] ?? 0,
-            limit: json["limit"] ?? 0,
+            page: int.tryParse(json["page"]?.toString() ?? "0"),
+            limit: int.tryParse(json["limit"]?.toString() ?? "0")??0
+
         );
     }
 

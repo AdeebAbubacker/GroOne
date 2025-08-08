@@ -12,7 +12,7 @@ class LoginState extends Equatable {
   final LoginStatus status;
 
   LoginState copyWith({int? counter, LoginStatus? status}) => LoginState(
-    index: counter ?? this.index,
+    index: counter ?? index,
     status: status ?? this.status,
   );
 
@@ -27,11 +27,11 @@ class LogInLoading extends LoginState {}
 
 class LogInSuccess extends LoginState {
   final LoginApiResponseModel loginApiResponseModel;
-  LogInSuccess(this.loginApiResponseModel);
+  const LogInSuccess(this.loginApiResponseModel);
 }
 
 
 class LogInError extends LoginState {
   final ErrorType errorType;
-  LogInError(this.errorType);
+  const LogInError(this.errorType);
 }

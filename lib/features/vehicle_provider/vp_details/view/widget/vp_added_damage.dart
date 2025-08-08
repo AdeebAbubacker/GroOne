@@ -11,29 +11,30 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 class VpAddedDamageWidget extends StatelessWidget {
   final List<DamageReport>? damageReport;
   final List<String>? imageList;
-  const VpAddedDamageWidget({super.key,this.damageReport,this.imageList});
+  const VpAddedDamageWidget({super.key, this.damageReport, this.imageList});
 
   @override
   Widget build(BuildContext context) {
     return Column(
-      spacing: 15,
       children: List.generate(
-
-        damageReport?.length??0, (index) {
-        DamageReport? damageReportModel=damageReport?[index];
-        return addedDamageView(
-          context: context,
-          onEdit: () {
-          },
-          description: damageReportModel?.description??"",
-          imageIDs:  damageReportModel?.image??[],
-          imageUrl:imageList?[index]??"" ,
-          itemName: damageReportModel?.itemName??"",
-          onDelete: () {},
-          quantity: damageReportModel?.quantity.toString()??"",
-
-        );
-      },),
+        damageReport?.length ?? 0,
+        (index) {
+          DamageReport? damageReportModel = damageReport?[index];
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 15),
+            child: addedDamageView(
+              context: context,
+              onEdit: () {},
+              description: damageReportModel?.description ?? "",
+              imageIDs: damageReportModel?.image ?? [],
+              imageUrl: imageList?[index] ?? "",
+              itemName: damageReportModel?.itemName ?? "",
+              onDelete: () {},
+              quantity: damageReportModel?.quantity.toString() ?? "",
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -52,7 +53,7 @@ class VpAddedDamageWidget extends StatelessWidget {
         color: AppColors.extraLightBackgroundColor,
         borderRadius: BorderRadius.circular(12),
       ),
-      height: 110,
+      padding: const EdgeInsets.all(8),
       child: Row(
         children: [
           // Left-side Image with only left corners rounded
@@ -61,13 +62,14 @@ class VpAddedDamageWidget extends StatelessWidget {
               topLeft: Radius.circular(12),
               bottomLeft: Radius.circular(12),
             ),
-            child: SizedBox(
-              width: 110,
-              height: double.infinity,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+              maxWidth: 110,
+            ),
               child: commonCacheNetworkImage(
-                  path: imageUrl,
-                  errorImage: Icons.image_not_supported,
-                  radius: 0
+                path: imageUrl,
+                errorImage: Icons.image_not_supported,
+                radius: 0,
               ),
             ),
           ),
@@ -82,26 +84,116 @@ class VpAddedDamageWidget extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(itemName, style: AppTextStyle.body2),
+                  // Item name with ellipsis if too long
+                  Text(
+                    itemName,
+                    style: AppTextStyle.body2,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+
                   5.height,
-                  Text("${context.appText.quantity}: $quantity", style: AppTextStyle.body4GreyColor),
-                  Text(description, style: AppTextStyle.body4GreyColor),
+
+                  // Quantity
+                  Text(
+                    "${context.appText.quantity}: $quantity",
+                    style: AppTextStyle.body4GreyColor,
+                  ),
+
+                  // Description with expandable "Read More"
+                  ExpandableText(
+                    text: description,
+                    maxLines: 2,
+                    style: AppTextStyle.body4GreyColor,
+                  ),
+
                   5.height,
 
                   InkWell(
-                    onTap: (){
+                    onTap: () {
                       Navigator.of(context).push(createRoute(ViewFileWidget(image: imageIDs)));
                     },
-                    child: Text(context.appText.viewFiles, style: AppTextStyle.body3PrimaryColor),
+                    child: Text(
+                      context.appText.viewFiles,
+                      style: AppTextStyle.body3PrimaryColor,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-
-
         ],
       ),
+    );
+  }
+}
+
+/// ExpandableText Widget 
+class ExpandableText extends StatefulWidget {
+  final String text;
+  final int maxLines;
+  final TextStyle? style;
+
+  const ExpandableText({
+    Key? key,
+    required this.text,
+    this.maxLines = 2,
+    this.style,
+  }) : super(key: key);
+
+  @override
+  _ExpandableTextState createState() => _ExpandableTextState();
+}
+
+class _ExpandableTextState extends State<ExpandableText> {
+  bool isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final text = widget.text;
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final span = TextSpan(text: text, style: widget.style);
+        final tp = TextPainter(
+          text: span,
+          maxLines: widget.maxLines,
+          textDirection: TextDirection.ltr,
+          ellipsis: '...',
+        );
+        tp.layout(maxWidth: constraints.maxWidth);
+
+        final bool isOverflowing = tp.didExceedMaxLines;
+        final linkText = isExpanded ? ' Read Less' : ' Read More';
+
+        if (!isOverflowing) {
+          return Text(text, style: widget.style);
+        } else {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                text,
+                style: widget.style,
+                maxLines: isExpanded ? null : widget.maxLines,
+                overflow: isExpanded ? TextOverflow.visible : TextOverflow.ellipsis,
+              ),
+              InkWell(
+                onTap: () {
+                  setState(() {
+                    isExpanded = !isExpanded;
+                  });
+                },
+                child: Text(
+                  linkText,
+                  style: widget.style?.copyWith(color: Colors.blue) ??
+                      const TextStyle(color: Colors.blue),
+                ),
+              ),
+            ],
+          );
+        }
+      },
     );
   }
 }

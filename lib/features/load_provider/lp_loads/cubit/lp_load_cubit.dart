@@ -75,7 +75,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
           ? (state.lpLoadResponse?.data?.data ?? [])
           : [];
 
-      final newItems = newData.data ?? [];
+      final newItems = newData.data;
 
       final List<LpLoadItem> combinedItems = [...existingData, ...newItems];
 
@@ -93,8 +93,8 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setLoadUIState(UIState.success(combinedResponse));
 
       // Update pagination controller
-      if (updatedLoadData?.pageMeta != null) {
-        paginationController.updatePageMeta(updatedLoadData!.pageMeta!);
+      if (updatedLoadData.pageMeta != null) {
+        paginationController.updatePageMeta(updatedLoadData.pageMeta!);
       }
     } else if (result is Error) {
       _setLoadUIState(UIState.error(result.type));
@@ -616,7 +616,9 @@ Future<void> createOrder({
       await OpenFilex.open(filePath);
     } catch (e) {
       setDownloadingKey('');
-      ToastMessages.error(message: appContext.appText.failedToDownloadDocuments);
+      if(appContext.mounted) {
+        ToastMessages.error(message: appContext.appText.failedToDownloadDocuments);
+      }
     }
   }
 

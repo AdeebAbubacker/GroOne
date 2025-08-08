@@ -54,9 +54,9 @@ class VpCreationRepository {
 
 
   /// Get Preferred Truck Lane Data Repo
-  Future<Result<TruckPrefLaneModel>> getPrefTruckLaneData(String? location) async {
+  Future<Result<TruckPrefLaneModel>> getPrefTruckLaneData(String? location,{int? page}) async {
     try {
-      return await _vpCreationService.fetchTruckPrefLaneData(location);
+      return await _vpCreationService.fetchTruckPrefLaneData(location,currentPage: page);
     } catch (e) {
       CustomLog.error(this, "Failed to request get preferred truck lane data", e);
       return Error(ErrorWithMessage(message: e.toString()));

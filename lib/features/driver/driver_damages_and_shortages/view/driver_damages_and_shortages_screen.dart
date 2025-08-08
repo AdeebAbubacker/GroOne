@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/upd
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -580,69 +581,72 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
     );
   }
 
-// Damages record card
+
   Widget damageRecordCard({
-    required BuildContext context,
-    required List<String> imageUrl,
-    required String itemName,
-    required String quantity,
-    required String description,
-    required VoidCallback onEdit,
-    required VoidCallback onDelete,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColors.extraLightBackgroundColor,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      height: 110,
-      child: Row(
-        children: [
-          // Left-side Image with only left corners rounded
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              bottomLeft: Radius.circular(12),
-            ),
-            child: SizedBox(
-              width: 110,
-              height: double.infinity,
-              child: commonCacheNetworkImage(
-                  path: imageUrl.isNotEmpty ? imageUrl.first : "",
-                  errorImage: Icons.image_not_supported,
-                  radius: 0
-              ),
+  required BuildContext context,
+  required List<String> imageUrl,
+  required String itemName,
+  required String quantity,
+  required String description,
+  required VoidCallback onEdit,
+  required VoidCallback onDelete,
+}) {
+  return Container(
+    width: double.infinity,
+    decoration: BoxDecoration(
+      color: AppColors.extraLightBackgroundColor,
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start, 
+      children: [
+        ClipRRect(
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(12),
+            bottomLeft: Radius.circular(12),
+          ),
+          child: SizedBox(
+            width: 110,
+            height: 110, 
+            child: commonCacheNetworkImage(
+              path: imageUrl.isNotEmpty ? imageUrl.first : "",
+              errorImage: Icons.image_not_supported,
+              radius: 0,
             ),
           ),
-
-          const SizedBox(width: 12),
-
-          // Text content
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(itemName, style: AppTextStyle.body2),
-                  5.height,
-                  Text("${context.appText.quantity}: $quantity", style: AppTextStyle.body4GreyColor),
-                  Text(description, style: AppTextStyle.body4GreyColor),
-                  5.height,
-                  InkWell(
-                    onTap: (){
-                      Navigator.of(context).push(createRoute(ViewFileWidget(image: imageUrl)));
-                    },
-                    child: Text("View Files", style: AppTextStyle.body3PrimaryColor),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(itemName, style: AppTextStyle.body2),
+                5.height,
+                Text("${context.appText.quantity}: $quantity",
+                    style: AppTextStyle.body4GreyColor),
+                 ExpandableText(
+                    text: description,
+                    style: AppTextStyle.body4GreyColor,
                   ),
-                ],
-              ),
+                5.height,
+                InkWell(
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(createRoute(ViewFileWidget(image: imageUrl)));
+                  },
+                  child:
+                      Text("View Files", style: AppTextStyle.body3PrimaryColor),
+                ),
+              ],
             ),
           ),
-
-          // Delete button
-          Column(
+        ),
+        SizedBox(
+          width: 48, // fixed width for buttons so text knows limits
+          child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               AppIconButton(
@@ -650,7 +654,6 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
                 icon: AppIcons.svg.edit,
                 iconColor: AppColors.primaryColor,
               ),
-
               AppIconButton(
                 onPressed: onDelete,
                 icon: AppIcons.svg.delete,
@@ -658,10 +661,13 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+ 
+
 }
 
 
