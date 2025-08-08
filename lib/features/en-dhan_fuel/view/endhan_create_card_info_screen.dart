@@ -108,10 +108,6 @@ class _EndhanCreateCardInfoScreenState extends State<EndhanCreateCardInfoScreen>
       context,
       child: SuccessDialogView(
         message: context.appText.customerAndCardsCreatedSuccessfully,
-        // afterDismiss: () {
-        //   // This will be called after 3 seconds automatically
-        //   _navigateToEnDhanCard(context);
-        // },
         onContinue: () {
           
           // Close the dialog first

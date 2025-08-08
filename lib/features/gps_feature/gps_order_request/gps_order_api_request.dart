@@ -861,14 +861,11 @@ class GpsOrderApiRequest {
     int page = 1,
   }) async {
     try {
-      print('🔍 getVehicles called with customerId: $customerId, limit: $limit, page: $page');
       final result = await _apiService.get(
         '${ApiUrls.baseUrl}/customer/api/v1/vehicle/$customerId?limit=$limit&page=$page',
       );
 
       if (result is Success) {
-        print('🔍 getVehicles API Response: ${result.value}');
-        print('🔍 getVehicles API Response Type: ${result.value.runtimeType}');
 
         // Handle direct response format (no success/status wrapper)
         if (result.value is Map<String, dynamic>) {
@@ -876,27 +873,18 @@ class GpsOrderApiRequest {
 
           // Check if it has the expected fields for vehicle list response
           if (response.containsKey('data') && response.containsKey('total')) {
-            print('🔍 getVehicles direct response format detected');
             final vehicleResponse = GpsVehicleListResponse.fromJson(response);
-            print('🔍 getVehicles parsed response: ${vehicleResponse.data.length} vehicles');
             return Success(vehicleResponse);
           } else {
-            print('❌ getVehicles response missing required fields: data, total');
             return Error(ErrorWithMessage(message: 'Invalid response format - missing required fields'));
           }
         } else {
-          print('❌ getVehicles response is not a Map');
           return Error(ErrorWithMessage(message: 'Invalid response format'));
         }
       } else {
-        print('❌ getVehicles API Error: ${result.runtimeType}');
-        if (result is Error) {
-          print('❌ Error type: ${(result as Error).type}');
-        }
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
-      print('💥 getVehicles Exception: $e');
       return Error(GenericError());
     }
   }
@@ -912,9 +900,6 @@ class GpsOrderApiRequest {
       );
 
       if (result is Success) {
-        print('🔍 Add Vehicle API Response: ${result.value}');
-        print('🔍 Add Vehicle API Response Type: ${result.value.runtimeType}');
-
         // Handle direct response format (vehicle data directly)
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
@@ -938,7 +923,6 @@ class GpsOrderApiRequest {
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
-      print('❌ Add Vehicle API Error: $e');
       return Error(GenericError());
     }
   }
@@ -961,9 +945,6 @@ class GpsOrderApiRequest {
       );
 
       if (result is Success) {
-        print('🔍 Upload Document API Response: ${result.value}');
-        print('🔍 Upload Document API Response Type: ${result.value.runtimeType}');
-
         // Handle direct response format
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
@@ -981,7 +962,6 @@ class GpsOrderApiRequest {
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
-      print('❌ Upload Document API Error: $e');
       return Error(GenericError());
     }
   }
@@ -992,9 +972,6 @@ class GpsOrderApiRequest {
       final result = await _apiService.get(ApiUrls.kavachTruckType);
 
       if (result is Success) {
-        print('🔍 Truck Types API Response: ${result.value}');
-        print('🔍 Truck Types API Response Type: ${result.value.runtimeType}');
-
         // Handle direct array response
         if (result.value is List) {
           final truckTypes = (result.value as List).cast<String>();
@@ -1027,7 +1004,6 @@ class GpsOrderApiRequest {
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
-      print('❌ Truck Types API Error: $e');
       return Error(GenericError());
     }
   }
@@ -1038,9 +1014,6 @@ class GpsOrderApiRequest {
       final result = await _apiService.get('${ApiUrls.kavachTruckSubType}/$type');
 
       if (result is Success) {
-        print('🔍 Truck Lengths API Response: ${result.value}');
-        print('🔍 Truck Lengths API Response Type: ${result.value.runtimeType}');
-
         // Handle direct array response
         if (result.value is List) {
           final truckLengths = (result.value as List).map((e) => GpsTruckLengthModel.fromJson(e)).toList();
@@ -1073,7 +1046,6 @@ class GpsOrderApiRequest {
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
-      print('❌ Truck Lengths API Error: $e');
       return Error(GenericError());
     }
   }
@@ -1084,9 +1056,6 @@ class GpsOrderApiRequest {
       final result = await _apiService.get(ApiUrls.kavachFetchCommodities);
 
       if (result is Success) {
-        print('🔍 Commodities API Response: ${result.value}');
-        print('🔍 Commodities API Response Type: ${result.value.runtimeType}');
-
         // Handle direct array response
         if (result.value is List) {
           final commodities = (result.value as List).map((e) => GpsCommodityModel.fromJson(e)).toList();
@@ -1119,7 +1088,6 @@ class GpsOrderApiRequest {
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
-      print('❌ Commodities API Error: $e');
       return Error(GenericError());
     }
   }
@@ -1144,9 +1112,6 @@ class GpsOrderApiRequest {
       );
 
       if (result is Success) {
-        print('🔍 Vehicle Verification API Response: ${result.value}');
-        print('🔍 Vehicle Verification API Response Type: ${result.value.runtimeType}');
-
         // Handle response format with status field
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
@@ -1154,7 +1119,6 @@ class GpsOrderApiRequest {
           // Check if it has success field
           if (response.containsKey('success')) {
             final isVerified = response['success'] == true;
-            print('✅ Vehicle verification result: $isVerified');
             return Success(isVerified);
           } else {
             return Error(ErrorWithMessage(message: 'Invalid response format - missing success field'));
@@ -1166,7 +1130,6 @@ class GpsOrderApiRequest {
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
-      print('❌ Vehicle Verification API Error: $e');
       return Error(GenericError());
     }
   }

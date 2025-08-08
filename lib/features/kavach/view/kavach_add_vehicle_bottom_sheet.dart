@@ -168,23 +168,6 @@ class _KavachAddVehicleBottomSheetState
                             : verificationState.status == Status.SUCCESS
                             ? const Icon(Icons.verified, color: Colors.green)
                             :  InkWell(
-                          // onTap: () {
-                          //   final vehicleNumber = truckNumberController.text.trim().toUpperCase();
-                          //
-                          //   // Run validation directly
-                          //   final validationMessage = Validator.validateVehicleNumber(
-                          //     vehicleNumber,
-                          //     fieldName: context.appText.truckNumber,
-                          //   );
-                          //
-                          //   if (validationMessage != null) {
-                          //     ToastMessages.alert(message: validationMessage);
-                          //     return;
-                          //   }
-                          //
-                          //   // If valid, call API to verify
-                          //   context.read<KavachAddVehicleFormCubit>().verifyVehicle(vehicleNumber);
-                          // },
                           onTap: () async {
                             final vehicleNumber = truckNumberController.text.trim().toUpperCase();
 

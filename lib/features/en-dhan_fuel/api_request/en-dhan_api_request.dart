@@ -42,20 +42,6 @@ class EnDhanKycApiRequest {
   String toString() {
     return 'EnDhanKycApiRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
   }
-
-  // @override
-  // bool operator ==(Object other) {
-  //   if (identical(this, other)) return true;
-  //   return other is EnDhanKycApiRequest &&
-  //       other.aadhar == aadhar &&
-  //       other.pan == pan;
-  // }
-
-  // @override
-  // int get hashCode {
-  //   return aadhar.hashCode ^
-  //       pan.hashCode;
-  // }
 }
 
 /// Card Creation Request

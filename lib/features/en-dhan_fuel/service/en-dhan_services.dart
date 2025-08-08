@@ -528,50 +528,36 @@ class EnDhanService {
 
   /// Fetch Card Balance
   Future<Result<EnDhanCardBalanceResponse>> fetchCardBalance() async {
-    print('🔄 EnDhanService.fetchCardBalance called');
     try {
       // Get customer ID from secure storage
       final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
       if (customerId == null || customerId.isEmpty) {
-        print('❌ Customer ID not found in secure storage');
         return Error(ErrorWithMessage(message: 'Customer ID not found'));
       }
       
       final url = ApiUrls.enDhanCardBalance(customerId);
-      print('🌐 Making API call to: $url');
       CustomLog.debug(this, "Fetching card balance from: $url");
 
       final result = await _apiService.get(url);
-      print('📥 API service result type: ${result.runtimeType}');
 
       if (result is Success) {
-        print('✅ API call successful');
-        print('📄 Raw response: ${result.value}');
         CustomLog.debug(this, "Card balance API raw response: ${result.value}");
 
         try {
           final response = EnDhanCardBalanceResponse.fromJson(result.value);
-          print('✅ Successfully parsed card balance response');
-          print('🔍 Response success: ${response.success}');
-          print('🔍 Response message: ${response.message}');
-          print('🔍 Balance data: ${response.data?.balance}');
           CustomLog.debug(this, "Parsed card balance response: $response");
 
           return Success(response);
         } catch (e) {
-          print('❌ Error parsing card balance response: $e');
           CustomLog.error(this, "Error parsing card balance response", e);
           return Error(DeserializationError());
         }
       } else if (result is Error) {
-        print('❌ API service returned error: ${result.type}');
         return Error(result.type);
       } else {
-        print('❌ API service returned unknown result type: ${result.runtimeType}');
         return Error(GenericError());
       }
     } catch (e) {
-      print('❌ Exception in fetchCardBalance: $e');
       CustomLog.error(this, "Error fetching card balance", e);
       return Error(GenericError());
     }
@@ -579,12 +565,10 @@ class EnDhanService {
 
   /// Fetch Cards List
   Future<Result<EnDhanCardListModel>> fetchCards({String? searchTerm}) async {
-    print('🔄 EnDhanService.fetchCards called with searchTerm: $searchTerm');
     try {
       // Get customer ID from secure storage
       final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
       if (customerId == null || customerId.isEmpty) {
-        print('❌ Customer ID not found in secure storage');
         return Error(ErrorWithMessage(message: 'Customer ID not found'));
       }
       
@@ -593,30 +577,14 @@ class EnDhanService {
         url += '?searchTerm=$searchTerm';
       }
 
-      print('🌐 Making API call to: $url');
       CustomLog.debug(this, "Fetching cards from: $url");
 
       // Test if the API service is working by making a simple call first
-      print('🧪 Testing API service with a simple call...');
-      try {
-        final testResult = await _apiService.get('https://httpbin.org/get');
-        print('🧪 Test API call result: ${testResult.runtimeType}');
-        if (testResult is Success) {
-          print('🧪 Test API call successful');
-        } else {
-          print('🧪 Test API call failed: ${testResult.runtimeType}');
-        }
-      } catch (e) {
-        print('🧪 Test API call exception: $e');
-      }
+
 
       final result = await _apiService.get(url);
-      print('📥 API service result type: ${result.runtimeType}');
 
       if (result is Success) {
-        print('✅ API call successful');
-        print('📄 Raw response: ${result.value}');
-        print('📄 Response type: ${result.value.runtimeType}');
         CustomLog.debug(this, "Cards API raw response: ${result.value}");
         CustomLog.debug(
           this,
@@ -625,7 +593,6 @@ class EnDhanService {
 
         if (result.value is Map<String, dynamic>) {
           final responseMap = result.value as Map<String, dynamic>;
-          print('🔍 Response keys: ${responseMap.keys.toList()}');
           CustomLog.debug(
             this,
             "Cards API response keys: ${responseMap.keys.toList()}",
@@ -633,12 +600,10 @@ class EnDhanService {
 
           // Log each key-value pair for debugging
           responseMap.forEach((key, value) {
-            print('🔍 Key: $key, Value: $value, Type: ${value.runtimeType}');
+            CustomLog.debug(this,'🔍 Key: $key, Value: $value, Type: ${value.runtimeType}');
           });
 
           if (responseMap.containsKey('data')) {
-            print('🔍 Data field found: ${responseMap['data']}');
-            print('🔍 Data type: ${responseMap['data'].runtimeType}');
             CustomLog.debug(
               this,
               "Cards API data type: ${responseMap['data'].runtimeType}",
@@ -651,16 +616,8 @@ class EnDhanService {
         }
 
         try {
-          print(
-            '🔍 Attempting to parse response with EnDhanCardListModel.fromJson...',
-          );
           final cardListModel = EnDhanCardListModel.fromJson(result.value);
-          print('✅ Successfully parsed card list model');
-          print('🔍 Model success: ${cardListModel.success}');
-          print('🔍 Model message: ${cardListModel.message}');
-          print(
-            '🔍 Model data length: ${cardListModel.data?.document?.length ?? 0}',
-          );
+
           CustomLog.debug(this, "Parsed card list model: $cardListModel");
 
           // Check if data contains an error message even though success is true
@@ -694,10 +651,6 @@ class EnDhanService {
             return Success(cardListModel); // Return empty list, not error
           }
 
-          // CustomLog.debug(
-          //   this,
-          //   "Successfully parsed ${cardListModel.data!.length} cards",
-          // );
 
           CustomLog.debug(
             this,
@@ -709,16 +662,11 @@ class EnDhanService {
           return Error(DeserializationError());
         }
       } else if (result is Error) {
-        print('❌ API service returned error: ${result.type}');
         return Error(result.type);
       } else {
-        print(
-          '❌ API service returned unknown result type: ${result.runtimeType}',
-        );
         return Error(GenericError());
       }
     } catch (e) {
-      print('❌ Exception in fetchCards: $e');
       CustomLog.error(this, "Error fetching cards", e);
       return Error(GenericError());
     }
@@ -976,7 +924,6 @@ class EnDhanService {
     try {
       final url = ApiUrls.enDhanGetPincode(pincode);
       CustomLog.debug(this, "Pincode API URL: $url");
-      print('DEBUG: Pincode API URL: $url');
 
       final result = await _apiService.get(url);
 
@@ -984,15 +931,12 @@ class EnDhanService {
         try {
           final data = result.value as Map<String, dynamic>;
           CustomLog.debug(this, "Pincode API Response: $data");
-          print('DEBUG: Pincode API Response: $data');
           final pincodeResponse = PincodeResponse.fromJson(data);
           
           if (pincodeResponse.success) {
             CustomLog.debug(this, "Pincode Response: ${pincodeResponse.data?.district?.name}");
-            print('DEBUG: Pincode API success - district: ${pincodeResponse.data?.district?.name}');
             return Success(pincodeResponse);
           } else {
-            print('DEBUG: Pincode API failed - message: ${pincodeResponse.message}');
             return Error(ErrorWithMessage(message: pincodeResponse.message));
           }
         } catch (parseError) {

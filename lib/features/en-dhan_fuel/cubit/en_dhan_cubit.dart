@@ -162,7 +162,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         return Error(result is Error ? result.type : GenericError());
       }
     } catch (e) {
-      print('❌ Document upload error: $e');
       return Error(GenericError());
     }
   }
@@ -194,21 +193,16 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         final document = state.panDocuments.first;
         if (document['path'] != null) {
           final panImageFile = File(document['path']);
-          print('🔍 GPS Uploading PAN document: ${panImageFile.path}');
 
           // Upload the PAN document first to get the URL
           final uploadResult = await _uploadDocument(panImageFile, customerId);
           if (uploadResult is Success<String>) {
             panDocLink = uploadResult.value;
-            print('🔍 GPS PAN document uploaded successfully: $panDocLink');
           } else {
-            print('❌ GPS PAN document upload failed');
             _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Failed to upload PAN document')));
             return;
           }
         }
-      } else {
-        print('🔍 GPS No PAN document provided - proceeding with Aadhaar only');
       }
 
 
@@ -510,20 +504,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         return;
       }
 
-      // if (result is Success<PanVerificationResponse>) {
-      //   final response = result.value;
-      //
-      //   // Check if verification was successful based on success flag, isVerified, or message
-      //   if (response.isVerified == true ||
-      //       response.success == true ||
-      //       (response.message.toLowerCase().contains('verified successfully') ||
-      //        response.message.toLowerCase().contains('verification successful'))) {
-      //     emit(state.copyWith(isPanVerified: true));
-      //   }
-      //   _setPanVerificationUIState(UIState.success(response));
-      // } else if (result is Error) {
-      //   _setPanVerificationUIState(UIState.error((result as Error).type));
-      // }
       if (result is Success<PanVerificationResponse>) {
         final response = result.value;
 
@@ -626,8 +606,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     if (pincode.isEmpty || pincode.length != 6) {
       return;
     }
-
-    print('DEBUG: getPincode called with pincode: $pincode');
     
     _setPincodeUIState(UIState.loading());
 
@@ -638,10 +616,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
       if (result is Success<PincodeResponse>) {
         final response = result.value;
-        print('DEBUG: Pincode API response received: ${response.success}');
         
         if (response.success && response.data != null) {
-          print('DEBUG: Pincode API data: ${response.data}');
           // Auto-populate the fields with API data
           final data = response.data!;
           
@@ -651,14 +627,10 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           int? finalStateId;
           int? finalDistrictId;
           String? finalDistrictName;
-          
-          // Master data should already be loaded at this point
-          print('DEBUG: Processing pincode response - states: ${state.states.length}, zonalOffices: ${state.zonalOffices.length}');
-          print('DEBUG: Pincode data - zonal: ${data.zonal?.name} (${data.zonal?.id}), regional: ${data.region?.name} (${data.region?.id}), state: ${data.state?.name} (${data.state?.id}), district: ${data.district?.name} (${data.district?.id})');
+
           
           // Set zonal office and fetch regional offices
           if (data.zonal != null) {
-            print('DEBUG: Setting zonal office ID: ${data.zonal!.id}');
             finalZonalOfficeId = data.zonal!.id;
             // Fetch regional offices for this zonal office
             await fetchRegionalOffices(data.zonal!.id);
@@ -666,13 +638,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           
           // Set regional office
           if (data.region != null) {
-            print('DEBUG: Setting regional office ID: ${data.region!.id}');
             finalRegionalOfficeId = data.region!.id;
           }
           
           // Set state and fetch districts
           if (data.state != null) {
-            print('DEBUG: Setting state ID: ${data.state!.id}');
             finalStateId = data.state!.id;
             // Fetch districts for this state
             await fetchDistricts(data.state!.id);
@@ -691,8 +661,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           
                               // Single emit call with all the updated values
                     if (!_isClosed) {
-                      print('DEBUG: Final emit with districtName: $finalDistrictName, districtId: $finalDistrictId');
-                      print('DEBUG: Final emit with zonalOfficeId: $finalZonalOfficeId, regionalOfficeId: $finalRegionalOfficeId, stateId: $finalStateId');
                       emit(state.copyWith(
                         selectedZonalOfficeId: finalZonalOfficeId,
                         selectedRegionalOfficeId: finalRegionalOfficeId,
@@ -700,11 +668,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
                         selectedDistrictId: finalDistrictId,
                         selectedDistrictName: finalDistrictName,
                       ));
-                      print('DEBUG: After emit - state.selectedZonalOfficeId: ${state.selectedZonalOfficeId}');
-                      print('DEBUG: After emit - state.selectedRegionalOfficeId: ${state.selectedRegionalOfficeId}');
-                      print('DEBUG: After emit - state.selectedStateId: ${state.selectedStateId}');
-                      print('DEBUG: After emit - state.selectedDistrictId: ${state.selectedDistrictId}');
-                      print('DEBUG: After emit - state.selectedDistrictName: ${state.selectedDistrictName}');
                     }
         }
         
@@ -836,7 +799,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
                   },
                 )
                 .toList();
-        print('DEBUG: fetchDistricts - loaded ${districts.length} districts for state $stateId');
         emit(state.copyWith(districts: districts));
         _setDistrictsUIState(UIState.success(result.value));
       } else if (result is Error) {
@@ -1382,11 +1344,6 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         mobile: mobile,
         rcNumber: rcNumber,
         rcDocuments: rcDocuments,
-      );
-
-      print('=== DEBUG: Updating card $cardIndex ===');
-      print(
-        'Current card: ${currentCard.vehicleNumber} | ${currentCard.vehicleType} | ${currentCard.vinNumber} | ${currentCard.mobile}',
       );
       updateCard(cardIndex, updatedCard);
     }

@@ -626,84 +626,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                           ],
                         ),
                       ),
-
-
-                      // AppTextField(
-                      //   readOnly: state.isAadhaarVerified,
-                      //   controller: aadhaarController,
-                      //   hintText: context.appText.enter12DigitAadhaar,
-                      //   onChanged: (value) {
-                      //     // cubit.setAadhaar(value);
-                      //     // cubit.validateAadhaar(value);
-                      //
-                      //     if (value.length >= 12) {
-                      //       cubit.setAadhaar(value);
-                      //       cubit.validateAadhaar(value);
-                      //     }
-                      //   },
-                      //   validator:
-                      //       (value) =>
-                      //           cubit.getAadhaarValidationError(value ?? ''),
-                      //   keyboardType: TextInputType.number,
-                      //   maxLength: 12,
-                      //   inputFormatters: [
-                      //     FilteringTextInputFormatter.digitsOnly,
-                      //   ],
-                      // ),
-
                       15.height,
-
-                      // BlocListener<EnDhanCubit, EnDhanState>(
-                      //   bloc: cubit,
-                      //   listenWhen:
-                      //       (previous, current) =>
-                      //           previous.aadhaarSendOtpState !=
-                      //           current.aadhaarSendOtpState,
-                      //   listener: (context, state) {
-                      //     if (state.aadhaarSendOtpState?.status ==
-                      //         Status.SUCCESS) {
-                      //       _showOtpBottomSheet(context, cubit);
-                      //     }
-                      //     if (state.aadhaarSendOtpState?.status ==
-                      //         Status.ERROR) {
-                      //       final error = state.aadhaarSendOtpState?.errorType;
-                      //       ToastMessages.error(
-                      //         message: getErrorMsg(
-                      //           errorType: error ?? GenericError(),
-                      //         ),
-                      //       );
-                      //     }
-                      //   },
-                      //   child: Column(
-                      //     children: [
-                      //       AppButton(
-                      //         onPressed:
-                      //             state.isAadhaarValid &&
-                      //                     !state.isAadhaarVerified
-                      //                 ? () {
-                      //                   cubit.sendAadhaarOtp();
-                      //                 }
-                      //                 : () {
-                      //                   // Button disabled
-                      //                 },
-                      //         title:
-                      //             state.isAadhaarVerified
-                      //                 ? context.appText.verified
-                      //                 : context.appText.getOtp,
-                      //         textStyle: TextStyle(
-                      //           color: AppColors.primaryColor,
-                      //         ),
-                      //         style:
-                      //             state.isAadhaarValid &&
-                      //                     !state.isAadhaarVerified
-                      //                 ? AppButtonStyle.outlineAndFilled
-                      //                 : AppButtonStyle.disableButton,
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-
-                      // Listen for Aadhaar verification state changes
                       BlocListener<EnDhanCubit, EnDhanState>(
                         bloc: cubit,
                         listenWhen:
@@ -1104,50 +1027,6 @@ class _EndhanKycScreenContent extends StatelessWidget {
           final bool isFormValid = state.isFormValid;
 
           return AppButton(
-            // onPressed: () {
-            //   if (isLoading) return;
-            //
-            //   // Check if PAN and Aadhaar are verified
-            //   if (!state.isAadhaarVerified || !state.isPanVerified) {
-            //     String message = '';
-            //     if (!state.isAadhaarVerified && !state.isPanVerified) {
-            //       message =
-            //           'Please verify both PAN and Aadhaar before submitting.';
-            //     } else if (!state.isAadhaarVerified) {
-            //       message = 'Please verify your Aadhaar before submitting.';
-            //     } else if (!state.isPanVerified) {
-            //       message = 'Please verify your PAN before submitting.';
-            //     }
-            //
-            //     showDialog(
-            //       context: context,
-            //       builder: (BuildContext context) {
-            //         return AlertDialog(
-            //           title: Text(context.appText.verificationRequired),
-            //           content: Text(message),
-            //           actions: [
-            //             TextButton(
-            //               onPressed: () => Navigator.of(context).pop(),
-            //               child: Text(context.appText.ok),
-            //             ),
-            //           ],
-            //         );
-            //       },
-            //     );
-            //     return;
-            //   }
-            //
-            //   // If form is valid, proceed with submission
-            //   if (isFormValid) {
-            //     if (_formKey.currentState!.validate()) {
-            //       cubit.uploadKycDocumentsMultipart();
-            //     } else {
-            //       ToastMessages.alert(
-            //         message: context.appText.pleaseFillAllRequiredFields,
-            //       );
-            //     }
-            //   }
-            // },
             onPressed: () async {
               if (isLoading) return;
 
@@ -1201,8 +1080,6 @@ class _EndhanKycScreenContent extends StatelessWidget {
                 await cubit.uploadKycDocumentsMultipart();
               }
             },
-
-
             title: context.appText.submit,
             isLoading: isLoading,
             style:

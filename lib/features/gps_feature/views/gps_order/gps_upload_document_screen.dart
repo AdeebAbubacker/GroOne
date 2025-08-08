@@ -437,7 +437,6 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                 (!isLoading && isFormValid)
                     ? () {
                       print('🔍 GPS Submit button pressed');
-                      cubit.debugCubitStatus();
                       cubit.markFormSubmitted();
                       if (_formKey.currentState!.validate()) {
                         // Update the cubit with all document lists
@@ -803,9 +802,6 @@ class _GpsOtpVerificationBottomSheetState
   }
 
   void _verifyOtp(String otp) {
-    // Debug the cubit status before verification
-    widget.cubit.debugCubitStatus();
-    // Clear any previous state and verify OTP
     widget.cubit.verifyAadhaarOtp(otp);
     
     // Add a safety timeout to close bottom sheet if verification takes too long
