@@ -91,13 +91,13 @@ class RecentRouteData {
     int? loadStatusId,
     DateTime? expectedDeliveryDateTime,
     int? isAgreed,
-    dynamic? acceptedBy,
+    dynamic acceptedBy,
     int? createdPlatform,
     int? updatedPlatform,
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     LoadRoute? loadRoute,
     List<LoadStatusLog>? loadStatusLogs,
     LoadPrice? loadPrice,
@@ -185,7 +185,7 @@ class LoadPrice {
     int? handlingCharges,
     int? status,
     DateTime? createAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadPrice(
       loadPriceId: loadPriceId ?? this.loadPriceId,
@@ -259,7 +259,7 @@ class LoadRoute {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadRoute(
       loadRouteId: loadRouteId ?? this.loadRouteId,
@@ -329,7 +329,7 @@ class LoadStatusLog {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadStatusLog(
       loadStatusLogId: loadStatusLogId ?? this.loadStatusLogId,

@@ -18,7 +18,7 @@ class LpCompanyTypeModel {
     String? companyType,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LpCompanyTypeModel(
       id: id ?? this.id,

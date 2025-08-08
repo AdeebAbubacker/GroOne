@@ -26,7 +26,7 @@ class BlueMemberShipResponse {
 
   Map<String, dynamic> toJson() => {
     "message": message,
-    "data": data.map((x) => x?.toJson()).toList(),
+    "data": data.map((x) => x.toJson()).toList(),
   };
 
 }
@@ -59,7 +59,7 @@ class BlueMemberShip {
     String? title,
     String? description,
     String? iconName,
-    dynamic? iconLink,
+    dynamic iconLink,
     int? sortOrder,
     int? status,
     DateTime? createdAt,

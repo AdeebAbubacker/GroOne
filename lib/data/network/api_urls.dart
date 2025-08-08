@@ -22,10 +22,8 @@ class ApiUrls {
   static String get _v1 => "/v1";
   static String get _auth => "/auth";
   static String get _vp => "/vp";
-  static String get _lp => "/lp";
   static String get _map => "/map-location";
   static String get _customer => "/customer";
-  static String get _vpMaster => "/vp-master";
   static String get _rateDiscovery => "/ratediscovery";
   static String get _verification => "$_fetchUrl/external/api/v1/verification";
   static String get _kucDocUpload => "$_fetchUrl/external/api/v1/verification";
@@ -33,7 +31,6 @@ class ApiUrls {
   static String get _credit => "/credit";
   static String get _vendor => "/vendor";
   static String get _document => "/document";
-  static String get _notification => "/notification";
   static String get _loadDiscovery => "/load-discovery";
   static String get _loadExecution => "/load-execution";
   static String get _loadTracking => "/load-tracking";
@@ -207,7 +204,7 @@ class ApiUrls {
   static final String getAllUsers = "$_fetchUrl/user/api/v1/users/allUsers";
 
   /// Google Map
-  static String  googleDirectionApi = "https://maps.googleapis.com/maps/api/directions/json";
+  static String  googleDirectionApi = "https://gro-devapi.letsgro.co/ratediscovery/api/v1/map-location/directions";
 
   /// Tracking
   static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";

@@ -5,7 +5,6 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/payments/view/payments_screen.dart';
-import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -15,7 +14,6 @@ import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
@@ -130,6 +128,9 @@ class LpPaymentHelper {
     required LpLoadCubit lpLoadCubit,
     required VoidCallback onSuccess,
   }) async {
+    final appText = context.appText;
+    final navigator = Navigator.of(context);
+
     await lpLoadCubit.createOrder(
       loadId: loadId,
       createOrderIdRequest: request,
@@ -140,20 +141,20 @@ class LpPaymentHelper {
     if (createOrderState?.status == Status.SUCCESS) {
       final url = createOrderState?.data?.data?.data?.tinyUrl;
       if (url != null && url.isNotEmpty) {
-        final result = await Navigator.of(context).push(
+        final result = await navigator.push(
           commonRoute(PaymentsScreen(url: url, loadId: loadId)),
         );
 
         if (result == true) {
           onSuccess();
         } else {
-          ToastMessages.error(message: context.appText.paymentFailed);
+          ToastMessages.error(message: appText.paymentFailed);
         }
       } else {
-        ToastMessages.error(message: 'CC Avenue url is empty');
+        ToastMessages.error(message: appText.ccAvenueUrlIsEmpty);
       }
     } else {
-      Navigator.pop(context);
+      navigator.pop();
       final error = createOrderState?.errorType;
       ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
     }

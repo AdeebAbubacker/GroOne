@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/login/model/notification_request_model.dart';
 
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
-import '../../../utils/app_string.dart';
-import '../../../utils/custom_log.dart';
 import '../api_request/login_in_api_request.dart';
 import '../model/login_model.dart';
 
