@@ -114,7 +114,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
   void initFunction() => frameCallback(() async {
     mobileNumberTextController.text = widget.mobileNumber;
     await vpCreationCubit.fetchCompanyType();
-    await vpCreationCubit.fetchPrefLane(null);
+    await vpCreationCubit.fetchPrefLane(null,isInit: true);
     await vpCreationCubit.fetchTruckType();
   });
 
@@ -133,7 +133,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
     multiFilesList.clear();
     verifyEmailCubit.resetState();
     vpCreationCubit.resetState();
-
   });
 
 

@@ -278,8 +278,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           final blueIdFromStorage = await profileCubit.fetchBlueId();
           // bool popupShownFlag = await profileCubit.getHasShowBluePopup();
           final blueIdFlag = profileState.data!.customer?.blueIdFlg  ?? false;
-          debugPrint("💡 BlueId from API: $blueIdFromApi");
-          debugPrint("💾 BlueId in storage: $blueIdFromStorage");
+
           // debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
 
           if (blueIdFromApi.isNotEmpty && blueIdFlag) {
@@ -402,7 +401,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                           vpHomeScreenBloc.add(VpMyLoadListRequested());
                         },);
                       },
-                      child: VpAllLoadMyLoadWidget(
+                      child:
+
+                      VpAllLoadMyLoadWidget(
                         data: data,
                         onBack: (){
                           vpHomeScreenBloc.add(VpMyLoadListRequested());
@@ -526,8 +527,6 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                     separatorBuilder: (_, __) => 20.height,
                     itemBuilder: (context, index) {
                       final companyId = int.parse(profileCubit.companyTypeId ?? "0");
-
-
                       return RecentAddedLoadListBody(
                         kycStatus: VpVariables.kycStatus,
                         data: loads[index],

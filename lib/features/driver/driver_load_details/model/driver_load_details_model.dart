@@ -281,7 +281,9 @@ class DriverLoadDetailsModelData {
         );
     }
 
-    factory DriverLoadDetailsModelData.fromJson(Map<String, dynamic> json){ 
+    factory DriverLoadDetailsModelData.fromJson(Map<String, dynamic> json){
+        List<Timeline> timeLine= json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x)));
+        timeLine.removeWhere((element) => element.id==1);
         return DriverLoadDetailsModelData(
             loadId: json["loadId"] ?? "",
             loadSeriesId: json["loadSeriesId"] ?? "",
@@ -326,7 +328,8 @@ class DriverLoadDetailsModelData {
             vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
             weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
             consignees: json["consignees"] == null ? [] : List<DriverConsignee>.from(json["consignees"]!.map((x) => DriverConsignee.fromJson(x))),
-            timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
+            timeline:timeLine
+
         );
     }
 
