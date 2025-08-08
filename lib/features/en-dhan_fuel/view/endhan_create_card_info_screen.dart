@@ -1,37 +1,30 @@
 import 'dart:io';
 import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_document_upload_widget.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_error_dialog.dart';
-import 'package:gro_one_app/features/kavach/view/kavach_added_vehicles_bottom_sheet.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
-
 import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
+import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/common_widgets.dart';
 import '../../kavach/view/kavach_support_screen.dart';
 import 'package:go_router/go_router.dart';
@@ -993,56 +986,29 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                       ],
                                     ),
                                     6.height,
-                                    AppDropdown(
-                                      hintText: context.appText.select,
-                                      dropdownValue: card['vehicleType'],
-                                      dropDownList:
-                                      (widget
-                                          .state
-                                          .vehicleTypes
-                                          .isNotEmpty ||
-                                          widget
-                                              .state
-                                              .vehicleTypesState
-                                              ?.status ==
-                                              Status.SUCCESS)
+                                    SearchableDropdown(
+                                      selectedItem: card['vehicleType'],
+                                      items: (widget.state.vehicleTypes.isNotEmpty ||
+                                          widget.state.vehicleTypesState?.status == Status.SUCCESS)
                                           ? widget.state.vehicleTypes
-                                          .map(
-                                            (vehicleType) =>
-                                            DropdownMenuItem(
-                                              value: vehicleType,
-                                              child: Text(
-                                                vehicleType,
-                                              ),
-                                            ),
-                                      )
-                                          .toList()
-                                          : [
-                                        DropdownMenuItem(
-                                          value: '',
-                                          child: Text(
-                                            widget
-                                                .state
-                                                .vehicleTypesState
-                                                ?.status ==
-                                                Status.LOADING
-                                                ? context.appText.loadingVehicleTypes
-                                                : '${context.appText.noVehicleTypesAvailable} (${widget.state.vehicleTypes.length})',
-                                          ),
-                                        ),
-                                      ],
+                                          : [],
+                                      hintText: context.appText.select,
+                                      labelText: context.appText.vehicleType,
+                                      mandatoryStar: true,
                                       onChanged: (val) {
-                                        setState(() => card['vehicleType'] = val);
+                                        setState(() => card['vehicleType'] = val ?? '');
                                         // Sync with cubit state immediately
-                                        _syncCardFieldWithCubit(index, 'vehicleType', val);
+                                        _syncCardFieldWithCubit(index, 'vehicleType', val ?? '');
                                       },
-                                      validator: (value) {
-                                        if (value == null || value.isEmpty) {
-                                          return context.appText.vehicleTypeRequired;
-                                        }
-                                        return null;
-                                      },
+                                      emptyBuilder: (context, searchEntry) => Center(
+                                        child: Text(
+                                          (widget.state.vehicleTypesState?.status == Status.LOADING)
+                                              ? context.appText.loadingVehicleTypes
+                                              : '${context.appText.noVehicleTypesAvailable} (${widget.state.vehicleTypes.length})',
+                                        ),
+                                      ),
                                     ),
+
                                     12.height,
                                     Text(
                                       '${context.appText.vinNumber} *',

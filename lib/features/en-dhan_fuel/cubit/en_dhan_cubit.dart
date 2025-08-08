@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/api_request/en-dhan_api_request.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response.dart';
@@ -138,7 +139,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     try {
       final apiService = locator<ApiService>();
       final result = await apiService.multipart(
-        'https://gro-devapi.letsgro.co/document/api/v1/upload',
+        // 'https://gro-devapi.letsgro.co/document/api/v1/upload',
+        ApiUrls.documentUpload,
         file,
         fields: {
           'userId': customerId,

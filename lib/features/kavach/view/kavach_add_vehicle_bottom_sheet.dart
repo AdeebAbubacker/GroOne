@@ -19,6 +19,7 @@ import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_dropdown.dart';
+import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/common_widgets.dart';
@@ -316,32 +317,21 @@ class _KavachAddVehicleBottomSheetState
                             onTap: () {
                               FocusScope.of(context).unfocus();
                             },
-                            child: AppDropdown(
+                            child: SearchableDropdown(
                               labelText: context.appText.truckType,
-                              dropdownValue: truckTypeDropdownValue,
-                              dropDownList:
-                                  state.truckTypes.data!
-                                      .map(
-                                        (type) => DropdownMenuItem(
-                                          value: type,
-                                          child: Text(type),
-                                        ),
-                                      )
-                                      .toList(),
                               hintText: context.appText.selectTruckType,
                               mandatoryStar: true,
+                              selectedItem: truckTypeDropdownValue,
+                              items: state.truckTypes.data!, // Already List<String>
                               onChanged: (selected) {
                                 setState(() {
                                   truckTypeDropdownValue = selected;
                                   truckLengthDropdownValue = null;
                                 });
-                                cubit.fetchTruckLengths(selected!);
+                                if (selected != null) {
+                                  cubit.fetchTruckLengths(selected);
+                                }
                               },
-                              validator:
-                                  (value) =>
-                                      value == null || value.isEmpty
-                                          ? context.appText.pleaseSelectTruckType
-                                          : null,
                             ),
                           ),
 
@@ -353,20 +343,12 @@ class _KavachAddVehicleBottomSheetState
                             onTap: () {
                               FocusScope.of(context).unfocus();
                             },
-                            child: AppDropdown(
+                            child: SearchableDropdown(
                               labelText: context.appText.truckLength,
-                              dropdownValue: truckLengthDropdownValue,
-                              dropDownList:
-                                  state.truckLengths.data!
-                                      .map(
-                                        (e) => DropdownMenuItem(
-                                          value: e.subType,
-                                          child: Text(e.subType),
-                                        ),
-                                      )
-                                      .toList(),
                               hintText: context.appText.truckLength,
                               mandatoryStar: true,
+                              selectedItem: truckLengthDropdownValue,
+                              items: state.truckLengths.data!.map((e) => e.subType).toList(),
                               onChanged: (selected) {
                                 setState(() {
                                   truckLengthDropdownValue = selected;
@@ -374,27 +356,15 @@ class _KavachAddVehicleBottomSheetState
                                   final selectedModel = state.truckLengths.data!
                                       .firstWhere(
                                         (e) => e.subType == selected,
-                                        orElse:
-                                            () => TruckLengthModel(
-                                              id: 0,
-                                              type: '',
-                                              subType: '',
-                                            ),
-                                      );
+                                    orElse: () => TruckLengthModel(id: 0, type: '', subType: ''),
+                                  );
 
                                   selectedTruckTypeId = selectedModel.id;
                                 });
                               },
-
-                              validator:
-                                  (value) =>
-                                      value == null || value.isEmpty
-                                          ? context
-                                              .appText
-                                              .pleaseSelectTruckLength
-                                          : null,
                             ),
                           ),
+
                       ],
                     );
                   },

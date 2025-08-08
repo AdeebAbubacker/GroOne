@@ -67,38 +67,33 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
         emit(GpsBillingAddressError('Unable to get customer ID'));
         return;
       }
-      CustomLog.debug(this, "GPS Billing - Fetching addresses for customer: $customerId");
-      
+
       final result = await _repository.fetchGpsAddresses(
         customerId: customerId,
         limit: 10,
         page: 1,
       );
-      
+
       if (result is Success<GpsAddressListResponse>) {
-        final response = result.value;
-        CustomLog.debug(this, "GPS Billing - Addresses fetched successfully: ${response.data?.rows?.length ?? 0} addresses");
-        
-        if (response.data?.rows != null && response.data!.rows!.isNotEmpty) {
-          // Convert GPS addresses to Kavach address models
-          final addresses = response.data!.rows!
-              .map((gpsAddress) => gpsAddress.toKavachAddressModel())
-              .toList();
-          // Don't automatically select - let user choose
-          CustomLog.debug(this, "GPS Billing - Loaded ${addresses.length} addresses without auto-selection");
-          emit(GpsBillingAddressAvailable(addresses));
+        final rows = result.value.data?.rows ?? [];
+        if (rows.isNotEmpty) {
+          final addresses = rows.map((gpsAddress) => gpsAddress.toKavachAddressModel()).toList();
+          // Auto-select first address
+          emit(GpsBillingAddressSelected(
+            selectedAddress: addresses.first,
+            addresses: addresses,
+          ));
         } else {
           emit(GpsBillingAddressEmpty());
         }
       } else if (result is Error<GpsAddressListResponse>) {
-        CustomLog.error(this, "GPS Billing - Failed to fetch addresses: ${result.type}", null);
         emit(GpsBillingAddressError(result.type.toString()));
       }
     } catch (e) {
-      CustomLog.error(this, "GPS Billing - Exception while fetching addresses", e);
       emit(GpsBillingAddressError(e.toString()));
     }
   }
+
 
   void selectGpsBillingAddress(KavachAddressModel address) {
     // Get current addresses from state

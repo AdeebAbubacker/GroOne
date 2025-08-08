@@ -28,6 +28,7 @@ import '../../../../utils/app_route.dart';
 import '../../../../utils/app_text_field.dart';
 import '../../../../utils/app_text_style.dart';
 import '../../../../utils/upload_attachment_files.dart';
+import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../kyc/api_request/init_kyc_request.dart';
 import '../../../kyc/cubit/kyc_cubit.dart';
 import '../../../kyc/helper/kyc_helper.dart';
@@ -151,6 +152,16 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
       appBar: CommonAppBar(
         title: context.appText.uploadYourDocument,
         isLeading: true,
+        actions: [
+          AppIconButton(
+            onPressed: () {
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
+            },
+            icon: AppIcons.svg.filledSupport,
+            iconColor: AppColors.primaryButtonColor,
+          ),
+          4.width,
+        ],
       ),
       body: SafeArea(
         child: Form(

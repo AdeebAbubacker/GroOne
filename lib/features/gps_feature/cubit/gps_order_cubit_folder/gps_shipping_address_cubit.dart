@@ -66,35 +66,29 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
         emit(GpsShippingAddressError('Unable to get customer ID'));
         return;
       }
-      CustomLog.debug(this, "GPS Shipping - Fetching addresses for customer: $customerId");
-      
+
       final result = await _repository.fetchGpsAddresses(
         customerId: customerId,
         limit: 10,
         page: 1,
       );
-      
+
       if (result is Success<GpsAddressListResponse>) {
-        final response = result.value;
-        CustomLog.debug(this, "GPS Shipping - Addresses fetched successfully: ${response.data?.rows?.length ?? 0} addresses");
-        
-        if (response.data?.rows != null && response.data!.rows!.isNotEmpty) {
-          // Convert GPS addresses to Kavach address models
-          final addresses = response.data!.rows!
-              .map((gpsAddress) => gpsAddress.toKavachAddressModel())
-              .toList();
-          // Don't automatically select - let user choose
-          CustomLog.debug(this, "GPS Shipping - Loaded ${addresses.length} addresses without auto-selection");
-          emit(GpsShippingAddressAvailable(addresses));
+        final rows = result.value.data?.rows ?? [];
+        if (rows.isNotEmpty) {
+          final addresses = rows.map((gpsAddress) => gpsAddress.toKavachAddressModel()).toList();
+          // Auto-select first address
+          emit(GpsShippingAddressSelected(
+            selectedAddress: addresses.first,
+            addresses: addresses,
+          ));
         } else {
           emit(GpsShippingAddressEmpty());
         }
       } else if (result is Error<GpsAddressListResponse>) {
-        CustomLog.error(this, "GPS Shipping - Failed to fetch addresses: ${result.type}", null);
         emit(GpsShippingAddressError(result.type.toString()));
       }
     } catch (e) {
-      CustomLog.error(this, "GPS Shipping - Exception while fetching addresses", e);
       emit(GpsShippingAddressError(e.toString()));
     }
   }

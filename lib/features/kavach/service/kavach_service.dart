@@ -803,8 +803,11 @@ class KavachService {
     try {
       // === Step 1: Hit API-2 (Check if vehicle exists) ===
       print('=== Step 1: Hit API-2 (Check if vehicle exists) ===');
+      final url = '${ApiUrls.checkVehicleNumber}/$vehicleNumber';
+
       final api2Response = await _apiService.get(
-        'https://gro-devapi.letsgro.co/customer/api/v1/vehicle/check/vehicle-no/$vehicleNumber',
+        // 'https://gro-devapi.letsgro.co/customer/api/v1/vehicle/check/vehicle-no/$vehicleNumber',
+        url,
       );
 
       final api2Data = api2Response is Success ? api2Response.value['data'] : null;
@@ -826,7 +829,8 @@ class KavachService {
       };
 
       final api1Response = await _apiService.post(
-        'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number',
+        // 'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number',
+        ApiUrls.kavachVehicleVerification,
         body: {"vehicle_number": vehicleNumber},
         customHeaders: customHeaders,
       );
