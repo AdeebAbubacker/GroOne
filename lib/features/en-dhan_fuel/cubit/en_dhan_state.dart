@@ -18,6 +18,8 @@ class EnDhanState extends Equatable {
   final UIState<PanVerificationResponse>? panVerificationState;
   final UIState<VehicleVerificationResponse>? vehicleVerificationState;
   final UIState<PincodeResponse>? pincodeState;
+  final String? aadhaarDocLink;
+
 
   // KYC Form fields
   final String aadhaar;
@@ -164,6 +166,7 @@ class EnDhanState extends Equatable {
     this.zonalOffices = const [],
     this.regionalOffices = const [],
     this.vehicleTypes = const [],
+    this.aadhaarDocLink,
   });
 
   /// Factory constructor for initial state with mutable document lists
@@ -283,6 +286,7 @@ class EnDhanState extends Equatable {
     List<dynamic>? zonalOffices,
     List<dynamic>? regionalOffices,
     List<String>? vehicleTypes,
+    String? aadhaarDocLink,
   }) {
     return EnDhanState(
       uploadKycState: uploadKycState ?? this.uploadKycState,
@@ -355,6 +359,7 @@ class EnDhanState extends Equatable {
       zonalOffices: zonalOffices ?? this.zonalOffices,
       regionalOffices: regionalOffices ?? this.regionalOffices,
       vehicleTypes: vehicleTypes ?? this.vehicleTypes,
+      aadhaarDocLink: aadhaarDocLink ?? this.aadhaarDocLink,
     );
   }
 
@@ -439,6 +444,7 @@ class EnDhanState extends Equatable {
     zonalOffices,
     regionalOffices,
     vehicleTypes,
+    aadhaarDocLink,
   ];
 }
 

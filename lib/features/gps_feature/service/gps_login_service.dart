@@ -1,6 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -20,21 +20,31 @@ import '../models/gps_geofence_model.dart';
 
 class GpsLoginService {
   final ApiService _apiService;
+  final UserInformationRepository _userInformationRepository;
 
-  GpsLoginService(this._apiService);
+  GpsLoginService(this._apiService, this._userInformationRepository);
 
   Future<Result<GpsLoginResponseModel>> login() async {
     try {
       CustomLog.info(this, "Starting GPS login...");
+
+      // Get the stored mobile number from GroOne app login
+      final mobileNumber =
+          await _userInformationRepository.getUserMobileNumber();
+      if (mobileNumber == null || mobileNumber.isEmpty) {
+        CustomLog.error(this, "No mobile number found in storage", null);
+        return Error(
+          ErrorWithMessage(
+            message:
+                "No mobile number found. Please login to GroOne app first.",
+          ),
+        );
+      }
+
+      CustomLog.info(this, "Using mobile number for GPS login: $mobileNumber");
+
       final result = await _apiService.post(
-        'https://api.letsgro.co/api/v1/auth/login',
-        body: {
-          "app_name": "gro fleet",
-          "password": "Roadcast@123",
-          "package_name": "app.gro.fleet",
-          "device_type": "ANDROID",
-          "username": "rishika",
-        },
+        'https://new-test-gro.roadcast.net/api/v1/auth/auth_login?user_name=$mobileNumber',
       );
 
       if (result is Success) {
@@ -460,10 +470,7 @@ class GpsLoginService {
       }
 
       if (result is Success) {
-        CustomLog.info(
-          this,
-          "Request successful",
-        );
+        CustomLog.info(this, "Request successful");
         return result;
       } else {
         return result;

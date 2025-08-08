@@ -134,7 +134,6 @@ class GpsLoginRepository {
     await _realmService.saveVehicleData(vehicles);
   }
 
-
   /// Save Set
   Future<void> saveUserDataGps(List<GpsCombinedVehicleData> vehicles) async {
     await _realmService.saveVehicleData(vehicles);
@@ -355,7 +354,9 @@ class GpsLoginRepository {
   }
 
   /// Save distance report data to Realm
-  Future<void> saveDistanceReportData(List<DeviceDistancePojo> distanceData) async {
+  Future<void> saveDistanceReportData(
+    List<DeviceDistancePojo> distanceData,
+  ) async {
     await _realmService.saveDistanceReportData(distanceData);
   }
 
@@ -365,7 +366,9 @@ class GpsLoginRepository {
   }
 
   /// Get distance report data by device ID
-  Future<List<DistanceReportRealmModel>> getDistanceReportDataByDeviceId(String deviceId) async {
+  Future<List<DistanceReportRealmModel>> getDistanceReportDataByDeviceId(
+    String deviceId,
+  ) async {
     return await _realmService.getDistanceReportDataByDeviceId(deviceId);
   }
 
@@ -385,12 +388,17 @@ class GpsLoginRepository {
   }
 
   /// Fetch and store distance data after login
-  Future<void> fetchAndStoreDistanceData(String token, List<GpsCombinedVehicleData> vehicles) async {
+  Future<void> fetchAndStoreDistanceData(
+    String token,
+    List<GpsCombinedVehicleData> vehicles,
+  ) async {
     try {
       final distanceResult = await getDistanceAllVehicles(token, vehicles);
       if (distanceResult is Success<List<DeviceDistancePojo>>) {
         await saveDistanceReportData(distanceResult.value);
-        print("💾 Distance data fetched and stored successfully: ${distanceResult.value.length} devices");
+        print(
+          "💾 Distance data fetched and stored successfully: ${distanceResult.value.length} devices",
+        );
       } else {
         print("❌ Failed to fetch distance data: ${distanceResult.runtimeType}");
       }

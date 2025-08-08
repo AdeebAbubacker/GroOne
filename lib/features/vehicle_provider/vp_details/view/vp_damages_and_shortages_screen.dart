@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -616,12 +617,14 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
     required VoidCallback onDelete,
   }) {
     return Container(
+      width: double.infinity,
       decoration: BoxDecoration(
         color: AppColors.extraLightBackgroundColor,
         borderRadius: BorderRadius.circular(12),
       ),
       height: 110,
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, 
         children: [
           // Left-side Image with only left corners rounded
           ClipRRect(
@@ -653,7 +656,10 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
                   Text(itemName, style: AppTextStyle.body2),
                   5.height,
                   Text("${context.appText.quantity}: $quantity", style: AppTextStyle.body4GreyColor),
-                  Text(description, style: AppTextStyle.body4GreyColor),
+                   ExpandableText(
+                    text: description,
+                    style: AppTextStyle.body4GreyColor,
+                  ),
                   5.height,
                   InkWell(
                     onTap: (){

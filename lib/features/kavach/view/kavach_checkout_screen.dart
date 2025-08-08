@@ -1154,6 +1154,15 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           return;
         }
 
+        // ✅ Ensure all vehicles are verified
+        final allVehiclesVerified = vehicleVerificationStatusPerProduct.values.every(
+              (statuses) => statuses.every((isVerified) => isVerified),
+        );
+        if (!allVehiclesVerified) {
+          ToastMessages.alert(message: "Please verify all vehicle numbers before placing the order.");
+          return;
+        }
+
         // Validate that all vehicle numbers are unique across all products
         final allVehicleNumbers = <String>[];
         final duplicateVehicles = <String>[];

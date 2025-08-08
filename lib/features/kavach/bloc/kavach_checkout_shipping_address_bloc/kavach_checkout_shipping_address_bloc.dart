@@ -17,42 +17,51 @@ class KavachCheckoutShippingAddressBloc extends Bloc<KavachCheckoutShippingAddre
     });
   }
 
-  Future<void> _onFetchAddresses(FetchKavachShippingAddresses event, Emitter<KavachCheckoutShippingAddressState> emit) async {
-    // Store the currently selected address before fetching
+  Future<void> _onFetchAddresses(
+      FetchKavachShippingAddresses event,
+      Emitter<KavachCheckoutShippingAddressState> emit,
+      ) async {
     KavachAddressModel? currentlySelectedAddress;
     if (state is KavachCheckoutShippingAddressSelected) {
-      currentlySelectedAddress = (state as KavachCheckoutShippingAddressSelected).selectedAddress;
+      currentlySelectedAddress =
+          (state as KavachCheckoutShippingAddressSelected).selectedAddress;
     }
-    
+
     emit(KavachCheckoutShippingAddressLoading());
     final result = await repository.fetchAddresses();
 
     if (result is Success<List<KavachAddressModel>>) {
-      if (result.value.isEmpty) {
+      final addresses = result.value;
+
+      if (addresses.isEmpty) {
         emit(KavachCheckoutShippingAddressEmpty());
-      } else {
-        // Check if the previously selected address still exists in the new list
-        if (currentlySelectedAddress != null) {
-          final addressExists = result.value.any((address) => address.uniqueId == currentlySelectedAddress!.uniqueId);
-          if (addressExists) {
-            // Restore the previously selected address
-            emit(KavachCheckoutShippingAddressSelected(
-              selectedAddress: currentlySelectedAddress,
-              addresses: result.value,
-            ));
-          } else {
-            // Previously selected address no longer exists, show available state
-            emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
-          }
-        } else {
-          // No previously selected address, show available state without auto-selection
-          emit(KavachCheckoutShippingAddressAvailable(addresses: result.value));
+        return;
+      }
+
+      // ✅ Keep previous selection if still valid
+      if (currentlySelectedAddress != null) {
+        final addressExists = addresses.any(
+              (address) => address.uniqueId == currentlySelectedAddress!.uniqueId,
+        );
+        if (addressExists) {
+          emit(KavachCheckoutShippingAddressSelected(
+            selectedAddress: currentlySelectedAddress,
+            addresses: addresses,
+          ));
+          return;
         }
       }
+
+      // ✅ No previous selection — auto-select first address
+      emit(KavachCheckoutShippingAddressSelected(
+        selectedAddress: addresses.first,
+        addresses: addresses,
+      ));
     } else if (result is Error<List<KavachAddressModel>>) {
       emit(KavachCheckoutShippingAddressError(result.type));
     }
   }
+
 
   void _onSelectAddress(SelectKavachShippingAddress event, Emitter<KavachCheckoutShippingAddressState> emit) {
     final currentState = state;

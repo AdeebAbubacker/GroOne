@@ -1,67 +1,46 @@
 import 'dart:io';
 
 class EnDhanKycApiRequest {
-  final int? customerId;
   final String? aadhar;
   final String? pan;
-  final String? addressProofFront;
-  final String? addressProofBack;
-  final String? identityProofFront;
-  final String? identityProofBack;
-  final String? panImage;
+  final bool isAadhar;
+  final String? aadharDocLink;
+  final String? panDocLink;
+  final bool? isPan;
+
+
 
   const EnDhanKycApiRequest({
-    this.customerId,
-    this.aadhar,
+    required this.aadhar,
+    required this.isAadhar,
     this.pan,
-    this.addressProofFront,
-    this.addressProofBack,
-    this.identityProofFront,
-    this.identityProofBack,
-    this.panImage,
+    this.panDocLink,
+    this.isPan,
+    this.aadharDocLink,
   });
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
+    final Map<String, dynamic> json = {
       'aadhar': aadhar,
-      'pan': pan,
-      'addressProofFront': addressProofFront,
-      'addressProofBack': addressProofBack,
-      'identityProofFront': identityProofFront,
-      'identityProofBack': identityProofBack,
-      'panImage': panImage
+      'isAadhar': isAadhar,
+      'aadhar_doc_link': aadharDocLink
     };
+
+    // Only include PAN fields if PAN is provided
+    if (pan != null && pan!.isNotEmpty) {
+      json['pan'] = pan;
+      json['isPan'] = isPan ?? true;
+      if (panDocLink != null && panDocLink!.isNotEmpty) {
+        json['panDocLink'] = panDocLink;
+      }
+    }
+
+    return json;
   }
 
   @override
   String toString() {
-    return 'EnDhanKycApiRequest{customerId: $customerId, aadhar: $aadhar, pan: $pan, addressProofFront: $addressProofFront, addressProofBack: $addressProofBack, identityProofFront: $identityProofFront, identityProofBack: $identityProofBack, panImage: $panImage}';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is EnDhanKycApiRequest &&
-        other.customerId == customerId &&
-        other.aadhar == aadhar &&
-        other.pan == pan &&
-        other.addressProofFront == addressProofFront &&
-        other.addressProofBack == addressProofBack &&
-        other.identityProofFront == identityProofFront &&
-        other.identityProofBack == identityProofBack &&
-        other.panImage == panImage;
-  }
-
-  @override
-  int get hashCode {
-    return customerId.hashCode ^
-        aadhar.hashCode ^
-        pan.hashCode ^
-        addressProofFront.hashCode ^
-        addressProofBack.hashCode ^
-        identityProofFront.hashCode ^
-        identityProofBack.hashCode ^
-        panImage.hashCode;
+    return 'EnDhanKycApiRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
   }
 }
 
@@ -216,38 +195,17 @@ class EnDhanCardDetailRequest {
 
 /// KYC Multipart Upload Request
 class EnDhanKycMultipartApiRequest {
-  final String aadhar;
-  final String pan;
   final File? addressProofFront;
   final File? addressProofBack;
   final File? identityProofFront;
   final File? identityProofBack;
-  final String? panImage; // Changed from File? to String? to handle uploaded URL
 
   const EnDhanKycMultipartApiRequest({
-    required this.aadhar,
-    required this.pan,
     this.addressProofFront,
     this.addressProofBack,
     this.identityProofFront,
     this.identityProofBack,
-    this.panImage,
   });
-
-  /// Get form fields (string data)
-  Map<String, String> getFormFields() {
-    final Map<String, String> fields = {
-      'aadhar': aadhar,
-      'pan': pan,
-    };
-    
-    // Add PAN image URL to form fields if available
-    if (panImage != null && panImage!.isNotEmpty) {
-      fields['panImage'] = panImage!;
-    }
-    
-    return fields;
-  }
 
   /// Get files for multipart upload
   Map<String, File> getFiles() {
@@ -272,7 +230,7 @@ class EnDhanKycMultipartApiRequest {
 
   @override
   String toString() {
-    return 'EnDhanKycMultipartApiRequest{aadhar: $aadhar, pan: $pan, addressProofFront: ${addressProofFront?.path}, addressProofBack: ${addressProofBack?.path}, identityProofFront: ${identityProofFront?.path}, identityProofBack: ${identityProofBack?.path}, panImage: $panImage}';
+    return 'EnDhanKycMultipartApiRequest{addressProofFront: ${addressProofFront?.path}, addressProofBack: ${addressProofBack?.path}, identityProofFront: ${identityProofFront?.path}, identityProofBack: ${identityProofBack?.path}}';
   }
 }
 

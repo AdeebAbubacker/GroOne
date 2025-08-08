@@ -117,6 +117,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
     );
   }
 
+  @override
   Map<String, dynamic> toJson() => {
     "memoid": memoid,
     "lpId": lpId,

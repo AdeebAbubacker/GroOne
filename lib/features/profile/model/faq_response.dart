@@ -65,7 +65,7 @@ class FAQ {
   }
 
   Map<String, dynamic> toJson() => {
-    "data": data.map((x) => x?.toJson()).toList(),
+    "data": data.map((x) => x.toJson()).toList(),
     "total": total,
     "pageMeta": pageMeta?.toJson(),
   };

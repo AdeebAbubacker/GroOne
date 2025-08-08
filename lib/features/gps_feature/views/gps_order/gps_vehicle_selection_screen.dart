@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'dart:async';
 import 'package:flutter/material.dart';
@@ -10,7 +9,6 @@ import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
@@ -18,22 +16,10 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../../data/model/result.dart';
 import '../../../../utils/app_bottom_sheet_body.dart' show AppBottomSheetBody;
-import '../../../../utils/app_button.dart';
-import '../../../../utils/app_button_style.dart';
-import '../../../../utils/app_colors.dart';
-import '../../../../utils/app_route.dart';
-import '../../../../utils/app_dropdown.dart';
-import '../../../../utils/app_icons.dart';
-import '../../../../utils/app_search_bar.dart';
-import '../../../../utils/app_text_field.dart';
-import '../../../../utils/app_text_style.dart';
-import '../../../../utils/common_widgets.dart';
-import '../../../../utils/upload_attachment_files.dart';
 import '../../../../dependency_injection/locator.dart';
 import '../../../../data/ui_state/status.dart';
 import '../../cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
@@ -249,7 +235,7 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                     return Center(child: Text(context.appText.failedToLoadVehicles));
                   } else if (state.vehicles.status == Status.SUCCESS) {
                     final vehicles = state.vehicles.data ?? [];
-                    
+
                     final searchText = searchController.text.toLowerCase();
                     final filteredVehicles = vehicles.where((vehicle) {
                       return vehicle.truckNo.toLowerCase().contains(searchText) ||
@@ -257,7 +243,7 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                         vehicle.rcNumber.toLowerCase().contains(searchText) ||
                         vehicle.tonnage.toLowerCase().contains(searchText);
                     }).toList();
-                    
+
                     if (filteredVehicles.isEmpty) {
                       return Center(
                         child: Text(context.appText.noVehiclesFound),
@@ -320,14 +306,14 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
     widget.vehicleCubit.resetVehicleVerification();
     widget.vehicleCubit.fetchCommodities();
     widget.vehicleCubit.fetchTruckTypes();
-    
+
     // Listen to cubit state changes to rebuild the form
     _cubitSubscription = widget.vehicleCubit.stream.listen((state) {
       if (mounted) {
         setState(() {});
       }
     });
-    
+
     super.initState();
   }
 
@@ -493,7 +479,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                   builder: (context) {
                     final state = widget.vehicleCubit.state;
                     final cubit = widget.vehicleCubit;
-                    
+
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -579,7 +565,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                 Builder(
                   builder: (context) {
                     final state = widget.vehicleCubit.state;
-                    
+
                     if (state.commodities.status == Status.LOADING) {
                       return const SizedBox.shrink();
                     } else if (state.commodities.status == Status.SUCCESS) {
@@ -652,7 +638,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                         // Get user ID from repository (it's a UUID string, not an integer)
                         final userInfoRepo = locator<UserInformationRepository>();
                         final userIDString = await userInfoRepo.getUserID();
-                        
+
                         if (userIDString == null || userIDString.isEmpty) {
                           ToastMessages.error(message: context.appText.userIdNotFoundPleaseLoginAgain);
                           return;
@@ -700,4 +686,4 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
       ),
     );
   }
-} 
+}

@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/LPGetLoadModel.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/lp_get_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
@@ -73,14 +73,14 @@ class LPHomeState extends Equatable {
     UIState? isBluIdShown,
   }) {
     return LPHomeState(
-      truckTypeUIState: truckTypeState ?? this.truckTypeUIState,
-      recentRouteUIState: recentRouteState ?? this.recentRouteUIState,
+      truckTypeUIState: truckTypeState ?? truckTypeUIState,
+      recentRouteUIState: recentRouteState ?? recentRouteUIState,
       autoCompleteUIState: autoCompleteUIState ?? this.autoCompleteUIState,
       verifyLocationUIState: verifyLocationUIState ?? this.verifyLocationUIState,
       rateDiscoveryUIState: rateDiscoveryUIState ?? this.rateDiscoveryUIState,
       loadWeightUIState: loadWeightUIState ?? this.loadWeightUIState,
       profileDetailUIState: profileDetailUIState ?? this.profileDetailUIState,
-      lpGetLoadUIState: getLoadListUIState ?? this.lpGetLoadUIState,
+      lpGetLoadUIState: getLoadListUIState ?? lpGetLoadUIState,
       showSuccessKyc: showSuccessKyc ?? this.showSuccessKyc,
       destination: destination ?? this.destination,
       pickup: pickup ?? this.pickup,

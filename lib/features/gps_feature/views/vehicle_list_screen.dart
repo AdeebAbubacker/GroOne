@@ -735,14 +735,37 @@ class VehicleListView extends StatelessWidget {
   }
 
   Widget _buildSignalIndicator(BuildContext context, int strength) {
+    // Determine signal strength and color based on the strength value
+    Color signalColor;
+    IconData signalIcon;
+    String signalText;
+
+    if (strength >= 4) {
+      signalColor = AppConstants.successColor;
+      signalIcon = Icons.signal_cellular_alt;
+      signalText = 'Strong';
+    } else if (strength >= 3) {
+      signalColor = AppConstants.successColor;
+      signalIcon = Icons.signal_cellular_alt;
+      signalText = 'Good';
+    } else if (strength >= 2) {
+      signalColor = Colors.orange;
+      signalIcon = Icons.signal_cellular_alt;
+      signalText = 'Fair';
+    } else if (strength >= 1) {
+      signalColor = Colors.red;
+      signalIcon = Icons.signal_cellular_alt;
+      signalText = 'Poor';
+    } else {
+      signalColor = AppConstants.textSecondaryColor;
+      signalIcon = Icons.signal_cellular_alt;
+      signalText = 'No Signal';
+    }
+
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Icon(
-          Icons.signal_cellular_alt,
-          color: AppConstants.successColor,
-          size: 16,
-        ),
+        Icon(signalIcon, color: signalColor, size: 16),
         Text(
           context.appText.network,
           style: TextStyle(
@@ -750,26 +773,49 @@ class VehicleListView extends StatelessWidget {
             fontSize: 10,
           ),
         ),
+        Text(
+          signalText,
+          style: TextStyle(
+            color: signalColor,
+            fontSize: 8,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
       ],
     );
   }
 
   Widget _buildGPSIndicator(BuildContext context, bool hasGPS) {
+    Color gpsColor;
+    IconData gpsIcon;
+    String gpsText;
+
+    if (hasGPS) {
+      gpsColor = AppConstants.successColor;
+      gpsIcon = Icons.location_on;
+      gpsText = 'Active';
+    } else {
+      gpsColor = AppConstants.textSecondaryColor;
+      gpsIcon = Icons.location_off;
+      gpsText = 'Inactive';
+    }
+
     return Column(
       children: [
-        Icon(
-          Icons.location_on,
-          color:
-              hasGPS
-                  ? AppConstants.successColor
-                  : AppConstants.textSecondaryColor,
-          size: 16,
-        ),
+        Icon(gpsIcon, color: gpsColor, size: 16),
         Text(
           context.appText.gps,
           style: TextStyle(
             color: AppConstants.textSecondaryColor,
             fontSize: 10,
+          ),
+        ),
+        Text(
+          gpsText,
+          style: TextStyle(
+            color: gpsColor,
+            fontSize: 8,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

@@ -37,6 +37,8 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
 
   SelectedVehicleCubit() : super(null);
 
+  bool get isClosed => _isClosed;
+
   @override
   Future<void> close() {
     _isClosed = true;
@@ -50,8 +52,13 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
   }
 
   void select(GpsCombinedVehicleData? vehicle) {
-    if (!_isClosed) {
-      emit(vehicle);
+    try {
+      if (!_isClosed) {
+        emit(vehicle);
+      }
+    } catch (e) {
+      // Handle any errors that might occur during emit
+      debugPrint('SelectedVehicleCubit select error: $e');
     }
   }
 }
@@ -91,6 +98,25 @@ class _VehicleMapContent extends StatelessWidget {
     return await GpsSessionManager.getGeofenceToggleMap();
   }
 
+  /// Safely select a vehicle using the cubit with proper error handling
+  void _safeSelectVehicle(
+    BuildContext context,
+    GpsCombinedVehicleData? vehicle,
+  ) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      try {
+        if (context.mounted) {
+          final cubit = context.read<SelectedVehicleCubit>();
+          if (cubit != null && !cubit.isClosed) {
+            cubit.select(vehicle);
+          }
+        }
+      } catch (e) {
+        debugPrint('Safe select vehicle error: $e');
+      }
+    });
+  }
+
   /// Creates vehicle markers with custom vehicle icons based on vehicle type and status
   Future<Set<Marker>> _createVehicleMarkers(
     List<GpsCombinedVehicleData> vehicles,
@@ -111,7 +137,7 @@ class _VehicleMapContent extends StatelessWidget {
                 position: LatLng(lat, lng),
                 title: vehicle.vehicleNumber ?? 'Unknown Vehicle',
                 onTap: () {
-                  context.read<SelectedVehicleCubit>().select(vehicle);
+                  _safeSelectVehicle(context, vehicle);
                 },
                 vehicleCategory: vehicle.category,
                 status: vehicle.status,
@@ -374,6 +400,10 @@ class _VehicleMapContent extends StatelessWidget {
                                     null,
                                   );
                                 },
+                                onTap: (LatLng position) {
+                                  // Hide bottom sheet and top card when tapping on map (not on vehicle)
+                                  _safeSelectVehicle(context, null);
+                                },
                               );
                             },
                           );
@@ -402,6 +432,10 @@ class _VehicleMapContent extends StatelessWidget {
                                 mapController,
                                 null,
                               );
+                            },
+                            onTap: (LatLng position) {
+                              // Hide bottom sheet and top card when tapping on map (not on vehicle)
+                              _safeSelectVehicle(context, null);
                             },
                           );
                         }
@@ -1135,7 +1169,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                           ),
                         ],
                       ),
-                      // Moving Time
+                      // Daily Total Distance
                       Column(
                         children: [
                           Row(
@@ -1143,7 +1177,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                               Icon(Icons.circle, color: Colors.green, size: 16),
                               const SizedBox(width: 4),
                               const Text(
-                                'Today Distance',
+                                'Daily Total Distance',
                                 style: TextStyle(
                                   color: Colors.green,
                                   fontWeight: FontWeight.w600,
@@ -1152,12 +1186,36 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                             ],
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            _formatDistance(widget.vehicle.todayDistance),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
+                          BlocBuilder<
+                            GpsInfoWindowDetailsCubit,
+                            GpsInfoWindowDetailsState
+                          >(
+                            builder: (context, infoState) {
+                              if (infoState.infoWindowDetailsState?.status ==
+                                      Status.SUCCESS &&
+                                  infoState.infoWindowDetailsState?.data !=
+                                      null) {
+                                final infoDetails =
+                                    infoState.infoWindowDetailsState!.data!;
+                                return Text(
+                                  _formatDistanceFromCache(
+                                    infoDetails.cacheDistance,
+                                  ),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                );
+                              } else {
+                                return Text(
+                                  _formatDistance(widget.vehicle.todayDistance),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                );
+                              }
+                            },
                           ),
                           const SizedBox(height: 2),
                           Text(
@@ -1193,7 +1251,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _formatIdleCount(widget.vehicle.idleTime),
+                            _calculateIdleCountFromTimestamps(),
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -1201,7 +1259,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                           ),
                           const SizedBox(height: 2),
                           Text(
-                            _formatIdleTime(widget.vehicle.idleTime),
+                            _calculateIdleTimeFromTimestamps(),
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 12,
@@ -1359,45 +1417,6 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                 ),
               ),
             ),
-            // Info card
-            Padding(
-              padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Column(
-                  children: [
-                    _InfoRow(
-                      icon: Icons.vpn_key,
-                      label: 'Ignition On Since',
-                      value: _formatIgnitionOnTime(
-                        widget.vehicle.lastIgnitionOnFixTime,
-                      ),
-                    ),
-                    const Divider(height: 1),
-                    _InfoRow(
-                      icon: Icons.speed,
-                      label: 'Last Trip Distance',
-                      value: _formatDistance(widget.vehicle.totalDistance),
-                    ),
-                    const Divider(height: 1),
-                    _InfoRow(
-                      icon: Icons.access_time,
-                      label: 'Last Trip Time',
-                      value: _formatLastTripTime(widget.vehicle.lastUpdate),
-                    ),
-                    const Divider(height: 1),
-                    _InfoRow(
-                      icon: Icons.speed,
-                      label: 'Max Speed',
-                      value: _formatSpeed(widget.vehicle.lastSpeed),
-                    ),
-                  ],
-                ),
-              ),
-            ),
 
             // Info Window Details Card (Trip Details)
             BlocBuilder<GpsInfoWindowDetailsCubit, GpsInfoWindowDetailsState>(
@@ -1436,11 +1455,30 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                       ),
                       child: Column(
                         children: [
-                          _InfoWindowDetailRow(
-                            icon: Icons.speed,
-                            label: 'Average Speed',
-                            value:
-                                '${infoDetails.averageSpeedKph?.toStringAsFixed(1) ?? '0.0'} km/h',
+                          _InfoRow(
+                            icon: Icons.vpn_key,
+                            label:
+                                _getIgnitionStatus(
+                                          widget.vehicle.ignition,
+                                          widget.vehicle.status,
+                                        ) ==
+                                        'ON'
+                                    ? 'Ignition On Since'
+                                    : 'Ignition OFF Since',
+                            value: _formatIgnitionTime(
+                              widget.vehicle.lastIgnitionOnFixTime,
+                              widget.vehicle.lastIgnitionOffFixTime,
+                              widget.vehicle.ignition,
+                              widget.vehicle.status,
+                            ),
+                          ),
+                          const Divider(height: 1),
+                          _InfoRow(
+                            icon: Icons.access_time,
+                            label: 'Last Trip Time',
+                            value: _formatLastTripTime(
+                              widget.vehicle.lastUpdate,
+                            ),
                           ),
                           const Divider(height: 1),
                           _InfoWindowDetailRow(
@@ -1452,36 +1490,15 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                           const Divider(height: 1),
                           _InfoWindowDetailRow(
                             icon: Icons.route,
-                            label: 'Current Trip Distance',
-                            value:
-                                '${infoDetails.currentTripDistance?.toStringAsFixed(1) ?? '0.0'} km',
-                          ),
-                          const Divider(height: 1),
-                          _InfoWindowDetailRow(
-                            icon: Icons.route,
                             label: 'Last Trip Distance',
                             value:
                                 '${infoDetails.lastTripDistance?.toStringAsFixed(1) ?? '0.0'} km',
                           ),
                           const Divider(height: 1),
                           _InfoWindowDetailRow(
-                            icon: Icons.access_time,
-                            label: 'Engine Time',
-                            value: widget.formatDuration(
-                              infoDetails.engineSecondsViaIgnition,
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          _InfoWindowDetailRow(
                             icon: Icons.stop_circle,
                             label: 'Stops Count',
                             value: '${infoDetails.stopsCount ?? 0}',
-                          ),
-                          const Divider(height: 1),
-                          _InfoWindowDetailRow(
-                            icon: Icons.trip_origin,
-                            label: 'Trips Count',
-                            value: '${infoDetails.tripsCount ?? 0}',
                           ),
                         ],
                       ),
@@ -1518,28 +1535,30 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                       children: [
                         Expanded(
                           child: _StatusIconText(
-                            icon: Icons.flash_on,
-                            iconColor: Colors.blue,
-                            label: 'Immobilizer',
-                            value: _getImmobilizerStatus(widget.vehicle.alarm),
-                            valueColor: Colors.black,
-                          ),
-                        ),
-                        Expanded(
-                          child: _StatusIconText(
-                            icon: Icons.door_front_door,
-                            iconColor: Colors.red,
-                            label: 'Door',
-                            value: _getDoorStatus(widget.vehicle.deviceStatus),
-                            valueColor: Colors.black,
-                          ),
-                        ),
-                        Expanded(
-                          child: _StatusIconText(
                             icon: Icons.thermostat,
                             iconColor: Colors.orange,
                             label: 'Temp',
                             value: _formatTemperature(widget.vehicle.tmp),
+                            valueColor: Colors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: _StatusIconText(
+                            icon: Icons.public,
+                            iconColor: Colors.green,
+                            label: 'Geofence',
+                            value: _getGeofenceStatus(
+                              widget.vehicle.geofenceIds,
+                            ),
+                            valueColor: Colors.black,
+                          ),
+                        ),
+                        Expanded(
+                          child: _StatusIconText(
+                            icon: Icons.local_parking,
+                            iconColor: Colors.blue,
+                            label: 'Parking',
+                            value: _getParkingStatus(widget.vehicle.valid),
                             valueColor: Colors.black,
                           ),
                         ),
@@ -1574,42 +1593,6 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                         children: [
                           Expanded(
                             child: _StatusIconText(
-                              icon: Icons.public,
-                              iconColor: Colors.green,
-                              label: 'Geofence',
-                              value: _getGeofenceStatus(
-                                widget.vehicle.geofenceIds,
-                              ),
-                              valueColor: Colors.black,
-                            ),
-                          ),
-                          Expanded(
-                            child: _StatusIconText(
-                              icon: Icons.local_parking,
-                              iconColor: Colors.blue,
-                              label: 'Parking',
-                              value: _getParkingStatus(widget.vehicle.valid),
-                              valueColor: Colors.black,
-                            ),
-                          ),
-                          Expanded(
-                            child: _StatusIconText(
-                              icon: Icons.battery_charging_full,
-                              iconColor: Colors.green,
-                              label: 'Vehicle Btt',
-                              value: _getVehicleBatteryDisplay(),
-                              valueColor: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(width: 32), // for arrow alignment
-                        ],
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Expanded(
-                            child: _StatusIconText(
                               icon: Icons.ac_unit,
                               iconColor: Colors.teal,
                               label: 'A/C',
@@ -1626,10 +1609,19 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                               valueColor: Colors.black,
                             ),
                           ),
-                          const SizedBox(width: 32),
-                          const SizedBox(width: 32),
+                          Expanded(
+                            child: _StatusIconText(
+                              icon: Icons.battery_charging_full,
+                              iconColor: Colors.green,
+                              label: 'Vehicle Btt',
+                              value: _getVehicleBatteryDisplay(),
+                              valueColor: Colors.black,
+                            ),
+                          ),
+                          const SizedBox(width: 32), // for arrow alignment
                         ],
                       ),
+                      const SizedBox(height: 12),
                     ],
                   ],
                 ),
@@ -1671,6 +1663,11 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
     return distance;
   }
 
+  String _formatDistanceFromCache(double? cacheDistance) {
+    if (cacheDistance == null) return '-';
+    return '${cacheDistance.toStringAsFixed(1)} km';
+  }
+
   String _formatIdleCount(String? idleTime) {
     if (idleTime == null || idleTime.isEmpty) return '-';
     // Since we don't have idle count in the API, we'll calculate it from idle time
@@ -1689,142 +1686,216 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
     return '0';
   }
 
+  String _calculateIdleCountFromTimestamps() {
+    final idleFixTime = widget.vehicle.idleFixTime;
+    final idleFixTimeKey = widget.vehicle.idleFixTimeKey;
+
+    if (idleFixTime == null ||
+        idleFixTime.isEmpty ||
+        idleFixTimeKey == null ||
+        idleFixTimeKey.isEmpty) {
+      return '-';
+    }
+
+    try {
+      // Parse UTC timestamps
+      final DateTime idleFixTimeUtc = DateTime.parse(idleFixTime);
+      final DateTime idleFixTimeKeyUtc = DateTime.parse(idleFixTimeKey);
+
+      // Convert to local time
+      final DateTime idleFixTimeLocal = idleFixTimeUtc.toLocal();
+      final DateTime idleFixTimeKeyLocal = idleFixTimeKeyUtc.toLocal();
+
+      // Calculate the difference - always subtract the earlier time from the later time
+      Duration difference;
+      if (idleFixTimeLocal.isAfter(idleFixTimeKeyLocal)) {
+        difference = idleFixTimeLocal.difference(idleFixTimeKeyLocal);
+      } else {
+        difference = idleFixTimeKeyLocal.difference(idleFixTimeLocal);
+      }
+
+      // Calculate idle count based on duration
+      final int totalSeconds = difference.inSeconds;
+      if (totalSeconds < 0) {
+        return '0'; // Invalid time difference
+      }
+
+      // If idle time is more than 5 minutes, consider it as an idle event
+      if (totalSeconds > 300) {
+        return '1';
+      }
+
+      return '0';
+    } catch (e) {
+      // If parsing fails, fall back to the original idleTime calculation
+      return _formatIdleCount(widget.vehicle.idleTime);
+    }
+  }
+
   String _formatIdleTime(String? idleTime) {
     if (idleTime == null || idleTime.isEmpty) return '-';
     return formatDuration(idleTime);
   }
 
-  String _formatIgnitionOnTime(String? lastIgnitionOnFixTime) {
-    if (lastIgnitionOnFixTime == null || lastIgnitionOnFixTime.isEmpty) {
-      return 'N/A';
+  String _calculateIdleTimeFromTimestamps() {
+    final idleFixTime = widget.vehicle.idleFixTime;
+    final idleFixTimeKey = widget.vehicle.idleFixTimeKey;
+
+    if (idleFixTime == null ||
+        idleFixTime.isEmpty ||
+        idleFixTimeKey == null ||
+        idleFixTimeKey.isEmpty) {
+      return '-';
     }
+
     try {
-      final dateTime = DateTime.parse(lastIgnitionOnFixTime);
-      return '${dateTime.day.toString().padLeft(2, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year.toString().substring(2)}, ${_formatTime(dateTime)}';
+      // Parse UTC timestamps
+      final DateTime idleFixTimeUtc = DateTime.parse(idleFixTime);
+      final DateTime idleFixTimeKeyUtc = DateTime.parse(idleFixTimeKey);
+
+      // Convert to local time
+      final DateTime idleFixTimeLocal = idleFixTimeUtc.toLocal();
+      final DateTime idleFixTimeKeyLocal = idleFixTimeKeyUtc.toLocal();
+
+      // Debug logging
+      debugPrint('🕐 Idle Time Debug:');
+      debugPrint('  idleFixTime (UTC): $idleFixTime');
+      debugPrint('  idleFixTimeKey (UTC): $idleFixTimeKey');
+      debugPrint('  idleFixTime (Local): $idleFixTimeLocal');
+      debugPrint('  idleFixTimeKey (Local): $idleFixTimeKeyLocal');
+
+      // Calculate the difference - always subtract the earlier time from the later time
+      Duration difference;
+      if (idleFixTimeLocal.isAfter(idleFixTimeKeyLocal)) {
+        difference = idleFixTimeLocal.difference(idleFixTimeKeyLocal);
+        debugPrint('  Calculation: idleFixTime - idleFixTimeKey');
+      } else {
+        difference = idleFixTimeKeyLocal.difference(idleFixTimeLocal);
+        debugPrint('  Calculation: idleFixTimeKey - idleFixTime');
+      }
+
+      // Format the duration
+      final int totalSeconds = difference.inSeconds;
+      debugPrint('  Total seconds: $totalSeconds');
+
+      if (totalSeconds < 0) {
+        debugPrint('  Result: Invalid time difference');
+        return '-'; // Invalid time difference
+      }
+
+      final int hours = totalSeconds ~/ 3600;
+      final int minutes = (totalSeconds % 3600) ~/ 60;
+
+      String result;
+      if (hours > 0 && minutes > 0) {
+        result = '${hours}h ${minutes}m';
+      } else if (hours > 0) {
+        result = '${hours}h';
+      } else if (minutes > 0) {
+        result = '${minutes}m';
+      } else {
+        result = '0m';
+      }
+
+      debugPrint('  Result: $result');
+      return result;
     } catch (e) {
-      return lastIgnitionOnFixTime;
+      debugPrint('  Error parsing timestamps: $e');
+      // If parsing fails, fall back to the original idleTime
+      return _formatIdleTime(widget.vehicle.idleTime);
+    }
+  }
+
+  String _getIgnitionStatus(String? ignition, String? status) {
+    if (ignition != null) {
+      final ignitionLower = ignition.toLowerCase().trim();
+      if (ignitionLower == 'on' ||
+          ignitionLower == '1' ||
+          ignitionLower == 'true' ||
+          ignitionLower == 'yes' ||
+          ignitionLower == 'running') {
+        return 'ON';
+      } else if (ignitionLower == 'off' ||
+          ignitionLower == '0' ||
+          ignitionLower == 'false' ||
+          ignitionLower == 'no' ||
+          ignitionLower == 'stopped') {
+        return 'OFF';
+      }
+    }
+
+    // Fallback to status field
+    if (status != null) {
+      final statusUpper = status.toUpperCase();
+      switch (statusUpper) {
+        case 'IGNITION_ON':
+        case 'ACTIVE':
+        case 'RUNNING':
+        case 'ON':
+          return 'ON';
+        case 'IGNITION_OFF':
+        case 'OFF':
+        case 'INACTIVE':
+        case 'STOPPED':
+          return 'OFF';
+        case 'IDLE':
+        case 'PARKED':
+          return 'IDLE';
+        default:
+          // Try to extract ignition info from status string
+          final statusLower = status.toLowerCase();
+          if (statusLower.contains('on') || statusLower.contains('active')) {
+            return 'ON';
+          } else if (statusLower.contains('off') ||
+              statusLower.contains('inactive')) {
+            return 'OFF';
+          } else if (statusLower.contains('idle')) {
+            return 'IDLE';
+          }
+      }
+    }
+
+    return '-';
+  }
+
+  String _formatIgnitionTime(
+    String? lastIgnitionOnFixTime,
+    String? lastIgnitionOffFixTime,
+    String? ignition,
+    String? status,
+  ) {
+    final ignitionStatus = _getIgnitionStatus(ignition, status);
+
+    if (ignitionStatus == 'ON') {
+      // Show ignition on time
+      if (lastIgnitionOnFixTime == null || lastIgnitionOnFixTime.isEmpty) {
+        return 'N/A';
+      }
+      try {
+        final dateTime = DateTime.parse(lastIgnitionOnFixTime);
+        final localDateTime = dateTime.toLocal();
+        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)}, ${_formatTime(localDateTime)}';
+      } catch (e) {
+        return lastIgnitionOnFixTime;
+      }
+    } else {
+      // Show ignition off time
+      if (lastIgnitionOffFixTime == null || lastIgnitionOffFixTime.isEmpty) {
+        return 'N/A';
+      }
+      try {
+        final dateTime = DateTime.parse(lastIgnitionOffFixTime);
+        final localDateTime = dateTime.toLocal();
+        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)}, ${_formatTime(localDateTime)}';
+      } catch (e) {
+        return lastIgnitionOffFixTime;
+      }
     }
   }
 
   String _formatLastTripTime(DateTime? lastUpdate) {
     if (lastUpdate == null) return 'N/A';
     return _formatTime(lastUpdate);
-  }
-
-  String _formatSpeed(String? speed) {
-    if (speed == null || speed.isEmpty) return 'N/A';
-    try {
-      final speedValue = double.tryParse(speed);
-      if (speedValue != null) {
-        return '${speedValue.toStringAsFixed(1)} km/h';
-      }
-    } catch (e) {
-      // If parsing fails, return the original value
-    }
-    return '$speed km/h';
-  }
-
-  String _getImmobilizerStatus(String? alarm) {
-    // Try to extract alarm from posAttr if direct field is null
-    if ((alarm == null || alarm.isEmpty) &&
-        widget.vehicle.posAttr != null &&
-        widget.vehicle.posAttr!.isNotEmpty) {
-      try {
-        final posAttrMap =
-            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
-        if (posAttrMap.containsKey('alarm')) {
-          final alarmValue = posAttrMap['alarm'];
-          alarm = alarmValue?.toString();
-        } else if (posAttrMap.containsKey('event')) {
-          final eventValue = posAttrMap['event'];
-          alarm = eventValue?.toString();
-        }
-      } catch (e) {
-        // JSON parsing failed
-      }
-    }
-
-    if (alarm == null || alarm.isEmpty) return '-';
-
-    final alarmLower = alarm.toLowerCase().trim();
-
-    if (alarmLower == 'on' ||
-        alarmLower == '1' ||
-        alarmLower == 'true' ||
-        alarmLower == 'yes' ||
-        alarmLower == 'active') {
-      return 'ON';
-    } else if (alarmLower == 'off' ||
-        alarmLower == '0' ||
-        alarmLower == 'false' ||
-        alarmLower == 'no' ||
-        alarmLower == 'inactive') {
-      return 'OFF';
-    }
-    // If it's a number, treat as boolean
-    final numValue = int.tryParse(alarmLower);
-    if (numValue != null) {
-      return numValue > 0 ? 'ON' : 'OFF';
-    }
-    // If it contains keywords, try to determine status
-    if (alarmLower.contains('on') || alarmLower.contains('active')) {
-      return 'ON';
-    } else if (alarmLower.contains('off') || alarmLower.contains('inactive')) {
-      return 'OFF';
-    }
-    // If all else fails, show the raw value (truncated if too long)
-    return alarm.length > 10 ? '${alarm.substring(0, 10)}...' : alarm;
-  }
-
-  String _getDoorStatus(String? deviceStatus) {
-    // Try to extract door status from posAttr if direct field doesn't contain door info
-    if (deviceStatus != null &&
-        deviceStatus.isNotEmpty &&
-        !deviceStatus.toLowerCase().contains('door') &&
-        widget.vehicle.posAttr != null &&
-        widget.vehicle.posAttr!.isNotEmpty) {
-      try {
-        final posAttrMap =
-            jsonDecode(widget.vehicle.posAttr!) as Map<String, dynamic>;
-        if (posAttrMap.containsKey('io68')) {
-          final ioValue = posAttrMap['io68'];
-          // io68 might indicate door status
-          if (ioValue != null) {
-            final ioNum = int.tryParse(ioValue.toString());
-            if (ioNum != null) {
-              return ioNum > 0 ? 'OPEN' : 'CLOSED';
-            }
-          }
-        }
-      } catch (e) {
-        // JSON parsing failed
-      }
-    }
-
-    if (deviceStatus == null || deviceStatus.isEmpty) return '-';
-
-    final statusLower = deviceStatus.toLowerCase().trim();
-
-    if (statusLower.contains('door') || statusLower.contains('open')) {
-      return 'OPEN';
-    } else if (statusLower.contains('closed') || statusLower.contains('shut')) {
-      return 'CLOSED';
-    }
-    // If it's a number, treat as boolean
-    final numValue = int.tryParse(statusLower);
-    if (numValue != null) {
-      return numValue > 0 ? 'OPEN' : 'CLOSED';
-    }
-    // If it contains keywords, try to determine status
-    if (statusLower.contains('open') || statusLower.contains('1')) {
-      return 'OPEN';
-    } else if (statusLower.contains('closed') || statusLower.contains('0')) {
-      return 'CLOSED';
-    }
-    // If all else fails, show the raw value (truncated if too long)
-    return deviceStatus.length > 10
-        ? '${deviceStatus.substring(0, 10)}...'
-        : deviceStatus;
   }
 
   String _formatTemperature(String? tmp) {
@@ -2752,6 +2823,22 @@ class _DateRangePickerBottomSheetState
     super.initState();
     startDate = widget.initialStartDate;
     endDate = widget.initialEndDate;
+
+    // Ensure initial date range doesn't exceed 7 days
+    final daysDifference = endDate.difference(startDate).inDays;
+    if (daysDifference > 6) {
+      // If range is too large, adjust end date to be 7 days from start
+      endDate = startDate.add(const Duration(days: 6));
+    }
+
+    // Ensure dates are not in the future
+    final now = DateTime.now();
+    if (endDate.isAfter(now)) {
+      endDate = now;
+      // Recalculate start date to maintain 7-day limit
+      startDate = endDate.subtract(const Duration(days: 6));
+    }
+
     _updateControllers();
   }
 
@@ -2765,11 +2852,37 @@ class _DateRangePickerBottomSheetState
   }
 
   Future<void> _selectDate(BuildContext context, bool isStartDate) async {
+    // Calculate valid date ranges to ensure maximum 7 days
+    DateTime? firstDate;
+    DateTime? lastDate;
+
+    if (isStartDate) {
+      // For start date: can't be more than 6 days before current end date
+      firstDate = DateTime(2020);
+      lastDate = endDate.subtract(const Duration(days: 6));
+      // Ensure lastDate is not in the future
+      if (lastDate.isAfter(DateTime.now())) {
+        lastDate = DateTime.now();
+      }
+      // Ensure lastDate is not before firstDate
+      if (lastDate.isBefore(firstDate)) {
+        lastDate = firstDate;
+      }
+    } else {
+      // For end date: can't be more than 6 days after current start date
+      firstDate = startDate.add(const Duration(days: 6));
+      lastDate = DateTime.now();
+      // Ensure firstDate is not after lastDate
+      if (firstDate.isAfter(lastDate)) {
+        firstDate = lastDate;
+      }
+    }
+
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: isStartDate ? startDate : endDate,
-      firstDate: DateTime(2020),
-      lastDate: DateTime.now(),
+      firstDate: firstDate,
+      lastDate: lastDate,
       builder: (BuildContext context, Widget? child) {
         return Theme(
           data: ThemeData.light().copyWith(
@@ -2795,11 +2908,19 @@ class _DateRangePickerBottomSheetState
           if (endDate.isBefore(startDate)) {
             endDate = startDate;
           }
+          // Ensure date range doesn't exceed 7 days
+          if (endDate.difference(startDate).inDays > 6) {
+            endDate = startDate.add(const Duration(days: 6));
+          }
         } else {
           endDate = picked;
           // Ensure start date is not after end date
           if (startDate.isAfter(endDate)) {
             startDate = endDate;
+          }
+          // Ensure date range doesn't exceed 7 days
+          if (endDate.difference(startDate).inDays > 6) {
+            startDate = endDate.subtract(const Duration(days: 6));
           }
         }
         _updateControllers();
@@ -2945,20 +3066,6 @@ class _DateRangePickerBottomSheetState
                         },
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: _QuickDateButton(
-                        label: 'Last 30 Days',
-                        onTap: () {
-                          final now = DateTime.now();
-                          setState(() {
-                            startDate = now.subtract(const Duration(days: 29));
-                            endDate = now;
-                            _updateControllers();
-                          });
-                        },
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -2966,17 +3073,26 @@ class _DateRangePickerBottomSheetState
                 Container(
                   padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
-                    color: Colors.green.withValues(alpha: 0.1),
+                    color:
+                        (endDate.difference(startDate).inDays <= 6)
+                            ? Colors.green.withValues(alpha: 0.1)
+                            : Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
                     border: Border.all(
-                      color: Colors.green.withValues(alpha: 0.3),
+                      color:
+                          (endDate.difference(startDate).inDays <= 6)
+                              ? Colors.green.withValues(alpha: 0.3)
+                              : Colors.orange.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
                     children: [
                       Icon(
                         Icons.calendar_today,
-                        color: Colors.green[700],
+                        color:
+                            (endDate.difference(startDate).inDays <= 6)
+                                ? Colors.green[700]
+                                : Colors.orange[700],
                         size: 20,
                       ),
                       const SizedBox(width: 8),
@@ -2985,7 +3101,10 @@ class _DateRangePickerBottomSheetState
                           'Selected Range: ${_formatDate(startDate)} to ${_formatDate(endDate)} (${endDate.difference(startDate).inDays + 1} days)',
                           style: TextStyle(
                             fontSize: 12,
-                            color: Colors.green[700],
+                            color:
+                                (endDate.difference(startDate).inDays <= 6)
+                                    ? Colors.green[700]
+                                    : Colors.orange[700],
                             fontWeight: FontWeight.w500,
                           ),
                         ),
@@ -3014,7 +3133,7 @@ class _DateRangePickerBottomSheetState
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Select a date range to view the vehicle path. The path will show all movements and stops during this period.',
+                          'Select a date range to view the vehicle path (maximum 7 days). The date picker will automatically restrict selections to ensure the range never exceeds 7 days.',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.blue[700],
@@ -3052,31 +3171,22 @@ class _DateRangePickerBottomSheetState
                           // Validate date range
                           final daysDifference =
                               endDate.difference(startDate).inDays;
-                          if (daysDifference > 30) {
-                            // Show warning for large date ranges
+                          if (daysDifference > 6) {
+                            // Show warning for date ranges exceeding 7 days
                             showDialog(
                               context: context,
                               builder:
                                   (context) => AlertDialog(
-                                    title: const Text('Large Date Range'),
+                                    title: const Text(
+                                      'Date Range Limit Exceeded',
+                                    ),
                                     content: Text(
-                                      'You have selected a date range of $daysDifference days. This may take longer to load and could impact performance. Do you want to continue?',
+                                      'You have selected a date range of ${daysDifference + 1} days. The maximum allowed range is 7 days. Please select a smaller date range.',
                                     ),
                                     actions: [
-                                      TextButton(
-                                        onPressed: () => Navigator.pop(context),
-                                        child: const Text('Cancel'),
-                                      ),
                                       ElevatedButton(
-                                        onPressed: () {
-                                          Navigator.pop(context);
-                                          Navigator.pop(context);
-                                          widget.onDateRangeSelected(
-                                            startDate,
-                                            endDate,
-                                          );
-                                        },
-                                        child: const Text('Continue'),
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('OK'),
                                       ),
                                     ],
                                   ),

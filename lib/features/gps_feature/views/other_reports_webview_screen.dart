@@ -10,27 +10,28 @@ class OtherReportsWebViewScreen extends StatelessWidget {
 
   Future<String> _buildAuthenticatedUrl() async {
     try {
-
       /// Note : need to pass the dynamic data here (need to change here username to mobile number)
       ///
       final username = 'rishika';
       final password = 'Roadcast@123';
-      
+
       if (username.isEmpty || password.isEmpty) {
-        throw Exception('Authentication credentials not found. Please login again.');
+        throw Exception(
+          'Authentication credentials not found. Please login again.',
+        );
       }
 
       // Create credentials string exactly like Android
       String credentials = '$username:$password';
-      
+
       // Encode to Base64 exactly like Android
       final List<int> bytes = utf8.encode(credentials);
       final String basic = base64Encode(bytes);
-      
+
       // Build URL exactly like Android - you may need to adjust the BASE_URL
       const String baseUrl = 'https://track.letsgro.co/';
       final String url = '${baseUrl}v1/auth/login?url=/app/report&basic=$basic';
-      
+
       return url;
     } catch (e) {
       rethrow;
@@ -63,15 +64,15 @@ class OtherReportsWebViewScreen extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return _buildLoadingState();
           }
-          
+
           if (snapshot.hasError) {
             return _buildErrorState(snapshot.error.toString());
           }
-          
+
           if (snapshot.hasData) {
             return _buildWebView(snapshot.data!);
           }
-          
+
           return _buildErrorState('Unknown error occurred');
         },
       ),
@@ -79,25 +80,26 @@ class OtherReportsWebViewScreen extends StatelessWidget {
   }
 
   Widget _buildWebView(String url) {
-    final controller = WebViewController()
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onPageStarted: (String url) {
-            // Page started loading
-          },
-          onPageFinished: (String url) {
-            // Page finished loading
-          },
-          onWebResourceError: (WebResourceError error) {
-            // Handle error
-          },
-          onNavigationRequest: (NavigationRequest request) {
-            return NavigationDecision.navigate;
-          },
-        ),
-      )
-      ..loadRequest(Uri.parse(url));
+    final controller =
+        WebViewController()
+          ..setJavaScriptMode(JavaScriptMode.unrestricted)
+          ..setNavigationDelegate(
+            NavigationDelegate(
+              onPageStarted: (String url) {
+                // Page started loading
+              },
+              onPageFinished: (String url) {
+                // Page finished loading
+              },
+              onWebResourceError: (WebResourceError error) {
+                // Handle error
+              },
+              onNavigationRequest: (NavigationRequest request) {
+                return NavigationDecision.navigate;
+              },
+            ),
+          )
+          ..loadRequest(Uri.parse(url));
 
     return WebViewWidget(controller: controller);
   }
@@ -107,16 +109,11 @@ class OtherReportsWebViewScreen extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            color: AppColors.primaryColor,
-          ),
+          const CircularProgressIndicator(color: AppColors.primaryColor),
           const SizedBox(height: 16),
           Text(
             'Loading reports...',
-            style: TextStyle(
-              color: AppColors.grayColor,
-              fontSize: 16,
-            ),
+            style: TextStyle(color: AppColors.grayColor, fontSize: 16),
           ),
         ],
       ),
@@ -130,11 +127,7 @@ class OtherReportsWebViewScreen extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.appRedColor,
-            ),
+            Icon(Icons.error_outline, size: 64, color: AppColors.appRedColor),
             const SizedBox(height: 16),
             Text(
               'Unable to Load Reports',
@@ -159,4 +152,4 @@ class OtherReportsWebViewScreen extends StatelessWidget {
       ),
     );
   }
-} 
+}

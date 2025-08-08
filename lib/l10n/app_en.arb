@@ -60,7 +60,7 @@
   "seeMore": "See more",
   "availableLoads": "Available Loads",
   "filter": "Filter",
-  "thisFieldIsRequired": "This filed is required",
+  "thisFieldIsRequired": "This field is required",
   "vehicleType": "Vehicle type",
   "selectVehicleType": "Select Vehicle type",
   "lane": "Lane",
@@ -1051,5 +1051,18 @@
   "selectLicenseCategory" : "Select License Category",
   "commodityType" : "Commodity Type",
   "selectCommodityType" : "Select Commodity Category",
-  "searchedLanes":"Search Lanes"
+  "searchedLanes":"Search Lanes",
+  "ccAvenueUrlIsEmpty" : "CC Avenue url is empty",
+  "isRequired" : "is required",
+  "emailIsRequired" : "Email is required",
+  "passwordIsRequired" : "Password is required",
+  "passwordMustBeAtLeast6Digit" : "Password must be at least 6 character long.",
+  "pleaseEnterMobileNumber" : "Please enter mobile number",
+  "pleaseEnter10DigitMobileNumber" : "Please enter a valid 10-digit mobile number",
+  "mobileNumberCannotStartWith0" : "Mobile number cannot start with 0",
+  "mobileNumberCannotHaveSameNumber" : "Mobile number cannot have all same digits",
+  "pleaseEnterPinCode" : "Please enter pincode",
+  "pleaseEnterValidPinCode" : "Please enter a valid pincode",
+  "searchTruckTypes" : "Search truck types",
+  "searchRoutes" : "Search routes..."
 }

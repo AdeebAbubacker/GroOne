@@ -67,7 +67,7 @@ class Data {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return Data(
       rateDiscoveryId: rateDiscoveryId ?? this.rateDiscoveryId,

@@ -141,7 +141,7 @@ class TruckSupplier {
   final String vehicleNumber;
 
   TruckSupplier copyWith({
-    dynamic? partnerName,
+    dynamic partnerName,
     String? panNumber,
     String? vehicleNumber,
   }) {

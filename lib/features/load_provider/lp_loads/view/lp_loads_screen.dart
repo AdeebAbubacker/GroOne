@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -12,7 +11,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_Widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trucktype_dropdown.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -21,7 +20,6 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -35,8 +33,6 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/validator.dart';
-import 'package:intl/intl.dart';
 
 class LpLoadsScreen extends StatefulWidget {
 
@@ -186,7 +182,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 },
                 truckTypeList: truckTypes,
                 labelText: context.appText.truckType,
-                hintText: "Search truck types",
+                hintText: context.appText.searchTruckTypes,
               );
             },
           ),
@@ -197,8 +193,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             final routeList = uiState?.data?.data?.routeList ?? [];
 
             return RouteSearchableDropdown(
-              labelText: 'Route',
-              hintText: 'Search routes...',
+              labelText: context.appText.route,
+              hintText: context.appText.searchRoutes,
               routeList: routeList,
               selectedRouteStatus: routeDropDownValue,
               onRouteChanged: (RouteList? value) {

@@ -21,7 +21,7 @@ class LoadTruckTypeListModel {
     int? id,
     String? type,
     String? subType,
-    dynamic? iconUrl,
+    dynamic iconUrl,
     int? status,
     DateTime? createdAt,
     DateTime? deletedAt,

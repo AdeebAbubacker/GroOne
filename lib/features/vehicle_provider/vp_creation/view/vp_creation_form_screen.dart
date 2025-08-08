@@ -296,7 +296,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Pin code Truck
         AppTextField(
-          validator: (value) => Validator.validateVpPinCode(value),
+          validator: (value) => Validator.pincode(value),
           controller: pinCodeTextController,
           labelText: context.appText.pinCode,
           hintText: "${context.appText.enter} ${context.appText.pinCode}",

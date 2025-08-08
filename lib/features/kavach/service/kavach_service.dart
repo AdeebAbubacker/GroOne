@@ -799,6 +799,53 @@ class KavachService {
     }
   }
 
+  Future<Result<Map<String, dynamic>>> fetchVehicleData(String vehicleNumber) async {
+    try {
+      // === Step 1: Hit API-2 (Check if vehicle exists) ===
+      print('=== Step 1: Hit API-2 (Check if vehicle exists) ===');
+      final url = '${ApiUrls.checkVehicleNumber}/$vehicleNumber';
+
+      final api2Response = await _apiService.get(
+        // 'https://gro-devapi.letsgro.co/customer/api/v1/vehicle/check/vehicle-no/$vehicleNumber',
+        url,
+      );
+
+      final api2Data = api2Response is Success ? api2Response.value['data'] : null;
+
+      if (api2Data != null && api2Data != false) {
+        return Success(api2Data);
+      }
+      // if (api2Response is Success && api2Response.value['data'] != null) {
+      //   return Success(api2Response.value['data']);
+      // }
+
+      // === Step 2: Fallback to API-1 ===
+      print('=== Step 2: Fallback to API-1 ===');
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+
+      final api1Response = await _apiService.post(
+        // 'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number',
+        ApiUrls.kavachVehicleVerification,
+        body: {"vehicle_number": vehicleNumber},
+        customHeaders: customHeaders,
+      );
+
+      if (api1Response is Success && api1Response.value['data'] != null) {
+        return Success(api1Response.value['data']);
+      }
+
+      return Error(GenericError());
+    } catch (e) {
+      return Error(GenericError());
+    }
+  }
+
+
   /// Fetches transaction data from the API
   Future<Result<List<KavachTransactionModel>>> getTransactions(String customerId) async {
     try {

@@ -11,6 +11,8 @@ class GpsUploadDocumentState extends Equatable {
   final UIState<GpsAadhaarSendOtpResponse>? aadhaarSendOtpState;
   final UIState<GpsAadhaarVerifyOtpResponse>? aadhaarVerifyOtpState;
   final String? aadhaarRequestId;
+  final String? aadhaarDocLink;
+
 
   final String pan;
   final bool isPanValid;
@@ -36,6 +38,7 @@ class GpsUploadDocumentState extends Equatable {
     required this.hasAttemptedSubmit,
     this.panDocuments = const [],
     this.uploadKycState,
+    this.aadhaarDocLink,
   });
 
   factory GpsUploadDocumentState.initial() => GpsUploadDocumentState(
@@ -68,6 +71,7 @@ class GpsUploadDocumentState extends Equatable {
     bool? hasAttemptedSubmit,
     List<Map<String, dynamic>>? panDocuments,
     UIState<GpsKycUploadResponseModel>? uploadKycState,
+    String? aadhaarDocLink,
   }) {
     return GpsUploadDocumentState(
       aadhaar: aadhaar ?? this.aadhaar,
@@ -83,6 +87,7 @@ class GpsUploadDocumentState extends Equatable {
       hasAttemptedSubmit: hasAttemptedSubmit ?? this.hasAttemptedSubmit,
       panDocuments: panDocuments ?? this.panDocuments,
       uploadKycState: uploadKycState ?? this.uploadKycState,
+      aadhaarDocLink: aadhaarDocLink ?? this.aadhaarDocLink,
     );
   }
 
@@ -101,5 +106,6 @@ class GpsUploadDocumentState extends Equatable {
     hasAttemptedSubmit,
     panDocuments,
     uploadKycState,
+    aadhaarDocLink
   ];
 } 

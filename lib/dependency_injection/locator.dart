@@ -319,8 +319,7 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => EmailVerificationRepository(
-        locator<EmailVerificationService>(),
-        locator<UserInformationRepository>(),
+        locator<EmailVerificationService>()
       ),
     );
     locator.registerLazySingleton(
@@ -393,7 +392,12 @@ void initLocator() {
     );
 
     // GPS Services
-    locator.registerLazySingleton(() => GpsLoginService(locator<ApiService>()));
+    locator.registerLazySingleton(
+      () => GpsLoginService(
+        locator<ApiService>(),
+        locator<UserInformationRepository>(),
+      ),
+    );
     locator.registerLazySingleton(() => GpsRealmService());
     locator.registerLazySingleton(() => HasInternetConnection());
     locator.registerLazySingleton(() => GpsDataRefreshService());
@@ -446,7 +450,6 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => LpHomeBloc(
-        locator<LpHomeRepository>(),
         locator<UserInformationRepository>(),
       ),
     );

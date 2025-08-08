@@ -109,14 +109,14 @@ class LpLoadItem {
     int? loadStatusId,
     DateTime? expectedDeliveryDateTime,
     int? isAgreed,
-    dynamic? acceptedBy,
+    dynamic acceptedBy,
     int? createdPlatform,
     int? updatedPlatform,
     int? status,
-    dynamic? matchingStartDate,
+    dynamic matchingStartDate,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     bool? loadOnhold,
     LoadRoute? loadRoute,
     ScheduleTripDetails? scheduleTripDetails,
@@ -248,14 +248,14 @@ class Customer {
     int? companyTypeId,
     String? emailId,
     String? blueId,
-    dynamic? kycRejectReason,
-    dynamic? password,
+    dynamic kycRejectReason,
+    dynamic password,
     String? companyName,
     String? otp,
-    dynamic? ememoOtp,
+    dynamic ememoOtp,
     String? otpAttempt,
     int? isKyc,
-    dynamic? preferredLanes,
+    dynamic preferredLanes,
     int? roleId,
     bool? tempFlg,
     int? status,
@@ -263,7 +263,7 @@ class Customer {
     DateTime? kycPendingDate,
     DateTime? kycVerificationDate,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return Customer(
       customerId: customerId ?? this.customerId,
@@ -358,7 +358,7 @@ class LoadPrice {
     int? status,
     DateTime? createAt,
     DateTime? updateAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadPrice(
       loadPriceId: loadPriceId ?? this.loadPriceId,
@@ -440,7 +440,7 @@ class LoadRoute {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadRoute(
       loadRouteId: loadRouteId ?? this.loadRouteId,
@@ -510,7 +510,7 @@ class LoadStatusDetails {
     String? statusTxtColor,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadStatusDetails(
       id: id ?? this.id,
@@ -557,7 +557,7 @@ class PageMeta {
   PageMeta copyWith({
     int? page,
     int? pageCount,
-    dynamic? nextPage,
+    dynamic nextPage,
     int? pageSize,
     int? total,
   }) {

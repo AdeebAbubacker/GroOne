@@ -1205,7 +1205,7 @@ class _MasterScreenState extends State<MasterScreen>
             suffixOnTap: () async {
               final String? validation = Validator.fieldRequired(
                 vehicleNoController.text,
-                fieldName: 'dsfsdf',
+                fieldName: 'Vehicle Reg No',
               );
               if (validation == null) {
                 await profileCubit.resetVehicleVerificationState();

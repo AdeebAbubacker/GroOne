@@ -1,4 +1,3 @@
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -52,7 +51,6 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/extension_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
@@ -851,7 +849,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                     dateTimeTextController.text = date;
                     selectedDate = DateTimeHelper.convertToDatabaseFormat2(date);
                     selectedTime = time;
-                    selectedDateTime = DateTimeHelper.convertToApiDateTime(date, time!);
+                    selectedDateTime = DateTimeHelper.convertToApiDateTime(date, time);
 
                   }
                   await fetchRateDiscovery();
@@ -932,7 +930,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                 }
 
                                 return Text(
-                                  formattedPrice ?? '',
+                                  formattedPrice,
                                   style: AppTextStyle.body1,
                                 );
                               }

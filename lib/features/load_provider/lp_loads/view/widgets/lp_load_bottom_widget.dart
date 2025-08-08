@@ -7,8 +7,6 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/consignee_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/api_request/initiate_payment_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
@@ -21,10 +19,8 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/payment
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
-import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide LoadSettlement;
-import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -36,7 +32,6 @@ import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -48,14 +43,12 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
-enum PaymentMethod { neft, online }
 
 class LpLoadBottomWidget extends StatefulWidget {
   final LoadData loadItem;
-  final String kilometers;
   final LoadStatus loadStatus;
 
-  LpLoadBottomWidget({super.key, required this.loadItem, required this.kilometers, required this.loadStatus});
+  const LpLoadBottomWidget({super.key, required this.loadItem, required this.loadStatus});
 
   @override
   State<LpLoadBottomWidget> createState() => _LpLoadBottomWidgetState();
@@ -77,7 +70,6 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
   final lpLoadLocator = locator<LpLoadCubit>();
 
-   TextEditingController feedbackController = TextEditingController();
 
    TextEditingController consigneeNameController = TextEditingController();
 
@@ -147,7 +139,9 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     else if (uiState?.status == Status.SUCCESS) {
 
       final lpLoadAgreeDetails = uiState?.data as LpLoadAgreeResponse;
-      showDialog(context, loadItem, creditData, lpLoadAgreeDetails);
+      if(context.mounted) {
+        showDialog(context, loadItem, creditData, lpLoadAgreeDetails);
+      }
     }
     else if (uiState?.status == Status.ERROR) {
       final errorType = uiState?.errorType;
@@ -267,8 +261,8 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                            }
                            return TrackingProgress(
                              progressPercentage: trackingData.coverPercentage??0,
-                             remainingDistance: trackingData.currentdistance ?? '--',
-                             totalDistance: trackingData.overalldistance ?? '--',
+                             remainingDistance: trackingData.currentdistance,
+                             totalDistance: trackingData.overalldistance,
                              eta: trackingData.durationValue,
                            );
                          },
@@ -363,21 +357,21 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                       children: [
                         Row(
                           children: [
-                            SvgPicture.asset(AppIcons.svg.package, width: 20,color: Colors.black,),
+                            SvgPicture.asset(AppIcons.svg.package, width: 20, colorFilter: const ColorFilter.mode(AppColors.black, BlendMode.srcIn)),
                             8.width,
                             Text(widget.loadItem.commodity?.name ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
                           ],
                         ),
                         Row(
                           children: [
-                            SvgPicture.asset(AppIcons.svg.kgWeight, width: 20,color: Colors.black,),
+                            SvgPicture.asset(AppIcons.svg.kgWeight, width: 20,colorFilter: const ColorFilter.mode(AppColors.black, BlendMode.srcIn)),
                             8.width,
                             Text('${widget.loadItem.weight?.value} Ton', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
                           ],
                         ),
                         Row(
                           children: [
-                            SvgPicture.asset(AppIcons.svg.distance, width: 20,color: Colors.black,),
+                            SvgPicture.asset(AppIcons.svg.distance, width: 20, colorFilter: const ColorFilter.mode(AppColors.black, BlendMode.srcIn)),
                             8.width,
                             Text(lpLoadLocator.state.locationDistance ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
                           ],
@@ -416,9 +410,9 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                 final newConsignee = addState?.data;
                                 if (newConsignee != null) {
                                   setState(() {
-                                    consigneeNameController.text = newConsignee.name ?? '';
-                                    consigneePhoneController.text = newConsignee.mobileNumber ?? '';
-                                    consigneeEmailController.text = newConsignee.email ?? '';
+                                    consigneeNameController.text = newConsignee.name;
+                                    consigneePhoneController.text = newConsignee.mobileNumber;
+                                    consigneeEmailController.text = newConsignee.email;
                                     isUpdateConsignee = true;
                                   });
                                 }
@@ -445,7 +439,6 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                 final phone = consigneePhoneController.text.trim();
                                 final email = consigneeEmailController.text.trim();
                                 final loadId = widget.loadItem.loadId;
-                                final consignees = widget.loadItem.consignees;
                                   if (email.isNotEmpty) {
                                     final String? validation = Validator.email(email);
                                     if (validation != null) {
@@ -454,9 +447,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                     }
                                   }
                                   if (isUpdateConsignee) {
-                                    // final existingConsignee = consignees[0];
                                         lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: widget.loadItem.consignees[0].id);
-
                                    } else {
 
                                   if (name.isEmpty || phone.isEmpty || email.isEmpty) {

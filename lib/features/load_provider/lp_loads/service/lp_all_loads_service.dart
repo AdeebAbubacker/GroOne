@@ -355,15 +355,13 @@ class LpLoadService {
     if (response is Success) {
       final data = response.value;
       final result = ConsigneAddedSuccessModel.fromJson(data);
-      print("Sucesss");
       return Success(result);
     } else if (response is Error) {
-        print("error");
       return Error(response.type);
-    } else { print("error");
+    } else {
       return Error(GenericError());
     }
-  } catch (e) { print("error");
+  } catch (e) {
     return Error(DeserializationError());
   }
  }
@@ -379,15 +377,13 @@ class LpLoadService {
   if (response is Success) {
       final data = response.value;
       final result = ConsigneAddedSuccessModel.fromJson(data);
-      print("Sucesss");
       return Success(result);
     } else if (response is Error) {
-        print("error");
       return Error(response.type);
-    } else { print("error");
+    } else {
       return Error(GenericError());
     }
-  } catch (e) { print("error");
+  } catch (e) {
     return Error(DeserializationError());
   }
 }
@@ -407,17 +403,13 @@ Future<Result<OrderAddedSuccess>> addCustomerPaymentOption({
     if (response is Success) {
       final data = response.value;
       final result = OrderAddedSuccess.fromJson(data);
-      print("Payment Option Added Successfully");
       return Success(result);
     } else if (response is Error) {
-      print("API Error");
       return Error(response.type);
     } else {
-      print("Unknown Error");
       return Error(GenericError());
     }
   } catch (e) {
-    print("Deserialization Error: $e");
     return Error(DeserializationError());
   }
 }
@@ -437,17 +429,13 @@ Future<Result<LpCreateOrderResponse>> createLpOrder({
     if (response is Success) {
       final data = response.value;
       final result = LpCreateOrderResponse.fromJson(data);
-      print('Order pay request successful: $data');
       return Success(result);
     } else if (response is Error) {
-      print('API Error: ${response.type}');
       return Error(response.type);
     } else {
-      print('Unknown response type');
       return Error(GenericError());
     }
   } catch (e) {
-    print('Deserialization/Error: $e');
     return Error(DeserializationError());
   }
 }

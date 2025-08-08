@@ -20,8 +20,8 @@ class LoadCommodityListModel {
   LoadCommodityListModel copyWith({
     int? id,
     String? name,
-    dynamic? description,
-    dynamic? iconUrl,
+    dynamic description,
+    dynamic iconUrl,
     int? status,
     DateTime? createdAt,
     DateTime? deletedAt,

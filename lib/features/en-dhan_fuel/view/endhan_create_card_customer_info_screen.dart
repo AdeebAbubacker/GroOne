@@ -51,6 +51,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
   final districtController = TextEditingController();
   // Email controller removed since field is now read-only
   final panController = TextEditingController(); // Add PAN controller
+  final nameController = TextEditingController(); // Add PAN controller
   final address1Controller = TextEditingController();
   final address2Controller = TextEditingController();
   final cityNameController = TextEditingController();
@@ -122,15 +123,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     
     // Initialize controllers with current state values immediately
     final cubit = locator<EnDhanCubit>();
-    // Email controller initialization removed since field is now read-only
-    // Don't initialize PAN controller to avoid cursor jumping
-    address1Controller.text = cubit.state.address1;
-    address2Controller.text = cubit.state.address2;
-    cityNameController.text = cubit.state.cityName;
-    // Don't initialize pincode controller to avoid cursor jumping
-    referralCodeController.text = cubit.state.referralCode;
-    
-    // Add listeners to sync controllers with cubit state
     _addControllerListeners();
   }
 
@@ -164,8 +156,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       await cubit.checkKycDocuments();
       
       // Auto-populate PAN from KYC data if available and not already set
-      if (cubit.state.kycData?.document?.pan != null && 
-          cubit.state.kycData!.document!.pan!.isNotEmpty && 
+      if (cubit.state.kycData?.document?.pan != null &&
+          cubit.state.kycData!.document!.pan!.isNotEmpty &&
           cubit.state.pan.isEmpty) {
         cubit.setPan(cubit.state.kycData!.document!.pan!);
       }
@@ -205,11 +197,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       }
       
 
-      
-      // Update controllers with latest state values after profile data is loaded
-      // Set controller values directly (listeners will handle the sync)
-      // Email controller update removed since field is now read-only
-      // PAN controller update removed since field is now read-only
+
       address1Controller.text = cubit.state.address1;
       address2Controller.text = cubit.state.address2;
       cityNameController.text = cubit.state.cityName;
@@ -217,21 +205,20 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       referralCodeController.text = cubit.state.referralCode;
     });
 
-    return BlocBuilder<EnDhanCubit, EnDhanState>(
+    return BlocConsumer<EnDhanCubit, EnDhanState>(
+      listener: (context, state) {
+        if (panController.text != state.pan) {
+          panController.text = state.pan;
+        }
+        nameController.text = state.customerName;
+        address1Controller.text = cubit.state.address1;
+        address2Controller.text = cubit.state.address2;
+        cityNameController.text = cubit.state.cityName;
+        // Don't initialize pincode controller to avoid cursor jumping
+        referralCodeController.text = cubit.state.referralCode;
+      },
       bloc: cubit,
       builder: (context, state) {
-        print('DEBUG: BlocBuilder rebuild - selectedZonalOfficeId: ${state.selectedZonalOfficeId}, selectedRegionalOfficeId: ${state.selectedRegionalOfficeId}, selectedStateId: ${state.selectedStateId}, selectedDistrictId: ${state.selectedDistrictId}, selectedDistrictName: ${state.selectedDistrictName}');
-        print('DEBUG: BlocBuilder rebuild - states: ${state.states.length}, zonalOffices: ${state.zonalOffices.length}, regionalOffices: ${state.regionalOffices.length}, districts: ${state.districts.length}');
-        // Auto-populate PAN from KYC data if available and not already set
-        if (state.kycCheckState?.status == Status.SUCCESS && 
-            state.hasKycDocuments && 
-            state.kycData?.document?.pan != null && 
-            state.kycData!.document!.pan!.isNotEmpty && 
-            state.pan.isEmpty) {
-          // Use Future.microtask to avoid setState during build
-          Future.microtask(() => cubit.setPan(state.kycData!.document!.pan!));
-        }
-        
         return Scaffold(
           backgroundColor: AppColors.white,
 
@@ -329,7 +316,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                   ),
                                   //labelText: 'Name',
                                   hintText: context.appText.enterName,
-                                  controller: TextEditingController(text: state.customerName),
+                                  // controller: TextEditingController(text: state.customerName),
+                                  controller: nameController,
                                   readOnly: true, // Make the field non-editable
                                   onChanged: null, // Remove onChanged since field is disabled
                                   validator: (value) {
@@ -439,14 +427,10 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             maxLength: 6,
                             inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                             onChanged: (value) {
-                              print('DEBUG: Pincode onChanged called with value: $value, length: ${value.length}');
                               cubit.setPincode(value);
                               // Call API when pincode is 6 digits
                               if (value.length == 6) {
-                                print('DEBUG: Calling getPincode with value: $value');
                                 cubit.getPincode(value);
-                              } else {
-                                print('DEBUG: Pincode length is ${value.length}, not calling API');
                               }
                             },
                             validator: (value) {
@@ -470,7 +454,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                                      // Zonal Office Dropdown
                            Builder(
                              builder: (context) {
-                               print('DEBUG: Zonal field - selectedZonalOfficeId: ${state.selectedZonalOfficeId}, zonalOffices count: ${state.zonalOffices.length}');
                                return EnhancedDropdownField(
                                  labelText: '${context.appText.zonalOffice} *',
                                  hintText: 'Select zonal office',
@@ -499,7 +482,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                                      // Regional Office Dropdown
                            Builder(
                              builder: (context) {
-                               print('DEBUG: Regional field - selectedRegionalOfficeId: ${state.selectedRegionalOfficeId}, regionalOffices count: ${state.regionalOffices.length}');
                                return EnhancedDropdownField(
                                  labelText: '${context.appText.regionalOffice} *',
                                  hintText: 'Select regional office',
@@ -550,7 +532,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                                      // State Dropdown
                            Builder(
                              builder: (context) {
-                               print('DEBUG: State field - selectedStateId: ${state.selectedStateId}, states count: ${state.states.length}');
                                return EnhancedDropdownField(
                                  labelText: '${context.appText.state} *',
                                  hintText: 'Select state',
@@ -582,7 +563,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 final districtValue = state.selectedDistrictName?.isNotEmpty == true 
                                     ? state.selectedDistrictName 
                                     : state.selectedDistrictId?.toString();
-                                print('DEBUG: District field - selectedDistrictName: ${state.selectedDistrictName}, selectedDistrictId: ${state.selectedDistrictId}, districtValue: $districtValue, districts count: ${state.districts.length}');
                                 return EnhancedDropdownField(
                                   labelText: '${context.appText.district} *',
                                   hintText: 'Select district',
