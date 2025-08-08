@@ -37,4 +37,5 @@ class PreferenceKey {
   final String isFirstTimeLoad = "isFirstTimeLoad";
   final String hasBlueIdPopupShown = "hasBlueIdPopupShown";
   final String firstPostedLoadId = "first_posted_load_id";
+  final String selectedLanguage = "selected_language";
 }

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_multiline_textfield.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -79,6 +79,9 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
               controller: feedbackController,
               focusNode: feedbackFocusNode,
               hintText: context.appText.enterRemarks,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(240),
+              ],
               onChanged: (val) {
                 lpLoadCubit.updateFeedbackText(val);
               },

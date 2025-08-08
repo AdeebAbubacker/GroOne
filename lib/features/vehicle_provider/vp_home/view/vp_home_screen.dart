@@ -104,19 +104,19 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
 
   // Store Kyc Status Event
-  void logKycStatusEvent(int kycFlag){
+  void logKycStatusEvent(int kycFlag, customerDetails){
     if (kycFlag == 1) {
-      analyticsHelper.logEvent(AnalyticEventName.KYC_PENDING);
+      analyticsHelper.logEvent(AnalyticEventName.KYC_PENDING, customerDetails);
     } else if (kycFlag == 2) {
-      analyticsHelper.logEvent(AnalyticEventName.KYC_IN_PROGRESS);
+      analyticsHelper.logEvent(AnalyticEventName.KYC_IN_PROGRESS, customerDetails);
     } else if (kycFlag == 3) {
-      analyticsHelper.logEvent(AnalyticEventName.KYC_COMPLETED);
+      analyticsHelper.logEvent(AnalyticEventName.KYC_COMPLETED, customerDetails);
     }
   }
 
 
    // Blue Membership Dialog
-   void blueMembershipDialog(BuildContext context, String blueId)=> frameCallback(() {
+   void blueMembershipDialog(BuildContext context, String blueId, parameters)=> frameCallback(() {
      AppDialog.show(
        context,
        child: CommonDialogView(
@@ -124,7 +124,6 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
          child: BlueMembershipDialogView(
              blueId: blueId,
              afterDismiss: (){
-               var parameters = {"blueId": blueId};
                analyticsHelper.logEvent(AnalyticEventName.VP_BLUE_MEMBERSHIP_ID, parameters);
              }
          ),
@@ -285,7 +284,12 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           if (blueIdFromApi.isNotEmpty && blueIdFlag) {
             if (!context.mounted) return;
             sessionBlueId = blueIdFromApi;
-            blueMembershipDialog(context, blueIdFromApi);
+            var customerDetails = {
+              "customerId": profileState.data?.customer?.customerId ?? '',
+              "customerName": profileState.data?.customer?.customerName ?? '',
+              "blueId": blueIdFromApi
+            };
+            blueMembershipDialog(context, blueIdFromApi, customerDetails);
 
             await profileCubit.startKycSuccessTimer(true);
             // Set flag that popup is shown
@@ -307,8 +311,13 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           CustomLog.debug(this, "Company Name: $companyName");
           CustomLog.debug(this, "Is Kyc : ${customer.isKyc}");
 
+          var customerDetails = {
+            "customerId": customer.customerId,
+            "customerName": customer.customerName,
+          };
+
           isKycValid = customer.isKyc.toInt();
-          logKycStatusEvent(customer.isKyc.toInt());
+          logKycStatusEvent(customer.isKyc.toInt(), customerDetails);
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {

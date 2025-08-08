@@ -156,12 +156,12 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       10.height,
-                      _buildSearchBarWidget(),
-                      20.height,
+                      //_buildSearchBarWidget(),
+                      // 20.height,
 
                       // Title
-                      Text(context.appText.recentRoutes, style: AppTextStyle.body2),
-                      10.height,
+                      // Text(context.appText.recentRoutes, style: AppTextStyle.body2),
+                      // 10.height,
 
                       ListView.separated(
                         shrinkWrap: true,

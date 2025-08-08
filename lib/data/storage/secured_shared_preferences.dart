@@ -1,4 +1,5 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 
 class SecuredSharedPreferences {
   final FlutterSecureStorage _secureStorage;
@@ -19,6 +20,15 @@ class SecuredSharedPreferences {
   Future<void> reset() async {
     _secureStorage.deleteAll();
   }
+
+  Future<void> resetPreservingLanguage() async {
+    final langCode = await get(AppString.sessionKey.selectedLanguage);
+    await _secureStorage.deleteAll();
+    if (langCode != null) {
+      await saveKey(AppString.sessionKey.selectedLanguage, langCode);
+    }
+  }
+
 
   Future<void> saveInt(String key, int value) async {
     await _secureStorage.write(key: key, value: value.toString());

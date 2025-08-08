@@ -242,16 +242,16 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
           ],
         ).expand(),
         ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: 90),
+          constraints: BoxConstraints(maxWidth: 100),
           child: Column(
             children: [
               Container(
                 decoration: commonContainerDecoration(
-                  color: LpHomeHelper.getColor(widget.loadItem.loadStatusDetails?.statusBgColor ?? '')
+                  color: widget.loadItem.loadOnhold ? AppColors.red : LpHomeHelper.getColor(widget.loadItem.loadStatusDetails?.statusBgColor ?? '')
                 ),
                 child: Text(
                   statusData,
-                  style: AppTextStyle.body3.copyWith(color: LpHomeHelper.getColor(widget.loadItem.loadStatusDetails?.statusTxtColor ?? '')),
+                  style: AppTextStyle.body3.copyWith(color: widget.loadItem.loadOnhold ? AppColors.white : LpHomeHelper.getColor(widget.loadItem.loadStatusDetails?.statusTxtColor ?? '')),
                   textAlign: TextAlign.center,
                 ).center().paddingSymmetric(vertical: 4,horizontal: 10),
               ),
@@ -266,6 +266,28 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                   ),
                   textAlign: TextAlign.right,
                 ),
+              if((loadStatus == LoadStatus.inTransit && (widget.loadItem.lpPaymentsData == null)))
+                Row(
+                  children: [
+                    const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                    4.width,
+                    Text(
+                      context.appText.advanceUnpaid,
+                      style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
+                    ).flexible(),
+                  ],
+                ),
+              if((loadStatus == LoadStatus.completed && (widget.loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)))
+                Row(
+                  children: [
+                    const Icon(Icons.error, size: 16, color: AppColors.iconRed),
+                    4.width,
+                    Text(
+                      context.appText.balanceUnpaid,
+                      style: AppTextStyle.body.copyWith(fontSize: 10, color: AppColors.iconRed),
+                    ).flexible(),
+                  ],
+                )
             ],
           ),
         ),
