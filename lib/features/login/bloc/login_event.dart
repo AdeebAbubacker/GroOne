@@ -20,7 +20,6 @@ class ChangeIndex extends LoginEvent{
 }
 
 class SaveDeviceToken extends LoginEvent{
- final String userId;
-
+  final String userId;
   const SaveDeviceToken(this.userId);
 }

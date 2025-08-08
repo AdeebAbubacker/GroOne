@@ -35,7 +35,7 @@ class LoginInService {
   Future<Result<LoginApiResponseModel>> saveDeviceToken(NotificationRequestModel? notificationRequestModel) async {
     try {
       final saveDeviceToken= ApiUrls.saveDeviceToken;
-      print("working calling api ${saveDeviceToken}");
+
       final result = await _apiService.post(
         saveDeviceToken,
         body: notificationRequestModel?.toJson(),

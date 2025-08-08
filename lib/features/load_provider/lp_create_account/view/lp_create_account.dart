@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/email_verification/view/email_verification_
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/widgets/company_type_dropdown.dart';
+import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -56,6 +57,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
   final lpCreateCubit = locator<LpCreateAccountCubit>();
   final verifyEmailCubit = locator<EmailVerificationCubit>();
+  final loginBloc = locator<LoginBloc>();
 
   final nameTextController = TextEditingController();
   final companyNameTextController = TextEditingController();
@@ -364,6 +366,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
         if (status == Status.SUCCESS) {
           if (!context.mounted) return;
+          loginBloc.add(SaveDeviceToken(widget.userId));
           navigateToHomeScreen(context);
         }
 

@@ -109,6 +109,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
       setTripDocuments(
           state.loadDetailsUIState?.data?.data?.loadDocument ?? []);
+      print("calling api");
       _handleTrackingBasedOnStatus(state.loadDetailsUIState?.data?.data);
     }
     if (result is Error) {
@@ -145,11 +146,12 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   Future<void> _handleTrackingBasedOnStatus(LoadDetailModelData? data) async {
     final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data?.loadStatusDetails?.loadStatus);
     final route = data?.loadRoute;
+    final tracking = data?.trackingDetails;
 
-    if (status != null && route != null) {
+    if (status != null && route != null ) {
       late final TrackingDistanceApiRequest request;
 
-      if (status.index <= LoadStatus.assigned.index) {
+      if (status.index <= LoadStatus.assigned.index || tracking==null) {
         // Use pickup & drop coordinates
         final pickup = route.pickUpLatlon.split(',');
         final drop = route.dropLatlon.split(',');
@@ -163,15 +165,13 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           destLong: double.tryParse(drop.last) ?? 0.0,
         );
       } else {
-        // Use trackingDetails
-        final tracking = data?.trackingDetails;
         request = TrackingDistanceApiRequest(
-          originLat: tracking?.originLat ?? 0.0,
-          originLong: tracking?.originLong ?? 0.0,
-          currentLat: tracking?.currentLat ?? 0.0,
-          currentLong: tracking?.currentLong ?? 0.0,
-          destLat: tracking?.destinationLat ?? 0.0,
-          destLong: tracking?.destinationLong ?? 0.0,
+          originLat: tracking.originLat,
+          originLong: tracking.originLong,
+          currentLat: tracking.currentLat,
+          currentLong: tracking.currentLong,
+          destLat: tracking.destinationLat,
+          destLong: tracking.destinationLong
         );
       }
 

@@ -1,0 +1,454 @@
+Subject: [PATCH] my all code
+---
+Index: lib/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart b/lib/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart
+--- a/lib/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart	(date 1754640766616)
+@@ -31,7 +31,7 @@
+ 
+     final List<Item> items;
+     final int total;
+-    final int page;
++    final int? page;
+     final int limit;
+ 
+     Data copyWith({
+@@ -52,8 +52,9 @@
+         return Data(
+             items: json["items"] == null ? [] : List<Item>.from(json["items"]!.map((x) => Item.fromJson(x))),
+             total: json["total"] ?? 0,
+-            page: json["page"] ?? 0,
+-            limit: json["limit"] ?? 0,
++            page: int.tryParse(json["page"]?.toString() ?? "0"),
++            limit: int.tryParse(json["limit"]?.toString() ?? "0")??0
++
+         );
+     }
+ 
+Index: lib/features/vehicle_provider/vp_details/model/load_details_response_model.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_details/model/load_details_response_model.dart b/lib/features/vehicle_provider/vp_details/model/load_details_response_model.dart
+--- a/lib/features/vehicle_provider/vp_details/model/load_details_response_model.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_details/model/load_details_response_model.dart	(date 1754643668978)
+@@ -226,6 +226,9 @@
+     if(json["consignees"] != null && (json["consignees"] as List).isNotEmpty){
+       consigneeDetails=json["consignees"];
+     }
++
++    List<Timeline> timeLine= json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x)));
++    timeLine.removeWhere((element) => element.id==1);
+     return LoadDetailModelData(
+       podDispatch: json['podDispatch']!=null &&  (json['podDispatch'] as Map).isNotEmpty ? PodDispatch.fromJson(json['podDispatch']):null,
+       loadSettlement:json['loadSettlement']!=null ? LoadSettlement.fromJson(json['loadSettlement']):null,
+@@ -266,7 +269,8 @@
+       consignee: (consigneeDetails??[]).isEmpty ? null : Consignee.fromJson(consigneeDetails?[0]),
+       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
+       damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
+-      timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
++      timeline: timeLine,
++
+       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
+       weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
+Index: lib/features/vehicle_provider/vp_home/view/vp_home_screen.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_home/view/vp_home_screen.dart b/lib/features/vehicle_provider/vp_home/view/vp_home_screen.dart
+--- a/lib/features/vehicle_provider/vp_home/view/vp_home_screen.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_home/view/vp_home_screen.dart	(date 1754637026462)
+@@ -277,8 +277,7 @@
+           final blueIdFromStorage = await profileCubit.fetchBlueId();
+           // bool popupShownFlag = await profileCubit.getHasShowBluePopup();
+           final blueIdFlag = profileState.data!.customer?.blueIdFlg  ?? false;
+-          debugPrint("💡 BlueId from API: $blueIdFromApi");
+-          debugPrint("💾 BlueId in storage: $blueIdFromStorage");
++
+           // debugPrint("🔐 BlueId popup shown flag: $popupShownFlag");
+ 
+           if (blueIdFromApi.isNotEmpty && blueIdFlag) {
+@@ -411,7 +410,9 @@
+                           vpHomeScreenBloc.add(VpMyLoadListRequested());
+                         },);
+                       },
+-                      child: VpAllLoadMyLoadWidget(
++                      child:
++
++                      VpAllLoadMyLoadWidget(
+                         data: data,
+                         onBack: (){
+                           vpHomeScreenBloc.add(VpMyLoadListRequested());
+@@ -535,8 +536,6 @@
+                     separatorBuilder: (_, __) => 20.height,
+                     itemBuilder: (context, index) {
+                       final companyId = int.parse(profileCubit.companyTypeId ?? "0");
+-
+-
+                       return RecentAddedLoadListBody(
+                         kycStatus: VpVariables.kycStatus,
+                         data: loads[index],
+Index: lib/l10n/app_en.arb
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/l10n/app_en.arb b/lib/l10n/app_en.arb
+--- a/lib/l10n/app_en.arb	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/l10n/app_en.arb	(date 1754637305628)
+@@ -1050,5 +1050,7 @@
+   "licenseCategory" : "License Category",
+   "selectLicenseCategory" : "Select License Category",
+   "commodityType" : "Commodity Type",
+-  "selectCommodityType" : "Select Commodity Category"
++  "selectCommodityType" : "Select Commodity Category",
++  "preferredLanes":"Preferred Lanes",
++  "searchedLanes":"Search lanes"
+ }
+\ No newline at end of file
+Index: lib/features/vehicle_provider/vp_creation/service/vp_creation_service.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_creation/service/vp_creation_service.dart b/lib/features/vehicle_provider/vp_creation/service/vp_creation_service.dart
+--- a/lib/features/vehicle_provider/vp_creation/service/vp_creation_service.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_creation/service/vp_creation_service.dart	(date 1754640552635)
+@@ -60,10 +60,16 @@
+   }
+ 
+   // Fetch Truck Pref Lane
+-  Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location) async {
++  Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location,{int? currentPage}) async {
+     try {
+       final url = location?.isNotEmpty == true ? "${ApiUrls.truckPrefLane}?search=$location" : ApiUrls.truckPrefLane;
+-      final result = await _apiService.get(url);
++      final result = await _apiService.get(url,
++       queryParams: {
++        "limit":10,
++         "page":currentPage
++       }
++
++      );
+       if (result is Success) {
+         final data = TruckPrefLaneModel.fromJson(result.value);
+         return Success(data);
+@@ -72,7 +78,8 @@
+       } else {
+         return Error(GenericError());
+       }
+-    } catch(e) {
++    } catch(e,stacktress) {
++      print("stacktress is ${stacktress} $e");
+       return Error(DeserializationError());
+     }
+   }
+Index: lib/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart b/lib/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart
+--- a/lib/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart	(date 1754639389450)
+@@ -54,9 +54,9 @@
+ 
+ 
+   /// Get Preferred Truck Lane Data Repo
+-  Future<Result<TruckPrefLaneModel>> getPrefTruckLaneData(String? location) async {
++  Future<Result<TruckPrefLaneModel>> getPrefTruckLaneData(String? location,{int? page}) async {
+     try {
+-      return await _vpCreationService.fetchTruckPrefLaneData(location);
++      return await _vpCreationService.fetchTruckPrefLaneData(location,currentPage: page);
+     } catch (e) {
+       CustomLog.error(this, "Failed to request get preferred truck lane data", e);
+       return Error(ErrorWithMessage(message: e.toString()));
+Index: lib/features/driver/driver_load_details/model/driver_load_details_model.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/driver/driver_load_details/model/driver_load_details_model.dart b/lib/features/driver/driver_load_details/model/driver_load_details_model.dart
+--- a/lib/features/driver/driver_load_details/model/driver_load_details_model.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/driver/driver_load_details/model/driver_load_details_model.dart	(date 1754643668972)
+@@ -281,7 +281,9 @@
+         );
+     }
+ 
+-    factory DriverLoadDetailsModelData.fromJson(Map<String, dynamic> json){ 
++    factory DriverLoadDetailsModelData.fromJson(Map<String, dynamic> json){
++        List<Timeline> timeLine= json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x)));
++        timeLine.removeWhere((element) => element.id==1);
+         return DriverLoadDetailsModelData(
+             loadId: json["loadId"] ?? "",
+             loadSeriesId: json["loadSeriesId"] ?? "",
+@@ -326,7 +328,8 @@
+             vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
+             weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
+             consignees: json["consignees"] == null ? [] : List<DriverConsignee>.from(json["consignees"]!.map((x) => DriverConsignee.fromJson(x))),
+-            timeline: json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x))),
++            timeline:timeLine
++
+         );
+     }
+ 
+Index: lib/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart b/lib/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart
+--- a/lib/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart	(date 1754635230596)
+@@ -80,7 +80,11 @@
+               Column(
+                 crossAxisAlignment: CrossAxisAlignment.start,
+                 children: [
+-                  Text(widget.data.loadId, style: AppTextStyle.h5),
++                  Row(
++                    children: [
++                      Text(widget.data.loadId, style: AppTextStyle.h5),
++                    ],
++                  ),
+                   Text(
+                     formatDateTimeKavach(widget.data.createdAt?.toString() ??DateTime.now().toString()),
+                     style: AppTextStyle.primaryColor12w400,
+@@ -255,15 +259,15 @@
+     return Text(
+       locationText,
+       style: AppTextStyle.blackColor15w500,
+-      maxLines: 2,
++      maxLines: 1,
++      overflow: TextOverflow.ellipsis,
+     );
+   }
+ 
+   _handleOnTap(LoadStatusDetailsResponse? loadStatus,LoadStatus? loadStatusValues,String? id,int? loadStatusId) async {
+      String? userId = await vpHomeBloc.getUserId();
+       if((loadStatusValues?.index??0)>LoadStatus.assigned.index && loadStatusValues!=LoadStatus.completed && loadStatusValues!=LoadStatus.podDispatched){
+-        print("coming here");
+-       await loadDetailsCubit.changedLoadStatus(
++        await loadDetailsCubit.changedLoadStatus(
+             id??"0",
+             customerId: userId??"",
+             loadStatus:(loadStatusId??0)+1
+Index: lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart b/lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart
+--- a/lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart	(date 1754642104619)
+@@ -18,6 +18,9 @@
+   VpCreateAccountCubit(this._repository) : super(VpCreateAccountState());
+ 
+ 
++
++
++
+   // Create Account Api Call
+   void _setSendOtpUIState(UIState<UserModel?>? uiState){
+     emit(state.copyWith(createAccountUIState: uiState));
+@@ -67,14 +70,41 @@
+ 
+ 
+   // Fetch Pref Lane Api Call
+-  void _setPrefLaneUIState(UIState<TruckPrefLaneModel>? uiState){
+-    emit(state.copyWith(prefLaneUIState: uiState));
++  void _setPrefLaneUIState(UIState<TruckPrefLaneModel>? uiState,{int? currentPage}){
++    emit(state.copyWith(
++        currentPage: currentPage,
++        prefLaneUIState: uiState));
+   }
+-  Future<void> fetchPrefLane(String? location) async {
+-    _setPrefLaneUIState(UIState.loading());
+-    Result result = await _repository.getPrefTruckLaneData(location);
++
++  Future<void> fetchPrefLane(String? location,{bool isInit=false}) async {
++    if(isInit){
++      emit(state.copyWith(currentPage: 1, prefLaneUIState: UIState.loading()));
++    }
++    final existingModel = state.prefLaneUIState?.data;
++    if (!isInit && existingModel != null) {
++      final total = existingModel.data?.total ?? 0;
++      final limit = existingModel.data?.limit ?? 0;
++      List lanesItems = existingModel.data?.items ?? [];
++      final currentPage = state.currentPage ?? 1;
++      if (total <= (currentPage - 1) * limit &&  lanesItems.length>=total) {
++        return; // stop calling API
++      }
++    }
++
++    Result result = await _repository.getPrefTruckLaneData(location,page: state.currentPage??1);
+     if (result is Success<TruckPrefLaneModel>) {
+-      _setPrefLaneUIState(UIState.success(result.value));
++      List<Item> newLens=result.value.data?.items??[];
++      List<Item> oldLanes=state.prefLaneUIState?.data?.data?.items??[];
++      TruckPrefLaneModel lanesModel=result.value;
++      final newLanesModel=lanesModel.copyWith(
++        data: lanesModel.data?.copyWith(
++          items: [
++            ...newLens,
++            ...oldLanes
++          ]
++        )
++      );
++      _setPrefLaneUIState(UIState.success(newLanesModel), currentPage: (state.currentPage??0)+1);
+     }
+     if (result is Error) {
+       _setPrefLaneUIState(UIState.error(result.type));
+Index: lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_state.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_state.dart b/lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_state.dart
+--- a/lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_state.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_creation/cubit/vp_create_account_state.dart	(date 1754639880893)
+@@ -6,12 +6,14 @@
+   final UIState<List<TruckTypeModel>>? truckTypeUIState;
+   final UIState<TruckPrefLaneModel>? prefLaneUIState;
+   final UIState<UploadRcTruckFileModel>? uploadRcFileUIState;
++  final int? currentPage;
+   const VpCreateAccountState({
+     this.createAccountUIState,
+     this.companyTypeUIState,
+     this.truckTypeUIState,
+     this.prefLaneUIState,
+     this.uploadRcFileUIState,
++    this.currentPage=1
+   });
+ 
+   VpCreateAccountState copyWith({
+@@ -20,8 +22,10 @@
+     UIState<List<TruckTypeModel>>? truckTypeUIState,
+     UIState<TruckPrefLaneModel>? prefLaneUIState,
+     UIState<UploadRcTruckFileModel>? uploadRcFileUIState,
++    int? currentPage
+   }) {
+     return VpCreateAccountState(
++      currentPage: currentPage ?? this.currentPage,
+       createAccountUIState: createAccountUIState ?? this.createAccountUIState,
+       companyTypeUIState: companyTypeUIState ?? this.companyTypeUIState,
+       truckTypeUIState: truckTypeUIState ?? this.truckTypeUIState,
+@@ -36,6 +40,7 @@
+     companyTypeUIState,
+     truckTypeUIState,
+     prefLaneUIState,
+-    uploadRcFileUIState
++    uploadRcFileUIState,
++    currentPage
+   ];
+ }
+Index: lib/features/vehicle_provider/vp_creation/view/preferLans_widget.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_creation/view/preferLans_widget.dart b/lib/features/vehicle_provider/vp_creation/view/preferLans_widget.dart
+--- a/lib/features/vehicle_provider/vp_creation/view/preferLans_widget.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_creation/view/preferLans_widget.dart	(date 1754640881773)
+@@ -3,6 +3,7 @@
+ import 'package:gro_one_app/dependency_injection/locator.dart';
+ import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
+ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
++import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+ import 'package:gro_one_app/utils/app_application_bar.dart';
+ import 'package:gro_one_app/utils/app_text_field.dart';
+ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+@@ -19,17 +20,35 @@
+ 
+   final searchController=TextEditingController();
+   final vpCreationCubit = locator<VpCreateAccountCubit>();
++  final ScrollController scrollController = ScrollController();
++
++
++  void _fetchMoreLens(){
++    scrollController.addListener(() {
++      if (scrollController.position.pixels >=
++          scrollController.position.maxScrollExtent - 200){
++        vpCreationCubit.fetchPrefLane(null);
++      }
++    },);
++  }
++
++  @override
++  void initState() {
++    _fetchMoreLens();
++    super.initState();
++  }
++
+ 
+   @override
+   Widget build(BuildContext context) {
+     return Scaffold(
+-      appBar: CommonAppBar(title: "Preferred Lanes"),
++      appBar: CommonAppBar(title:context.appText.preferredLanes),
+       body: Column(
+         children: [
+           AppTextField(
+             controller: searchController,
+-            labelText: "Preferred Lanes",
+-            hintText: "Search lanes",
++            labelText: context.appText.preferredLanes,
++            hintText: context.appText.searchedLanes,
+             onChanged: (p0) {
+               vpCreationCubit.fetchPrefLane(p0);
+             },
+@@ -40,6 +59,7 @@
+               List<Item> preferLanes=  state.prefLaneUIState?.data?.data?.items??[];
+ 
+               return ListView.builder(
++                controller: scrollController,
+                 itemCount: preferLanes.length,
+                 itemBuilder: (context, index) {
+                 final locationItem=preferLanes[index];
+Index: lib/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart b/lib/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart
+--- a/lib/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart	(date 1754640847353)
+@@ -116,7 +116,7 @@
+   void initFunction() => frameCallback(() async {
+     mobileNumberTextController.text = widget.mobileNumber;
+     await vpCreationCubit.fetchCompanyType();
+-    await vpCreationCubit.fetchPrefLane(null);
++    await vpCreationCubit.fetchPrefLane(null,isInit: true);
+     await vpCreationCubit.fetchTruckType();
+   });
+ 
+@@ -135,7 +135,6 @@
+     multiFilesList.clear();
+     verifyEmailCubit.resetState();
+     vpCreationCubit.resetState();
+-
+   });
+ 
+ 
+Index: lib/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/lib/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart b/lib/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart
+--- a/lib/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart	(revision 5bf0ff18f564605fbaa5f616e618dae2b38ac3fa)
++++ b/lib/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart	(date 1754642564559)
+@@ -21,6 +21,7 @@
+ 
+   @override
+   Widget build(BuildContext context) {
++    print("eta is ${eta}");
+     return Row(
+       crossAxisAlignment: CrossAxisAlignment.start,
+       children: [

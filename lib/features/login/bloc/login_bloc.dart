@@ -52,7 +52,6 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
 
    _saveDeviceToken(String? userId,) async {
-    print("calling api");
     String? fcmToken= await securedSharedPreference.get(
       AppString.sessionKey.fcmToken,
     );
