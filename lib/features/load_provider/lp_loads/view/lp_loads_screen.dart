@@ -13,6 +13,8 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_re
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_Widget.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trucktype_dropdown.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -170,76 +172,43 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         children: [
           Text(context.appText.filter, style: AppTextStyle.body1.copyWith(fontSize: 20)),
           10.height,
-          Text(context.appText.truckType, style: AppTextStyle.body3),
-          5.height,
-          BlocBuilder<LpLoadCubit, LpLoadState>(
-              builder: (context, state) {
-                final uiState = state.lpLoadTruckTypes;
-                final truckTypes = uiState?.data ?? [];
-                final truckTypeLabels = truckTypes.map((e) => '${e.type} Truck - ${e.subType}').toList();
-                final truckTypeLabelIdMap = Map.fromEntries(
-                    truckTypes.map((e) => MapEntry('${e.type} Truck - ${e.subType}', e.id))
-                );
-
-                return DropdownSearch<String>(
-                validator: (value) => Validator.fieldRequired(value),
-                items: (filter, _) => truckTypeLabels
-                    .where((element) => element.toLowerCase().contains(filter.toLowerCase()))
-                    .toList(),
-                popupProps: PopupProps.menu(
-                  menuProps: MenuProps(backgroundColor: AppColors.white)
-                ),
-                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
-                selectedItem: truckTypeDropDownValue,
-                onChanged: (value) {
-                  truckTypeDropDownValue = value;
-                  selectedTruckTypeId = truckTypeLabelIdMap[value];
-                  setState(() {});
-                },
-              );
-            }
-          ),
-          15.height,
-          Text(context.appText.route, style: AppTextStyle.body3),
-          5.height,
-          BlocBuilder<LpLoadCubit, LpLoadState>(
+           BlocBuilder<LpLoadCubit, LpLoadState>(
             builder: (context, state) {
-              final uiState = state.lpLoadRouteDetails;
-              final routeList = uiState?.data?.data?.routeList ?? [];
+              final uiState = state.lpLoadTruckTypes;
+              final truckTypes = uiState?.data ?? [];
 
-              return DropdownSearch<RouteList>(
-                items: (filter, _) {
-                  final filteredList = filter.isEmpty
-                      ? routeList
-                      : routeList.where((item) {
-                    final fromName = (item.fromLocation?['name'] ?? '').toString().toLowerCase();
-                    final toName = (item.toLocation?['name'] ?? '').toString().toLowerCase();
-                    return fromName.contains(filter.toLowerCase()) ||
-                        toName.contains(filter.toLowerCase());
-                  }).toList();
-                  return filteredList;
+              return TruckTypeSearchableDropdown(
+                selectedTruckTypeId: selectedTruckTypeId?.toString(),
+                onTruckTypeChanged: (String? idString) {
+                  setState(() {
+                    selectedTruckTypeId = idString != null ? int.tryParse(idString) : null;
+                  });
                 },
-
-                selectedItem: routeList.where((e) => e.status.toString() == routeDropDownValue).firstOrNull,
-                compareFn: (item, selectedItem) => item.status == selectedItem?.status,
-
-                itemAsString: (item) =>
-                "${item.fromLocation?['name'] ?? ''} → ${item.toLocation?['name'] ?? ''}",
-
-                popupProps: PopupProps.menu(
-                    constraints: const BoxConstraints(maxHeight: 200),
-                    menuProps: MenuProps(backgroundColor: AppColors.white)
-                ),
-
-                decoratorProps: DropDownDecoratorProps(decoration: commonInputDecoration()),
-                onChanged: (value) {
-                  routeDropDownValue = value?.status.toString();
-                  selectedRoute = value?.masterLaneId;
-                  setState(() {});
-                },
+                truckTypeList: truckTypes,
+                labelText: context.appText.truckType,
+                hintText: "Search truck types",
               );
             },
           ),
+          15.height,
+          BlocBuilder<LpLoadCubit, LpLoadState>(
+          builder: (context, state) {
+            final uiState = state.lpLoadRouteDetails;
+            final routeList = uiState?.data?.data?.routeList ?? [];
+
+            return RouteSearchableDropdown(
+              labelText: 'Route',
+              hintText: 'Search routes...',
+              routeList: routeList,
+              selectedRouteStatus: routeDropDownValue,
+              onRouteChanged: (RouteList? value) {
+                routeDropDownValue = value?.status.toString();
+                selectedRoute = value?.masterLaneId;
+                setState(() {});
+              },
+            );
+          },
+        ),
 
           15.height,
           Text(context.appText.loadPostedDate, style: AppTextStyle.body3),
@@ -350,7 +319,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             final uiState = state.loadStatus;
 
             if (uiState == null || uiState.status == Status.LOADING) {
-              return const Center(child: CircularProgressIndicator());
+              return Container();
             }
 
             if (uiState.status == Status.ERROR) {

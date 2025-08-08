@@ -149,6 +149,8 @@ class LpPaymentHelper {
         } else {
           ToastMessages.error(message: context.appText.paymentFailed);
         }
+      } else {
+        ToastMessages.error(message: 'CC Avenue url is empty');
       }
     } else {
       Navigator.pop(context);

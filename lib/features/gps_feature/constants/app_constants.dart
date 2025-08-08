@@ -21,6 +21,8 @@ class AppConstants {
   static const Color lightBlueBackground = Color(0xFFE3F2FD);
   static const Color textPrimaryColor = Color(0xFF1A1A1A);
   static const Color textSecondaryColor = Color(0xFF6C757D);
+  static const Color buttonBackgroundColor = Color(0xFF0B298B);
+  static const Color buyBannerColor = Color(0xFFABBFFF);
 
   // Chart Colors
   static const Color chartOrange = Color(0xFFFF9800);

@@ -10,11 +10,13 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/widgets/company_type_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/preferLans_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/widgets/vp_company_type_dropdown.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -170,13 +172,13 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       }
 
       final request = VpCreationApiRequest(
-        customerName: nameTextController.text,
+        customerName: nameTextController.text.trim(),
         mobileNumber: mobileNumberTextController.text,
-        companyName: companyNameTextController.text,
+        companyName: companyNameTextController.text.trim(),
         companyTypeId: int.parse(companyTypeDropDownValue ?? "0"),
         truckType: selectedTruckTypeList,
-        ownedTrucks: ownedTruckTextController.text,
-        attachedTrucks: attachedTruckTextController.text,
+        ownedTrucks: ownedTruckTextController.text.trim(),
+        attachedTrucks: attachedTruckTextController.text.trim(),
         preferredLanes: selectedPrefLanesTypeList,
         emailId: emailTextController.text,
         pincode: pinCodeTextController.text,
@@ -254,8 +256,9 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           mandatoryStar: true,
           keyboardType: TextInputType.name,
           inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
-            NoLeadingSpaceFormatter()
+            FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
+            NoLeadingSpaceFormatter(),
+            LengthLimitingTextInputFormatter(50),
           ],
         ),
         20.height,
@@ -345,6 +348,9 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           labelText: context.appText.email,
           mandatoryStar: true,
           keyboardType: TextInputType.emailAddress,
+          inputFormatters: [
+            LengthLimitingTextInputFormatter(50),
+          ],
           decoration: commonInputDecoration(
             hintText: context.appText.emailHint,
             suffixIcon: Row(
@@ -407,7 +413,8 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         // Company Name
         AppTextField(
           inputFormatters: [
-            NoLeadingSpaceFormatter()
+            NoLeadingSpaceFormatter(),
+            LengthLimitingTextInputFormatter(50),
           ],
           validator: (value) => Validator.fieldRequired(value),
           controller: companyNameTextController,
@@ -417,62 +424,45 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         ),
         20.height,
+        
+         // Company Type
+            BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
+            bloc: vpCreationCubit,
+            listener: (context, state) {
+              final status = state.companyTypeUIState?.status;
+              if (status == Status.ERROR) {
+                final error = state.companyTypeUIState?.errorType;
+                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+              }
+            },
+            builder: (context, state) {
+              final status = state.companyTypeUIState?.status;
+              final isSuccess = status == Status.SUCCESS;
+              final data = state.companyTypeUIState?.data;
 
-        // Company Type
-        BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
-          bloc: vpCreationCubit,
-          listenWhen:
-              (previous, current) =>
-                  previous.companyTypeUIState?.status !=
-                  current.companyTypeUIState?.status,
-          buildWhen:
-              (previous, current) =>
-                  previous.companyTypeUIState?.status == Status.SUCCESS,
-          listener: (context, state) {
-            final status = state.companyTypeUIState?.status;
-
-            if (status == Status.ERROR) {
-              final error = state.companyTypeUIState?.errorType;
-              ToastMessages.error(
-                message: getErrorMsg(errorType: error ?? GenericError()),
-              );
-            }
-          },
-          builder: (context, state) {
-            final data = state.companyTypeUIState?.data;
-            if (data != null) {
-              return Column(
-                children: [
-                  AppDropdown(
-                    validator: (value) => Validator.fieldRequired(value),
-                    labelText: context.appText.companyType,
-                    hintText: context.appText.selectCompanyType,
-                    mandatoryStar: true,
-                    dropdownValue: companyTypeDropDownValue,
-                    decoration: commonInputDecoration(fillColor: Colors.white),
-                    dropDownList:
-                        data
-                            .map(
-                              (e) => DropdownMenuItem(
-                                value: e.id.toString(),
-                                child: Text(
-                                  e.companyType,
-                                  style: AppTextStyle.body,
-                                ),
-                              ),
-                            )
-                            .toList(),
-                    onChanged: (onChangeValue) {
-                      companyTypeDropDownValue = onChangeValue;
-                      setState(() {});
-                    },
-                  ),
-                ],
-              );
-            }
-            return const SizedBox();
-          },
-        ),
+              if (isSuccess && data != null) {
+                return Column(
+                  children: [
+                    VpCompanyTypeSearchableDropdown(
+                      selectedCompanyTypeId: companyTypeDropDownValue,
+                      onCompanyTypeChanged: (newVal) {
+                        setState(() {
+                          companyTypeDropDownValue = newVal;
+                        });
+                      },
+                      companyTypeList: data,
+                      labelText: context.appText.companyType,
+                      hintText: context.appText.selectCompanyType,
+                      mandatoryStar: true,
+                    ),
+                    20.height,
+                  ],
+                );
+              } else {
+                return const SizedBox();
+              }
+            },
+          ),
         20.height,
 
         // TrucK Type
@@ -548,7 +538,10 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           mandatoryStar: true,
 
           keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(4),
+          ],
         ),
         20.height,
 
@@ -561,7 +554,10 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               "${context.appText.enter} ${context.appText.attachedTrucks}",
           mandatoryStar: true,
           keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(4),
+          ],
         ),
         20.height,
 

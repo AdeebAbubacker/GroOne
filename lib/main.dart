@@ -11,10 +11,12 @@ import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/pushNotification/notification_service.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
 import 'core/localization_bloc/localization_bloc.dart';
+import 'core/localization_bloc/localization_event.dart';
 import 'core/localization_bloc/localization_state.dart';
 import 'l10n/app_localizations.dart';
 import 'multi_bloc.dart';
@@ -48,10 +50,18 @@ void main() async {
     final secureStorage = FlutterSecureStorage();
     final securedSharedPrefs = SecuredSharedPreferences(secureStorage);
 
+    // Get saved language code from secure storage
+    final savedLangCode = await securedSharedPrefs.get(AppString.sessionKey.selectedLanguage);
+    String langCode = savedLangCode?.toLowerCase().substring(0,2) ?? '';
+    final initialLocale = savedLangCode != null ? Locale(langCode) : const Locale('en');
+
     await NotificationService().init(navigatorKey, securedSharedPrefs);
 
     // Run the app
-    runApp(BlocProvider(create: (_) => LocaleBloc(), child: const MyApp()));
+    runApp(BlocProvider(
+      create: (_) => LocaleBloc()..add(ChangeLocale(initialLocale)),
+      child: const MyApp(),
+    ));
   } catch (e) {
     // Handle initialization errors gracefully
     print('❌ App initialization error: $e');

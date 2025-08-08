@@ -247,6 +247,9 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
               controller: noteTextController,
               labelText: context.appText.notesOrInstruction,
               maxLines: 2,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(240),
+              ],
             ),
 
             10.height,

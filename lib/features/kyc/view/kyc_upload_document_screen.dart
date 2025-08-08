@@ -711,7 +711,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 mandatoryStar: true,
                                 labelText: context.appText.addressName,
                                 inputFormatters: [
-                                  NoLeadingSpaceFormatter()
+                                  NoLeadingSpaceFormatter(),
+                                  LengthLimitingTextInputFormatter(50)
                                 ],
                                 hintText: context.appText.enterAddressName1,
                               ),
@@ -725,7 +726,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 labelText: context.appText.fullAddress,
                                 hintText: context.appText.enterFullAddress,
                                 inputFormatters: [
-                                  NoLeadingSpaceFormatter()
+                                  NoLeadingSpaceFormatter(),
+                                  LengthLimitingTextInputFormatter(100)
                                 ],
                               ),
                            16.height,
@@ -793,6 +795,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
                                   UpperCaseTextFormatter(),
+                                  LengthLimitingTextInputFormatter(50),
                                 ],
                               ),
                               20.height,
@@ -805,7 +808,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 hintText: context.appText.enterBranchName,
                                 inputFormatters: [
                                   FilteringTextInputFormatter.allow(RegExp("[a-zA-Z ]")),
-                                  UpperCaseTextFormatter()
+                                  UpperCaseTextFormatter(),
+                                  LengthLimitingTextInputFormatter(30),
                                 ],
                               ),
                               20.height,

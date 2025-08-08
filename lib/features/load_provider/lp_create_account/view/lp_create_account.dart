@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/email_verification/cubit/email_verification
 import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/widgets/company_type_dropdown.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -176,16 +177,18 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
             controller: companyNameTextController,
             labelText: context.appText.companyName,
             mandatoryStar: true,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(50),
+            ],
             hintText: "${context.appText.enter} ${context.appText.companyName}",
           ),
           20.height,
 
           // Company Type
-          BlocConsumer<LpCreateAccountCubit, LpCreateAccountState>(
+            BlocConsumer<LpCreateAccountCubit, LpCreateAccountState>(
             bloc: lpCreateCubit,
             listener: (context, state) {
               final status = state.companyTypeUIState?.status;
-
               if (status == Status.ERROR) {
                 final error = state.companyTypeUIState?.errorType;
                 ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
@@ -195,24 +198,21 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
               final status = state.companyTypeUIState?.status;
               final isSuccess = status == Status.SUCCESS;
               final data = state.companyTypeUIState?.data;
+
               if (isSuccess && data != null) {
                 return Column(
                   children: [
-                    AppDropdown(
-                      validator: (value) => Validator.fieldRequired(value),
+                    CompanyTypeSearchableDropdown(
+                      selectedCompanyTypeId: companyTypeDropDownValue,
+                      onCompanyTypeChanged: (newVal) {
+                        setState(() {
+                          companyTypeDropDownValue = newVal;
+                        });
+                      },
+                      companyTypeList: data,
                       labelText: context.appText.companyType,
                       hintText: context.appText.selectCompanyType,
-                      dropdownValue: companyTypeDropDownValue,
                       mandatoryStar: true,
-                      decoration: commonInputDecoration(fillColor: Colors.white),
-                      dropDownList: state.companyTypeUIState!.data!.map((e) => DropdownMenuItem(
-                          value: e.id.toString(),
-                          child: Text(e.companyType.toString(), style: AppTextStyle.body)),
-                      ).toList(),
-                      onChanged: (onChangeValue) {
-                        companyTypeDropDownValue = onChangeValue;
-                        setState(() {});
-                      },
                     ),
                     20.height,
                   ],
@@ -223,7 +223,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
             },
           ),
 
-          // Name
+           // Name
           AppTextField(
             validator: (value) => Validator.fieldRequired(value),
             controller: nameTextController,
@@ -232,7 +232,8 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
             mandatoryStar: true,
             keyboardType: TextInputType.name,
             inputFormatters: [
-              FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+              FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
+              LengthLimitingTextInputFormatter(50),
             ],
           ),
           20.height,
@@ -316,6 +317,9 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
             mandatoryStar: true,
             readOnly: state.isVerifiedEmail,
             keyboardType: TextInputType.emailAddress,
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(50),
+            ],
             decoration: commonInputDecoration(
                 focusColor: state.isVerifiedEmail ? AppColors.borderColor : AppColors.primaryColor,
                 hintText: context.appText.emailHint,

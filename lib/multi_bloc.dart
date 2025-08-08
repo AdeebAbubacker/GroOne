@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/features/choose_language_screen/bloc/language_bloc.dart';
+import 'package:gro_one_app/features/choose_language_screen/bloc/language_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
@@ -56,7 +56,7 @@ class MultiBlocWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<LanguageBloc>(create: (_) => locator<LanguageBloc>()),
+        BlocProvider<LanguageCubit>(create: (_) => locator<LanguageCubit>()),
         BlocProvider<RoleBloc>(create: (_) => locator<RoleBloc>()),
         BlocProvider<LoginBloc>(create: (_) => locator<LoginBloc>()),
         BlocProvider<OtpBloc>(create: (_) => locator<OtpBloc>()),

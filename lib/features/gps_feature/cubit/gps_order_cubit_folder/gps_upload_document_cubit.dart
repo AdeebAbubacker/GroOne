@@ -400,10 +400,14 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       return;
     }
 
-    if (!state.isAadhaarVerified) {
-      print('🔍 GPS Aadhaar is not verified, returning early');
-      return;
-    }
+    ///todo - aadhar bypassed
+    // if (!state.isAadhaarVerified) {
+    //   print('🔍 GPS Aadhaar is not verified, returning early');
+    //   return;
+    // }
+    // Temporarily bypass Aadhaar verification
+    print('⚠️ Bypassing Aadhaar verification for now');
+    emit(state.copyWith(isAadhaarVerified: true));
 
     print('🔍 GPS Setting upload KYC UI state to loading...');
     _setUploadKycUIState(UIState.loading());

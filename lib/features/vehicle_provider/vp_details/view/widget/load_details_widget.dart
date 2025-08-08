@@ -224,6 +224,7 @@ class LoadDetailsWidget extends StatelessWidget {
                             state.locationDistance,
                             context,
                           ),
+                          15.height,
                           if ((state.loadStatusId ?? 0) > 4) ...[
                             _buildConsigneeDetail(
                               context: context,

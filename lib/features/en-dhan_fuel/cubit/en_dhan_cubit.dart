@@ -853,12 +853,23 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
   // ==================== Form Field Updates ====================
 
+  ///todo - Aadhar bypassed
   // Set Aadhaar number
+  // void setAadhaar(String value) {
+  //   if (!_isClosed) {
+  //     emit(state.copyWith(aadhaar: value));
+  //   }
+  // }
   void setAadhaar(String value) {
     if (!_isClosed) {
-      emit(state.copyWith(aadhaar: value));
+      emit(state.copyWith(
+        aadhaar: value,
+        isAadhaarValid: true,        // ✅ Auto-mark valid
+        isAadhaarVerified: true,     // ✅ Auto-mark verified
+      ));
     }
   }
+
 
   // Set PAN number
   void setPan(String value) {
@@ -928,9 +939,13 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   }
 
   // Get Aadhaar validation error (only if form has been submitted)
+  ///todo - Aadhar bypassed
+  // String? getAadhaarValidationError(String value) {
+  //   if (!state.hasAttemptedSubmit) return null;
+  //   return _validateAadhaar(value);
+  // }
   String? getAadhaarValidationError(String value) {
-    if (!state.hasAttemptedSubmit) return null;
-    return _validateAadhaar(value);
+    return null; // ✅ Bypass all Aadhaar validation
   }
 
   // Get PAN validation error (only if form has been submitted)

@@ -64,13 +64,6 @@ class DriverAccountScreen extends StatelessWidget {
                 text1: context.appText.companyName,
                 text2: checkUserDetails(driverProfileDetailsModel.data?.companyDetails?.companyName ?? ''),
               ),
-
-           
-                buildDetailWidget(
-                  text1: context.appText.gst,
-                  text2: checkUserDetails(driverProfileDetailsModel.data?.companyDetails?.gstin ?? ''),
-                ),
-
               20.height,
             ],
           ),

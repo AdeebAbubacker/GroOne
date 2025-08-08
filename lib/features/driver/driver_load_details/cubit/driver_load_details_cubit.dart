@@ -1,12 +1,10 @@
 import 'dart:io';
-
-import 'package:bloc/bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' as lpHelper;
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/repository/driver_loads_details_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
@@ -27,7 +25,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -37,51 +34,59 @@ import 'package:mime/mime.dart';
 
 part 'driver_load_details_state.dart';
 
-
 class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   final DriverLoadsDetailsRepository _repository;
   final LoadDetailsRepository _loadDetailsRepository;
-   final LpLoadRepository _lpLoadRepository;
+  final LpLoadRepository _lpLoadRepository;
   final UserInformationRepository _userInformationRepository;
 
-  DriverLoadDetailsCubit(this._loadDetailsRepository, this._repository, this._lpLoadRepository,this._userInformationRepository) : super(DriverLoadDetailsState(  tripDocumentList: documentTypeList));
-
+  DriverLoadDetailsCubit(
+    this._loadDetailsRepository,
+    this._repository,
+    this._lpLoadRepository,
+    this._userInformationRepository,
+  ) : super(DriverLoadDetailsState(tripDocumentList: documentTypeList));
 
   // Updates the UI state related to loading LP loads by ID.
   void _setLoadByIdUIState(UIState<DriverLoadDetailsModel>? uiState) {
-    emit(state.copyWith(lpLoadById: uiState,));
+    emit(state.copyWith(lpLoadById: uiState));
   }
 
   // Fetches the Driver loads filtered by the given [type].
-Future<void> getDriverLoadsById({required String loadId}) async {
-  _setLoadByIdUIState(UIState.loading());
+  Future<void> getDriverLoadsById({required String loadId}) async {
+    _setLoadByIdUIState(UIState.loading());
 
-  Result result = await _repository.fetchDriversLoadById(loadId: loadId);
+    Result result = await _repository.fetchDriversLoadById(loadId: loadId);
 
-  if (result is Success<DriverLoadDetailsModel>) {
-    final loadStatus = getLoadStatus( result.value.data?.loadStatusId);
-      emit(state.copyWith(
+    if (result is Success<DriverLoadDetailsModel>) {
+      final loadStatus = getLoadStatus(result.value.data?.loadStatusId);
+      emit(
+        state.copyWith(
           locationDistance: getDistance(
-          result.value.data?.loadRoute?.pickUpLatlon ?? "0",
-          result.value.data?.loadRoute?.dropLatlon ?? "0"),
+            result.value.data?.loadRoute?.pickUpLatlon ?? "0",
+            result.value.data?.loadRoute?.dropLatlon ?? "0",
+          ),
           lpLoadById: UIState.success(result.value),
-          loadStatusId:result.value.data?.loadStatusId ,
-          loadStatus: loadStatus
-          ));
-    setTripDocuments(result.value.data!.loadDocument);
-  } else if (result is Error) {
-    _setLoadByIdUIState(UIState.error(result.type));
+          loadStatusId: result.value.data?.loadStatusId,
+          loadStatus: loadStatus,
+        ),
+      );
+      await _handleTrackingBasedOnStatus(result.value);
+      setTripDocuments(result.value.data!.loadDocument);
+    } else if (result is Error) {
+      _setLoadByIdUIState(UIState.error(result.type));
+    }
   }
-}
 
   // // Upload File
-  void _setUploadTripDocFileUIState(UIState<UploadDamageFileModel>? uiState){
+  void _setUploadTripDocFileUIState(UIState<UploadDamageFileModel>? uiState) {
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
-  Future<void> uptripDocumentFile(File file,String fileType) async {
+
+  Future<void> uptripDocumentFile(File file, String fileType) async {
     _setUploadTripDocFileUIState(UIState.loading());
     // Result result = await _repository.uploadTripDocFileData(file,'lorry_receipt');
-    Result result = await _repository.uploadTripDocFileData(file,fileType);
+    Result result = await _repository.uploadTripDocFileData(file, fileType);
     if (result is Success<UploadDamageFileModel>) {
       _setUploadTripDocFileUIState(UIState.success(result.value));
     }
@@ -91,9 +96,10 @@ Future<void> getDriverLoadsById({required String loadId}) async {
   }
 
   //  Damage list Api Call
-  void _setDamageListUIState(UIState<GetDamageListModel>? uiState){
+  void _setDamageListUIState(UIState<GetDamageListModel>? uiState) {
     emit(state.copyWith(damageListUIState: uiState));
   }
+
   Future<void> fetchDamageList(String loadId) async {
     _setDamageListUIState(UIState.loading());
     Result result = await _repository.getDamageListData(loadId);
@@ -105,31 +111,41 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     }
   }
 
-   //  Update Load Status Api Call
-  void _updateloadStatusUIState(UIState<VpLoadAcceptModel>? uiState){
+  //  Update Load Status Api Call
+  void _updateloadStatusUIState(UIState<VpLoadAcceptModel>? uiState) {
     emit(state.copyWith(loadStatusUiUpdate: uiState));
   }
 
-  Future<void> fupdateLoadStatus({required String customerId, required String loadid, required int loadStatus}) async {
-  _updateloadStatusUIState(UIState.loading());
-  Result result = await _repository.changeLoadStatus(customerId: customerId, loadId: loadid, loadStatus: loadStatus);
-  if (result is Success<VpLoadAcceptModel>) {
-    final newStatus = result.value.data?.loadStatus;
-    emit(state.copyWith(
-      loadStatusId: newStatus,                   
-      loadStatusUiUpdate: UIState.success(result.value),
-    ));
+  Future<void> fupdateLoadStatus({
+    required String customerId,
+    required String loadid,
+    required int loadStatus,
+  }) async {
+    _updateloadStatusUIState(UIState.loading());
+    Result result = await _repository.changeLoadStatus(
+      customerId: customerId,
+      loadId: loadid,
+      loadStatus: loadStatus,
+    );
+    if (result is Success<VpLoadAcceptModel>) {
+      final newStatus = result.value.data?.loadStatus;
+      emit(
+        state.copyWith(
+          loadStatusId: newStatus,
+          loadStatusUiUpdate: UIState.success(result.value),
+        ),
+      );
+    }
+    if (result is Error) {
+      _updateloadStatusUIState(UIState.error(result.type));
+    }
   }
-  if (result is Error) {
-    _updateloadStatusUIState(UIState.error(result.type));
-  }
-}
-
 
   // // Upload File
-  void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState){
+  void _setUploadDamageFileUIState(UIState<UploadDamageFileModel>? uiState) {
     emit(state.copyWith(uploadDamageUIState: uiState));
   }
+
   Future<void> uploadDamageFile(File file) async {
     _setUploadDamageFileUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getUploadDamageFileData(file);
@@ -142,38 +158,51 @@ Future<void> getDriverLoadsById({required String loadId}) async {
   }
 
   /// DELETE LOAD DOCUMENT
-  Future<void> deleteLoadDocument(String loadDocumentID,int index) async {
+  Future<void> deleteLoadDocument(String loadDocumentID, int index) async {
     uploadDeleteLoaderStatus(index);
-    Result result = await _loadDetailsRepository.deleteLoadDocument(loadDocumentID);
+    Result result = await _loadDetailsRepository.deleteLoadDocument(
+      loadDocumentID,
+    );
     if (result is Success<DeleteLoadDocumentResponse>) {
       /// delete from local
-      uploadDeleteLoaderStatus(index,isDelete: true);
+      uploadDeleteLoaderStatus(index, isDelete: true);
     }
     if (result is Error) {
       uploadDeleteLoaderStatus(index);
     }
   }
 
-  Future<void> uploadDocument(File file, String fileType, String? title,
-      int? documentTypeId, String loadId, int index) async {
+  Future<void> uploadDocument(
+    File file,
+    String fileType,
+    String? title,
+    int? documentTypeId,
+    String loadId,
+    int index,
+  ) async {
     /// upload document = > Create Document = > Map Document with load
     try {
       uploadLoadingStatus(index, null);
       Result result = await _loadDetailsRepository.uploadDocument(
-          file, fileType);
+        file,
+        fileType,
+      );
       if (result is Success<UploadDamageFileModel>) {
         ///Create Document
-        await createDocument(title ?? "", documentTypeId ?? 1, result.value)
-            .then((value) async {
+        await createDocument(
+          title ?? "",
+          documentTypeId ?? 1,
+          result.value,
+        ).then((value) async {
           if (value != null) {
             /// Map document with load
             await saveDocument(value, loadId).then((value) {
               uploadLoadingStatus(index, value);
-            },);
-          } else{
+            });
+          } else {
             uploadLoadingStatus(index, null);
           }
-        },);
+        });
       }
       if (result is Error) {
         uploadLoadingStatus(index, null);
@@ -184,60 +213,67 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     }
   }
 
-
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
-  List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-  final currentDocument = currentList[index];
+    List<DocumentEntity> currentList = List<DocumentEntity>.from(
+      state.tripDocumentList ?? [],
+    );
+    final currentDocument = currentList[index];
 
-  // Build a new list of documents by adding the new one if passed
-  final updatedLoadDocuments = loadDocument != null
-      ? [
-          ...?currentDocument.loadDocument, // existing documents (nullable)
-          loadDocument,
-        ]
-      : currentDocument.loadDocument;
+    // Build a new list of documents by adding the new one if passed
+    final updatedLoadDocuments =
+        loadDocument != null
+            ? [
+              ...?currentDocument.loadDocument, // existing documents (nullable)
+              loadDocument,
+            ]
+            : currentDocument.loadDocument;
 
-  final updatedDocument = currentDocument.copyWith(
-    loadDocument: updatedLoadDocuments,
-    isLoading: !(currentDocument.isLoading ?? false),
-  );
+    final updatedDocument = currentDocument.copyWith(
+      loadDocument: updatedLoadDocuments,
+      isLoading: !(currentDocument.isLoading ?? false),
+    );
 
-  currentList[index] = updatedDocument;
+    currentList[index] = updatedDocument;
 
-  emit(state.copyWith(tripDocumentList: currentList));
-}
+    emit(state.copyWith(tripDocumentList: currentList));
+  }
 
-
-  void uploadDeleteLoaderStatus(int index,{bool isDelete=false}) {
+  void uploadDeleteLoaderStatus(int index, {bool isDelete = false}) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
     final updatedDocument = currentDocument.copyWith(
       clearLoadData: isDelete,
-      loadDocument: isDelete ? null: currentDocument.loadDocument,
+      loadDocument: isDelete ? null : currentDocument.loadDocument,
       deleteLoading: !(currentDocument.deleteLoading ?? false),
     );
     currentList[index] = updatedDocument;
     emit(state.copyWith(tripDocumentList: currentList));
   }
 
-
   /// add option for add more other documents
-  DocumentEntity addOthersDocumentUploadOption(List<DocumentEntity> currentList){
+  DocumentEntity addOthersDocumentUploadOption(
+    List<DocumentEntity> currentList,
+  ) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-    final otherDocumentObj=currentList.firstWhere((element) => element.fileType==DocumentFileType.uploadOtherDocument.name);
-    final currentDocument = otherDocumentObj.copyWith(
-      loadDocument: null
+    final otherDocumentObj = currentList.firstWhere(
+      (element) =>
+          element.fileType == DocumentFileType.uploadOtherDocument.name,
     );
+    final currentDocument = otherDocumentObj.copyWith(loadDocument: null);
 
     return currentDocument;
   }
 
-  Future<CreateDocumentResponse?> createDocument(String title,
-      int documentTypeId, UploadDamageFileModel uploadImage) async {
+  Future<CreateDocumentResponse?> createDocument(
+    String title,
+    int documentTypeId,
+    UploadDamageFileModel uploadImage,
+  ) async {
     try {
       final mimeType = lookupMimeType(uploadImage.filePath);
-      return await _loadDetailsRepository.createNewDocument(
-          CreateDocumentRequest(
+      return await _loadDetailsRepository
+          .createNewDocument(
+            CreateDocumentRequest(
               title: title,
               description: title,
               documentTypeId: documentTypeId,
@@ -245,39 +281,39 @@ Future<void> getDriverLoadsById({required String loadId}) async {
               fileSize: uploadImage.size,
               mimeType: mimeType,
               originalFilename: uploadImage.originalName,
-              fileExtension: uploadImage.originalName
-                  .split(".")
-                  .last)
-      ).then((value) {
-        if (value is Success<CreateDocumentResponse>) {
-          return value.value;
-        } else if(value is Error<CreateDocumentResponse>){
-          ToastMessages.error(message: getErrorMsg(
-              errorType: value.type
-          ));
-        }
+              fileExtension: uploadImage.originalName.split(".").last,
+            ),
+          )
+          .then((value) {
+            if (value is Success<CreateDocumentResponse>) {
+              return value.value;
+            } else if (value is Error<CreateDocumentResponse>) {
+              ToastMessages.error(message: getErrorMsg(errorType: value.type));
+            }
 
-
-        return null;
-      },);
+            return null;
+          });
     } catch (e) {
-
       return null;
     }
   }
 
   Future<LoadDocument?> saveDocument(
-      CreateDocumentResponse createDocumentResponse, String loadId) async {
+    CreateDocumentResponse createDocumentResponse,
+    String loadId,
+  ) async {
     try {
-      return await _loadDetailsRepository.saveLoadDocument(
-          documentId: createDocumentResponse.documentId ?? "",
-          loadId: loadId
-      ).then((value) {
-        if (value is Success<LoadDocument>) {
-          return value.value;
-        }
-        return null;
-      },);
+      return await _loadDetailsRepository
+          .saveLoadDocument(
+            documentId: createDocumentResponse.documentId ?? "",
+            loadId: loadId,
+          )
+          .then((value) {
+            if (value is Success<LoadDocument>) {
+              return value.value;
+            }
+            return null;
+          });
     } catch (e) {
       return null;
     }
@@ -286,123 +322,164 @@ Future<void> getDriverLoadsById({required String loadId}) async {
   Future viewDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
-      return await _loadDetailsRepository.viewDocument(
-        documentId: documentId,
-      ).then((result) {
-        if (result is Success<ViewDocumentResponse>) {
-          downloadAndOpenFile(result.value.filePath ?? "",
-              originalFileName: result.value.originalFilename);
-          uploadLoadingStatus(index, null);
-        }
-        if (result is Error) {
-          uploadLoadingStatus(index, null);
-        }
-      },);
+      return await _loadDetailsRepository
+          .viewDocument(documentId: documentId)
+          .then((result) {
+            if (result is Success<ViewDocumentResponse>) {
+              downloadAndOpenFile(
+                result.value.filePath ?? "",
+                originalFileName: result.value.originalFilename,
+              );
+              uploadLoadingStatus(index, null);
+            }
+            if (result is Error) {
+              uploadLoadingStatus(index, null);
+            }
+          });
     } catch (e) {
       uploadLoadingStatus(index, null);
       return null;
     }
   }
- 
+
   Future downloadDocument(String documentId, int index) async {
     try {
       uploadLoadingStatus(index, null);
-      return await _loadDetailsRepository.viewDocument(
-        documentId: documentId,
-      ).then((result) {
-        if (result is Success<ViewDocumentResponse>) {
-          downloadAndOpenFile(result.value.filePath ?? "",
-              originalFileName: result.value.originalFilename);
-          uploadLoadingStatus(index, null);
-        }
-        if (result is Error) {
-          uploadLoadingStatus(index, null);
-        }
-      },);
+      return await _loadDetailsRepository
+          .viewDocument(documentId: documentId)
+          .then((result) {
+            if (result is Success<ViewDocumentResponse>) {
+              downloadAndOpenFile(
+                result.value.filePath ?? "",
+                originalFileName: result.value.originalFilename,
+              );
+              uploadLoadingStatus(index, null);
+            }
+            if (result is Error) {
+              uploadLoadingStatus(index, null);
+            }
+          });
     } catch (e) {
       uploadLoadingStatus(index, null);
       return null;
     }
   }
 
-
-  void resetDeleteDamageUIState(){
-    emit(state.copyWith(deleteDamageUIState: resetUIState<DeleteDamageModel>(state.deleteDamageUIState)));
+  void resetDeleteDamageUIState() {
+    emit(
+      state.copyWith(
+        deleteDamageUIState: resetUIState<DeleteDamageModel>(
+          state.deleteDamageUIState,
+        ),
+      ),
+    );
   }
-
 
   void resetUploadDamageFileUIState() {
-    emit(state.copyWith(uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState)));
+    emit(
+      state.copyWith(
+        uploadDamageUIState: resetUIState<UploadDamageFileModel>(
+          state.uploadDamageUIState,
+        ),
+      ),
+    );
   }
 
-
   void resetSubmitDamageUIState() {
-    emit(state.copyWith(createDamageUIState: resetUIState<DamageModel>(
-        state.createDamageUIState)));
+    emit(
+      state.copyWith(
+        createDamageUIState: resetUIState<DamageModel>(
+          state.createDamageUIState,
+        ),
+      ),
+    );
   }
 
   void resetSettlementUIState() {
-    emit(state.copyWith(settlementUIState: resetUIState<DamageModel>(
-        state.settlementUIState)));
+    emit(
+      state.copyWith(
+        settlementUIState: resetUIState<DamageModel>(state.settlementUIState),
+      ),
+    );
   }
 
-  void resetUpdateDamageUIState(){
-    emit(state.copyWith(updateDamageUIState: resetUIState<UpdateDamageModel>(state.updateDamageUIState)));
+  void resetUpdateDamageUIState() {
+    emit(
+      state.copyWith(
+        updateDamageUIState: resetUIState<UpdateDamageModel>(
+          state.updateDamageUIState,
+        ),
+      ),
+    );
   }
 
-
-  void resetState(){
-    emit(state.copyWith(
-      uploadDamageUIState: resetUIState<UploadDamageFileModel>(state.uploadDamageUIState),
-      createDamageUIState : resetUIState<DamageModel>(state.createDamageUIState),
-      deleteDamageUIState : resetUIState<DeleteDamageModel>(state.deleteDamageUIState),
-      updateDamageUIState : resetUIState<UpdateDamageModel>(state.updateDamageUIState),
-      isUpdateDamage : false,
-
-    ));
+  void resetState() {
+    emit(
+      state.copyWith(
+        uploadDamageUIState: resetUIState<UploadDamageFileModel>(
+          state.uploadDamageUIState,
+        ),
+        createDamageUIState: resetUIState<DamageModel>(
+          state.createDamageUIState,
+        ),
+        deleteDamageUIState: resetUIState<DeleteDamageModel>(
+          state.deleteDamageUIState,
+        ),
+        updateDamageUIState: resetUIState<UpdateDamageModel>(
+          state.updateDamageUIState,
+        ),
+        isUpdateDamage: false,
+      ),
+    );
   }
 
-     setTripDocuments(List<LoadDocument>? loadDocument) {
+  setTripDocuments(List<LoadDocument>? loadDocument) {
     List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
-      for (DocumentEntity item in documentList) {
-        /// find load item for api response set into local document entity
-        item.loadDocument=filterLoadDocumentById(loadDocument,item);
-      }
-      emit(state.copyWith(
-          tripDocumentList: documentList
-      ));
+    for (DocumentEntity item in documentList) {
+      /// find load item for api response set into local document entity
+      item.loadDocument = filterLoadDocumentById(loadDocument, item);
     }
+    emit(state.copyWith(tripDocumentList: documentList));
+  }
 
-    List<LoadDocument> filterLoadDocumentById(List<LoadDocument>? loadDocument,DocumentEntity item){
+  List<LoadDocument> filterLoadDocumentById(
+    List<LoadDocument>? loadDocument,
+    DocumentEntity item,
+  ) {
     try {
-      if(item.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments){
+      if (item.documentType !=
+          navigatorKey.currentState?.context.appText.uploadOtherDocuments) {
         LoadDocument? foundedDocument = loadDocument!.firstWhere(
-              (element) =>
-          element.documentDetails?.documentType == item.documentType,
+          (element) =>
+              element.documentDetails?.documentType == item.documentType,
         );
 
         return [foundedDocument];
       } else {
-        return loadDocument!.where(
+        return loadDocument!
+            .where(
               (element) =>
-          element.documentDetails?.documentType == item.documentType,
-        ).toList();
-      }} catch (e) {
+                  element.documentDetails?.documentType == item.documentType,
+            )
+            .toList();
+      }
+    } catch (e) {
       return [];
     }
   }
 
   bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
     try {
-      DocumentEntity? document = documentEntity.firstWhere((element) =>
-      element.loadDocument == null && element.visible==true);
+      DocumentEntity? document = documentEntity.firstWhere(
+        (element) => element.loadDocument == null && element.visible == true,
+      );
       return document == null;
     } catch (e) {
       return true;
     }
   }
- 
-    String getDistance(String pickUpLatLong, dropLatLong) {
+
+  String getDistance(String pickUpLatLong, dropLatLong) {
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
     final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
     double distanceInMeters = Geolocator.distanceBetween(
@@ -413,17 +490,60 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     );
     return (distanceInMeters / 1000).toStringAsFixed(2);
   }
-  
-      // Updates the UI state related to tracking distance.
+
+  Future<void> _handleTrackingBasedOnStatus(DriverLoadDetailsModel data) async {
+    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(
+      data.data?.loadStatusDetails?.loadStatus,
+    );
+    final route = data.data?.loadRoute;
+
+    if (status != null && route != null) {
+      late final TrackingDistanceApiRequest request;
+
+      if (status.index <= LoadStatus.assigned.index) {
+        // Use pickup & drop coordinates
+        final pickup = route.pickUpLatlon.split(',');
+        final drop = route.dropLatlon.split(',');
+
+        request = TrackingDistanceApiRequest(
+          originLat: double.tryParse(pickup.first) ?? 0.0,
+          originLong: double.tryParse(pickup.last) ?? 0.0,
+          currentLat: double.tryParse(pickup.first) ?? 0.0,
+          currentLong: double.tryParse(pickup.last) ?? 0.0,
+          destLat: double.tryParse(drop.first) ?? 0.0,
+          destLong: double.tryParse(drop.last) ?? 0.0,
+        );
+      } else {
+        // Use trackingDetails
+        final tracking = data.data?.trackingDetails;
+        request = TrackingDistanceApiRequest(
+          originLat: tracking?.originLat ?? 0.0,
+          originLong: tracking?.originLong ?? 0.0,
+          currentLat: tracking?.currentLat ?? 0.0,
+          currentLong: tracking?.currentLong ?? 0.0,
+          destLat: tracking?.destinationLat ?? 0.0,
+          destLong: tracking?.destinationLong ?? 0.0,
+        );
+      }
+
+      await getTrackingDistance(request: request);
+    }
+  }
+
+  // Updates the UI state related to tracking distance.
   void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
     emit(state.copyWith(trackingDistance: uiState));
   }
 
   // Lp load tracking distance
-  Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
+  Future<void> getTrackingDistance({
+    required TrackingDistanceApiRequest request,
+  }) async {
     _setTrackingDistanceState(UIState.loading());
 
-    Result result = await _lpLoadRepository.getTrackingDistance(request: request);
+    Result result = await _lpLoadRepository.getTrackingDistance(
+      request: request,
+    );
 
     if (result is Success<TrackingDistanceResponse>) {
       emit(state.copyWith(locationDistance: result.value.overalldistance));
@@ -433,96 +553,93 @@ Future<void> getDriverLoadsById({required String loadId}) async {
     }
   }
 
- bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, int? loadStatus}) {
-    switch(loadStatus){
+  bool isNextProcessButtonEnabled({
+    required List<DocumentEntity> documentEntity,
+    required int driverConsent,
+    dynamic memo,
+    int? loadStatus,
+  }) {
+    switch (loadStatus) {
       case LoadStatus.assigned:
-        return memo!=null;
-        case LoadStatus.loading:
-      return driverConsent==1 && checkIsDocumentUploaded(documentEntity);
+        return memo != null;
+      case LoadStatus.loading:
+        return driverConsent == 1 && checkIsDocumentUploaded(documentEntity);
       case LoadStatus.unloading:
         return checkIsDocumentUploaded(documentEntity);
       default:
         return true;
     }
   }
-    // POD Doc File upload field
-      void updatePODVisibilityBasedOnStatus(int? status) {
-      final currentList = state.tripDocumentList ?? [];
 
-      // Check if POD (TypeId = 331) exists
-      final podIndex = currentList.indexWhere((doc) => doc.documentTypeId == 331);
-      if (podIndex != -1 && status != null && status > 6) {
-        final updatedDoc = currentList[podIndex].copyWith(visible: true);
-        currentList[podIndex] = updatedDoc;
-        emit(state.copyWith(tripDocumentList: currentList));
-      }
+  // POD Doc File upload field
+  void updatePODVisibilityBasedOnStatus(int? status) {
+    final currentList = state.tripDocumentList ?? [];
+
+    // Check if POD (TypeId = 331) exists
+    final podIndex = currentList.indexWhere((doc) => doc.documentTypeId == 331);
+    if (podIndex != -1 && status != null && status > 6) {
+      final updatedDoc = currentList[podIndex].copyWith(visible: true);
+      currentList[podIndex] = updatedDoc;
+      emit(state.copyWith(tripDocumentList: currentList));
     }
-
+  }
 
   bool areRequiredDocsUploaded(List<DocumentEntity> tripDocumentList) {
-        const requiredDocsMap = {
-          5: 'Lorry Receipt',
-          6: 'E-Way Bill',
-          7: 'Material Invoice',
-        };
+    const requiredDocsMap = {
+      5: 'Lorry Receipt',
+      6: 'E-Way Bill',
+      7: 'Material Invoice',
+    };
 
-        for (final typeId in requiredDocsMap.keys) {
-          final entity = tripDocumentList.firstWhere(
-            (d) => d.documentTypeId == typeId,
-        
-          );
-          if (entity == null) {
-        
-            return false;
-          }
-          if (entity.loadDocument == null || entity.loadDocument!.isEmpty) {
-            return false;
-          }
-          if (!entity.loadDocument!.any((doc) => doc.status == 1)) {
-            return false;
-          }
-        }
-        return true;
+    for (final typeId in requiredDocsMap.keys) {
+      final entity = tripDocumentList.firstWhere(
+        (d) => d.documentTypeId == typeId,
+      );
+      if (entity == null) {
+        return false;
       }
-
-
-
-bool canAddMoreOtherDocuments() {
-  try {
-    final otherDocEntity = state.tripDocumentList?.firstWhere(
-      (doc) => doc.documentTypeId == 309, 
-    );
-    return (otherDocEntity?.loadDocument?.length ?? 0) < 5;
-  } catch (e) {
-    return false;
+      if (entity.loadDocument == null || entity.loadDocument!.isEmpty) {
+        return false;
+      }
+      if (!entity.loadDocument!.any((doc) => doc.status == 1)) {
+        return false;
+      }
+    }
+    return true;
   }
-}
 
+  bool canAddMoreOtherDocuments() {
+    try {
+      final otherDocEntity = state.tripDocumentList?.firstWhere(
+        (doc) => doc.documentTypeId == 309,
+      );
+      return (otherDocEntity?.loadDocument?.length ?? 0) < 5;
+    } catch (e) {
+      return false;
+    }
+  }
 
   bool isPODUploaded(List<DocumentEntity> tripDocumentList) {
-  const podTypeId = 331; 
+    const podTypeId = 331;
 
-  final podDocEntity = tripDocumentList.firstWhere(
-    (doc) => doc.documentTypeId == podTypeId,
-  );
+    final podDocEntity = tripDocumentList.firstWhere(
+      (doc) => doc.documentTypeId == podTypeId,
+    );
 
-  if (podDocEntity == null || podDocEntity.loadDocument == null) {
-    return false;
+    if (podDocEntity == null || podDocEntity.loadDocument == null) {
+      return false;
+    }
+
+    return podDocEntity.loadDocument!.any((loadDoc) => loadDoc.status == 1);
   }
 
-  return podDocEntity.loadDocument!.any((loadDoc) => loadDoc.status == 1);
-}
-
-
-
-bool isMemoUploaded(DriverLoadDetailsModel? load) {
-  final currentStatus = load?.data?.loadStatusId ?? 0;
-  if (currentStatus == 4) {
-    return load?.data?.loadMemo != null;
+  bool isMemoUploaded(DriverLoadDetailsModel? load) {
+    final currentStatus = load?.data?.loadStatusId ?? 0;
+    if (currentStatus == 4) {
+      return load?.data?.loadMemo != null;
+    }
+    return true;
   }
-  return true; 
-}
 
   String? _userId;
 
@@ -533,6 +650,3 @@ bool isMemoUploaded(DriverLoadDetailsModel? load) {
     return _userId;
   }
 }
-  
-
-

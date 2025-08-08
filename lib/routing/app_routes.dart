@@ -160,7 +160,11 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
-          return LoginScreen();
+          final extra = state.extra;
+          final showBackButton = (extra is Map<String, dynamic>)
+              ? (extra["showBackButton"] ?? true) as bool
+              : true;
+          return LoginScreen(showBackButton: showBackButton);
         },
       ),
 

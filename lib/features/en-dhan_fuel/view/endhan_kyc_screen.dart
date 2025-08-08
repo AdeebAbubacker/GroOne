@@ -346,15 +346,15 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             ToastMessages.success(message: 'OTP resent successfully');
                           },
                           child: Text(
-                            _canResendOtp 
+                            _canResendOtp
                               ? (context.appText.resendOtp ?? 'Resend OTP')
                               : 'Resend OTP in ${_resendTimer}s',
                             style: AppTextStyle.body3.copyWith(
-                              color: (isResendLoading || !_canResendOtp) 
-                                ? AppColors.primaryTextColor.withOpacity(0.5) 
+                              color: (isResendLoading || !_canResendOtp)
+                                ? AppColors.primaryTextColor.withOpacity(0.5)
                                 : AppColors.primaryColor,
-                              decoration: (isResendLoading || !_canResendOtp) 
-                                ? TextDecoration.none 
+                              decoration: (isResendLoading || !_canResendOtp)
+                                ? TextDecoration.none
                                 : TextDecoration.underline,
                               fontWeight: FontWeight.w500,
                             ),
@@ -434,8 +434,13 @@ class _EndhanKycScreenContent extends StatelessWidget {
                         readOnly: state.isAadhaarVerified,
                         hintText: context.appText.enter12DigitAadhaar,
                         onChanged: (value) {
-                          cubit.setAadhaar(value);
-                          cubit.validateAadhaar(value);
+                          // cubit.setAadhaar(value);
+                          // cubit.validateAadhaar(value);
+
+                          if (value.length>=12) {
+                            cubit.setAadhaar(value);
+                            cubit.validateAadhaar(value);
+                          }
                         },
                         validator: (value) => cubit.getAadhaarValidationError(value ?? ''),
                         keyboardType: TextInputType.number,
@@ -795,7 +800,9 @@ class _EndhanKycScreenContent extends StatelessWidget {
               if (isLoading) return;
               
               // Check if PAN and Aadhaar are verified
-              if (!state.isAadhaarVerified || !state.isPanVerified) {
+              // if (!state.isAadhaarVerified || !state.isPanVerified) {
+              ///todo - Aadhar bypassed
+              if (!state.isPanVerified) {
                 String message = '';
                 if (!state.isAadhaarVerified && !state.isPanVerified) {
                   message = 'Please verify both PAN and Aadhaar before submitting.';

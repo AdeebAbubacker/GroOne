@@ -24,6 +24,7 @@ import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
+import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
@@ -32,6 +33,7 @@ import 'package:gro_one_app/features/profile/model/driver_updated_response.dart'
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
+import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/primart_address_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
@@ -553,7 +555,7 @@ class ProfileService {
 
    /// fetch check vehicle excists or not
 
- Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
+  Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
     try {
       final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
       final response = await _apiService.get(url);
@@ -574,6 +576,7 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+
 
      /// fetch check license excists or not
 
@@ -794,7 +797,54 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+ 
+  /// fetch blood groups
+Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups() async {
+  try {
+    final url = "https://gro-devapi.letsgro.co/customer/api/v1/blood-group"; 
+    final response = await _apiService.get(
+      url
+    );
 
+    if (response is Success) {
+      final list = (response.value as List)
+          .map((json) => BloodGroupResponseModel.fromJson(json))
+          .toList();
+      return Success(list);
+    } else if (response is Error) {
+      return Error(response.type);
+    } else {
+      return Error(GenericError());
+    }
+  } catch (e) {
+    print('error is $e');
+    return Error(DeserializationError());
+  }
+}
+
+ /// fetch License Categories
+Future<Result<List<LicenseCategoryResponseModel>>> fetchLicenseCategory() async {
+  try {
+    final url = "https://gro-devapi.letsgro.co/customer/api/v1/license-category"; 
+    final response = await _apiService.get(
+      url
+    );
+
+    if (response is Success) {
+      final list = (response.value as List)
+          .map((json) => LicenseCategoryResponseModel.fromJson(json))
+          .toList();
+      return Success(list);
+    } else if (response is Error) {
+      return Error(response.type);
+    } else {
+      return Error(GenericError());
+    }
+  } catch (e) {
+    print('error is $e');
+    return Error(DeserializationError());
+  }
+}
   /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {
     try {

@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/helper/gps_map_helper.dart';
+import 'package:gro_one_app/features/gps_feature/helper/vehicle_marker_helper.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
@@ -28,6 +29,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../helper/gps_session_manager.dart';
+import '../widgets/nearby_places_bottom_sheet.dart';
 
 // Cubit for selected vehicle state
 class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
@@ -89,7 +91,7 @@ class _VehicleMapContent extends StatelessWidget {
     return await GpsSessionManager.getGeofenceToggleMap();
   }
 
-  /// Creates vehicle markers with custom vehicle icons
+  /// Creates vehicle markers with custom vehicle icons based on vehicle type and status
   Future<Set<Marker>> _createVehicleMarkers(
     List<GpsCombinedVehicleData> vehicles,
     BuildContext context,
@@ -102,15 +104,21 @@ class _VehicleMapContent extends StatelessWidget {
         final lat = double.tryParse(parts[0].trim());
         final lng = double.tryParse(parts[1].trim());
         if (lat != null && lng != null) {
-          // Use custom vehicle marker with vehicle icon
-          final marker = await GpsMapHelper.createCustomVehicleMarker(
-            vehicleId: vehicle.vehicleNumber ?? 'unknown',
-            position: LatLng(lat, lng),
-            title: vehicle.vehicleNumber ?? vehicle.vehicleNumber,
-            onTap: () {
-              context.read<SelectedVehicleCubit>().select(vehicle);
-            },
-          );
+          // Use custom vehicle marker with larger emoji icons
+          final marker =
+              await VehicleMarkerHelper.createCustomVehicleMarkerWithEmoji(
+                vehicleId: vehicle.vehicleNumber ?? 'unknown',
+                position: LatLng(lat, lng),
+                title: vehicle.vehicleNumber ?? 'Unknown Vehicle',
+                onTap: () {
+                  context.read<SelectedVehicleCubit>().select(vehicle);
+                },
+                vehicleCategory: vehicle.category,
+                status: vehicle.status,
+                lastUpdate: vehicle.lastUpdate,
+                isExpired:
+                    false, // You can add logic to determine if vehicle is expired
+              );
           markers.add(marker);
         }
       }
@@ -605,12 +613,12 @@ class _VehicleMapContent extends StatelessWidget {
                           }
                         },
                         onNearbyPlaces: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Nearby Places feature coming soon!',
-                              ),
-                            ),
+                          showModalBottomSheet(
+                            context: context,
+                            backgroundColor: Colors.transparent,
+                            isScrollControlled: true,
+                            builder:
+                                (context) => const NearbyPlacesBottomSheet(),
                           );
                         },
                         isTrafficEnabled:
@@ -1217,6 +1225,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                     _ActionButton(
                       label: 'Play route',
                       icon: Icons.play_arrow,
+                      iconColor: Colors.blue,
                       onTap: () {
                         _showPlayRouteBottomSheet(context, widget.vehicle);
                       },
@@ -1225,6 +1234,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                     _ActionButton(
                       label: 'Share',
                       icon: Icons.share,
+                      iconColor: Colors.teal,
                       onTap: () {
                         AppShareHelper.showVehicleShareWidget(
                           context: context,
@@ -1340,6 +1350,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                     _ActionButton(
                       label: 'Call driver',
                       icon: Icons.phone,
+                      iconColor: Colors.lightBlue,
                       onTap: () {
                         _callDriver(context, widget.vehicle);
                       },
@@ -2340,25 +2351,45 @@ class _InfoWindowDetailRow extends StatelessWidget {
 class _ActionButton extends StatelessWidget {
   final String label;
   final IconData icon;
+  final Color iconColor;
   final VoidCallback onTap;
   const _ActionButton({
     required this.label,
     required this.icon,
+    required this.iconColor,
     required this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return ElevatedButton.icon(
-      onPressed: onTap,
-      icon: Icon(icon, size: 18),
-      label: Text(label, style: const TextStyle(fontSize: 13)),
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-        elevation: 1,
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade300, width: 1),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: onTap,
+          borderRadius: BorderRadius.circular(8),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(icon, color: iconColor, size: 18),
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

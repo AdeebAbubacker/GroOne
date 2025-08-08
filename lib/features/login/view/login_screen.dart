@@ -32,7 +32,8 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  final bool showBackButton;
+  const LoginScreen({super.key, this.showBackButton = true});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -61,7 +62,10 @@ class _LoginScreenState extends BaseState<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       resizeToAvoidBottomInset: true,
-      appBar: CommonOnboardingAppbar(),
+      // appBar: CommonOnboardingAppbar(),
+      appBar: CommonOnboardingAppbar(
+        showBackButton: widget.showBackButton,
+      ),
       body: BlocConsumer<LoginBloc, LoginState>(
         bloc: loginBloc,
         listener: (context, state) async {
@@ -148,7 +152,7 @@ class _LoginScreenState extends BaseState<LoginScreen> {
                       // Get Otp Button
                       AppButton(
                         isLoading: isLoading,
-                        title: "Get OTP",
+                        title: context.appText.getOtp,
                         style:
                             (phoneNumber.text.length == 10 &&
                                     checkBoxBool == true)

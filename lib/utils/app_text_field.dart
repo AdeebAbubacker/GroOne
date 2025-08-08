@@ -14,6 +14,7 @@ class AppTextField extends StatelessWidget {
   final String? hintText;
   final Color? inputTextColor;
   final Color? cursorColor;
+  final bool? enabled;
   final List<TextInputFormatter>? inputFormatters;
   final TextAlign textAlign = TextAlign.start;
   final String? Function(String?)? validator;
@@ -64,6 +65,7 @@ class AppTextField extends StatelessWidget {
       this.onChanged,
     this.autofillHints,
     this.mandatoryStar = false,
+    this.enabled = true,
     this.textCapitalization = TextCapitalization.none,
   });
 
@@ -83,6 +85,7 @@ class AppTextField extends StatelessWidget {
         if (labelText != null)
           6.height,
         TextFormField(
+          enabled: enabled ?? true,
           validator: validator,
           inputFormatters: inputFormatters ?? [],
           textAlign: textAlign,

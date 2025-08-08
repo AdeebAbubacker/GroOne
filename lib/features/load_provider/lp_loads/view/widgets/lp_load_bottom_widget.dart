@@ -660,7 +660,8 @@ Widget _buildConsigneeDetail({
               hintText: context.appText.fullNameHint,
               mandatoryStar:  isUpdateConsignee ? false : true,
               inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
+                FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
+                LengthLimitingTextInputFormatter(50)
               ],
             ),
             20.height,
@@ -685,7 +686,10 @@ Widget _buildConsigneeDetail({
               controller: emailController,
               labelText: context.appText.emailId,  
               hintText: context.appText.emailHint,
-               mandatoryStar:  isUpdateConsignee ? false : true,
+              mandatoryStar:  isUpdateConsignee ? false : true,
+              inputFormatters: [
+                LengthLimitingTextInputFormatter(10),
+              ],
             ),
           ],
         )
