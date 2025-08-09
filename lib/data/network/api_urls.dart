@@ -145,8 +145,8 @@ class ApiUrls {
   static final String  submitPod = "$_loadBaseUrl/pod";
   static final String  getTripStatement = "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
   static final String  getLoadStatus = "$_loadBaseUrl/loads/load-status_lp";
-  static final String  getVpLoadStatus = "$_loadBaseUrl/loads/load-status_vp";
-
+  static final String  getLoadStatusVp = "$_loadBaseUrl/loads/load-status_vp";
+ 
   /// Settlement
   static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
   static final String  submitSettlement = "$_settlementBaseUrl/settlement";

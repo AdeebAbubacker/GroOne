@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
@@ -13,6 +14,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -48,7 +50,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
   late TabController _tabController;
   final ScrollController _tabScrollController = ScrollController();
-
+  List<LoadStatusResponse> tabLabels = [];
 
   String profileImage = "";
   final searchController = TextEditingController();
@@ -61,11 +63,38 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
   void initState() {
     super.initState();
     vpLoadBloc = locator<VpLoadBloc>();
+     vpLoadBloc.add(FetchLoadStatus());
     _tabController = TabController(
-      length: 9,
+      length: 0,
       vsync: this,
       initialIndex: widget.initialTabIndex,
     );
+    // Listen for load status loaded to update tabs
+    vpLoadBloc.stream.listen((state) {
+      if (!mounted) return;
+      if (state is VPLoadStatusLoaded) {
+        final newLength = state.statuses.length;
+        _tabController.dispose();
+        _tabController = TabController(
+          length: newLength,
+          vsync: this,
+          initialIndex: widget.initialTabIndex,
+        );
+
+        _tabController.addListener(() {
+          if (_tabController.indexIsChanging) {
+            _loadDataByTab(index: _tabController.index);
+          }
+        });
+
+        // Load data for the initial tab after load status list received
+        _loadDataByTab(index: widget.initialTabIndex);
+
+        setState(() {
+          tabLabels = state.statuses;
+        });
+      }
+    });
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         _loadDataByTab(index: _tabController.index);
@@ -118,11 +147,17 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
         child: Column(
           children: [
             20.height,
+           
             Container(
               alignment: Alignment.center,
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
               padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
-              child: TabBar(
+              child:(_tabController == null || tabLabels.isEmpty)
+                ? const SizedBox(
+                    height: 48, // same as TabBar height
+                  )
+                : 
+              TabBar(
                 controller: _tabController,
                 isScrollable: true,
                 dividerHeight: 0,
@@ -132,31 +167,34 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                 padding: EdgeInsets.zero,
                 indicator: const BoxDecoration(),
                 splashFactory: NoSplash.splashFactory,
-                tabs: List.generate(9, (index) {
-                  final tabLabels = [
-                    context.appText.availableLoads,
-                    context.appText.myLoads,
-                    context.appText.confirmed,
-                    context.appText.assigned,
-                    context.appText.loading,
-                    context.appText.inTransit,
-                    context.appText.unloading,
-                    context.appText.podDispatch,
-                    context.appText.completed,
-                  ];
+                tabs: List.generate(tabLabels.length, (index) {
                   final isSelected = _tabController.index == index;
                   return Tab(
                     child: Container(
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                       decoration: commonContainerDecoration(
-                        color: isSelected ? AppColors.primaryColor : Colors.transparent,
+                        color:
+                            isSelected
+                                ? isSelected == 0
+                                    ? AppColors.primaryColor
+                                    : VpHelper.getColor(
+                                      tabLabels[index].statusBgColor,
+                                    )
+                                : Colors.transparent,
+
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
-                        tabLabels[index],
-                        style: TextStyle(
-                          color: isSelected ? Colors.white : Colors.black54,
-                          fontWeight: FontWeight.w500,
+                        tabLabels[index].loadStatus,
+                        style: AppTextStyle.body3.copyWith(
+                          color:
+                              isSelected
+                                  ? isSelected == 0
+                                      ? AppColors.white
+                                      : VpHelper.getColor(
+                                        tabLabels[index].statusTxtColor,
+                                      )
+                                  : AppColors.black,
                         ),
                       ),
                     ),
@@ -170,7 +208,9 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
             // Tab bar View
             Expanded(
-              child: TabBarView(
+              child: tabLabels.isEmpty
+      ? const SizedBox() // or a loading indicator
+      :   TabBarView(
                 controller: _tabController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
@@ -210,6 +250,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
                   buildTab(),
                   buildTab(),
+                
                 ],
               ),
             ),
