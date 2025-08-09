@@ -209,8 +209,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
             // Tab bar View
             Expanded(
               child: tabLabels.isEmpty
-      ? const SizedBox() // or a loading indicator
-      :   TabBarView(
+            ? const SizedBox() 
+            :   TabBarView(
                 controller: _tabController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
