@@ -430,8 +430,6 @@ Future<Result<bool>> deleteVehicle({
   }
 
 
-  ///---------------------Sunday----------------------------
-  ///
     Future<Result<Map<String, dynamic>>> fetchVehicleData(String vehicleNumber) async {
     try {
       return await _profileService.fetchVehicleData(vehicleNumber);
