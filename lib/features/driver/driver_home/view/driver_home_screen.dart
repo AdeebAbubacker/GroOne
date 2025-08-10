@@ -98,7 +98,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               final index = state.statuses.indexOf(status);
               return index != 1 && index != 2;
             }).toList();
-        _tabController.dispose();
         _tabController = TabController(
           length: filteredStatuses.length,
           vsync: this,
@@ -332,7 +331,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   }
 
   void disposeFunction() => frameCallback(() {
-    _tabController!.dispose();
     searchController.dispose();
     _debounce?.cancel();
     _tabController?.dispose();
