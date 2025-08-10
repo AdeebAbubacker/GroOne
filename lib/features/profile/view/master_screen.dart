@@ -20,7 +20,8 @@ import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/helper/master_helper.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
@@ -70,7 +71,7 @@ import '../../../data/ui_state/status.dart';
 
 class MasterScreen extends StatefulWidget {
   final int? initialIndex;
-  const MasterScreen({super.key,this.initialIndex});
+  const MasterScreen({super.key, this.initialIndex});
 
   @override
   State<MasterScreen> createState() => _MasterScreenState();
@@ -79,6 +80,7 @@ class MasterScreen extends StatefulWidget {
 class _MasterScreenState extends State<MasterScreen>
     with SingleTickerProviderStateMixin {
   final profileCubit = locator<ProfileCubit>();
+  final mastersCubit = locator<MastersCubit>();
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final gpsVehicleCubit = locator<GpsVehicleCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
@@ -102,10 +104,13 @@ class _MasterScreenState extends State<MasterScreen>
   @override
   void initState() {
     super.initState();
+    context.read<MastersCubit>().resetVehicleVerification();
     _tabController = TabController(
-        initialIndex: widget.initialIndex??0,
+      initialIndex: widget.initialIndex ?? 0,
 
-        length: 3, vsync: this);
+      length: 3,
+      vsync: this,
+    );
     kycCubit.fetchStateList();
     initFunction();
   }
@@ -216,53 +221,45 @@ class _MasterScreenState extends State<MasterScreen>
 
   /// Delete Popup
   void showDeletePopUp({
-  required BuildContext context,
-  required String confirmMessage,
-  required String successMessage,
-  required Future<dynamic> Function() onDelete,
-}) {
-  AppDialog.show(
-    context,
-    dismissible: true,
-    child: CommonDialogView(
-      hideCloseButton: true,
-      showYesNoButtonButtons: true,
-      noButtonText: context.appText.cancel,
-      yesButtonText: context.appText.delete,
-      yesButtonTextStyle: AppButtonStyle.deleteTextButton,
-      child: Column(
-        children: [
-          Lottie.asset(
-            AppJSON.alertRed,
-            repeat: true,
-            frameRate: FrameRate(200),
-          ),
-          Center(
-            child: Text(
-              confirmMessage,
-              textAlign: TextAlign.center,
+    required BuildContext context,
+    required String confirmMessage,
+    required String successMessage,
+    required Future<dynamic> Function() onDelete,
+  }) {
+    AppDialog.show(
+      context,
+      dismissible: true,
+      child: CommonDialogView(
+        hideCloseButton: true,
+        showYesNoButtonButtons: true,
+        noButtonText: context.appText.cancel,
+        yesButtonText: context.appText.delete,
+        yesButtonTextStyle: AppButtonStyle.deleteTextButton,
+        child: Column(
+          children: [
+            Lottie.asset(
+              AppJSON.alertRed,
+              repeat: true,
+              frameRate: FrameRate(200),
             ),
-          ),
-        ],
-      ),
-      onClickYesButton: () async {
-        final result = await onDelete();
+            Center(child: Text(confirmMessage, textAlign: TextAlign.center)),
+          ],
+        ),
+        onClickYesButton: () async {
+          final result = await onDelete();
 
-        if (result is Success) {
-          if (context.mounted) {
-            Navigator.of(context).pop();
-            ToastMessages.success(message: successMessage);
+          if (result is Success) {
+            if (context.mounted) {
+              Navigator.of(context).pop();
+              ToastMessages.success(message: successMessage);
+            }
+          } else if (result is Error) {
+            ToastMessages.error(message: getErrorMsg(errorType: result.type));
           }
-        } else if (result is Error) {
-          ToastMessages.error(
-            message: getErrorMsg(errorType: result.type),
-          );
-        }
-      },
-    ),
-  );
-}
-
+        },
+      ),
+    );
+  }
 
   /// Upload RC book
   Future<Result<bool>> _uploadRCBookCall(
@@ -367,7 +364,7 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
-  
+
   /// Tab view for Address
   Widget buildAddressTab() {
     return Column(
@@ -452,12 +449,18 @@ class _MasterScreenState extends State<MasterScreen>
                     isPrimary: address.isDefault,
                     onEdit:
                         () => showAddAddressPopup(context, address: address),
-                    onDelete: () => showDeletePopUp(
-                    context: context,
-                    confirmMessage: context.appText.areYouSureToDeleteThisAddress,
-                    successMessage: context.appText.addressDeletedSuccessfully,
-                    onDelete: () => profileCubit.deleteAddress(addressId: address.preferedAddressId),
-                  ),
+                    onDelete:
+                        () => showDeletePopUp(
+                          context: context,
+                          confirmMessage:
+                              context.appText.areYouSureToDeleteThisAddress,
+                          successMessage:
+                              context.appText.addressDeletedSuccessfully,
+                          onDelete:
+                              () => profileCubit.deleteAddress(
+                                addressId: address.preferedAddressId,
+                              ),
+                        ),
                     onSetPrimary: () async {
                       await profileCubit.setPrimaryAddress(
                         addressId: address.preferedAddressId,
@@ -542,8 +545,9 @@ class _MasterScreenState extends State<MasterScreen>
 
               final vehicleList = uiState.data?.data ?? [];
               final List<VehicleDetailsData> filteredVehicleList =
-              vehicleList.where((v) => v.status == 1 || v.status == 2).toList();
-
+                  vehicleList
+                      .where((v) => v.status == 1 || v.status == 2)
+                      .toList();
 
               if (filteredVehicleList.isEmpty) {
                 return Center(
@@ -579,19 +583,23 @@ class _MasterScreenState extends State<MasterScreen>
                     phone: vehicleDetailsData.companyName ?? '',
                     driverStatus: vehicleDetailsData.status,
                     onEdit: () async {
-                      await profileCubit.resetVehicleVerificationState();
+                      mastersCubit.resetVehicleVerification();
                       await Future.delayed(const Duration(milliseconds: 50));
                       showAddVehiclePopup(context, vehcile: vehicleDetailsData);
                     },
-                    onDelete: () => showDeletePopUp(
-                    context: context,
-                    confirmMessage: context.appText.areYouSureToDeleteThisVehicle,
-                    successMessage: context.appText.vehicleDeletedSuccessfully,
-                    onDelete: () => profileCubit.deleteVehicle(
-                      vehicleId: vehicleDetailsData.vehicleId,
-                      request: DeleteVehicleRequest(status: 3),
-                    ),
-                  ),
+                    onDelete:
+                        () => showDeletePopUp(
+                          context: context,
+                          confirmMessage:
+                              context.appText.areYouSureToDeleteThisVehicle,
+                          successMessage:
+                              context.appText.vehicleDeletedSuccessfully,
+                          onDelete:
+                              () => profileCubit.deleteVehicle(
+                                vehicleId: vehicleDetailsData.vehicleId,
+                                request: DeleteVehicleRequest(status: 3),
+                              ),
+                        ),
                     context: context,
                   );
                 },
@@ -604,7 +612,7 @@ class _MasterScreenState extends State<MasterScreen>
           child: AppButton(
             title: context.appText.addNewVehicle,
             onPressed: () async {
-              await profileCubit.resetVehicleVerificationState();
+              mastersCubit.resetVehicleVerification();
               await Future.delayed(
                 const Duration(milliseconds: 50),
               ); // make sure state is cleared
@@ -630,7 +638,7 @@ class _MasterScreenState extends State<MasterScreen>
     return number;
   }
 
- /// Tab view for Driver
+  /// Tab view for Driver
   Widget buildDriverTab() {
     return Column(
       children: [
@@ -709,16 +717,22 @@ class _MasterScreenState extends State<MasterScreen>
                     phone: driver.mobile,
                     driverStatus: driver.driverStatus,
                     onEdit: () async {
-                      await profileCubit.resetlicenseVahanVerificationState();
+                      mastersCubit.resetLicenseVerification();
                       await Future.delayed(const Duration(milliseconds: 50));
                       showAddDriverPopup(context, driver: driver);
                     },
-                    onDelete: () => showDeletePopUp(
-                    context: context,
-                    confirmMessage: context.appText.areYouSureToDeleteThisDriver,
-                    successMessage: context.appText.driverDeletedSuccessfully,
-                    onDelete: () => profileCubit.deleteDriver(driverId: driver.driverId),
-                  ),
+                    onDelete:
+                        () => showDeletePopUp(
+                          context: context,
+                          confirmMessage:
+                              context.appText.areYouSureToDeleteThisDriver,
+                          successMessage:
+                              context.appText.driverDeletedSuccessfully,
+                          onDelete:
+                              () => profileCubit.deleteDriver(
+                                driverId: driver.driverId,
+                              ),
+                        ),
 
                     context: context,
                   );
@@ -732,7 +746,7 @@ class _MasterScreenState extends State<MasterScreen>
           child: AppButton(
             title: context.appText.addNewDriver,
             onPressed: () async {
-              await profileCubit.resetlicenseVahanVerificationState();
+              mastersCubit.resetLicenseVerification();
               await Future.delayed(const Duration(milliseconds: 50));
               showAddDriverPopup(context);
             },
@@ -741,7 +755,7 @@ class _MasterScreenState extends State<MasterScreen>
       ],
     );
   }
-  
+
   /// Master Address Widget
   Widget masterInfoWidget({
     required String title,
@@ -823,7 +837,7 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
- 
+
   /// Master Driver Widget
   Widget masterDriverInfoWidget({
     required String name,
@@ -952,7 +966,7 @@ class _MasterScreenState extends State<MasterScreen>
       ),
     );
   }
- 
+
   /// Master Vehicle Widget
   Widget masterVehicleInfoWidget({
     required String name,
@@ -1024,7 +1038,7 @@ class _MasterScreenState extends State<MasterScreen>
                     ),
                   ],
                 ),
-              ), 
+              ),
               // Active Tag
               Expanded(
                 child: Column(
@@ -1080,312 +1094,206 @@ class _MasterScreenState extends State<MasterScreen>
                   ],
                 ),
               ),
-           
-             ],
+            ],
           ),
           8.height,
         ],
       ),
     );
   }
-  
+
   /// Verify RC No
   Widget buildVehicleVerificationFieldWidget({
     required TextEditingController vehicleNoController,
-    required void Function(bool) onVerificationResult,
+    required void Function(bool, Map<String, dynamic>?) onVerificationResult,
   }) {
-    return BlocConsumer<ProfileCubit, ProfileState>(
-      bloc: profileCubit,
-      listenWhen:
+    return BlocBuilder<MastersCubit, MastersState>(
+      buildWhen:
           (previous, current) =>
-              previous.vehicleVerificationState !=
-                  current.vehicleVerificationState ||
-              previous.verifiedVehicleVahanState !=
-                  current.verifiedVehicleVahanState,
-      listener: (context, state) async {
-        final verificationState = state.vehicleVerificationState;
-        final status = verificationState?.status;
-        final vehicleData = verificationState?.data?.data;
-
-        if (status == Status.SUCCESS &&
-            (vehicleData == null || vehicleData == false)) {
-          if (!_hasCalledVahanVerification) {
-            _hasCalledVahanVerification = true;
-            await profileCubit.verifyVehcileFromVahan(
-              request: VehicleVahanRequest(
-                vehicleNumber: vehicleNoController.text.trim(),
-              ),
-            );
-            return;
-          }
-        }
-
-        if (status == Status.SUCCESS && vehicleData != null) {
-          _hasCalledVahanVerification = false;
-          ToastMessages.success(message: "Vehicle verified successfully");
-          onVerificationResult(true);
-          return;
-        }
-
-        if (state.verifiedVehicleVahanState?.status == Status.SUCCESS) {
-          _hasCalledVahanVerification = true;
-
-          ToastMessages.success(
-            message:
-                state.verifiedVehicleVahanState?.data?.message ??
-                "Vehicle verified via Vahan",
-          );
-          onVerificationResult(true);
-          return;
-        }
-
-        if (state.verifiedVehicleVahanState?.status == Status.ERROR) {
-          _hasCalledVahanVerification = false;
-
-          ToastMessages.error(
-            message: getErrorMsg(
-              errorType:
-                  state.verifiedVehicleVahanState?.errorType ?? GenericError(),
-            ),
-          );
-          onVerificationResult(false);
-          return;
-        }
-      },
+              previous.vehicleVerification != current.vehicleVerification,
       builder: (context, state) {
-        final currentVehicleNumber = vehicleNoController.text.trim();
+        final verificationState = state.vehicleVerification;
 
-        final vehicleVerifiedLocally =
-            state.vehicleVerificationState?.status == Status.SUCCESS &&
-            state.vehicleVerificationState?.data?.data?.truckNo?.trim() ==
-                currentVehicleNumber;
+        final isVerified = verificationState.status == Status.SUCCESS;
 
-        final vehicleVerifiedFromVahan =
-            state.verifiedVehicleVahanState?.status == Status.SUCCESS &&
-            state.vehicleVerificationState?.data?.data?.truckNo?.trim() ==
-                currentVehicleNumber;
-
-        final bool isVerified =
-            vehicleVerifiedLocally || vehicleVerifiedFromVahan;
         return AppTextField(
-          validator: (value) => Validator.fieldRequired(value),
           controller: vehicleNoController,
-          labelText: "Vehicle reg no",
           mandatoryStar: true,
-          keyboardType: TextInputType.text,
+          maxLength: 15,
+          labelText: "Vehicle reg no",
+          textCapitalization: TextCapitalization.characters,
+          validator:
+              (value) => Validator.validateVehicleNumber(
+                value,
+                fieldName: "Vehicle reg no",
+              ),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
+          ],
+          readOnly: isVerified,
           decoration: commonInputDecoration(
-            hintText: "Enter vehicle reg no",
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text(
-                  isVerified
-                      ? "Verified"
-                      : (state.vehicleVerificationState?.status ==
-                              Status.LOADING
-                          ? "Verifying..."
-                          : "Verify"),
-                  style: AppTextStyle.body3.copyWith(
-                    color: isVerified ? Colors.green : AppColors.primaryColor,
-                    fontWeight:
-                        isVerified ? FontWeight.bold : FontWeight.normal,
-                    decoration:
-                        isVerified
-                            ? TextDecoration.none
-                            : TextDecoration.underline,
-                    decorationColor:
-                        isVerified
-                            ? Colors.transparent
-                            : AppColors.primaryColor,
-                  ),
-                ),
-              ],
-            ),
-            suffixOnTap: () async {
-              final String? validation = Validator.fieldRequired(
-                vehicleNoController.text,
-                fieldName: 'Vehicle Reg No',
-              );
-              if (validation == null) {
-                await profileCubit.resetVehicleVerificationState();
-                await Future.delayed(Duration(milliseconds: 100));
-                await profileCubit.fetchVehicleExcistence(
-                  vehicleId: vehicleNoController.text.trim(),
-                );
-              } else {
-                ToastMessages.alert(message: validation);
-              }
-            },
+            suffixIcon:
+                verificationState.status == Status.LOADING
+                    ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                    : isVerified
+                    ? const Icon(Icons.verified, color: Colors.green)
+                    : InkWell(
+                      onTap: () async {
+                        final vehicleNumber =
+                            vehicleNoController.text.trim().toUpperCase();
+
+                        final validationMessage =
+                            Validator.validateVehicleNumber(
+                              vehicleNumber,
+                              fieldName: "Vehicle reg no",
+                            );
+
+                        if (validationMessage != null) {
+                          ToastMessages.alert(message: validationMessage);
+                          return;
+                        }
+
+                        final result = await context
+                            .read<MastersCubit>()
+                            .fetchAndVerifyVehicle(vehicleNumber);
+
+                        if (result is Success<Map<String, dynamic>>) {
+                          ToastMessages.success(
+                            message: "Vehicle verified & data autofilled.",
+                          );
+                          onVerificationResult(
+                            true,
+                            result.value,
+                          ); // Pass data back
+                        } else {
+                          ToastMessages.alert(
+                            message: "Vehicle verification failed",
+                          );
+                          onVerificationResult(false, null);
+                        }
+                      },
+
+                      child: Text(
+                        "Verify",
+                        style: AppTextStyle.body3.copyWith(
+                          color: AppColors.primaryColor,
+                          decoration: TextDecoration.underline,
+                          decorationColor: AppColors.primaryColor,
+                        ),
+                      ),
+                    ),
           ),
         );
       },
     );
   }
-  
+
   /// Verify License
   Widget buildLicenseVerificationFieldWidget({
-    required bool isEdit,
     required TextEditingController licenseNoController,
     required String selectedDoB,
     required void Function(String) onDobChanged,
     required TextEditingController nameController,
-    required void Function(bool) onVerificationResult,
+    required void Function(bool, Map<String, dynamic>?) onVerificationResult,
   }) {
-    return BlocConsumer<ProfileCubit, ProfileState>(
-      bloc: profileCubit,
-      listenWhen:
+    return BlocBuilder<MastersCubit, MastersState>(
+      buildWhen:
           (previous, current) =>
-              previous.licenseVerficationState !=
-              current.licenseVerficationState,
-      listener: (context, state) async {
-        // if (_hasLicensetoastShown) return;
-        final licenseExistState = state.licenseVerficationState;
-        final vahanState = state.verifiedLicenseVahanState;
-        final status = licenseExistState?.status;
-        final driverData = licenseExistState?.data?.data;
-
-        // First API - License existence
-        if (status == Status.SUCCESS &&
-            (driverData == null || driverData == false)) {
-          if (!_hasCalledVahanVerification) {
-            _hasCalledVahanVerification = true;
-            await profileCubit.verifyLicenseFromVahan(
-              request: LicenseVahanRequest(
-                licenseNumber: licenseNoController.text.trim(),
-                name: nameController.text,
-                dob: selectedDoB,
-              ),
-            );
-            return;
-          }
-        }
-
-        //  License exists directly
-        if (status == Status.SUCCESS && driverData != null) {
-          _hasCalledVahanVerification = false;
-          ToastMessages.success(message: "License verified successfully");
-          onVerificationResult(true);
-          return;
-        }
-
-        // Vahan verification
-        if (vahanState?.status == Status.SUCCESS) {
-          _hasCalledVahanVerification = false;
-          ToastMessages.success(message: context.appText.licenseNoVerified);
-          onVerificationResult(true);
-
-          return;
-        }
-
-        // Vahan Error cases
-        if (vahanState?.status == Status.ERROR) {
-          _hasCalledVahanVerification = false;
-          ToastMessages.error(
-            message: getErrorMsg(
-              errorType:
-                  state.verifiedLicenseVahanState?.errorType ?? GenericError(),
-            ),
-          );
-          return;
-        }
-      },
+              previous.licenseVerification != current.licenseVerification,
       builder: (context, state) {
-        final currentLicenseNumber = licenseNoController.text.trim();
+        final verificationState = state.licenseVerification;
+        final isVerified = verificationState.status == Status.SUCCESS;
 
-        final licenseVerifiedLocally =
-            state.licenseVerficationState?.status == Status.SUCCESS &&
-            state.licenseVerficationState?.data?.data?.licenseNumber ==
-                currentLicenseNumber;
-
-        final licenseVerifiedFromVahan =
-            state.verifiedLicenseVahanState?.status == Status.SUCCESS &&
-            state.licenseVerficationState?.data?.data?.licenseNumber ==
-                currentLicenseNumber;
-
-        final bool isVerified =
-            licenseVerifiedLocally || licenseVerifiedFromVahan;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            /// License No Field
             AppTextField(
+              controller: licenseNoController,
+              mandatoryStar: true,
+              labelText: "License No",
               validator:
                   (value) => Validator.indianLicenseNumber(
                     value,
                     fieldName: "License No",
                   ),
-              controller: licenseNoController,
-              labelText: "License No",
-              mandatoryStar: true,
-              keyboardType: TextInputType.text,
+              readOnly: isVerified,
               decoration: commonInputDecoration(
-                hintText: "Enter License No",
-                suffixIcon: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      isVerified
-                          ? "Verified"
-                          : (state.licenseVerficationState?.status ==
-                                  Status.LOADING
-                              ? "Verifying..."
-                              : "Verify"),
-                      style: AppTextStyle.body3.copyWith(
-                        color:
-                            isVerified ? Colors.green : AppColors.primaryColor,
-                        fontWeight:
-                            isVerified ? FontWeight.bold : FontWeight.normal,
-                        decoration:
-                            isVerified
-                                ? TextDecoration.none
-                                : TextDecoration.underline,
-                        decorationColor:
-                            isVerified
-                                ? Colors.transparent
-                                : AppColors.primaryColor,
-                      ),
-                    ),
-                  ],
-                ),
-                suffixOnTap: () async {
-                  await profileCubit.resetLcienseVerificationState();
-                  final String? licenseValidation =
-                      Validator.indianLicenseNumber(
-                        licenseNoController.text,
-                        fieldName: "License No",
-                      );
+                suffixIcon:
+                    verificationState.status == Status.LOADING
+                        ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : isVerified
+                        ? const Icon(Icons.verified, color: Colors.green)
+                        : InkWell(
+                          onTap: () async {
+                            final licenseValidation =
+                                Validator.indianLicenseNumber(
+                                  licenseNoController.text,
+                                  fieldName: "License No",
+                                );
+                            if (licenseValidation != null) {
+                              ToastMessages.alert(message: licenseValidation);
+                              return;
+                            }
+                            if (selectedDoB.isEmpty) {
+                              ToastMessages.alert(
+                                message: "Please select Date of Birth",
+                              );
+                              return;
+                            }
+                            if (nameController.text.trim().isEmpty) {
+                              ToastMessages.alert(
+                                message: "Please enter Driver Name",
+                              );
+                              return;
+                            }
 
-                  final String? dobValidation = Validator.fieldRequired(
-                    selectedDoB,
-                  );
-                  final String? nameValidation = Validator.fieldRequired(
-                    nameController.text,
-                  );
+                            // Call API
+                            final result = await context
+                                .read<MastersCubit>()
+                                .fetchAndVerifyLicense(
+                                  licensereq: LicenseVahanRequest(
+                                    licenseNumber:
+                                        licenseNoController.text.trim(),
+                                    dob: selectedDoB,
+                                    name: nameController.text.trim(),
+                                  ),
+                                );
 
-                  if (licenseValidation != null) {
-                    ToastMessages.alert(message: licenseValidation);
-                    return;
-                  }
-                  if (dobValidation != null) {
-                    ToastMessages.alert(message: "Please select Date of Birth");
-                    return;
-                  }
-                  if (nameValidation != null) {
-                    ToastMessages.alert(message: "Please enter Driver Name");
-                    return;
-                  }
-
-                  // All validations passed → call API
-                  profileCubit.fetchLicenseExcistence(
-                    licenseNo: licenseNoController.text.trim(),
-                  );
-                },
+                            if (result is Success<Map<String, dynamic>>) {
+                              ToastMessages.success(
+                                message: "License verified & data autofilled.",
+                              );
+                              onVerificationResult(true, result.value);
+                            } else {
+                              ToastMessages.alert(
+                                message: "License verification failed",
+                              );
+                              onVerificationResult(false, null);
+                            }
+                          },
+                          child: Text(
+                            "Verify",
+                            style: AppTextStyle.body3.copyWith(
+                              color: AppColors.primaryColor,
+                              decoration: TextDecoration.underline,
+                              decorationColor: AppColors.primaryColor,
+                            ),
+                          ),
+                        ),
               ),
             ),
             16.height,
 
-            ///Date of Birth
+            /// Date of Birth Picker
             InkWell(
               onTap: () async {
                 final DateTime today = DateTime.now();
@@ -1406,28 +1314,25 @@ class _MasterScreenState extends State<MasterScreen>
                   final formattedDate = DateFormat(
                     'dd/MM/yyyy',
                   ).format(pickedDate);
-                  setState(() {
-                    selectedDoB = formattedDate;
-                  });
                   onDobChanged(formattedDate);
                 }
               },
               child: buildReadOnlyField(
-                context.appText.dateOdBirth,
-                selectedDoB ?? 'DOB',
+                "Date of Birth",
+                selectedDoB.isEmpty ? 'DOB' : selectedDoB,
                 fillColor: Colors.white,
                 mandatoryStar: true,
               ),
             ),
-
             16.height,
+
+            /// Driver Name
             AppTextField(
-              readOnly: false,
-              validator: (value) => Validator.fieldRequired(value),
               controller: nameController,
-              labelText: context.appText.driverName,
-              hintText: context.appText.driverName,
+              labelText: "Driver Name",
+              hintText: "Driver Name",
               mandatoryStar: true,
+              validator: (value) => Validator.fieldRequired(value),
               keyboardType: TextInputType.name,
               inputFormatters: [
                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
@@ -1438,8 +1343,8 @@ class _MasterScreenState extends State<MasterScreen>
       },
     );
   }
- 
- /// Add Address Popup
+
+  /// Add Address Popup
   void showAddAddressPopup(BuildContext context, {CustomerAddress? address}) {
     final formKey = GlobalKey<FormState>();
     final isEdit = address != null;
@@ -1584,7 +1489,7 @@ class _MasterScreenState extends State<MasterScreen>
     BuildContext context, {
     VehicleDetailsData? vehcile,
   }) async {
-    context.read<ProfileCubit>().resetVehicleVerificationState();
+    context.read<MastersCubit>().resetVehicleVerification();
     bool isVehicleVerified = vehcile != null;
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
@@ -1619,71 +1524,15 @@ class _MasterScreenState extends State<MasterScreen>
         localRcDocList.add(doc);
       }
     }
-    bool isInitialized = false;
-    String previousVehicleNo = truckNumberController.text.trim();
-    bool listenerAdded = false;
 
     MasterDialogueWidget.show(
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
-          if (!listenerAdded) {
-            truckNumberController.addListener(() {
-              final currentText = truckNumberController.text.trim();
-              if (currentText != previousVehicleNo) {
-                previousVehicleNo = currentText;
-                profileCubit.resetVehicleVerificationState();
-                setState(() {
-                  isInitialized = false;
-                  isVehicleVerified = false;
-                });
-              }
-            });
-            listenerAdded = true;
-          }
           List<Map<String, dynamic>> localRcDocList = List.from(vehicleDocList);
           final rcDocUpload =
               context.watch<ProfileCubit>().state.vehicleDocUpload;
           final isUploading = rcDocUpload?.status == Status.LOADING;
-          final verifiedVehicleData =
-              context.watch<ProfileCubit>().state.verifiedVehicleVahanState;
-          final localVehicleVerificationState =
-              context.watch<ProfileCubit>().state.vehicleVerificationState;
-          if (verifiedVehicleData?.status == Status.SUCCESS &&
-              verifiedVehicleData?.data?.data != null &&
-              !isInitialized) {
-            final vahanData = verifiedVehicleData!.data!.data!;
-            setState(() {
-              truckMakeModelController.text =
-                  vahanData.vehicleMakeModel ?? truckMakeModelController.text;
-              selectedWeightDropDownValue = vahanData.vehicleGrossWeight;
-              isVehicleVerified = true;
-              isInitialized = true;
-            });
-          }
-          // Auto-populate from local DB verification success
-          else if (localVehicleVerificationState?.status == Status.SUCCESS &&
-              localVehicleVerificationState?.data?.data != null &&
-              localVehicleVerificationState!.data!.data!.truckNo ==
-                  truckNumberController.text.trim() &&
-              !isInitialized) {
-            final localData = localVehicleVerificationState!.data!.data!;
-            print('old local data excist still ${localData.modelNumber}');
-            setState(() {
-              truckMakeModelController.text = localData.modelNumber;
-              selectedWeightDropDownValue = localData.tonnage;
-              rcNumberController.text = localData.rcNumber;
-              localRcDocList.clear();
-              if (localData.rcDocLink.isNotEmpty) {
-                final doc = createFileFromLink(localData.rcDocLink);
-                if (doc != null) {
-                  localRcDocList.add(doc);
-                }
-              }
-              isVehicleVerified = true;
-              isInitialized = true;
-            });
-          }
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -1707,12 +1556,60 @@ class _MasterScreenState extends State<MasterScreen>
                     20.height,
                     buildVehicleVerificationFieldWidget(
                       vehicleNoController: truckNumberController,
-                      onVerificationResult: (value) {
+                      onVerificationResult: (isVerified, vehicleData) {
                         setState(() {
-                          isVehicleVerified = value;
+                          isVehicleVerified = isVerified;
+
+                          // ✅ If data came from API, autofill fields
+                          if (vehicleData != null) {
+                            final makeModel =
+                                vehicleData['vehicle_make_model'] ??
+                                vehicleData['modelNumber'];
+                            if (makeModel != null) {
+                              truckMakeModelController.text =
+                                  makeModel.toString();
+                            }
+
+                            final capacity =
+                                vehicleData['vehicle_gross_weight'] ??
+                                vehicleData['tonnage'];
+                            if (capacity != null) {
+                              final numberOnly = RegExp(
+                                r'\d+',
+                              ).stringMatch(capacity.toString());
+                              selectedWeightDropDownValue = capacity;
+                            }
+                            rcNumberController.text =
+                                vehicleData['rcNumber'] ?? '';
+                            localRcDocList.clear();
+                            if (vehicleData['rcDocLink'] != null) {
+                              final doc = createFileFromLink(
+                                vehicleData['rcDocLink'],
+                              );
+                              if (doc != null) {
+                                localRcDocList.add(doc);
+                              }
+                              isVehicleActive =
+                                  vehicleData['status'] == 1 ? true : false;
+                              final truckTypeList =
+                                  context
+                                      .read<VpCreateAccountCubit>()
+                                      .state
+                                      .truckTypeUIState
+                                      ?.data ??
+                                  [];
+                              final matchedTruckType = truckTypeList.firstWhere(
+                                (t) => t.id == vehicleData['truckTypeId'],
+                              );
+                              if (matchedTruckType != null) {
+                                selectedTruckType = matchedTruckType;
+                              }
+                            }
+                          }
                         });
                       },
                     ),
+
                     16.height,
                     AppTextField(
                       validator: (value) => Validator.fieldRequired(value),
@@ -1871,15 +1768,17 @@ class _MasterScreenState extends State<MasterScreen>
                         Text(context.appText.active),
                         Switch(
                           value: isVehicleActive,
-                         onChanged: (val) {
-                        setState(() => isVehicleActive = val);                     
-                        if (vehcile != null) {
-                          profileCubit.deleteVehicle(
-                            vehicleId: vehcile!.vehicleId,
-                            request: DeleteVehicleRequest(status: val ? 1 : 2),
-                          );
-                        }
-                      },
+                          onChanged: (val) {
+                            setState(() => isVehicleActive = val);
+                            if (vehcile != null) {
+                              profileCubit.deleteVehicle(
+                                vehicleId: vehcile!.vehicleId,
+                                request: DeleteVehicleRequest(
+                                  status: val ? 1 : 2,
+                                ),
+                              );
+                            }
+                          },
                         ),
                       ],
                     ),
@@ -1932,10 +1831,6 @@ class _MasterScreenState extends State<MasterScreen>
                       rcDocLink: rcDocLink,
                       tonnage: selectedWeightDropDownValue,
                       truckTypeId: selectedTruckType?.id ?? 1,
-                      // acceptableCommodities:
-                      //     selectedCommodities.map(int.parse).toList(),
-
-                      // vehicleStatus: isVehicleActive ? 1 : 2,
                     ),
                   );
                 } else {
@@ -1962,7 +1857,7 @@ class _MasterScreenState extends State<MasterScreen>
               }
             },
             onClickNoButton: () async {
-              await profileCubit.resetVehicleVerificationState();
+              mastersCubit.resetVehicleVerification();
               Navigator.pop(context);
             },
           );
@@ -1988,8 +1883,7 @@ class _MasterScreenState extends State<MasterScreen>
     BuildContext context, {
     DriverDetailsData? driver,
   }) async {
-    final cubit = context.read<ProfileCubit>();
-    await cubit.resetlicenseVahanVerificationState();
+    mastersCubit.resetLicenseVerification();
 
     bool isLicenseVerified = driver != null;
 
@@ -2046,7 +1940,7 @@ class _MasterScreenState extends State<MasterScreen>
               final currentText = licenseNumberController.text.trim();
               if (currentText != previousLicenseNo) {
                 previousLicenseNo = currentText;
-                profileCubit.resetlicenseVahanVerificationState();
+                mastersCubit.resetLicenseVerification();
                 setState(() {
                   isInitialized = false;
                   isLicenseVerified = false;
@@ -2073,98 +1967,6 @@ class _MasterScreenState extends State<MasterScreen>
             isInitialized = true;
           }
 
-          /// Local DB verification result
-          final localLicenseVerificationState =
-              context.watch<ProfileCubit>().state.licenseVerficationState;
-
-          /// Vahan verification result
-          final driverVerifiedData =
-              context.watch<ProfileCubit>().state.verifiedLicenseVahanState;
-
-          // Auto‑populate from Local DB (if found)
-          if (localLicenseVerificationState?.status == Status.SUCCESS &&
-              localLicenseVerificationState?.data?.data != null &&
-              localLicenseVerificationState!.data!.data!.licenseNumber
-                      ?.trim() ==
-                  licenseNumberController.text.trim() &&
-              !isInitialized) {
-            final localData = localLicenseVerificationState!.data!.data!;
-            setState(() {
-              nameController.text = localData.name ?? nameController.text;
-              selectedDoB =
-                  localData.dateOfBirth != null
-                      ? DateFormat('dd/MM/yyyy').format(localData.dateOfBirth!)
-                      : selectedDoB;
-              selectedDate =
-                  localData.licenseExpiryDate != null
-                      ? DateFormat(
-                        'dd/MM/yyyy',
-                      ).format(localData.licenseExpiryDate!)
-                      : selectedDate;
-              selectedBloodGroup = MasterHelper.mapBloodGroupIdToName(
-                localData.bloodGroup,
-              );
-              selectedBloodId = localData.bloodGroup;
-              selectedLicense = MasterHelper.mapLicenseCategoryIdToName(
-                localData.licenseCategory,
-              );
-              selectedLicneseId = localData.licenseCategory;
-              localLicenseDocList.clear();
-              if (localData.licenseDocLink != null &&
-                  localData.licenseDocLink!.isNotEmpty) {
-                final doc = createFileFromLink(localData.licenseDocLink!);
-                if (doc != null) {
-                  localLicenseDocList.add(doc);
-                }
-              }
-              emailController.text = localData.email ?? emailController.text;
-              mobileController.text =
-                  localData.mobile?.replaceFirst('+91', '') ?? "";
-              isLicenseVerified = true;
-              isInitialized = true;
-            });
-          }
-          //  Auto‑populate from Vahan API (if found)
-          else if (driverVerifiedData?.status == Status.SUCCESS &&
-              driverVerifiedData?.data?.data != null &&
-              selectedDoB != null &&
-              driverVerifiedData!.data!.data!.userDob != null &&
-              DateFormat('dd/MM/yyyy').format(
-                    DateFormat(
-                      'dd-MM-yyyy',
-                    ).parse(driverVerifiedData!.data!.data!.userDob!),
-                  ) ==
-                  selectedDoB &&
-              !isInitialized) {
-            final vahanData = driverVerifiedData!.data!.data!;
-            setState(() {
-              nameController.text =
-                  vahanData.userFullName ?? nameController.text;
-              selectedBloodGroup = vahanData.userBloodGroup;
-              selectedLicense = vahanData.vehicleCategory;
-              selectedBloodId = MasterHelper.mapBloodGroupToId(
-                vahanData.userBloodGroup,
-              );
-              selectedLicneseId = MasterHelper.mapLicenseCategoryToId(
-                vahanData.vehicleCategory,
-              );
-              selectedDoB =
-                  vahanData.userDob != null
-                      ? DateFormat('dd/MM/yyyy').format(
-                        DateFormat('dd-MM-yyyy').parse(vahanData.userDob!),
-                      )
-                      : selectedDoB;
-              selectedDate =
-                  vahanData.expiryDate != null
-                      ? DateFormat('dd/MM/yyyy').format(
-                        DateFormat('dd-MM-yyyy').parse(vahanData.expiryDate!),
-                      )
-                      : selectedDate;
-              isLicenseVerified = true;
-              isInitialized = true;
-            });
-          }
-
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -2185,21 +1987,89 @@ class _MasterScreenState extends State<MasterScreen>
                   ),
                   20.height,
                   buildLicenseVerificationFieldWidget(
-                    isEdit: isEdit,
                     licenseNoController: licenseNumberController,
-                    onVerificationResult: (value) {
-                      setState(() {
-                        isLicenseVerified = value || driver != null;
-                      });
-                    },
-                    nameController: nameController,
                     selectedDoB: selectedDoB ?? "",
                     onDobChanged: (dob) {
                       setState(() {
                         selectedDoB = dob;
                       });
                     },
+                    nameController: nameController,
+                    onVerificationResult: (isVerified, licenseData) {
+                      setState(() {
+                        isLicenseVerified = isVerified || driver != null;
+                        print(
+                          '----------------------------- ${licenseData.toString()}',
+                        );
+                        // ✅ Autofill fields if data came from API
+                        if (licenseData != null) {
+                          if (licenseData['name'] != null) {
+                            nameController.text =
+                                licenseData['name'] ??
+                                licenseData['user_full_name'];
+                          }
+                          selectedDoB = DateFormat('dd/MM/yyyy').format(
+                            DateTime.parse(
+                              licenseData['dateOfBirth'] ??
+                                  licenseData['user_dob'],
+                            ),
+                          );
+                          selectedBloodGroup =
+                              MasterHelper.mapBloodGroupIdToName(
+                                licenseData['bloodGroup'] ??
+                                    licenseData['user_blood_group'],
+                              );
+                          selectedBloodId =
+                              licenseData['bloodGroup'] ??
+                              licenseData['user_blood_group'];
+
+                          selectedLicense =
+                              MasterHelper.mapLicenseCategoryIdToName(
+                                licenseData['licenseCategory'] ??
+                                    licenseData['vehicle_category'],
+                              );
+                          selectedLicneseId =
+                              licenseData['licenseCategory'] ??
+                              licenseData['vehicle_category'];
+
+                          selectedDate = DateFormat('dd/MM/yyyy').format(
+                            DateTime.parse(
+                              licenseData['licenseExpiryDate'] ??
+                                  licenseData['expiry_date'],
+                            ),
+                          );
+
+                          if (licenseData['mobile'] != null) {
+                            mobileController.text =
+                                licenseData['mobile']?.replaceFirst(
+                                  '+91',
+                                  '',
+                                ) ??
+                                "";
+                          }
+                          if (licenseData['email'] != null) {
+                            emailController.text = licenseData['email'];
+                          }
+                          if (licenseData['driverStatus'] != null) {
+                            isActive =
+                                licenseData['driverStatus'] == 1 ? true : false;
+                          }
+
+                          if (licenseData['licenseDocLink'] != null &&
+                              licenseData['licenseDocLink']!.isNotEmpty) {
+                            localLicenseDocList.clear();
+                            final doc = createFileFromLink(
+                              licenseData['licenseDocLink'],
+                            );
+                            if (doc != null) {
+                              localLicenseDocList.add(doc);
+                            }
+                          }
+                        }
+                      });
+                    },
                   ),
+
                   16.height,
                   UploadAttachmentFiles(
                     multiFilesList: localLicenseDocList,
@@ -2432,7 +2302,7 @@ class _MasterScreenState extends State<MasterScreen>
               }
             },
             onClickNoButton: () async {
-              await profileCubit.resetLcienseVerificationState();
+              mastersCubit.resetLicenseVerification();
               Navigator.pop(context);
             },
           );

@@ -79,7 +79,8 @@ import 'package:gro_one_app/features/payments/cubit/payment_cubit.dart';
 import 'package:gro_one_app/features/privacy_policy/bloc/privacy_policy_bloc.dart';
 import 'package:gro_one_app/features/privacy_policy/repository/privacy_repository.dart';
 import 'package:gro_one_app/features/privacy_policy/service/privacy_policy_service.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/features/splash/splash_repository.dart';
@@ -693,6 +694,9 @@ void initLocator() {
     );
 
     locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
+    locator.registerLazySingleton(
+      () => MastersCubit(locator<ProfileRepository>()),
+    );
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

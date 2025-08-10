@@ -1,4 +1,5 @@
 import 'package:gro_one_app/data/network/api_urls.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 
 import '../../../../data/model/result.dart';
 import '../../../../data/network/api_service.dart';
@@ -38,6 +39,24 @@ class VpLoadService {
         return Error(GenericError());
       }
     } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<List<LoadStatusResponse>>> fetchVpLoadStatus() async {
+    try {
+      final url = ApiUrls.getLoadStatusVp;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final List<dynamic> list = response.value;
+        final loads = list.map((e) => LoadStatusResponse.fromJson(e)).toList();
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch(e) {
       return Error(DeserializationError());
     }
   }

@@ -25,10 +25,6 @@ class ProfileState extends Equatable {
   final UIState<List<TruckLengthModel>>? truckLengths;
   final UIState<KavachVehicleDocumentUploadModel>? vehicleDocUpload;
   final UIState<KavachVehicleDocumentUploadModel>? licenseDocUpload;
-  final UIState<VehicleVerificationSuccess>? vehicleVerificationState;
-  final UIState<LicenseVerificationSuccess>? licenseVerficationState;
-  final UIState<VerifedLicenseVahanData>? verifiedLicenseVahanState;
-  final UIState<VerifedVehicleVahanData>? verifiedVehicleVahanState;
   final UIState<UploadTicketResponse>? uploadTicketDocUIState;
   final UIState<CreateDocumentModel>? createDocumentUIState;
   final UIState<VehcileUpdatedStatusModel>? vehicleUpdateUIState;
@@ -54,8 +50,6 @@ class ProfileState extends Equatable {
     this.truckLengths,
     this.vehicleDocUpload,
     this.licenseDocUpload,
-    this.vehicleVerificationState,
-    this.licenseVerficationState,
     this.faqUIState,
     this.ticketState,
     this.createTicketState,
@@ -63,8 +57,6 @@ class ProfileState extends Equatable {
     this.selectedTicketStatus,
     this.tempSelectedTicketStatus,
     this.createDocumentUIState,
-    this.verifiedLicenseVahanState,
-    this.verifiedVehicleVahanState,
     this.vehicleUpdateUIState,
     this.bloodGroupResponseUIState,
     this.licneseCategoryResponseUIState,
@@ -90,10 +82,6 @@ class ProfileState extends Equatable {
     UIState<KavachVehicleDocumentUploadModel>? vehicleDocUpload,
     UIState<KavachVehicleDocumentUploadModel>? licenseDocUpload,
     UIState<FaqResponse>? faqUIState,
-    UIState<VehicleVerificationSuccess>? vehicleVerificationState,
-    UIState<LicenseVerificationSuccess>? licenseVerficationState,
-    UIState<VerifedLicenseVahanData>? verifiedLicenseVahanState,
-    UIState<VerifedVehicleVahanData>? verifiedVehicleVahanState,
     UIState<TicketResponse>? ticketState,
     UIState<Ticket>? createTicketState,
     UIState<UploadTicketResponse>? uploadTicketDocUIState,
@@ -127,8 +115,6 @@ class ProfileState extends Equatable {
       customerSettingsState: customerSettingsState ?? this.customerSettingsState,
       vehicleDocUpload: vehicleDocUpload ?? this.vehicleDocUpload,
       licenseDocUpload: licenseDocUpload ?? this.licenseDocUpload,
-      vehicleVerificationState: vehicleVerificationState ?? this.vehicleVerificationState,
-      licenseVerficationState: licenseVerficationState ?? this.licenseVerficationState,
       faqUIState: faqUIState ?? this.faqUIState,
       ticketState: ticketState ?? this.ticketState,
       createTicketState: createTicketState ?? this.createTicketState,
@@ -136,8 +122,6 @@ class ProfileState extends Equatable {
       createDocumentUIState: createDocumentUIState ?? this.createDocumentUIState,
       selectedTicketStatus: selectedTicketStatus ?? this.selectedTicketStatus,
       tempSelectedTicketStatus: tempSelectedTicketStatus ?? this.tempSelectedTicketStatus,
-      verifiedLicenseVahanState: verifiedLicenseVahanState ?? this.verifiedLicenseVahanState,
-      verifiedVehicleVahanState: verifiedVehicleVahanState ?? this.verifiedVehicleVahanState,
       vehicleUpdateUIState: vehicleStatusUpdate ?? this.vehicleUpdateUIState,
       bloodGroupResponseUIState : bloodGroupResponseUIState ?? this.bloodGroupResponseUIState,
       licneseCategoryResponseUIState : licneseCategoryResponseUIState ?? this.licneseCategoryResponseUIState,
@@ -166,16 +150,12 @@ class ProfileState extends Equatable {
     vehicleDocUpload,
     licenseDocUpload,
     faqUIState,
-    vehicleVerificationState,
-    licenseVerficationState,
     ticketState,
     createTicketState,
     uploadTicketDocUIState,
     createDocumentUIState,
     selectedTicketStatus,
     tempSelectedTicketStatus,
-    verifiedLicenseVahanState,
-    verifiedVehicleVahanState,
     vehicleUpdateUIState,
     bloodGroupResponseUIState,
     licneseCategoryResponseUIState,

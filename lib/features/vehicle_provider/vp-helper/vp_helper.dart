@@ -42,6 +42,29 @@ class VpHelper{
      ),
    );
  }
+
+  static Color getColor(String colorString) {
+   if (colorString.startsWith('#')) {
+     final hex = colorString.replaceFirst('#', '');
+     final fullHex = hex.length == 6 ? 'FF$hex' : hex;
+     return Color(int.parse(fullHex, radix: 16));
+   } else if (colorString.startsWith('rgba')) {
+     final regex = RegExp(r'rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([.\d]*)\)');
+     final match = regex.firstMatch(colorString);
+     if (match != null) {
+       final r = int.parse(match.group(1)!);
+       final g = int.parse(match.group(2)!);
+       final b = int.parse(match.group(3)!);
+       final a = match.group(4)?.isNotEmpty == true
+           ? (double.parse(match.group(4)!) * 255).round()
+           : 255;
+       return Color.fromARGB(a, r, g, b);
+     }
+   }
+
+   // Fallback color (e.g. transparent or default)
+   return Colors.transparent;
+ }
 }
 
 

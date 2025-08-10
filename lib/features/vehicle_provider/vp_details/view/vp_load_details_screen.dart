@@ -254,10 +254,13 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   ),
                   if ((state.loadStatusId??1)>=3)
                    ...[
-                     LoadStatusLabel(
+                      LoadStatusLabel(
                          loadOnHold: loadDetails?.loadOnHold??false,
                          loadStatusTitle:loadDetails?.loadStatusDetails?.loadStatus??"" ,
-                         loadStatus: state.loadStatus!),
+                         loadStatus: state.loadStatus!,
+                         statusBgColor: loadDetails?.loadStatusDetails?.statusBgColor ??"" ,
+                         statusTxtColor: loadDetails?.loadStatusDetails?.statusTxtColor ?? "",
+                         ),
                    ]
                 ],
               ).paddingSymmetric(horizontal: 5),

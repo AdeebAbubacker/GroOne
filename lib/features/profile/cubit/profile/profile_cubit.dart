@@ -39,11 +39,7 @@ import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
-import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
-import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
-import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 part 'profile_state.dart';
@@ -55,7 +51,12 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   final VpCreationRepository _vprepository;
   final LpHomeRepository _lpHomeRepository;
   final KavachRepository kavachRepository;
-  ProfileCubit(this._repo,this._vprepository,this._lpHomeRepository,this.kavachRepository): super(ProfileState());
+  ProfileCubit(
+    this._repo,
+    this._vprepository,
+    this._lpHomeRepository,
+    this.kavachRepository,
+  ) : super(ProfileState());
 
   // Save Has Blue ID
   Future<void> saveHasShowBluePopup(bool value) async {
@@ -64,7 +65,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
 
   // Get Show Blue Popup
   Future<bool> getHasShowBluePopup() async {
-    return  await _repo.getHasShowBluePopup();
+    return await _repo.getHasShowBluePopup();
   }
 
   // Kyc Timer
@@ -109,14 +110,17 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return userId;
   }
 
-
   // Fetch Profile Detail Api Call
-  void _setProfileDetailUIState(UIState<ProfileDetailModel>? uiState){
+  void _setProfileDetailUIState(UIState<ProfileDetailModel>? uiState) {
     emit(state.copyWith(profileDetailUIState: uiState));
   }
+
   Future<void> fetchProfileDetail({Object? instance}) async {
     userId = await _repo.getUserId();
-    CustomLog.debug(instance ?? this, "Profile Detail Api Call : UserId $userId");
+    CustomLog.debug(
+      instance ?? this,
+      "Profile Detail Api Call : UserId $userId",
+    );
     if (userId == null) {
       return;
     }
@@ -130,11 +134,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-
   // Logout Api Call
-  void _setLogoutUIState(UIState<LogOutModel>? uiState){
+  void _setLogoutUIState(UIState<LogOutModel>? uiState) {
     emit(state.copyWith(logoutUIState: uiState));
   }
+
   Future<void> logout() async {
     _setLogoutUIState(UIState.loading());
     dynamic result = await _repo.getLogOutData();
@@ -148,13 +152,13 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch Document from api call
-  void _setFetchDocumentUIState(UIState<KycDocumentResponse>? uiState){
+  void _setFetchDocumentUIState(UIState<KycDocumentResponse>? uiState) {
     emit(state.copyWith(documentState: uiState));
   }
+
   Future<void> fetchDocuments() async {
     _setFetchDocumentUIState(UIState.loading());
     userId = await _repo.getUserId();
-
 
     dynamic result = await _repo.fetchDocuments(userId: userId ?? '');
     if (result is Success<KycDocumentResponse>) {
@@ -166,9 +170,10 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch Membership Benefit from api call
-  void _setMembershipBenefitUIState(UIState<BlueMemberShipResponse>? uiState){
+  void _setMembershipBenefitUIState(UIState<BlueMemberShipResponse>? uiState) {
     emit(state.copyWith(memberShipState: uiState));
   }
+
   Future<void> fetchMembershipBenefit() async {
     _setMembershipBenefitUIState(UIState.loading());
 
@@ -182,15 +187,18 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch address from api call
-  void _setFetchAddressUIState(UIState<PaginatedAddressList>? uiState){
+  void _setFetchAddressUIState(UIState<PaginatedAddressList>? uiState) {
     emit(state.copyWith(addressState: uiState));
   }
 
-  Future<void> fetchAddress({bool isLoading = true,String? search}) async {
-    if(isLoading) _setFetchAddressUIState(UIState.loading());
+  Future<void> fetchAddress({bool isLoading = true, String? search}) async {
+    if (isLoading) _setFetchAddressUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchAddress(userId: userId ?? '',search: search);
+    dynamic result = await _repo.fetchAddress(
+      userId: userId ?? '',
+      search: search,
+    );
     if (result is Success<PaginatedAddressList>) {
       _setFetchAddressUIState(UIState.success(result.value));
     }
@@ -200,12 +208,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch address from api call
-  void _setPrimaryAddressUIState(UIState<SetPrimaryAddressResponse>? uiState){
+  void _setPrimaryAddressUIState(UIState<SetPrimaryAddressResponse>? uiState) {
     emit(state.copyWith(primaryAddressState: uiState));
   }
 
   Future<void> setPrimaryAddress({required String addressId}) async {
-
     dynamic result = await _repo.setPrimaryAddress(addressId: addressId ?? '');
     if (result is Success<SetPrimaryAddressResponse>) {
       _setPrimaryAddressUIState(UIState.success(result.value));
@@ -216,14 +223,16 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch address from api call
-  void _setCreateAddressUIState(UIState<CustomerAddress>? uiState){
+  void _setCreateAddressUIState(UIState<CustomerAddress>? uiState) {
     emit(state.copyWith(createAddressState: uiState));
   }
 
   Future<void> createAddress({required AddressRequest request}) async {
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.createAddress(request: request.copyWith(customerId: userId));
+    dynamic result = await _repo.createAddress(
+      request: request.copyWith(customerId: userId),
+    );
     if (result is Success<CustomerAddress>) {
       _setCreateAddressUIState(UIState.success(result.value));
     }
@@ -232,10 +241,16 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-  Future<void> updateAddress({required String addressId, required AddressRequest request}) async {
+  Future<void> updateAddress({
+    required String addressId,
+    required AddressRequest request,
+  }) async {
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.updateAddress(addressId: addressId,request: request.copyWith(customerId: userId));
+    dynamic result = await _repo.updateAddress(
+      addressId: addressId,
+      request: request.copyWith(customerId: userId),
+    );
     if (result is Success<CustomerAddress>) {
       _setCreateAddressUIState(UIState.success(result.value));
     }
@@ -245,7 +260,6 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   Future<Result<void>> deleteAddress({required String addressId}) async {
-
     Result<void> result = await _repo.deleteAddress(addressId: addressId);
 
     if (result is Success) {
@@ -253,11 +267,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     } else if (result is Error) {
       _setFetchAddressUIState(UIState.error(result.type));
     }
-     return result;
+    return result;
   }
 
   // Fetch settings from api call
-  void _setSettingsUIState(UIState<List<SettingsResponse>>? uiState){
+  void _setSettingsUIState(UIState<List<SettingsResponse>>? uiState) {
     emit(state.copyWith(settingsState: uiState));
   }
 
@@ -272,7 +286,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch address from api call
-  void _setCustomerSettingsUIState(UIState<CustomerSettingsResponse>? uiState){
+  void _setCustomerSettingsUIState(UIState<CustomerSettingsResponse>? uiState) {
     emit(state.copyWith(customerSettingsState: uiState));
   }
 
@@ -287,51 +301,18 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setCustomerSettingsUIState(UIState.error(result.type));
     }
   }
- 
-  // Check Vehicle Excistence
-  void _setCheckVehicleExcistence(UIState<VehicleVerificationSuccess>? uiState){
-    emit(state.copyWith(vehicleVerificationState: uiState));
-  }
 
-  Future<void> fetchVehicleExcistence({required String vehicleId}) async {
-    _setCheckVehicleExcistence(UIState.loading());
-
-    dynamic result = await _repo.fetchVehicleVerification(vehicleId: vehicleId);
-    if (result is Success<VehicleVerificationSuccess>) {
-      print("Vehicle already excist");
-      _setCheckVehicleExcistence(UIState.success(result.value));
-    }
-    if (result is Error) {
-      print("Vehicle not found excist");
-      _setCheckVehicleExcistence(UIState.error(result.type));
-    }
-  }
-
-   // Check License Excistence
-  void _setCheckLicenseExcistence(UIState<LicenseVerificationSuccess>? uiState){
-    emit(state.copyWith(licenseVerficationState: uiState));
-  }
-   Future<void> fetchLicenseExcistence({required String licenseNo}) async {
-    _setCheckLicenseExcistence(UIState.loading());
-
-    dynamic result = await _repo.fetchLicenseVerification(licenseNo: licenseNo);
-    if (result is Success<LicenseVerificationSuccess>) {
-      _setCheckLicenseExcistence(UIState.success(result.value));
-    }
-    if (result is Error) {
-      _setCheckLicenseExcistence(UIState.error(result.type));
-    }
-  }
-
-    // Create New vehicle from api call
-  void _setCreateVehicleUIState(UIState<VehicleNewModel>? uiState){
+  // Create New vehicle from api call
+  void _setCreateVehicleUIState(UIState<VehicleNewModel>? uiState) {
     emit(state.copyWith(createVehicleState: uiState));
   }
 
   Future<void> createVehicle({required VehicleRequest request}) async {
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.createVehicle(request: request.copyWith(customerId: userId));
+    dynamic result = await _repo.createVehicle(
+      request: request.copyWith(customerId: userId),
+    );
     if (result is Success<VehicleNewModel>) {
       _setCreateVehicleUIState(UIState.success(result.value));
     }
@@ -340,11 +321,17 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-   // Update Vehicle
-  Future<void> updateVehicle({required String vehicleId, required VehicleRequest request}) async {
+  // Update Vehicle
+  Future<void> updateVehicle({
+    required String vehicleId,
+    required VehicleRequest request,
+  }) async {
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.updateVehicle(vehicleId: vehicleId,request: request.copyWith(customerId: userId));
+    dynamic result = await _repo.updateVehicle(
+      vehicleId: vehicleId,
+      request: request.copyWith(customerId: userId),
+    );
     if (result is Success<VehicleNewModel>) {
       _setCreateVehicleUIState(UIState.success(result.value));
     }
@@ -352,18 +339,20 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setCreateVehicleUIState(UIState.error(result.type));
     }
   }
- 
 
-   // Fetch vehicle from api call
-  void _setFetchVehicleUIState(UIState<PaginatedVehicleList>? uiState){
+  // Fetch vehicle from api call
+  void _setFetchVehicleUIState(UIState<PaginatedVehicleList>? uiState) {
     emit(state.copyWith(vehicleState: uiState));
   }
 
-  Future<void> fetchVehicle({bool isLoading = true,String? search}) async {
-    if(isLoading) _setFetchVehicleUIState(UIState.loading());
+  Future<void> fetchVehicle({bool isLoading = true, String? search}) async {
+    if (isLoading) _setFetchVehicleUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchVehicle(userId: userId ?? '',search: search);
+    dynamic result = await _repo.fetchVehicle(
+      userId: userId ?? '',
+      search: search,
+    );
     if (result is Success<PaginatedVehicleList>) {
       _setFetchVehicleUIState(UIState.success(result.value));
     }
@@ -372,10 +361,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-   // Fetch Truck type Api Call
-  void _setTruckTypeUIState(UIState<List<LoadTruckTypeListModel>>? uiState){
+  // Fetch Truck type Api Call
+  void _setTruckTypeUIState(UIState<List<LoadTruckTypeListModel>>? uiState) {
     emit(state.copyWith(truckTypeUIState: uiState));
   }
+
   Future<void> fetchTruckType() async {
     _setTruckTypeUIState(UIState.loading());
     Result result = await _lpHomeRepository.getTruckTypeData();
@@ -387,8 +377,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-   // Fetch truck length 
-   Future<void> fetchTruckLengths(String type) async {
+  // Fetch truck length
+  Future<void> fetchTruckLengths(String type) async {
     emit(state.copyWith(truckTypeUIState: UIState.loading()));
     final result = await kavachRepository.fetchTruckLengths(type);
     if (result is Success<List<TruckLengthModel>>) {
@@ -400,31 +390,43 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-
-
- // Delete Vehicle
-  Future<Result<void>> deleteVehicle({required String vehicleId, required DeleteVehicleRequest request}) async {
-
-    Result<void> result = await _repo.deleteVehicle(vehicleId: vehicleId,request: request);
+  // Delete Vehicle
+  Future<Result<void>> deleteVehicle({
+    required String vehicleId,
+    required DeleteVehicleRequest request,
+  }) async {
+    Result<void> result = await _repo.deleteVehicle(
+      vehicleId: vehicleId,
+      request: request,
+    );
 
     if (result is Success) {
       fetchVehicle(isLoading: false);
     } else if (result is Error) {
       _setFetchVehicleUIState(UIState.error(result.type));
     }
-     return result;
+    return result;
   }
-  
+
   //   // Update vehicle status from api call
-  void _setUpdateVehicleStatusUIState(UIState<VehcileUpdatedStatusModel>? uiState){
+  void _setUpdateVehicleStatusUIState(
+    UIState<VehcileUpdatedStatusModel>? uiState,
+  ) {
     emit(state.copyWith(vehicleStatusUpdate: uiState));
   }
 
-  Future<void> vehicleupdateStatus({bool isLoading = true,String? vehicleId,required VehicleStatusUpdateRequest request}) async {
-    if(isLoading) _setUpdateVehicleStatusUIState(UIState.loading());
+  Future<void> vehicleupdateStatus({
+    bool isLoading = true,
+    String? vehicleId,
+    required VehicleStatusUpdateRequest request,
+  }) async {
+    if (isLoading) _setUpdateVehicleStatusUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.updateVehicleStatus(request: request, vehicleId: vehicleId ??"");
+    dynamic result = await _repo.updateVehicleStatus(
+      request: request,
+      vehicleId: vehicleId ?? "",
+    );
     if (result is Success<VehcileUpdatedStatusModel>) {
       _setUpdateVehicleStatusUIState(UIState.success(result.value));
     }
@@ -433,8 +435,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-    // Create New driver from api call
-  void _setCreateDriverUIState(UIState<DriverNewModel>? uiState){
+  // Create New driver from api call
+  void _setCreateDriverUIState(UIState<DriverNewModel>? uiState) {
     emit(state.copyWith(createDriverState: uiState));
   }
 
@@ -449,12 +451,18 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setCreateDriverUIState(UIState.error(result.type));
     }
   }
- 
+
   // Update Driver
-  Future<void> updateDriver({required String driverId, required DriverRequest request}) async {
+  Future<void> updateDriver({
+    required String driverId,
+    required DriverRequest request,
+  }) async {
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.updateDriver(driverId: driverId,request: request.copyWith(customerId: userId));
+    dynamic result = await _repo.updateDriver(
+      driverId: driverId,
+      request: request.copyWith(customerId: userId),
+    );
     if (result is Success<DriverNewModel>) {
       _setCreateDriverUIState(UIState.success(result.value));
     }
@@ -462,18 +470,20 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setCreateDriverUIState(UIState.error(result.type));
     }
   }
- 
+
   // Fetch deriver from api call
-  void _setFetchDriverUIState(UIState<PaginatedDriverList>? uiState){
+  void _setFetchDriverUIState(UIState<PaginatedDriverList>? uiState) {
     emit(state.copyWith(driverState: uiState));
   }
 
- 
-  Future<void> fetchDriver({bool isLoading = true,String? search}) async {
-    if(isLoading) _setFetchDriverUIState(UIState.loading());
+  Future<void> fetchDriver({bool isLoading = true, String? search}) async {
+    if (isLoading) _setFetchDriverUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchDriver(userId: userId ?? '',search: search);
+    dynamic result = await _repo.fetchDriver(
+      userId: userId ?? '',
+      search: search,
+    );
     if (result is Success<PaginatedDriverList>) {
       _setFetchDriverUIState(UIState.success(result.value));
     }
@@ -482,9 +492,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-  
   Future<Result<void>> deleteDriver({required String driverId}) async {
-
     Result<void> result = await _repo.deleteDriver(driverId: driverId);
 
     if (result is Success) {
@@ -492,22 +500,27 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     } else if (result is Error) {
       _setFetchDriverUIState(UIState.error(result.type));
     }
-     return result;
+    return result;
   }
 
-  Future<Result<void>> updateCustomerSettings({required UpdateSettingsRequest request}) async {
+  Future<Result<void>> updateCustomerSettings({
+    required UpdateSettingsRequest request,
+  }) async {
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.updateCustomerSettings(userId: userId ?? '', request: request);
+    dynamic result = await _repo.updateCustomerSettings(
+      userId: userId ?? '',
+      request: request,
+    );
 
     if (result is Success) {
       fetchCustomerSettings();
     } else if (result is Error) {
       _setFetchAddressUIState(UIState.error(result.type));
     }
-     return result;
+    return result;
   }
- 
+
   Future<void> uploadVehicleDoc(File file) async {
     emit(state.copyWith(vehicleDocUpload: UIState.loading()));
     final result = await kavachRepository.getUploadGstData(file);
@@ -521,25 +534,24 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   Future<void> uploadLicenseDoc(File file) async {
-  emit(state.copyWith(licenseDocUpload: UIState.loading()));
-  final result = await _repo.getUploadLicenseData(file);
-  if (result is Success<KavachVehicleDocumentUploadModel>) {
-    emit(state.copyWith(licenseDocUpload: UIState.success(result.value)));
-  } else if (result is Error<KavachVehicleDocumentUploadModel>) {
-    emit(state.copyWith(licenseDocUpload: UIState.error(result.type)));
-  } else {
-    emit(state.copyWith(licenseDocUpload: UIState.error(GenericError())));
+    emit(state.copyWith(licenseDocUpload: UIState.loading()));
+    final result = await _repo.getUploadLicenseData(file);
+    if (result is Success<KavachVehicleDocumentUploadModel>) {
+      emit(state.copyWith(licenseDocUpload: UIState.success(result.value)));
+    } else if (result is Error<KavachVehicleDocumentUploadModel>) {
+      emit(state.copyWith(licenseDocUpload: UIState.error(result.type)));
+    } else {
+      emit(state.copyWith(licenseDocUpload: UIState.error(GenericError())));
+    }
   }
-}
-
 
   // Fetch address from api call
-  void _setFetchFaqUIState(UIState<FaqResponse>? uiState){
+  void _setFetchFaqUIState(UIState<FaqResponse>? uiState) {
     emit(state.copyWith(faqUIState: uiState));
   }
 
   Future<void> fetchFaq({String search = '', bool isLoading = true}) async {
-   if(isLoading) _setFetchFaqUIState(UIState.loading());
+    if (isLoading) _setFetchFaqUIState(UIState.loading());
 
     dynamic result = await _repo.fetchFaq(search: search);
     if (result is Success<FaqResponse>) {
@@ -549,14 +561,16 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setFetchFaqUIState(UIState.error(result.type));
     }
   }
-  
-    // Fetch Blood Group from api call
-  void _setFetchBloodGroupUIState(UIState<List<BloodGroupResponseModel>>? uiState){
+
+  // Fetch Blood Group from api call
+  void _setFetchBloodGroupUIState(
+    UIState<List<BloodGroupResponseModel>>? uiState,
+  ) {
     emit(state.copyWith(bloodGroupResponseUIState: uiState));
   }
 
-  Future<void> fetchBloodGroup({bool isLoading = true,String? search}) async {
-    if(isLoading) _setFetchBloodGroupUIState(UIState.loading());
+  Future<void> fetchBloodGroup({bool isLoading = true, String? search}) async {
+    if (isLoading) _setFetchBloodGroupUIState(UIState.loading());
     userId = await _repo.getUserId();
 
     dynamic result = await _repo.fetchBloodGroup();
@@ -567,14 +581,19 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setFetchBloodGroupUIState(UIState.error(result.type));
     }
   }
- 
-    // Fetch Licnese category from api call
-  void _setFetchLicneseUIState(UIState<List<LicenseCategoryResponseModel>>? uiState){
+
+  // Fetch Licnese category from api call
+  void _setFetchLicneseUIState(
+    UIState<List<LicenseCategoryResponseModel>>? uiState,
+  ) {
     emit(state.copyWith(licneseCategoryResponseUIState: uiState));
   }
 
-  Future<void> fetchLicenseCategory({bool isLoading = true,String? search}) async {
-    if(isLoading) _setFetchLicneseUIState(UIState.loading());
+  Future<void> fetchLicenseCategory({
+    bool isLoading = true,
+    String? search,
+  }) async {
+    if (isLoading) _setFetchLicneseUIState(UIState.loading());
     userId = await _repo.getUserId();
 
     dynamic result = await _repo.fetchLicenseCategory();
@@ -585,18 +604,23 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setFetchLicneseUIState(UIState.error(result.type));
     }
   }
-  
 
   // Fetch tickets from api call
-  void _setTicketsUIState(UIState<TicketResponse>? uiState){
+  void _setTicketsUIState(UIState<TicketResponse>? uiState) {
     emit(state.copyWith(ticketState: uiState));
   }
 
-  Future<void> fetchTickets({bool isLoading = true, required TicketRequest request}) async {
-    if(isLoading) _setTicketsUIState(UIState.loading());
+  Future<void> fetchTickets({
+    bool isLoading = true,
+    required TicketRequest request,
+  }) async {
+    if (isLoading) _setTicketsUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.fetchTickets(userId: userId ?? '',request: request);
+    dynamic result = await _repo.fetchTickets(
+      userId: userId ?? '',
+      request: request,
+    );
     if (result is Success<TicketResponse>) {
       _setTicketsUIState(UIState.success(result.value));
     }
@@ -606,15 +630,17 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // create ticket from api call
-  void _setCreateTicketsUIState(UIState<Ticket>? uiState){
+  void _setCreateTicketsUIState(UIState<Ticket>? uiState) {
     emit(state.copyWith(createTicketState: uiState));
   }
 
-  Future<void> createTicket({ required CreateTicketRequest request}) async {
+  Future<void> createTicket({required CreateTicketRequest request}) async {
     _setCreateTicketsUIState(UIState.loading());
     userId = await _repo.getUserId();
 
-    dynamic result = await _repo.createTicket(request: request.copyWith(customerId: userId));
+    dynamic result = await _repo.createTicket(
+      request: request.copyWith(customerId: userId),
+    );
     if (result is Success<Ticket>) {
       _setCreateTicketsUIState(UIState.success(result.value));
       fetchTickets(request: TicketRequest());
@@ -624,72 +650,35 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-  // Verfy License from vahan
-  void _setVerifyvahanLicenseUIState(UIState<VerifedLicenseVahanData>? uiState){
-    emit(state.copyWith(verifiedLicenseVahanState: uiState));
-  }
-
-  Future<void> verifyLicenseFromVahan({ required LicenseVahanRequest request}) async {
-    _setVerifyvahanLicenseUIState(UIState.loading());
-    userId = await _repo.getUserId();
-
-    dynamic result = await _repo.verifyLicenseVahan(request: request);
-    if (result is Success<VerifedLicenseVahanData>) {
-      _setVerifyvahanLicenseUIState(UIState.success(result.value));
-    }
-    if (result is Error) {
-      _setVerifyvahanLicenseUIState(UIState.error(result.type));
-    }
-  }
-
-   // Verfy Vehicle from vahan
-  void _setVerifyvahanVehicleUIState(UIState<VerifedVehicleVahanData>? uiState){
-    emit(state.copyWith(verifiedVehicleVahanState: uiState));
-  }
-
-  Future<void> verifyVehcileFromVahan({ required VehicleVahanRequest request}) async {
-    _setVerifyvahanVehicleUIState(UIState.loading());
-    userId = await _repo.getUserId();
-
-    dynamic result = await _repo.verifyVehcileVahan(request: request);
-    if (result is Success<VerifedVehicleVahanData>) {
-      _setVerifyvahanVehicleUIState(UIState.success(result.value));
-    }
-    if (result is Error) {
-      _setVerifyvahanVehicleUIState(UIState.error(result.type));
-    }
-  }
-
   void updateTempTicketStatus(TicketStatus? status) {
     emit(state.copyWith(tempSelectedTicketStatus: status));
   }
 
   void applyTicketStatusFilter() {
     emit(state.copyWith(selectedTicketStatus: state.tempSelectedTicketStatus));
-    fetchTickets(request: TicketRequest(ticketStatus: state.tempSelectedTicketStatus == TicketStatus.pending ? '1' : '2'));
+    fetchTickets(
+      request: TicketRequest(
+        ticketStatus:
+            state.tempSelectedTicketStatus == TicketStatus.pending ? '1' : '2',
+      ),
+    );
   }
 
   void clearTicketStatusFilter() {
-    emit(state.copyWith(
-      selectedTicketStatus: null,
-      tempSelectedTicketStatus: null,
-    ));
+    emit(
+      state.copyWith(
+        selectedTicketStatus: null,
+        tempSelectedTicketStatus: null,
+      ),
+    );
     fetchTickets(request: TicketRequest());
   }
 
-  Future<void> resetlicenseVahanVerificationState() async {
-  emit(state.copyWith(
-    verifiedLicenseVahanState: null,
-    licenseVerficationState: null,
-  ));
-  // Optionally add a short delay if UI rebuild lags:
-  await Future.delayed(Duration(milliseconds: 100));
-}
-
   // // Upload Ticket File
-  void _setUploadTicketUIState(UIState<UploadTicketResponse>? uiState){
+  void _setUploadTicketUIState(UIState<UploadTicketResponse>? uiState) {
     emit(state.copyWith(uploadTicketDocUIState: uiState));
   }
+
   Future<void> uploadTicketDoc(File file) async {
     _setUploadTicketUIState(UIState.loading());
     Result result = await _repo.getUploadTicketData(file);
@@ -702,9 +691,10 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Create Document
-  void _setCreateDocumentUIState(UIState<CreateDocumentModel>? uiState){
+  void _setCreateDocumentUIState(UIState<CreateDocumentModel>? uiState) {
     emit(state.copyWith(createDocumentUIState: uiState));
   }
+
   Future<void> createDocument(CreateDocumentApiRequest request) async {
     _setCreateDocumentUIState(UIState.loading());
     Result result = await _repo.getCreateDocumentData(request);
@@ -716,42 +706,23 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-
-  Future<void> resetVehicleVerificationState() async {
-  emit(state.copyWith(
-    vehicleVerificationState: resetUIState<VehicleVerificationSuccess>(state.vehicleVerificationState),
-    verifiedVehicleVahanState: resetUIState<VerifedVehicleVahanData>(state.verifiedVehicleVahanState),
-  ));
-  await Future.delayed(Duration(milliseconds: 100));
-}
- 
-   Future<void> resetLcienseVerificationState() async {
-  emit(state.copyWith(
-    licenseVerficationState: resetUIState<LicenseVerificationSuccess>(state.licenseVerficationState),
-    verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState),
-  ));
-  await Future.delayed(Duration(milliseconds: 100));
-}
-
-
-
-
   // Reset State
-  void resetState(){
-    emit(state.copyWith(
-      logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
-      profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
-     //  verifiedLicenseVahanState: resetUIState<VerifedLicenseVahanData>(state.verifiedLicenseVahanState)
-    ));
+  void resetState() {
+    emit(
+      state.copyWith(
+        logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+        profileDetailUIState: resetUIState<ProfileDetailModel>(
+          state.profileDetailUIState,
+        ),
+      ),
+    );
   }
 
-  void resetLogoutUIState(){
-    emit(state.copyWith(
-      logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
-    ));
+  void resetLogoutUIState() {
+    emit(
+      state.copyWith(
+        logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+      ),
+    );
   }
-
-
-
-
 }

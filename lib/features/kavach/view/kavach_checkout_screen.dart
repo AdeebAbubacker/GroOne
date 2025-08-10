@@ -15,7 +15,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_state.dart';
 import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';

@@ -15,44 +15,73 @@ import 'package:slide_to_act/slide_to_act.dart';
 class DriverLoadHelper {
   DriverLoadHelper._();
 
-  static Widget loadStatusWidget(String status, BuildContext context) {
-     Widget ui({required String text ,required Color textColor, required Color backgroundColor}) {
-      return Container(
-        decoration: commonContainerDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: FittedBox(
-          child: Text(
-            text.capitalize,
-            style: AppTextStyle.body.copyWith(color: textColor),
-          ).paddingSymmetric(horizontal: 10, vertical: 3),
-        ),
-      );
-    }
+  static Widget loadStatusWidget(String status, BuildContext context, {String? statusBgColor, String? statusTxtColor, bool loadOnHold = false}) {
+  Color backgroundColor = loadOnHold
+      ? AppColors.iconRed
+      : DriverLoadHelper.getColor(statusBgColor ?? '');
 
-    switch (status) {
-      case "Confirmed":
-        return ui(text : context.appText.confirmed, textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
-      case "Assigned":
-        return ui(text: context.appText.assigned, textColor: Color(0xff018800), backgroundColor: Color(0xffe6f3e5));
-      case "Loading":
-        return ui(text: context.appText.loading, textColor: Color(0xffFF9800), backgroundColor: Color(0xffffeacc));
-      case "Unloading":
-        return ui(text: context.appText.unloading,textColor: Color(0xff009688), backgroundColor: Color(0xffcceae7));
-      case "In Transit":
-        return ui(text: context.appText.inTransit ,textColor: Color(0xffFF5722), backgroundColor: Color(0xffffddd3));
-      case "POD Dispatch":
-        return ui(text: context.appText.podDispatch, textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
-      case "Completed":
-        return ui(text: context.appText.completed, textColor: Colors.white, backgroundColor: Color(0xff018800));
-      case "loadOnHold":
-        return ui(text: context.appText.unloadingHeld, textColor: Colors.white, backgroundColor: AppColors.iconRed);
-      default:
-        return Container();
-    }
+  Color textColor = loadOnHold
+      ? Colors.white
+      : DriverLoadHelper.getColor(statusTxtColor ?? '');
 
-  }
+
+  return Container(
+    decoration: commonContainerDecoration(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(100),
+    ),
+    child: FittedBox(
+      child: Text(
+        status.capitalize,
+        style: AppTextStyle.body.copyWith(color: textColor),
+      ).paddingSymmetric(horizontal: 10, vertical: 3),
+    ),
+  );
+}
+  static Color getColor(String colorString) {
+   if (colorString.startsWith('#')) {
+     final hex = colorString.replaceFirst('#', '');
+     final fullHex = hex.length == 6 ? 'FF$hex' : hex;
+     return Color(int.parse(fullHex, radix: 16));
+   } else if (colorString.startsWith('rgba')) {
+     final regex = RegExp(r'rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([.\d]*)\)');
+     final match = regex.firstMatch(colorString);
+     if (match != null) {
+       final r = int.parse(match.group(1)!);
+       final g = int.parse(match.group(2)!);
+       final b = int.parse(match.group(3)!);
+       final a = match.group(4)?.isNotEmpty == true
+           ? (double.parse(match.group(4)!) * 255).round()
+           : 255;
+       return Color.fromARGB(a, r, g, b);
+     }
+   }
+
+   // Fallback color (e.g. transparent or default)
+   return Colors.transparent;
+ }
+    // switch (status) {
+    //   case "Confirmed":
+    //     return ui(text : context.appText.confirmed, textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
+    //   case "Assigned":
+    //     return ui(text: context.appText.assigned, textColor: Color(0xff018800), backgroundColor: Color(0xffe6f3e5));
+    //   case "Loading":
+    //     return ui(text: context.appText.loading, textColor: Color(0xffFF9800), backgroundColor: Color(0xffffeacc));
+    //   case "Unloading":
+    //     return ui(text: context.appText.unloading,textColor: Color(0xff009688), backgroundColor: Color(0xffcceae7));
+    //   case "In Transit":
+    //     return ui(text: context.appText.inTransit ,textColor: Color(0xffFF5722), backgroundColor: Color(0xffffddd3));
+    //   case "POD Dispatch":
+    //     return ui(text: context.appText.podDispatch, textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
+    //   case "Completed":
+    //     return ui(text: context.appText.completed, textColor: Colors.white, backgroundColor: Color(0xff018800));
+    //   case "loadOnHold":
+    //     return ui(text: context.appText.unloadingHeld, textColor: Colors.white, backgroundColor: AppColors.iconRed);
+    //   default:
+    //     return Container();
+    // }
+
+  // }
 
 
     static  String getBottomButtonTitle(int statusId){
@@ -374,28 +403,5 @@ class DriverLoadHelper {
         );
     }
   }
-
-   static Color getColor(String colorString) {
-   if (colorString.startsWith('#')) {
-     final hex = colorString.replaceFirst('#', '');
-     final fullHex = hex.length == 6 ? 'FF$hex' : hex;
-     return Color(int.parse(fullHex, radix: 16));
-   } else if (colorString.startsWith('rgba')) {
-     final regex = RegExp(r'rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([.\d]*)\)');
-     final match = regex.firstMatch(colorString);
-     if (match != null) {
-       final r = int.parse(match.group(1)!);
-       final g = int.parse(match.group(2)!);
-       final b = int.parse(match.group(3)!);
-       final a = match.group(4)?.isNotEmpty == true
-           ? (double.parse(match.group(4)!) * 255).round()
-           : 255;
-       return Color.fromARGB(a, r, g, b);
-     }
-   }
-
-   // Fallback color (e.g. transparent or default)
-   return Colors.transparent;
- }
 
 }
