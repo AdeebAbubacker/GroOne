@@ -92,7 +92,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     vpLoadBloc.stream.listen((state) {
       if (!mounted) return;
       if (state is VPLoadStatusLoaded) {
-        // Filter statuses to exclude 2nd and 3rd items (index 1 and 2)
+        // Filter statuses to exclude 2nd and 3rd items (Available and Confirmed)
         final filteredStatuses =
             state.statuses.where((status) {
               final index = state.statuses.indexOf(status);
