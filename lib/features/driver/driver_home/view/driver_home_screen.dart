@@ -163,8 +163,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final currentIndex = _tabController.index;
-
-      // Get dynamic loadStatus id from tabLabels list
       int? loadStatus =
           (currentIndex < tabLabels.length) ? tabLabels[currentIndex].id : null;
 
@@ -181,8 +179,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
   Future<void> _onPullToRefresh() async {
     final currentIndex = _tabController.index;
-
-    // Get dynamic loadStatus id from tabLabels list
     int? loadStatus =
         (currentIndex < tabLabels.length) ? tabLabels[currentIndex].id : null;
     driverLoadBloc.add(
@@ -372,9 +368,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
               child:
                   (_tabController == null || tabLabels.isEmpty)
-                      ? const SizedBox(
-                        height: 48, // same as TabBar height
-                      )
+                      ? const SizedBox(height: 48)
                       : TabBar(
                         controller: _tabController,
                         isScrollable: true,
@@ -531,7 +525,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 
-
   /// Search and Filter
   Widget buildSearchBarAndFilterWidget(BuildContext context) {
     return Row(
@@ -539,6 +532,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         AppSearchBar(
           searchController: searchController,
           onChanged: _onSearchChanged,
+          onClear: () {
+            searchController.clear();
+            commonHideKeyboard(context);
+            final currentIndex = _tabController.index;
+            int? loadStatus =
+                (currentIndex < tabLabels.length)
+                    ? tabLabels[currentIndex].id
+                    : null;
+            driverLoadBloc.add(
+              FetchDriverLoads(forceRefresh: true, loadStatus: loadStatus),
+            );
+          },
         ).expand(),
         8.width,
         AppIconButton(
