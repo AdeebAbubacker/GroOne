@@ -14,9 +14,13 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/l
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_event.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_state.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -39,7 +43,6 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
-
 class DriverHomeScreen extends StatefulWidget {
   final int initialTabIndex;
 
@@ -50,7 +53,7 @@ class DriverHomeScreen extends StatefulWidget {
 }
 
 class _DriverHomeScreenState extends State<DriverHomeScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final searchController = TextEditingController();
   final loadPostedDateController = TextEditingController();
   Timer? _debounce;
@@ -71,49 +74,61 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int? selectedCommodityId;
   final ScrollController _tabScrollController = ScrollController();
   int selectedTabIndex = 0;
-  TabController? _tabController;
-  List<String> getTabLabels(BuildContext context) {
-    return [
-      context.appText.allLoads,
-      context.appText.assigned,
-      context.appText.loading,
-      context.appText.inTransit,
-      context.appText.unloading,
-      context.appText.podDispatch,
-      context.appText.completed,
-    ];
-  }
+  late VpLoadBloc vpLoadBloc;
+  List<LoadStatusResponse> tabLabels = [];
+  late TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    initFunction();
-  }
+    vpLoadBloc = locator<VpLoadBloc>();
+    vpLoadBloc.add(FetchLoadStatus());
+    _tabController = TabController(
+      length: 0,
+      vsync: this,
+      initialIndex: widget.initialTabIndex,
+    );
+    // Listen for load status loaded to update tabs
+    vpLoadBloc.stream.listen((state) {
+      if (!mounted) return;
+      if (state is VPLoadStatusLoaded) {
+        // Filter statuses to exclude 2nd and 3rd items (index 1 and 2)
+        final filteredStatuses =
+            state.statuses.where((status) {
+              final index = state.statuses.indexOf(status);
+              return index != 1 && index != 2;
+            }).toList();
+        _tabController.dispose();
+        _tabController = TabController(
+          length: filteredStatuses.length,
+          vsync: this,
+          initialIndex: widget.initialTabIndex,
+        );
 
-  @override
-  void dispose() {
-    disposeFunction();
-    super.dispose();
-  }
+        _tabController.addListener(() {
+          if (_tabController.indexIsChanging) {
+            _loadDataByTab(index: _tabController.index);
+          }
+        });
 
-  void initFunction() => frameCallback(() async {
+        // Load data for the initial tab after load status list received
+        _loadDataByTab(index: widget.initialTabIndex);
+
+        setState(() {
+          tabLabels = filteredStatuses;
+        });
+      }
+    });
     driverProfileCubit.fetchProfileDetail();
     lpLoadLocator.getTruckType();
     lpLoadLocator.getRouteDetails();
     loadCommodityBloc.add(LoadCommodity());
     setState(() {});
-    await lpHomeBloc.getUserId();
-    setState(() {});
     driverLoadBloc = locator<DriverLoadsBloc>();
-    _tabController = TabController(
-      length: 7,
-      vsync: this,
-      initialIndex: widget.initialTabIndex,
-    );
     WidgetsBinding.instance.addPostFrameCallback((_) {});
-    _tabController!.addListener(() {
-      if (_tabController!.index != selectedTabIndex &&
-          !_tabController!.indexIsChanging) {
+    _tabController.addListener(() {
+      if (_tabController.index != selectedTabIndex &&
+          !_tabController.indexIsChanging) {
         setState(() {
           selectedTabIndex = _tabController!.index;
           clearAllFilterValues();
@@ -130,23 +145,29 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     });
 
     _loadDataByTab(index: widget.initialTabIndex);
-  });
+    initFunction();
+  }
 
-  /// Mapping between tab index and API loadStatus ID
-  static const Map<int, int?> tabIndexToStatusId = {
-    0: null, // All Loads
-    1: 4, // Assigned
-    2: 5, // Loading
-    3: 6, // In Transit
-    4: 7, // Unloading
-    5: 8, // POD Dispatch
-    6: 9, // Completed
-  };
+  @override
+  void dispose() {
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => frameCallback(() async {
+    await lpHomeBloc.getUserId();
+    setState(() {});
+  });
 
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      final loadStatus = tabIndexToStatusId[_tabController!.index];
+      final currentIndex = _tabController.index;
+
+      // Get dynamic loadStatus id from tabLabels list
+      int? loadStatus =
+          (currentIndex < tabLabels.length) ? tabLabels[currentIndex].id : null;
+
       final parsedNumber = int.tryParse(query);
       driverLoadBloc.add(
         FetchDriverLoads(
@@ -159,7 +180,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   }
 
   Future<void> _onPullToRefresh() async {
-    final loadStatus = tabIndexToStatusId[_tabController!.index];
+    final currentIndex = _tabController.index;
+
+    // Get dynamic loadStatus id from tabLabels list
+    int? loadStatus =
+        (currentIndex < tabLabels.length) ? tabLabels[currentIndex].id : null;
     driverLoadBloc.add(
       FetchDriverLoads(forceRefresh: true, loadStatus: loadStatus),
     );
@@ -167,7 +192,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
   void filterPopUp() {
     var selectedTabIndexForFilter = lpLoadLocator.state.selectedTabIndex;
-    var loadStatus = tabIndexToStatusId[selectedTabIndexForFilter];
+    var loadStatus =
+        selectedTabIndexForFilter < tabLabels.length
+            ? tabLabels[selectedTabIndexForFilter].id
+            : null;
     AppDialog.show(
       context,
       child: CommonDialogView(
@@ -316,7 +344,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
   void _loadDataByTab({required int index, bool forceRefresh = false}) {
     final search = searchController.text;
-    final loadStatus = tabIndexToStatusId[index];
+    final loadStatus = index < tabLabels.length ? tabLabels[index].id : null;
     driverLoadBloc.add(
       FetchDriverLoads(
         loadStatus: loadStatus,
@@ -335,8 +363,66 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         child: Column(
           children: [
             // Tab Bar
-            buildTabBarWidget(),
+            Container(
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(25),
+                color: AppColors.lightGreyBackgroundColor,
+              ),
+              padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
+              child:
+                  (_tabController == null || tabLabels.isEmpty)
+                      ? const SizedBox(
+                        height: 48, // same as TabBar height
+                      )
+                      : TabBar(
+                        controller: _tabController,
+                        isScrollable: true,
+                        dividerHeight: 0,
+                        tabAlignment: TabAlignment.center,
+                        indicatorPadding: EdgeInsets.zero,
+                        labelPadding: EdgeInsets.zero,
+                        padding: EdgeInsets.zero,
+                        indicator: const BoxDecoration(),
+                        splashFactory: NoSplash.splashFactory,
+                        tabs: List.generate(tabLabels.length, (index) {
+                          final isSelected = _tabController.index == index;
+                          return Tab(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: commonContainerDecoration(
+                                color:
+                                    isSelected
+                                        ? isSelected == 0
+                                            ? AppColors.primaryColor
+                                            : VpHelper.getColor(
+                                              tabLabels[index].statusBgColor,
+                                            )
+                                        : Colors.transparent,
 
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                tabLabels[index].loadStatus,
+                                style: AppTextStyle.body3.copyWith(
+                                  color:
+                                      isSelected
+                                          ? isSelected == 0
+                                              ? AppColors.white
+                                              : VpHelper.getColor(
+                                                tabLabels[index].statusTxtColor,
+                                              )
+                                          : AppColors.black,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+            ).paddingSymmetric(horizontal: commonSafeAreaPadding),
             //Search Field
             buildSearchBarAndFilterWidget(context),
 
@@ -445,58 +531,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 
-  /// Tab Bar
-  Widget buildTabBarWidget() {
-    if (_tabController == null) {
-      return const SizedBox();
-    }
-    final tabLabels = getTabLabels(context);
-    return Container(
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(25),
-        color: AppColors.lightGreyBackgroundColor,
-      ),
-      padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        controller: _tabScrollController,
-        child: TabBar(
-          controller: _tabController!,
-          isScrollable: true,
-          dividerHeight: 0,
-          tabAlignment: TabAlignment.center,
-          indicatorPadding: EdgeInsets.zero,
-          labelPadding: EdgeInsets.zero,
-          padding: EdgeInsets.zero,
-          indicator: const BoxDecoration(),
-          splashFactory: NoSplash.splashFactory,
-          tabs: List.generate(tabLabels.length, (index) {
-            final isSelected = selectedTabIndex == index;
-            return Tab(
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 8,
-                ),
-                decoration: commonContainerDecoration(
-                  color:
-                      isSelected ? AppColors.primaryColor : Colors.transparent,
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Text(
-                  tabLabels[index],
-                  style: AppTextStyle.body3.copyWith(
-                    color: isSelected ? AppColors.white : AppColors.black,
-                  ),
-                ),
-              ),
-            );
-          }),
-        ),
-      ),
-    ).paddingOnly(top: 15, right: 15, left: 15);
-  }
 
   /// Search and Filter
   Widget buildSearchBarAndFilterWidget(BuildContext context) {
@@ -525,7 +559,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     if (_tabController == null) {
       return const SizedBox();
     }
-    final tabLabels = getTabLabels(context);
     return Expanded(
       child: TabBarView(
         controller: _tabController,
