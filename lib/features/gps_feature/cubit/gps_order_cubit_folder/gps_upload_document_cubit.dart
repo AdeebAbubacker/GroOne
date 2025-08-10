@@ -11,7 +11,7 @@ import 'package:gro_one_app/features/login/repository/user_information_repositor
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 
-import '../../../profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'gps_upload_document_state.dart';
 
 

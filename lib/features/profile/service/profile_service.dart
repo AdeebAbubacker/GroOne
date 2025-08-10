@@ -553,49 +553,8 @@ class ProfileService {
   }
   
 
-   /// fetch check vehicle excists or not
-
-  Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
-    try {
-      final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
-      final response = await _apiService.get(url);
-
-      if (response is Success) {
-        print("-----------${response.toString()}");
-        final loads = VehicleVerificationSuccess.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-         print("-----------${response.toString()}");
-        return Error(response.type);
-      } else {
-         print("-----------${response.toString()}");
-        return Error(GenericError());
-      }
-    } catch (e) {
-       print("-----------${e.toString()}");
-      return Error(DeserializationError());
-    }
-  }
 
 
-     /// fetch check license excists or not
-
- Future<Result<LicenseVerificationSuccess>> fetchCheckDrivingLicenseExcists({required String licenseId}) async {
-    try {
-      final url = '${ApiUrls.checkLicenseNumber}${licenseId}';
-      final response = await _apiService.get(url);
-      if (response is Success) {
-        final loads = LicenseVerificationSuccess.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch (e) {
-      return Error(DeserializationError());
-    }
-  }
   Future<Result<KavachVehicleDocumentUploadModel>> uploadLicenseData(File file) async {
     try {
       // Get user ID from secure storage
@@ -774,34 +733,11 @@ class ProfileService {
     }
   }
 
-  /// Verify Vehicle Vahan
-  Future<Result<VerifedVehicleVahanData>> verifyVehicelVahan({required VehicleVahanRequest request}) async {
-    try {
-      final url = ApiUrls.vehicleVahanVerfification;
-      final customHeaders = {
-        "Accept": "application/json",
-        "X-API-Key": "5f522b06263423e4cab5eb45d27f2be4",
-        "X-Application-UDID": "52e3dcc8-52ef-4f52-8756-3a06996757cd",
-        "Content-Type": "application/json",
-      };
-      final response = await _apiService.post(url, body: request.toJson(),customHeaders: customHeaders,);
-      if (response is Success) {
-        final loads = VerifedVehicleVahanData.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch (e) {
-      return Error(DeserializationError());
-    }
-  }
- 
+
   /// fetch blood groups
 Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups() async {
   try {
-    final url = "https://gro-devapi.letsgro.co/customer/api/v1/blood-group"; 
+    final url = ApiUrls.getBloodGroup;  
     final response = await _apiService.get(
       url
     );
@@ -825,7 +761,7 @@ Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups() async {
  /// fetch License Categories
 Future<Result<List<LicenseCategoryResponseModel>>> fetchLicenseCategory() async {
   try {
-    final url = "https://gro-devapi.letsgro.co/customer/api/v1/license-category"; 
+    final url = ApiUrls.getLicenseCategory; 
     final response = await _apiService.get(
       url
     );
@@ -864,4 +800,87 @@ Future<Result<List<LicenseCategoryResponseModel>>> fetchLicenseCategory() async 
   }
 
 
+
+Future<Result<Map<String, dynamic>>> fetchVehicleData(String vehicleNumber) async {
+    try {
+      // === Step 1: Hit API-2 (Check if vehicle exists) ===
+      print('=== Step 1: Hit API-2 (Check if vehicle exists) ===');
+      final url = '${ApiUrls.checkVehicleNumber}/$vehicleNumber';
+
+      final api2Response = await _apiService.get(
+        url,
+      );
+
+      final api2Data = api2Response is Success ? api2Response.value['data'] : null;
+
+      if (api2Data != null && api2Data != false) {
+        return Success(api2Data);
+      }
+      // === Step 2: Fallback to API-1 ===
+      print('=== Step 2: Fallback to API-1 ===');
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+
+      final api1Response = await _apiService.post(
+        ApiUrls.kavachVehicleVerification,
+        body: {"vehicle_number": vehicleNumber},
+        customHeaders: customHeaders,
+      );
+
+      if (api1Response is Success && api1Response.value['data'] != null && api1Response.value['success'] != false) {
+        return Success(api1Response.value['data']);
+      }
+
+      return Error(GenericError());
+    } catch (e) {
+      return Error(GenericError());
+    }
+  }
+  
+  Future<Result<Map<String, dynamic>>> fetchLicenseExcistence({required LicenseVahanRequest request}) async {
+    try {
+      // === Step 1: Hit API-2 (Check if License exists) ===
+      print('=== Step 1: Hit API-2 (Check if License exists) ===');
+      final url = '${ApiUrls.checkLicenseNumber}${request.licenseNumber}';
+
+      final api2Response = await _apiService.get(
+        url,
+      );
+
+      final api2Data = api2Response is Success ? api2Response.value['data'] : null;
+
+      if (api2Data != null && api2Data != false) {
+        return Success(api2Data);
+      }
+
+      // === Step 2: Fallback to API-1 ===
+      print('=== Step 2: Fallback to API-1 ===');
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+      final api1Response = await _apiService.post(
+       ApiUrls.licenseVahanVerfification,
+        body:  request.toJson(),
+        customHeaders: customHeaders,
+      );
+
+      if (api1Response is Success && api1Response.value['data'] != null  && api1Response.value['success'] != false) {
+        return Success(api1Response.value['data']);
+      }
+
+      return Error(GenericError());
+    } catch (e) {
+      return Error(GenericError());
+    }
+  }
+
 }
+
+

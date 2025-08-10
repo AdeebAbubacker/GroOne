@@ -84,7 +84,7 @@ class DriverProfileService {
     try {
       final url = ApiUrls.logout;
       final customerId = await _userInformationRepository.getUserID();
-      final result = await _apiService.post("https://gro-devapi.letsgro.co/customer/api/v1/auth/logout", body: { "customerId" : customerId ?? "","isDriver": true});
+      final result = await _apiService.post(url, body: { "customerId" : customerId ?? "","isDriver": true});
       if (result is Success) {
         final logOutModel= DriverlogoutModel.fromJson(result.value);
         return  Success(logOutModel);

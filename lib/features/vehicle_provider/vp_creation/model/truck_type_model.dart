@@ -1,19 +1,19 @@
 class TruckTypeModel {
   TruckTypeModel({
-    required this.id,
-    required this.type,
-    required this.subType,
-    required this.iconUrl,
-    required this.status,
-    required this.createdAt,
-    required this.deletedAt,
+    this.id,
+    this.type,
+    this.subType,
+    this.iconUrl,
+    this.status,
+    this.createdAt,
+    this.deletedAt,
   });
 
-  final int id;
-  final String type;
-  final String subType;
+  final int? id;
+  final String? type;
+  final String? subType;
   final dynamic iconUrl;
-  final int status;
+  final int? status;
   final DateTime? createdAt;
   final dynamic deletedAt;
 
@@ -21,10 +21,10 @@ class TruckTypeModel {
     int? id,
     String? type,
     String? subType,
-    dynamic? iconUrl,
+    dynamic iconUrl,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return TruckTypeModel(
       id: id ?? this.id,
@@ -37,16 +37,15 @@ class TruckTypeModel {
     );
   }
 
-  factory TruckTypeModel.fromJson(Map<String, dynamic> json){
+  factory TruckTypeModel.fromJson(Map<String, dynamic> json) {
     return TruckTypeModel(
       id: json["id"] ?? 0,
       type: json["type"] ?? "",
       subType: json["subType"] ?? "",
-      iconUrl: json["iconUrl"],
+      iconUrl: json["iconUrl"] ?? "",
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-      deletedAt: json["deletedAt"],
+      deletedAt: json["deletedAt"] ?? "",
     );
   }
-
 }

@@ -208,11 +208,13 @@ class ApiUrls {
   /// Tracking
   static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 
- /// Driver
- static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
- static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
- static final String driverLoadById = "$_baseUrl$_loadDiscovery$_path$_v1/load/driver/";
-
+  /// Driver
+  static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
+  static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
+  static final String driverLoadById = "$_baseUrl$_loadDiscovery$_path$_v1/load/driver/";
+  static final String getBloodGroup =  "$_fetchUrl$_customer$_path$_v1/blood-group";
+  static final String getLicenseCategory = "$_fetchUrl$_customer$_path$_v1/license-category";
+ 
 
 
 

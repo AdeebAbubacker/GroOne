@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';

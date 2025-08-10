@@ -21,7 +21,7 @@ import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';

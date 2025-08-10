@@ -8,7 +8,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/settings_response.dart';
 import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
