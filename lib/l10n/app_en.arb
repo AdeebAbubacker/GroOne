@@ -1064,5 +1064,10 @@
   "pleaseEnterPinCode" : "Please enter pincode",
   "pleaseEnterValidPinCode" : "Please enter a valid pincode",
   "searchTruckTypes" : "Search truck types",
-  "searchRoutes" : "Search routes..."
+  "searchRoutes" : "Search routes...",
+  "notifications":"Notifications",
+  "all":"All",
+  "unread":"Unread",
+  "gps":"GPS"
+
 }
