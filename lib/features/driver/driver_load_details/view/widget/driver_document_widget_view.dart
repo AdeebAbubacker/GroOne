@@ -50,8 +50,8 @@ class DriverDocumentWidgetView extends StatelessWidget {
           // Show preview widget for first or main document
           PreviewDocumentWidget(
             showViewMoreButton: documentEntity?.documentType == navigatorKey.currentState?.context.appText.uploadOtherDocuments,
-            showAddMoreButton: driverLoadDetailsCubit?.canAddMoreOtherDocuments() ?? false,
-            showDeleteIcon: driverLoadDetailsCubit?.state.loadStatus == LoadStatus.loading,
+            showAddMoreButton:    documentEntity?.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments && (driverLoadDetailsCubit?.canAddMoreOtherDocuments()??false) && driverLoadDetailsCubit?.state.loadStatus==LoadStatus.loading,
+            showDeleteIcon:  driverLoadDetailsCubit?.state.loadStatus==LoadStatus.unloading && documentEntity?.documentType== navigatorKey.currentState?.context.appText.proofOfDelivery || driverLoadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments,
             showDeleteLoader: documentEntity?.deleteLoading,
             onClickDeleteIcon: () {
               // Delete first document; extend if needed to delete specific doc
