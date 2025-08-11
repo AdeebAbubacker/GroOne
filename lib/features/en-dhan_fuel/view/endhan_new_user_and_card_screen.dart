@@ -143,6 +143,10 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
       dismissible: true,
       child: CommonDialogView(
         hideCloseButton: true,
+        onTapSingleButton: () {
+          Navigator.of(context).pop();
+        },
+        onSingleButtonText: context.appText.ok,
         child: Column(
           children: [
             // Orange circular icon with warning triangle
@@ -187,10 +191,6 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             ),
           ],
         ),
-        onTapSingleButton: () {
-          Navigator.of(context).pop();
-        },
-        onSingleButtonText: context.appText.ok,
       ),
     );
   }
@@ -659,6 +659,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                           panPrefill: document?.pan,
                           isAadhaarVerified: document?.aadhar?.isNotEmpty ?? false, // or true if you add logic for it
                           isPanVerified: document?.panImage != null && document!.panImage!.isNotEmpty,
+                          showPanUpload: document?.pan?.isEmpty ?? true,
                           // panPrefill: 'AXSPA8900K',
                           // isPanVerified: true,
                         ),

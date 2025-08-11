@@ -108,7 +108,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             return GpsOrderSummaryRequestItem(
               productId: int.parse(product.id),
               quantity: widget.quantities[product.id] ?? 0,
-              discount:   0.0, // Default discount, can be updated based on business logic
+              discount: 0.0,
+              // Default discount, can be updated based on business logic
               state: state,
               gstId: gstId,
             );
@@ -153,32 +154,39 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       String? companyName = await userInfoRepo.getUsername();
       String? contactNumber = await userInfoRepo.getUserMobileNumber();
       String? blueId = await userInfoRepo.getBlueID();
-      
+
       // If session data is not available, fetch from profile
       if (companyName == null || companyName.isEmpty) {
         await profileCubit.fetchProfileDetail();
         final profileState = profileCubit.state;
-        
+
         if (profileState.profileDetailUIState?.data?.customer != null) {
           final customer = profileState.profileDetailUIState!.data!.customer!;
-          companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
+          companyName =
+              customer.companyName.isNotEmpty
+                  ? customer.companyName
+                  : customer.customerName;
           contactNumber = customer.mobileNumber;
           blueId = customer.blueId?.toString() ?? "";
         }
       }
-      
+
       // Fallback to hardcoded values if still not available
       return {
-        "companyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
-        "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
-        "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+        "companyName":
+            companyName?.isNotEmpty == true
+                ? companyName!
+                : "ABC Logistics Pvt Ltd",
+        "contactNumber":
+            contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
+        "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456",
       };
     } catch (e) {
       // Return hardcoded values as fallback
       return {
         "companyName": "ABC Logistics Pvt Ltd",
         "contactNumber": "9876543210",
-        "blueMembershipId": "BLUE123456"
+        "blueMembershipId": "BLUE123456",
       };
     }
   }
@@ -202,7 +210,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           }
 
           // Show success dialog and handle navigation
-          _showSuccessDialogAndNavigate(context, context.appText.orderPlacedSuccessfully);
+          _showSuccessDialogAndNavigate(
+            context,
+            context.appText.orderPlacedSuccessfully,
+          );
           // showSuccessDialog(
           //   context,
           //   text: 'Order placed successfully',
@@ -237,7 +248,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           if (Navigator.canPop(context)) {
             Navigator.of(context).pop();
           }
-          
+
           // Navigate to payment screen
           final result = await Navigator.of(context).push(
             commonRoute(
@@ -257,7 +268,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           if (Navigator.canPop(context)) {
             Navigator.of(context).pop();
           }
-          ToastMessages.error(message: "Failed to initiate payment: ${state.message}");
+          ToastMessages.error(
+            message: "Failed to initiate payment: ${state.message}",
+          );
         }
 
         // Handle order summary states
@@ -312,10 +325,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.selectedVehicleNumbers.length == 1 
-                        ? "Vehicle Detail" 
+                    widget.selectedVehicleNumbers.length == 1
+                        ? "Vehicle Detail"
                         : context.appText.vehicleDetails,
-                    style: AppTextStyle.h5
+                    style: AppTextStyle.h5,
                   ),
                   SizedBox(height: 5),
                   Text(
@@ -359,10 +372,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.products.length == 1 
-                  ? "Product Detail" 
-                  : context.appText.paymentDetails, 
-              style: AppTextStyle.h4
+              widget.products.length == 1
+                  ? "Product Detail"
+                  : context.appText.paymentDetails,
+              style: AppTextStyle.h4,
             ),
             10.height,
             Center(child: CircularProgressIndicator()),
@@ -379,10 +392,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.products.length == 1 
-                  ? "Product Detail" 
-                  : context.appText.paymentDetails, 
-              style: AppTextStyle.h4
+              widget.products.length == 1
+                  ? "Product Detail"
+                  : context.appText.paymentDetails,
+              style: AppTextStyle.h4,
             ),
             10.height,
             Text(
@@ -401,10 +414,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.products.length == 1 
-                ? "Product Detail" 
-                : context.appText.paymentDetails, 
-            style: AppTextStyle.h4
+            widget.products.length == 1
+                ? "Product Detail"
+                : context.appText.paymentDetails,
+            style: AppTextStyle.h4,
           ),
           10.height,
           ...orderSummary!.data.summary.map((summaryItem) {
@@ -437,13 +450,31 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   context.appText.qty,
                   summaryItem.quantity.toString().padLeft(2, '0'),
                 ),
-                _buildDetailRow(context.appText.ratePerUnit, "₹${KavachHelper.formatCurrency(summaryItem.unitPrice.toStringAsFixed(2))}",),
+                _buildDetailRow(
+                  context.appText.ratePerUnit,
+                  "₹${KavachHelper.formatCurrency(summaryItem.unitPrice.toStringAsFixed(2))}",
+                ),
                 if (summaryItem.discount > 0)
-                  _buildDetailRow("Discount", "₹${KavachHelper.formatCurrency(summaryItem.discount.toStringAsFixed(2))}",),
-                _buildDetailRow(context.appText.igst, "₹${KavachHelper.formatCurrency(summaryItem.igst.toStringAsFixed(2))}",),
-                _buildDetailRow(context.appText.cgst, "₹${KavachHelper.formatCurrency(summaryItem.cgst.toStringAsFixed(2))}",),
-                _buildDetailRow(context.appText.sgst, "₹${KavachHelper.formatCurrency(summaryItem.sgst.toStringAsFixed(2))}",),
-                _buildDetailRow(context.appText.totalGst, "₹${KavachHelper.formatCurrency(summaryItem.totalGst.toStringAsFixed(2))}",),
+                  _buildDetailRow(
+                    "Discount",
+                    "₹${KavachHelper.formatCurrency(summaryItem.discount.toStringAsFixed(2))}",
+                  ),
+                _buildDetailRow(
+                  context.appText.igst,
+                  "₹${KavachHelper.formatCurrency(summaryItem.igst.toStringAsFixed(2))}",
+                ),
+                _buildDetailRow(
+                  context.appText.cgst,
+                  "₹${KavachHelper.formatCurrency(summaryItem.cgst.toStringAsFixed(2))}",
+                ),
+                _buildDetailRow(
+                  context.appText.sgst,
+                  "₹${KavachHelper.formatCurrency(summaryItem.sgst.toStringAsFixed(2))}",
+                ),
+                _buildDetailRow(
+                  context.appText.totalGst,
+                  "₹${KavachHelper.formatCurrency(summaryItem.totalGst.toStringAsFixed(2))}",
+                ),
                 5.height,
                 DottedLine(
                   direction: Axis.horizontal,
@@ -453,7 +484,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   dashColor: AppColors.greyIconColor,
                 ),
                 5.height,
-                _buildDetailRow(context.appText.totalAmount, "₹${KavachHelper.formatCurrency(summaryItem.totalAmount)}",),
+                _buildDetailRow(
+                  context.appText.totalAmount,
+                  "₹${KavachHelper.formatCurrency(summaryItem.totalAmount)}",
+                ),
                 15.height,
               ],
             );
@@ -484,7 +518,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.appText.total, style: AppTextStyle.blackColor14w400),
-              Text('₹${KavachHelper.formatCurrency(totalAmount.round())}', style: AppTextStyle.primaryColor16w900),
+              Text(
+                '₹${KavachHelper.formatCurrency(totalAmount.round())}',
+                style: AppTextStyle.primaryColor16w900,
+              ),
             ],
           ),
           15.width,
@@ -492,18 +529,27 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             onPressed: () async {
               // Get customer information
               final customerInfo = await getCustomerInfo();
+              final userRepository = locator<UserInformationRepository>();
+              final customerId = await userRepository.getUserID();
 
               // Create payment request using the order ID from checkout
-              final paymentRequest = KavachInitiatePaymentRequest(
-                orderId: "ORDER_${DateTime.now().millisecondsSinceEpoch}", // This should be the actual order ID from the order creation
-                amount: totalAmount.toInt(),
-                customerName: customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
-                customerEmail: "customer@example.com", // This should be fetched from user profile
-                customerMobile: customerInfo["contactNumber"] ?? "9876543210",
-                customerCity: widget.billingAddress.city,
-              );
+              if (customerId != null && customerId.isNotEmpty) {
+                final paymentRequest = KavachInitiatePaymentRequest(
+                  orderId: "ORDER_${DateTime.now().millisecondsSinceEpoch}",
+                  // This should be the actual order ID from the order creation
+                  amount: totalAmount.toInt(),
+                  customerName:
+                      customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
+                  customerEmail: "customer@example.com",
+                  // This should be fetched from user profile
+                  customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                  customerCity: widget.billingAddress.city,
+                  customerId: '',
+                  merchantReferenceNo: 'fleet',
+                );
 
-              gpsOrderCubit.initiatePayment(paymentRequest);
+                gpsOrderCubit.initiatePayment(paymentRequest);
+              }
             },
             title: context.appText.placeOrder,
             style: AppButtonStyle.primary,
@@ -567,7 +613,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
       // Get real customer information
       final customerInfoMap = await getCustomerInfo();
-      
+
       // Create customer info
       final customerInfo = GpsCustomerInfo(
         companyName: customerInfoMap["companyName"] ?? "ABC Logistics Pvt Ltd",
@@ -578,16 +624,15 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       // Determine if referral code is provided and extract employee details
       String? createdEmpId;
       int createdEmpUserId = 1234; // Default value
-      
+
       if (widget.orderReferencedBy.isNotEmpty) {
         // If referral code is provided, use it as createdEmpId
         createdEmpId = widget.orderReferencedBy;
-        // For now, using a default user ID. In a real implementation, 
+        // For now, using a default user ID. In a real implementation,
         // you would fetch the employee details from the referral code
-        createdEmpUserId = 52864; // This should be fetched based on referral code
+        createdEmpUserId =
+            52864; // This should be fetched based on referral code
       }
-
-
 
       // Create billing address
       final billingAddressParts = _parseAddress(widget.billingAddress.addr1);
@@ -659,17 +704,23 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       // Create the order request
       final request = GpsOrderRequest(
         orderSource: "MOBILE",
-        isOrderPaid: true, // Always true as per documentation
+        isOrderPaid: true,
+        // Always true as per documentation
         customerId: customerId,
         createdEmpUserId: createdEmpUserId,
-        createdEmpId: createdEmpId, // Will be null if no referral code
-        orderReferencedBy: widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
-        totalPrice:
-            orderSummary?.data.grandTotal ??
-            _fallbackTotalAmount, // Use the API's grandTotal or fallback
+        createdEmpId: createdEmpId,
+        // Will be null if no referral code
+        orderReferencedBy:
+            widget.orderReferencedBy.isNotEmpty
+                ? widget.orderReferencedBy
+                : "DIRECT",
+        totalPrice: orderSummary?.data.grandTotal ?? _fallbackTotalAmount,
+        // Use the API's grandTotal or fallback
         categoryId: 1,
-        orderTypeId: 1, // Added orderTypeId - typically 1 for product orders
-        teamId: 1, // Added teamId as requested
+        orderTypeId: 1,
+        // Added orderTypeId - typically 1 for product orders
+        teamId: 1,
+        // Added teamId as requested
         shippingPersonIncharge: widget.shippingPersonInCharge,
         shippingPersonContactNo: widget.shippingPersonContactNo,
         customerInfo: customerInfo,
@@ -704,11 +755,11 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     ).paddingSymmetric(vertical: 5);
   }
 
-   /// Show success dialog and handle navigation with proper context management
+  /// Show success dialog and handle navigation with proper context management
   void _showSuccessDialogAndNavigate(BuildContext context, String message) {
     // Store the current context before showing dialog
     final currentContext = context;
-    
+
     AppDialog.show(
       currentContext,
       child: SuccessDialogView(
@@ -716,12 +767,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         onContinue: () {
           // Close the dialog first
           Navigator.of(currentContext).pop();
-          
+
           // Use a post-frame callback to ensure dialog is fully closed
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             // Add a small delay to ensure dialog is fully closed
             await Future.delayed(Duration(milliseconds: 100));
-            
+
             if (currentContext.mounted) {
               try {
                 // Try multiple navigation approaches
@@ -738,7 +789,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   } catch (navigatorError) {
                     try {
                       Navigator.of(currentContext).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (context) => GpsHomeScreen()),
+                        MaterialPageRoute(
+                          builder: (context) => GpsHomeScreen(),
+                        ),
                         (route) => false,
                       );
                     } catch (pushError) {
@@ -767,17 +820,27 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     if (cleanAddr1.endsWith(',')) {
       cleanAddr1 = cleanAddr1.substring(0, cleanAddr1.length - 1);
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(address.addressName,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text(cleanAddr1,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text("${address.city}, ${address.state}",style: AppTextStyle.textDarkGreyColor14w500,),
-        Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500),
+        Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
+        Text(cleanAddr1, style: AppTextStyle.textDarkGreyColor14w500),
+        Text(
+          "${address.city}, ${address.state}",
+          style: AppTextStyle.textDarkGreyColor14w500,
+        ),
+        Text(
+          "${address.country}- ${address.pincode}",
+          style: AppTextStyle.textDarkGreyColor14w500,
+        ),
         Visibility(
-            visible: address.gstin!=null && address.gstin!.isNotEmpty,
-            child: Text("${context.appText.gstKavach} - ${address.gstin}",style: AppTextStyle.textDarkGreyColor14w500,)),
+          visible: address.gstin != null && address.gstin!.isNotEmpty,
+          child: Text(
+            "${context.appText.gstKavach} - ${address.gstin}",
+            style: AppTextStyle.textDarkGreyColor14w500,
+          ),
+        ),
       ],
     );
   }

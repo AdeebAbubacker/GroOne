@@ -107,12 +107,12 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
       String? companyName = await userInfoRepo.getUsername();
       String? contactNumber = await userInfoRepo.getUserMobileNumber();
       String? blueId = await userInfoRepo.getBlueID();
-      
+
       // If session data is not available, fetch from profile
       if (companyName == null || companyName.isEmpty) {
         await profileCubit.fetchProfileDetail();
         final profileState = profileCubit.state;
-        
+
         if (profileState.profileDetailUIState?.data?.customer != null) {
           final customer = profileState.profileDetailUIState!.data!.customer!;
           companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
@@ -120,7 +120,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           blueId = customer.blueId?.toString() ?? "";
         }
       }
-      
+
       // Fallback to hardcoded values if still not available
       return {
         "CompanyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
@@ -149,13 +149,19 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             builder: (_) => const Center(child: CircularProgressIndicator()),
           );
         } else {
-          if (Navigator.canPop(context)) Navigator.of(context).pop();
+          if (Navigator.canPop(context)) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (Navigator.canPop(context)) {
+                Navigator.pop(context);
+              }
+            });
+          }
         }
 
         if (state is KavachPaymentSuccess) {
           // Add a small delay to ensure the dialog is fully dismissed before navigation
           await Future.delayed(const Duration(milliseconds: 100));
-          
+
           // Check if the context is still mounted before navigating
           if (context.mounted) {
             // Navigate to payment screen
@@ -182,14 +188,14 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                     // Clear billing address bloc
                     final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
                     billingBloc.add(ClearKavachBillingAddress());
-                    
+
                     // Clear shipping address bloc
                     final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
                     shippingBloc.add(ClearKavachShippingAddress());
                   } catch (e) {
                     // Handle any errors if blocs are not available
                   }
-                  
+
                   Navigator.of(context).popUntil((route) {
                     if (route.settings.name == 'KavachOrderListScreen') {
                       if (route.navigator != null && route.navigator!.context.mounted) {
@@ -203,8 +209,10 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               },);
             }
           }
-        } else if (state is KavachPaymentFailure) {
-          ToastMessages.error(message: "Failed to initiate payment: ${state.message}");
+        }
+        if (state is KavachPaymentFailure) {
+          await Future.delayed(const Duration(milliseconds: 100));
+          ToastMessages.error(message: "Failed to initiate payment");
         }
       },
       child: Scaffold(
@@ -242,8 +250,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.selectedVehicleNumbers.length == 1 
-                        ? "Vehicle Detail" 
+                    widget.selectedVehicleNumbers.length == 1
+                        ? "Vehicle Detail"
                         : context.appText.vehicleDetails,
                     style: AppTextStyle.h5,
                   ),
@@ -264,7 +272,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                 
+
                   Text(context.appText.billingAddress, style: AppTextStyle.h5,),
                   10.height,
                   _buildAddressCard(widget.billingAddress),
@@ -290,9 +298,9 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.products.length == 1 
-                ? "Product Detail" 
-                : context.appText.paymentDetails, 
+            widget.products.length == 1
+                ? "Product Detail"
+                : context.appText.paymentDetails,
             style: AppTextStyle.h4
           ),
           10.height,
@@ -378,18 +386,24 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             onPressed: () async {
               // Get customer information
               final customerInfo = await getCustomerInfo();
+              final userRepository = locator<UserInformationRepository>();
+              final customerId = await userRepository.getUserID();
 
               // Create payment request using the order ID from checkout
-              final paymentRequest = KavachInitiatePaymentRequest(
-                orderId: widget.orderId ?? "ORDER_${DateTime.now().millisecondsSinceEpoch}",
-                amount: totalAmount.toInt(),
-                customerName: customerInfo["CompanyName"] ?? "ABC Logistics Pvt Ltd",
-                customerEmail: "customer@example.com", // This should be fetched from user profile
-                customerMobile: customerInfo["contactNumber"] ?? "9876543210",
-                customerCity: widget.billingAddress.city,
-              );
+              if (customerId != null && customerId.isNotEmpty) {
+                final paymentRequest = KavachInitiatePaymentRequest(
+                                orderId: widget.orderId ?? "ORDER_${DateTime.now().millisecondsSinceEpoch}",
+                                amount: totalAmount.toInt(),
+                                customerName: customerInfo["CompanyName"] ?? "ABC Logistics Pvt Ltd",
+                                customerEmail: "customer@example.com", // This should be fetched from user profile
+                                customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                                customerCity: widget.billingAddress.city,
+                                customerId: customerId,
+                                merchantReferenceNo: 'fleet'
+                              );
 
-              kavachOrderBloc.add(KavachInitiatePayment(paymentRequest));
+                kavachOrderBloc.add(KavachInitiatePayment(paymentRequest));
+              }
             },
             title: context.appText.placeOrder,
             style: AppButtonStyle.primary,
@@ -405,7 +419,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     if (cleanAddr1.endsWith(',')) {
       cleanAddr1 = cleanAddr1.substring(0, cleanAddr1.length - 1);
     }
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
