@@ -101,7 +101,7 @@ class InternalServerError extends ErrorType {
 
   factory InternalServerError.fromApiResponse(Map<String, dynamic> response) {
     return InternalServerError(
-      message: response['message'] ?? "",
+      message: appContext.appText.unableToCompleteUrReq,
     );
   }
 }

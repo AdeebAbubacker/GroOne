@@ -203,7 +203,7 @@ class ApiUrls {
   static final String getAllUsers = "$_fetchUrl/user/api/v1/users/allUsers";
 
   /// Google Map
-  static String  googleDirectionApi = "https://gro-devapi.letsgro.co/ratediscovery/api/v1/map-location/directions";
+  static String  googleDirectionApi = "$_baseUrl/ratediscovery/api/v1/map-location/directions";
 
   /// Tracking
   static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";

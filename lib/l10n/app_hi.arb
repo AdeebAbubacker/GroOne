@@ -1053,7 +1053,8 @@
   "pleaseEnterPinCode": "कृपया पिनकोड दर्ज करें",
   "pleaseEnterValidPinCode": "कृपया मान्य पिनकोड दर्ज करें",
   "searchTruckTypes": "ट्रक प्रकार खोजें",
-  "searchRoutes": "रूट खोजें..."
+  "searchRoutes": "रूट खोजें...",
+  "unableToCompleteUrReq" : "आपका अनुरोध पूरा नहीं हो सका। कृपया रिफ्रेश करें या बाद में पुनः प्रयास करें।"
 
 
 
