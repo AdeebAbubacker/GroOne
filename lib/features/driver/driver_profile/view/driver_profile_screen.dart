@@ -65,7 +65,9 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
     appVersion = await appVersionInfo();
     setState(() {});
   });
-
+  void disposeFunction() => frameCallback(() {
+    driverProfileCubit.resetLogoutUIState();
+  });
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -191,8 +193,8 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
               final status = state.logoutUIState?.status;
 
               if (status == Status.SUCCESS) {
-  
-                context.go(AppRouteName.chooseLanguage);
+                disposeFunction();
+               context.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
               }
 
               if (status == Status.ERROR) {

@@ -159,23 +159,9 @@ class ProfileRepository {
     }
   }
  
-   /// fetch vehicle verfifcation
-  Future<Result<VehicleVerificationSuccess>> fetchVehicleVerification({required String vehicleId}) async {
-    try {
-      return await _profileService.fetchCheckVehicleExcists(vehcileId: vehicleId);
-    } catch (e) {
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
 
-  /// fetch license verfifcation
-  Future<Result<LicenseVerificationSuccess>> fetchLicenseVerification({required String licenseNo}) async {
-    try {
-      return await _profileService.fetchCheckDrivingLicenseExcists(licenseId: licenseNo);
-    } catch (e) {
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
+
+
     /// create new vehicle
   Future<Result<VehicleNewModel>> createVehicle({required VehicleRequest request}) async {
     try {
@@ -336,14 +322,7 @@ Future<Result<bool>> deleteVehicle({
     }
   } 
 
-  /// Verify Vehcile vahan
-  Future<Result<VerifedVehicleVahanData>> verifyVehcileVahan({required VehicleVahanRequest request}) async {
-    try {
-      return await _profileService.verifyVehicelVahan(request: request);
-    } catch (e) {
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  } 
+
 
   /// LogOut Repo
   Future<Result<LogOutModel>> getLogOutData() async {
@@ -447,6 +426,25 @@ Future<Result<bool>> deleteVehicle({
       return await _profileService.fetchLicenseCategory();
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+    Future<Result<Map<String, dynamic>>> fetchVehicleData(String vehicleNumber) async {
+    try {
+      return await _profileService.fetchVehicleData(vehicleNumber);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch vehicle data in repository", e);
+      return Error(GenericError());
+    }
+  }
+
+     Future<Result<Map<String, dynamic>>> fetchLicenseData({required LicenseVahanRequest  licensereq}) async {
+    try {
+      return await _profileService.fetchLicenseExcistence(request: licensereq);
+    } catch (e) {
+      CustomLog.error(this, "Failed to fetch vehicle data in repository", e);
+      return Error(GenericError());
     }
   }
 }

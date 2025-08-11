@@ -24,7 +24,7 @@ class DriverLoadService {
   }) async {
     try {
        String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
-       if (status != null && status != 3) {
+       if (status != null && status > 3) {
       url += "&loadStatus=$status";
       }
       if (search.isNotEmpty) {

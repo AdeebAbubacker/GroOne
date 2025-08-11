@@ -26,153 +26,172 @@ import '../../../../../utils/common_functions.dart';
 import '../../../../../utils/common_widgets.dart';
 import '../../../../../utils/constant_variables.dart';
 
-class DriverLoadWidget extends StatefulWidget {  
+class DriverLoadWidget extends StatefulWidget {
   final void Function()? onClickAssignDriver;
   final DriverLoadDetails driverLoadDetails;
-  const DriverLoadWidget({super.key, required this.onClickAssignDriver,required this.driverLoadDetails});
-
+  const DriverLoadWidget({
+    super.key,
+    required this.onClickAssignDriver,
+    required this.driverLoadDetails,
+  });
 
   @override
   State<DriverLoadWidget> createState() => _DriverLoadWidgetState();
 }
 
 class _DriverLoadWidgetState extends State<DriverLoadWidget> {
-@override
-void initState() {
-  super.initState();
-  _validateButtonStateOnInit();
-}
-bool _isButtonEnabled = true; 
-
- // Button Status
-bool _shouldEnableButton(DriverLoadDetails? load) {
-  if (load == null) return false;
-
-  final currentStatus = load.loadStatusId ?? 0;
-  final documents = load.loadDocument ?? [];
-
-  // ✅ Status 4: Check if Memo document is uploaded
-  if (currentStatus == 4) {
-    final memoUploaded = load.loadMemoDetails != null;
-    return memoUploaded;
+  @override
+  void initState() {
+    super.initState();
+    _validateButtonStateOnInit();
   }
 
-  if (currentStatus == 5) {
-   // final isConsentGiven = load.driverConsent == 1;
+  bool _isButtonEnabled = true;
 
-    final nestedDocuments = load.loadDocument ?? [];
-    //final documents = nestedDocuments.expand((list) => list).toList();
+  // Button Status
+  bool _shouldEnableButton(DriverLoadDetails? load) {
+    if (load == null) return false;
 
-    // normalized lower-case required docs exactly matching API string values
-    const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
+    final currentStatus = load.loadStatusId ?? 0;
+    final documents = load.loadDocument ?? [];
 
-    final uploadedTypes = nestedDocuments
-      .where((doc) => doc.status == 1)
-      .map((doc) => doc.documentDetails?.documentType?.toLowerCase().trim() ?? '')
-      .toSet();
+    // ✅ Status 4: Check if Memo document is uploaded
+    if (currentStatus == 4) {
+      final memoUploaded = load.loadMemoDetails != null;
+      return memoUploaded;
+    }
 
-    final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+    if (currentStatus == 5) {
+      // final isConsentGiven = load.driverConsent == 1;
 
-    return  allRequiredDocsUploaded;
+      final nestedDocuments = load.loadDocument ?? [];
+      //final documents = nestedDocuments.expand((list) => list).toList();
+
+      // normalized lower-case required docs exactly matching API string values
+      const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
+
+      final uploadedTypes =
+          nestedDocuments
+              .where((doc) => doc.status == 1)
+              .map(
+                (doc) =>
+                    doc.documentDetails?.documentType?.toLowerCase().trim() ??
+                    '',
+              )
+              .toSet();
+
+      final allRequiredDocsUploaded = requiredDocs.every(
+        uploadedTypes.contains,
+      );
+
+      return allRequiredDocsUploaded;
+    }
+
+    if (currentStatus == 7) {
+      final nestedDocuments = load.loadDocument ?? [];
+      //final documents = nestedDocuments.expand((list) => list).toList();
+
+      const podDocTypes = ['proof of document'];
+
+      final podDocExists = nestedDocuments.any((doc) {
+        final docType = doc.documentDetails?.documentType?.toLowerCase() ?? '';
+        final title = doc.documentDetails?.title?.toLowerCase() ?? '';
+        return (podDocTypes.contains(docType) || title.contains('pod')) &&
+            doc.status == 1;
+      });
+
+      return podDocExists;
+    }
+    return true;
   }
 
-  if (currentStatus == 7) {
-    final nestedDocuments = load.loadDocument ?? [];
-    //final documents = nestedDocuments.expand((list) => list).toList();
+  void _validateButtonStateOnInit() {
+    final statusId = widget.driverLoadDetails.loadStatusId;
 
-    const podDocTypes = ['proof of document']; 
+    final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
+    // final documents = nestedDocuments.expand((list) => list).toList();
 
-    final podDocExists = nestedDocuments.any((doc) {
-      final docType = doc.documentDetails?.documentType?.toLowerCase() ?? '';
-      final title = doc.documentDetails?.title?.toLowerCase() ?? '';
-      return (podDocTypes.contains(docType) || title.contains('pod')) && doc.status == 1;
-    });
+    final currentStatus = widget.driverLoadDetails.loadStatusId ?? 0;
+    final documents = widget.driverLoadDetails.loadDocument ?? [];
 
-    return podDocExists;
-  }
-  return true;
-}
+    // ✅ Status 4: Check if Memo document is uploaded
+    if (currentStatus == 4) {
+      final memoUploaded = widget.driverLoadDetails.loadMemoDetails != null;
+      setState(() {
+        _isButtonEnabled = memoUploaded;
+      });
+      return;
+    }
 
+    if (statusId == 5) {
+      //final isSimConsentGiven = widget.driverLoadDetails.driverConsent == 1;
 
-void _validateButtonStateOnInit() {
-  final statusId = widget.driverLoadDetails.loadStatusId;
-  
-  final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
- // final documents = nestedDocuments.expand((list) => list).toList();
+      // Required document types for status 5 (Loading)
+      const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
 
-  final currentStatus = widget.driverLoadDetails.loadStatusId ?? 0;
-  final documents = widget.driverLoadDetails.loadDocument ?? [];
+      final uploadedTypes =
+          nestedDocuments
+              .where((doc) => doc.status == 1)
+              .map(
+                (doc) =>
+                    (doc.documentDetails?.documentType ?? '')
+                        .toLowerCase()
+                        .trim(),
+              )
+              .where((type) => type.isNotEmpty)
+              .toSet();
 
-  // ✅ Status 4: Check if Memo document is uploaded
-  if (currentStatus == 4) {
-    final memoUploaded = widget.driverLoadDetails.loadMemoDetails != null;
+      final allRequiredDocsUploaded = requiredDocs.every(
+        uploadedTypes.contains,
+      );
+
+      setState(() {
+        _isButtonEnabled = allRequiredDocsUploaded;
+      });
+      return;
+    }
+
+    // Required document types for status 6 (In Transist)
+    if (statusId == 7) {
+      const podDocType = 'proof of document';
+
+      final podDocExists = nestedDocuments.any((doc) {
+        final docType =
+            (doc.documentDetails?.documentType ?? '').toLowerCase().trim();
+        final title = (doc.documentDetails?.title ?? '').toLowerCase().trim();
+        return (docType == podDocType || title.contains('pod')) &&
+            doc.status == 1;
+      });
+
+      setState(() {
+        _isButtonEnabled = podDocExists;
+      });
+      return;
+    }
+
     setState(() {
-      _isButtonEnabled = memoUploaded;
+      _isButtonEnabled = true;
     });
-    return;
   }
 
-  if (statusId == 5) {
-    //final isSimConsentGiven = widget.driverLoadDetails.driverConsent == 1;
-
-    // Required document types for status 5 (Loading)
-    const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
-
-    final uploadedTypes = nestedDocuments
-        .where((doc) => doc.status == 1)
-        .map((doc) => (doc.documentDetails?.documentType ?? '').toLowerCase().trim())
-        .where((type) => type.isNotEmpty)
-        .toSet();
-
-    final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
-
-    setState(() {
-      _isButtonEnabled =  allRequiredDocsUploaded;
-    });
-    return;
-  }
- 
-  // Required document types for status 6 (In Transist)
-  if (statusId == 7) {
-    const podDocType = 'proof of document';
-
-    final podDocExists = nestedDocuments.any((doc) {
-      final docType = (doc.documentDetails?.documentType ?? '').toLowerCase().trim();
-      final title = (doc.documentDetails?.title ?? '').toLowerCase().trim();
-      return (docType == podDocType || title.contains('pod')) && doc.status == 1;
-    });
-
-    setState(() {
-      _isButtonEnabled = podDocExists;
-    });
-    return;
-  }
-
-  setState(() {
-    _isButtonEnabled = true;
-  });
-}
-
- 
-  
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         Navigator.push(
-              context,
-              commonRoute(
-                DriverLoadsLocationDetailsScreen(loadId: widget.driverLoadDetails.loadId),
-                isForward: true,
-              ),
-            ).then((value) {
-                      if (mounted) {
-                        context.read<DriverLoadsBloc>().add(
-                          FetchDriverLoads(
-                            forceRefresh: true,
-                          ),
-                        );
-                      }
+          context,
+          commonRoute(
+            DriverLoadsLocationDetailsScreen(
+              loadId: widget.driverLoadDetails.loadId,
+            ),
+            isForward: true,
+          ),
+        ).then((value) {
+          if (mounted) {
+            context.read<DriverLoadsBloc>().add(
+              FetchDriverLoads(forceRefresh: true),
+            );
+          }
         });
       },
       child: Container(
@@ -195,10 +214,16 @@ void _validateButtonStateOnInit() {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(widget.driverLoadDetails.loadSeriesId, style: AppTextStyle.h5),
                     Text(
-                    formatDateTimeKavach(widget.driverLoadDetails.createdAt?.toString()??DateTime.now().toString()),
-                    style: AppTextStyle.primaryColor12w400,
+                      widget.driverLoadDetails.loadSeriesId,
+                      style: AppTextStyle.h5,
+                    ),
+                    Text(
+                      formatDateTimeKavach(
+                        widget.driverLoadDetails.createdAt?.toString() ??
+                            DateTime.now().toString(),
+                      ),
+                      style: AppTextStyle.primaryColor12w400,
                     ),
                   ],
                 ).expand(),
@@ -209,65 +234,77 @@ void _validateButtonStateOnInit() {
                   children: [
                     Wrap(
                       children: [
-                        _buildLocationInfoWidget(widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",),
+                        _buildLocationInfoWidget(
+                          widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ??
+                              "",
+                        ),
                         Icon(
                           Icons.arrow_right_alt_outlined,
                           color: AppColors.primaryColor,
                         ).paddingSymmetric(horizontal: 2),
-                        _buildLocationInfoWidget(widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",)
+                        _buildLocationInfoWidget(
+                          widget.driverLoadDetails.loadRoute?.dropWholeAddr ??
+                              "",
+                        ),
                       ],
                     ),
-               if(widget.driverLoadDetails.loadStatusId >= 4 && widget.driverLoadDetails.loadStatusId != null)
-                    DriverLoadHelper.loadStatusWidget(
-                        (widget.driverLoadDetails.loadOnhold??false) ? context.appText.loadOnHold:
-                        widget.driverLoadDetails.loadStatusDetails!.loadStatus, context)      
-
+                    if (widget.driverLoadDetails.loadStatusId >= 4 &&
+                        widget.driverLoadDetails.loadStatusId != null)
+                      DriverLoadHelper.loadStatusWidget(
+                      statusBgColor: widget.driverLoadDetails?.loadStatusDetails?.statusBgColor,
+                      statusTxtColor: widget.driverLoadDetails?.loadStatusDetails?.statusTxtColor,
+                        (widget.driverLoadDetails.loadOnhold ?? false)
+                            ? context.appText.loadOnHold
+                            : widget
+                                .driverLoadDetails
+                                .loadStatusDetails!
+                                .loadStatus,
+                        context,
+                      ),
                   ],
                 ).expand(),
               ],
             ),
-      
+
             commonDivider(),
+
             //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
-           
-      
-          //  progressBarWidget(progressValue: 0.5,),
-          //  commonDivider(),
-      
-        if(widget.driverLoadDetails.loadStatusId > 4)
-         widget.driverLoadDetails.driverConsent == 0  
-          ? Column(
-              children: [
-                Text(
-                  "No SIM tracking consent from driver",
-                  style: AppTextStyle.textBlackColor16w400.copyWith(
-                    color: AppColors.iconRed,
+
+            //  progressBarWidget(progressValue: 0.5,),
+            //  commonDivider(),
+            if (widget.driverLoadDetails.loadStatusId > 4)
+              widget.driverLoadDetails.driverConsent == 0
+                  ? Column(
+                    children: [
+                      Text(
+                        "No SIM tracking consent from driver",
+                        style: AppTextStyle.textBlackColor16w400.copyWith(
+                          color: AppColors.iconRed,
+                        ),
+                      ),
+                      commonDivider(),
+                    ],
+                  )
+                  : Column(
+                    children: [
+                      Text(
+                        "Driver consent given",
+                        style: AppTextStyle.textBlackColor16w400.copyWith(
+                          color: AppColors.textGreen,
+                        ),
+                      ),
+                      commonDivider(),
+                    ],
                   ),
-                ),
-                commonDivider(),
-              ],
-            )
-          : Column(
-              children: [       
-                Text(
-                  "Driver consent given",
-                  style: AppTextStyle.textBlackColor16w400.copyWith(
-                    color: AppColors.textGreen,
-                  ),
-                ),
-                commonDivider(),
-              ],
-            ),
-           
-           
+
             Row(
               children: [
                 detailWidget(
-                   text: widget.driverLoadDetails.truckType?.type ?? "__",
+                  text: widget.driverLoadDetails.truckType?.type ?? "__",
                   iconSvg: AppIcons.svg.deliveryTruckSpeed,
                 ),
                 detailWidget(
-                   text: widget.driverLoadDetails.truckType?.subType ?? "__",
+                  text: widget.driverLoadDetails.truckType?.subType ?? "__",
                   iconSvg: AppIcons.svg.deliveryTruckSpeed,
                 ),
               ],
@@ -286,7 +323,7 @@ void _validateButtonStateOnInit() {
               ],
             ),
             15.height,
-           
+
             10.height,
             Row(
               children: [
@@ -314,82 +351,102 @@ void _validateButtonStateOnInit() {
                 10.width,
 
                 DriverLoadHelper.homeloadStatusButtonWidget(
-                    context: context,
-                     enable: _isButtonEnabled,
-                      statusId: widget.driverLoadDetails.loadStatusId,
-                      onPressed: () {
-                        if (widget.driverLoadDetails.loadStatusId == 4 && widget.driverLoadDetails.loadMemoDetails == null) {
+                  context: context,
+                  enable: _isButtonEnabled,
+                  statusId: widget.driverLoadDetails.loadStatusId,
+                  onPressed: () {
+                    if (widget.driverLoadDetails.loadStatusId == 4 &&
+                        widget.driverLoadDetails.loadMemoDetails == null) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => DriverLoadsLocationDetailsScreen(
-                            loadId:widget.driverLoadDetails.loadId,
-                          ),
+                          builder:
+                              (_) => DriverLoadsLocationDetailsScreen(
+                                loadId: widget.driverLoadDetails.loadId,
+                              ),
                         ),
                       );
                       return;
                     }
-                        //Check for sim consent and trip doc
-                        if (widget.driverLoadDetails.loadStatusId == 5) {
-                          //final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
-                         final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
+                    //Check for sim consent and trip doc
+                    if (widget.driverLoadDetails.loadStatusId == 5) {
+                      //final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
+                      final nestedDocuments =
+                          widget.driverLoadDetails.loadDocument ?? [];
                       //  final documents = nestedDocuments.expand((list) => list).toList();
-                        const requiredDocs = [
-                          'lorry receipt',
-                          'eway bill',
-                          'material invoice',
-                        ];
-                        final uploadedTypes = nestedDocuments
-                            .where((doc) => doc.status == 1)
-                            .map((doc) => doc.documentDetails?.documentType?.toLowerCase() ?? '')
-                            .toSet();
+                      const requiredDocs = [
+                        'lorry receipt',
+                        'eway bill',
+                        'material invoice',
+                      ];
+                      final uploadedTypes =
+                          nestedDocuments
+                              .where((doc) => doc.status == 1)
+                              .map(
+                                (doc) =>
+                                    doc.documentDetails?.documentType
+                                        ?.toLowerCase() ??
+                                    '',
+                              )
+                              .toSet();
 
-                        final allRequiredDocsUploaded = requiredDocs.every(uploadedTypes.contains);
+                      final allRequiredDocsUploaded = requiredDocs.every(
+                        uploadedTypes.contains,
+                      );
 
-                          if (!allRequiredDocsUploaded) {
-                            setState(() {
-                                _isButtonEnabled = false;
-                              });
-                            ToastMessages.error(message: 'Please upload Lorry Receipt, E-Way Bill, and Material Invoice');
-                            return;
-                          }
-                          // if (!isConsentGiven) {
-                          //   setState(() {
-                          //       _isButtonEnabled = false;
-                          //     });
-                          //    ToastMessages.error(message: 'Please ensure SIM consent is given');
-                          //   return;
-                          // }
-                        }
-                        
-                        // Check for Pod Doc
-                            if (widget.driverLoadDetails?.loadStatusId == 7) {
-                            final nestedDocuments = widget.driverLoadDetails?.loadDocument ?? [];
-                          //  final documents = nestedDocuments.expand((list) => list).toList();
+                      if (!allRequiredDocsUploaded) {
+                        setState(() {
+                          _isButtonEnabled = false;
+                        });
+                        ToastMessages.error(
+                          message:
+                              'Please upload Lorry Receipt, E-Way Bill, and Material Invoice',
+                        );
+                        return;
+                      }
+                      // if (!isConsentGiven) {
+                      //   setState(() {
+                      //       _isButtonEnabled = false;
+                      //     });
+                      //    ToastMessages.error(message: 'Please ensure SIM consent is given');
+                      //   return;
+                      // }
+                    }
 
-                            final podDocExists = nestedDocuments.any((doc) =>
-                                (doc.documentDetails?.documentType?.toLowerCase() == 'proof of document' ||
-                                doc.documentDetails?.title?.toLowerCase().contains('pod') == true) &&
-                                doc.status == 1);
+                    // Check for Pod Doc
+                    if (widget.driverLoadDetails?.loadStatusId == 7) {
+                      final nestedDocuments =
+                          widget.driverLoadDetails?.loadDocument ?? [];
+                      //  final documents = nestedDocuments.expand((list) => list).toList();
 
-                            if (!podDocExists) {
-                              setState(() {
-                                _isButtonEnabled = true;
-                              });
-                              ToastMessages.error(message:  'Please upload POD document');
-                              return;
-                            }
-                          }
-                          setState(() {
-                                _isButtonEnabled = true;
-                              });
-                        widget.onClickAssignDriver?.call();
-                      },
-                    ).expand(),
+                      final podDocExists = nestedDocuments.any(
+                        (doc) =>
+                            (doc.documentDetails?.documentType?.toLowerCase() ==
+                                    'proof of document' ||
+                                doc.documentDetails?.title
+                                        ?.toLowerCase()
+                                        .contains('pod') ==
+                                    true) &&
+                            doc.status == 1,
+                      );
 
-        
-        
-         ],
+                      if (!podDocExists) {
+                        setState(() {
+                          _isButtonEnabled = true;
+                        });
+                        ToastMessages.error(
+                          message: 'Please upload POD document',
+                        );
+                        return;
+                      }
+                    }
+                    setState(() {
+                      _isButtonEnabled = true;
+                    });
+                    widget.onClickAssignDriver?.call();
+                  },
+                ).expand(),
+              ],
             ),
           ],
         ),
@@ -397,8 +454,8 @@ void _validateButtonStateOnInit() {
     );
   }
 
-    Widget _buildLocationInfoWidget(String? location){
-    String locationText=location?.split(",").first??"";
+  Widget _buildLocationInfoWidget(String? location) {
+    String locationText = location?.split(",").first ?? "";
     return Text(
       locationText,
       style: AppTextStyle.blackColor15w500,
@@ -421,7 +478,6 @@ void _validateButtonStateOnInit() {
     ).expand();
   }
 }
-
 
 Widget progressBarWidget({required double progressValue}) {
   final percent = (progressValue * 100).round();
@@ -457,12 +513,11 @@ Widget progressBarWidget({required double progressValue}) {
           value: progressValue,
           minHeight: 6,
           backgroundColor: Colors.grey[300],
-          valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryColor),
+          valueColor: const AlwaysStoppedAnimation<Color>(
+            AppColors.primaryColor,
+          ),
         ),
       ),
     ],
   );
 }
-
-
-

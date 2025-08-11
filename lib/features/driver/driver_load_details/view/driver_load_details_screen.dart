@@ -275,6 +275,8 @@ class _DriverLoadsLocationDetailsScreenState
                 if (loadItem.data!.loadStatusId >= 4 &&
                     loadItem.data?.loadStatusId != null)
                   DriverLoadHelper.loadStatusWidget(
+                    statusBgColor: loadItem.data?.loadStatusDetails?.statusBgColor,
+                    statusTxtColor: loadItem.data?.loadStatusDetails?.statusTxtColor,
                     (loadItem.data?.loadOnhold ?? false)
                         ? context.appText.loadOnHold
                         : loadItem.data!.loadStatusDetails!.loadStatus,

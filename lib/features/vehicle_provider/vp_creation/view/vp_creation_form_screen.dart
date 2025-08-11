@@ -496,7 +496,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                         state.truckTypeUIState!.data!
                             .map(
                               (e) => DropdownItem<int>(
-                                value: e.id,
+                                value: e?.id ?? 1,
                                 label: "${e.type} ${e.subType}",
                               ),
                             )

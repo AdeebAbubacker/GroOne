@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -15,48 +16,31 @@ import 'package:slide_to_act/slide_to_act.dart';
 
 class VpMyLoadUIHelper {
   VpMyLoadUIHelper._();
+  
+    static Widget loadStatusWidget(String status, BuildContext context, {String? statusBgColor, String? statusTxtColor, bool loadOnHold = false}) {
+  Color backgroundColor = loadOnHold
+      ? AppColors.iconRed
+      : VpHelper.getColor(statusBgColor ?? '');
 
-  // Showing Status View
-  static Widget loadStatusWidget(String status, BuildContext context) {
+  Color textColor = loadOnHold
+      ? Colors.white
+      : VpHelper.getColor(statusTxtColor ?? '');
 
-    Widget ui({required String text ,required Color textColor, required Color backgroundColor}) {
-      return Container(
-        decoration: commonContainerDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: FittedBox(
-          child: Text(
-            text.capitalize,
-            style: AppTextStyle.body.copyWith(color: textColor),
-          ).paddingSymmetric(horizontal: 10, vertical: 3),
-        ),
-      );
-    }
 
-    switch (status) {
-      case "Confirmed":
-        return ui(text : context.appText.confirmed, textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
-      case "Assigned":
-        return ui(text: context.appText.assigned, textColor: Color(0xff018800), backgroundColor: Color(0xffe6f3e5));
-      case "Loading":
-        return ui(text: context.appText.loading, textColor: Color(0xffFF9800), backgroundColor: Color(0xffffeacc));
-      case "Unloading":
-        return ui(text: context.appText.unloading,textColor: Color(0xff009688), backgroundColor: Color(0xffcceae7));
-      case "In Transit":
-        return ui(text: context.appText.inTransit ,textColor: Color(0xffFF5722), backgroundColor: Color(0xffffddd3));
-      case "POD Dispatch":
-        return ui(text: context.appText.podDispatch, textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
-      case "Completed":
-        return ui(text: context.appText.completed, textColor: Colors.white, backgroundColor: Color(0xff018800));
-      case "loadOnHold":
-        return ui(text: context.appText.unloadingHeld, textColor: Colors.white, backgroundColor: AppColors.iconRed);
-      default:
-        return Container();
-    }
-  }
-
-  // Showing Status Button
+  return Container(
+    decoration: commonContainerDecoration(
+      color: backgroundColor,
+      borderRadius: BorderRadius.circular(100),
+    ),
+    child: FittedBox(
+      child: Text(
+        status.capitalize,
+        style: AppTextStyle.body.copyWith(color: textColor),
+      ).paddingSymmetric(horizontal: 10, vertical: 3),
+    ),
+  );
+}
+ // Showing Status Button
   static Widget loadStatusButtonWidget({
     required String status, bool isLoading = false, required void Function() onPressed,required BuildContext context,bool? enable=true,bool? isIntoRangePrice}) {
 

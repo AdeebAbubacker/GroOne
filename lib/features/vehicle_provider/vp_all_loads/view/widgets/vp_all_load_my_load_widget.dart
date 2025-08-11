@@ -108,6 +108,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   ),
                   if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
                     VpMyLoadUIHelper.loadStatusWidget(
+                      statusBgColor: widget.data.loadStatusDetails!.statusBgColor,
+                      statusTxtColor: widget.data.loadStatusDetails!.statusTxtColor,
                         (widget.data.loadUnHold??false) ? context.appText.loadOnHold:
                         widget.data.loadStatusDetails!.loadStatus, context)
                   // LoadStatusLabel(

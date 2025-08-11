@@ -1212,53 +1212,62 @@ class LoadRoute {
 }
 
 class LoadStatusDetails {
-    LoadStatusDetails({
-        required this.id,
-        required this.loadStatus,
-        required this.status,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.deletedAt,
-    });
+  LoadStatusDetails({
+    required this.id,
+    required this.loadStatus,
+    required this.status,
+    required this.statusBgColor,
+    required this.statusTxtColor,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.deletedAt,
+  });
 
-    final int id;
-    final String loadStatus;
-    final int status;
-    final DateTime? createdAt;
-    final DateTime? updatedAt;
-    final dynamic deletedAt;
+  final int id;
+  final String loadStatus;
+  final int status;
+  final String statusBgColor;
+  final String statusTxtColor;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final dynamic deletedAt;
 
-    LoadStatusDetails copyWith({
-        int? id,
-        String? loadStatus,
-        int? status,
-        DateTime? createdAt,
-        DateTime? updatedAt,
-        dynamic? deletedAt,
-    }) {
-        return LoadStatusDetails(
-            id: id ?? this.id,
-            loadStatus: loadStatus ?? this.loadStatus,
-            status: status ?? this.status,
-            createdAt: createdAt ?? this.createdAt,
-            updatedAt: updatedAt ?? this.updatedAt,
-            deletedAt: deletedAt ?? this.deletedAt,
-        );
-    }
+  LoadStatusDetails copyWith({
+    int? id,
+    String? loadStatus,
+    int? status,
+    String? statusBgColor,
+    String? statusTxtColor,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    dynamic deletedAt,
+  }) {
+    return LoadStatusDetails(
+      id: id ?? this.id,
+      loadStatus: loadStatus ?? this.loadStatus,
+      status: status ?? this.status,
+      statusBgColor: statusBgColor ?? this.statusBgColor,
+      statusTxtColor: statusTxtColor ?? this.statusTxtColor,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
 
-    factory LoadStatusDetails.fromJson(Map<String, dynamic> json){ 
-        return LoadStatusDetails(
-            id: json["id"] ?? 0,
-            loadStatus: json["loadStatus"] ?? "",
-            status: json["status"] ?? 0,
-            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-            deletedAt: json["deletedAt"],
-        );
-    }
+  factory LoadStatusDetails.fromJson(Map<String, dynamic> json){
+    return LoadStatusDetails(
+      id: json["id"] ?? 0,
+      loadStatus: json["loadStatus"] ?? "",
+      status: json["status"] ?? 0,
+      statusBgColor: json["statusBgColor"] ?? "",
+      statusTxtColor: json["statusTxtColor"] ?? "",
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+      deletedAt: json["deletedAt"],
+    );
+  }
 
 }
-
 class ScheduleTripDetails {
     ScheduleTripDetails({
         required this.scheduleTripId,
@@ -1272,6 +1281,8 @@ class ScheduleTripDetails {
         required this.createdAt,
         required this.deletedAt,
         required this.loadId,
+        required this.driver,
+        required this.vehicle,
     });
 
     final String scheduleTripId;
@@ -1285,6 +1296,8 @@ class ScheduleTripDetails {
     final DateTime? createdAt;
     final dynamic deletedAt;
     final String loadId;
+    final Driver? driver;
+    final ScheduleTripDetailVehicle? vehicle;
 
     ScheduleTripDetails copyWith({
         String? scheduleTripId,
@@ -1298,6 +1311,8 @@ class ScheduleTripDetails {
         DateTime? createdAt,
         dynamic? deletedAt,
         String? loadId,
+        Driver? driver,
+        ScheduleTripDetailVehicle? vehicle,
     }) {
         return ScheduleTripDetails(
             scheduleTripId: scheduleTripId ?? this.scheduleTripId,
@@ -1311,6 +1326,8 @@ class ScheduleTripDetails {
             createdAt: createdAt ?? this.createdAt,
             deletedAt: deletedAt ?? this.deletedAt,
             loadId: loadId ?? this.loadId,
+            driver: driver ?? this.driver,
+            vehicle: vehicle ?? this.vehicle,
         );
     }
 
@@ -1327,6 +1344,491 @@ class ScheduleTripDetails {
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             deletedAt: json["deletedAt"],
             loadId: json["loadId"] ?? "",
+            driver: json["driver"] == null ? null : Driver.fromJson(json["driver"]),
+            vehicle: json["vehicle"] == null ? null : ScheduleTripDetailVehicle.fromJson(json["vehicle"]),
+        );
+    }
+
+}
+
+class DriverData {
+    DriverData({
+        required this.driverId,
+        required this.name,
+        required this.mobile,
+        required this.email,
+        required this.licenseNumber,
+        required this.licenseDocLink,
+        required this.licenseExpiryDate,
+        required this.customerId,
+        required this.dateOfBirth,
+        required this.driverStatus,
+        required this.experience,
+        required this.bloodGroup,
+        required this.licenseCategory,
+        required this.specialLicense,
+        required this.communicationPreference,
+        required this.companyDetails,
+    });
+
+    final String driverId;
+    final String name;
+    final String mobile;
+    final String email;
+    final String licenseNumber;
+    final dynamic licenseDocLink;
+    final DateTime? licenseExpiryDate;
+    final String customerId;
+    final DateTime? dateOfBirth;
+    final int driverStatus;
+    final String experience;
+    final int bloodGroup;
+    final int licenseCategory;
+    final int specialLicense;
+    final String communicationPreference;
+    final CompanyDetails? companyDetails;
+
+    DriverData copyWith({
+        String? driverId,
+        String? name,
+        String? mobile,
+        String? email,
+        String? licenseNumber,
+        dynamic? licenseDocLink,
+        DateTime? licenseExpiryDate,
+        String? customerId,
+        DateTime? dateOfBirth,
+        int? driverStatus,
+        String? experience,
+        int? bloodGroup,
+        int? licenseCategory,
+        int? specialLicense,
+        String? communicationPreference,
+        CompanyDetails? companyDetails,
+    }) {
+        return DriverData(
+            driverId: driverId ?? this.driverId,
+            name: name ?? this.name,
+            mobile: mobile ?? this.mobile,
+            email: email ?? this.email,
+            licenseNumber: licenseNumber ?? this.licenseNumber,
+            licenseDocLink: licenseDocLink ?? this.licenseDocLink,
+            licenseExpiryDate: licenseExpiryDate ?? this.licenseExpiryDate,
+            customerId: customerId ?? this.customerId,
+            dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+            driverStatus: driverStatus ?? this.driverStatus,
+            experience: experience ?? this.experience,
+            bloodGroup: bloodGroup ?? this.bloodGroup,
+            licenseCategory: licenseCategory ?? this.licenseCategory,
+            specialLicense: specialLicense ?? this.specialLicense,
+            communicationPreference: communicationPreference ?? this.communicationPreference,
+            companyDetails: companyDetails ?? this.companyDetails,
+        );
+    }
+
+    factory DriverData.fromJson(Map<String, dynamic> json){ 
+        return DriverData(
+            driverId: json["driverId"] ?? "",
+            name: json["name"] ?? "",
+            mobile: json["mobile"] ?? "",
+            email: json["email"] ?? "",
+            licenseNumber: json["licenseNumber"] ?? "",
+            licenseDocLink: json["licenseDocLink"],
+            licenseExpiryDate: DateTime.tryParse(json["licenseExpiryDate"] ?? ""),
+            customerId: json["customerId"] ?? "",
+            dateOfBirth: DateTime.tryParse(json["dateOfBirth"] ?? ""),
+            driverStatus: json["driverStatus"] ?? 0,
+            experience: json["experience"] ?? "",
+            bloodGroup: json["bloodGroup"] ?? 0,
+            licenseCategory: json["licenseCategory"] ?? 0,
+            specialLicense: json["specialLicense"] ?? 0,
+            communicationPreference: json["communicationPreference"] ?? "",
+            companyDetails: json["companyDetails"] == null ? null : CompanyDetails.fromJson(json["companyDetails"]),
+        );
+    }
+
+}
+
+class CompanyDetails {
+    CompanyDetails({
+        required this.companyName,
+        required this.companyTypeId,
+        required this.mobile,
+        required this.gstin,
+    });
+
+    final String companyName;
+    final int companyTypeId;
+    final String mobile;
+    final String gstin;
+
+    CompanyDetails copyWith({
+        String? companyName,
+        int? companyTypeId,
+        String? mobile,
+        String? gstin,
+    }) {
+        return CompanyDetails(
+            companyName: companyName ?? this.companyName,
+            companyTypeId: companyTypeId ?? this.companyTypeId,
+            mobile: mobile ?? this.mobile,
+            gstin: gstin ?? this.gstin,
+        );
+    }
+
+    factory CompanyDetails.fromJson(Map<String, dynamic> json){ 
+        return CompanyDetails(
+            companyName: json["companyName"] ?? "",
+            companyTypeId: json["companyTypeId"] ?? 0,
+            mobile: json["mobile"] ?? "",
+            gstin: json["gstin"] ?? "",
+        );
+    }
+
+}
+
+class ScheduleTripDetailVehicle {
+    ScheduleTripDetailVehicle({
+        required this.vehicle,
+        required this.companyName,
+        required this.truckType,
+    });
+
+    final VehicleVehicle? vehicle;
+    final String companyName;
+    final TruckType? truckType;
+
+    ScheduleTripDetailVehicle copyWith({
+        VehicleVehicle? vehicle,
+        String? companyName,
+        TruckType? truckType,
+    }) {
+        return ScheduleTripDetailVehicle(
+            vehicle: vehicle ?? this.vehicle,
+            companyName: companyName ?? this.companyName,
+            truckType: truckType ?? this.truckType,
+        );
+    }
+
+    factory ScheduleTripDetailVehicle.fromJson(Map<String, dynamic> json){ 
+        return ScheduleTripDetailVehicle(
+            vehicle: json["vehicle"] == null ? null : VehicleVehicle.fromJson(json["vehicle"]),
+            companyName: json["companyName"] ?? "",
+            truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
+        );
+    }
+
+}
+
+class TruckType {
+    TruckType({
+        required this.id,
+        required this.type,
+        required this.subType,
+        required this.iconUrl,
+        required this.status,
+        required this.createdAt,
+        required this.deletedAt,
+    });
+
+    final int id;
+    final String type;
+    final String subType;
+    final dynamic iconUrl;
+    final int status;
+    final DateTime? createdAt;
+    final dynamic deletedAt;
+
+    TruckType copyWith({
+        int? id,
+        String? type,
+        String? subType,
+        dynamic? iconUrl,
+        int? status,
+        DateTime? createdAt,
+        dynamic? deletedAt,
+    }) {
+        return TruckType(
+            id: id ?? this.id,
+            type: type ?? this.type,
+            subType: subType ?? this.subType,
+            iconUrl: iconUrl ?? this.iconUrl,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory TruckType.fromJson(Map<String, dynamic> json){ 
+        return TruckType(
+            id: json["id"] ?? 0,
+            type: json["type"] ?? "",
+            subType: json["subType"] ?? "",
+            iconUrl: json["iconUrl"],
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+        );
+    }
+
+}
+
+class VehicleVehicle {
+    VehicleVehicle({
+        required this.vehicleId,
+        required this.customerId,
+        required this.truckNo,
+        required this.ownerName,
+        required this.registrationDate,
+        required this.tonnage,
+        required this.truckTypeId,
+        required this.modelNumber,
+        required this.rcNumber,
+        required this.rcDocLink,
+        required this.insurancePolicyNumber,
+        required this.insuranceValidityDate,
+        required this.fcExpiryDate,
+        required this.pucExpiryDate,
+        required this.status,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.deletedAt,
+        required this.customer,
+    });
+
+    final String vehicleId;
+    final String customerId;
+    final String truckNo;
+    final String ownerName;
+    final DateTime? registrationDate;
+    final String tonnage;
+    final int truckTypeId;
+    final String modelNumber;
+    final dynamic rcNumber;
+    final dynamic rcDocLink;
+    final String insurancePolicyNumber;
+    final DateTime? insuranceValidityDate;
+    final DateTime? fcExpiryDate;
+    final DateTime? pucExpiryDate;
+    final int status;
+    final DateTime? createdAt;
+    final DateTime? updatedAt;
+    final dynamic deletedAt;
+    final Customer? customer;
+
+    VehicleVehicle copyWith({
+        String? vehicleId,
+        String? customerId,
+        String? truckNo,
+        String? ownerName,
+        DateTime? registrationDate,
+        String? tonnage,
+        int? truckTypeId,
+        String? modelNumber,
+        dynamic? rcNumber,
+        dynamic? rcDocLink,
+        String? insurancePolicyNumber,
+        DateTime? insuranceValidityDate,
+        DateTime? fcExpiryDate,
+        DateTime? pucExpiryDate,
+        int? status,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        dynamic? deletedAt,
+        Customer? customer,
+    }) {
+        return VehicleVehicle(
+            vehicleId: vehicleId ?? this.vehicleId,
+            customerId: customerId ?? this.customerId,
+            truckNo: truckNo ?? this.truckNo,
+            ownerName: ownerName ?? this.ownerName,
+            registrationDate: registrationDate ?? this.registrationDate,
+            tonnage: tonnage ?? this.tonnage,
+            truckTypeId: truckTypeId ?? this.truckTypeId,
+            modelNumber: modelNumber ?? this.modelNumber,
+            rcNumber: rcNumber ?? this.rcNumber,
+            rcDocLink: rcDocLink ?? this.rcDocLink,
+            insurancePolicyNumber: insurancePolicyNumber ?? this.insurancePolicyNumber,
+            insuranceValidityDate: insuranceValidityDate ?? this.insuranceValidityDate,
+            fcExpiryDate: fcExpiryDate ?? this.fcExpiryDate,
+            pucExpiryDate: pucExpiryDate ?? this.pucExpiryDate,
+            status: status ?? this.status,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+            customer: customer ?? this.customer,
+        );
+    }
+
+    factory VehicleVehicle.fromJson(Map<String, dynamic> json){ 
+        return VehicleVehicle(
+            vehicleId: json["vehicleId"] ?? "",
+            customerId: json["customerId"] ?? "",
+            truckNo: json["truckNo"] ?? "",
+            ownerName: json["ownerName"] ?? "",
+            registrationDate: DateTime.tryParse(json["registrationDate"] ?? ""),
+            tonnage: json["tonnage"] ?? "",
+            truckTypeId: json["truckTypeId"] ?? 0,
+            modelNumber: json["modelNumber"] ?? "",
+            rcNumber: json["rcNumber"],
+            rcDocLink: json["rcDocLink"],
+            insurancePolicyNumber: json["insurancePolicyNumber"] ?? "",
+            insuranceValidityDate: DateTime.tryParse(json["insuranceValidityDate"] ?? ""),
+            fcExpiryDate: DateTime.tryParse(json["fcExpiryDate"] ?? ""),
+            pucExpiryDate: DateTime.tryParse(json["pucExpiryDate"] ?? ""),
+            status: json["status"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+            customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+        );
+    }
+
+}
+
+class DriverCustomer {
+    DriverCustomer({
+        required this.customerId,
+        required this.customerName,
+        required this.mobileNumber,
+        required this.companyTypeId,
+        required this.emailId,
+        required this.blueId,
+        required this.kycRejectReason,
+        required this.password,
+        required this.companyName,
+        required this.otp,
+        required this.ememoOtp,
+        required this.otpAttempt,
+        required this.isKyc,
+        required this.preferredLanes,
+        required this.roleId,
+        required this.tempFlg,
+        required this.status,
+        required this.isLogin,
+        required this.blueIdFlg,
+        required this.kycPendingDate,
+        required this.kycVerificationDate,
+        required this.customerSeriesNo,
+        required this.createdAt,
+        required this.deletedAt,
+        required this.isErpSynced,
+        required this.virtualAccountId,
+    });
+
+    final String customerId;
+    final String customerName;
+    final String mobileNumber;
+    final int companyTypeId;
+    final String emailId;
+    final String blueId;
+    final dynamic kycRejectReason;
+    final dynamic password;
+    final String companyName;
+    final String otp;
+    final dynamic ememoOtp;
+    final String otpAttempt;
+    final int isKyc;
+    final dynamic preferredLanes;
+    final int roleId;
+    final bool tempFlg;
+    final int status;
+    final bool isLogin;
+    final bool blueIdFlg;
+    final DateTime? kycPendingDate;
+    final DateTime? kycVerificationDate;
+    final int customerSeriesNo;
+    final DateTime? createdAt;
+    final dynamic deletedAt;
+    final bool isErpSynced;
+    final String virtualAccountId;
+
+    DriverCustomer copyWith({
+        String? customerId,
+        String? customerName,
+        String? mobileNumber,
+        int? companyTypeId,
+        String? emailId,
+        String? blueId,
+        dynamic? kycRejectReason,
+        dynamic? password,
+        String? companyName,
+        String? otp,
+        dynamic? ememoOtp,
+        String? otpAttempt,
+        int? isKyc,
+        dynamic? preferredLanes,
+        int? roleId,
+        bool? tempFlg,
+        int? status,
+        bool? isLogin,
+        bool? blueIdFlg,
+        DateTime? kycPendingDate,
+        DateTime? kycVerificationDate,
+        int? customerSeriesNo,
+        DateTime? createdAt,
+        dynamic? deletedAt,
+        bool? isErpSynced,
+        String? virtualAccountId,
+    }) {
+        return DriverCustomer(
+            customerId: customerId ?? this.customerId,
+            customerName: customerName ?? this.customerName,
+            mobileNumber: mobileNumber ?? this.mobileNumber,
+            companyTypeId: companyTypeId ?? this.companyTypeId,
+            emailId: emailId ?? this.emailId,
+            blueId: blueId ?? this.blueId,
+            kycRejectReason: kycRejectReason ?? this.kycRejectReason,
+            password: password ?? this.password,
+            companyName: companyName ?? this.companyName,
+            otp: otp ?? this.otp,
+            ememoOtp: ememoOtp ?? this.ememoOtp,
+            otpAttempt: otpAttempt ?? this.otpAttempt,
+            isKyc: isKyc ?? this.isKyc,
+            preferredLanes: preferredLanes ?? this.preferredLanes,
+            roleId: roleId ?? this.roleId,
+            tempFlg: tempFlg ?? this.tempFlg,
+            status: status ?? this.status,
+            isLogin: isLogin ?? this.isLogin,
+            blueIdFlg: blueIdFlg ?? this.blueIdFlg,
+            kycPendingDate: kycPendingDate ?? this.kycPendingDate,
+            kycVerificationDate: kycVerificationDate ?? this.kycVerificationDate,
+            customerSeriesNo: customerSeriesNo ?? this.customerSeriesNo,
+            createdAt: createdAt ?? this.createdAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+            isErpSynced: isErpSynced ?? this.isErpSynced,
+            virtualAccountId: virtualAccountId ?? this.virtualAccountId,
+        );
+    }
+
+    factory DriverCustomer.fromJson(Map<String, dynamic> json){ 
+        return DriverCustomer(
+            customerId: json["customer_id"] ?? "",
+            customerName: json["customerName"] ?? "",
+            mobileNumber: json["mobileNumber"] ?? "",
+            companyTypeId: json["companyTypeId"] ?? 0,
+            emailId: json["emailId"] ?? "",
+            blueId: json["blueId"] ?? "",
+            kycRejectReason: json["kycRejectReason"],
+            password: json["password"],
+            companyName: json["companyName"] ?? "",
+            otp: json["otp"] ?? "",
+            ememoOtp: json["ememo_otp"],
+            otpAttempt: json["otpAttempt"] ?? "",
+            isKyc: json["isKyc"] ?? 0,
+            preferredLanes: json["preferredLanes"],
+            roleId: json["roleId"] ?? 0,
+            tempFlg: json["tempFlg"] ?? false,
+            status: json["status"] ?? 0,
+            isLogin: json["isLogin"] ?? false,
+            blueIdFlg: json["blueIdFlg"] ?? false,
+            kycPendingDate: DateTime.tryParse(json["kycPendingDate"] ?? ""),
+            kycVerificationDate: DateTime.tryParse(json["kycVerificationDate"] ?? ""),
+            customerSeriesNo: json["customerSeriesNo"] ?? 0,
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+            isErpSynced: json["isErpSynced"] ?? false,
+            virtualAccountId: json["virtualAccountId"] ?? "",
         );
     }
 
