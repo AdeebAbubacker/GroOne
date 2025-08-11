@@ -252,8 +252,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                               widget
                                                       .loadItem
                                                       .data
-                                                      ?.trackingDetails
-                                                      ?.truckNumber ??
+                                                      ?.scheduleTripDetails
+                                                      ?.vehicle?.vehicle?.truckNo ??
                                                   'N/A',
                                               style: AppTextStyle.body3
                                                   .copyWith(

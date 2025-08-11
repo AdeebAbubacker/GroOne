@@ -16,7 +16,7 @@ import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_verification_webview.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';

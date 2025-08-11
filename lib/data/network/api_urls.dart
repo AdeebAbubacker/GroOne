@@ -145,8 +145,8 @@ class ApiUrls {
   static final String  submitPod = "$_loadBaseUrl/pod";
   static final String  getTripStatement = "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
   static final String  getLoadStatus = "$_loadBaseUrl/loads/load-status_lp";
-  static final String  getVpLoadStatus = "$_loadBaseUrl/loads/load-status_vp";
-
+  static final String  getLoadStatusVp = "$_loadBaseUrl/loads/load-status_vp";
+ 
   /// Settlement
   static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
   static final String  submitSettlement = "$_settlementBaseUrl/settlement";
@@ -203,16 +203,18 @@ class ApiUrls {
   static final String getAllUsers = "$_fetchUrl/user/api/v1/users/allUsers";
 
   /// Google Map
-  static String  googleDirectionApi = "https://gro-devapi.letsgro.co/ratediscovery/api/v1/map-location/directions";
+  static String  googleDirectionApi = "$_baseUrl/ratediscovery/api/v1/map-location/directions";
 
   /// Tracking
   static String  trackingDistance = "$_baseUrl$_loadTracking$_path$_v1$_tracking/calculate-distance";
 
- /// Driver
- static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
- static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
- static final String driverLoadById = "$_baseUrl$_loadDiscovery$_path$_v1/load/driver/";
-
+  /// Driver
+  static final String driverLoadListBaseUrl =  "$_baseUrl$_loadDiscovery$_path$_v1$_load/driver/list?isDriver=true";
+  static final String driverProfile = "$_baseUrl$_customer$_path$_v1/drivers/id/";
+  static final String driverLoadById = "$_baseUrl$_loadDiscovery$_path$_v1/load/driver/";
+  static final String getBloodGroup =  "$_fetchUrl$_customer$_path$_v1/blood-group";
+  static final String getLicenseCategory = "$_fetchUrl$_customer$_path$_v1/license-category";
+ 
 
 
 

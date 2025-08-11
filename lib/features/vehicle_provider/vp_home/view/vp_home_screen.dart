@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/notification/view/notification_screen.dart';
 import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';

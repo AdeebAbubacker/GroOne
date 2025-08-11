@@ -35,7 +35,7 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/extra_utils.dart';
-import '../../profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import '../../login/repository/user_information_repository.dart';
 import 'kavach_support_screen.dart';
 

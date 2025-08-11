@@ -17,7 +17,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 
 import '../../../data/network/api_service.dart';
 import '../../../dependency_injection/locator.dart';
-import '../../profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 
 part 'en_dhan_state.dart';
 

@@ -12,7 +12,7 @@ import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_re
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
-import 'package:gro_one_app/features/profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';

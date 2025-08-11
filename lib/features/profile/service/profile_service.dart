@@ -56,18 +56,24 @@ class ProfileService {
   final SecuredSharedPreferences _securedSharedPref;
   final UserInformationRepository _userInformationRepository;
   final AuthRepository _authRepository;
-  ProfileService(this._apiService, this._securedSharedPref, this._userInformationRepository, this._authRepository);
+  ProfileService(
+    this._apiService,
+    this._securedSharedPref,
+    this._userInformationRepository,
+    this._authRepository,
+  );
 
   /// Fetch Profile Details Repo
   Future<Result<ProfileDetailModel>> getProfileDetails() async {
     try {
-      final url = ApiUrls.getProfile + (await _userInformationRepository.getUserID() ?? "");
+      final url =
+          ApiUrls.getProfile +
+          (await _userInformationRepository.getUserID() ?? "");
       final result = await _apiService.get(url);
       if (result is Success) {
         dynamic data = ProfileDetailModel.fromJson(result.value);
         // Save Blue Id
         if (data is ProfileDetailModel) {
-
           // Save user info data
           dynamic saveUserResult;
           saveUserResult = await _authRepository.saveUserInfoFromHome(data);
@@ -83,18 +89,31 @@ class ProfileService {
               // Save Blue ID and popup flag if not stored before
               if (storedBlueId == null || storedBlueId.isEmpty) {
                 debugPrint("🎉 First time Blue ID saved: $newBlueId");
-                await _securedSharedPref.saveKey(AppString.sessionKey.blueId, newBlueId);
-                await _securedSharedPref.saveBoolean(AppString.sessionKey.hasBlueIdPopupShown, true);
+                await _securedSharedPref.saveKey(
+                  AppString.sessionKey.blueId,
+                  newBlueId,
+                );
+                await _securedSharedPref.saveBoolean(
+                  AppString.sessionKey.hasBlueIdPopupShown,
+                  true,
+                );
               }
             } else {
               // Clear Blue ID and popup flag if blueId is null
               debugPrint("🧹 Blue ID cleared");
               await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
-              await _securedSharedPref.deleteKey(AppString.sessionKey.hasBlueIdPopupShown);
+              await _securedSharedPref.deleteKey(
+                AppString.sessionKey.hasBlueIdPopupShown,
+              );
             }
-            if(data.customer != null && data.customer!.companyType != null){
-              await _securedSharedPref.saveInt(AppString.sessionKey.companyTypeId, data.customer!.companyType!.id);
-              debugPrint("🎉 Company Type ID saved: ${data.customer!.companyType!.id}");
+            if (data.customer != null && data.customer!.companyType != null) {
+              await _securedSharedPref.saveInt(
+                AppString.sessionKey.companyTypeId,
+                data.customer!.companyType!.id,
+              );
+              debugPrint(
+                "🎉 Company Type ID saved: ${data.customer!.companyType!.id}",
+              );
             }
 
             return Success(data);
@@ -103,7 +122,6 @@ class ProfileService {
           if (saveUserResult is Error) {
             return Error(saveUserResult.type);
           }
-
         }
         if (data is Error) {
           return Error(data.type);
@@ -114,19 +132,26 @@ class ProfileService {
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
-
+    } catch (e) {
       return Error(DeserializationError());
     }
   }
-
 
   /// fetch update profile repo
-  Future<Result<ProfileUpdateResponse>> fetchUpdateProfileData(ProfileUpdateRequest request, {required userID}) async {
+  Future<Result<ProfileUpdateResponse>> fetchUpdateProfileData(
+    ProfileUpdateRequest request, {
+    required userID,
+  }) async {
     try {
-      final result = await _apiService.put(ApiUrls.getProfile + userID, body: request);
+      final result = await _apiService.put(
+        ApiUrls.getProfile + userID,
+        body: request,
+      );
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => ProfileUpdateResponse.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => ProfileUpdateResponse.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -136,14 +161,22 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
-
 
   /// fetch profile upload repo
-  Future<Result<ProfileImageUploadResponse>> fetchProfileUploadData(ProfileImageUploadRequest request, {required String userId}) async {
+  Future<Result<ProfileImageUploadResponse>> fetchProfileUploadData(
+    ProfileImageUploadRequest request, {
+    required String userId,
+  }) async {
     try {
-      final result = await _apiService.post(ApiUrls.updateProfile+userId, body: request);
+      final result = await _apiService.post(
+        ApiUrls.updateProfile + userId,
+        body: request,
+      );
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => ProfileImageUploadResponse.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => ProfileImageUploadResponse.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -154,13 +187,17 @@ class ProfileService {
     }
   }
 
-
   /// fetch master repo
-  Future<Result<MasterResponse>> fetchGetMasterData({required String userId}) async {
+  Future<Result<MasterResponse>> fetchGetMasterData({
+    required String userId,
+  }) async {
     try {
       final result = await _apiService.get(ApiUrls.getMaster + userId);
       if (result is Success) {
-        return await _apiService.getResponseStatus(result.value, (data) => MasterResponse.fromJson(data));
+        return await _apiService.getResponseStatus(
+          result.value,
+          (data) => MasterResponse.fromJson(data),
+        );
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -172,9 +209,11 @@ class ProfileService {
   }
 
   /// fetch documents
-  Future<Result<KycDocumentResponse>> fetchDocuments({required String userId}) async {
+  Future<Result<KycDocumentResponse>> fetchDocuments({
+    required String userId,
+  }) async {
     try {
-      final url = ApiUrls.getKycDocuments+userId;
+      final url = ApiUrls.getKycDocuments + userId;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = KycDocumentResponse.fromJson(response.value);
@@ -208,12 +247,16 @@ class ProfileService {
   }
 
   /// fetch address
-  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({
+    required String userId,
+    String? search,
+  }) async {
     try {
-      final baseUrl = ApiUrls.getAddress+userId;
-      final url = (search != null && search.trim().isNotEmpty)
-          ? '$baseUrl?search=$search'
-          : baseUrl;
+      final baseUrl = ApiUrls.getAddress + userId;
+      final url =
+          (search != null && search.trim().isNotEmpty)
+              ? '$baseUrl?search=$search'
+              : baseUrl;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = PaginatedAddressList.fromJson(response.value);
@@ -229,10 +272,12 @@ class ProfileService {
   }
 
   /// set primary address
-  Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({required String addressId}) async {
+  Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({
+    required String addressId,
+  }) async {
     try {
-      final url = ApiUrls.setPrimaryAddress+addressId;
-      final response = await _apiService.put(url, body: {"isDefault":true});
+      final url = ApiUrls.setPrimaryAddress + addressId;
+      final response = await _apiService.put(url, body: {"isDefault": true});
       if (response is Success) {
         final loads = SetPrimaryAddressResponse.fromJson(response.value);
         return Success(loads);
@@ -247,7 +292,9 @@ class ProfileService {
   }
 
   /// create address
-  Future<Result<CustomerAddress>> createAddress({required AddressRequest request}) async {
+  Future<Result<CustomerAddress>> createAddress({
+    required AddressRequest request,
+  }) async {
     try {
       final url = ApiUrls.createAddress;
       final response = await _apiService.post(url, body: request.toJson());
@@ -265,9 +312,12 @@ class ProfileService {
   }
 
   /// update address
-  Future<Result<CustomerAddress>> updateAddress({required String addressId, required AddressRequest request}) async {
+  Future<Result<CustomerAddress>> updateAddress({
+    required String addressId,
+    required AddressRequest request,
+  }) async {
     try {
-      final url = ApiUrls.updateAddress+addressId;
+      final url = ApiUrls.updateAddress + addressId;
       final response = await _apiService.put(url, body: request.toJson());
       if (response is Success) {
         final loads = CustomerAddress.fromJson(response.value);
@@ -285,7 +335,7 @@ class ProfileService {
   /// delete address
   Future<Result<void>> deleteAddress({required String addressId}) async {
     try {
-      final url = ApiUrls.deleteAddress+addressId;
+      final url = ApiUrls.deleteAddress + addressId;
       final response = await _apiService.delete(url);
       if (response is Success) {
         return Success(null);
@@ -305,9 +355,10 @@ class ProfileService {
       final url = ApiUrls.getSettings;
       final response = await _apiService.get(url);
       if (response is Success) {
-        final list = (response.value as List)
-            .map((json) => SettingsResponse.fromJson(json))
-            .toList();
+        final list =
+            (response.value as List)
+                .map((json) => SettingsResponse.fromJson(json))
+                .toList();
         return Success(list);
       } else if (response is Error) {
         return Error(response.type);
@@ -320,11 +371,12 @@ class ProfileService {
     }
   }
 
-
   /// fetch customer settings
-  Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({required String userId}) async {
+  Future<Result<CustomerSettingsResponse>> fetchCustomerSettings({
+    required String userId,
+  }) async {
     try {
-      final url = ApiUrls.getCustomerSettings+userId;
+      final url = ApiUrls.getCustomerSettings + userId;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = CustomerSettingsResponse.fromJson(response.value);
@@ -340,9 +392,12 @@ class ProfileService {
   }
 
   /// update customer settings
-  Future<Result<void>> updateCustomerSettings({required String userId, required UpdateSettingsRequest request}) async {
+  Future<Result<void>> updateCustomerSettings({
+    required String userId,
+    required UpdateSettingsRequest request,
+  }) async {
     try {
-      final url = ApiUrls.updateCustomerSettings+userId;
+      final url = ApiUrls.updateCustomerSettings + userId;
       final response = await _apiService.patch(url, body: request.toJson());
       if (response is Success) {
         return Success(null);
@@ -356,15 +411,19 @@ class ProfileService {
     }
   }
 
-//-----------------------------
+  //-----------------------------
 
   /// fetch vehicle
-  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId,String? search}) async {
+  Future<Result<PaginatedVehicleList>> fetchVehicle({
+    required String userId,
+    String? search,
+  }) async {
     try {
       final baseUrl = '${ApiUrls.getVehicleList}$userId';
-      final url = (search != null && search.trim().isNotEmpty)
-          ? '$baseUrl?search=$search'
-          : baseUrl;
+      final url =
+          (search != null && search.trim().isNotEmpty)
+              ? '$baseUrl?search=$search'
+              : baseUrl;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = PaginatedVehicleList.fromJson(response.value);
@@ -379,9 +438,8 @@ class ProfileService {
     }
   }
 
-  
-    /// Update vehicle Status
-    Future<Result<VehcileUpdatedStatusModel>> updateVehicleStatus(
+  /// Update vehicle Status
+  Future<Result<VehcileUpdatedStatusModel>> updateVehicleStatus(
     VehicleStatusUpdateRequest request, {
     required String vehicleId,
   }) async {
@@ -390,7 +448,7 @@ class ProfileService {
       final result = await _apiService.put(url, body: request.toJson());
 
       if (result is Success) {
-         final loads = VehcileUpdatedStatusModel.fromJson(result.value);
+        final loads = VehcileUpdatedStatusModel.fromJson(result.value);
         return Success(loads);
       } else if (result is Error) {
         return Error(result.type);
@@ -400,12 +458,12 @@ class ProfileService {
     } catch (e) {
       return Error(DeserializationError());
     }
-}
+  }
 
-
-
-   /// create Vehicle
-  Future<Result<VehicleNewModel>> createVehicle({required VehicleRequest request}) async {
+  /// create Vehicle
+  Future<Result<VehicleNewModel>> createVehicle({
+    required VehicleRequest request,
+  }) async {
     try {
       final url = ApiUrls.getVehicleList + "add";
       final response = await _apiService.post(url, body: request.toJson());
@@ -421,9 +479,12 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
- 
-   /// update vehicle
-  Future<Result<VehicleNewModel>> updateVehicle({required String vehicleId, required VehicleRequest request}) async {
+
+  /// update vehicle
+  Future<Result<VehicleNewModel>> updateVehicle({
+    required String vehicleId,
+    required VehicleRequest request,
+  }) async {
     try {
       final url = ApiUrls.getVehicleList + vehicleId;
       final response = await _apiService.put(url, body: request.toJson());
@@ -442,37 +503,34 @@ class ProfileService {
 
   /// Delete vehicle
   Future<Result<bool>> deleteVehicle({
-  required String vehicleId,
-  required DeleteVehicleRequest request,
-}) async {
-  try {
-    final url = ApiUrls.deleteVehicle + vehicleId;
+    required String vehicleId,
+    required DeleteVehicleRequest request,
+  }) async {
+    try {
+      final url = ApiUrls.deleteVehicle + vehicleId;
 
+      final result = await _apiService.put(url, body: request.toJson());
 
-    final result = await _apiService.put(
-      url,
-      body: request.toJson(),
-    );
-
-    if (result is Success) {
-      print("delete success ${result.value.toString()}");
-      return Success(true);
-    } else if (result is Error) {
-       print("delete error ${result.type.toString()}");
-      return Error(result.type);
-    } else {
-       print("delete error GenericError");
-      return Error(GenericError());
+      if (result is Success) {
+        print("delete success ${result.value.toString()}");
+        return Success(true);
+      } else if (result is Error) {
+        print("delete error ${result.type.toString()}");
+        return Error(result.type);
+      } else {
+        print("delete error GenericError");
+        return Error(GenericError());
+      }
+    } catch (e) {
+      print("delete error e");
+      return Error(DeserializationError());
     }
-  } catch (e) {
-     print("delete error e");
-    return Error(DeserializationError());
   }
-}
 
- 
   /// create Driver
-  Future<Result<DriverNewModel>> createDriver({required DriverRequest request}) async {
+  Future<Result<DriverNewModel>> createDriver({
+    required DriverRequest request,
+  }) async {
     try {
       final url = ApiUrls.driverListUrl;
       final response = await _apiService.post(url, body: request.toJson());
@@ -487,17 +545,20 @@ class ProfileService {
         print("driver GenericError");
         return Error(GenericError());
       }
-    } catch (e, stackTrace) { 
-    print("driver Exception: $e");
-    print("driver StackTrace:\n$stackTrace");
-    return Error(DeserializationError());
-  }
+    } catch (e, stackTrace) {
+      print("driver Exception: $e");
+      print("driver StackTrace:\n$stackTrace");
+      return Error(DeserializationError());
+    }
   }
 
   /// update driver
-  Future<Result<DriverNewModel>> updateDriver({required String driverId, required DriverRequest request}) async {
+  Future<Result<DriverNewModel>> updateDriver({
+    required String driverId,
+    required DriverRequest request,
+  }) async {
     try {
-       final url = '${ApiUrls.driverListUrl}/$driverId';
+      final url = '${ApiUrls.driverListUrl}/$driverId';
       final response = await _apiService.patch(url, body: request.toJson());
       if (response is Success) {
         final loads = DriverNewModel.fromJson(response.value);
@@ -512,33 +573,37 @@ class ProfileService {
     }
   }
 
-/// fetch Driver
- Future<Result<PaginatedDriverList>> fetchDriver({required String customerId,String? search}) async {
-  try {
+  /// fetch Driver
+  Future<Result<PaginatedDriverList>> fetchDriver({
+    required String customerId,
+    String? search,
+  }) async {
+    try {
       final baseUrl = "${ApiUrls.driverListUrl}?&customerId=$customerId";
 
-    // Append search properly using &
-    final url = (search != null && search.trim().isNotEmpty)
-        ? '$baseUrl&search=$search'
-        : baseUrl;
-    final response = await _apiService.get(url);
-    if (response is Success) {
-      final loads = PaginatedDriverList.fromJson(response.value);
-      return Success(loads);
-    } else if (response is Error) {
-      return Error(response.type);
-    } else {
-      return Error(GenericError());
+      // Append search properly using &
+      final url =
+          (search != null && search.trim().isNotEmpty)
+              ? '$baseUrl&search=$search'
+              : baseUrl;
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final loads = PaginatedDriverList.fromJson(response.value);
+        return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
     }
-  } catch (e) {
-    return Error(DeserializationError());
   }
-}
 
   /// delete Driver
   Future<Result<void>> deleteDriver({required String driverId}) async {
     try {
-        final url = '${ApiUrls.driverListUrl}/$driverId';
+      final url = '${ApiUrls.driverListUrl}/$driverId';
       final response = await _apiService.delete(url);
       if (response is Success) {
         return Success(null);
@@ -551,52 +616,10 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
-  
 
-   /// fetch check vehicle excists or not
-
-  Future<Result<VehicleVerificationSuccess>> fetchCheckVehicleExcists({required String vehcileId}) async {
-    try {
-      final url = '${ApiUrls.checkVehicleNumber}/$vehcileId';
-      final response = await _apiService.get(url);
-
-      if (response is Success) {
-        print("-----------${response.toString()}");
-        final loads = VehicleVerificationSuccess.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-         print("-----------${response.toString()}");
-        return Error(response.type);
-      } else {
-         print("-----------${response.toString()}");
-        return Error(GenericError());
-      }
-    } catch (e) {
-       print("-----------${e.toString()}");
-      return Error(DeserializationError());
-    }
-  }
-
-
-     /// fetch check license excists or not
-
- Future<Result<LicenseVerificationSuccess>> fetchCheckDrivingLicenseExcists({required String licenseId}) async {
-    try {
-      final url = '${ApiUrls.checkLicenseNumber}${licenseId}';
-      final response = await _apiService.get(url);
-      if (response is Success) {
-        final loads = LicenseVerificationSuccess.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch (e) {
-      return Error(DeserializationError());
-    }
-  }
-  Future<Result<KavachVehicleDocumentUploadModel>> uploadLicenseData(File file) async {
+  Future<Result<KavachVehicleDocumentUploadModel>> uploadLicenseData(
+    File file,
+  ) async {
     try {
       // Get user ID from secure storage
       final userId = await _securedSharedPref.get(AppString.sessionKey.userId);
@@ -623,20 +646,32 @@ class ProfileService {
 
       if (result is Success) {
         CustomLog.debug(this, "Upload API raw response: ${result.value}");
-        
+
         try {
           final responseData = result.value;
-          
+
           if (responseData is Map<String, dynamic>) {
-            CustomLog.debug(this, "Response keys: ${responseData.keys.toList()}");
+            CustomLog.debug(
+              this,
+              "Response keys: ${responseData.keys.toList()}",
+            );
             CustomLog.debug(this, "Response URL: ${responseData['url']}");
-            
+
             // The API response is directly the document upload data
-            final documentResponse = KavachVehicleDocumentUploadModel.fromJson(responseData);
-            CustomLog.debug(this, "Successfully parsed document upload response");
+            final documentResponse = KavachVehicleDocumentUploadModel.fromJson(
+              responseData,
+            );
+            CustomLog.debug(
+              this,
+              "Successfully parsed document upload response",
+            );
             return Success(documentResponse);
           } else {
-            CustomLog.error(this, "Invalid upload response format - expected Map, got ${responseData.runtimeType}", null);
+            CustomLog.error(
+              this,
+              "Invalid upload response format - expected Map, got ${responseData.runtimeType}",
+              null,
+            );
             return Error(DeserializationError());
           }
         } catch (e) {
@@ -651,6 +686,7 @@ class ProfileService {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
   /// fetch FAQ
   Future<Result<FaqResponse>> fetchFaq({String search = ''}) async {
     try {
@@ -670,10 +706,16 @@ class ProfileService {
   }
 
   /// fetch Tickets
-  Future<Result<TicketResponse>> fetchTickets({required String userId, required TicketRequest request}) async {
+  Future<Result<TicketResponse>> fetchTickets({
+    required String userId,
+    required TicketRequest request,
+  }) async {
     try {
-      final url = ApiUrls.getTicketList+userId;
-      final response = await _apiService.get(url, queryParams: request.toJson());
+      final url = ApiUrls.getTicketList + userId;
+      final response = await _apiService.get(
+        url,
+        queryParams: request.toJson(),
+      );
       if (response is Success) {
         final loads = TicketResponse.fromJson(response.value);
         return Success(loads);
@@ -688,7 +730,9 @@ class ProfileService {
   }
 
   /// create Ticket
-  Future<Result<Ticket>> createTicket({required CreateTicketRequest request}) async {
+  Future<Result<Ticket>> createTicket({
+    required CreateTicketRequest request,
+  }) async {
     try {
       final url = ApiUrls.createTicket;
       final response = await _apiService.post(url, body: request.toJson());
@@ -706,7 +750,12 @@ class ProfileService {
   }
 
   /// Upload Ticket
-  Future<Result<UploadTicketResponse>> fetchUploadTicketData({required File file, required String fileType,required String userId, required String documentType}) async {
+  Future<Result<UploadTicketResponse>> fetchUploadTicketData({
+    required File file,
+    required String fileType,
+    required String userId,
+    required String documentType,
+  }) async {
     try {
       final url = ApiUrls.upload;
       final result = await _apiService.multipart(
@@ -714,9 +763,9 @@ class ProfileService {
         file,
         pathName: "file",
         fields: {
-          "userId" : userId,
-          "fileType" : fileType,
-          "documentType" : documentType,
+          "userId": userId,
+          "fileType": fileType,
+          "documentType": documentType,
         },
       );
       if (result is Success) {
@@ -733,7 +782,9 @@ class ProfileService {
   }
 
   /// Create Document Service
-  Future<Result<CreateDocumentModel>> createDocument(CreateDocumentApiRequest request) async {
+  Future<Result<CreateDocumentModel>> createDocument(
+    CreateDocumentApiRequest request,
+  ) async {
     try {
       final url = ApiUrls.createDocument;
       final result = await _apiService.post(url, body: request.toJson());
@@ -751,7 +802,9 @@ class ProfileService {
   }
 
   /// Verify License Vahan
-  Future<Result<VerifedLicenseVahanData>> verifyLicenseVahan({required LicenseVahanRequest request}) async {
+  Future<Result<VerifedLicenseVahanData>> verifyLicenseVahan({
+    required LicenseVahanRequest request,
+  }) async {
     try {
       final url = ApiUrls.licenseVahanVerfification;
       final customHeaders = {
@@ -760,7 +813,11 @@ class ProfileService {
         "X-Application-UDID": "52e3dcc8-52ef-4f52-8756-3a06996757cd",
         "Content-Type": "application/json",
       };
-      final response = await _apiService.post(url, body: request.toJson(),customHeaders: customHeaders,);
+      final response = await _apiService.post(
+        url,
+        body: request.toJson(),
+        customHeaders: customHeaders,
+      );
       if (response is Success) {
         final loads = VerifedLicenseVahanData.fromJson(response.value);
         return Success(loads);
@@ -774,22 +831,154 @@ class ProfileService {
     }
   }
 
-  /// Verify Vehicle Vahan
-  Future<Result<VerifedVehicleVahanData>> verifyVehicelVahan({required VehicleVahanRequest request}) async {
+  /// fetch blood groups
+  Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups() async {
     try {
-      final url = ApiUrls.vehicleVahanVerfification;
-      final customHeaders = {
-        "Accept": "application/json",
-        "X-API-Key": "5f522b06263423e4cab5eb45d27f2be4",
-        "X-Application-UDID": "52e3dcc8-52ef-4f52-8756-3a06996757cd",
-        "Content-Type": "application/json",
-      };
-      final response = await _apiService.post(url, body: request.toJson(),customHeaders: customHeaders,);
+      final url = ApiUrls.getBloodGroup;
+      final response = await _apiService.get(url);
+
       if (response is Success) {
-        final loads = VerifedVehicleVahanData.fromJson(response.value);
-        return Success(loads);
+        final list =
+            (response.value as List)
+                .map((json) => BloodGroupResponseModel.fromJson(json))
+                .toList();
+        return Success(list);
       } else if (response is Error) {
         return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      print('error is $e');
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch License Categories
+  Future<Result<List<LicenseCategoryResponseModel>>>
+  fetchLicenseCategory() async {
+    try {
+      final url = ApiUrls.getLicenseCategory;
+      final response = await _apiService.get(url);
+
+      if (response is Success) {
+        final list =
+            (response.value as List)
+                .map((json) => LicenseCategoryResponseModel.fromJson(json))
+                .toList();
+        return Success(list);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      print('error is $e');
+      return Error(DeserializationError());
+    }
+  }
+
+  Future<Result<Map<String, dynamic>>> fetchVehicleData(
+    String vehicleNumber,
+  ) async {
+    try {
+      // === Step 1: Hit API-2 (Check if vehicle exists) ===
+      print('=== Step 1: Hit API-2 (Check if vehicle exists) ===');
+      final url = '${ApiUrls.checkVehicleNumber}/$vehicleNumber';
+
+      final api2Response = await _apiService.get(url);
+
+      final api2Data =
+          api2Response is Success ? api2Response.value['data'] : null;
+
+      if (api2Data != null && api2Data != false) {
+        return Success(api2Data);
+      }
+      // === Step 2: Fallback to API-1 ===
+      print('=== Step 2: Fallback to API-1 ===');
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+
+      final api1Response = await _apiService.post(
+        ApiUrls.kavachVehicleVerification,
+        body: {"vehicle_number": vehicleNumber},
+        customHeaders: customHeaders,
+      );
+
+      if (api1Response is Success &&
+          api1Response.value['data'] != null &&
+          api1Response.value['success'] != false) {
+        return Success(api1Response.value['data']);
+      }
+
+      return Error(GenericError());
+    } catch (e) {
+      return Error(GenericError());
+    }
+  }
+
+  Future<Result<Map<String, dynamic>>> fetchLicenseExcistence({
+    required LicenseVahanRequest request,
+  }) async {
+    try {
+      // === Step 1: Hit API-2 (Check if License exists) ===
+      print('=== Step 1: Hit API-2 (Check if License exists) ===');
+      final url = '${ApiUrls.checkLicenseNumber}${request.licenseNumber}';
+
+      final api2Response = await _apiService.get(url);
+
+      final api2Data =
+          api2Response is Success ? api2Response.value['data'] : null;
+
+      if (api2Data != null && api2Data != false) {
+        return Success(api2Data);
+      }
+
+      // === Step 2: Fallback to API-1 ===
+      print('=== Step 2: Fallback to API-1 ===');
+      final customHeaders = {
+        'accept': 'application/json',
+        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
+        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'Content-Type': 'application/json',
+      };
+      final api1Response = await _apiService.post(
+        ApiUrls.licenseVahanVerfification,
+        body: request.toJson(),
+        customHeaders: customHeaders,
+      );
+
+      if (api1Response is Success &&
+          api1Response.value['data'] != null &&
+          api1Response.value['success'] != false) {
+        return Success(api1Response.value['data']);
+      }
+
+      return Error(GenericError());
+    } catch (e) {
+      return Error(GenericError());
+    }
+  }
+
+  /// Log out repo
+  Future<Result<LogOutModel>> fetchLogOutData() async {
+    try {
+      final url = ApiUrls.logout;
+      final result = await _apiService.post(
+        url,
+        body: {
+          "customerId": (await _userInformationRepository.getUserID() ?? ""),
+        },
+      );
+      if (result is Success) {
+        final logOutModel = LogOutModel.fromJson(result.value);
+        return Success(logOutModel);
+      } else if (result is Error) {
+        return Error(result.type);
       } else {
         return Error(GenericError());
       }
@@ -797,71 +986,4 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
- 
-  /// fetch blood groups
-Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups() async {
-  try {
-    final url = "https://gro-devapi.letsgro.co/customer/api/v1/blood-group"; 
-    final response = await _apiService.get(
-      url
-    );
-
-    if (response is Success) {
-      final list = (response.value as List)
-          .map((json) => BloodGroupResponseModel.fromJson(json))
-          .toList();
-      return Success(list);
-    } else if (response is Error) {
-      return Error(response.type);
-    } else {
-      return Error(GenericError());
-    }
-  } catch (e) {
-    print('error is $e');
-    return Error(DeserializationError());
-  }
-}
-
- /// fetch License Categories
-Future<Result<List<LicenseCategoryResponseModel>>> fetchLicenseCategory() async {
-  try {
-    final url = "https://gro-devapi.letsgro.co/customer/api/v1/license-category"; 
-    final response = await _apiService.get(
-      url
-    );
-
-    if (response is Success) {
-      final list = (response.value as List)
-          .map((json) => LicenseCategoryResponseModel.fromJson(json))
-          .toList();
-      return Success(list);
-    } else if (response is Error) {
-      return Error(response.type);
-    } else {
-      return Error(GenericError());
-    }
-  } catch (e) {
-    print('error is $e');
-    return Error(DeserializationError());
-  }
-}
-  /// Log out repo
-  Future<Result<LogOutModel>> fetchLogOutData() async {
-    try {
-      final url = ApiUrls.logout;
-      final result = await _apiService.post(url, body: {"customerId" : (await _userInformationRepository.getUserID() ?? "")});
-      if (result is Success) {
-        final logOutModel= LogOutModel.fromJson(result.value);
-        return  Success(logOutModel);
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      return Error(DeserializationError());
-    }
-  }
-
-
 }

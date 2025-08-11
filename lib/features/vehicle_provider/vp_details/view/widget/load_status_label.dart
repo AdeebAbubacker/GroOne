@@ -9,12 +9,15 @@ class LoadStatusLabel extends StatelessWidget {
   final LoadStatus? loadStatus;
   final String? loadStatusTitle;
   final bool? loadOnHold;
-
+  final String? statusBgColor;
+  final String? statusTxtColor;
   const LoadStatusLabel({
     super.key,
     required this.loadStatus,
     this.loadStatusTitle,
     this.loadOnHold,
+    this.statusBgColor,
+    this.statusTxtColor,
   });
 
   @override
@@ -24,53 +27,18 @@ class LoadStatusLabel extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: _getBackgroundColor(),
+        color: VpHelper.getColor(statusBgColor ?? '')
       ),
       child: Text(
         (loadOnHold??false) ? context.appText.unLoadingHeld:
         loadStatusTitle ?? "",
         style: AppTextStyle.body.copyWith(
           fontSize: 12,
-          color: _getTextColor(),
+          color: VpHelper.getColor(statusTxtColor ?? ''),
           fontWeight: FontWeight.w400,
         ),
       ),
     );
   }
-
-  Color _getBackgroundColor() {
-    if(loadOnHold??false){
-     return AppColors.iconRed;
-    }
-    switch (loadStatus) {
-      case LoadStatus.inTransit:
-        return const Color(0xffFF5722).withOpacity(0.3);
-      case LoadStatus.unloading:
-        return AppColors.teal.withOpacity(0.3);
-      case LoadStatus.completed:
-        return AppColors.activeDarkGreenColor;
-      case LoadStatus.podDispatched:
-      return Color(0xff42A5F5);
-      default:
-        return AppColors.activeDarkGreenColor.withAlpha(64);
-    }
-  }
-
-  Color _getTextColor() {
-    if(loadOnHold??false){
-      return AppColors.white;
-    }
-    switch (loadStatus) {
-      case LoadStatus.inTransit:
-        return const Color(0xffFF5722);
-      case LoadStatus.completed || LoadStatus.podDispatched:
-        return Colors.white;
-      case LoadStatus.unloading:
-        return Colors.teal;
-      default:
-        return AppColors.activeDarkGreenColor;
-    }
-  }
-
 
 }

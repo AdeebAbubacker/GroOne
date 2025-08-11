@@ -5,7 +5,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
-import '../../../profile/cubit/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import '../../../login/repository/user_information_repository.dart';
 import '../../gps_order_request/gps_order_api_request.dart';
 import '../../cubit/gps_order_cubit_folder/gps_order_cubit.dart';

@@ -59,7 +59,13 @@ class DriverProfileCubit extends BaseCubit<DriverProfileState> {
       _setLogoutUIState(UIState.error(result.type));
     }
   }
-
-
+ 
+ void resetLogoutUIState() {
+    emit(
+      state.copyWith(
+        logoutUIState: resetUIState<DriverlogoutModel>(state.logoutUIState),
+      ),
+    );
+  }
 
 }

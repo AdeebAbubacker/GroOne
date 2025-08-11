@@ -1,17 +1,19 @@
 class LicenseVahanRequest {
   LicenseVahanRequest({
-    required this.licenseNumber,
-    required this.name,
-    required this.dob,
+    this.licenseNumber,
+    this.name,
+    this.dob,
   });
 
-  final String licenseNumber;
-  final String name;
-  final String dob;
+  final String? licenseNumber;
+  final String? name;
+  final String? dob;
 
-  Map<String, dynamic> toJson() => {
-        "license_number": licenseNumber,
-        "name": name,
-        "dob": dob,
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {};
+    if (licenseNumber != null) data["license_number"] = licenseNumber;
+    if (name != null) data["name"] = name;
+    if (dob != null) data["dob"] = dob;
+    return data;
+  }
 }
