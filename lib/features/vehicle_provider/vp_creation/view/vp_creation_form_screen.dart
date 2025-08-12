@@ -547,7 +547,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Attached Truck
         AppTextField(
-          validator: (value) => Validator.fieldRequired(value),
           controller: attachedTruckTextController,
           labelText: context.appText.attachedTrucks,
           hintText:
