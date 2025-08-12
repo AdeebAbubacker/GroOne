@@ -340,7 +340,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       ToastMessages.success(message: context.appText.gstVerifiedSuccessfully);
     }
     if (kycCubit.state.gstState?.status == Status.ERROR && context.mounted) {
-      ToastMessages.alert(message: context.appText.invalidGSTNumber);
+      final error = kycCubit.state.gstState?.errorType;
+      ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
     }
   }
 
@@ -353,7 +354,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       ToastMessages.success(message: context.appText.tanVerifiedSuccessfully);
     }
     if (kycCubit.state.tanState?.status == Status.ERROR  && context.mounted) {
-      ToastMessages.alert(message: context.appText.invalidTANNumber);
+      final error = kycCubit.state.tanState?.errorType;
+      ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
     }
   }
 
@@ -367,7 +369,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       ToastMessages.success(message:  context.appText.panVerifiedSuccessfully);
     }
     if (kycCubit.state.panState?.status == Status.ERROR) {
-      ToastMessages.alert(message: context.appText.invalidPANNumber);
+       final error = kycCubit.state.panState?.errorType;
+      ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
     }
   }
 

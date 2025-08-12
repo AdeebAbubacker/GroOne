@@ -314,54 +314,57 @@ class _MasterScreenState extends State<MasterScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: CommonAppBar(
-        scrolledUnderElevation: 0,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          context.appText.masters,
-          style: AppTextStyle.textBlackColor18w500,
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        appBar: CommonAppBar(
+          scrolledUnderElevation: 0,
+          backgroundColor: Colors.transparent,
+          title: Text(
+            context.appText.masters,
+            style: AppTextStyle.textBlackColor18w500,
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                color: AppColors.primaryColor,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerHeight: 0,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black,
-              labelStyle: AppTextStyle.h6.copyWith(fontWeight: FontWeight.w600),
-              unselectedLabelStyle: AppTextStyle.h6,
-              tabs: [
-                SizedBox(height: 30, child: Tab(text: context.appText.address)),
-                SizedBox(
-                  height: 30,
-                  child: Tab(text: context.appText.vehicles),
+        body: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
+              child: TabBar(
+                controller: _tabController,
+                indicator: BoxDecoration(
+                  color: AppColors.primaryColor,
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                SizedBox(height: 30, child: Tab(text: context.appText.drivers)),
-              ],
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerHeight: 0,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black,
+                labelStyle: AppTextStyle.h6.copyWith(fontWeight: FontWeight.w600),
+                unselectedLabelStyle: AppTextStyle.h6,
+                tabs: [
+                  SizedBox(height: 30, child: Tab(text: context.appText.address)),
+                  SizedBox(
+                    height: 30,
+                    child: Tab(text: context.appText.vehicles),
+                  ),
+                  SizedBox(height: 30, child: Tab(text: context.appText.drivers)),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                buildAddressTab(),
-                buildVehicleTab(),
-                buildDriverTab(),
-              ],
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  buildAddressTab(),
+                  buildVehicleTab(),
+                  buildDriverTab(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -510,7 +513,7 @@ class _MasterScreenState extends State<MasterScreen>
             onPressed: () => showAddAddressPopup(context),
           ),
         ),
-        40.height,
+        20.height,
       ],
     );
   }
@@ -650,7 +653,7 @@ class _MasterScreenState extends State<MasterScreen>
             },
           ),
         ),
-        40.height,
+        20.height,
       ],
     );
   }
@@ -799,7 +802,7 @@ class _MasterScreenState extends State<MasterScreen>
             },
           ),
         ),
-        40.height,
+        20.height,
       ],
     );
   }
