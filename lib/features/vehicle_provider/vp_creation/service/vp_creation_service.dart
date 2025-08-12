@@ -78,8 +78,7 @@ class VpCreationService {
       } else {
         return Error(GenericError());
       }
-    } catch(e,stacktress) {
-      print("stacktress is ${stacktress} $e");
+    } catch(e) {
       return Error(DeserializationError());
     }
   }

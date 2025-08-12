@@ -1465,6 +1465,7 @@ class LoadPaymentDetails {
   final DateTime? deletedAt;
   final bool? payableAdvancedPaidFlag;
   final bool? payableBalancePaidFlag;
+  final String? payableAgreedPrice;
 
   LoadPaymentDetails({
     this.id,
@@ -1491,6 +1492,7 @@ class LoadPaymentDetails {
     this.deletedAt,
     this.payableAdvancedPaidFlag,
     this.payableBalancePaidFlag,
+    this.payableAgreedPrice,
   });
 
   factory LoadPaymentDetails.fromJson(Map<String, dynamic> json) {
@@ -1500,6 +1502,7 @@ class LoadPaymentDetails {
       loadId: json['loadId'] as String?,
       lpId: json['lpId'] as String?,
       vpId: json['vpId'] as String?,
+      payableAgreedPrice: json['payableAgreedPrice'].toString(),
       agreedPrice: json['agreedPrice'] as String?,
       receivableAdvance: json['receivableAdvance'] as String?,
       receivableBalance: json['receivableBalance'] as String?,
