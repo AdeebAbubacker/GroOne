@@ -41,11 +41,14 @@ class ViewOtherDocuments extends StatelessWidget {
                 itemCount:otherDocument.length ,
                 itemBuilder: (context, index) {
                   LoadDocument loadDocumentObj=otherDocument[index];
+
                   return PreviewDocumentWidget(
                     showViewMoreButton: false,
                       onClickViewMoreIcon: () {},
                       showAddMoreButton:false ,
-                      showDeleteIcon:cubit?.state.loadStatus==LoadStatus.loading ,
+                      showDeleteIcon:
+
+                      cubit?.state.loadStatus==LoadStatus.loading ,
                       showDeleteLoader: false,
                       onClickDeleteIcon: () {
                          cubit?.deleteLoadDocument(loadDocumentObj.loadDocumentId??"",index,otherDocument: true);

@@ -207,11 +207,12 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       onTap: () async {
                         final String? date = await commonDatePicker(
                           context,
-                          firstDate: DateTime.now(),
-                          initialDate:
-                              DateTimeHelper.convertToDateTimeWithCurrentTime(
-                                DateTime.now().toString(),
-                              ),
+                          firstDate:  loadDetails?.pickUpDateTime?.add(Duration(
+                            days: 1
+                          )),
+                          initialDate: loadDetails?.pickUpDateTime?.add(Duration(
+                              days: 1
+                          )),
                         );
                         if (!context.mounted) return;
                         final String? time = await commonTimePicker(context);

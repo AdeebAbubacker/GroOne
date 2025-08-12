@@ -846,9 +846,11 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   VoidCallback? onViewTap,
   String? advancedPaymentPer
 }) {
+
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
+
 
       if((agreedPrice??"").isNotEmpty)
         _buildPriceRow(

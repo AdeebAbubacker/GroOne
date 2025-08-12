@@ -55,7 +55,7 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                 ),
                 AppButton(
                   buttonHeight: 35,
-                  title: state.isFeedbackAdded == false
+                  title: state.isFeedbackAdded == false && feedbackController.text.isEmpty
                       ? context.appText.add
                       : context.appText.update,
                   style: AppButtonStyle.outlineShrink,

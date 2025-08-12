@@ -118,9 +118,21 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
   Future<void> _checkVerification(KycInitResponse? kycInitResponse) async {
     String? sdkUrl=kycInitResponse?.sdkUrl??"";
     aadharRequestId??=kycInitResponse?.requestId??"";
+    String verifiedStatus=kycInitResponse?.status??"";
+
+
+
+    if(verifiedStatus.isNotEmpty && verifiedStatus=="VERIFIED"){
+      ToastMessages.error(message: context.appText.alreadyVerified);
+      return;
+    }
+
+
 
     if(sdkUrl.isNotEmpty){
-    final isVerified= await Navigator.push(context, commonRoute(KycVerificationWebView(
+      Navigator.pop(context);
+
+    final isVerified= await Navigator.push(navigatorKey.currentState!.context, commonRoute(KycVerificationWebView(
         url: sdkUrl,
       )));
 

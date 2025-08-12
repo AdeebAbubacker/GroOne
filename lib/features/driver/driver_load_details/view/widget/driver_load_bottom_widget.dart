@@ -185,9 +185,9 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                 children: [
                   Flexible(
                     child: RefreshIndicator(
-                      onRefresh: () async {
-                        return;
-                      },
+                       onRefresh: () async {
+                      return getLoadDetails();
+                    },
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -252,8 +252,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                               widget
                                                       .loadItem
                                                       .data
-                                                      ?.trackingDetails
-                                                      ?.truckNumber ??
+                                                      ?.scheduleTripDetails
+                                                      ?.vehicle?.vehicle?.truckNo ??
                                                   'N/A',
                                               style: AppTextStyle.body3
                                                   .copyWith(
