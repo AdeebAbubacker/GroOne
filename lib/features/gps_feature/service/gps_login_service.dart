@@ -43,8 +43,17 @@ class GpsLoginService {
 
       CustomLog.info(this, "Using mobile number for GPS login: $mobileNumber");
 
+      // For login, we don't want to send authorization headers
+      final loginHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-API-KEY': '63cee6fe-1c1b-4de9-af0e-ee0fab917531',
+        // No Authorization header for login
+      };
+
       final result = await _apiService.post(
         'https://new-test-gro.roadcast.net/api/v1/auth/auth_login?user_name=$mobileNumber',
+        customHeaders: loginHeaders,
       );
 
       if (result is Success) {

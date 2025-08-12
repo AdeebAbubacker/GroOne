@@ -30,7 +30,6 @@ class ApiService {
     _dio.options.receiveTimeout = _timeout;
   }
 
-
   /// Header
   Future<Map<String, String>> _getHeaders({bool isMultipart = false}) async {
     Map<String, String> headers = {
@@ -101,7 +100,6 @@ class ApiService {
       );
       return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
-
       return await _handleDioError(dioError);
     } catch (exception) {
       CustomLog.error(this, "Generic HTTP call error", exception);
@@ -422,8 +420,10 @@ class ApiService {
         if (currentRoute != AppRouteName.chooseLanguage) {
           CustomLog.debug(this, "🔐 Redirecting to choose language screen");
           // appContext.pushReplacement(AppRouteName.chooseLanguage);
-          appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
-
+          appContext.pushReplacement(
+            AppRouteName.login,
+            extra: {"showBackButton": false},
+          );
         } else {
           CustomLog.debug(
             this,
@@ -443,7 +443,10 @@ class ApiService {
 
         if (appContext.mounted) {
           // appContext.pushReplacement(AppRouteName.chooseLanguage);
-          appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
+          appContext.pushReplacement(
+            AppRouteName.login,
+            extra: {"showBackButton": false},
+          );
 
           LpBottomNavigation.selectedIndexNotifier.value = 0;
         }
