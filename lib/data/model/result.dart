@@ -1,6 +1,5 @@
 import 'package:flutter/widgets.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
 
@@ -20,7 +19,6 @@ class Error<T> extends Result<T> {
   const Error(this.type);
 }
 
-
 // Abstract class ErrorType to serve as a base for all error types
 abstract class ErrorType {
   String getText(BuildContext context);
@@ -34,19 +32,16 @@ class ErrorWithMessage extends ErrorType {
 
   @override
   String getText(BuildContext context) {
-    if(code != null){
+    if (code != null) {
       return "Message: $message, Code: $code";
-    }else{
+    } else {
       return "Message: $message";
     }
   }
 
   factory ErrorWithMessage.fromApiResponse(Map<String, dynamic> response) {
-    return ErrorWithMessage(
-      message: response['message'] ?? "",
-    );
+    return ErrorWithMessage(message: response['message'] ?? "");
   }
-
 }
 
 class TokenExpiredError extends ErrorType {
@@ -73,7 +68,7 @@ class BadRequestError extends ErrorType {
 
   @override
   String getText(BuildContext context) {
-    if(message != null){
+    if (message != null) {
       return message!;
     } else {
       return context.appText.badRequestError.capitalize;
@@ -81,19 +76,14 @@ class BadRequestError extends ErrorType {
   }
 
   factory BadRequestError.fromApiResponse(Map<String, dynamic> response) {
-    return BadRequestError(
-      message: response['message'] ?? "",
-    );
+    return BadRequestError(message: response['message'] ?? "");
   }
-
 }
-
-
 
 class InternalServerError extends ErrorType {
   final String? message;
   InternalServerError({this.message});
-  
+
   @override
   String getText(BuildContext context) {
     return message ?? '';
@@ -123,18 +113,15 @@ class NotFoundError extends ErrorType {
   NotFoundError({this.message});
   @override
   String getText(BuildContext context) {
-    if(message != null){
+    if (message != null) {
       return message!;
     }
     return context.appText.notFound.capitalize ?? '';
   }
 
   factory NotFoundError.fromApiResponse(Map<String, dynamic> response) {
-    return NotFoundError(
-      message: response['message'] ?? "",
-    );
+    return NotFoundError(message: response['message'] ?? "");
   }
-
 }
 
 class UnauthenticatedError extends ErrorType {
@@ -146,9 +133,7 @@ class UnauthenticatedError extends ErrorType {
   }
 
   factory UnauthenticatedError.fromApiResponse(Map<String, dynamic> response) {
-    return UnauthenticatedError(
-      message: response['message'] ?? "",
-    );
+    return UnauthenticatedError(message: response['message'] ?? "");
   }
 }
 
@@ -186,7 +171,6 @@ class ResponseStatusFailed extends ErrorType {
   }
 }
 
-
 class SerializationError extends ErrorType {
   @override
   String getText(BuildContext context) {
@@ -219,5 +203,17 @@ class InvalidInputError extends ErrorType {
   @override
   String getText(BuildContext context) {
     return context.appText.invalidInput.capitalize;
+  }
+}
+
+class GpsDeviceActivationError extends ErrorType {
+  final String? message;
+
+  GpsDeviceActivationError({this.message});
+
+  @override
+  String getText(BuildContext context) {
+    return message ??
+        'Device activation still in progress. Please try again later.';
   }
 }
