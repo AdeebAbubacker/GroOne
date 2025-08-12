@@ -60,6 +60,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -434,62 +435,70 @@ class _MasterScreenState extends State<MasterScreen>
                 );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 20,
-                ),
-                itemBuilder: (context, index) {
-                  var address = addressList[index];
-                  String fullAddress =
-                      '${address.addr}, ${address.city}, ${address.state}, ${address.pincode}';
-                  return masterInfoWidget(
-                    title: address.addrName.capitalizeFirst,
-                    address: fullAddress,
-                    isPrimary: address.isDefault,
-                    onEdit:
-                        () => showAddAddressPopup(context, address: address),
-                    onDelete:
-                        () => showDeletePopUp(
-                          context: context,
-                          confirmMessage:
-                              context.appText.areYouSureToDeleteThisAddress,
-                          successMessage:
-                              context.appText.addressDeletedSuccessfully,
-                          onDelete:
-                              () => profileCubit.deleteAddress(
-                                addressId: address.preferedAddressId,
-                              ),
-                        ),
-                    onSetPrimary: () async {
-                      await profileCubit.setPrimaryAddress(
-                        addressId: address.preferedAddressId,
-                      );
-
-                      // Check if it succeeded
-                      final primaryState =
-                          profileCubit.state.primaryAddressState;
-                      if (primaryState != null &&
-                          primaryState.status == Status.SUCCESS) {
-                        ToastMessages.success(
-                          message:
-                              context.appText.primaryAddressUpdatedSuccessfully,
-                        ); // optional toast
-                        profileCubit.fetchAddress(
-                          isLoading: false,
-                        ); // silent refresh
-                      } else {
-                        final error = primaryState?.errorType;
-                        ToastMessages.error(
-                          message: getErrorMsg(
-                            errorType: error ?? GenericError(),
-                          ),
-                        ); // optional toast
-                      }
-                    },
-                  );
+              return RefreshIndicator(
+                onRefresh: () async {
+                  // Reset page count if you are paginating
+                  context.read<ProfileCubit>().fetchAddress(isLoading: true);
                 },
-                itemCount: addressList.length,
+                child: ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 20,
+                  ),
+                  itemBuilder: (context, index) {
+                    var address = addressList[index];
+                    String fullAddress =
+                        '${address.addr}, ${address.city}, ${address.state}, ${address.pincode}';
+                    return masterInfoWidget(
+                      title: address.addrName.capitalizeFirst,
+                      address: fullAddress,
+                      isPrimary: address.isDefault,
+                      onEdit:
+                          () => showAddAddressPopup(context, address: address),
+                      onDelete:
+                          () => showDeletePopUp(
+                            context: context,
+                            confirmMessage:
+                                context.appText.areYouSureToDeleteThisAddress,
+                            successMessage:
+                                context.appText.addressDeletedSuccessfully,
+                            onDelete:
+                                () => profileCubit.deleteAddress(
+                                  addressId: address.preferedAddressId,
+                                ),
+                          ),
+                      onSetPrimary: () async {
+                        await profileCubit.setPrimaryAddress(
+                          addressId: address.preferedAddressId,
+                        );
+
+                        // Check if it succeeded
+                        final primaryState =
+                            profileCubit.state.primaryAddressState;
+                        if (primaryState != null &&
+                            primaryState.status == Status.SUCCESS) {
+                          ToastMessages.success(
+                            message:
+                                context
+                                    .appText
+                                    .primaryAddressUpdatedSuccessfully,
+                          ); // optional toast
+                          profileCubit.fetchAddress(
+                            isLoading: false,
+                          ); // silent refresh
+                        } else {
+                          final error = primaryState?.errorType;
+                          ToastMessages.error(
+                            message: getErrorMsg(
+                              errorType: error ?? GenericError(),
+                            ),
+                          ); // optional toast
+                        }
+                      },
+                    );
+                  },
+                  itemCount: addressList.length,
+                ),
               );
             },
           ),
@@ -501,6 +510,7 @@ class _MasterScreenState extends State<MasterScreen>
             onPressed: () => showAddAddressPopup(context),
           ),
         ),
+        40.height,
       ],
     );
   }
@@ -570,39 +580,59 @@ class _MasterScreenState extends State<MasterScreen>
                 );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 20,
-                ),
-                itemCount: filteredVehicleList.length,
-                itemBuilder: (context, index) {
-                  final vehicleDetailsData = filteredVehicleList[index];
-                  return masterVehicleInfoWidget(
-                    name: vehicleDetailsData.truckNo,
-                    phone: vehicleDetailsData.companyName ?? '',
-                    driverStatus: vehicleDetailsData.status,
-                    onEdit: () async {
-                      mastersCubit.resetVehicleVerification();
-                      await Future.delayed(const Duration(milliseconds: 50));
-                      showAddVehiclePopup(context, vehcile: vehicleDetailsData);
-                    },
-                    onDelete:
-                        () => showDeletePopUp(
-                          context: context,
-                          confirmMessage:
-                              context.appText.areYouSureToDeleteThisVehicle,
-                          successMessage:
-                              context.appText.vehicleDeletedSuccessfully,
-                          onDelete:
-                              () => profileCubit.deleteVehicle(
-                                vehicleId: vehicleDetailsData.vehicleId,
-                                request: DeleteVehicleRequest(status: 3),
-                              ),
-                        ),
-                    context: context,
-                  );
+              return RefreshIndicator(
+                onRefresh: () async {
+                  // Reset page count if you are paginating
+                  context.read<ProfileCubit>().fetchVehicle(isLoading: true);
                 },
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (scrollInfo) {
+                    if (scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent) {
+                      context.read<ProfileCubit>().fetchVehicle(loadMore: true);
+                    }
+                    return false;
+                  },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 20,
+                    ),
+                    itemCount: filteredVehicleList.length,
+                    itemBuilder: (context, index) {
+                      final vehicleDetailsData = filteredVehicleList[index];
+                      return masterVehicleInfoWidget(
+                        name: vehicleDetailsData.truckNo,
+                        phone: vehicleDetailsData.companyName ?? '',
+                        driverStatus: vehicleDetailsData.status,
+                        onEdit: () async {
+                          mastersCubit.resetVehicleVerification();
+                          await Future.delayed(
+                            const Duration(milliseconds: 50),
+                          );
+                          showAddVehiclePopup(
+                            context,
+                            vehcile: vehicleDetailsData,
+                          );
+                        },
+                        onDelete:
+                            () => showDeletePopUp(
+                              context: context,
+                              confirmMessage:
+                                  context.appText.areYouSureToDeleteThisVehicle,
+                              successMessage:
+                                  context.appText.vehicleDeletedSuccessfully,
+                              onDelete:
+                                  () => profileCubit.deleteVehicle(
+                                    vehicleId: vehicleDetailsData.vehicleId,
+                                    request: DeleteVehicleRequest(status: 3),
+                                  ),
+                            ),
+                        context: context,
+                      );
+                    },
+                  ),
+                ),
               );
             },
           ),
@@ -620,6 +650,7 @@ class _MasterScreenState extends State<MasterScreen>
             },
           ),
         ),
+        40.height,
       ],
     );
   }
@@ -704,39 +735,55 @@ class _MasterScreenState extends State<MasterScreen>
                 );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 20,
-                ),
-                itemCount: driverList.length,
-                itemBuilder: (context, index) {
-                  DriverDetailsData driver = driverList[index];
-                  return masterDriverInfoWidget(
-                    name: driver.name,
-                    phone: driver.mobile,
-                    driverStatus: driver.driverStatus,
-                    onEdit: () async {
-                      mastersCubit.resetLicenseVerification();
-                      await Future.delayed(const Duration(milliseconds: 50));
-                      showAddDriverPopup(context, driver: driver);
-                    },
-                    onDelete:
-                        () => showDeletePopUp(
-                          context: context,
-                          confirmMessage:
-                              context.appText.areYouSureToDeleteThisDriver,
-                          successMessage:
-                              context.appText.driverDeletedSuccessfully,
-                          onDelete:
-                              () => profileCubit.deleteDriver(
-                                driverId: driver.driverId,
-                              ),
-                        ),
-
-                    context: context,
-                  );
+              return RefreshIndicator(
+                onRefresh: () async {
+                  // Reset page count if you are paginating
+                  await profileCubit.fetchDriver(isLoading: true);
                 },
+                child: NotificationListener<ScrollNotification>(
+                  onNotification: (scrollInfo) {
+                    if (scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent) {
+                      context.read<ProfileCubit>().fetchDriver(loadMore: true);
+                    }
+                    return false;
+                  },
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 20,
+                    ),
+                    itemCount: driverList.length,
+                    itemBuilder: (context, index) {
+                      DriverDetailsData driver = driverList[index];
+                      return masterDriverInfoWidget(
+                        name: driver.name,
+                        phone: driver.mobile,
+                        driverStatus: driver.driverStatus,
+                        onEdit: () async {
+                          mastersCubit.resetLicenseVerification();
+                          await Future.delayed(
+                            const Duration(milliseconds: 50),
+                          );
+                          showAddDriverPopup(context, driver: driver);
+                        },
+                        onDelete:
+                            () => showDeletePopUp(
+                              context: context,
+                              confirmMessage:
+                                  context.appText.areYouSureToDeleteThisDriver,
+                              successMessage:
+                                  context.appText.driverDeletedSuccessfully,
+                              onDelete:
+                                  () => profileCubit.deleteDriver(
+                                    driverId: driver.driverId,
+                                  ),
+                            ),
+                        context: context,
+                      );
+                    },
+                  ),
+                ),
               );
             },
           ),
@@ -752,6 +799,7 @@ class _MasterScreenState extends State<MasterScreen>
             },
           ),
         ),
+        40.height,
       ],
     );
   }
@@ -774,7 +822,8 @@ class _MasterScreenState extends State<MasterScreen>
         children: [
           Row(
             children: [
-              Text(title, style: AppTextStyle.h5).expand(),
+              Flexible(child: Text(title, style: AppTextStyle.h5).expand(),),
+              
               IconButton(
                 onPressed: onEdit,
                 icon: SvgPicture.asset(
@@ -800,6 +849,7 @@ class _MasterScreenState extends State<MasterScreen>
               color: AppColors.lightGreyTextColor,
             ),
           ),
+          
           15.height,
 
           InkWell(
@@ -881,13 +931,18 @@ class _MasterScreenState extends State<MasterScreen>
                   children: [
                     Row(
                       children: [
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
+                        Flexible(
+  child: Text(
+    name,
+    style: const TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 16,
+    ),
+    overflow: TextOverflow.ellipsis,
+    maxLines: 1,
+  ),
+),
+
                         6.width,
                         SvgPicture.asset(AppIcons.svg.tick),
                       ],
@@ -1016,14 +1071,20 @@ class _MasterScreenState extends State<MasterScreen>
                     4.height,
                     Row(
                       children: [
-                        Text(
-                          name,
-                          style: AppTextStyle.body.copyWith(
+      
+                        Flexible(
+  child: Text(
+    name,
+    style: AppTextStyle.body.copyWith(
                             fontWeight: FontWeight.w500,
                             fontSize: 15,
                             color: AppColors.textBlackDetailColor,
                           ),
-                        ),
+    overflow: TextOverflow.ellipsis,
+    maxLines: 1,
+  ),
+),
+
                         6.width,
                         SvgPicture.asset(AppIcons.svg.tick),
                       ],
@@ -1121,6 +1182,7 @@ class _MasterScreenState extends State<MasterScreen>
           mandatoryStar: true,
           maxLength: 15,
           labelText: "Vehicle reg no",
+
           textCapitalization: TextCapitalization.characters,
           validator:
               (value) => Validator.validateVehicleNumber(
@@ -1129,7 +1191,9 @@ class _MasterScreenState extends State<MasterScreen>
               ),
           inputFormatters: [
             FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
+            UpperCaseTextFormatter(),
           ],
+
           readOnly: isVerified,
           decoration: commonInputDecoration(
             suffixIcon:
@@ -1216,6 +1280,7 @@ class _MasterScreenState extends State<MasterScreen>
               controller: licenseNoController,
               mandatoryStar: true,
               labelText: "License No",
+              inputFormatters: [UpperCaseTextFormatter()],
               validator:
                   (value) => Validator.indianLicenseNumber(
                     value,

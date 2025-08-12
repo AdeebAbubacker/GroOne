@@ -185,9 +185,9 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                 children: [
                   Flexible(
                     child: RefreshIndicator(
-                      onRefresh: () async {
-                        return;
-                      },
+                       onRefresh: () async {
+                      return getLoadDetails();
+                    },
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,

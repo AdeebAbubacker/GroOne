@@ -972,7 +972,7 @@ class LoadSettlement {
       noOfDays: json['noOfDays'] as int?,
       amountPerDay: json['amountPerDay'] as int?,
       loadingCharge: json['loadingCharge'] as int?,
-      unLoadingCharge: json['unLoadingCharge'] as int?,
+      unLoadingCharge: json['unloadingCharge'] as int?,
       debitDamages: json['debitDamages'] as int?,
       debitShortages: json['debitShortages'] as int?,
       debitPenalities: json['debitPenalities'] as int?,
@@ -2149,6 +2149,7 @@ class Customer {
         required this.customerName,
         required this.mobileNumber,
         required this.companyTypeId,
+        required this.customerSeriesNo,
         required this.emailId,
         required this.blueId,
         required this.kycRejectReason,
@@ -2176,6 +2177,7 @@ class Customer {
     final String customerName;
     final String mobileNumber;
     final int companyTypeId;
+    final int customerSeriesNo;
     final String emailId;
     final String blueId;
     final dynamic kycRejectReason;
@@ -2203,6 +2205,7 @@ class Customer {
         String? customerName,
         String? mobileNumber,
         int? companyTypeId,
+        int? customerSeriesNo,
         String? emailId,
         String? blueId,
         dynamic kycRejectReason,
@@ -2230,6 +2233,7 @@ class Customer {
             customerName: customerName ?? this.customerName,
             mobileNumber: mobileNumber ?? this.mobileNumber,
             companyTypeId: companyTypeId ?? this.companyTypeId,
+            customerSeriesNo: customerSeriesNo ?? this.customerSeriesNo,
             emailId: emailId ?? this.emailId,
             blueId: blueId ?? this.blueId,
             kycRejectReason: kycRejectReason ?? this.kycRejectReason,
@@ -2260,6 +2264,7 @@ class Customer {
             customerName: json["customerName"] ?? "",
             mobileNumber: json["mobileNumber"] ?? "",
             companyTypeId: json["companyTypeId"] ?? 0,
+            customerSeriesNo: json["customerSeriesNo"] ?? 0,
             emailId: json["emailId"] ?? "",
             blueId: json["blueId"] ?? "",
             kycRejectReason: json["kycRejectReason"],

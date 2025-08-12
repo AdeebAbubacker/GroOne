@@ -1,19 +1,15 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gro_one_app/features/kavach/view/kavach_added_vehicles_bottom_sheet.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_billing_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_shipping_address_list_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
-import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_event.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_state.dart';
-import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -387,41 +383,6 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               ),
             );
           }
-        } else if (state is KavachOrderFailure) {
-          // Dismiss loading dialog
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          }
-          ToastMessages.error(message: "Failed to place order: ${state.message}");
-        }
-
-        if (state is KavachPaymentInitiating) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
-        } else if (state is KavachPaymentSuccess) {
-          // Dismiss loading dialog
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          }
-          
-          // Navigate to payment screen
-          Navigator.of(context).push(
-            commonRoute(
-              PaymentsScreen(
-                url: state.paymentResponse.data?.data?.tinyUrl ?? "",
-                loadId: "kavach_order",
-              ),
-            ),
-          );
-        } else if (state is KavachPaymentFailure) {
-          // Dismiss loading dialog
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          }
-          ToastMessages.error(message: "Failed to initiate payment: ${state.message}");
         }
       },
       child: Scaffold(

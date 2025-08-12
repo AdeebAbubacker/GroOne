@@ -228,7 +228,6 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
     }
 
     List<Timeline> timeLine= json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x)));
-    timeLine.removeWhere((element) => element.id==1);
     return LoadDetailModelData(
       podDispatch: json['podDispatch']!=null &&  (json['podDispatch'] as Map).isNotEmpty ? PodDispatch.fromJson(json['podDispatch']):null,
       loadSettlement:json['loadSettlement']!=null ? LoadSettlement.fromJson(json['loadSettlement']):null,

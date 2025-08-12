@@ -9,7 +9,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
     required this.lpEmailId,
     required this.lpMobile,
     required this.vpId,
-    required this.memoNumber,
+    required this.loadSeriesId,
     required this.netFreight,
     required this.advance,
     required this.advancePercentage,
@@ -31,7 +31,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
   final String lpEmailId;
   final String lpMobile;
   final String vpId;
-  final String memoNumber;
+  final String loadSeriesId;
   final String netFreight;
   final String advance;
   final String advancePercentage;
@@ -53,7 +53,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
     String? lpEmailId,
     String? lpMobile,
     String? vpId,
-    String? memoNumber,
+    String? loadSeriesId,
     String? netFreight,
     String? advance,
     String? advancePercentage,
@@ -75,7 +75,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
       lpEmailId: lpEmailId ?? this.lpEmailId,
       lpMobile: lpMobile ?? this.lpMobile,
       vpId: vpId ?? this.vpId,
-      memoNumber: memoNumber ?? this.memoNumber,
+      loadSeriesId: loadSeriesId ?? this.loadSeriesId,
       netFreight: netFreight ?? this.netFreight,
       advance: advance ?? this.advance,
       advancePercentage: advancePercentage ?? this.advancePercentage,
@@ -100,7 +100,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
       lpEmailId: json["lpEmailId"] ?? "",
       lpMobile: json["lpMobile"] ?? "",
       vpId: json["vpId"] ?? "",
-      memoNumber: json["memoNumber"] ?? "",
+      loadSeriesId: json["loadSeriesId"] ?? "",
       netFreight: json["netFreight"] ?? 0,
       advance: json["advance"] ?? 0,
       advancePercentage: json["advancePercentage"] ?? 0,
@@ -125,7 +125,7 @@ class CreateOrderIdRequest extends Serializable<CreateOrderIdRequest> {
     "lpEmailId": lpEmailId,
     "lpMobile": lpMobile,
     "vpId": vpId,
-    "memoNumber": memoNumber,
+    "loadSeriesId": loadSeriesId,
     "netFreight": netFreight,
     "advance": advance,
     "advancePercentage": advancePercentage,
