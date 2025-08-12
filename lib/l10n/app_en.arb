@@ -1065,5 +1065,6 @@
   "pleaseEnterValidPinCode" : "Please enter a valid pincode",
   "searchTruckTypes" : "Search truck types",
   "searchRoutes" : "Search routes...",
-  "unableToCompleteUrReq" : "Unable to complete your request. Please refresh or try later."
+  "unableToCompleteUrReq" : "Unable to complete your request. Please refresh or try later.",
+  "rcNumber": "RC number"
 }

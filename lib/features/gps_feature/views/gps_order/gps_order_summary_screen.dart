@@ -154,6 +154,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       String? companyName = await userInfoRepo.getUsername();
       String? contactNumber = await userInfoRepo.getUserMobileNumber();
       String? blueId = await userInfoRepo.getBlueID();
+      String? email = await userInfoRepo.getUserEmail();
+      String? mobileNumber = await userInfoRepo.getUserMobileNumber();
 
       // If session data is not available, fetch from profile
       if (companyName == null || companyName.isEmpty) {
@@ -168,6 +170,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   : customer.customerName;
           contactNumber = customer.mobileNumber;
           blueId = customer.blueId?.toString() ?? "";
+          email = customer.emailId;
+          blueId = customer.blueId?.toString() ?? "";
         }
       }
 
@@ -180,6 +184,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         "contactNumber":
             contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
         "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456",
+        "email": email ?? "venkat03it@gmail.com",
+        "mobileNumber": mobileNumber ?? "9876543210",
       };
     } catch (e) {
       // Return hardcoded values as fallback
@@ -187,6 +193,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         "companyName": "ABC Logistics Pvt Ltd",
         "contactNumber": "9876543210",
         "blueMembershipId": "BLUE123456",
+        "email": "venkat03it@gmail.com",
+        "mobileNumber": "9876543210",
       };
     }
   }
@@ -214,18 +222,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             context,
             context.appText.orderPlacedSuccessfully,
           );
-          // showSuccessDialog(
-          //   context,
-          //   text: 'Order placed successfully',
-          //   subheading: '',
-          //   onTap: () {
-          //     // Navigate directly without closing dialog first
-          // Navigator.of(context).pushAndRemoveUntil(
-          //   MaterialPageRoute(builder: (context) => GpsOrderBenefitsAndOrderListScreen()),
-          //   (route) => false,
-          // );
-          //   },
-          // );
         } else if (state is GpsOrderError) {
           // Close loading dialog if it's open
           if (Navigator.canPop(context)) {
@@ -261,7 +257,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
           // Handle payment completion
           if (result == true) {
-            _showSuccessDialogAndNavigate(context, 'Order placed successfully');
+            _createGpsOrder();
           }
         } else if (state is GpsPaymentFailure) {
           // Dismiss loading dialog
@@ -544,7 +540,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   // This should be fetched from user profile
                   customerMobile: customerInfo["contactNumber"] ?? "9876543210",
                   customerCity: widget.billingAddress.city,
-                  customerId: '',
+                  customerId: customerId,
                   merchantReferenceNo: 'fleet',
                 );
 
@@ -619,6 +615,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         companyName: customerInfoMap["companyName"] ?? "ABC Logistics Pvt Ltd",
         contactNumber: customerInfoMap["contactNumber"] ?? "9876543210",
         blueMembershipId: customerInfoMap["blueMembershipId"] ?? "BLUE123456",
+        email: customerInfoMap['email']??"venkat03it@gmail.com",
+        mobileNumber: customerInfoMap['mobileNumber']??'9876543210'
       );
 
       // Determine if referral code is provided and extract employee details
@@ -701,9 +699,13 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             );
           }).toList();
 
+      int? customerSeriesId = await userInfoRepo.getCustomerSeriesId();
+
       // Create the order request
       final request = GpsOrderRequest(
+        paymentRequestId: gpsOrderCubit.paymentRequestId,
         orderSource: "MOBILE",
+        customerSeriesId: customerSeriesId ?? 200,
         isOrderPaid: true,
         // Always true as per documentation
         customerId: customerId,
@@ -731,14 +733,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
       print('GPS Order Request: ${request.toJson()}');
 
-      if (kDebugMode) {
-        log(jsonEncode(request));
-      }
-
       // Create the order
       await gpsOrderCubit.createOrder(request);
     } catch (e) {
-      print('Error creating GPS order: $e');
       ToastMessages.alert(message: 'Failed to create order: $e');
     }
   }
