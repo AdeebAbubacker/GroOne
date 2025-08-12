@@ -189,9 +189,9 @@ class ProfileRepository {
     }
   }
   /// Get Vehicle
-  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId,String? search}) async {
+  Future<Result<PaginatedVehicleList>> fetchVehicle({required String userId,String? search,int? page, int? limit}) async {
     try {
-      return await _profileService.fetchVehicle(userId: userId,search: search);
+      return await _profileService.fetchVehicle(userId: userId,search: search,page: page ?? 1,pageSize: limit ?? 10);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -233,14 +233,14 @@ Future<Result<bool>> deleteVehicle({
 
 
   /// Get Driver
-  Future<Result<PaginatedDriverList>> fetchDriver({required String userId,String? search}) async {
+   /// Get Driver
+  Future<Result<PaginatedDriverList>> fetchDriver({required String userId,String? search,int? page, int? limit}) async {
     try {
-      return await _profileService.fetchDriver(customerId: userId,search: search);
+      return await _profileService.fetchDriver(customerId: userId,search: search,page: page ?? 1,pageSize: limit ?? 10);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }  
-
   /// delete driver
   Future<Result<void>> deleteDriver({required String driverId}) async {
     try {

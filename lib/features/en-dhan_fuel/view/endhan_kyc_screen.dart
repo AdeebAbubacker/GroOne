@@ -41,6 +41,7 @@ class EndhanKycScreen extends StatefulWidget {
   final String? panPrefill;
   final bool isAadhaarVerified;
   final bool isPanVerified;
+  final bool showPanUpload;
 
   const EndhanKycScreen({
     super.key,
@@ -48,6 +49,7 @@ class EndhanKycScreen extends StatefulWidget {
     this.panPrefill,
     this.isAadhaarVerified = false,
     this.isPanVerified = false,
+    this.showPanUpload = true,
   });
 
   @override
@@ -83,13 +85,19 @@ class _EndhanKycScreenState extends State<EndhanKycScreen> {
             isPanVerified: widget.isPanVerified,
           );
       },
-      child: _EndhanKycScreenContent(),
+      child: _EndhanKycScreenContent(showPanUpload: widget.showPanUpload,),
     );
   }
 }
 
+
 class _EndhanKycScreenContent extends StatelessWidget {
-  _EndhanKycScreenContent();
+  final bool showPanUpload; // <- new property
+
+  _EndhanKycScreenContent({
+    Key? key,
+    required this.showPanUpload, // <- make it required or give default
+  }) : super(key: key);
   final kycCubit = locator<KycCubit>(); // For KYC flow
   final aadharRequestId = ValueNotifier<String?>(null);
 
@@ -746,7 +754,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
                       10.height,
                       // PAN Document Upload
-                      if(!state.pan.isNotEmpty) Column(
+                      if(showPanUpload) Column(
                         children: [
                           EndhanDocumentUploadWidget(
                             feildTitle: context.appText.uploadDocument,

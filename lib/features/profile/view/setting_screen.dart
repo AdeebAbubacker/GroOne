@@ -101,6 +101,9 @@ class _LpSettingState extends State<LpSetting> {
 
 
                       if (setting.type == 'toggle') {
+                        if (setting.key == 'offers_promotions') {
+                          return const SizedBox.shrink();
+                        }
                         return toggleRow(
                           setting.label,
                           value == 'true',

@@ -435,6 +435,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                               phoneController: consigneePhoneController,
                               emailController: consigneeEmailController,
                               onUpdate: () {
+                                FocusManager.instance.primaryFocus?.unfocus();
                                 final name = consigneeNameController.text.trim();
                                 final phone = consigneePhoneController.text.trim();
                                 final email = consigneeEmailController.text.trim();
@@ -517,6 +518,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                               ],
                             if(widget.loadItem.podDispatch?.loadId != null)
                               _buildDispatchedDetails(widget.loadItem.podDispatch),
+                            15.height,
                             FeedbackWidget(loadId: widget.loadItem.loadId),
 
                           ],
@@ -591,7 +593,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
         _buildRow(context.appText.courierCompany, podDispatched?.courierCompany ?? ''),
         10.height,
         _buildRow(context.appText.awbNumber, podDispatched?.awbNumber ?? ''),
-        30.height,
+        10.height,
       ],
     );
   }
@@ -679,7 +681,7 @@ Widget _buildConsigneeDetail({
               hintText: context.appText.emailHint,
               mandatoryStar:  isUpdateConsignee ? false : true,
               inputFormatters: [
-                LengthLimitingTextInputFormatter(10),
+                LengthLimitingTextInputFormatter(50),
               ],
             ),
           ],
