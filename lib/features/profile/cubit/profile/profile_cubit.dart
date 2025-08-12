@@ -340,24 +340,63 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-  // Fetch vehicle from api call
+  // Fetch deriver from api call
   void _setFetchVehicleUIState(UIState<PaginatedVehicleList>? uiState) {
     emit(state.copyWith(vehicleState: uiState));
   }
 
-  Future<void> fetchVehicle({bool isLoading = true, String? search}) async {
-    if (isLoading) _setFetchVehicleUIState(UIState.loading());
-    userId = await _repo.getUserId();
-
-    dynamic result = await _repo.fetchVehicle(
-      userId: userId ?? '',
-      search: search,
-    );
-    if (result is Success<PaginatedVehicleList>) {
-      _setFetchVehicleUIState(UIState.success(result.value));
+  int _currentVehiclePage = 1;
+  bool _isLastVehiclePage = false;
+  bool _isVehicleLoadingMore = false;
+  Future<void> fetchVehicle({
+    bool isLoading = true,
+    String? search,
+    bool loadMore = false,
+  }) async {
+    if (_isVehicleLoadingMore && loadMore) return;
+    if (!loadMore) {
+      _isLastVehiclePage = false;
+    } else if (_isLastVehiclePage) {
+      return;
     }
-    if (result is Error) {
-      _setFetchVehicleUIState(UIState.error(result.type));
+
+    if (loadMore) {
+      _isVehicleLoadingMore = true;
+      _currentVehiclePage++;
+    } else {
+      _currentVehiclePage = 1;
+      _isLastVehiclePage = false;
+      if (isLoading) _setFetchVehicleUIState(UIState.loading());
+    }
+
+    try {
+      userId = await _repo.getUserId();
+      final result = await _repo.fetchVehicle(
+        userId: userId ?? '',
+        search: search,
+        page: _currentVehiclePage,
+        limit: 10,
+      );
+
+      if (result is Success<PaginatedVehicleList>) {
+        final newList = result.value.data;
+        if (loadMore) {
+          final existing = state.vehicleState?.data?.data ?? [];
+          final combined = [...existing, ...newList];
+          _setFetchVehicleUIState(
+            UIState.success(result.value.copyWith(data: combined)),
+          );
+        } else {
+          _setFetchVehicleUIState(UIState.success(result.value));
+        }
+        _isLastVehiclePage =
+            result.value.pageMeta?.nextPage == null ||
+            result.value.pageMeta?.pageCount == _currentVehiclePage;
+      } else if (result is Error<PaginatedVehicleList>) {
+        _setFetchVehicleUIState(UIState.error(result.type));
+      }
+    } finally {
+      _isVehicleLoadingMore = false;
     }
   }
 
@@ -476,19 +515,61 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(driverState: uiState));
   }
 
-  Future<void> fetchDriver({bool isLoading = true, String? search}) async {
-    if (isLoading) _setFetchDriverUIState(UIState.loading());
-    userId = await _repo.getUserId();
+  int _driverscurrentPage = 1;
+  bool _driversisLastPage = false;
+  bool _driversisLoadingMore = false;
 
-    dynamic result = await _repo.fetchDriver(
-      userId: userId ?? '',
-      search: search,
-    );
-    if (result is Success<PaginatedDriverList>) {
-      _setFetchDriverUIState(UIState.success(result.value));
+  Future<void> fetchDriver({
+    bool isLoading = true,
+    String? search,
+    bool loadMore = false,
+  }) async {
+    if (_driversisLoadingMore && loadMore) return;
+    if (!loadMore) {
+      _driversisLastPage = false;
+    } else if (_driversisLastPage) {
+      return;
     }
-    if (result is Error) {
-      _setFetchDriverUIState(UIState.error(result.type));
+
+    if (_driversisLastPage) return;
+
+    if (loadMore) {
+      _driversisLoadingMore = true;
+      _driverscurrentPage++;
+    } else {
+      _driverscurrentPage = 1;
+      _driversisLastPage = false;
+      if (isLoading) _setFetchDriverUIState(UIState.loading());
+    }
+
+    try {
+      userId = await _repo.getUserId();
+      final result = await _repo.fetchDriver(
+        userId: userId ?? '',
+        search: search,
+        page: _driverscurrentPage,
+        limit: 10,
+      );
+
+      if (result is Success<PaginatedDriverList>) {
+        final newList = result.value.data;
+        if (loadMore) {
+          final existing = state.driverState?.data?.data ?? [];
+          final combined = [...existing, ...newList];
+          _setFetchDriverUIState(
+            UIState.success(result.value.copyWith(data: combined)),
+          );
+        } else {
+          _setFetchDriverUIState(UIState.success(result.value));
+        }
+        _driversisLastPage =
+            result.value.pageMeta?.nextPage == null ||
+            result.value.pageMeta?.pageCount == _currentVehiclePage;
+      } else if (result is Error<PaginatedDriverList>) {
+        _setFetchDriverUIState(UIState.error(result.type));
+      }
+    } finally {
+      _driversisLoadingMore = false;
     }
   }
 

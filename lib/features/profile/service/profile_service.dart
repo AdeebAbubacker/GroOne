@@ -417,9 +417,12 @@ class ProfileService {
   Future<Result<PaginatedVehicleList>> fetchVehicle({
     required String userId,
     String? search,
+    int? page,
+    int? pageSize = 10,
   }) async {
     try {
-      final baseUrl = '${ApiUrls.getVehicleList}$userId';
+      final baseUrl =
+          '${ApiUrls.getVehicleList}$userId&page=$page&limit=$pageSize';
       final url =
           (search != null && search.trim().isNotEmpty)
               ? '$baseUrl?search=$search'
@@ -577,9 +580,12 @@ class ProfileService {
   Future<Result<PaginatedDriverList>> fetchDriver({
     required String customerId,
     String? search,
+    int page = 1,
+    int pageSize = 10,
   }) async {
     try {
-      final baseUrl = "${ApiUrls.driverListUrl}?&customerId=$customerId";
+      final baseUrl =
+          "${ApiUrls.driverListUrl}?&customerId=$customerId&page=$page&limit=$pageSize";
 
       // Append search properly using &
       final url =
