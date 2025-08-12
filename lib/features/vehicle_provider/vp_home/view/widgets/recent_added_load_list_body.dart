@@ -92,25 +92,19 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                    ),
                  ],
                ).expand(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      children: [
-                        _buildLocationInfoWidget( widget.data.pickUpWholeAddr.capitalize),
-                        Icon(
-                          Icons.arrow_right_alt_outlined,
-                          color: AppColors.primaryColor,
-                        ).paddingSymmetric(horizontal: 5),
 
-                        _buildLocationInfoWidget(widget.data.dropWholeAddr.capitalize),
-                        // widget.data.dropWholeAddr.capitalize
-                      ],
-                    ),
-
-                  ],
-                ).expand(),
+              ],
+            ),
+            10.height,
+            Row(
+              children: [
+                _buildLocationInfoWidget( widget.data.pickUpWholeAddr.capitalize).expand(),
+                Icon(
+                  Icons.arrow_right_alt_outlined,
+                  color: AppColors.primaryColor,
+                ).paddingSymmetric(horizontal: 5).expand(),
+                _buildLocationInfoWidget(widget.data.dropWholeAddr.capitalize).expand(),
+                // widget.data.dropWholeAddr.capitalize
               ],
             ),
             commonDivider(),

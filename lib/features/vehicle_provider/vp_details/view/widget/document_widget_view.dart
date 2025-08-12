@@ -49,7 +49,7 @@ class DocumentWidgetView extends StatelessWidget {
       },
         showViewMoreButton:documentEntity?.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments,
         showAddMoreButton: documentEntity?.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments && (loadDetailsCubit?.isVisibleAddMoreDocument()??false) && loadDetailsCubit?.state.loadStatus==LoadStatus.loading,
-      showDeleteIcon:loadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments ,
+      showDeleteIcon:  loadDetailsCubit?.state.loadStatus==LoadStatus.unloading && documentEntity?.documentType== navigatorKey.currentState?.context.appText.proofOfDelivery || loadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments ,
       showDeleteLoader: documentEntity?.deleteLoading,
       onClickDeleteIcon: () {
         loadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.first.loadDocumentId??"",index);

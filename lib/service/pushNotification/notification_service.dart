@@ -25,6 +25,7 @@ class NotificationService {
   factory NotificationService() => _instance;
 
   NotificationService._internal();
+  static String? deviceToken;
 
   // Dependencies
   late SecuredSharedPreferences _secureSharedPrefs;
@@ -372,6 +373,7 @@ class NotificationService {
       }
 
       if (payload.route != null) {
+
         // Store route for when app opens
         // You can implement route storage logic here
       }
@@ -385,6 +387,8 @@ class NotificationService {
   static Future<void> _onAwesomeNotificationReceived(
     ReceivedAction receivedAction,
   ) async {
+    print("receivedAction is ${receivedAction.body}");
+    print("receivedAction payload ${receivedAction.payload}");
     try {
       NotificationPayload payload = NotificationPayload.fromJson(
         receivedAction.payload ?? {},
@@ -395,6 +399,8 @@ class NotificationService {
       );
 
       if (payload.route != null) {
+        //// TODO: implement redirection here
+
         // Handle navigation
         // navigatorKey.currentState?.pushNamed(payload.route!);
       }
@@ -794,6 +800,7 @@ class NotificationService {
   ) {
     CustomLog.debug(this, "$consolePrint : $payload");
     if (payload.route != null) {
+    /// TODO: handle notification routing
       // navigatorKey.currentState?.pushNamed(payload.route!);
     }
   }
@@ -829,6 +836,7 @@ class NotificationService {
               AppString.sessionKey.fcmToken,
               token.trim(),
             );
+            deviceToken=await _secureSharedPrefs.get(AppString.sessionKey.fcmToken);
           }),
         },
       );
