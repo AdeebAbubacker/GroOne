@@ -179,27 +179,6 @@ class KavachService {
 
 
   /// Adds a new address for a customer
-  // Future<Result<KavachAddressModel>> addAddress(KavachAddAddressApiRequest request) async {
-  //   try {
-  //     final response = await _apiService.post(
-  //       ApiUrls.kavachAddressList,
-  //       body: request.toJson(),
-  //     );
-  //
-  //     if (response is Success) {
-  //       return await _apiService.getResponseStatus(
-  //         response.value,
-  //             (data) => KavachAddressModel.fromJson(data['data']),
-  //       );
-  //     } else {
-  //       return Error(response is Error ? response.type : GenericError());
-  //     }
-  //   } catch (e) {
-  //     CustomLog.error(this, "Failed to add address", e);
-  //     return Error(DeserializationError());
-  //   }
-  // }
-  /// Adds a new address for a customer
   Future<Result<KavachAddressModel>> addAddress(KavachAddAddressApiRequest request) async {
     try {
       final response = await _apiService.post(
@@ -320,22 +299,42 @@ class KavachService {
   Future<Result<OrderAddedSuccess>> initiatePayment(KavachInitiatePaymentRequest request) async {
     try {
       final response = await _apiService.post(
-        ApiUrls.kavachPayment,
+        ApiUrls.fleetPayment,
         body: request.toJson(),
       );
+
       if (response is Success) {
-        final data = response.value;
-        final result = OrderAddedSuccess.fromJson(data);
-        CustomLog.debug(this, "Payment initiated successfully");
-        return Success(result);
+        dynamic data = response.value;
+
+        // Ensure response value is a Map before passing to fromJson
+        if (data is Map<String, dynamic>) {
+          if (data.containsKey("success") && data["success"] == false) {
+            return Error(GenericError());
+          }
+
+          // If 'data' field is a string or null, replace it with null to avoid parsing errors
+          if (data.containsKey("data") && data["data"] is String) {
+            data = {
+              ...data,
+              "data": null, // prevent String -> Map cast error
+            };
+          }
+          final result = OrderAddedSuccess.fromJson(data);
+          CustomLog.debug(this, "Payment initiated successfully");
+          return Success(result);
+        } else {
+          // Unexpected response format
+          return Error(DeserializationError());
+        }
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
-    } catch (e) {
+    } catch (e, s) {
       CustomLog.error(this, "Failed to initiate payment", e);
       return Error(DeserializationError());
     }
   }
+
 
   /// Fetches customer orders with optional filtering and pagination
   Future<Result<KavachOrderListResponse>> fetchCustomerOrders({
@@ -366,23 +365,6 @@ class KavachService {
     }
   }
 
-  // Future<Result<List<CommodityModel>>> fetchCommodities() async {
-  //   try {
-  //     final response = await _apiService.get(
-  //       ApiUrls.kavachFetchCommodities,
-  //     );
-  //     if (response is Success) {
-  //       return await _apiService.getResponseStatus(
-  //         response.value,
-  //             (data) => (data['data'] as List).map((e) => CommodityModel.fromJson(e)).toList(),
-  //       );
-  //     } else {
-  //       return Error(response is Error ? response.type : GenericError());
-  //     }
-  //   } catch (_) {
-  //     return Error(DeserializationError());
-  //   }
-  // }
 
   Future<Result<List<CommodityModel>>> fetchCommodities() async {
     try {
