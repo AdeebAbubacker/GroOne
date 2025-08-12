@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -91,7 +92,9 @@ PreferredSizeWidget buildAppBarWidget(BuildContext context) {
       Navigator.pop(context, true);
     }, icon: Icon(Icons.arrow_back)),
     centreTile: true,
-    title: 'KYC',
+    showInUpperCase: true,
+    title: context.appText.kyc.toUpperCase(),
+
     backgroundColor: Colors.transparent,
     actions: [
       20.width,
