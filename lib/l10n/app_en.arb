@@ -1066,11 +1066,8 @@
   "searchTruckTypes" : "Search truck types",
   "searchRoutes" : "Search routes...",
   "unableToCompleteUrReq" : "Unable to complete your request. Please refresh or try later.",
-  "searchRoutes" : "Search routes...",
-  "notifications":"Notifications",
-  "all":"All",
+  "pleaseEnterConsigneeDetails" : "Please enter consignee details"
   "unread":"Unread",
-  "gps":"GPS",
   "alreadyVerified":"Aadhar already exist. Please use another aadhar number"
 
 }

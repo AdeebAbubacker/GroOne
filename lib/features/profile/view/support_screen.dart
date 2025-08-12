@@ -113,20 +113,22 @@ class _LpSupportState extends State<LpSupport> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: buildAppBar(),
-
-      body: Padding(
-        padding: const EdgeInsets.all(18),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            buildToggleTabs(context),
-            18.height,
-            buildSearchBarAndFilterWidget(),
-            18.height,
-            buildBody(),
-          ],
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: buildAppBar(),
+        body: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              buildToggleTabs(context),
+              18.height,
+              buildSearchBarAndFilterWidget(),
+              18.height,
+              buildBody(),
+            ],
+          ),
         ),
       ),
     );

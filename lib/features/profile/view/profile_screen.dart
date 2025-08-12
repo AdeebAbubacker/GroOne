@@ -212,7 +212,6 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                   Navigator.push(context, commonRoute(LpMyAccount(
                     customerDetail: state.profileDetailUIState!.data!.customer!,
                     bankDetails : state.profileDetailUIState!.data!.bankDetails!,
-                    address: state.profileDetailUIState!.data!.address!,
                     kycDoc: state.profileDetailUIState!.data!.kycDocs[0],
                   ), isForward: true));
                 },

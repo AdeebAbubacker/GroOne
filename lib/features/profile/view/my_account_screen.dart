@@ -15,9 +15,9 @@ import '../../../utils/app_icons.dart';
 class LpMyAccount extends StatelessWidget {
   final Customer? customerDetail;
   final BankDetails? bankDetails;
-  final Address? address;
   final KycDoc? kycDoc;
-  const LpMyAccount({super.key, required this.customerDetail, required this.bankDetails, required this.address, required this.kycDoc});
+  const LpMyAccount({super.key, required this.customerDetail, required this.bankDetails,
+    required this.kycDoc});
 
   String checkUserDetails(dynamic value){
     if(value != null && value.toString().isNotEmpty){
