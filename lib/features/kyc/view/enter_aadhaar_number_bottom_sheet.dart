@@ -126,13 +126,8 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
       ToastMessages.error(message: context.appText.alreadyVerified);
       return;
     }
-
-
-
     if(sdkUrl.isNotEmpty){
-      Navigator.pop(context);
-
-    final isVerified= await Navigator.push(navigatorKey.currentState!.context, commonRoute(KycVerificationWebView(
+      final isVerified= await Navigator.push(navigatorKey.currentState!.context, commonRoute(KycVerificationWebView(
         url: sdkUrl,
       )));
 

@@ -71,7 +71,8 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
           Row(
             children: List.generate(types.length, (index) {
               final type = types[index];
-               final icons = selectTruckTypeList[index];
+
+               final icons = selectTruckTypeList[0];
               final isSelected = selectedType == type;
               return Expanded(
                 child: GestureDetector(
