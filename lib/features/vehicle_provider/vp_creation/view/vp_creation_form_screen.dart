@@ -350,6 +350,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           keyboardType: TextInputType.emailAddress,
           inputFormatters: [
             LengthLimitingTextInputFormatter(50),
+            FilteringTextInputFormatter.deny(RegExp(r'\+')),
           ],
           decoration: commonInputDecoration(
             hintText: context.appText.emailHint,
