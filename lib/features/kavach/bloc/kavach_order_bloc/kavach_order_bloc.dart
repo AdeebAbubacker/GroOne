@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added
 class KavachOrderBloc extends Bloc<KavachOrderEvent, KavachOrderState> {
   final KavachRepository repository;
   final UserInformationRepository _userInformationRepository;
+  String? paymentRequestId;
 
   KavachOrderBloc(this.repository, this._userInformationRepository) : super(KavachOrderInitial()) {
     on<KavachSubmitOrder>(_onSubmitOrder);
@@ -49,6 +50,7 @@ class KavachOrderBloc extends Bloc<KavachOrderEvent, KavachOrderState> {
     final result = await repository.initiatePayment(event.request);
 
     if (result is Success<OrderAddedSuccess>) {
+      paymentRequestId = result.value.data?.data?.paymentRequestId;
       emit(KavachPaymentSuccess(result.value));
     } else if (result is Error) {
       final error = result as Error;

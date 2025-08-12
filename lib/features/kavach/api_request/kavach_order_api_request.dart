@@ -37,6 +37,8 @@ class KavachOrderItem {
 
 class KavachOrderRequest {
   final String orderSource;
+  final int customerSeriesId;
+  String? paymentRequestId;
   final bool isOrderPaid;
   final String customerId;
   final int createdEmpUserId;
@@ -55,6 +57,8 @@ class KavachOrderRequest {
 
   KavachOrderRequest({
     required this.orderSource,
+    this.paymentRequestId,
+    required this.customerSeriesId,
     required this.isOrderPaid,
     required this.customerId,
     required this.createdEmpUserId,
@@ -75,6 +79,7 @@ class KavachOrderRequest {
   Map<String, dynamic> toJson() {
     final json = {
       "orderSource": orderSource,
+      "customerSeriesId" : customerSeriesId,
       "isOrderPaid": isOrderPaid,
       "customerId": customerId,
       "createdEmpUserId": createdEmpUserId,
@@ -94,6 +99,9 @@ class KavachOrderRequest {
     // Add createdEmpId only if it's not null
     if (createdEmpId != null) {
       json["createdEmpId"] = createdEmpId!;
+    }
+    if (paymentRequestId != null) {
+      json["paymentUid"] = paymentRequestId??''; // 👈 send to API
     }
     
     return json;
