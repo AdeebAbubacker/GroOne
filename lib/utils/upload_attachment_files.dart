@@ -166,7 +166,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                                         else
                                           const Icon(CupertinoIcons.doc_text_fill, size: 20, color : AppColors.primaryColor),
                             10.width,
-                            Text(widget.multiFilesList[index]["fileName"].toString().capitalizeFirst, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.body).expand(),
+                            Text(widget.multiFilesList[index]["fileName"].toString().split('/').last.toString(), maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.body).expand(),
                             10.width,
                             // AppIconButton(onPressed: (){}, icon: AppIcons.svg.edit)
 

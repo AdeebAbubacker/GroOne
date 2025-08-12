@@ -101,7 +101,7 @@ class KycService {
     final udid = ApiUrls.fetchUDID;
 
     try {
-      final result = await _apiService.post(ApiUrls.tan, body: request,
+      final result = await _apiService.post(ApiUrls.tan, body: request.toJson(),
         customHeaders: {
           "X-API-Key":xApiKey,
           "X-Application-UDID":udid

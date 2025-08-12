@@ -7,7 +7,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart' hide DataTruckType;
+import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart'
+    hide DataTruckType;
 import 'package:gro_one_app/features/kavach/view/kavach_support_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
@@ -249,13 +250,18 @@ class LoadDetailsWidget extends StatelessWidget {
                               state,
                             ),
 
-                            _buildDispatchedDetails(loadDetails?.podDispatch,context),
+                            _buildDispatchedDetails(
+                              loadDetails?.podDispatch,
+                              context,
+                            ),
 
                             if ((loadDetails?.loadStatusId ?? 0) >= 7) ...[
                               20.height,
                               _buildAdableSectionHeader(
                                 showAddButton:
-                                    state.loadStatus != LoadStatus.completed &&   state.loadStatus != LoadStatus.podDispatched,
+                                    state.loadStatus != LoadStatus.completed &&
+                                    state.loadStatus !=
+                                        LoadStatus.podDispatched,
                                 context: context,
                                 title: context.appText.damageAndShortage,
                                 onAdd: () async {
@@ -381,7 +387,11 @@ class LoadDetailsWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 10,
         children: [
-          Image.asset(AppImage.png.dummyTruckLoad, width: 57, height: 42),
+          Image.asset(
+            AppImage.png.dummyTruckLoad,
+            width: 57,
+            height: 42,
+          ).expand(flex: 2),
           Column(
             spacing: 8,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +426,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   ),
                 ),
             ],
-          ),
+          ).expand(flex: 7),
           if ((loadStatus?.index ?? 0) >= LoadStatus.assigned.index)
             GestureDetector(
               onTap:
@@ -424,7 +434,7 @@ class LoadDetailsWidget extends StatelessWidget {
                     loadDetails?.scheduleTripDetails?.driver?.mobile ?? "",
                   ),
               child: SvgPicture.asset(AppIcons.svg.phoneCall),
-            ),
+            ).expand(flex: 1),
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
@@ -435,6 +445,8 @@ class LoadDetailsWidget extends StatelessWidget {
     ScheduleTripDetailsVehicle? vehicle,
     DataTruckType? truckType,
   ) {
+    final truckDetails =
+        "${truckType?.type ?? ""} (${truckType?.subType ?? ""})";
     return Row(
       children: [
         Container(
@@ -448,14 +460,11 @@ class LoadDetailsWidget extends StatelessWidget {
         ),
         5.width,
         Text(
-          truckType?.type ?? "",
+          truckDetails,
           style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
-        ),
+          overflow: TextOverflow.ellipsis,
+        ).expand(),
         5.width,
-        Text(
-          "(${truckType?.subType ?? ""})",
-          style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
-        ),
       ],
     );
   }
@@ -487,27 +496,24 @@ class LoadDetailsWidget extends StatelessWidget {
     BuildContext context,
     int loadStatusID,
     LoadPaymentDetails? paymentEntity,
-      MemoDetails? loadMemo,
+    MemoDetails? loadMemo,
   ) {
     final vpLoadPrice =
         (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")
             ? PriceHelper.formatINR(vpRate)
             : '${PriceHelper.formatINR(vpRate)} - ${PriceHelper.formatINR(vpMaxRate)}';
 
-
-    final agreedPrice=loadMemo?.vpAdvance??"";
+    final agreedPrice = paymentEntity?.payableAgreedPrice ?? "";
 
     /// This is for advanced Payment
-    final advancedPayment= paymentEntity?.payableAdvancePaid??"";
-    final advancedPaymentPercentage=paymentEntity?.payableAdvancePercentage??"";
-    final isAdvancedPaid=paymentEntity?.payableAdvancedPaidFlag??false;
+    final advancedPayment = paymentEntity?.payableAdvancePaid ?? "";
+    final advancedPaymentPercentage =
+        paymentEntity?.payableAdvancePercentage ?? "";
+    final isAdvancedPaid = paymentEntity?.payableAdvancedPaidFlag ?? false;
+
     /// This is for balance Payment
-    final balancePayment=paymentEntity?.payableBalancePaid;
-    final isBalancePaid=paymentEntity?.payableBalancePaidFlag??false;
-
-
-
-
+    final balancePayment = paymentEntity?.payableBalancePaid;
+    final isBalancePaid = paymentEntity?.payableBalancePaidFlag ?? false;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
@@ -520,7 +526,7 @@ class LoadDetailsWidget extends StatelessWidget {
       child: Column(
         children: [
           Visibility(
-            visible: loadMemo==null && agreedPrice.isEmpty,
+            visible: loadMemo == null && agreedPrice.isEmpty,
             child: Row(
               mainAxisAlignment:
                   isAccepted
@@ -544,21 +550,29 @@ class LoadDetailsWidget extends StatelessWidget {
             ),
           ),
 
-        ...[
-          5.height,
-          _buildLoadProviderAdvancePaymentCardViewOnly(
-            context: context,
-            agreedAdvance: (paymentEntity?.payableAdvance??"").isNotEmpty ? PriceHelper.formatINR(paymentEntity?.payableAdvance??""):"",
-            advancePayment:isAdvancedPaid ? PriceHelper.formatINR(advancedPayment):"",
-            agreedPrice:   agreedPrice.isNotEmpty ? PriceHelper.formatINR(agreedPrice):"",
-            advancedPaymentPer: advancedPaymentPercentage,
-            balancePayment: isBalancePaid ?  PriceHelper.formatINR(balancePayment) :"",
-            onViewTap: () {
-
-            },
-            // tripPrice: "1000",
-          ),
-        ]
+          ...[
+            5.height,
+            _buildLoadProviderAdvancePaymentCardViewOnly(
+              context: context,
+              agreedAdvance:
+                  (paymentEntity?.payableAdvance ?? "").isNotEmpty
+                      ? PriceHelper.formatINR(
+                        paymentEntity?.payableAdvance ?? "",
+                      )
+                      : "",
+              advancePayment:
+                  isAdvancedPaid ? PriceHelper.formatINR(advancedPayment) : "",
+              agreedPrice:
+                  agreedPrice.isNotEmpty
+                      ? PriceHelper.formatINR(agreedPrice)
+                      : "",
+              advancedPaymentPer: advancedPaymentPercentage,
+              balancePayment:
+                  isBalancePaid ? PriceHelper.formatINR(balancePayment) : "",
+              onViewTap: () {},
+              // tripPrice: "1000",
+            ),
+          ],
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
@@ -622,7 +636,12 @@ class LoadDetailsWidget extends StatelessWidget {
               height: 24,
               width: 24,
             ),
-             Text(cubit.state.locationDistance ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+            Text(
+              cubit.state.locationDistance ?? '',
+              style: AppTextStyle.body3.copyWith(
+                color: AppColors.veryLightGreyColor,
+              ),
+            ),
           ],
         ),
       ],
@@ -634,8 +653,10 @@ class LoadDetailsWidget extends StatelessWidget {
     LoadDetailsState state,
     BuildContext context,
   ) {
-
-    bool isPriceIntoRange=checkPriceIntoRange(loadDetails?.loadPrice?.vpRate??"0",loadDetails?.loadPrice?.vpMaxRate??"0");
+    bool isPriceIntoRange = checkPriceIntoRange(
+      loadDetails?.loadPrice?.vpRate ?? "0",
+      loadDetails?.loadPrice?.vpMaxRate ?? "0",
+    );
     return Container(
       decoration: commonContainerDecoration(
         color: Colors.white,
@@ -669,7 +690,10 @@ class LoadDetailsWidget extends StatelessWidget {
                 state.loadStatus == LoadStatus.podDispatched)
               AppButton(
                 isLoading: state.vpLoadStatus?.status == Status.LOADING,
-                title: getButtonText(state.loadStatus ?? LoadStatus.matching,priceIntoRange: isPriceIntoRange),
+                title: getButtonText(
+                  state.loadStatus ?? LoadStatus.matching,
+                  priceIntoRange: isPriceIntoRange,
+                ),
                 style: AppButtonStyle.primary.copyWith(
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
@@ -678,33 +702,37 @@ class LoadDetailsWidget extends StatelessWidget {
                   ),
                 ),
                 onPressed: () async {
-
-                  if(isPriceIntoRange){
+                  if (isPriceIntoRange) {
                     await callRedirect(SUPPORT_NUMBER);
                     return;
                   }
 
                   if (state.loadStatus == LoadStatus.completed) {
-                    Navigator.push(context, commonRoute(VpTripStatementScreen(
-                      loadDetailModelData: loadDetails,
-                      loadId: loadDetails?.loadId,
-                    )));
+                    Navigator.push(
+                      context,
+                      commonRoute(
+                        VpTripStatementScreen(
+                          loadDetailModelData: loadDetails,
+                          loadId: loadDetails?.loadId,
+                        ),
+                      ),
+                    );
                     return;
                   }
                   if (state.loadStatus == LoadStatus.podDispatched) {
-                  bool isPodAdded= await Navigator.push(
+                    bool isPodAdded = await Navigator.push(
                       context,
                       commonRoute(
                         VpPodDispatchScreen(loadId: loadDetails?.loadId),
                       ),
                     );
-                  if(isPodAdded){
-                    changeLoadStatus(
-                      context,
-                      loadDetails?.loadId.toString(),
-                      loadStatus: (state.loadStatusId ?? 0) + 1,
-                    );
-                  }
+                    if (isPodAdded) {
+                      changeLoadStatus(
+                        context,
+                        loadDetails?.loadId.toString(),
+                        loadStatus: (state.loadStatusId ?? 0) + 1,
+                      );
+                    }
                     return;
                   }
                   changeLoadStatus(context, loadDetails?.loadId.toString());
@@ -805,9 +833,10 @@ class LoadDetailsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDispatchedDetails(PodDispatch? podDispatched,BuildContext context) {
-
-
+  Widget _buildDispatchedDetails(
+    PodDispatch? podDispatched,
+    BuildContext context,
+  ) {
     print("podDispatched data ${podDispatched}");
 
     if (podDispatched == null) {
@@ -816,17 +845,18 @@ class LoadDetailsWidget extends StatelessWidget {
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [commonDivider(),
+      children: [
+        commonDivider(),
         _buildHeading(text: context.appText.podDispatch),
         15.height,
         InformationView(
           title: context.appText.courierCompany,
-          amount:podDispatched.courierCompany ,
+          amount: podDispatched.courierCompany,
         ).paddingSymmetric(horizontal: 15),
         10.height,
         InformationView(
           title: context.appText.awbNumber,
-          amount:podDispatched.awbNumber ,
+          amount: podDispatched.awbNumber,
         ).paddingSymmetric(horizontal: 15),
         10.height,
         commonDivider(thickness: 3, height: 15),
@@ -844,39 +874,39 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   String? advancePayment,
   String? balancePayment,
   VoidCallback? onViewTap,
-  String? advancedPaymentPer
+  String? advancedPaymentPer,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-
-      if((agreedPrice??"").isNotEmpty)
+      if ((agreedPrice ?? "").isNotEmpty)
         _buildPriceRow(
           context.appText.agreedPrice,
           agreedPrice ?? '',
           context,
           highlight: true,
         ),
-      if((agreedAdvance??"").isNotEmpty)
-...[      8.height,
-      _buildPriceRow(
-        context.appText.agreedAdvance,
-        agreedAdvance,
-        context,
-        highlight: true,
-      ),],
-      if((advancePayment??"").isNotEmpty)
-     ...[ 12.height,
-      _buildStatusRow(
+      if ((agreedAdvance ?? "").isNotEmpty) ...[
+        8.height,
+        _buildPriceRow(
+          context.appText.agreedAdvance,
+          agreedAdvance,
+          context,
+          highlight: true,
+        ),
+      ],
+      if ((advancePayment ?? "").isNotEmpty) ...[
+        12.height,
+        _buildStatusRow(
           title: '${context.appText.advancePayment} ($advancedPaymentPer%)',
           amount: advancePayment ?? "",
           statusText: context.appText.received,
           statusColor: AppColors.lightGreenBox,
-        ),],
+        ),
+      ],
 
-
-      if((balancePayment??"").isNotEmpty)
-   ...[   Padding(
+      if ((balancePayment ?? "").isNotEmpty) ...[
+        Padding(
           padding: const EdgeInsets.only(top: 12),
           child: _buildStatusRow(
             title: context.appText.balancePayment,
@@ -886,8 +916,8 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
           ),
         ),
 
-     12.height,
-   ]
+        12.height,
+      ],
 
       // if (paymentStatus != 4)
       //   Align(
