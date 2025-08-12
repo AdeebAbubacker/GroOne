@@ -1,14 +1,13 @@
 // lib/features/gps_feature/views/report_screen.dart
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:intl/intl.dart';
+
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_searchabledropdown.dart';
-import '../../../utils/common_widgets.dart';
 import '../cubit/report_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../model/address_model.dart';
@@ -22,7 +21,14 @@ import '../widgets/trip_report_card.dart';
 import 'other_reports_webview_screen.dart';
 
 class GpsReportScreen extends StatefulWidget {
-  const GpsReportScreen({super.key});
+  final String? preSelectedReportType;
+  final dynamic preSelectedVehicle;
+
+  const GpsReportScreen({
+    super.key,
+    this.preSelectedReportType,
+    this.preSelectedVehicle,
+  });
 
   @override
   State<GpsReportScreen> createState() => _GpsReportScreenState();
@@ -35,6 +41,54 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
   void initState() {
     super.initState();
     _reportCubit = locator.get<GpsReportCubit>()..loadInitialData();
+
+    // Handle pre-selected values after the cubit is initialized
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _handlePreSelectedValues();
+    });
+  }
+
+  void _handlePreSelectedValues() {
+    // Handle pre-selected report type
+    if (widget.preSelectedReportType != null) {
+      switch (widget.preSelectedReportType!.toLowerCase()) {
+        case 'reachability':
+          _reportCubit.selectReportType(ReportType.reachability);
+          break;
+        case 'stops':
+          _reportCubit.selectReportType(ReportType.stops);
+          break;
+        case 'trips':
+          _reportCubit.selectReportType(ReportType.trips);
+          break;
+        case 'daily':
+          _reportCubit.selectReportType(ReportType.daily);
+          break;
+        case 'dailykm':
+          _reportCubit.selectReportType(ReportType.dailyKm);
+          break;
+      }
+    }
+
+    // Handle pre-selected vehicle
+    if (widget.preSelectedVehicle != null) {
+      // Wait for vehicles to load, then select the pre-selected vehicle
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        final state = _reportCubit.state;
+        if (state.vehicles.isNotEmpty) {
+          final vehicle = state.vehicles.firstWhere(
+            (v) => v.deviceId == widget.preSelectedVehicle?.deviceId,
+            orElse: () => state.vehicles.first,
+          );
+          _reportCubit.selectVehicle(vehicle);
+
+          // Automatically fetch reachability reports if reachability is pre-selected
+          if (widget.preSelectedReportType?.toLowerCase() == 'reachability') {
+            _reportCubit.fetchReports();
+          }
+        }
+      });
+    }
   }
 
   Future<void> _pickFromDate(BuildContext context) async {

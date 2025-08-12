@@ -154,10 +154,13 @@ class VehicleListView extends StatelessWidget {
                           () =>
                               context.read<VehicleListCubit>().toggleMapType(),
                       onReachability: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Reachability feature coming soon!'),
-                          ),
+                        // Navigate to GPS reports screen with reachability pre-selected
+                        context.push(
+                          AppRouteName.gpsReports,
+                          extra: {
+                            'preSelectedReportType': 'reachability',
+                            'preSelectedVehicle': null,
+                          },
                         );
                       },
                       onNearbyVehicles: () {

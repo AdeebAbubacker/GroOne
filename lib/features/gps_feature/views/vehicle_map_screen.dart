@@ -21,6 +21,7 @@ import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/app_share_helper.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -579,12 +580,13 @@ class _VehicleMapContent extends StatelessWidget {
                                     .read<VehicleListCubit>()
                                     .toggleMapType(),
                         onReachability: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Reachability feature coming soon!',
-                              ),
-                            ),
+                          // Navigate to GPS reports screen with reachability pre-selected
+                          context.push(
+                            AppRouteName.gpsReports,
+                            extra: {
+                              'preSelectedReportType': 'reachability',
+                              'preSelectedVehicle': selectedVehicle,
+                            },
                           );
                         },
                         onNearbyVehicles: () async {
