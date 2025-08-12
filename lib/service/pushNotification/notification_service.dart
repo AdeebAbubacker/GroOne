@@ -387,6 +387,8 @@ class NotificationService {
   static Future<void> _onAwesomeNotificationReceived(
     ReceivedAction receivedAction,
   ) async {
+    print("receivedAction is ${receivedAction.body}");
+    print("receivedAction payload ${receivedAction.payload}");
     try {
       NotificationPayload payload = NotificationPayload.fromJson(
         receivedAction.payload ?? {},

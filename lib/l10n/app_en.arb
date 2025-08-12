@@ -1065,11 +1065,12 @@
   "pleaseEnterValidPinCode" : "Please enter a valid pincode",
   "searchTruckTypes" : "Search truck types",
   "searchRoutes" : "Search routes...",
-  "unableToCompleteUrReq" : "Unable to complete your request. Please refresh or try later."
+  "unableToCompleteUrReq" : "Unable to complete your request. Please refresh or try later.",
   "searchRoutes" : "Search routes...",
   "notifications":"Notifications",
   "all":"All",
   "unread":"Unread",
-  "gps":"GPS"
+  "gps":"GPS",
+  "alreadyVerified":"Aadhar already exist. Please use another aadhar number"
 
 }

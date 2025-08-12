@@ -35,7 +35,6 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
            Uri? uri=Uri.tryParse(change.url??"");
            if((uri?.path??"").isNotEmpty){
               String url=change.url??"";
-              print("url ${url}");
               if(url.contains('https://gro-devadmin.letsgro.co')){
                 _isBack=true;
                 Navigator.pop(context,true);
@@ -53,7 +52,7 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
   Future<void> _delayedLoad() async {
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      print("url is ${widget.url??""}");
+
 
       await _controller.loadRequest(
         Uri.parse(widget.url??""),
@@ -66,17 +65,19 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return  WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context, true);
-        return false;
-      },
-      child: Scaffold(
-        appBar: buildAppBarWidget(context),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : WebViewWidget(
-             controller: _controller),
+    return  SafeArea(
+      child: WillPopScope(
+        onWillPop: () async {
+          Navigator.pop(context, true);
+          return false;
+        },
+        child: Scaffold(
+          appBar: buildAppBarWidget(context),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : WebViewWidget(
+               controller: _controller),
+        ),
       ),
     );
   }
