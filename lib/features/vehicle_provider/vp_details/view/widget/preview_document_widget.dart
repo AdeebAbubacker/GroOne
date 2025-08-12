@@ -95,10 +95,16 @@ Widget buildUploadedDocPreviewItem({
 
 
   final Widget loader = SizedBox(
-    height: 15,
-    width: 15,
-    child: CircularProgressIndicator(strokeWidth: 1),
-  );
+  height: 48,
+  width: 48,
+  child: Center(
+    child: SizedBox(
+      height: 24, 
+      width: 24,
+      child: CircularProgressIndicator(strokeWidth: 2),
+    ),
+  ),
+);
 
   return Container(
     height: 55,
@@ -182,9 +188,9 @@ Widget buildUploadedDocPreviewItem({
           isLoading
               ? loader
               : shouldShowView
-              ? GestureDetector(
-            onTap: onClickViewMoreIcon,
-            child: Icon(
+              ? IconButton(
+            onPressed: onClickViewMoreIcon,
+            icon: Icon(
               Icons.remove_red_eye_outlined,
               size: 20,
               color: AppColors.primaryColor,
