@@ -59,6 +59,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/indian_licesne_fromatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -330,7 +331,9 @@ class _MasterScreenState extends State<MasterScreen>
           children: [
             Container(
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(30),
+              ),
               child: TabBar(
                 controller: _tabController,
                 indicator: BoxDecoration(
@@ -341,15 +344,23 @@ class _MasterScreenState extends State<MasterScreen>
                 dividerHeight: 0,
                 labelColor: Colors.white,
                 unselectedLabelColor: Colors.black,
-                labelStyle: AppTextStyle.h6.copyWith(fontWeight: FontWeight.w600),
+                labelStyle: AppTextStyle.h6.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
                 unselectedLabelStyle: AppTextStyle.h6,
                 tabs: [
-                  SizedBox(height: 30, child: Tab(text: context.appText.address)),
+                  SizedBox(
+                    height: 30,
+                    child: Tab(text: context.appText.address),
+                  ),
                   SizedBox(
                     height: 30,
                     child: Tab(text: context.appText.vehicles),
                   ),
-                  SizedBox(height: 30, child: Tab(text: context.appText.drivers)),
+                  SizedBox(
+                    height: 30,
+                    child: Tab(text: context.appText.drivers),
+                  ),
                 ],
               ),
             ),
@@ -825,8 +836,8 @@ class _MasterScreenState extends State<MasterScreen>
         children: [
           Row(
             children: [
-              Flexible(child: Text(title, style: AppTextStyle.h5).expand(),),
-              
+              Flexible(child: Text(title, style: AppTextStyle.h5).expand()),
+
               IconButton(
                 onPressed: onEdit,
                 icon: SvgPicture.asset(
@@ -852,7 +863,7 @@ class _MasterScreenState extends State<MasterScreen>
               color: AppColors.lightGreyTextColor,
             ),
           ),
-          
+
           15.height,
 
           InkWell(
@@ -935,16 +946,16 @@ class _MasterScreenState extends State<MasterScreen>
                     Row(
                       children: [
                         Flexible(
-  child: Text(
-    name,
-    style: const TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 16,
-    ),
-    overflow: TextOverflow.ellipsis,
-    maxLines: 1,
-  ),
-),
+                          child: Text(
+                            name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
 
                         6.width,
                         SvgPicture.asset(AppIcons.svg.tick),
@@ -1074,19 +1085,18 @@ class _MasterScreenState extends State<MasterScreen>
                     4.height,
                     Row(
                       children: [
-      
                         Flexible(
-  child: Text(
-    name,
-    style: AppTextStyle.body.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                            color: AppColors.textBlackDetailColor,
+                          child: Text(
+                            name,
+                            style: AppTextStyle.body.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              color: AppColors.textBlackDetailColor,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-    overflow: TextOverflow.ellipsis,
-    maxLines: 1,
-  ),
-),
+                        ),
 
                         6.width,
                         SvgPicture.asset(AppIcons.svg.tick),
@@ -1195,6 +1205,7 @@ class _MasterScreenState extends State<MasterScreen>
           inputFormatters: [
             FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
             UpperCaseTextFormatter(),
+            LengthLimitingTextInputFormatter(16),
           ],
 
           readOnly: isVerified,
@@ -1280,10 +1291,11 @@ class _MasterScreenState extends State<MasterScreen>
           children: [
             /// License No Field
             AppTextField(
+              
               controller: licenseNoController,
               mandatoryStar: true,
               labelText: "License No",
-              inputFormatters: [UpperCaseTextFormatter()],
+              inputFormatters: [UpperCaseTextFormatter(),IndianLicenseFormatter()],
               validator:
                   (value) => Validator.indianLicenseNumber(
                     value,
