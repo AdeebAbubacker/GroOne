@@ -1078,14 +1078,25 @@ class _EndhanKycScreenContent extends StatelessWidget {
                 return;
               }
 
+              // if (isAadhaarPrefilled && !isPanPrefilled) {
+              //   await cubit.uploadKycDocuments(); // PAN
+              //   await cubit.uploadKycDocumentsMultipart(); // Identity/Address
+              // } else if (isAadhaarPrefilled && isPanPrefilled) {
+              //   await cubit.uploadKycDocumentsMultipart();
+              // } else {
+              //   await cubit.uploadKycDocuments();
+              //   await cubit.uploadKycDocumentsMultipart();
+              // }
               if (isAadhaarPrefilled && !isPanPrefilled) {
-                await cubit.uploadKycDocuments(); // PAN
-                await cubit.uploadKycDocumentsMultipart(); // Identity/Address
+                if (await cubit.uploadKycDocuments()) {
+                  await cubit.uploadKycDocumentsMultipart();
+                }
               } else if (isAadhaarPrefilled && isPanPrefilled) {
                 await cubit.uploadKycDocumentsMultipart();
               } else {
-                await cubit.uploadKycDocuments();
-                await cubit.uploadKycDocumentsMultipart();
+                if (await cubit.uploadKycDocuments()) {
+                  await cubit.uploadKycDocumentsMultipart();
+                }
               }
             },
             title: context.appText.submit,

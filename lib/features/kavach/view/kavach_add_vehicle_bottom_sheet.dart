@@ -228,7 +228,7 @@ class _KavachAddVehicleBottomSheetState
                   labelText: context.appText.truckMakeModel,
                   textCapitalization: TextCapitalization.characters,
                   validator:
-                      (value) => Validator.noSpecialCharacters(
+                      (value) => Validator.fieldRequired(
                         value,
                         fieldName: context.appText.truckMakeModel,
                       ),
@@ -239,17 +239,17 @@ class _KavachAddVehicleBottomSheetState
                 10.height,
                 AppTextField(
                   controller: licenseNumberController,
-                  labelText: context.appText.licenseNumber,
+                  labelText: context.appText.rcNumber,
                   maxLength: 16,
                   textCapitalization: TextCapitalization.characters,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(licenseAlphaNumHyphenRegex),
+                    FilteringTextInputFormatter.allow(alphanumericWithSpaceRegex),
                   ],
                   mandatoryStar: true,
                   validator:
-                      (value) => Validator.licenseNumberValidator(
+                      (value) => Validator.noSpecialCharacters(
                         value,
-                        fieldName: context.appText.licenseNumber,
+                        fieldName: context.appText.rcNumber,
                       ),
                 ),
 

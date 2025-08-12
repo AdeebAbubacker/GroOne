@@ -62,6 +62,7 @@ class DataData {
         required this.qrCode,
         required this.invoiceStatus,
         required this.errorCode,
+        this.paymentRequestId,
     });
 
     final String errorDesc;
@@ -70,6 +71,7 @@ class DataData {
     final String qrCode;
     final int invoiceStatus;
     final String errorCode;
+    final String? paymentRequestId;
 
     DataData copyWith({
         String? errorDesc,
@@ -97,6 +99,7 @@ class DataData {
             qrCode: json["qr_code"] ?? "",
             invoiceStatus: json["invoice_status"] ?? 0,
             errorCode: json["error_code"] ?? "",
+            paymentRequestId: json["payment_request_id"]??"",
         );
     }
 
