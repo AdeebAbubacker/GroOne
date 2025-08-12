@@ -67,7 +67,7 @@ class TripDetails {
   final String advancePercentage;
   final String balancePercentage;
   final String balanceAmount;
-  final int detentions;
+  final String detentions;
   final LoadSettlement? loadSettlement;
   final String balanceToBePaid;
   final BankDetails? bankDetails;
@@ -86,7 +86,7 @@ class TripDetails {
     String? advancePercentage,
     String? balancePercentage,
     String? balanceAmount,
-    int? detentions,
+    String? detentions,
     LoadSettlement? loadSettlement,
     String? balanceToBePaid,
     BankDetails? bankDetails,
@@ -127,7 +127,7 @@ class TripDetails {
       advancePercentage: json["advancePercentage"] ?? "",
       balancePercentage: json["balancePercentage"] ?? "",
       balanceAmount: json["balanceAmount"] ?? "",
-      detentions: json["detentions"] ?? 0,
+      detentions: json["detentions"] ?? "",
       loadSettlement: json["loadSettlement"] == null ? null : LoadSettlement.fromJson(json["loadSettlement"]),
       balanceToBePaid: json["balanceToBePaid"] ?? "",
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
