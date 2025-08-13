@@ -18,6 +18,7 @@ import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/doc_verification_model.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_response_mode.dart';
@@ -119,10 +120,28 @@ class KycService {
     }
   }
 
+  /// Verified Valid Doc
+  Future<Result<DocVerificationModel>> verifiedDocID(String? aadharDoc) async {
+    try {
+      final result = await _apiService.post(ApiUrls.verifiedDocument, body: {
+        "aadhar":aadharDoc
+      },);
+      if (result is Success) {
+        return Success(DocVerificationModel.fromJson(result.value));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
 
   /// Verify Pan Service
   Future<Result<bool>> verifyPan(VerifyPanApiRequest request) async {
-    print("calling here");
+
     final xApiKey = ApiUrls.xApiKey;
     final udid = ApiUrls.fetchUDID;
     try {

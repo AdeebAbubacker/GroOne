@@ -51,7 +51,7 @@ class IncompleteKycStatusWidget extends StatelessWidget {
           TextButton(
             onPressed: () {
               if (companyId != null && (companyId == 2 || companyId == 1)) {
-                print("tap here");
+
                 commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
               } else {
                 Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));

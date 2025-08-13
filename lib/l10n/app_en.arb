@@ -85,7 +85,7 @@
   "preferredLanesText": "Preferred Lanes",
   "businessProof": "Business Proof",
   "uploadDocument": "Upload document",
-  "aadhaarNumber": "Aadhaar Number(optional)",
+  "aadhaarNumber": "Aadhaar Number",
   "aadhaarHint": "xxxx xxxx xxxx",
   "submit": "Submit",
   "selectTruckType": "Select truck type",
@@ -1071,6 +1071,8 @@
   "all":"All",
   "unread":"Unread",
   "gps":"GPS",
-  "alreadyVerified":"Aadhar already exist. Please use another aadhar number"
+  "alreadyVerified":"Aadhar already exist. Please use another aadhar number",
+  "loadType":"Load Type",
+  "shipper":"Shipper"
 
 }

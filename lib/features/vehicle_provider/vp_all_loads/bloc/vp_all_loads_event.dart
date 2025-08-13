@@ -10,6 +10,7 @@ class FetchVpLoads extends VpLoadEvent {
   FetchVpLoads({required this.type, this.search = "", this.forceRefresh = false});
 }
 
+
 class FetchLoadStatus extends VpLoadEvent {
   final bool forceRefresh;
   FetchLoadStatus({this.forceRefresh = false});

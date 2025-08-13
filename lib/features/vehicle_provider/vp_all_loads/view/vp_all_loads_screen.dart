@@ -152,7 +152,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
               alignment: Alignment.center,
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(25),color: AppColors.lightGreyBackgroundColor),
               padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
-              child:(_tabController == null || tabLabels.isEmpty)
+              child:(tabLabels.isEmpty)
                 ? const SizedBox(
                     height: 48, // same as TabBar height
                   )
@@ -262,12 +262,21 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
   Widget buildSearchBarAndFilterWidget(BuildContext context) {
     return Row(
+      spacing: 10,
       children: [
         AppSearchBar(
           searchController: searchController,
           onChanged: _onSearchChanged,
+
         ).expand(),
 
+        AppIconButton(
+          onPressed: (){
+            commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
+          },
+          style: AppButtonStyle.primaryIconButtonStyle,
+          icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
+        )
       ],
     ).paddingAll(commonSafeAreaPadding);
   }
