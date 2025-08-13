@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -43,30 +44,70 @@ class GpsLoginService {
 
       CustomLog.info(this, "Using mobile number for GPS login: $mobileNumber");
 
-      final result = await _apiService.post(
-        'https://new-test-gro.roadcast.net/api/v1/auth/auth_login?user_name=$mobileNumber',
-      );
+      // For login, we don't want to send authorization headers
+      final loginHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-API-KEY': '63cee6fe-1c1b-4de9-af0e-ee0fab917531',
+        // No Authorization header for login
+      };
 
-      if (result is Success) {
-        CustomLog.info(this, "Login API call successful");
-        // GPS login API returns a simple object with token and refresh_token
-        // No success/status field, so we parse directly
-        try {
-          CustomLog.info(this, "Parsing login response: ${result.value}");
-          final loginData = GpsLoginResponseModel.fromJson(result.value);
+      try {
+        // Use direct HTTP call to bypass API service's global 401 handling
+        final dio = Dio();
+        final response = await dio.post(
+          'https://new-test-gro.roadcast.net/api/v1/auth/auth_login?user_name=$mobileNumber',
+          options: Options(
+            headers: loginHeaders,
+            sendTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+          ),
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          CustomLog.info(this, "Login API call successful");
+          try {
+            CustomLog.info(this, "Parsing login response: ${response.data}");
+            final loginData = GpsLoginResponseModel.fromJson(response.data);
+            CustomLog.info(
+              this,
+              "Login data parsed successfully: token=${loginData.token?.substring(0, 20)}...",
+            );
+            return Success(loginData);
+          } catch (e) {
+            CustomLog.error(this, "Error parsing login response", e);
+            return Error(DeserializationError());
+          }
+        } else {
+          CustomLog.error(
+            this,
+            "Login API call failed with status: ${response.statusCode}",
+            null,
+          );
+          return Error(GenericError());
+        }
+      } on DioException catch (dioError) {
+        // Handle 401 status specifically for GPS login API
+        if (dioError.response?.statusCode == 401) {
           CustomLog.info(
             this,
-            "Login data parsed successfully: token=${loginData.token?.substring(0, 20)}...",
+            "GPS login returned 401 - user not found, device activation in progress",
           );
-          return Success(loginData);
-        } catch (e) {
-          CustomLog.error(this, "Error parsing login response", e);
-          return Error(DeserializationError());
+
+          // Return specific error for GPS device activation
+          return Error(
+            GpsDeviceActivationError(
+              message:
+                  "Device activation still in progress. Please try again later.",
+            ),
+          );
         }
-      } else if (result is Error) {
-        CustomLog.error(this, "Login API call failed", null);
-        return Error(result.type);
-      } else {
+
+        // For other Dio errors, return as usual
+        CustomLog.error(this, "Dio error during GPS login", dioError);
+        return Error(GenericError());
+      } catch (e) {
+        CustomLog.error(this, "Unexpected error during GPS login", e);
         return Error(GenericError());
       }
     } catch (e) {

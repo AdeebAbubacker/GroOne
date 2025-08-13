@@ -85,7 +85,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     final consigneePhone = consignees.isNotEmpty ? consignees[0].mobileNumber : '';
     final consigneeEmail = consignees.isNotEmpty ? consignees[0].email : '';
 
-    consigneeNameController = TextEditingController(text: consigneeName);
+    consigneeNameController = TextEditingController(text: consigneeName.capitalizeFirst);
     consigneePhoneController = TextEditingController(text: consigneePhone);
     consigneeEmailController = TextEditingController(text: consigneeEmail);
     isUpdateConsignee = widget.loadItem.consignees.isNotEmpty;
@@ -380,7 +380,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                     ),
                     25.height,
 
-                    if(widget.loadStatus.index >= LoadStatus.loading.index)
+                    if(widget.loadStatus.index >= LoadStatus.assigned.index)
                       ...[
                         BlocConsumer<LpLoadCubit, LpLoadState>(
                           bloc: lpLoadLocator,
@@ -451,16 +451,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                         lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: widget.loadItem.consignees[0].id);
                                    } else {
 
-                                  if (name.isEmpty || phone.isEmpty || email.isEmpty) {
+                                  if (name.isEmpty || phone.isEmpty) {
                                     ToastMessages.alert(message: context.appText.allFieldsAremandatory);
                                     return;
                                   }
 
-                                  final String? validation = Validator.email(email);
-                                  if (validation != null) {
-                                    ToastMessages.alert(message: validation);
-                                    return;
-                                  }
                                   final String? phoneValidation = Validator.phone(phone);
                                   if (phoneValidation != null) {
                                     ToastMessages.alert(message: phoneValidation);
@@ -473,6 +468,10 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                           },
                         ),
                         16.height,
+                      ],
+
+                    if(widget.loadStatus.index >= LoadStatus.loading.index)
+                      ...[
 
                         if(widget.loadItem.loadDocument.isNotEmpty)
                         // Download Documents
@@ -544,15 +543,20 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
               CustomSwipeButton(
                 price: widget.loadItem.loadPrice?.rate ?? 0,
                 loadId: widget.loadItem.loadId,
+                enable: isUpdateConsignee,
                 onSubmit: () async {
-                 String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-
-                  if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
-                    if(context.mounted) onSubmit(widget.loadItem, context);
+                  if(!isUpdateConsignee) {
+                    ToastMessages.error(message: context.appText.pleaseEnterConsigneeDetails);
                   } else {
-                    if(context.mounted) showAdvancePaymentDialog(context,widget.loadItem, '');
+                    String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+
+                    if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
+                      if(context.mounted) onSubmit(widget.loadItem, context);
+                    } else {
+                      if(context.mounted) showAdvancePaymentDialog(context,widget.loadItem, '');
+                    }
                   }
-                },
+                  }
               ),
             if(widget.loadStatus == LoadStatus.completed)
               AppButton(onPressed: () {
@@ -624,87 +628,92 @@ Widget _buildConsigneeDetail({
   TextEditingController? emailController,
   VoidCallback? onUpdate,
 }) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
-          Spacer(),
-          if (isUpdatable)
-            AppButton(
-              buttonHeight: 40,
-             title: isUpdateConsignee ? context.appText.update : context.appText.add,
-              style: AppButtonStyle.outlineShrink,
-              textStyle: AppTextStyle.buttonPrimaryColorTextColor,
-              onPressed: onUpdate ?? () {},
-            ),
-        ],
-      ),
-      if (isTextField)
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  return GestureDetector(
+    behavior: HitTestBehavior.translucent,
+    onTap: () {
+      FocusManager.instance.primaryFocus?.unfocus();
+    },
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            20.height,
-            AppTextField(
-              validator: (value) => Validator.fieldRequired(value),
-              controller: nameController,
-              labelText: context.appText.name,
-              hintText: context.appText.fullNameHint,
-              mandatoryStar:  isUpdateConsignee ? false : true,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
-                LengthLimitingTextInputFormatter(50)
-              ],
-            ),
-            20.height,
-            AppTextField(
-             validator: (value) => Validator.phone(value),
-                        maxLength: 10,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(10),
-                        ],
-                        keyboardType: iosNumberKeyboard,
-              controller: phoneController,
-              labelText: context.appText.contactNumber,
-               hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
-                mandatoryStar:  isUpdateConsignee ? false : true,
-
-            ),
-            20.height,
-            AppTextField(
-              validator: (value) => Validator.email(value),
-              keyboardType: TextInputType.emailAddress,
-              controller: emailController,
-              labelText: context.appText.emailId,  
-              hintText: context.appText.emailHint,
-              mandatoryStar:  isUpdateConsignee ? false : true,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(50),
-              ],
-            ),
-          ],
-        )
-      else
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            20.height,
-            _buildDetailWidget(text1: context.appText.name, text2: name ?? ""),
-            20.height,
-            _buildDetailWidget(
-              text1: context.appText.contactNo,
-              text2: phoneNo ?? "",
-            ),
-            20.height,
-            _buildDetailWidget(
-              text1: context.appText.emailId,
-              text2: email ?? "",
-            ),
+            Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
+            Spacer(),
+            if (isUpdatable)
+              AppButton(
+                buttonHeight: 40,
+               title: isUpdateConsignee ? context.appText.update : context.appText.add,
+                style: AppButtonStyle.outlineShrink,
+                textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+                onPressed: onUpdate ?? () {},
+              ),
           ],
         ),
-    ],
+        if (isTextField)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              20.height,
+              AppTextField(
+                validator: (value) => Validator.fieldRequired(value),
+                controller: nameController,
+                labelText: context.appText.name,
+                hintText: context.appText.fullNameHint,
+                mandatoryStar:  isUpdateConsignee ? false : true,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
+                  LengthLimitingTextInputFormatter(50)
+                ],
+              ),
+              20.height,
+              AppTextField(
+               validator: (value) => Validator.phone(value),
+                          maxLength: 10,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          keyboardType: iosNumberKeyboard,
+                controller: phoneController,
+                labelText: context.appText.contactNumber,
+                 hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
+                  mandatoryStar:  isUpdateConsignee ? false : true,
+
+              ),
+              20.height,
+              AppTextField(
+                validator: (value) => Validator.email(value),
+                keyboardType: TextInputType.emailAddress,
+                controller: emailController,
+                labelText: context.appText.emailId,
+                hintText: context.appText.emailHint,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(50),
+                ],
+              ),
+            ],
+          )
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              20.height,
+              _buildDetailWidget(text1: context.appText.name, text2: name ?? ""),
+              20.height,
+              _buildDetailWidget(
+                text1: context.appText.contactNo,
+                text2: phoneNo ?? "",
+              ),
+              20.height,
+              _buildDetailWidget(
+                text1: context.appText.emailId,
+                text2: email ?? "",
+              ),
+            ],
+          ),
+      ],
+    ),
   );
 }
 

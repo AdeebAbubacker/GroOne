@@ -80,6 +80,7 @@ class GpsOrderCubit extends Cubit<GpsOrderState> {
   final GpsOrderApiRepository _repository;
   final UserInformationRepository _userRepository;
   bool _isClosed = false;
+  String? paymentRequestId;
 
   GpsOrderCubit(this._repository, this._userRepository) : super(GpsOrderInitial());
 
@@ -162,6 +163,7 @@ class GpsOrderCubit extends Cubit<GpsOrderState> {
     try {
       final result = await _repository.initiatePayment(request);
       if (result is Success<OrderAddedSuccess>) {
+        paymentRequestId = result.value.data?.data?.paymentRequestId;
         emit(GpsPaymentSuccess(result.value));
       } else if (result is Error<OrderAddedSuccess>) {
         final errorMessage = result.type is ErrorWithMessage

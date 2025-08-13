@@ -319,6 +319,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
             keyboardType: TextInputType.emailAddress,
             inputFormatters: [
               LengthLimitingTextInputFormatter(50),
+              FilteringTextInputFormatter.deny(RegExp(r'\+')),
             ],
             decoration: commonInputDecoration(
                 focusColor: state.isVerifiedEmail ? AppColors.borderColor : AppColors.primaryColor,

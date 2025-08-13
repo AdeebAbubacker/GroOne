@@ -204,7 +204,7 @@ class ApiUrls {
   static final String documentUpload = "$_fetchUrl/document/api/v1/upload";
 
   // User Management API
-  static final String getAllUsers = "$_fetchUrl/user/api/v1/users/allUsers";
+  static final String getAllUsers = "$_fetchUrl/user/api/v1/users/getReferralCode";
 
   /// Google Map
   static String  googleDirectionApi = "$_baseUrl/ratediscovery/api/v1/map-location/directions";

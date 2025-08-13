@@ -59,6 +59,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/indian_licesne_fromatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -314,54 +315,67 @@ class _MasterScreenState extends State<MasterScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: CommonAppBar(
-        scrolledUnderElevation: 0,
-        backgroundColor: Colors.transparent,
-        title: Text(
-          context.appText.masters,
-          style: AppTextStyle.textBlackColor18w500,
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade100,
+        appBar: CommonAppBar(
+          scrolledUnderElevation: 0,
+          backgroundColor: Colors.transparent,
+          title: Text(
+            context.appText.masters,
+            style: AppTextStyle.textBlackColor18w500,
+          ),
         ),
-      ),
-      body: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(30)),
-            child: TabBar(
-              controller: _tabController,
-              indicator: BoxDecoration(
-                color: AppColors.primaryColor,
+        body: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(30),
               ),
-              indicatorSize: TabBarIndicatorSize.tab,
-              dividerHeight: 0,
-              labelColor: Colors.white,
-              unselectedLabelColor: Colors.black,
-              labelStyle: AppTextStyle.h6.copyWith(fontWeight: FontWeight.w600),
-              unselectedLabelStyle: AppTextStyle.h6,
-              tabs: [
-                SizedBox(height: 30, child: Tab(text: context.appText.address)),
-                SizedBox(
-                  height: 30,
-                  child: Tab(text: context.appText.vehicles),
+              child: TabBar(
+                controller: _tabController,
+                indicator: BoxDecoration(
+                  color: AppColors.primaryColor,
+                  borderRadius: BorderRadius.circular(30),
                 ),
-                SizedBox(height: 30, child: Tab(text: context.appText.drivers)),
-              ],
+                indicatorSize: TabBarIndicatorSize.tab,
+                dividerHeight: 0,
+                labelColor: Colors.white,
+                unselectedLabelColor: Colors.black,
+                labelStyle: AppTextStyle.h6.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+                unselectedLabelStyle: AppTextStyle.h6,
+                tabs: [
+                  SizedBox(
+                    height: 30,
+                    child: Tab(text: context.appText.address),
+                  ),
+                  SizedBox(
+                    height: 30,
+                    child: Tab(text: context.appText.vehicles),
+                  ),
+                  SizedBox(
+                    height: 30,
+                    child: Tab(text: context.appText.drivers),
+                  ),
+                ],
+              ),
             ),
-          ),
-          Expanded(
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                buildAddressTab(),
-                buildVehicleTab(),
-                buildDriverTab(),
-              ],
+            Expanded(
+              child: TabBarView(
+                controller: _tabController,
+                children: [
+                  buildAddressTab(),
+                  buildVehicleTab(),
+                  buildDriverTab(),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -510,7 +524,7 @@ class _MasterScreenState extends State<MasterScreen>
             onPressed: () => showAddAddressPopup(context),
           ),
         ),
-        40.height,
+        20.height,
       ],
     );
   }
@@ -650,7 +664,7 @@ class _MasterScreenState extends State<MasterScreen>
             },
           ),
         ),
-        40.height,
+        20.height,
       ],
     );
   }
@@ -799,7 +813,7 @@ class _MasterScreenState extends State<MasterScreen>
             },
           ),
         ),
-        40.height,
+        20.height,
       ],
     );
   }
@@ -822,8 +836,8 @@ class _MasterScreenState extends State<MasterScreen>
         children: [
           Row(
             children: [
-              Flexible(child: Text(title, style: AppTextStyle.h5).expand(),),
-              
+              Flexible(child: Text(title, style: AppTextStyle.h5).expand()),
+
               IconButton(
                 onPressed: onEdit,
                 icon: SvgPicture.asset(
@@ -849,7 +863,7 @@ class _MasterScreenState extends State<MasterScreen>
               color: AppColors.lightGreyTextColor,
             ),
           ),
-          
+
           15.height,
 
           InkWell(
@@ -932,16 +946,16 @@ class _MasterScreenState extends State<MasterScreen>
                     Row(
                       children: [
                         Flexible(
-  child: Text(
-    name,
-    style: const TextStyle(
-      fontWeight: FontWeight.bold,
-      fontSize: 16,
-    ),
-    overflow: TextOverflow.ellipsis,
-    maxLines: 1,
-  ),
-),
+                          child: Text(
+                            name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
+                          ),
+                        ),
 
                         6.width,
                         SvgPicture.asset(AppIcons.svg.tick),
@@ -1071,19 +1085,18 @@ class _MasterScreenState extends State<MasterScreen>
                     4.height,
                     Row(
                       children: [
-      
                         Flexible(
-  child: Text(
-    name,
-    style: AppTextStyle.body.copyWith(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 15,
-                            color: AppColors.textBlackDetailColor,
+                          child: Text(
+                            name,
+                            style: AppTextStyle.body.copyWith(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 15,
+                              color: AppColors.textBlackDetailColor,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
-    overflow: TextOverflow.ellipsis,
-    maxLines: 1,
-  ),
-),
+                        ),
 
                         6.width,
                         SvgPicture.asset(AppIcons.svg.tick),
@@ -1192,6 +1205,7 @@ class _MasterScreenState extends State<MasterScreen>
           inputFormatters: [
             FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
             UpperCaseTextFormatter(),
+            LengthLimitingTextInputFormatter(16),
           ],
 
           readOnly: isVerified,
@@ -1280,7 +1294,10 @@ class _MasterScreenState extends State<MasterScreen>
               controller: licenseNoController,
               mandatoryStar: true,
               labelText: "License No",
-              inputFormatters: [UpperCaseTextFormatter()],
+              inputFormatters: [
+                UpperCaseTextFormatter(),
+                IndianLicenseFormatter(),
+              ],
               validator:
                   (value) => Validator.indianLicenseNumber(
                     value,
@@ -2063,64 +2080,108 @@ class _MasterScreenState extends State<MasterScreen>
                     onVerificationResult: (isVerified, licenseData) {
                       setState(() {
                         isLicenseVerified = isVerified || driver != null;
-                        print(
-                          '----------------------------- ${licenseData.toString()}',
-                        );
-                        // ✅ Autofill fields if data came from API
                         if (licenseData != null) {
-                          if (licenseData['name'] != null) {
-                            nameController.text =
-                                licenseData['name'] ??
-                                licenseData['user_full_name'];
+                          // Name
+                          final nameRaw =
+                              licenseData['name'] ??
+                              licenseData['user_full_name'];
+                          if (nameRaw != null && nameRaw is String) {
+                            nameController.text = nameRaw;
                           }
-                          selectedDoB = DateFormat('dd/MM/yyyy').format(
-                            DateTime.parse(
+
+                          // Date of Birth
+                          final dobRaw =
                               licenseData['dateOfBirth'] ??
-                                  licenseData['user_dob'],
-                            ),
-                          );
+                              licenseData['user_dob'];
+                          if (dobRaw != null &&
+                              dobRaw is String &&
+                              dobRaw.isNotEmpty) {
+                            selectedDoB = DateFormat('dd/MM/yyyy').format(
+                              dobRaw.contains('-')
+                                  ? DateFormat('dd-MM-yyyy').parse(dobRaw)
+                                  : DateTime.parse(dobRaw),
+                            );
+                          } else {
+                            selectedDoB = '';
+                          }
+
+                          // Blood Group
                           selectedBloodGroup =
                               MasterHelper.mapBloodGroupIdToName(
                                 licenseData['bloodGroup'] ??
                                     licenseData['user_blood_group'],
                               );
-                          selectedBloodId =
+                          // Blood Group
+                          final rawBloodValue =
                               licenseData['bloodGroup'] ??
                               licenseData['user_blood_group'];
 
+                          if (rawBloodValue is int) {
+                            selectedBloodId = rawBloodValue;
+                          } else if (rawBloodValue is String) {
+                            selectedBloodId = MasterHelper.mapBloodGroupToId(
+                              rawBloodValue,
+                            );
+                          } else {
+                            selectedBloodId = null;
+                          }
+
+                          selectedBloodGroup =
+                              MasterHelper.mapBloodGroupIdToName(
+                                selectedBloodId,
+                              );
+
+                          // License Category
                           selectedLicense =
                               MasterHelper.mapLicenseCategoryIdToName(
                                 licenseData['licenseCategory'] ??
                                     licenseData['vehicle_category'],
                               );
-                          selectedLicneseId =
+                          final rawLicenseValue =
                               licenseData['licenseCategory'] ??
                               licenseData['vehicle_category'];
+                          selectedLicneseId =
+                              rawLicenseValue is int ? rawLicenseValue : null;
 
-                          selectedDate = DateFormat('dd/MM/yyyy').format(
-                            DateTime.parse(
+                          // Expiry Date
+                          final expiryRaw =
                               licenseData['licenseExpiryDate'] ??
-                                  licenseData['expiry_date'],
-                            ),
-                          );
+                              licenseData['expiry_date'];
+                          if (expiryRaw != null &&
+                              expiryRaw is String &&
+                              expiryRaw.isNotEmpty) {
+                            selectedDate = DateFormat('dd/MM/yyyy').format(
+                              expiryRaw.contains('-')
+                                  ? DateFormat('dd-MM-yyyy').parse(expiryRaw)
+                                  : DateTime.parse(expiryRaw),
+                            );
+                          } else {
+                            selectedDate = '';
+                          }
 
-                          if (licenseData['mobile'] != null) {
-                            mobileController.text =
-                                licenseData['mobile']?.replaceFirst(
-                                  '+91',
-                                  '',
-                                ) ??
-                                "";
+                          // Mobile
+                          final mobileRaw = licenseData['mobile'];
+                          if (mobileRaw != null && mobileRaw is String) {
+                            mobileController.text = mobileRaw.replaceFirst(
+                              '+91',
+                              '',
+                            );
                           }
-                          if (licenseData['email'] != null) {
-                            emailController.text = licenseData['email'];
+
+                          // Email
+                          final emailRaw = licenseData['email'];
+                          if (emailRaw != null && emailRaw is String) {
+                            emailController.text = emailRaw;
                           }
+
+                          // Driver Status
                           if (licenseData['driverStatus'] != null) {
-                            isActive =
-                                licenseData['driverStatus'] == 1 ? true : false;
+                            isActive = licenseData['driverStatus'] == 1;
                           }
 
+                          // License Documents
                           if (licenseData['licenseDocLink'] != null &&
+                              licenseData['licenseDocLink'] is String &&
                               licenseData['licenseDocLink']!.isNotEmpty) {
                             localLicenseDocList.clear();
                             final doc = createFileFromLink(

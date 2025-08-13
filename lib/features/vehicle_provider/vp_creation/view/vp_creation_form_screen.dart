@@ -350,6 +350,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           keyboardType: TextInputType.emailAddress,
           inputFormatters: [
             LengthLimitingTextInputFormatter(50),
+            FilteringTextInputFormatter.deny(RegExp(r'\+')),
           ],
           decoration: commonInputDecoration(
             hintText: context.appText.emailHint,
@@ -547,7 +548,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Attached Truck
         AppTextField(
-          validator: (value) => Validator.fieldRequired(value),
           controller: attachedTruckTextController,
           labelText: context.appText.attachedTrucks,
           hintText:

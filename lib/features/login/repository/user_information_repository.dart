@@ -45,4 +45,9 @@ class UserInformationRepository {
   }
 
 
+  Future<int?> getCustomerSeriesId() async {
+    return  await _securedSharedPref.getInt(AppString.sessionKey.customerSeriesId);
+  }
+
+
 }

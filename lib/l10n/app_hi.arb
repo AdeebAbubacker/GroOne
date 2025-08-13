@@ -1055,7 +1055,11 @@
   "searchTruckTypes": "ट्रक प्रकार खोजें",
   "searchRoutes": "रूट खोजें...",
   "unableToCompleteUrReq" : "आपका अनुरोध पूरा नहीं हो सका। कृपया रिफ्रेश करें या बाद में पुनः प्रयास करें।",
-   "shipper":"Shipper"
+  "rcNumber": "आरसी नंबर",
+  "unableToCompleteUrReq" : "आपका अनुरोध पूरा नहीं हो सका। कृपया रिफ्रेश करें या बाद में पुनः प्रयास करें।",
+  "pleaseEnterConsigneeDetails": "कृपया कंसाइनी विवरण दर्ज करें"
+
+
 
 
 

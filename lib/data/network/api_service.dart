@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -29,7 +30,6 @@ class ApiService {
     _dio.options.connectTimeout = _timeout;
     _dio.options.receiveTimeout = _timeout;
   }
-
 
   /// Header
   Future<Map<String, String>> _getHeaders({bool isMultipart = false}) async {
@@ -101,7 +101,6 @@ class ApiService {
       );
       return await _handleBodyResponse(response);
     } on DioError catch (dioError) {
-
       return await _handleDioError(dioError);
     } catch (exception) {
       CustomLog.error(this, "Generic HTTP call error", exception);
@@ -361,6 +360,7 @@ class ApiService {
     try {
       if (response.statusCode == 200 || response.statusCode == 201) {
         return Success(response.data);
+
       } else {
         return await _handleHttpError(response);
       }
@@ -399,88 +399,70 @@ class ApiService {
     }
   }
 
-  /// Handle unauthorized error by clearing invalid token
+  /// Handle unauthorized error by attempting token refresh first
   Future<void> _handleUnauthorizedError() async {
     try {
       CustomLog.debug(this, "🔐 Handling 401 Unauthorized error");
 
-      // Clear all authentication data immediately
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.userId);
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
+      final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
 
-      CustomLog.debug(
-        this,
-        "🔐 Cleared all authentication data due to 401 error",
+      if (refreshToken == null || refreshToken.isEmpty) {
+        CustomLog.debug(this, "No refresh token found, logging out");
+        await _clearAuthAndRedirect();
+        return;
+      }
+
+      // Call refresh token API using existing post() method for consistent handling
+      final refreshResult = await post(
+        ApiUrls.refreshToken,
+        body: {
+          "refresh_token": refreshToken,
+        },
+        customHeaders: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+        },
       );
 
-      // Only redirect if we're not already on the choose language screen
-      if (appContext.mounted) {
-        final currentRoute = GoRouterState.of(appContext).uri.path;
-        if (currentRoute != AppRouteName.chooseLanguage) {
-          CustomLog.debug(this, "🔐 Redirecting to choose language screen");
-          // appContext.pushReplacement(AppRouteName.chooseLanguage);
-          appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
+      if (refreshResult is Success) {
+        final data = refreshResult.value['data'];
 
-        } else {
-          CustomLog.debug(
-            this,
-            "🔐 Already on choose language screen, skipping redirect",
-          );
+        if (data != null && data['access_token'] != null) {
+          final newAccessToken = data['access_token'];
+          final newRefreshToken = data['refresh_token'];
+
+          await _secureSharedPrefs.saveKey(AppString.sessionKey.accessToken, newAccessToken);
+          await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
+
+          CustomLog.debug(this, "🔐 Token refreshed successfully");
+          return; // Future requests will now use the new token
         }
       }
+
+      // If refresh failed → logout
+      CustomLog.debug(this, "Token refresh failed, logging out");
+      await _clearAuthAndRedirect();
+
     } catch (e) {
-      CustomLog.error(this, "Error handling unauthorized error", e);
-      // Fallback: clear data and redirect
-      try {
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.userId);
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
-        await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
-
-        if (appContext.mounted) {
-          // appContext.pushReplacement(AppRouteName.chooseLanguage);
-          appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
-
-          LpBottomNavigation.selectedIndexNotifier.value = 0;
-        }
-      } catch (fallbackError) {
-        CustomLog.error(this, "Fallback error handling failed", fallbackError);
-      }
+      CustomLog.error(this, "Error refreshing token", e);
+      await _clearAuthAndRedirect();
     }
   }
 
-  Future<void> _logoutAndNavigateToLogin() async {
-    try {
-      CustomLog.debug(this, "🔐 Logging out user");
 
-      // Clear all authentication data
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.userId);
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
-      await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
+  Future<void> _clearAuthAndRedirect() async {
+    // Clear all authentication data
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.accessToken);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.refreshToken);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.userId);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
 
-      CustomLog.debug(this, "🔐 All authentication data cleared");
-
-      if (appContext.mounted) {
-        final currentRoute = GoRouterState.of(appContext).uri.path;
-        if (currentRoute != AppRouteName.chooseLanguage) {
-          CustomLog.debug(this, "🔐 Redirecting to choose language screen");
-          appContext.pushReplacement(AppRouteName.chooseLanguage);
-        } else {
-          CustomLog.debug(
-            this,
-            "🔐 Already on choose language screen, skipping redirect",
-          );
-        }
-      }
-    } catch (e) {
-      CustomLog.error(this, "Error during logout", e);
+    if (appContext.mounted) {
+        appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton": false});
     }
+    LpBottomNavigation.selectedIndexNotifier.value = 0;
+
   }
 
   /// Handle Dio Error

@@ -51,6 +51,7 @@ class KavachSummaryScreen extends StatefulWidget {
   final String orderReferencedBy;
   final Map<String, List<String>> selectedVehiclePerProduct;
   final String? orderId; // Add orderId parameter
+  final KavachOrderRequest kavachOrderRequest;
 
 
   const KavachSummaryScreen({
@@ -66,6 +67,7 @@ class KavachSummaryScreen extends StatefulWidget {
     required this.orderReferencedBy,
     required this.selectedVehiclePerProduct,
     this.orderId, // Make it optional
+    required this.kavachOrderRequest,
   });
 
   @override
@@ -142,78 +144,58 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     return BlocListener<KavachOrderBloc, KavachOrderState>(
       bloc: kavachOrderBloc,
       listener: (context, state) async {
-        if (state is KavachPaymentInitiating) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
-        } else {
-          if (Navigator.canPop(context)) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (Navigator.canPop(context)) {
-                Navigator.pop(context);
-              }
-            });
-          }
-        }
-
         if (state is KavachPaymentSuccess) {
-          // Add a small delay to ensure the dialog is fully dismissed before navigation
-          await Future.delayed(const Duration(milliseconds: 100));
-
-          // Check if the context is still mounted before navigating
-          if (context.mounted) {
-            // Navigate to payment screen
-            final result = await Navigator.of(context).push(
-              commonRoute(
-                PaymentsScreen(
-                  url: state.paymentResponse.data?.data?.tinyUrl ?? "",
-                  loadId: "kavach_order",
-                ),
+          final result = await Navigator.of(context).push(
+            commonRoute(
+              PaymentsScreen(
+                url: state.paymentResponse.data?.data?.tinyUrl ?? "",
+                loadId: "kavach_order",
               ),
-            );
+            ),
+          );
 
-            // Handle payment completion
-            if (result == true && context.mounted) {
-              showSuccessDialog(
-                context,
-                text: 'Order placed successfully',
-                subheading: ''
-              );
-              Future.delayed(Duration(seconds: 3),() {
-                if (context.mounted) {
-                  // Clear address blocs before navigating back
-                  try {
-                    // Clear billing address bloc
-                    final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
-                    billingBloc.add(ClearKavachBillingAddress());
+          if (result == true) {
+            KavachOrderRequest request = widget.kavachOrderRequest;
+            request.paymentRequestId = kavachOrderBloc.paymentRequestId;
 
-                    // Clear shipping address bloc
-                    final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
-                    shippingBloc.add(ClearKavachShippingAddress());
-                  } catch (e) {
-                    // Handle any errors if blocs are not available
-                  }
-
-                  Navigator.of(context).popUntil((route) {
-                    if (route.settings.name == 'KavachOrderListScreen') {
-                      if (route.navigator != null && route.navigator!.context.mounted) {
-                        BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
-                      }
-                      return true; // Pop until this route
-                    }
-                    return false;
-                  });
-                }
-              },);
-            }
+            // 2️⃣ Payment success — now create order
+            kavachOrderBloc.add(KavachSubmitOrder(widget.kavachOrderRequest));
           }
         }
-        if (state is KavachPaymentFailure) {
-          await Future.delayed(const Duration(milliseconds: 100));
-          ToastMessages.error(message: "Failed to initiate payment");
-        }
+
+        if (state is KavachOrderSuccess) {
+                showSuccessDialog(
+                  context,
+                  text: 'Order placed successfully',
+                  subheading: ''
+                );
+                Future.delayed(Duration(seconds: 3),() {
+                  if (context.mounted) {
+                    // Clear address blocs before navigating back
+                    try {
+                      // Clear billing address bloc
+                      final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+                      billingBloc.add(ClearKavachBillingAddress());
+
+                      // Clear shipping address bloc
+                      final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
+                      shippingBloc.add(ClearKavachShippingAddress());
+                    } catch (e) {
+                      // Handle any errors if blocs are not available
+                    }
+
+                    Navigator.of(context).popUntil((route) {
+                      if (route.settings.name == 'KavachOrderListScreen') {
+                        if (route.navigator != null && route.navigator!.context.mounted) {
+                          BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
+                        }
+                        return true; // Pop until this route
+                      }
+                      return false;
+                    });
+                  }
+                },);
+              }
       },
       child: Scaffold(
         appBar: CommonAppBar(title: context.appText.summary,
@@ -383,28 +365,24 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           ),
           15.width,
           AppButton(
-            onPressed: () async {
-              // Get customer information
-              final customerInfo = await getCustomerInfo();
-              final userRepository = locator<UserInformationRepository>();
-              final customerId = await userRepository.getUserID();
+              onPressed: () async {
+                final customerInfo = await getCustomerInfo();
+                final customerId = await locator<UserInformationRepository>().getUserID();
 
-              // Create payment request using the order ID from checkout
-              if (customerId != null && customerId.isNotEmpty) {
-                final paymentRequest = KavachInitiatePaymentRequest(
-                                orderId: widget.orderId ?? "ORDER_${DateTime.now().millisecondsSinceEpoch}",
-                                amount: totalAmount.toInt(),
-                                customerName: customerInfo["CompanyName"] ?? "ABC Logistics Pvt Ltd",
-                                customerEmail: "customer@example.com", // This should be fetched from user profile
-                                customerMobile: customerInfo["contactNumber"] ?? "9876543210",
-                                customerCity: widget.billingAddress.city,
-                                customerId: customerId,
-                                merchantReferenceNo: 'fleet'
-                              );
+                if (customerId != null && customerId.isNotEmpty) {
+                  final paymentRequest = KavachInitiatePaymentRequest(
+                    orderId: widget.orderId ?? "ORDER_${DateTime.now().millisecondsSinceEpoch}",
+                    amount: totalAmount.toInt(),
+                    customerName: customerInfo["CompanyName"] ?? "ABC Logistics Pvt Ltd",
+                    customerEmail: widget.kavachOrderRequest.customerInfo['email'],
+                    customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                    customerCity: widget.billingAddress.city,
+                    customerId: customerId,
+                    merchantReferenceNo: 'fleet',
+                  );
 
-                kavachOrderBloc.add(KavachInitiatePayment(paymentRequest));
-              }
-            },
+                  kavachOrderBloc.add(KavachInitiatePayment(paymentRequest));
+                }},
             title: context.appText.placeOrder,
             style: AppButtonStyle.primary,
           ).expand()

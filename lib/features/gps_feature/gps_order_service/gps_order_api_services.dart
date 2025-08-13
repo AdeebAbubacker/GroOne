@@ -1,5 +1,8 @@
 
 
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
@@ -672,29 +675,44 @@ class GpsOrderApiService {
     }
   }
 
-  /// Initiate GPS Payment
   Future<Result<OrderAddedSuccess>> initiatePayment(KavachInitiatePaymentRequest request) async {
     try {
-      final url = ApiUrls.lppayment;
-      CustomLog.debug(this, "GPS Payment URL: $url");
-      CustomLog.debug(this, "GPS Payment Request: ${request.toJson()}");
-      
-      final result = await _apiService.post(url, body: request.toJson());
+      final response = await _apiService.post(
+        ApiUrls.fleetPayment,
+        body: request.toJson(),
+      );
 
-      if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => OrderAddedSuccess.fromJson(data),
-        );
-      } else if (result is Error) {
-        return Error(result.type);
+      if (response is Success) {
+        dynamic data = response.value;
+
+        // Ensure response value is a Map before passing to fromJson
+        if (data is Map<String, dynamic>) {
+          if (data.containsKey("success") && data["success"] == false) {
+            return Error(GenericError());
+          }
+
+          // If 'data' field is a string or null, replace it with null to avoid parsing errors
+          if (data.containsKey("data") && data["data"] is String) {
+            data = {
+              ...data,
+              "data": null, // prevent String -> Map cast error
+            };
+          }
+          final result = OrderAddedSuccess.fromJson(data);
+          CustomLog.debug(this, "Payment initiated successfully");
+          return Success(result);
+        } else {
+          // Unexpected response format
+          return Error(DeserializationError());
+        }
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
-    } catch (e) {
-      CustomLog.error(this, "Failed to initiate GPS payment", e);
+    } catch (e, s) {
+      CustomLog.error(this, "Failed to initiate payment", e);
       return Error(DeserializationError());
     }
   }
+
 
 }

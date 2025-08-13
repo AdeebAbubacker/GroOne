@@ -167,69 +167,126 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   }
 
   /// Uploads KYC documents to En-Dhan API
-  Future<void> uploadKycDocuments() async {
-    // Mark that form submission has been attempted
+  Future<bool> uploadKycDocuments() async {
     markFormSubmitted();
 
     if (!isFormValid()) {
       _setUploadKycUIState(UIState.error(InvalidInputError()));
-      return;
+      return false;
     }
 
     _setUploadKycUIState(UIState.loading());
-
-    // Get customer ID dynamically
     final customerId = await _userInformationRepository.getUserID();
     if (customerId == null || customerId.isEmpty) {
       _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Customer ID not found')));
-      return;
+      return false;
     }
 
     try {
       String? panDocLink;
 
-      // Upload PAN document if provided
       if (state.panDocuments.isNotEmpty && state.pan.isNotEmpty) {
         final document = state.panDocuments.first;
         if (document['path'] != null) {
-          final panImageFile = File(document['path']);
-
-          // Upload the PAN document first to get the URL
-          final uploadResult = await _uploadDocument(panImageFile, customerId);
+          final uploadResult = await _uploadDocument(File(document['path']), customerId);
           if (uploadResult is Success<String>) {
             panDocLink = uploadResult.value;
           } else {
             _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Failed to upload PAN document')));
-            return;
+            return false;
           }
         }
       }
 
-
-      final request = EnDhanKycApiRequest(
-        aadhar: state.aadhaar,
-        isAadhar: true,
-        pan: state.pan,
-        panDocLink: panDocLink,
-        isPan: state.pan.isNotEmpty ? true : null,
-        aadharDocLink: state.aadhaarDocLink,
+      final result = await _repository.uploadKycDocuments(
+        EnDhanKycApiRequest(
+          aadhar: state.aadhaar,
+          isAadhar: true,
+          pan: state.pan,
+          panDocLink: panDocLink,
+          isPan: state.pan.isNotEmpty ? true : null,
+          aadharDocLink: state.aadhaarDocLink,
+        ),
+        customerId,
       );
 
-      final result = await _repository.uploadKycDocuments(request, customerId);
-
-      if (_isClosed) return;
-
       if (result is Success<EnDhanKycModel>) {
-        _setUploadKycUIState(UIState.success(result.value));
-      } else if (result is Error) {
+        // _setUploadKycUIState(UIState.success(result.value));
+        return true;
+      } else {
         _setUploadKycUIState(UIState.error((result as Error).type));
+        return false;
       }
-    } catch (e) {
-      if (!_isClosed) {
-        _setUploadKycUIState(UIState.error(GenericError()));
-      }
+    } catch (_) {
+      _setUploadKycUIState(UIState.error(GenericError()));
+      return false;
     }
   }
+
+
+  // Future<void> uploadKycDocuments() async {
+  //   // Mark that form submission has been attempted
+  //   markFormSubmitted();
+  //
+  //   if (!isFormValid()) {
+  //     _setUploadKycUIState(UIState.error(InvalidInputError()));
+  //     return;
+  //   }
+  //
+  //   _setUploadKycUIState(UIState.loading());
+  //
+  //   // Get customer ID dynamically
+  //   final customerId = await _userInformationRepository.getUserID();
+  //   if (customerId == null || customerId.isEmpty) {
+  //     _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Customer ID not found')));
+  //     return;
+  //   }
+  //
+  //   try {
+  //     String? panDocLink;
+  //
+  //     // Upload PAN document if provided
+  //     if (state.panDocuments.isNotEmpty && state.pan.isNotEmpty) {
+  //       final document = state.panDocuments.first;
+  //       if (document['path'] != null) {
+  //         final panImageFile = File(document['path']);
+  //
+  //         // Upload the PAN document first to get the URL
+  //         final uploadResult = await _uploadDocument(panImageFile, customerId);
+  //         if (uploadResult is Success<String>) {
+  //           panDocLink = uploadResult.value;
+  //         } else {
+  //           _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Failed to upload PAN document')));
+  //           return;
+  //         }
+  //       }
+  //     }
+  //
+  //
+  //     final request = EnDhanKycApiRequest(
+  //       aadhar: state.aadhaar,
+  //       isAadhar: true,
+  //       pan: state.pan,
+  //       panDocLink: panDocLink,
+  //       isPan: state.pan.isNotEmpty ? true : null,
+  //       aadharDocLink: state.aadhaarDocLink,
+  //     );
+  //
+  //     final result = await _repository.uploadKycDocuments(request, customerId);
+  //
+  //     if (_isClosed) return;
+  //
+  //     if (result is Success<EnDhanKycModel>) {
+  //       _setUploadKycUIState(UIState.success(result.value));
+  //     } else if (result is Error) {
+  //       _setUploadKycUIState(UIState.error((result as Error).type));
+  //     }
+  //   } catch (e) {
+  //     if (!_isClosed) {
+  //       _setUploadKycUIState(UIState.error(GenericError()));
+  //     }
+  //   }
+  // }
 
   /// Uploads KYC documents using multipart to En-Dhan API
   Future<void> uploadKycDocumentsMultipart() async {

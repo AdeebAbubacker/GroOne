@@ -70,7 +70,6 @@ class _RouteScreenState extends State<RouteScreen> {
                 10.height,
                 ListView.separated(
                   shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
                   padding: const EdgeInsets.only(bottom: 100),
                   itemCount: routes.length,
                   separatorBuilder: (_, __) => const SizedBox(height: 20),

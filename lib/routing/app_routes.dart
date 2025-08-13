@@ -161,9 +161,10 @@ class AppRoutes {
         path: AppRouteName.login,
         builder: (BuildContext context, GoRouterState state) {
           final extra = state.extra;
-          final showBackButton = (extra is Map<String, dynamic>)
-              ? (extra["showBackButton"] ?? true) as bool
-              : true;
+          final showBackButton =
+              (extra is Map<String, dynamic>)
+                  ? (extra["showBackButton"] ?? true) as bool
+                  : true;
           return LoginScreen(showBackButton: showBackButton);
         },
       ),
@@ -196,10 +197,18 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.gpsReports,
         builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final preSelectedReportType =
+              extra?['preSelectedReportType'] as String?;
+          final preSelectedVehicle = extra?['preSelectedVehicle'];
+
           return BlocProvider.value(
-              value: locator<VehicleListCubit>(),
-              child: GpsReportScreen());
-          // return GpsReportScreen();
+            value: locator<VehicleListCubit>(),
+            child: GpsReportScreen(
+              preSelectedReportType: preSelectedReportType,
+              preSelectedVehicle: preSelectedVehicle,
+            ),
+          );
         },
       ),
 
