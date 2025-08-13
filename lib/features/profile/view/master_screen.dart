@@ -1699,28 +1699,6 @@ class _MasterScreenState extends State<MasterScreen>
                             if (ownerName != null) {
                               owenerNameController.text = ownerName.toString();
                             }
-                            if (vehicleData != null) {
-                              insuranceValidityDate =
-                                  formatApiDateForVehicleVahan(
-                                    vehicleData['insurance_expiry_date'],
-                                  ) ??
-                                  null;
-                              pucExpiryDate =
-                                  formatApiDateForVehicleVahan(
-                                    vehicleData['rc_pucc_expiry_date'],
-                                  ) ??
-                                  null;
-                              fcExpiryDate =
-                                  formatApiDateForVehicleVahan(
-                                    vehicleData['rc_expiry_date'],
-                                  ) ??
-                                  null;
-                              registrationDate =
-                                  formatApiDateForVehicleVahan(
-                                    vehicleData['rc_registration_date'],
-                                  ) ??
-                                  null;
-                            }
 
                             final insurancePolicyNo =
                                 vehicleData['insurance_policy_number'] ?? '';
@@ -1753,6 +1731,32 @@ class _MasterScreenState extends State<MasterScreen>
                                 selectedTruckType = matchedTruckType;
                               }
                             }
+                          }
+                        });
+
+                        /// Date Fields auto pop
+                        setState(() {
+                          if (vehicleData != null) {
+                            insuranceValidityDate =
+                                formatApiDateForVehicleVahan(
+                                  vehicleData['insurance_expiry_date'],
+                                ) ??
+                                null;
+                            pucExpiryDate =
+                                formatApiDateForVehicleVahan(
+                                  vehicleData['rc_pucc_expiry_date'],
+                                ) ??
+                                null;
+                            fcExpiryDate =
+                                formatApiDateForVehicleVahan(
+                                  vehicleData['rc_expiry_date'],
+                                ) ??
+                                null;
+                            registrationDate =
+                                formatApiDateForVehicleVahan(
+                                  vehicleData['rc_registration_date'],
+                                ) ??
+                                null;
                           }
                         });
                       },
@@ -2294,9 +2298,10 @@ class _MasterScreenState extends State<MasterScreen>
                           //         ? DateFormat('dd-MM-yyyy').parse(licenseData['expiry_date'])
                           //         : DateTime.parse(expiryRaw),
                           //   );
-                          final expiryRaw = licenseData['expiry_date'];
+                          final expiryRaw =
+                              licenseData['expiry_date'] ??
+                              licenseData['licenseExpiryDate'];
 
-                          print('my expiry raw');
                           selectedlicenseExpiryDate = DateFormat(
                             'dd/MM/yyyy',
                           ).format(
