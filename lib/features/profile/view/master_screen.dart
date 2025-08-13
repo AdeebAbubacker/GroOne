@@ -67,8 +67,6 @@ import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
-
 import '../../../data/ui_state/status.dart';
 
 class MasterScreen extends StatefulWidget {
@@ -86,8 +84,6 @@ class _MasterScreenState extends State<MasterScreen>
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final gpsVehicleCubit = locator<GpsVehicleCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
-  // final MultiSelectController<String> acceptableCommoditiesController =
-  //     MultiSelectController<String>();
   List<String> selectedCommodities = [];
   late TabController _tabController;
   final vehicleSearchController = TextEditingController();
@@ -102,7 +98,6 @@ class _MasterScreenState extends State<MasterScreen>
   String? truckLengthDropdownValue;
   bool showValidationErrors = false;
   List<Map<String, dynamic>> vehicleDocList = [];
-  bool _hasCalledVahanVerification = false;
   String? insuranceValidityDate;
   String? fcExpiryDate;
   String? pucExpiryDate;
@@ -2302,13 +2297,7 @@ class _MasterScreenState extends State<MasterScreen>
                               licenseData['expiry_date'] ??
                               licenseData['licenseExpiryDate'];
 
-                          selectedlicenseExpiryDate = DateFormat(
-                            'dd/MM/yyyy',
-                          ).format(
-                            DateFormat(
-                              'dd-MM-yyyy',
-                            ).parse(licenseData['expiry_date']),
-                          );
+                          selectedlicenseExpiryDate = "ddd";
                           print(
                             'selectedlicenseExpiryDate-----------------${licenseData['expiry_date']}',
                           );
