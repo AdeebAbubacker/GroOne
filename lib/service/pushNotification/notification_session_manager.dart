@@ -18,7 +18,7 @@ class NotificationSessionManager {
   static const String _notificationEventType = 'notification_event_type';
   static const String _isNotificationToneSilent = 'is_notification_tone_silent';
   static const String _notificationChoice = 'notification_choice';
-
+  // static const String _adarkycWebViewCompleted = 'kyc_webview_completed';
   void initialize(SecuredSharedPreferences secureSharedPrefs) {
     _secureSharedPrefs = secureSharedPrefs;
   }
@@ -91,7 +91,18 @@ class NotificationSessionManager {
   Future<bool> getNotificationChoice() async {
     return await _secureSharedPrefs.getBooleans(_notificationChoice);
   }
+ 
+//  Future<void> setKycWebViewCompleted(bool value) async {
+//   await _secureSharedPrefs.saveBoolean(_adarkycWebViewCompleted, value);
+// }
 
+//   Future<bool> isKycWebViewCompleted() async {
+//     return await _secureSharedPrefs.getBooleans(_adarkycWebViewCompleted);
+//   }
+
+//   Future<void> clearAdarVerification() async {
+//   await _secureSharedPrefs.deleteKey(_adarkycWebViewCompleted);
+// }
   // Clear all notification session data
   void clearNotificationSession() async {
     await _secureSharedPrefs.deleteKey(_powerCutDeviceName);

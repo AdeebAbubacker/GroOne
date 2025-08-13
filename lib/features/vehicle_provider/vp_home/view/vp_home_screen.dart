@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
@@ -30,11 +31,13 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recen
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
@@ -68,7 +71,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    final vpHomeScreenBloc = locator<VpHomeBloc>();
    final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
    final loginBloc = locator<LoginBloc>();
-
+   final securePrefs = locator<SecuredSharedPreferences>();
 
   final searchController = TextEditingController();
 
@@ -200,9 +203,15 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
             if (kycFlag == 1) {
               return kycWidget(
-                onTap: () {
+                onTap: () async{
+                   bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
                   if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                    if (isKycCompleted) {
+                      Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                      } else{
+                        commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                      }
+                    
                   } else {
                     Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
                   }
@@ -420,13 +429,18 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                         onBack: (){
                           vpHomeScreenBloc.add(VpMyLoadListRequested());
                         },
-                        onClickAssignDriver: () {
+                        onClickAssignDriver: () async{       
+                           bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);            
                           final isKycDone = VpVariables.isKycVerified;
                           final companyId = int.parse(profileCubit.companyTypeId ?? "0");
                           if (isKycDone) {
                             context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
                           } else if (companyId == 2 || companyId == 1) {
-                            commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                           if (isKycCompleted) {
+                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                            } else{
+                              commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                            }
                           } else {
                             Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
                           }

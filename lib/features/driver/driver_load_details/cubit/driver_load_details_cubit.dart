@@ -62,10 +62,6 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
       final loadStatus = getLoadStatus(result.value.data?.loadStatusId);
       emit(
         state.copyWith(
-          locationDistance: getDistance(
-            result.value.data?.loadRoute?.pickUpLatlon ?? "0",
-            result.value.data?.loadRoute?.dropLatlon ?? "0",
-          ),
           lpLoadById: UIState.success(result.value),
           loadStatusId: result.value.data?.loadStatusId,
           loadStatus: loadStatus,

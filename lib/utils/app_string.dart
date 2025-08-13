@@ -38,5 +38,6 @@ class PreferenceKey {
   final String hasBlueIdPopupShown = "hasBlueIdPopupShown";
   final String firstPostedLoadId = "first_posted_load_id";
   final String selectedLanguage = "selected_language";
+  final String iskycAdarWebview = "iskycAdarWebview";
   final String customerSeriesId = "customerSeriesId";
 }
