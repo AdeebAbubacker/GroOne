@@ -1291,11 +1291,13 @@ class _MasterScreenState extends State<MasterScreen>
           children: [
             /// License No Field
             AppTextField(
-              
               controller: licenseNoController,
               mandatoryStar: true,
               labelText: "License No",
-              inputFormatters: [UpperCaseTextFormatter(),IndianLicenseFormatter()],
+              inputFormatters: [
+                UpperCaseTextFormatter(),
+                IndianLicenseFormatter(),
+              ],
               validator:
                   (value) => Validator.indianLicenseNumber(
                     value,
@@ -2078,64 +2080,108 @@ class _MasterScreenState extends State<MasterScreen>
                     onVerificationResult: (isVerified, licenseData) {
                       setState(() {
                         isLicenseVerified = isVerified || driver != null;
-                        print(
-                          '----------------------------- ${licenseData.toString()}',
-                        );
-                        // ✅ Autofill fields if data came from API
                         if (licenseData != null) {
-                          if (licenseData['name'] != null) {
-                            nameController.text =
-                                licenseData['name'] ??
-                                licenseData['user_full_name'];
+                          // Name
+                          final nameRaw =
+                              licenseData['name'] ??
+                              licenseData['user_full_name'];
+                          if (nameRaw != null && nameRaw is String) {
+                            nameController.text = nameRaw;
                           }
-                          selectedDoB = DateFormat('dd/MM/yyyy').format(
-                            DateTime.parse(
+
+                          // Date of Birth
+                          final dobRaw =
                               licenseData['dateOfBirth'] ??
-                                  licenseData['user_dob'],
-                            ),
-                          );
+                              licenseData['user_dob'];
+                          if (dobRaw != null &&
+                              dobRaw is String &&
+                              dobRaw.isNotEmpty) {
+                            selectedDoB = DateFormat('dd/MM/yyyy').format(
+                              dobRaw.contains('-')
+                                  ? DateFormat('dd-MM-yyyy').parse(dobRaw)
+                                  : DateTime.parse(dobRaw),
+                            );
+                          } else {
+                            selectedDoB = '';
+                          }
+
+                          // Blood Group
                           selectedBloodGroup =
                               MasterHelper.mapBloodGroupIdToName(
                                 licenseData['bloodGroup'] ??
                                     licenseData['user_blood_group'],
                               );
-                          selectedBloodId =
+                          // Blood Group
+                          final rawBloodValue =
                               licenseData['bloodGroup'] ??
                               licenseData['user_blood_group'];
 
+                          if (rawBloodValue is int) {
+                            selectedBloodId = rawBloodValue;
+                          } else if (rawBloodValue is String) {
+                            selectedBloodId = MasterHelper.mapBloodGroupToId(
+                              rawBloodValue,
+                            );
+                          } else {
+                            selectedBloodId = null;
+                          }
+
+                          selectedBloodGroup =
+                              MasterHelper.mapBloodGroupIdToName(
+                                selectedBloodId,
+                              );
+
+                          // License Category
                           selectedLicense =
                               MasterHelper.mapLicenseCategoryIdToName(
                                 licenseData['licenseCategory'] ??
                                     licenseData['vehicle_category'],
                               );
-                          selectedLicneseId =
+                          final rawLicenseValue =
                               licenseData['licenseCategory'] ??
                               licenseData['vehicle_category'];
+                          selectedLicneseId =
+                              rawLicenseValue is int ? rawLicenseValue : null;
 
-                          selectedDate = DateFormat('dd/MM/yyyy').format(
-                            DateTime.parse(
+                          // Expiry Date
+                          final expiryRaw =
                               licenseData['licenseExpiryDate'] ??
-                                  licenseData['expiry_date'],
-                            ),
-                          );
+                              licenseData['expiry_date'];
+                          if (expiryRaw != null &&
+                              expiryRaw is String &&
+                              expiryRaw.isNotEmpty) {
+                            selectedDate = DateFormat('dd/MM/yyyy').format(
+                              expiryRaw.contains('-')
+                                  ? DateFormat('dd-MM-yyyy').parse(expiryRaw)
+                                  : DateTime.parse(expiryRaw),
+                            );
+                          } else {
+                            selectedDate = '';
+                          }
 
-                          if (licenseData['mobile'] != null) {
-                            mobileController.text =
-                                licenseData['mobile']?.replaceFirst(
-                                  '+91',
-                                  '',
-                                ) ??
-                                "";
+                          // Mobile
+                          final mobileRaw = licenseData['mobile'];
+                          if (mobileRaw != null && mobileRaw is String) {
+                            mobileController.text = mobileRaw.replaceFirst(
+                              '+91',
+                              '',
+                            );
                           }
-                          if (licenseData['email'] != null) {
-                            emailController.text = licenseData['email'];
+
+                          // Email
+                          final emailRaw = licenseData['email'];
+                          if (emailRaw != null && emailRaw is String) {
+                            emailController.text = emailRaw;
                           }
+
+                          // Driver Status
                           if (licenseData['driverStatus'] != null) {
-                            isActive =
-                                licenseData['driverStatus'] == 1 ? true : false;
+                            isActive = licenseData['driverStatus'] == 1;
                           }
 
+                          // License Documents
                           if (licenseData['licenseDocLink'] != null &&
+                              licenseData['licenseDocLink'] is String &&
                               licenseData['licenseDocLink']!.isNotEmpty) {
                             localLicenseDocList.clear();
                             final doc = createFileFromLink(
