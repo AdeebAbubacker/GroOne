@@ -919,7 +919,7 @@ Widget _buildLoadEntityWidget({
           ),
 
           Text(
-            "$locationDistance ${context.appText.km}",
+             "${locationDistance ?? ''}",
             style: AppTextStyle.bodyGreyColorW500.copyWith(
               color: AppColors.veryLightGreyColor,
               fontSize: 12,

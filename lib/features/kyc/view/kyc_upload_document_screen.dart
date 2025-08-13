@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
@@ -24,6 +25,7 @@ import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dar
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -31,6 +33,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -71,7 +74,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   final kycCubit = locator<KycCubit>();
   final profileCubit = locator<ProfileCubit>();
-   final endhancubit = locator<EnDhanCubit>();
+  final endhancubit = locator<EnDhanCubit>();
+  final securePrefs = locator<SecuredSharedPreferences>();
   final TextEditingController aadhaarNumberTextController = TextEditingController();
   final TextEditingController gstInTextController = TextEditingController();
   final TextEditingController tanTextController = TextEditingController();
@@ -1321,6 +1325,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         listener:  (context, state) async {
           final status = state.submitKycState?.status;
           if (status == Status.SUCCESS) {
+          // Clear the Aadhaar KYC flag
+          await securePrefs.deleteKey(AppString.sessionKey.iskycAdarWebview);      
             clearAllFormValues();
             profileCubit.fetchProfileDetail();
             navigateToHomeScreen(context);
