@@ -86,8 +86,8 @@ class _MasterScreenState extends State<MasterScreen>
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final gpsVehicleCubit = locator<GpsVehicleCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
-  final MultiSelectController<String> acceptableCommoditiesController =
-      MultiSelectController<String>();
+  // final MultiSelectController<String> acceptableCommoditiesController =
+  //     MultiSelectController<String>();
   List<String> selectedCommodities = [];
   late TabController _tabController;
   final vehicleSearchController = TextEditingController();
@@ -103,6 +103,10 @@ class _MasterScreenState extends State<MasterScreen>
   bool showValidationErrors = false;
   List<Map<String, dynamic>> vehicleDocList = [];
   bool _hasCalledVahanVerification = false;
+  String? insuranceValidityDate;
+  String? fcExpiryDate;
+  String? pucExpiryDate;
+  String? registrationDate;
   @override
   void initState() {
     super.initState();
@@ -671,7 +675,15 @@ class _MasterScreenState extends State<MasterScreen>
 
   String formatMobileNumber(String number) {
     if (!number.startsWith("+91") && number.length == 10) {
-      return "+91$number";
+      return "$number";
+    }
+    return number;
+  }
+
+  String removeCountryFormatMobileNumber(String number) {
+    number = number.trim();
+    if (number.startsWith("+91")) {
+      number = number.substring(3); // remove +91
     }
     return number;
   }
@@ -836,8 +848,8 @@ class _MasterScreenState extends State<MasterScreen>
         children: [
           Row(
             children: [
-              Flexible(child: Text(title, style: AppTextStyle.h5).expand()),
-
+              Text(title, style: AppTextStyle.h5).expand(),
+              Spacer(),
               IconButton(
                 onPressed: onEdit,
                 icon: SvgPicture.asset(
@@ -1194,7 +1206,7 @@ class _MasterScreenState extends State<MasterScreen>
           controller: vehicleNoController,
           mandatoryStar: true,
           maxLength: 15,
-          labelText: "Vehicle reg no",
+          labelText: "Vehicle Reg No",
 
           textCapitalization: TextCapitalization.characters,
           validator:
@@ -1285,7 +1297,7 @@ class _MasterScreenState extends State<MasterScreen>
       builder: (context, state) {
         final verificationState = state.licenseVerification;
         final isVerified = verificationState.status == Status.SUCCESS;
-
+        final isLoading = verificationState.status == Status.LOADING;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1294,6 +1306,8 @@ class _MasterScreenState extends State<MasterScreen>
               controller: licenseNoController,
               mandatoryStar: true,
               labelText: "License No",
+              hintText: "License No",
+
               inputFormatters: [
                 UpperCaseTextFormatter(),
                 IndianLicenseFormatter(),
@@ -1314,63 +1328,7 @@ class _MasterScreenState extends State<MasterScreen>
                         )
                         : isVerified
                         ? const Icon(Icons.verified, color: Colors.green)
-                        : InkWell(
-                          onTap: () async {
-                            final licenseValidation =
-                                Validator.indianLicenseNumber(
-                                  licenseNoController.text,
-                                  fieldName: "License No",
-                                );
-                            if (licenseValidation != null) {
-                              ToastMessages.alert(message: licenseValidation);
-                              return;
-                            }
-                            if (selectedDoB.isEmpty) {
-                              ToastMessages.alert(
-                                message: "Please select Date of Birth",
-                              );
-                              return;
-                            }
-                            if (nameController.text.trim().isEmpty) {
-                              ToastMessages.alert(
-                                message: "Please enter Driver Name",
-                              );
-                              return;
-                            }
-
-                            // Call API
-                            final result = await context
-                                .read<MastersCubit>()
-                                .fetchAndVerifyLicense(
-                                  licensereq: LicenseVahanRequest(
-                                    licenseNumber:
-                                        licenseNoController.text.trim(),
-                                    dob: selectedDoB,
-                                    name: nameController.text.trim(),
-                                  ),
-                                );
-
-                            if (result is Success<Map<String, dynamic>>) {
-                              ToastMessages.success(
-                                message: "License verified & data autofilled.",
-                              );
-                              onVerificationResult(true, result.value);
-                            } else {
-                              ToastMessages.alert(
-                                message: "License verification failed",
-                              );
-                              onVerificationResult(false, null);
-                            }
-                          },
-                          child: Text(
-                            "Verify",
-                            style: AppTextStyle.body3.copyWith(
-                              color: AppColors.primaryColor,
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColors.primaryColor,
-                            ),
-                          ),
-                        ),
+                        : SizedBox.shrink(),
               ),
             ),
             16.height,
@@ -1420,6 +1378,79 @@ class _MasterScreenState extends State<MasterScreen>
                 FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z\s]')),
               ],
             ),
+            16.height,
+
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                SizedBox(
+                  width: 170,
+                  height: commonButtonHeight2,
+                  child: AppButton(
+                    isLoading: isLoading,
+                    title:
+                        isVerified
+                            ? context.appText.verified
+                            : context.appText.verify,
+                    onPressed:
+                        isVerified
+                            ? () {}
+                            : () async {
+                              // Call API
+                              final licenseValidation =
+                                  Validator.indianLicenseNumber(
+                                    licenseNoController.text,
+                                    fieldName: "License No",
+                                  );
+                              if (licenseValidation != null) {
+                                ToastMessages.alert(message: licenseValidation);
+                                return;
+                              }
+                              if (selectedDoB.isEmpty) {
+                                ToastMessages.alert(
+                                  message: "Please select Date of Birth",
+                                );
+                                return;
+                              }
+                              if (nameController.text.trim().isEmpty) {
+                                ToastMessages.alert(
+                                  message: "Please enter Driver Name",
+                                );
+                                return;
+                              }
+                              final result = await context
+                                  .read<MastersCubit>()
+                                  .fetchAndVerifyLicense(
+                                    licensereq: LicenseVahanRequest(
+                                      licenseNumber:
+                                          licenseNoController.text.trim(),
+                                      dob: selectedDoB,
+                                      name: nameController.text.trim(),
+                                    ),
+                                  );
+
+                              if (result is Success<Map<String, dynamic>>) {
+                                ToastMessages.success(
+                                  message:
+                                      "License verified & data autofilled.",
+                                );
+                                onVerificationResult(true, result.value);
+                              } else {
+                                ToastMessages.alert(
+                                  message: "License verification failed",
+                                );
+                                onVerificationResult(false, null);
+                              }
+                            },
+                    style:
+                        isVerified
+                            ? AppButtonStyle.primary
+                            : AppButtonStyle.outline,
+                  ),
+                ),
+              ],
+            ),
+            16.height,
           ],
         );
       },
@@ -1582,9 +1613,29 @@ class _MasterScreenState extends State<MasterScreen>
     final truckMakeModelController = TextEditingController(
       text: vehcile?.modelNumber ?? '',
     );
-    final rcNumberController = TextEditingController(
-      text: vehcile?.rcNumber ?? '',
+    final owenerNameController = TextEditingController(
+      text: vehcile?.ownerName ?? '',
     );
+    final insurancePolicyNumber = TextEditingController(
+      text: vehcile?.insurancePolicyNumber ?? '',
+    );
+
+    insuranceValidityDate =
+        vehcile?.insuranceValidityDate != null
+            ? DateFormat('dd/MM/yyyy').format(vehcile!.insuranceValidityDate!)
+            : null;
+    fcExpiryDate =
+        vehcile?.fcExpiryDate != null
+            ? DateFormat('dd/MM/yyyy').format(vehcile!.fcExpiryDate!)
+            : null;
+    pucExpiryDate =
+        vehcile?.pucExpiryDate != null
+            ? DateFormat('dd/MM/yyyy').format(vehcile!.pucExpiryDate!)
+            : null;
+    registrationDate =
+        vehcile?.registrationDate != null
+            ? DateFormat('dd/MM/yyyy').format(vehcile!.registrationDate!)
+            : null;
     String? selectedWeightDropDownValue;
     selectedWeightDropDownValue = vehcile?.tonnage;
     TruckTypeModel? selectedTruckType;
@@ -1598,13 +1649,6 @@ class _MasterScreenState extends State<MasterScreen>
         createdAt: vehcile.truckType!.createdAt,
         deletedAt: vehcile.truckType!.deletedAt,
       );
-    }
-    final localRcDocList = <Map<String, dynamic>>[];
-    if (vehcile?.rcDocLink != null && vehcile!.rcDocLink.isNotEmpty) {
-      final doc = createFileFromLink(vehcile.rcDocLink!);
-      if (doc != null) {
-        localRcDocList.add(doc);
-      }
     }
 
     MasterDialogueWidget.show(
@@ -1651,7 +1695,39 @@ class _MasterScreenState extends State<MasterScreen>
                               truckMakeModelController.text =
                                   makeModel.toString();
                             }
+                            final ownerName = vehicleData['ownerName'] ?? '';
+                            if (ownerName != null) {
+                              owenerNameController.text = ownerName.toString();
+                            }
+                            if (vehicleData != null) {
+                              insuranceValidityDate =
+                                  formatApiDateForVehicleVahan(
+                                    vehicleData['insurance_expiry_date'],
+                                  ) ??
+                                  null;
+                              pucExpiryDate =
+                                  formatApiDateForVehicleVahan(
+                                    vehicleData['rc_pucc_expiry_date'],
+                                  ) ??
+                                  null;
+                              fcExpiryDate =
+                                  formatApiDateForVehicleVahan(
+                                    vehicleData['rc_expiry_date'],
+                                  ) ??
+                                  null;
+                              registrationDate =
+                                  formatApiDateForVehicleVahan(
+                                    vehicleData['rc_registration_date'],
+                                  ) ??
+                                  null;
+                            }
 
+                            final insurancePolicyNo =
+                                vehicleData['insurance_policy_number'] ?? '';
+                            if (insurancePolicyNo != null) {
+                              insurancePolicyNumber.text =
+                                  insurancePolicyNo.toString();
+                            }
                             final capacity =
                                 vehicleData['vehicle_gross_weight'] ??
                                 vehicleData['tonnage'];
@@ -1660,17 +1736,7 @@ class _MasterScreenState extends State<MasterScreen>
                                 r'\d+',
                               ).stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
-                            }
-                            rcNumberController.text =
-                                vehicleData['rcNumber'] ?? '';
-                            localRcDocList.clear();
-                            if (vehicleData['rcDocLink'] != null) {
-                              final doc = createFileFromLink(
-                                vehicleData['rcDocLink'],
-                              );
-                              if (doc != null) {
-                                localRcDocList.add(doc);
-                              }
+
                               isVehicleActive =
                                   vehicleData['status'] == 1 ? true : false;
                               final truckTypeList =
@@ -1691,6 +1757,47 @@ class _MasterScreenState extends State<MasterScreen>
                         });
                       },
                     ),
+                    16.height,
+                    AppTextField(
+                      validator: (value) => Validator.fieldRequired(value),
+                      controller: owenerNameController,
+                      labelText: "Owner Name",
+                      hintText: "Owner Name",
+                      mandatoryStar: true,
+                    ),
+                    16.height,
+
+                    /// Regsitartion Date
+                    InkWell(
+                      onTap: () async {
+                        final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(), // default current date
+                          firstDate: DateTime(1900), // prevent past dates
+                          lastDate: DateTime(2100), // far in the future
+                        );
+
+                        if (pickedDate != null) {
+                          final formattedDate = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(pickedDate);
+
+                          setState(() {
+                            registrationDate = formattedDate;
+                          });
+                        }
+                      },
+                      child: buildReadOnlyField(
+                        "Registartion Date",
+                        (registrationDate?.isEmpty ?? true)
+                            ? 'Registartion Date'
+                            : registrationDate!,
+                        fillColor: Colors.white,
+                        mandatoryStar: true,
+                      ),
+                    ),
+
+                    16.height,
 
                     16.height,
                     AppTextField(
@@ -1699,34 +1806,6 @@ class _MasterScreenState extends State<MasterScreen>
                       labelText: context.appText.truckMakeAndModel,
                       hintText: context.appText.truckMakeAndModel,
                       mandatoryStar: true,
-                    ),
-                    16.height,
-                    AppTextField(
-                      validator: (value) => Validator.fieldRequired(value),
-                      controller: rcNumberController,
-                      labelText: context.appText.rcBook,
-                      hintText: context.appText.rcBook,
-                      mandatoryStar: true,
-                    ),
-                    16.height,
-                    // Upload RC Book
-                    UploadAttachmentFiles(
-                      multiFilesList: localRcDocList,
-                      isSingleFile: true,
-                      isLoading: isUploading,
-                      uploadTextField: context.appText.uploadRC,
-                      thenUploadFileToSever: () async {
-                        final result = await _uploadRCBookCall(
-                          context,
-                          localRcDocList,
-                        );
-                        if (result is Success) {
-                          setState(() {
-                            vehicleDocList.clear();
-                            vehicleDocList.addAll(localRcDocList);
-                          });
-                        }
-                      },
                     ),
                     16.height,
                     Text(context.appText.truckType, style: AppTextStyle.body3),
@@ -1798,48 +1877,107 @@ class _MasterScreenState extends State<MasterScreen>
                       },
                     ),
                     16.height,
-                    if (!isEdit)
-                      Builder(
-                        builder: (context) {
-                          final state = gpsVehicleCubit.state;
+                    //Insurance policy number
+                    AppTextField(
+                      validator: (value) => Validator.fieldRequired(value),
+                      controller: insurancePolicyNumber,
+                      labelText: "Insurance Policy Number",
+                      hintText: "Insurance Policy Number",
+                      mandatoryStar: true,
+                    ),
+                    16.height,
 
-                          if (state.commodities.status == Status.LOADING) {
-                            return const SizedBox.shrink();
-                          } else if (state.commodities.status ==
-                              Status.SUCCESS) {
-                            final items =
-                                state.commodities.data!.map((commodity) {
-                                  return DropdownItem<String>(
-                                    label: commodity.name,
-                                    value: commodity.id.toString(),
-                                  );
-                                }).toList();
-                            return AppMultiSelectionDropdown<String>(
-                              labelText: context.appText.acceptableCommodities,
-                              hintText: context.appText.select,
-                              mandatoryStar: true,
-                              controller: acceptableCommoditiesController,
-                              items: items,
-                              onSelectionChange: (selected) {
-                                selectedCommodities = selected;
-                              },
-                              validator:
-                                  (value) =>
-                                      value == null || value.isEmpty
-                                          ? context
-                                              .appText
-                                              .pleaseSelectCommodity
-                                          : null,
-                              showValidationError: showValidationErrors,
-                            );
-                          } else if (state.commodities.status == Status.ERROR) {
-                            return Text(
-                              'Error: ${state.commodities.errorType}',
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
+                    /// Insurance Validity Date
+                    InkWell(
+                      onTap: () async {
+                        final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2100),
+                        );
+
+                        if (pickedDate != null) {
+                          final formattedDate = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(pickedDate);
+
+                          setState(() {
+                            insuranceValidityDate = formattedDate;
+                          });
+                        }
+                      },
+                      child: buildReadOnlyField(
+                        "Insurance Validity Date",
+                        (insuranceValidityDate?.isEmpty ?? true)
+                            ? 'Insurance Validity Date'
+                            : insuranceValidityDate!,
+                        fillColor: Colors.white,
+                        mandatoryStar: true,
                       ),
+                    ),
+                    16.height,
+
+                    /// FC Expiry Date
+                    InkWell(
+                      onTap: () async {
+                        final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(),
+                          firstDate: DateTime.now(),
+                          lastDate: DateTime(2100),
+                        );
+
+                        if (pickedDate != null) {
+                          final formattedDate = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(pickedDate);
+
+                          setState(() {
+                            fcExpiryDate = formattedDate;
+                          });
+                        }
+                      },
+                      child: buildReadOnlyField(
+                        "FC Expiry Date",
+                        (fcExpiryDate?.isEmpty ?? true)
+                            ? 'FC Expiry Date'
+                            : fcExpiryDate!,
+                        fillColor: Colors.white,
+                        mandatoryStar: true,
+                      ),
+                    ),
+                    16.height,
+
+                    /// PUC Expiry Date
+                    InkWell(
+                      onTap: () async {
+                        final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: DateTime.now(), // default current date
+                          firstDate: DateTime.now(), // prevent past dates
+                          lastDate: DateTime(2100), // far in the future
+                        );
+
+                        if (pickedDate != null) {
+                          final formattedDate = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(pickedDate);
+
+                          setState(() {
+                            pucExpiryDate = formattedDate;
+                          });
+                        }
+                      },
+                      child: buildReadOnlyField(
+                        "PUC Expiry Date",
+                        (pucExpiryDate?.isEmpty ?? true)
+                            ? 'PUC Expiry Date'
+                            : pucExpiryDate!,
+                        fillColor: Colors.white,
+                        mandatoryStar: true,
+                      ),
+                    ),
 
                     16.height,
 
@@ -1892,15 +2030,15 @@ class _MasterScreenState extends State<MasterScreen>
                 final request = VehicleRequest(
                   customerId: profileCubit.userId ?? "",
                   truckNo: truckNumberController.text.trim(),
-                  rcNumber: rcNumberController.text.trim(),
-                  rcDocLink: rcDocLink,
                   tonnage: selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
-                  truckMakeAndModel: truckMakeModelController.text.trim(),
-                  acceptableCommodities:
-                      selectedCommodities.map(int.parse).toList(),
-                  truckLength: 1,
-                  vehicleStatus: isVehicleActive ? 1 : 2,
+                  modelNumber: truckMakeModelController.text.trim(),
+                  ownerName: owenerNameController.text,
+                  fcExpiryDate: fcExpiryDate,
+                  insurancePolicyNumber: insurancePolicyNumber.text,
+                  pucExpiryDate: pucExpiryDate,
+                  registrationDate: registrationDate,
+                  insuranceValidityDate: insuranceValidityDate,
                 );
 
                 if (isEdit) {
@@ -1909,10 +2047,15 @@ class _MasterScreenState extends State<MasterScreen>
                     request: VehicleRequest(
                       customerId: profileCubit.userId ?? "",
                       truckNo: truckNumberController.text.trim(),
-                      rcNumber: rcNumberController.text.trim(),
-                      rcDocLink: rcDocLink,
                       tonnage: selectedWeightDropDownValue,
                       truckTypeId: selectedTruckType?.id ?? 1,
+                      fcExpiryDate: fcExpiryDate,
+                      insuranceValidityDate: insuranceValidityDate,
+                      pucExpiryDate: pucExpiryDate,
+                      registrationDate: registrationDate,
+                      insurancePolicyNumber: insurancePolicyNumber.text,
+                      ownerName: owenerNameController.text,
+                      modelNumber: truckMakeModelController.text,
                     ),
                   );
                 } else {
@@ -1971,7 +2114,7 @@ class _MasterScreenState extends State<MasterScreen>
 
     final formKey = GlobalKey<FormState>();
     final isEdit = driver != null;
-    String? selectedDate =
+    String? selectedlicenseExpiryDate =
         driver?.licenseExpiryDate != null
             ? DateFormat('dd/MM/yyyy').format(driver!.licenseExpiryDate!)
             : null;
@@ -2081,11 +2224,14 @@ class _MasterScreenState extends State<MasterScreen>
                       setState(() {
                         isLicenseVerified = isVerified || driver != null;
                         if (licenseData != null) {
+                          print(
+                            '--------------------${licenseData['expiry_date']}',
+                          );
                           // Name
                           final nameRaw =
                               licenseData['name'] ??
                               licenseData['user_full_name'];
-                          if (nameRaw != null && nameRaw is String) {
+                          if (nameRaw != null) {
                             nameController.text = nameRaw;
                           }
 
@@ -2093,9 +2239,7 @@ class _MasterScreenState extends State<MasterScreen>
                           final dobRaw =
                               licenseData['dateOfBirth'] ??
                               licenseData['user_dob'];
-                          if (dobRaw != null &&
-                              dobRaw is String &&
-                              dobRaw.isNotEmpty) {
+                          if (dobRaw != null && dobRaw.isNotEmpty) {
                             selectedDoB = DateFormat('dd/MM/yyyy').format(
                               dobRaw.contains('-')
                                   ? DateFormat('dd-MM-yyyy').parse(dobRaw)
@@ -2144,20 +2288,25 @@ class _MasterScreenState extends State<MasterScreen>
                               rawLicenseValue is int ? rawLicenseValue : null;
 
                           // Expiry Date
-                          final expiryRaw =
-                              licenseData['licenseExpiryDate'] ??
-                              licenseData['expiry_date'];
-                          if (expiryRaw != null &&
-                              expiryRaw is String &&
-                              expiryRaw.isNotEmpty) {
-                            selectedDate = DateFormat('dd/MM/yyyy').format(
-                              expiryRaw.contains('-')
-                                  ? DateFormat('dd-MM-yyyy').parse(expiryRaw)
-                                  : DateTime.parse(expiryRaw),
-                            );
-                          } else {
-                            selectedDate = '';
-                          }
+                          // final expiryRaw =  licenseData['expiry_date']  ?? licenseData['licenseExpiryDate'];
+                          //   selectedDate = DateFormat('dd/MM/yyyy').format(
+                          //     expiryRaw.contains('-')
+                          //         ? DateFormat('dd-MM-yyyy').parse(licenseData['expiry_date'])
+                          //         : DateTime.parse(expiryRaw),
+                          //   );
+                          final expiryRaw = licenseData['expiry_date'];
+
+                          print('my expiry raw');
+                          selectedlicenseExpiryDate = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(
+                            DateFormat(
+                              'dd-MM-yyyy',
+                            ).parse(licenseData['expiry_date']),
+                          );
+                          print(
+                            'selectedlicenseExpiryDate-----------------${licenseData['expiry_date']}',
+                          );
 
                           // Mobile
                           final mobileRaw = licenseData['mobile'];
@@ -2233,13 +2382,13 @@ class _MasterScreenState extends State<MasterScreen>
                           'dd/MM/yyyy',
                         ).format(pickedDate);
                         setState(() {
-                          selectedDate = formattedDate;
+                          selectedlicenseExpiryDate = formattedDate;
                         });
                       }
                     },
                     child: buildReadOnlyField(
                       context.appText.licenseExpiryDate,
-                      selectedDate ?? 'Select date',
+                      selectedlicenseExpiryDate ?? 'Select date',
                       fillColor: Colors.white,
                       mandatoryStar: true,
                     ),
@@ -2347,7 +2496,8 @@ class _MasterScreenState extends State<MasterScreen>
                   return;
                 }
 
-                if (selectedDate == null || selectedDate!.isEmpty) {
+                if (selectedlicenseExpiryDate == null ||
+                    selectedlicenseExpiryDate!.isEmpty) {
                   ToastMessages.alert(
                     message: "Please select License Expiry Date",
                   );
@@ -2369,10 +2519,12 @@ class _MasterScreenState extends State<MasterScreen>
                   return;
                 }
                 final licenseExpiryIso =
-                    selectedDate != null
-                        ? DateFormat(
-                          "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
-                        ).format(DateFormat('dd/MM/yyyy').parse(selectedDate!))
+                    selectedlicenseExpiryDate != null
+                        ? DateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").format(
+                          DateFormat(
+                            'dd/MM/yyyy',
+                          ).parse(selectedlicenseExpiryDate!),
+                        )
                         : null;
 
                 final dateOfBirthIso =
@@ -2389,7 +2541,9 @@ class _MasterScreenState extends State<MasterScreen>
                 final request = DriverRequest(
                   customerId: profileCubit.userId ?? "",
                   name: nameController.text,
-                  mobile: formatMobileNumber(mobileController.text.trim()),
+                  mobile: removeCountryFormatMobileNumber(
+                    mobileController.text.trim(),
+                  ),
                   email: emailController.text,
                   licenseNumber: licenseNumberController.text,
                   licenseDocLink: rcDocLink,
@@ -2580,5 +2734,15 @@ class CityDropdown extends StatelessWidget {
             (context, _) => const Center(child: Text("No cities found")),
       ),
     );
+  }
+}
+
+String? formatApiDateForVehicleVahan(String? apiDate) {
+  if (apiDate == null || apiDate.isEmpty) return null;
+  try {
+    final parsed = DateFormat('dd-MMM-yyyy').parse(apiDate);
+    return DateFormat('dd/MM/yyyy').format(parsed);
+  } catch (_) {
+    return apiDate;
   }
 }

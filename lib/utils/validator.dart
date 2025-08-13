@@ -126,7 +126,7 @@ class Validator {
     final regex = RegExp(r'^[A-Z]{2}-\d{13}$');
 
     if (!regex.hasMatch(value.trim().toUpperCase())) {
-      return '$fieldName should be in format: XX-1234567890123 (2 letters, hyphen, 13 digits)';
+      return '$fieldName';
     }
 
     return null;
@@ -141,7 +141,7 @@ class Validator {
     final regex = RegExp(r'^[A-Z]{2}\d{1,2}[A-Z]{1,2}\d{1,4}$', caseSensitive: false);
 
     if (!regex.hasMatch(value.trim().toUpperCase())) {
-      return '$fieldName is invalid. Example: MH12AB1234';
+      return '$fieldName is invalid';
     }
     return null;
   }
