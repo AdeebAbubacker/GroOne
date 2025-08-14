@@ -1143,7 +1143,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           final request = KavachOrderRequest(
             orderSource: "MOBILE",
             customerSeriesId: customerSeries??200,
-            isOrderPaid: false, // Set to false since payment will be handled separately
+            isOrderPaid: true, // Set to false since payment will be handled separately
             customerId: await kavachOrderBloc.getUserId() ?? '',
             createdEmpUserId: createdEmpUserId,
             createdEmpId: createdEmpId,

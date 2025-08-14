@@ -65,12 +65,12 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     return Scaffold(
       appBar: CommonAppBar(
         backgroundColor: AppColors.lightPrimaryColor,
-        title: 'Buy New FASTag',
+        title: context.appText.buyFastTag,
       ),
       bottomNavigationBar:
           AppButton(
             onPressed: _isLoading ? () {} : _handlePlaceRequest,
-            title: 'Continue',
+            title: context.appText.continueText,
             style: AppButtonStyle.primary,
             isLoading: _isLoading,
           ).bottomNavigationPadding(),
@@ -110,7 +110,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
             10.height,
             ReferralAutoCompleteTextField(
               controller: _referralCodeController,
-              labelText: 'Referral Code (Optional)',
+              labelText: context.appText.referralCodeOptional,
             ).paddingAll(commonSafeAreaPadding),
             15.height,
 
@@ -132,7 +132,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                   });
                 },
                 child: Text(
-                  '+ Add more Vehicle',
+                  '+ ${context.appText.addMoreVehicle}',
                   style: AppTextStyle.primaryColor16w400,
                 ),
               ),
@@ -179,7 +179,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                 _vehicleControllers[index].text = selectedVehicle;
                 _vehicleVerifiedList[index] = true;
               });
-              ToastMessages.success(message: 'Vehicle selected successfully');
+              ToastMessages.success(message: context.appText.vehicleSelectedSuccess);
             },
             onVehicleVerified: (verifiedVehicle) {
               setState(() {
@@ -188,7 +188,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
             },
           ),
           const SizedBox(height: 16),
-          Text('Vehicle RC (optional)', style: AppTextStyle.textFiled),
+          Text(context.appText.vehicleRCOptional, style: AppTextStyle.textFiled),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -201,7 +201,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                       children: [
                         Expanded(
                           child: EndhanDocumentUploadWidget(
-                            feildTitle: 'Front Side of RC',
+                            feildTitle: context.appText.frontSideRC,
                             multiFilesList: state.frontRcDocuments,
                             isSingleFile: true,
                             onFilesChanged: (newList) async {
@@ -223,11 +223,11 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                                   ]);
                                   cubit.setFrontRcUploaded(true);
                                   ToastMessages.success(
-                                    message: 'Front RC uploaded',
+                                    message: context.appText.fileUploadSuccessfully,
                                   );
                                 } else {
                                   cubit.setFrontRcUploaded(false);
-                                  ToastMessages.alert(message: 'Upload failed');
+                                  ToastMessages.alert(message: context.appText.uploadFailed,);
                                 }
                               }
                             },
@@ -236,7 +236,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: EndhanDocumentUploadWidget(
-                            feildTitle: 'Back Side of RC',
+                            feildTitle: context.appText.backSideRC,
                             multiFilesList: state.backRcDocuments,
                             isSingleFile: true,
                             onFilesChanged: (newList) async {
@@ -258,11 +258,11 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                                   ]);
                                   cubit.setBackRcUploaded(true);
                                   ToastMessages.success(
-                                    message: 'Back RC uploaded',
+                                    message: context.appText.fileUploadSuccessfully,
                                   );
                                 } else {
                                   cubit.setBackRcUploaded(false);
-                                  ToastMessages.alert(message: 'Upload failed');
+                                  ToastMessages.alert(message: context.appText.uploadFailed);
                                 }
                               }
                             },
@@ -284,7 +284,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     for (int i = 0; i < _vehicleControllers.length; i++) {
       if (_vehicleControllers[i].text.trim().isEmpty ||
           !_vehicleVerifiedList[i]) {
-        ToastMessages.alert(message: 'Please verify Vehicle ${i + 1}');
+        ToastMessages.alert(message: '${context.appText.pleaseVerifyVehicle} ${i + 1}');
         return;
       }
     }
@@ -361,7 +361,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     if (result is Success) {
       _showSuccessPopup(context);
     } else if (result is Error<bool>) {
-      String errorMessage = "FASTag Request Failed. Please try again later.";
+      String errorMessage = context.appText.fastagRequestFailed;
       if (result.type is ErrorWithMessage) {
         errorMessage = (result.type as ErrorWithMessage).message ?? errorMessage;
       }
@@ -375,8 +375,8 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        heading: 'FASTag Request \nSubmitted Successfully!',
-        message: 'Our Team will reach out in 48 hrs',
+        heading: context.appText.fastagRequestSubmitted,
+        message: context.appText.fastagTeamReach,
         afterDismiss: () {
           context.read<FastagCubit>().resetRcDocuments();
           Navigator.pop(context);
@@ -404,7 +404,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
             ).align(Alignment.topRight),
             10.height,
             Text(
-              'FASTag Request',
+              context.appText.fastagRequest,
               textAlign: TextAlign.center,
               style: AppTextStyle.h3.copyWith(
                 color: AppColors.activeRedColor,
@@ -413,7 +413,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
             ),
             10.height,
             Text(
-              'Unsuccessful!',
+              context.appText.unsuccessful,
               textAlign: TextAlign.center,
               style: AppTextStyle.h3.copyWith(
                 color: AppColors.activeRedColor,
@@ -484,7 +484,7 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text("Contact Address", style: AppTextStyle.h4),
+                Text(context.appText.contactAddress, style: AppTextStyle.h4),
                 16.height,
 
                 // Address Name
@@ -585,7 +585,7 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
 
                 // Submit Button
                 AppButton(
-                  title: 'Create Fastag Request',
+                  title: context.appText.createFastagRequest,
                   style: AppButtonStyle.primary,
                   onPressed: _submit,
                 ),

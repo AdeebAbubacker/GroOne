@@ -83,7 +83,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
               _buildSearchBar(context),
               10.height,
               Text(
-                'My Fastag',
+                context.appText.myFastag,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
@@ -97,12 +97,12 @@ class _FastagListScreenState extends State<FastagListScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (state.fastagListUIState.status == Status.ERROR) {
-                      return const Center(child: Text("Failed to load data"));
+                      return  Center(child: Text(context.appText.failedToLoadData));
                     }
 
                     if (state.fastagListUIState.data == null ||
                         (state.fastagListUIState.data!.data.isEmpty)) {
-                      return const Center(child: Text("No Data"));
+                      return  Center(child: Text(context.appText.noData));
                     }
 
                     final items = state.fastagListUIState.data!.data;
@@ -312,7 +312,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
                   onPressed: () {
                     commonSupportDialog(context);
                   },
-                  title: 'Contact Support',
+                  title: context.appText.contactSupport,
                 ),
               ],
             ),
