@@ -57,7 +57,7 @@ class PaymentWidget extends StatelessWidget {
     final advanceDueToShow = isUsingMemo ? memoAdvanceDue : paymentAdvanceDue;
     final balanceDueToShow = isUsingMemo ? memoBalanceDue : paymentBalanceDue;
 
-    final paymentActionType = paymentData != null ? 'balance' : 'advance';
+    final paymentActionType = (paymentData?.receivableAdvancePaidFlg ?? false) ? 'balance' : 'advance';
 
     return Container(
       padding: const EdgeInsets.all(10),

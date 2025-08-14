@@ -23,6 +23,7 @@ import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_count_selector.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -72,8 +73,8 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
   final mobileNumberTextController = TextEditingController();
   final emailTextController = TextEditingController();
   final companyNameTextController = TextEditingController();
-  final ownedTruckTextController = TextEditingController();
-  final attachedTruckTextController = TextEditingController();
+  final ownedTruckTextController = TextEditingController(text: '0');
+  final attachedTruckTextController = TextEditingController(text: '0');
   final pinCodeTextController = TextEditingController();
 
   final MultiSelectController<int> truckTypeController =
@@ -148,6 +149,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
   // Vp Creation Api call
   Future<void> vpCreationApiCall(VpCreateAccountState state) async {
     if (formKey.currentState!.validate()) {
+      FocusManager.instance.primaryFocus?.unfocus();
       if (uploadedRcFile == null) {
         ToastMessages.alert(message: context.appText.rcDocumentRequiredError);
         return;
@@ -234,7 +236,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
             buildNameAndPhoneNumberWidget(),
             30.height,
             buildBusinessDetailsWidget(context),
-            30.height,
+            10.height,
             buildBusinessProofWidget(),
             50.height,
           ],
@@ -464,7 +466,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               }
             },
           ),
-        20.height,
 
         // TrucK Type
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
@@ -497,7 +498,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                         state.truckTypeUIState!.data!
                             .map(
                               (e) => DropdownItem<int>(
-                                value: e?.id ?? 1,
+                                value: e.id ?? 1,
                                 label: "${e.type} ${e.subType}",
                               ),
                             )
@@ -529,37 +530,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
             return const SizedBox();
           },
         ),
-
-        // Owned Truck
-        AppTextField(
-          validator: (value) => Validator.fieldRequired(value),
-          controller: ownedTruckTextController,
-          labelText: context.appText.ownedTrucks,
-          hintText: "${context.appText.enter} ${context.appText.ownedTrucks}",
-          mandatoryStar: true,
-
-          keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(4),
-          ],
-        ),
-        20.height,
-
-        // Attached Truck
-        AppTextField(
-          controller: attachedTruckTextController,
-          labelText: context.appText.attachedTrucks,
-          hintText:
-              "${context.appText.enter} ${context.appText.attachedTrucks}",
-          mandatoryStar: true,
-          keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
-          inputFormatters: [
-            FilteringTextInputFormatter.digitsOnly,
-            LengthLimitingTextInputFormatter(4),
-          ],
-        ),
-        20.height,
 
         // Preferred Lane
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
@@ -663,6 +633,22 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
             return const SizedBox();
           },
         ),
+
+        10.height,
+
+        // Owned Trucks
+        AppCountSelector(
+          label: context.appText.ownedTrucks,
+          controller: ownedTruckTextController,
+          isMandatory: true,
+        ),
+
+        // Attached Trucks
+        AppCountSelector(
+          label: context.appText.attachedTrucks,
+          controller: attachedTruckTextController,
+          isMandatory: true,
+        ),
       ],
     );
   }
@@ -712,16 +698,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
             final isLoading =
                 state.uploadRcFileUIState?.status == Status.LOADING;
             return UploadAttachmentFiles(
-              allowedExtensions: [
-                "jpg",
-                "jpeg",
-                "pdf",
-                "png",
-                "doc",
-                "docx",
-                "xls",
-                "xlsx"
-              ],
+              allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               multiFilesList: multiFilesList,
               title: context.appText.uploadRC,
               isSingleFile: true,

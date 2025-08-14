@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -72,7 +73,7 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
             List<Widget> tiles = [];
             void addTile(String? val, bool? enabled, var details) {
               if ((enabled ?? true) && (val?.isNotEmpty ?? false)) {
-                tiles.add(docTile(details?.title ?? context.appText.unknown, DateTimeHelper.formatCustomDateTimeIST(details?.createdAt), details?.documentId ?? ''));
+                tiles.add(docTile(details?.title ?? context.appText.unknown, DateTimeHelper.formatCustomDateTimeIST(details?.createdAt), details?.documentId ?? '', details?.fileExtension));
               }
             }
 
@@ -102,7 +103,7 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
     );
   }
 
-  Widget docTile(String title, String value,  String documentId) {
+  Widget docTile(String title, String value,  String documentId, String fileExtension) {
 
     return GestureDetector(
       onTap: () async {
@@ -131,7 +132,14 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
         margin: const EdgeInsets.only(bottom: 10),
         decoration: commonContainerDecoration(),
         child: ListTile(
-          leading: SvgPicture.asset(AppImage.svg.myDocumentsIcon2, height: 40, width: 40),
+          leading: () {
+            final ext = fileExtension.toLowerCase();
+            return ext == "pdf"
+                ? SvgPicture.asset(AppImage.svg.myDocumentsIcon2, height: 40, width: 40)
+                : ["jpeg", "png", "jpg", "heic"].contains(ext)
+                ? Icon(CupertinoIcons.photo_on_rectangle, color: AppColors.primaryColor, size: 40)
+                : const Icon(CupertinoIcons.doc_text_fill, color: AppColors.greyIconColor, size: 30);
+          }(),
           title: Text(title, style: AppTextStyle.h5),
           subtitle: Text('${context.appText.uploadedOn} $value', style: AppTextStyle.textGreyDetailColor12w400),
         ),
