@@ -8,15 +8,12 @@ import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_event.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_state.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../data/model/result.dart';
@@ -1143,7 +1140,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           final request = KavachOrderRequest(
             orderSource: "MOBILE",
             customerSeriesId: customerSeries??200,
-            isOrderPaid: false, // Set to false since payment will be handled separately
+            isOrderPaid: true,
             customerId: await kavachOrderBloc.getUserId() ?? '',
             createdEmpUserId: createdEmpUserId,
             createdEmpId: createdEmpId,

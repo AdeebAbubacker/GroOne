@@ -25,10 +25,10 @@ class KavachTransactionsCubit extends Cubit<KavachTransactionsState> {
     emit(const KavachTransactionsInitial());
   }
 
-  Future<void> fetchTransactions() async {
+  Future<void> fetchTransactions({int fleetProductId = 2}) async {
     emit(const KavachTransactionsLoading());
 
-    final result = await _repository.fetchCustomerOrders();
+    final result = await _repository.fetchCustomerOrders(fleetProductId: fleetProductId);
 
     if (result is Success<KavachOrderListResponse>) {
       // Flatten all payments

@@ -272,7 +272,7 @@ class KavachOrderListOrderItem {
       billType: json['bill_type'],
       orderStatusId: json['order_status_id'],
       createdAt: DateTime.parse(json['created_at']),
-      invoiceUrlPath: json['invoice_url_path'],
+      invoiceUrlPath: json['invoice_url_path']??'',
       orderReferencedBy: json['order_referenced_by'] ?? '',
       lineItems: (json['lineItems'] as List)
           .map((e) => KavachOrderListItem.fromJson(e))
@@ -317,10 +317,10 @@ class KavachOrderListPayment {
   factory KavachOrderListPayment.fromJson(Map<String, dynamic> json) {
     return KavachOrderListPayment(
       id: json['id'],
-      paidAmount: json['paid_amount'],
+      paidAmount: json['paid_amount']??'',
       paymentDate: json['payment_date'],
-      paymentMode: json['payment_mode'],
-      referenceNumber: json['reference_number'],
+      paymentMode: json['payment_mode']??'',
+      referenceNumber: json['reference_number']??'',
       status: json['status'],
     );
   }

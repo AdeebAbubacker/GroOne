@@ -33,6 +33,7 @@ import '../../../../utils/common_widgets.dart';
 import '../../../../utils/constant_variables.dart';
 import '../../../kavach/view/kavach_order_details_screen.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
+import '../../../kavach/view/kavach_transaction_screen.dart';
 import 'gps_order_detail_screen.dart';
 import 'gps_transaction_screen.dart';
 import 'gps_upload_document_screen.dart';
@@ -428,7 +429,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                         if (selected == 'transaction') {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => GpsTransactionScreen()),
+                            MaterialPageRoute(builder: (_) => KavachTransactionsScreen(fleetProductId: 1)),
                           );
                         }
                       },
