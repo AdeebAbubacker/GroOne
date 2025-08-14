@@ -1082,6 +1082,22 @@
   "debits":"Debits",
   "shortageCharges":"Shortage Charges",
   "penalties":"Penalties",
-  "noOfDaysMustBeAtLeastOne":"Number of days must be at least 1"
-
+  "noOfDaysMustBeAtLeastOne":"Number of days must be at least 1",
+  "noData":"No Data",
+  "failedToLoadData": "Failed to load data",
+  "vehicle": "Vehicle",
+  "vehicleSelectedSuccess": "Vehicle selected successfully",
+  "vehicleRCOptional": "Vehicle RC (Optional)",
+  "frontSideRC": "Front Side of RC",
+  "backSideRC": "Back Side of RC",
+  "addMoreVehicle": "Add More Vehicle",
+  "pleaseVerifyVehicle": "Please verify Vehicle",
+  "fastagRequestFailed": "FASTag Request Failed. Please try again later.",
+  "fastagRequestSubmitted": "FASTag Request Submitted Successfully!",
+  "fastagTeamReach": "Our Team will reach out in 48 hrs",
+  "fastagRequest": "FASTag Request",
+  "unsuccessful": "Unsuccessful!",
+  "contactAddress": "Contact Address",
+  "createFastagRequest": "Create FASTag Request",
+  "contactSupport": "Contact Support"
 }

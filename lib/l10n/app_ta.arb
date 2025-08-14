@@ -1063,8 +1063,23 @@
   "debits": "பற்று",
   "shortageCharges": "பற்றாக்குறை கட்டணங்கள்",
   "penalties": "அபராதங்கள்",
-  "noOfDaysMustBeAtLeastOne": "நாட்களின் எண்ணிக்கை குறைந்தபட்சம் 1 ஆக இருக்க வேண்டும்"
-
-
+  "noOfDaysMustBeAtLeastOne": "நாட்களின் எண்ணிக்கை குறைந்தபட்சம் 1 ஆக இருக்க வேண்டும்",
+  "noData": "தரவு இல்லை",
+  "failedToLoadData": "தரவை ஏற்ற முடியவில்லை",
+  "contactSupport": "உதவியை தொடர்புகொள்",
+  "addMoreVehicle": "மேலும் வாகனங்களைச் சேர்க்கவும்",
+  "vehicle": "வாகனம்",
+  "vehicleSelectedSuccess": "வாகனம் வெற்றிகரமாக தேர்ந்தெடுக்கப்பட்டது",
+  "vehicleRCOptional": "வாகன RC (விருப்பம்)",
+  "frontSideRC": "RC முன்புறம்",
+  "backSideRC": "RC பின்புறம்",
+  "pleaseVerifyVehicle": "தயவுசெய்து வாகனம் சரிபார்க்கவும்",
+  "fastagRequestFailed": "FASTag கோரிக்கை தோல்வி. தயவுசெய்து பிறகு முயற்சிக்கவும்.",
+  "fastagRequestSubmitted": "FASTag கோரிக்கை வெற்றிகரமாக சமர்ப்பிக்கப்பட்டது!",
+  "fastagTeamReach": "எங்கள் குழு 48 மணிநேரத்தில் உங்களை தொடர்பு கொள்ளும்",
+  "fastagRequest": "FASTag கோரிக்கை",
+  "unsuccessful": "தோல்வி!",
+  "contactAddress": "தொடர்பு முகவரி",
+  "createFastagRequest": "FASTag கோரிக்கையை உருவாக்கவும்"
 
 }
