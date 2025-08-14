@@ -304,7 +304,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                         setState(() {
                           isVehicleVerified = isVerified;
 
-                          // ✅ If data came from API, autofill fields
+                          // If data came from API, autofill fields
                           if (vehicleData != null) {
                             final makeModel =
                                 vehicleData['vehicle_make_model'] ??
@@ -398,9 +398,9 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                       onTap: () async {
                         final DateTime? pickedDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(), // default current date
-                          firstDate: DateTime(1900), // prevent past dates
-                          lastDate: DateTime(2100), // far in the future
+                          initialDate: DateTime.now(), 
+                          firstDate: DateTime(1900), 
+                          lastDate: DateTime(2100), 
                         );
 
                         if (pickedDate != null) {
@@ -545,34 +545,42 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                     16.height,
 
                     /// FC Expiry Date
-                    InkWell(
-                      onTap: () async {
-                        final DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(2100),
-                        );
+                    FormField<String>(
+  initialValue: fcExpiryDate,
+  validator: (value) => (value == null || value.isEmpty) ? 'FC Expiry Date is required' : null,
+  builder: (state) {
+    return InkWell(
+      onTap: () async {
+        final DateTime initialDate = fcExpiryDate != null
+            ? DateFormat('dd/MM/yyyy').parse(fcExpiryDate!)
+            : DateTime.now();
 
-                        if (pickedDate != null) {
-                          final formattedDate = DateFormat(
-                            'dd/MM/yyyy',
-                          ).format(pickedDate);
+        final pickedDate = await showDatePicker(
+          context: context,
+          initialDate: initialDate,
+          firstDate: DateTime.now(),
+          lastDate: DateTime(2100),
+        );
 
-                          setState(() {
-                            fcExpiryDate = formattedDate;
-                          });
-                        }
-                      },
-                      child: buildReadOnlyField(
-                        "FC Expiry Date",
-                        (fcExpiryDate?.isEmpty ?? true)
-                            ? 'FC Expiry Date'
-                            : fcExpiryDate!,
-                        fillColor: Colors.white,
-                        mandatoryStar: true,
-                      ),
-                    ),
+        if (pickedDate != null) {
+          final formattedDate = DateFormat('dd/MM/yyyy').format(pickedDate);
+          setState(() {
+            fcExpiryDate = formattedDate;
+          });
+          state.didChange(formattedDate); // Update FormField state
+        }
+      },
+      child: buildReadOnlyField(
+        "FC Expiry Date",
+        fcExpiryDate ?? 'FC Expiry Date',
+        fillColor: Colors.white,
+        mandatoryStar: true,
+      ),
+    );
+  },
+),
+
+                   
                     16.height,
 
                     /// PUC Expiry Date
@@ -580,9 +588,9 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                       onTap: () async {
                         final DateTime? pickedDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(), // default current date
-                          firstDate: DateTime.now(), // prevent past dates
-                          lastDate: DateTime(2100), // far in the future
+                          initialDate: DateTime.now(), 
+                          firstDate: DateTime.now(), 
+                          lastDate: DateTime(2100), 
                         );
 
                         if (pickedDate != null) {
@@ -648,7 +656,28 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                 );
                 return;
               }
+              if (owenerNameController.text == null || owenerNameController!.text.isEmpty) {
+              ToastMessages.alert(message: "Owner Name is required");
+              return;
+              }  
+              if (fcExpiryDate == null || fcExpiryDate!.isEmpty) {
+              ToastMessages.alert(message: "FC Expiry Date is required");
+              return;
+              }
+              if (pucExpiryDate == null || pucExpiryDate!.isEmpty) {
+              ToastMessages.alert(message: "PUC Expiry Date is required");
+              return;
+              }
+              if (insuranceValidityDate == null || insuranceValidityDate!.isEmpty) {
+              ToastMessages.alert(message: "Insurance Validity Date is required");
+              return;
+              }
+              if (insurancePolicyNumber.text == null || insurancePolicyNumber!.text.isEmpty) {
+              ToastMessages.alert(message: "Insurance Policy Number is required");
+              return;
+              }     
               if (formKey.currentState!.validate()) {
+            
                 final request = VehicleRequest(
                   customerId: profileCubit.userId ?? "",
                   truckNo: truckNumberController.text.trim(),
