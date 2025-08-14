@@ -9,8 +9,10 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -391,7 +393,10 @@ class ApiService {
         final msg = response?.data?['message'];
         return Error(InvalidTokenError(message: msg));
       case 500:
-        final msg = response?.data?['message'];
+        final msg = navigatorKey.currentState?.context.appText.errorMessage;
+        return Error(InternalServerError(message: msg));
+      case 501:
+        final msg = navigatorKey.currentState?.context.appText.errorMessage;
         return Error(InternalServerError(message: msg));
       default:
         log("Unexpected status code: ${response?.statusCode}");
@@ -457,6 +462,10 @@ class ApiService {
     await _secureSharedPrefs.deleteKey(AppString.sessionKey.userId);
     await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
     await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
+    clearAllBusinessDocs();
+
+
+
 
     if (appContext.mounted) {
         appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton": false});
@@ -464,6 +473,24 @@ class ApiService {
     LpBottomNavigation.selectedIndexNotifier.value = 0;
 
   }
+
+  Future<void> clearAllBusinessDocs() async {
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.gtsinNumber);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.panNumber);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.tanNumber);
+
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.gstDocUrl);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.gstDocID);
+
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.panDocUrl);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.panDocId);
+
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.tanDocUrl);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.tanDocID);
+    await _secureSharedPrefs.deleteKey(AppString.sessionKey.iskycAdarWebview);
+  }
+
+
 
   /// Handle Dio Error
   Future<Result<dynamic>> _handleDioError(DioException error) async {

@@ -109,7 +109,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
       setTripDocuments(
           state.loadDetailsUIState?.data?.data?.loadDocument ?? []);
-      print("calling api");
       _handleTrackingBasedOnStatus(state.loadDetailsUIState?.data?.data);
     }
     if (result is Error) {

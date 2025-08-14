@@ -2,6 +2,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -82,7 +83,8 @@ enum LoadStatus {
 
 
 
-String getSwipeButtonTitle(LoadStatus status){
+String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched){
+
   BuildContext context=navigatorKey.currentState!.context;
   switch(status){
     case LoadStatus.loading:
@@ -92,7 +94,7 @@ String getSwipeButtonTitle(LoadStatus status){
       case LoadStatus.unloading:
       return context.appText.swipeToCompleteUnLoading;
     case LoadStatus.podDispatched:
-      return context.appText.podDispatchedDetails;
+      return  podDispatched==null ?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
     default:
       return context.appText.swipeToStart;
   }
@@ -170,6 +172,24 @@ String getButtonText(LoadStatus status,{bool? priceIntoRange}){
 
   return vpLoadPrice.contains("-");
 }
+
+String formatVehicleNumber(String number) {
+  final parts = number.trim().split(RegExp(r"\s+"));
+
+  if (parts.length == 4) {
+    return parts.join(" ");
+  }
+  final cleaned = number.replaceAll(RegExp(r"\s+"), "");
+  if (cleaned.length >= 10) {
+    return "${cleaned.substring(0, 2)} "
+        "${cleaned.substring(2, 4)} "
+        "${cleaned.substring(4, 6)} "
+        "${cleaned.substring(6)}";
+  }
+
+  return number; // fallback
+}
+
 
 
 

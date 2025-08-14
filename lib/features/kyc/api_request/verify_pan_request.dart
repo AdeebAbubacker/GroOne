@@ -16,7 +16,7 @@ class VerifyPanApiRequest {
 
   Map<String, dynamic> toJson() => {
     "pan_number": pan,
-    "name": "",
+    "name": "Test User",
   };
 
 }
