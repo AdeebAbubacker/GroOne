@@ -1099,7 +1099,7 @@
   "unsuccessful": "Unsuccessful!",
   "contactAddress": "Contact Address",
   "createFastagRequest": "Create FASTag Request",
-  "contactSupport": "Contact Support"
+  "contactSupport": "Contact Support",
   "noOfDaysMustBeAtLeastOne":"Number of days must be at least 1",
   "paymentStatus":"Payment Status",
   "errorMessage":"We encountered a problem processing your request.Our team has been notified and is investigating.",
