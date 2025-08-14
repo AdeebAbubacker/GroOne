@@ -177,7 +177,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // set gst doc and url
   void setGstDocIDAndUrl(String url,String docID) => frameCallback(()async {
-    print("url is ${url} docID ${docID}");
     securePrefs.saveKey(AppString.sessionKey.gstDocUrl,url);
     securePrefs.saveKey(AppString.sessionKey.gstDocID,docID);
   });
