@@ -265,6 +265,7 @@ class _buildDriverTabState extends State<buildDriverTab> {
     );
     selectedLicneseId = driver?.licenseCategory;
     MasterDialogueWidget.show(
+      dismissible: true,
       context,
       child: StatefulBuilder(
         builder: (

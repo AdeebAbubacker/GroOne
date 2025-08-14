@@ -270,6 +270,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
     }
 
     MasterDialogueWidget.show(
+      dismissible: true,
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
