@@ -186,7 +186,7 @@ class Validator {
   );
 
   if (!regex.hasMatch(trimmedValue)) {
-    return '$fieldName is invalid. Example: DL-0420110149646';
+    return '$fieldName is invalid.';
   }
 
   return null;
