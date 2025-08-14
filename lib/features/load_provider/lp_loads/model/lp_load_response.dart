@@ -186,7 +186,7 @@ class LpLoadItem {
       loadStatusDetails: json["loadStatusDetails"] == null ? null : LoadStatusDetails.fromJson(json["loadStatusDetails"]),
       loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
-      lpPaymentsData: json["lpPaymentsData"] == null ? null : LpPaymentDetails.fromJson(json["lpPaymentsData"]),
+      lpPaymentsData: json["paymentDetails"] == null ? null : LpPaymentDetails.fromJson(json["paymentDetails"]),
     );
   }
 

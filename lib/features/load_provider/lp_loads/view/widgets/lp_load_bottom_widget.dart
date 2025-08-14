@@ -164,7 +164,6 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
 
-    print("disnace ${lpLoadLocator.state.locationDistance ?? ''}");
     return Positioned(
       bottom: 0,
       left: 0,
@@ -256,14 +255,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                        BlocBuilder<LpLoadCubit, LpLoadState>(
                          builder: (context, state) {
                            final trackingData = state.trackingDistance?.data;
-                           if (trackingData == null) {
-                             return SizedBox();
-                           }
                            return TrackingProgress(
-                             progressPercentage: trackingData.coverPercentage??0,
-                             remainingDistance: trackingData.currentdistance,
-                             totalDistance: trackingData.overalldistance,
-                             eta: trackingData.durationValue,
+                             progressPercentage: trackingData?.coverPercentage ?? 0,
+                             remainingDistance: trackingData?.currentdistance ?? '',
+                             totalDistance: trackingData?.overalldistance ?? '0 Km',
+                             eta: trackingData?.durationValue ?? 0,
                            );
                          },
                        ),
@@ -577,11 +573,19 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     return Padding(
       padding: const EdgeInsets.only(top: 15),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 15,
         children: [
-          _buildRow("${context.appText.detentions.capitalizeFirst} ($days ${context.appText.days})", inr(days * perDay)),
-          _buildRow(context.appText.loadingCharges, inr(settlement?.loadingCharge)),
-          _buildRow(context.appText.unloadingCharges, inr(settlement?.unLoadingCharge)),
+          Text(context.appText.credits, style: AppTextStyle.h5.copyWith(fontSize: 17)),
+          _buildRow("${context.appText.detentions.capitalizeFirst} ($days ${context.appText.days})", ' (+) ${inr(days * perDay)}'),
+          _buildRow(context.appText.loadingCharges, '(+) ${inr(settlement?.loadingCharge)}'),
+          _buildRow(context.appText.unloadingCharges, '(+) ${inr(settlement?.unLoadingCharge)}'),
+          Divider(),
+          Text(context.appText.debits, style: AppTextStyle.h5.copyWith(fontSize: 17)),
+          _buildRow(context.appText.damageCharges, '(-) ${inr(settlement?.debitDamages ?? 0)}'),
+          _buildRow(context.appText.shortageCharges, '(-) ${inr(settlement?.debitShortages ?? 0)}'),
+          _buildRow(context.appText.penalties, '(-) ${inr(settlement?.debitPenalities ?? 0)}'),
+          5.height,
         ],
       ),
     );

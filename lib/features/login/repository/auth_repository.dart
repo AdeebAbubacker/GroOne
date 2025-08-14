@@ -292,9 +292,29 @@ class AuthRepository {
   /// Clear auth & cache
   Future<void> _clearAuthData() async {
     await _securedSharedPref.resetPreservingLanguage();
+    await _securedSharedPref.resetPreservingLanguage();
+    await _securedSharedPref.saveBoolean(AppString.sessionKey.aadharVerified, false);
+    clearAllBusinessDocs();
     await _notificationService.clearBadgeCount();
     await _notificationService.clearFcmToken();
   }
+
+  Future<void> clearAllBusinessDocs() async {
+    await _securedSharedPref.deleteKey(AppString.sessionKey.gtsinNumber);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.panNumber);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.tanNumber);
+
+    await _securedSharedPref.deleteKey(AppString.sessionKey.gstDocUrl);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.gstDocID);
+
+    await _securedSharedPref.deleteKey(AppString.sessionKey.panDocUrl);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.panDocId);
+
+    await _securedSharedPref.deleteKey(AppString.sessionKey.tanDocUrl);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.tanDocID);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.iskycAdarWebview);
+  }
+
 
   /// Sign out
   Future<Result<bool>> signOut() async {
