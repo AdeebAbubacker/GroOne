@@ -283,80 +283,85 @@ class _LpSupportState extends State<LpSupport> {
           child: Column(
             children: [
               Expanded(
-                child: ListView.separated(
-                  itemCount: ticketList.length,
-                  separatorBuilder: (_, __) => 12.height,
-                  itemBuilder: (_, index) {
-                    final ticket = ticketList[index];
-                    final isCompleted = ticket.ticketStatusKey == 'COMPLETED';
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: commonContainerDecoration(borderColor: AppColors.lightGrey200),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Ticket ID & Status
-                          Row(
-                            children: [
-                              Text(ticket.ticketSeriesId ?? '', style: AppTextStyle.h5),
-                              20.width,
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 4,
-                                ),
-                                decoration: BoxDecoration(
-                                  color:
-                                      isCompleted
-                                          ? Colors.green.shade50
-                                          : Colors.orange.shade50,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  ticket.ticketStatusKey ?? '',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: isCompleted ? Colors.green : Colors.orange,
+                child: RefreshIndicator(
+                  onRefresh: () async {
+                    profileCubit.fetchTickets(request: TicketRequest(search: searchController.text));
+                  },
+                  child: ListView.separated(
+                    itemCount: ticketList.length,
+                    separatorBuilder: (_, __) => 12.height,
+                    itemBuilder: (_, index) {
+                      final ticket = ticketList[index];
+                      final isCompleted = ticket.ticketStatusKey == 'COMPLETED';
+                      return Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: commonContainerDecoration(borderColor: AppColors.lightGrey200),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Ticket ID & Status
+                            Row(
+                              children: [
+                                Text(ticket.ticketSeriesId ?? '', style: AppTextStyle.h5),
+                                20.width,
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color:
+                                        isCompleted
+                                            ? Colors.green.shade50
+                                            : Colors.orange.shade50,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    ticket.ticketStatusKey ?? '',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w600,
+                                      color: isCompleted ? Colors.green : Colors.orange,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          commonDivider(height: 20),
-                          4.height,
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                ticket.title,
-                                style: AppTextStyle.body3.copyWith(
-                                  color: AppColors.textGreyDetailColor,
-                                ),
-                              ),
-                              4.height,
-                              Text(
-                                DateTimeHelper.formatCustomDateTimeIST(
-                                  ticket.createdAt,
-                                ),
-                                style: AppTextStyle.body3.copyWith(
-                                  color: AppColors.grayColor,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          8.height,
-                          Text(
-                            ticket.description,
-                            style: AppTextStyle.body4.copyWith(
-                              color: AppColors.grayColor,
+                              ],
                             ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                            commonDivider(height: 20),
+                            4.height,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  ticket.title,
+                                  style: AppTextStyle.body3.copyWith(
+                                    color: AppColors.textGreyDetailColor,
+                                  ),
+                                ),
+                                4.height,
+                                Text(
+                                  DateTimeHelper.formatCustomDateTimeIST(
+                                    ticket.createdAt,
+                                  ),
+                                  style: AppTextStyle.body3.copyWith(
+                                    color: AppColors.grayColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            8.height,
+                            Text(
+                              ticket.description,
+                              style: AppTextStyle.body4.copyWith(
+                                color: AppColors.grayColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
               10.height,

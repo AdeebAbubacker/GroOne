@@ -890,7 +890,7 @@ class ProfileService {
     try {
       // === Step 1: Hit API-2 (Check if vehicle exists) ===
       print('=== Step 1: Hit API-2 (Check if vehicle exists) ===');
-      final url = '${ApiUrls.checkVehicleNumber}/$vehicleNumber';
+      final url = '${ApiUrls.checkVehicleNumber}$vehicleNumber';
 
       final api2Response = await _apiService.get(url);
 

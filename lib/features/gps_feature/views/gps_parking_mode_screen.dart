@@ -1,10 +1,15 @@
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+
 import '../../../dependency_injection/locator.dart';
+import '../../../routing/app_route_name.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
@@ -16,9 +21,8 @@ import '../cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
 import '../cubit/gps_parking_mode_cubit/gps_parking_mode_state.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../models/gps_parking_model.dart';
-import 'widgets/gps_parking_mode_scheduler.dart';
 import 'gps_notification_screen.dart';
-import 'package:collection/collection.dart';
+import 'widgets/gps_parking_mode_scheduler.dart';
 
 class GpsParkingModeScreen extends StatefulWidget {
   const GpsParkingModeScreen({super.key});
@@ -49,9 +53,13 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
         centreTile: false,
         actions: [
           TextButton.icon(
-            onPressed: () => context.read<GpsParkingModeCubit>().loadParkingModes(),
+            onPressed:
+                () => context.read<GpsParkingModeCubit>().loadParkingModes(),
             icon: const Icon(Icons.refresh, color: Colors.blue),
-            label: Text(context.appText.refresh, style: AppTextStyle.primaryColor12w400),
+            label: Text(
+              context.appText.refresh,
+              style: AppTextStyle.primaryColor12w400,
+            ),
           ),
           AppIconButton(
             onPressed: () {
@@ -85,68 +93,89 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-            child: AppTextField(
-              decoration: commonInputDecoration(
-                hintText: context.appText.searchVehicle,
-                suffixIcon: const Icon(Icons.search),
-              ),
-              onChanged: (value) {
-                setState(() => searchController.text = value);
-                context.read<VehicleListCubit>().searchVehicles(value);
-              },
-              controller: searchController,
-            ),
-          ),
-          BlocBuilder<GpsParkingModeCubit, GpsParkingModeState>(
-            builder: (context, parkingState) {
-              if (parkingState is GpsParkingModeLoading) {
-                return CircularProgressIndicator();
-              }
-
-              final parkingModes =
-                  parkingState is GpsParkingModeLoaded
-                      ? parkingState.modes
-                      : [];
-
-              final vehicles =
-                  context.watch<VehicleListCubit>().state.filteredVehicles;
-
-              return Expanded(
-                child: ListView.separated(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  separatorBuilder: (_, __) => 10.height,
-                  itemCount: vehicles.length,
-                  itemBuilder: (context, index) {
-                    final vehicle = vehicles[index];
-                    final deviceId = vehicle.deviceId;
-                    final parkingEntry = parkingModes.firstWhereOrNull(
-                          (e) => e.deviceId == deviceId,
-                    ) ?? GpsParkingModeModel(
-                      id: -1,
-                      deviceId: deviceId ?? 0,
-                      parkingMode: false,
-                    );
-
-
-
-                    return _buildVehicleTile(
-                      context,
-                      vehicle.vehicleNumber ?? '',
-                      parkingEntry,
-                    );
-                  },
+      body: BlocListener<GpsParkingModeCubit, GpsParkingModeState>(
+        listener: (context, state) {
+          if (state is GpsParkingModeDeviceActivationError) {
+            _showDeviceActivationDialog(context);
+          }
+        },
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              child: AppTextField(
+                decoration: commonInputDecoration(
+                  hintText: context.appText.searchVehicle,
+                  suffixIcon: const Icon(Icons.search),
                 ),
-              );
-            },
-          ),
-        ],
+                onChanged: (value) {
+                  setState(() => searchController.text = value);
+                  context.read<VehicleListCubit>().searchVehicles(value);
+                },
+                controller: searchController,
+              ),
+            ),
+            BlocBuilder<GpsParkingModeCubit, GpsParkingModeState>(
+              builder: (context, parkingState) {
+                if (parkingState is GpsParkingModeLoading) {
+                  return CircularProgressIndicator();
+                }
+
+                if (parkingState is GpsParkingModeDeviceActivationError) {
+                  // This will be handled by the BlocListener above
+                  return Container();
+                }
+
+                if (parkingState is GpsParkingModeError) {
+                  return Center(
+                    child: Text(
+                      'Error: ${parkingState.message}',
+                      style: AppTextStyle.bodyGreyColor,
+                    ),
+                  );
+                }
+
+                final parkingModes =
+                    parkingState is GpsParkingModeLoaded
+                        ? parkingState.modes
+                        : [];
+
+                final vehicles =
+                    context.watch<VehicleListCubit>().state.filteredVehicles;
+
+                return Expanded(
+                  child: ListView.separated(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
+                    separatorBuilder: (_, __) => 10.height,
+                    itemCount: vehicles.length,
+                    itemBuilder: (context, index) {
+                      final vehicle = vehicles[index];
+                      final deviceId = vehicle.deviceId;
+                      final parkingEntry =
+                          parkingModes.firstWhereOrNull(
+                            (e) => e.deviceId == deviceId,
+                          ) ??
+                          GpsParkingModeModel(
+                            id: -1,
+                            deviceId: deviceId ?? 0,
+                            parkingMode: false,
+                          );
+
+                      return _buildVehicleTile(
+                        context,
+                        vehicle.vehicleNumber ?? '',
+                        parkingEntry,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -154,7 +183,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
   Widget _buildVehicleTile(
     BuildContext context,
     String vehicleNumber,
-      GpsParkingModeModel parkingEntry,
+    GpsParkingModeModel parkingEntry,
   ) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -178,7 +207,10 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
               activeTrackColor: AppColors.activeGreenColor,
               activeColor: Colors.white,
               onChanged: (val) async {
-                context.read<GpsParkingModeCubit>().toggleParkingMode(parkingEntry, val);
+                context.read<GpsParkingModeCubit>().toggleParkingMode(
+                  parkingEntry,
+                  val,
+                );
               },
             ),
             IconButton(
@@ -192,12 +224,38 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
                       top: Radius.circular(20),
                     ),
                   ),
-                  builder: (_) =>  GpsParkingModeScheduler(gpsParkingModeModel: parkingEntry,),
+                  builder:
+                      (_) => GpsParkingModeScheduler(
+                        gpsParkingModeModel: parkingEntry,
+                      ),
                 );
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  /// Show dialog for device activation in progress and navigate to home
+  void _showDeviceActivationDialog(BuildContext context) {
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        heading: "Device Activation In Progress",
+        message:
+            "Your GPS device activation is still in progress. Please try again later.",
+        onSingleButtonText: "Continue",
+        onTapSingleButton: () {
+          // Close dialog first
+          Navigator.of(context).pop();
+
+          // Navigate to home screen
+          Navigator.of(
+            context,
+          ).pushReplacementNamed(AppRouteName.lpBottomNavigationBar);
+        },
+        child: Icon(Icons.device_hub, size: 80, color: AppColors.primaryColor),
       ),
     );
   }

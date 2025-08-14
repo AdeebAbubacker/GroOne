@@ -72,6 +72,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
    final loginBloc = locator<LoginBloc>();
    final securePrefs = locator<SecuredSharedPreferences>();
+   final lpHomeCubit = locator<LPHomeCubit>();
+
 
   final searchController = TextEditingController();
 
@@ -314,6 +316,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
             await profileCubit.startKycSuccessTimer(true);
             // Set flag that popup is shown
             await  profileCubit.saveHasShowBluePopup(false);
+            lpHomeCubit.setBluIDFlag();
           }
 
           profileCubit.startKycSuccessTimer(false);

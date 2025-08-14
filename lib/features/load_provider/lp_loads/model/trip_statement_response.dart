@@ -1,6 +1,3 @@
-import 'lp_load_get_by_id_response.dart' hide BankDetails;
-import 'lp_load_memo_response.dart';
-
 class TripStatementResponse {
   TripStatementResponse({
     required this.message,
@@ -42,14 +39,17 @@ class TripDetails {
     required this.memoNumber,
     required this.lane,
     required this.totalFreight,
-    required this.handlingCharges,
     required this.netFreight,
     required this.advanceAmount,
     required this.advancePercentage,
-    required this.balancePercentage,
-    required this.balanceAmount,
+    required this.loading,
+    required this.unloading,
     required this.detentions,
+    required this.damages,
+    required this.shortages,
+    required this.penalties,
     required this.loadSettlement,
+    required this.handlingCharges,
     required this.balanceToBePaid,
     required this.bankDetails,
     required this.truckSupplier,
@@ -61,14 +61,17 @@ class TripDetails {
   final String memoNumber;
   final String lane;
   final String totalFreight;
-  final String handlingCharges;
   final String netFreight;
   final String advanceAmount;
   final String advancePercentage;
-  final String balancePercentage;
-  final String balanceAmount;
+  final String loading;
+  final String unloading;
   final String detentions;
+  final String damages;
+  final String shortages;
+  final String penalties;
   final LoadSettlement? loadSettlement;
+  final String handlingCharges;
   final String balanceToBePaid;
   final BankDetails? bankDetails;
   final TruckSupplier? truckSupplier;
@@ -80,14 +83,17 @@ class TripDetails {
     String? memoNumber,
     String? lane,
     String? totalFreight,
-    String? handlingCharges,
     String? netFreight,
     String? advanceAmount,
     String? advancePercentage,
-    String? balancePercentage,
-    String? balanceAmount,
+    String? loading,
+    String? unloading,
     String? detentions,
+    String? damages,
+    String? shortages,
+    String? penalties,
     LoadSettlement? loadSettlement,
+    String? handlingCharges,
     String? balanceToBePaid,
     BankDetails? bankDetails,
     TruckSupplier? truckSupplier,
@@ -99,14 +105,17 @@ class TripDetails {
       memoNumber: memoNumber ?? this.memoNumber,
       lane: lane ?? this.lane,
       totalFreight: totalFreight ?? this.totalFreight,
-      handlingCharges: handlingCharges ?? this.handlingCharges,
       netFreight: netFreight ?? this.netFreight,
       advanceAmount: advanceAmount ?? this.advanceAmount,
       advancePercentage: advancePercentage ?? this.advancePercentage,
-      balancePercentage: balancePercentage ?? this.balancePercentage,
-      balanceAmount: balanceAmount ?? this.balanceAmount,
+      loading: loading ?? this.loading,
+      unloading: unloading ?? this.unloading,
       detentions: detentions ?? this.detentions,
+      damages: damages ?? this.damages,
+      shortages: shortages ?? this.shortages,
+      penalties: penalties ?? this.penalties,
       loadSettlement: loadSettlement ?? this.loadSettlement,
+      handlingCharges: handlingCharges ?? this.handlingCharges,
       balanceToBePaid: balanceToBePaid ?? this.balanceToBePaid,
       bankDetails: bankDetails ?? this.bankDetails,
       truckSupplier: truckSupplier ?? this.truckSupplier,
@@ -121,14 +130,17 @@ class TripDetails {
       memoNumber: json["memoNumber"] ?? "",
       lane: json["lane"] ?? "",
       totalFreight: json["totalFreight"] ?? "",
-      handlingCharges: json["handlingCharges"] ?? "",
       netFreight: json["netFreight"] ?? "",
       advanceAmount: json["advanceAmount"] ?? "",
       advancePercentage: json["advancePercentage"] ?? "",
-      balancePercentage: json["balancePercentage"] ?? "",
-      balanceAmount: json["balanceAmount"] ?? "",
+      loading: json["loading"] ?? "",
+      unloading: json["unloading"] ?? "",
       detentions: json["detentions"] ?? "",
+      damages: json["damages"] ?? "",
+      shortages: json["shortages"] ?? "",
+      penalties: json["penalties"] ?? "",
       loadSettlement: json["loadSettlement"] == null ? null : LoadSettlement.fromJson(json["loadSettlement"]),
+      handlingCharges: json["handlingCharges"] ?? "",
       balanceToBePaid: json["balanceToBePaid"] ?? "",
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
       truckSupplier: json["truckSupplier"] == null ? null : TruckSupplier.fromJson(json["truckSupplier"]),
@@ -142,17 +154,125 @@ class TripDetails {
     "memoNumber": memoNumber,
     "lane": lane,
     "totalFreight": totalFreight,
-    "handlingCharges": handlingCharges,
     "netFreight": netFreight,
     "advanceAmount": advanceAmount,
     "advancePercentage": advancePercentage,
-    "balancePercentage": balancePercentage,
-    "balanceAmount": balanceAmount,
+    "loading": loading,
+    "unloading": unloading,
     "detentions": detentions,
-    "loadSettlement": loadSettlement,
+    "damages": damages,
+    "shortages": shortages,
+    "penalties": penalties,
+    "loadSettlement": loadSettlement?.toJson(),
+    "handlingCharges": handlingCharges,
     "balanceToBePaid": balanceToBePaid,
-    "bankDetails": bankDetails,
-    "truckSupplier": truckSupplier,
+    "bankDetails": bankDetails?.toJson(),
+    "truckSupplier": truckSupplier?.toJson(),
+  };
+
+}
+
+class BankDetails {
+  BankDetails({
+    required this.beneficiaryName,
+    required this.bankName,
+    required this.accountNumber,
+    required this.ifscCode,
+    required this.branchName,
+  });
+
+  final String beneficiaryName;
+  final String bankName;
+  final String accountNumber;
+  final String ifscCode;
+  final String branchName;
+
+  BankDetails copyWith({
+    String? beneficiaryName,
+    String? bankName,
+    String? accountNumber,
+    String? ifscCode,
+    String? branchName,
+  }) {
+    return BankDetails(
+      beneficiaryName: beneficiaryName ?? this.beneficiaryName,
+      bankName: bankName ?? this.bankName,
+      accountNumber: accountNumber ?? this.accountNumber,
+      ifscCode: ifscCode ?? this.ifscCode,
+      branchName: branchName ?? this.branchName,
+    );
+  }
+
+  factory BankDetails.fromJson(Map<String, dynamic> json){
+    return BankDetails(
+      beneficiaryName: json["beneficiaryName"] ?? "",
+      bankName: json["bankName"] ?? "",
+      accountNumber: json["accountNumber"] ?? "",
+      ifscCode: json["ifscCode"] ?? "",
+      branchName: json["branchName"] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "beneficiaryName": beneficiaryName,
+    "bankName": bankName,
+    "accountNumber": accountNumber,
+    "ifscCode": ifscCode,
+    "branchName": branchName,
+  };
+
+}
+
+class LoadSettlement {
+  LoadSettlement({required this.json});
+  final Map<String,dynamic> json;
+
+  factory LoadSettlement.fromJson(Map<String, dynamic> json){
+    return LoadSettlement(
+        json: json
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+  };
+
+}
+
+class TruckSupplier {
+  TruckSupplier({
+    required this.partnerName,
+    required this.vehicleNumber,
+    required this.panNumber,
+  });
+
+  final String partnerName;
+  final String vehicleNumber;
+  final String panNumber;
+
+  TruckSupplier copyWith({
+    String? partnerName,
+    String? vehicleNumber,
+    String? panNumber,
+  }) {
+    return TruckSupplier(
+      partnerName: partnerName ?? this.partnerName,
+      vehicleNumber: vehicleNumber ?? this.vehicleNumber,
+      panNumber: panNumber ?? this.panNumber,
+    );
+  }
+
+  factory TruckSupplier.fromJson(Map<String, dynamic> json){
+    return TruckSupplier(
+      partnerName: json["partnerName"] ?? "",
+      vehicleNumber: json["vehicleNumber"] ?? "",
+      panNumber: json["panNumber"] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "partnerName": partnerName,
+    "vehicleNumber": vehicleNumber,
+    "panNumber": panNumber,
   };
 
 }

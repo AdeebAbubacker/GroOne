@@ -16,7 +16,7 @@ class AppTextField extends StatelessWidget {
   final Color? cursorColor;
   final bool? enabled;
   final List<TextInputFormatter>? inputFormatters;
-  final TextAlign textAlign = TextAlign.start;
+  final TextAlign? textAlign;
   final String? Function(String?)? validator;
   final Function(String)? onFieldSubmitted;
   final Function(String)? onChanged;
@@ -48,6 +48,7 @@ class AppTextField extends StatelessWidget {
       this.inputTextColor,
       this.cursorColor,
       this.inputFormatters,
+      this.textAlign = TextAlign.start,
       this.validator,
       this.onFieldSubmitted,
       this.currentFocus,
@@ -88,7 +89,7 @@ class AppTextField extends StatelessWidget {
           enabled: enabled ?? true,
           validator: validator,
           inputFormatters: inputFormatters ?? [],
-          textAlign: textAlign,
+          textAlign: textAlign ?? TextAlign.start,
           controller: controller,
           focusNode: currentFocus,
           cursorColor: cursorColor ?? AppColors.lightGreyTextColor,
