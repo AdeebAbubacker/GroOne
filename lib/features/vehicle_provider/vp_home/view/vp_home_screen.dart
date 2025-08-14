@@ -99,8 +99,6 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
     lpHomeBloc.getUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
-
-
     profileCubit.fetchCompanyTypeId();
     await profileCubit.fetchProfileDetail(instance: this);
   });
@@ -205,8 +203,11 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
               return kycWidget(
                 onTap: () async{
                    bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
+                   bool aadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+
+
                   if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    if (isKycCompleted) {
+                    if (isKycCompleted || aadharVerified) {
                       Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
                       } else{
                         commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
@@ -334,7 +335,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
           } else if (customer.isKyc == 1) {
-            return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
+            return
+
+              IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
         return  20.width;
@@ -431,6 +434,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                         },
                         onClickAssignDriver: () async{       
                            bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);            
+                           bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+
+                           print("isAadharVerified is ${isAadharVerified}");
                           final isKycDone = VpVariables.isKycVerified;
                           final companyId = int.parse(profileCubit.companyTypeId ?? "0");
                           if (isKycDone) {

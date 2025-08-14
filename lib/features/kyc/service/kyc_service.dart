@@ -84,6 +84,7 @@ class KycService {
         },
       );
       if (result is Success) {
+        print("result of verified gst ${result.value}");
         return Success(true);
       } else if (result is Error) {
         return Error(result.type);

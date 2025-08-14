@@ -292,6 +292,8 @@ class AuthRepository {
   /// Clear auth & cache
   Future<void> _clearAuthData() async {
     await _securedSharedPref.resetPreservingLanguage();
+    await _securedSharedPref.resetPreservingLanguage();
+    await _securedSharedPref.saveBoolean(AppString.sessionKey.aadharVerified, false);
     await _notificationService.clearBadgeCount();
     await _notificationService.clearFcmToken();
   }
