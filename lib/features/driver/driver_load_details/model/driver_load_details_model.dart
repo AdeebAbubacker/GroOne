@@ -283,7 +283,6 @@ class DriverLoadDetailsModelData {
 
     factory DriverLoadDetailsModelData.fromJson(Map<String, dynamic> json){
         List<Timeline> timeLine= json["timeline"] == null ? [] : List<Timeline>.from(json["timeline"]!.map((x) => Timeline.fromJson(x)));
-        timeLine.removeWhere((element) => element.id==1);
         return DriverLoadDetailsModelData(
             loadId: json["loadId"] ?? "",
             loadSeriesId: json["loadSeriesId"] ?? "",
