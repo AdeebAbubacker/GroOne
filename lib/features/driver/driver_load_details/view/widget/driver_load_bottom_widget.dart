@@ -284,17 +284,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 builder: (context) {
                                   final trackingData =
                                       state.trackingDistance?.data;
-                                  if (trackingData == null) {
-                                    return SizedBox();
-                                  }
                                   return TrackingProgress(
-                                    progressPercentage:
-                                        trackingData.coverPercentage ?? 0,
-                                    remainingDistance:
-                                        trackingData.currentdistance ?? '--',
-                                    totalDistance:
-                                        trackingData.overalldistance ?? '--',
-                                    eta: trackingData.durationValue,
+                                    progressPercentage: trackingData?.coverPercentage ?? 0,
+                                    remainingDistance: trackingData?.currentdistance ?? '',
+                                    totalDistance: trackingData?.overalldistance ?? '0 Km',
+                                    eta: trackingData?.durationValue ?? 0,
                                   ).paddingSymmetric(horizontal: 15);
                                 },
                               ),

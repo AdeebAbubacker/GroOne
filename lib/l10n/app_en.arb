@@ -1067,7 +1067,6 @@
   "searchRoutes" : "Search routes...",
   "unableToCompleteUrReq" : "Unable to complete your request. Please refresh or try later.",
   "rcNumber": "RC number",
-  "unableToCompleteUrReq" : "Unable to complete your request. Please refresh or try later.",
   "pleaseEnterConsigneeDetails" : "Please enter consignee details",
   "unread":"Unread",
   "alreadyVerified":"Aadhar already exist. Please use another aadhar number",
@@ -1077,6 +1076,12 @@
   "shipper":"Shipper",
   "advanceReceived":"Advance Received",
   "balanceReceived":"Balance Received",
-  "paymentStatus":"Payment Status"
+  "paymentStatus":"Payment Status",
+  "aadhaarVerification":"Aadhaar Verification",
+  "credits":"Credits",
+  "debits":"Debits",
+  "shortageCharges":"Shortage Charges",
+  "penalties":"Penalties",
+  "noOfDaysMustBeAtLeastOne":"Number of days must be at least 1"
 
 }

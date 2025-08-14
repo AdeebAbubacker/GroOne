@@ -1057,7 +1057,13 @@
   "unableToCompleteUrReq" : "आपका अनुरोध पूरा नहीं हो सका। कृपया रिफ्रेश करें या बाद में पुनः प्रयास करें।",
   "rcNumber": "आरसी नंबर",
   "unableToCompleteUrReq" : "आपका अनुरोध पूरा नहीं हो सका। कृपया रिफ्रेश करें या बाद में पुनः प्रयास करें।",
-  "pleaseEnterConsigneeDetails": "कृपया कंसाइनी विवरण दर्ज करें"
+  "pleaseEnterConsigneeDetails": "कृपया कंसाइनी विवरण दर्ज करें",
+  "aadhaarVerification": "आधार सत्यापन",
+  "credits": "क्रेडिट",
+  "debits": "डेबिट",
+  "shortageCharges": "कमी शुल्क",
+  "penalties": "जुर्माने",
+  "noOfDaysMustBeAtLeastOne": "दिनों की संख्या कम से कम 1 होनी चाहिए"
 
 
 
