@@ -12,7 +12,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/benefits_of_membership_screen.dart';
-import 'package:gro_one_app/features/profile/view/master_screen.dart';
+import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
 import 'package:gro_one_app/features/profile/view/setting_screen.dart';
