@@ -35,6 +35,7 @@ import '../../kyc/cubit/kyc_cubit.dart';
 import '../../kyc/helper/kyc_helper.dart';
 import '../../kyc/model/aadhar_status_response.dart';
 import '../../kyc/view/kyc_verification_webview.dart';
+import '../model/document_upload_response.dart';
 
 class EndhanKycScreen extends StatefulWidget {
   final String? aadhaarPrefill;
@@ -77,19 +78,17 @@ class _EndhanKycScreenState extends State<EndhanKycScreen> {
         final repository = locator<EnDhanRepository>();
         final userInfoRepository = locator<UserInformationRepository>();
         // return EnDhanCubit(repository, userInfoRepository);
-        return EnDhanCubit(repository, userInfoRepository)
-          ..setInitialKycData(
-            aadhaar: widget.aadhaarPrefill,
-            pan: widget.panPrefill,
-            isAadhaarVerified: widget.isAadhaarVerified,
-            isPanVerified: widget.isPanVerified,
-          );
+        return EnDhanCubit(repository, userInfoRepository)..setInitialKycData(
+          aadhaar: widget.aadhaarPrefill,
+          pan: widget.panPrefill,
+          isAadhaarVerified: widget.isAadhaarVerified,
+          isPanVerified: widget.isPanVerified,
+        );
       },
-      child: _EndhanKycScreenContent(showPanUpload: widget.showPanUpload,),
+      child: _EndhanKycScreenContent(showPanUpload: widget.showPanUpload),
     );
   }
 }
-
 
 class _EndhanKycScreenContent extends StatelessWidget {
   final bool showPanUpload; // <- new property
@@ -100,7 +99,6 @@ class _EndhanKycScreenContent extends StatelessWidget {
   }) : super(key: key);
   final kycCubit = locator<KycCubit>(); // For KYC flow
   final aadharRequestId = ValueNotifier<String?>(null);
-
 
   void _showSuccessDialog(BuildContext context) {
     AppDialog.show(
@@ -117,9 +115,6 @@ class _EndhanKycScreenContent extends StatelessWidget {
       ),
     );
   }
-
-
-
 
   void _showOtpBottomSheet(BuildContext context, EnDhanCubit cubit) {
     final List<TextEditingController> otpControllers = List.generate(
@@ -468,10 +463,10 @@ class _EndhanKycScreenContent extends StatelessWidget {
     final _formKey = GlobalKey<FormState>();
 
     Future<void> _checkVerification(
-        BuildContext context,
-        String? sdkUrl,
-        String? requestId,
-        ) async {
+      BuildContext context,
+      String? sdkUrl,
+      String? requestId,
+    ) async {
       if (sdkUrl != null && sdkUrl.isNotEmpty) {
         final isVerified = await Navigator.push(
           context,
@@ -485,21 +480,29 @@ class _EndhanKycScreenContent extends StatelessWidget {
     }
 
     Future<void> _checkKycVerification(
-        BuildContext context,
-        AadharVerificationData? data,
-        EnDhanCubit cubit,
-        ) async {
+      BuildContext context,
+      AadharVerificationData? data,
+      EnDhanCubit cubit,
+    ) async {
       if (data?.status == "VERIFIED") {
-        final pdfPath = await KycHelper.saveBase64PdfToFile(data?.dataPdf ?? "");
+        final pdfPath = await KycHelper.saveBase64PdfToFile(
+          data?.dataPdf ?? "",
+        );
         if (pdfPath != null) {
           final file = File(pdfPath);
-          final uploadResponse = await cubit.uploadDocument(file); // This function already exists in your cubit
+          final uploadResponse = await cubit.uploadDocument(
+            file,
+          ); // This function already exists in your cubit
 
           if (uploadResponse?.data?.url != null) {
             final url = uploadResponse!.data!.url!;
-            cubit.setAadhaarDocUrl(url); // You’ll create this method and update the state
+            cubit.setAadhaarDocUrl(
+              url,
+            ); // You’ll create this method and update the state
             cubit.setAadhaarVerified(true);
-            ToastMessages.success(message: context.appText.aadhaarVerifiedSuccessfully);
+            ToastMessages.success(
+              message: context.appText.aadhaarVerifiedSuccessfully,
+            );
           } else {
             ToastMessages.error(message: "Failed to upload Aadhaar PDF.");
           }
@@ -554,7 +557,9 @@ class _EndhanKycScreenContent extends StatelessWidget {
                         current.addressBackDocuments;
               },
               builder: (context, state) {
-                final aadhaarController = TextEditingController(text: state.aadhaar);
+                final aadhaarController = TextEditingController(
+                  text: state.aadhaar,
+                );
                 final panController = TextEditingController(text: state.pan);
                 return SingleChildScrollView(
                   child: Column(
@@ -568,18 +573,26 @@ class _EndhanKycScreenContent extends StatelessWidget {
                       ),
                       10.height,
                       BlocListener<KycCubit, KycState>(
-                        listenWhen: (prev, curr) =>
-                        prev.kycInitResponse != curr.kycInitResponse ||
-                            prev.aadharVerificationState != curr.aadharVerificationState,
+                        listenWhen:
+                            (prev, curr) =>
+                                prev.kycInitResponse != curr.kycInitResponse ||
+                                prev.aadharVerificationState !=
+                                    curr.aadharVerificationState,
                         listener: (context, state) async {
                           if (state.kycInitResponse?.status == Status.SUCCESS) {
                             final sdkUrl = state.kycInitResponse?.data?.sdkUrl;
-                            final requestId = state.kycInitResponse?.data?.requestId;
+                            final requestId =
+                                state.kycInitResponse?.data?.requestId;
                             aadharRequestId.value = requestId;
-                            await _checkVerification(context, sdkUrl, requestId);
+                            await _checkVerification(
+                              context,
+                              sdkUrl,
+                              requestId,
+                            );
                           }
 
-                          if (state.aadharVerificationState?.status == Status.SUCCESS) {
+                          if (state.aadharVerificationState?.status ==
+                              Status.SUCCESS) {
                             await _checkKycVerification(
                               context,
                               state.aadharVerificationState?.data?.data,
@@ -603,8 +616,9 @@ class _EndhanKycScreenContent extends StatelessWidget {
                                 }
                               },
                               validator:
-                                  (value) =>
-                                  cubit.getAadhaarValidationError(value ?? ''),
+                                  (value) => cubit.getAadhaarValidationError(
+                                    value ?? '',
+                                  ),
                               keyboardType: TextInputType.number,
                               maxLength: 12,
                               inputFormatters: [
@@ -613,24 +627,30 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             ),
                             15.height,
                             AppButton(
-                              onPressed:
-                                  () async {
-                                if (state.isAadhaarValid && !state.isAadhaarVerified) {
-                                  final request = KycInitRequest(aadharNumber: aadhaarController.text);
+                              onPressed: () async {
+                                if (state.isAadhaarValid &&
+                                    !state.isAadhaarVerified) {
+                                  final request = KycInitRequest(
+                                    aadharNumber: aadhaarController.text,
+                                  );
                                   await kycCubit.sendKycRequest(request);
                                 }
                               },
-                              textStyle: state.isAadhaarValid && !state.isAadhaarVerified
-                                  ? AppTextStyle.h5PrimaryColor
-                                  : AppTextStyle.h5WhiteColor,
-                              title: state.isAadhaarVerified
-                                  ? context.appText.verified
-                                  : context.appText.verifyAadhaar,
-                              style: state.isAadhaarValid && !state.isAadhaarVerified
-                                  ? AppButtonStyle.outlineAndFilled
-                                  : AppButtonStyle.disableButton,
+                              textStyle:
+                                  state.isAadhaarValid &&
+                                          !state.isAadhaarVerified
+                                      ? AppTextStyle.h5PrimaryColor
+                                      : AppTextStyle.h5WhiteColor,
+                              title:
+                                  state.isAadhaarVerified
+                                      ? context.appText.verified
+                                      : context.appText.verifyAadhaar,
+                              style:
+                                  state.isAadhaarValid &&
+                                          !state.isAadhaarVerified
+                                      ? AppButtonStyle.outlineAndFilled
+                                      : AppButtonStyle.disableButton,
                             ),
-
                           ],
                         ),
                       ),
@@ -679,7 +699,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             state.isPanVerified
                                 ? null
                                 : (value) {
-                                  if (value.length>= 10) {
+                                  if (value.length >= 10) {
                                     cubit.setPan(value);
                                     cubit.validatePan(value);
                                   }
@@ -754,109 +774,128 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
                       10.height,
                       // PAN Document Upload
-                      if(showPanUpload) Column(
-                        children: [
-                          EndhanDocumentUploadWidget(
-                            feildTitle: context.appText.uploadDocument,
-                            multiFilesList: state.panDocuments,
-                            isSingleFile: true,
+                      if (showPanUpload)
+                        Column(
+                          children: [
+                            EndhanDocumentUploadWidget(
+                              feildTitle: context.appText.uploadDocument,
+                              multiFilesList: state.panDocuments,
+                              isSingleFile: true,
+                              // onFilesChanged: (newList) async {
+                              //   // Update the documents list first
+                              //   cubit.updatePanDocuments(newList);
+                              //
+                              //   // Reset upload flag if document is removed
+                              //   if (newList.isEmpty) {
+                              //     cubit.setPanImageUploaded(false);
+                              //     return;
+                              //   }
+                              //
+                              //   // Handle upload for new documents
+                              //   if (newList.isNotEmpty) {
+                              //     final document = newList.first;
+                              //     final filePath = document['path'];
+                              //
+                              //     if (filePath != null) {
+                              //       try {
+                              //         final uploadResponse = await cubit
+                              //             .uploadDocument(File(filePath));
+                              //
+                              //         if (uploadResponse != null &&
+                              //             uploadResponse.data?.url != null) {
+                              //           final uploadedUrl =
+                              //               uploadResponse.data!.url!;
+                              //
+                              //           // Update the documents list with the uploaded URL
+                              //           final updatedDocuments = [
+                              //             {
+                              //               'fileName': uploadedUrl,
+                              //               'path': uploadedUrl,
+                              //               // Use URL as path for uploaded files
+                              //             },
+                              //           ];
+                              //
+                              //           cubit.updatePanDocuments(
+                              //             updatedDocuments,
+                              //           );
+                              //           cubit.setPanImageUploaded(true);
+                              //
+                              //           ScaffoldMessenger.of(
+                              //             context,
+                              //           ).showSnackBar(
+                              //             SnackBar(
+                              //               content: Text(
+                              //                 context
+                              //                     .appText
+                              //                     .documentUploadedSuccessfully,
+                              //               ),
+                              //             ),
+                              //           );
+                              //         } else {
+                              //           cubit.setPanImageUploaded(false);
+                              //           ScaffoldMessenger.of(
+                              //             context,
+                              //           ).showSnackBar(
+                              //             SnackBar(
+                              //               content: Text(
+                              //                 context.appText.uploadFailedNoUrl,
+                              //               ),
+                              //             ),
+                              //           );
+                              //         }
+                              //       } catch (e) {
+                              //         cubit.setPanImageUploaded(false);
+                              //         ScaffoldMessenger.of(
+                              //           context,
+                              //         ).showSnackBar(
+                              //           SnackBar(
+                              //             content: Text(
+                              //               '${context.appText.uploadFailed} $e',
+                              //             ),
+                              //           ),
+                              //         );
+                              //       }
+                              //     } else {
+                              //       ScaffoldMessenger.of(context).showSnackBar(
+                              //         SnackBar(
+                              //           content: Text(
+                              //             context.appText.noFilePathFound,
+                              //           ),
+                              //         ),
+                              //       );
+                              //     }
+                              //   }
+                              // },
                             onFilesChanged: (newList) async {
-                              // Update the documents list first
                               cubit.updatePanDocuments(newList);
 
-                              // Reset upload flag if document is removed
-                              if (newList.isEmpty) {
-                                cubit.setPanImageUploaded(false);
-                                return;
-                              }
-
-                              // Handle upload for new documents
-                              if (newList.isNotEmpty) {
-                                final document = newList.first;
-                                final filePath = document['path'];
-
-                                if (filePath != null) {
-                                  try {
-                                    final uploadResponse = await cubit
-                                        .uploadDocument(File(filePath));
-
-                                    if (uploadResponse != null &&
-                                        uploadResponse.data?.url != null) {
-                                      final uploadedUrl =
-                                          uploadResponse.data!.url!;
-
-                                      // Update the documents list with the uploaded URL
-                                      final updatedDocuments = [
-                                        {
-                                          'fileName': uploadedUrl,
-                                          'path': uploadedUrl,
-                                          // Use URL as path for uploaded files
-                                        },
-                                      ];
-
-                                      cubit.updatePanDocuments(
-                                        updatedDocuments,
-                                      );
-                                      cubit.setPanImageUploaded(true);
-
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            context
-                                                .appText
-                                                .documentUploadedSuccessfully,
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      cubit.setPanImageUploaded(false);
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            context.appText.uploadFailedNoUrl,
-                                          ),
-                                        ),
-                                      );
-                                    }
-                                  } catch (e) {
-                                    cubit.setPanImageUploaded(false);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          '${context.appText.uploadFailed} $e',
-                                        ),
-                                      ),
-                                    );
-                                  }
+                              final filePath = newList.isNotEmpty ? newList.first['path'] : null;
+                              if (filePath != null) {
+                                final uploadResult = await cubit.uploadDocument(File(filePath));
+                                if (uploadResult?.success??false) {
+                                  final fileUrl = uploadResult?.data?.url ?? '';
+                                  final updatedDocs = [
+                                    {'path': fileUrl, 'name': newList.first['name']}
+                                  ];
+                                  cubit.updatePanDocuments(updatedDocs);
+                                  cubit.setPanImageUploaded(true);
                                 } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        context.appText.noFilePathFound,
-                                      ),
-                                    ),
-                                  );
+                                  cubit.setPanImageUploaded(false);
                                 }
+
                               }
-                            },
-                            thenUploadFileToSever: () {
-                              // This callback is no longer needed as upload is handled in onFilesChanged
-                            },
-                          ),
-                          if (state.panDocuments.isEmpty &&
-                              state.hasAttemptedSubmit)
-                            Text(
-                              context.appText.panDocumentRequired,
-                              style: AppTextStyle.body3.copyWith(
-                                color: AppColors.activeRedColor,
-                              ),
-                            ).paddingOnly(top: 8.0),
-                        ],
-                      ),
+                            }
+                            ),
+                            if (state.panDocuments.isEmpty &&
+                                state.hasAttemptedSubmit)
+                              Text(
+                                context.appText.panDocumentRequired,
+                                style: AppTextStyle.body3.copyWith(
+                                  color: AppColors.activeRedColor,
+                                ),
+                              ).paddingOnly(top: 8.0),
+                          ],
+                        ),
                       15.height,
 
                       _buildLabelWithInfoIcon(
@@ -1040,13 +1079,12 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
               final bool isAadhaarVerified = state.isAadhaarVerified;
               final bool isPanVerified = state.isPanVerified;
-              final bool isAadhaarPrefilled = state.aadhaar.isNotEmpty;
-              final bool isPanPrefilled = state.pan.isNotEmpty;
 
               if (!isAadhaarVerified || !isPanVerified) {
                 String message = '';
                 if (!isAadhaarVerified && !isPanVerified) {
-                  message = 'Please verify both PAN and Aadhaar before submitting.';
+                  message =
+                      'Please verify both PAN and Aadhaar before submitting.';
                 } else if (!isAadhaarVerified) {
                   message = 'Please verify your Aadhaar before submitting.';
                 } else if (!isPanVerified) {
@@ -1078,25 +1116,12 @@ class _EndhanKycScreenContent extends StatelessWidget {
                 return;
               }
 
-              // if (isAadhaarPrefilled && !isPanPrefilled) {
-              //   await cubit.uploadKycDocuments(); // PAN
-              //   await cubit.uploadKycDocumentsMultipart(); // Identity/Address
-              // } else if (isAadhaarPrefilled && isPanPrefilled) {
-              //   await cubit.uploadKycDocumentsMultipart();
-              // } else {
-              //   await cubit.uploadKycDocuments();
-              //   await cubit.uploadKycDocumentsMultipart();
-              // }
-              if (isAadhaarPrefilled && !isPanPrefilled) {
+              if (showPanUpload) {
                 if (await cubit.uploadKycDocuments()) {
                   await cubit.uploadKycDocumentsMultipart();
                 }
-              } else if (isAadhaarPrefilled && isPanPrefilled) {
-                await cubit.uploadKycDocumentsMultipart();
               } else {
-                if (await cubit.uploadKycDocuments()) {
-                  await cubit.uploadKycDocumentsMultipart();
-                }
+                await cubit.uploadKycDocumentsMultipart();
               }
             },
             title: context.appText.submit,

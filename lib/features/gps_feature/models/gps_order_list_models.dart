@@ -334,4 +334,33 @@ class GpsOrderListMeta {
       totalPages: json['totalPages'] ?? 1,
     );
   }
-} 
+}
+
+class GpsOrderListPayment {
+  final String id;
+  final String paidAmount;
+  final String paymentDate;
+  final String paymentMode;
+  final String referenceNumber;
+  final String? status;
+
+  GpsOrderListPayment({
+    required this.id,
+    required this.paidAmount,
+    required this.paymentDate,
+    required this.paymentMode,
+    required this.referenceNumber,
+    this.status,
+  });
+
+  factory GpsOrderListPayment.fromJson(Map<String, dynamic> json) {
+    return GpsOrderListPayment(
+      id: json['id'],
+      paidAmount: json['paid_amount'],
+      paymentDate: json['payment_date'],
+      paymentMode: json['payment_mode'],
+      referenceNumber: json['reference_number'],
+      status: json['status'],
+    );
+  }
+}

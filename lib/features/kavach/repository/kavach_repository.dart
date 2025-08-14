@@ -243,20 +243,6 @@ class KavachRepository {
     }
   }
 
-  /// Fetches transactions for the user
-  Future<Result<List<KavachTransactionModel>>> fetchTransactions() async {
-    try {
-      final customerId = await userInfoRepo.getUserID() ?? '';
-      if (customerId.isEmpty) {
-        return Error(ErrorWithMessage(message: "Customer ID not found"));
-      }
-      return await _service.getTransactions(customerId);
-    } catch (e) {
-      CustomLog.error(this, "Failed to fetch transactions in repository", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
-
   /// Fetches users for referral code functionality
   Future<Result<List<KavachUserModel>>> fetchUsers({
     String search = "",

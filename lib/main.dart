@@ -51,17 +51,22 @@ void main() async {
     final securedSharedPrefs = SecuredSharedPreferences(secureStorage);
 
     // Get saved language code from secure storage
-    final savedLangCode = await securedSharedPrefs.get(AppString.sessionKey.selectedLanguage);
-    String langCode = savedLangCode?.toLowerCase().substring(0,2) ?? '';
-    final initialLocale = savedLangCode != null ? Locale(langCode) : const Locale('en');
+    final savedLangCode = await securedSharedPrefs.get(
+      AppString.sessionKey.selectedLanguage,
+    );
+    String langCode = savedLangCode?.toLowerCase().substring(0, 2) ?? '';
+    final initialLocale =
+        savedLangCode != null ? Locale(langCode) : const Locale('en');
 
     await NotificationService().init(navigatorKey, securedSharedPrefs);
 
     // Run the app
-    runApp(BlocProvider(
-      create: (_) => LocaleBloc()..add(ChangeLocale(initialLocale)),
-      child: const MyApp(),
-    ));
+    runApp(
+      BlocProvider(
+        create: (_) => LocaleBloc()..add(ChangeLocale(initialLocale)),
+        child: const MyApp(),
+      ),
+    );
   } catch (e) {
     // Handle initialization errors gracefully
     print('❌ App initialization error: $e');

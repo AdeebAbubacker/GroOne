@@ -468,7 +468,7 @@ class ProfileService {
     required VehicleRequest request,
   }) async {
     try {
-      final url = ApiUrls.getVehicleList + "add";
+      final url = ApiUrls.createVehicle;
       final response = await _apiService.post(url, body: request.toJson());
       if (response is Success) {
         final loads = VehicleNewModel.fromJson(response.value);
