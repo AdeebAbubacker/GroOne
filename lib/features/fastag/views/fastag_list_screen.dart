@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -11,67 +12,121 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import '../../../data/ui_state/status.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_search_bar.dart';
+import '../cubit/fastag_cubit.dart';
 import 'buy_new_fastag_screen.dart';
 import 'fastag_detail_screen.dart';
+import 'fastag_new_user_screen.dart';
 import 'fastag_recharge_screen.dart';
 
-class FastagListScreen extends StatelessWidget {
-  FastagListScreen({super.key});
+class FastagListScreen extends StatefulWidget {
+  const FastagListScreen({super.key});
 
+  @override
+  State<FastagListScreen> createState() => _FastagListScreenState();
+}
+
+class _FastagListScreenState extends State<FastagListScreen> {
   final TextEditingController _searchController = TextEditingController();
 
   @override
+  void initState() {
+    context.read<FastagCubit>().fetchFastagList(isInitialLoad: true);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
-      appBar: CommonAppBar(
-        title: Text(context.appText.fastag, style: AppTextStyle.appBar),
-        centreTile: false,
-        actions: [
-          AppIconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const BuyNewFastagScreen(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.add, color: Colors.white),
-            style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-          ),
-          4.width,
-          AppIconButton(
-            onPressed: () {
-              // More options
-            },
-            icon: Image.asset(AppIcons.png.moreVertical),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // App Bar
-            10.height,
-            // Search Bar
-            _buildSearchBar(context),
-            10.height,
-            // Section Title
-            Text(
-              'My Fastag',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w600,
-                color: Colors.black,
-              ),
-            ).paddingSymmetric(horizontal: 16.0),
-            // FASTag List
-            _buildFastagList(context),
+    return BlocListener<FastagCubit, FastagState>(
+      listenWhen: (previous, current) =>
+      current.shouldNavigateToBuyFastag && !previous.shouldNavigateToBuyFastag,
+      listener: (context, state) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const BuyNewFastagScreen()),
+        );
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.backgroundColor,
+        appBar: CommonAppBar(
+          title: Text(context.appText.fastag, style: AppTextStyle.appBar),
+          centreTile: false,
+          actions: [
+            AppIconButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const FastagNewUserScreen(),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add, color: Colors.white),
+              style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+            ),
+            4.width,
+            AppIconButton(
+              onPressed: () {
+                // More options
+              },
+              icon: Image.asset(AppIcons.png.moreVertical),
+            ),
           ],
+        ),
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              10.height,
+              _buildSearchBar(context),
+              10.height,
+              Text(
+                context.appText.myFastag,
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ).paddingSymmetric(horizontal: 16.0),
+              Expanded(
+                child: BlocBuilder<FastagCubit, FastagState>(
+                  builder: (context, state) {
+                    if (state.fastagListUIState.status == Status.LOADING) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    if (state.fastagListUIState.status == Status.ERROR) {
+                      return  Center(child: Text(context.appText.failedToLoadData));
+                    }
+
+                    if (state.fastagListUIState.data == null ||
+                        (state.fastagListUIState.data!.data.isEmpty)) {
+                      return  Center(child: Text(context.appText.noData));
+                    }
+
+                    final items = state.fastagListUIState.data!.data;
+                    return ListView.builder(
+                      padding: const EdgeInsets.all(16),
+                      itemCount: items.length,
+                      itemBuilder: (context, index) {
+                        final item = items[index];
+                        return _buildFastagCard(
+                          id: item.id.toString(),
+                          vehicleNumber: item.vehicleNo,
+                          status: _mapStatus(item.orderStatus),
+                          statusColor: _mapStatusColor(item.orderStatus),
+                          balance: "₹${item.balance}",
+                          lastUpdated: item.createdAt,
+                          context: context,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -81,55 +136,38 @@ class FastagListScreen extends StatelessWidget {
     return AppSearchBar(
       searchController: _searchController,
       hintText: context.appText.search,
-      onChanged: (val) {},
-      onClear: () {},
+      onChanged: (val) {
+        context.read<FastagCubit>().fetchFastagList(searchTerm: val.trim());
+      },
+      onClear: () {
+        _searchController.clear();
+        context.read<FastagCubit>().fetchFastagList();
+      },
     ).paddingSymmetric(horizontal: 16.0);
   }
 
-  Widget _buildFastagList(BuildContext context) {
-    return Expanded(
-      child: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          // Card 1 - Active Status
-          _buildFastagCard(
-            id: '8387123010',
-            vehicleNumber: 'TN12 BD 1234',
-            status: 'Active',
-            statusColor: Colors.green,
-            balance: '₹1,500',
-            lastUpdated: '21 May 2025, 7.30 AM',
-            context: context,
-          ),
+  String _mapStatus(int statusCode) {
+    switch (statusCode) {
+      case 1:
+      // return "Active";
+        return "Under Issuance";
+      case 2:
+        return "Low Balance";
+      default:
+        return "Under Issuance";
+    }
+  }
 
-          12.height,
-
-          // Card 2 - Low Balance Status
-          _buildFastagCard(
-            id: '8387123010',
-            vehicleNumber: 'TN12 BD 1234',
-            status: 'Low Balance',
-            statusColor: Colors.red,
-            balance: '₹40',
-            lastUpdated: '21 May 2025, 7.30 AM',
-            context: context,
-          ),
-
-          12.height,
-
-          // Card 3 - Under Issuance Status
-          _buildFastagCard(
-            id: '8387123010',
-            vehicleNumber: 'TN12 BD 1234',
-            status: 'Under Issuance',
-            statusColor: Colors.grey,
-            balance: '₹0',
-            lastUpdated: '21 May 2025, 7.30 AM',
-            context: context,
-          ),
-        ],
-      ),
-    );
+  Color _mapStatusColor(int statusCode) {
+    switch (statusCode) {
+      case 1:
+      // return Colors.green;
+        return Colors.grey;
+      case 2:
+        return Colors.red;
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildFastagCard({
@@ -213,29 +251,30 @@ class FastagListScreen extends StatelessWidget {
           4.height,
 
           // Balance Section
-          if(status != 'Under Issuance') Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Current Balance', style: AppTextStyle.body3GreyColor),
+          if (status != 'Under Issuance')
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Current Balance', style: AppTextStyle.body3GreyColor),
 
-              Row(
-                children: [
-                  Text(
-                    balance,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                      color:
-                          status == 'Under Issuance'
-                              ? Colors.grey
-                              : AppColors.primaryColor,
+                Row(
+                  children: [
+                    Text(
+                      balance,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color:
+                        status == 'Under Issuance'
+                            ? Colors.grey
+                            : AppColors.primaryColor,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  // Refresh Icon
-                  const Icon(Icons.refresh, size: 16, color: Colors.grey),
-                  const Spacer(),
-                  // Recharge Button (if applicable)
+                    const SizedBox(width: 8),
+                    // Refresh Icon
+                    const Icon(Icons.refresh, size: 16, color: Colors.grey),
+                    const Spacer(),
+                    // Recharge Button (if applicable)
                     AppButton(
                       buttonHeight: 40,
                       onPressed: () {
@@ -248,31 +287,35 @@ class FastagListScreen extends StatelessWidget {
                       title: 'Recharge',
                       style: AppButtonStyle.primary,
                     ).expand(),
-                ],
-              ),
-              2.height,
-              // Last Updated
-              Text(
-                'Last Updated $lastUpdated',
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-          
-          if(status == 'Under Issuance')Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text('Requested On: 21-09-2025, 6:30 PM',style: AppTextStyle.body,),
-              10.height,
-              AppButton(
-                style: AppButtonStyle.outline,
-                onPressed: () {
-                commonSupportDialog(context);
-              },
-              title: 'Contact Support',
-              )
-            ],
-          )
+                  ],
+                ),
+                2.height,
+                // Last Updated
+                Text(
+                  'Last Updated $lastUpdated',
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
+            ),
+
+          if (status == 'Under Issuance')
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Requested On: ${formatDateTimeKavach(lastUpdated)}',
+                  style: AppTextStyle.body,
+                ),
+                10.height,
+                AppButton(
+                  style: AppButtonStyle.outline,
+                  onPressed: () {
+                    commonSupportDialog(context);
+                  },
+                  title: context.appText.contactSupport,
+                ),
+              ],
+            ),
         ],
       ),
     );
