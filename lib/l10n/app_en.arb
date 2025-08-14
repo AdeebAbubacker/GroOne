@@ -1071,9 +1071,8 @@
   "pleaseEnterConsigneeDetails" : "Please enter consignee details",
   "unread":"Unread",
   "alreadyVerified":"Aadhar already exist. Please use another aadhar number",
-  "rcNumber": "RC Number"
-  "alreadyVerified":"Aadhar already exist. Please use another aadhar number",
-  "gps":"GPS",
+  "rcNumber": "RC Number",
+   "gps":"GPS",
   "loadType":"Load Type",
   "shipper":"Shipper",
   "advanceReceived":"Advance Received",

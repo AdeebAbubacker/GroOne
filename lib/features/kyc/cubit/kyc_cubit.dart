@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
@@ -31,6 +32,7 @@ import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 part 'kyc_state.dart';
 
 
@@ -157,10 +159,11 @@ class KycCubit extends BaseCubit<KycState> {
 
 
   // Verify Gst
-  Future<void> verifyGst(VerifyGstApiRequest request) async {
+  Future<void> verifyGst(VerifyGstApiRequest request,SecuredSharedPreferences securePrefs) async {
     emit(state.copyWith(gstState: UIState.loading()));
     Result result = await _repo.verifyGST(request);
     if (result is Success<bool>) {
+      await securePrefs.saveBoolean(AppString.sessionKey.isGstNumberVerified, true);
       emit(state.copyWith(verifiedGst: true));
     }
     if (result is Error) {
@@ -194,6 +197,23 @@ class KycCubit extends BaseCubit<KycState> {
     if (result is Error) {
       emit(state.copyWith(docVerificationState: UIState.error(result.type)));
     }
+  }
+
+  // Check Kyc Verified
+  Future<void> checkIsKycNumberVerified(SecuredSharedPreferences securePrefs) async{
+   bool? isPanVerified=await securePrefs.getBooleans(AppString.sessionKey.isPanNumberVerified);
+   bool? isGtsNumberVerified=await  securePrefs.getBooleans(AppString.sessionKey.isGstNumberVerified);
+   bool? isTanNumberVerified= await  securePrefs.getBooleans(AppString.sessionKey.isTanNumberVerified);
+
+
+   print("isGtsNumberVerified is ${isGtsNumberVerified}");
+   print("isPanVerified is ${isPanVerified}");
+   print("isTanNumberVerified is ${isTanNumberVerified}");
+
+   emit(state.copyWith(
+       verifiedGst:isGtsNumberVerified ,
+       verifiedTan: isTanNumberVerified,
+       verifiedPan: isPanVerified));
   }
 
 

@@ -99,8 +99,6 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
     lpHomeBloc.getUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
-
-
     profileCubit.fetchCompanyTypeId();
     await profileCubit.fetchProfileDetail(instance: this);
   });
@@ -205,15 +203,26 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
               return kycWidget(
                 onTap: () async{
                    bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
+                   bool aadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+
+                   String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                   String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
                   if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    if (isKycCompleted) {
-                      Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                    if (isKycCompleted || aadharVerified) {
+                      Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                        aadhaarNumber: aadharNumber,
+                        pdfPath: aadharPDF,
+                      )));
                       } else{
                         commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                       }
                     
                   } else {
-                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                      aadhaarNumber: aadharNumber,
+                      pdfPath: aadharPDF,
+                    )));
                   }
                 },
               );
@@ -334,7 +343,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
           } else if (customer.isKyc == 1) {
-            return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
+            return
+
+              IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
         return  20.width;
@@ -431,18 +442,29 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                         },
                         onClickAssignDriver: () async{       
                            bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);            
+                           bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+
+                           String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                           String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
                           final isKycDone = VpVariables.isKycVerified;
                           final companyId = int.parse(profileCubit.companyTypeId ?? "0");
                           if (isKycDone) {
                             context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
                           } else if (companyId == 2 || companyId == 1) {
-                           if (isKycCompleted) {
-                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                           if (isKycCompleted || isAadharVerified) {
+                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                              aadhaarNumber: aadharNumber,
+                              pdfPath: aadharPDF,
+                            )));
                             } else{
                               commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                             }
                           } else {
-                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                              aadhaarNumber: aadharNumber,
+                              pdfPath: aadharPDF,
+                            )));
                           }
                         },
                       ),

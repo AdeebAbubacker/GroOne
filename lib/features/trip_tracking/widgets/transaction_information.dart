@@ -26,24 +26,18 @@ class _TransactionInformationState extends State<TransactionInformation> {
 
   @override
   void initState() {
-
     getTransactionLogsDetails();
-
     super.initState();
   }
 
   getTransactionLogsDetails(){
     try{
       advancedAction=  widget.vpLogs!.firstWhere((element) => element.action=="advanced",);
-    }catch(e){
-
-    }
+    }catch(e){}
 
     try{
       balanceAction= widget.vpLogs!.firstWhere((element) => element.action=="balance",);
-    }catch(e){
-
-    }
+    }catch(e){}
   }
 
   @override
@@ -54,7 +48,9 @@ class _TransactionInformationState extends State<TransactionInformation> {
         child: Column(
           spacing: 15,
           children: [
+            if(advancedAction!=null)
             _buildInfoWidget(context,advancedAction,"${context.appText.advancedReceived} (${widget.advancedPer}%)"),
+            if(balanceAction!=null)
             _buildInfoWidget(context,balanceAction,context.appText.balanceReceived),
           ],
         ),
