@@ -121,7 +121,7 @@ class _AvailableLoadsFilterScreenState
                   value,
                   fieldName: context.appText.thisFieldIsRequired,
                 ),
-            labelText: context.appText.roadType,
+            labelText: context.appText.loadType,
             hintText: context.appText.selectRoadType,
             dropdownValue: roadTypeDownValue,
             decoration: commonInputDecoration(),

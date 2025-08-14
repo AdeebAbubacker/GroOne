@@ -54,14 +54,14 @@ class IncompleteKycStatusWidget extends StatelessWidget {
           // Verify KYC button
           TextButton(
             onPressed: () async{
-              bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);            
+              bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
                if (companyId != null && (companyId == 2 || companyId == 1)) {
                 if (isKycCompleted) {
                 Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
                 } else{
                   commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                 }
-                
+
               } else {
                 Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
               }

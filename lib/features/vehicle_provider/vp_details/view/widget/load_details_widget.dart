@@ -218,6 +218,7 @@ class LoadDetailsWidget extends StatelessWidget {
                             state.loadStatusId ?? 0,
                             loadDetails?.paymentEntry,
                             loadDetails?.loadMemo,
+                            loadDetails?.loadStatusValue,
                           ),
                           15.height,
                           _buildLoadEntityWidget(
@@ -497,6 +498,7 @@ class LoadDetailsWidget extends StatelessWidget {
     int loadStatusID,
     LoadPaymentDetails? paymentEntity,
     MemoDetails? loadMemo,
+    LoadStatus? loadStatus,
   ) {
     final vpLoadPrice =
         (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")
@@ -517,12 +519,10 @@ class LoadDetailsWidget extends StatelessWidget {
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-
       decoration: commonContainerDecoration(
         color: AppColors.lightBlueColor,
         borderRadius: BorderRadius.circular(6),
       ),
-
       child: Column(
         children: [
           Visibility(
@@ -554,6 +554,9 @@ class LoadDetailsWidget extends StatelessWidget {
             5.height,
             _buildLoadProviderAdvancePaymentCardViewOnly(
               context: context,
+              showViewMore:
+                  (loadStatus?.index ?? 0) > LoadStatus.assigned.index,
+              isAdvancedReceived: isAdvancedPaid,
               agreedAdvance:
                   (paymentEntity?.payableAdvance ?? "").isNotEmpty
                       ? PriceHelper.formatINR(
@@ -569,7 +572,18 @@ class LoadDetailsWidget extends StatelessWidget {
               advancedPaymentPer: advancedPaymentPercentage,
               balancePayment:
                   isBalancePaid ? PriceHelper.formatINR(balancePayment) : "",
-              onViewTap: () {},
+              onViewTap: () {
+                showPaymentView(
+                  vpLogs: paymentEntity?.vpLogs,
+                  context,
+                  tripCost:
+                      agreedPrice.isNotEmpty
+                          ? PriceHelper.formatINR(agreedPrice)
+                          : "",
+                  advanceAmount: PriceHelper.formatINR(advancedPayment),
+                  advancePercentage: advancedPaymentPercentage,
+                );
+              },
               // tripPrice: "1000",
             ),
           ],
@@ -686,8 +700,7 @@ class LoadDetailsWidget extends StatelessWidget {
               ).expand(),
             if (state.loadStatus == LoadStatus.matching ||
                 state.loadStatus == LoadStatus.accepted ||
-                state.loadStatus == LoadStatus.completed ||
-                state.loadStatus == LoadStatus.podDispatched)
+                state.loadStatus == LoadStatus.completed)
               AppButton(
                 isLoading: state.vpLoadStatus?.status == Status.LOADING,
                 title: getButtonText(
@@ -719,29 +732,12 @@ class LoadDetailsWidget extends StatelessWidget {
                     );
                     return;
                   }
-                  if (state.loadStatus == LoadStatus.podDispatched) {
-                    bool isPodAdded = await Navigator.push(
-                      context,
-                      commonRoute(
-                        VpPodDispatchScreen(loadId: loadDetails?.loadId),
-                      ),
-                    );
-                    if (isPodAdded) {
-                      changeLoadStatus(
-                        context,
-                        loadDetails?.loadId.toString(),
-                        loadStatus: (state.loadStatusId ?? 0) + 1,
-                      );
-                    }
-                    return;
-                  }
                   changeLoadStatus(context, loadDetails?.loadId.toString());
                 },
                 textStyle: TextStyle(fontSize: 14, color: AppColors.white),
               ).expand(),
             if ((state.loadStatusId ?? 0) >= 4 &&
-                state.loadStatus != LoadStatus.completed &&
-                state.loadStatus != LoadStatus.podDispatched)
+                state.loadStatus != LoadStatus.completed)
               SizedBox(
                 height: 60,
                 width: MediaQuery.of(context).size.width * 0.90,
@@ -758,7 +754,24 @@ class LoadDetailsWidget extends StatelessWidget {
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
                   ),
-                  onSubmit: () {
+                  onSubmit: () async {
+                    if (state.loadStatus == LoadStatus.podDispatched) {
+                      bool isPodAdded = await Navigator.push(
+                        context,
+                        commonRoute(
+                          VpPodDispatchScreen(loadId: loadDetails?.loadId),
+                        ),
+                      );
+                      if (isPodAdded) {
+                        changeLoadStatus(
+                          context,
+                          loadDetails?.loadId.toString(),
+                          loadStatus: (state.loadStatusId ?? 0) + 1,
+                        );
+                      }
+                      return;
+                    }
+
                     return changeLoadStatus(
                       context,
                       loadDetails?.loadId.toString(),
@@ -773,36 +786,36 @@ class LoadDetailsWidget extends StatelessWidget {
     );
   }
 
-  // Future showPaymentView(BuildContext context, LoadPaymentDetails? paymentEntity) {
-  //   return showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return showCustomDialogue(
-  //         hideButton: false,
-  //         context: context,
-  //         child: PaymentInformationDialogView(
-  //           advanceAmount: PriceHelper.formatINR(
-  //             paymentEntity?.advancePaid ?? "",
-  //           ),
-  //           balancePayout: PriceHelper.formatINR(
-  //             paymentEntity?.payableBalance ?? "",
-  //           ),
-  //           isAdvanceCompleted: true,
-  //           isBalancePending: false,
-  //           onProceed: () {},
-  //           paymentMode: paymentEntity?.paymentType,
-  //           receivedOn: formatDateTimeKavach(
-  //             paymentEntity?.paymentDate?.toString() ??
-  //                 DateTime.now().toString(),
-  //           ),
-  //           transactionId: "467898765432",
-  //           tripCost: PriceHelper.formatINR(paymentEntity?.agreedPrice ?? ""),
-  //         ),
-  //         buttonText: context.appText.processed,
-  //       );
-  //     },
-  //   );
-  // }
+  Future showPaymentView(
+    BuildContext context, {
+    String? advancePercentage,
+    String? advanceAmount,
+    String? tripCost, List<VpLog>? vpLogs,
+  }) {
+    return showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return showCustomDialogue(
+          hideButton: false,
+          context: context,
+          child: PaymentInformationDialogView(
+            vpLogs: vpLogs,
+            advancedPercentage: advancePercentage,
+            advanceAmount: advanceAmount,
+            balancePayout: PriceHelper.formatINR("4000"),
+            isAdvanceCompleted: true,
+            isBalancePending: false,
+            onProceed: () {},
+            paymentMode: "",
+            receivedOn: "",
+            transactionId: "467898765432",
+            tripCost: tripCost,
+          ),
+          buttonText: context.appText.processed,
+        );
+      },
+    );
+  }
 
   Widget buildAttachmentView(
     BuildContext context,
@@ -875,6 +888,8 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   String? balancePayment,
   VoidCallback? onViewTap,
   String? advancedPaymentPer,
+  bool? isAdvancedReceived,
+  bool? showViewMore,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -889,7 +904,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
       if ((agreedAdvance ?? "").isNotEmpty) ...[
         8.height,
         _buildPriceRow(
-          context.appText.agreedAdvance,
+          "Advance ${isAdvancedReceived ?? false ? "Received" : "Payable"}",
           agreedAdvance,
           context,
           highlight: true,
@@ -919,31 +934,31 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
         12.height,
       ],
 
-      // if (paymentStatus != 4)
-      //   Align(
-      //     alignment: Alignment.center,
-      //     child: GestureDetector(
-      //       onTap: onViewTap,
-      //       child: Row(
-      //         mainAxisSize: MainAxisSize.min,
-      //         children: [
-      //           Text(
-      //             context.appText.view,
-      //             style: AppTextStyle.body.copyWith(
-      //               fontSize: 12,
-      //               fontWeight: FontWeight.w400,
-      //               color: AppColors.primaryColor,
-      //             ),
-      //           ),
-      //           const Icon(
-      //             Icons.chevron_right,
-      //             size: 25,
-      //             color: AppColors.black,
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
+      if (showViewMore ?? false)
+        Align(
+          alignment: Alignment.center,
+          child: GestureDetector(
+            onTap: onViewTap,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  context.appText.view,
+                  style: AppTextStyle.body.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w400,
+                    color: AppColors.primaryColor,
+                  ),
+                ),
+                const Icon(
+                  Icons.chevron_right,
+                  size: 25,
+                  color: AppColors.black,
+                ),
+              ],
+            ),
+          ),
+        ),
     ],
   );
 }

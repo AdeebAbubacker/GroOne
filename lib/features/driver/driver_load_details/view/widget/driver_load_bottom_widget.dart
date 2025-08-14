@@ -53,17 +53,17 @@ class DriverLoadBottomWidget extends StatefulWidget {
   State<DriverLoadBottomWidget> createState() => _DriverLoadBottomWidgetState();
 }
 
+
 class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
   final driverLoadDetailsCubit = locator<DriverLoadDetailsCubit>();
+
   Future<void> getLoadDetails() async {
     frameCallback(() async {
       await driverLoadDetailsCubit.getDriverLoadsById(
         loadId: widget.loadItem.data?.loadId ?? '',
       );
-
       final statusId =
           driverLoadDetailsCubit.state.lpLoadById?.data?.data?.loadStatusId;
-
       if (statusId != null) {
         driverLoadDetailsCubit.updatePODVisibilityBasedOnStatus(statusId);
       }
@@ -102,8 +102,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
           customerId: userId.toString(),
           loadStatus: loadStatus,
           loadid: loadId,
-        )
-        .then((value) {
+        ).then((value) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             widget.cubit.getDriverLoadsById(loadId: loadId ?? "0");
             widget.cubit.updatePODVisibilityBasedOnStatus(loadStatus);
@@ -512,7 +511,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             message: "Failed to update load status",
                           );
                           widget.cubit.getDriverLoadsById(
-                            loadId: loads!.data!.loadId ?? '',
+                            loadId: loads.data!.loadId ?? '',
                           );
                         }
                       },

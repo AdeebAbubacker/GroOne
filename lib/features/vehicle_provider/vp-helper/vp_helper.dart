@@ -91,6 +91,8 @@ String getSwipeButtonTitle(LoadStatus status){
       return context.appText.swipeToStartUnLoading;
       case LoadStatus.unloading:
       return context.appText.swipeToCompleteUnLoading;
+    case LoadStatus.podDispatched:
+      return context.appText.podDispatchedDetails;
     default:
       return context.appText.swipeToStart;
   }

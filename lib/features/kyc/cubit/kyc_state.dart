@@ -21,6 +21,7 @@ class KycState extends Equatable {
   final UIState<CreateDocumentModel>? createDocumentUIState;
   final UIState<DeleteDocumentModel>? deleteDocumentUIState;
   final UIState<UploadAadharDocumentModel>? uploadAadharDocumentModel;
+  final UIState<DocVerificationModel>? docVerificationState;
   final bool? verifiedPan;
   final bool? verifiedGst;
   final bool? verifiedTan;
@@ -31,6 +32,7 @@ class KycState extends Equatable {
     this.aadhaarVerifyOtpState,
     this.kycInitResponse,
     this.uploadCancelledUIState,
+    this.docVerificationState,
 
 
     this.uploadGSTDocUIState,
@@ -55,6 +57,7 @@ class KycState extends Equatable {
   });
 
   KycState copyWith({
+    UIState<DocVerificationModel>? docVerificationState,
     Map<KycDocType, UIState<dynamic>>? uploadStates,
     UIState<AadhaarOtpModel>? aadhaarOtpState,
     UIState<AadharVerificationResponse>? aadharVerificationResponse,
@@ -83,7 +86,7 @@ class KycState extends Equatable {
     return KycState(
       uploadAadharDocumentModel: uploadAadharDocUIState??this.uploadAadharDocumentModel,
       aadharVerificationState: aadharVerificationResponse ?? this.aadharVerificationState,
-
+      docVerificationState: docVerificationState??this.docVerificationState,
       kycInitResponse: kycInitResponse??this.kycInitResponse,
       uploadStates: uploadStates ?? this.uploadStates,
       aadhaarOtpState: aadhaarOtpState ?? this.aadhaarOtpState,
@@ -132,7 +135,8 @@ class KycState extends Equatable {
     verifiedTan,
     kycInitResponse,
     aadharVerificationState,
-    uploadAadharDocumentModel
+    uploadAadharDocumentModel,
+    docVerificationState
   ];
 }
 

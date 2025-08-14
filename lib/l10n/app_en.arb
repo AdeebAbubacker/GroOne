@@ -85,7 +85,7 @@
   "preferredLanesText": "Preferred Lanes",
   "businessProof": "Business Proof",
   "uploadDocument": "Upload document",
-  "aadhaarNumber": "Aadhaar Number(optional)",
+  "aadhaarNumber": "Aadhaar Number",
   "aadhaarHint": "xxxx xxxx xxxx",
   "submit": "Submit",
   "selectTruckType": "Select truck type",
@@ -980,7 +980,7 @@
   "noReportTypesFound": "No report types found",
   "addDriver":"Add Driver",
   "balanceToBeReceived":"Balance to be Received",
-  "podDispatchedDetails":"POD Dispatch details",
+  "podDispatchedDetails":"Swipe to Add POD Details",
   "awbCompany":"AWB Number",
   "onlinePay" : "Online (Pay Now)",
   "myOrders" : "My Orders",
@@ -1072,4 +1072,12 @@
   "unread":"Unread",
   "alreadyVerified":"Aadhar already exist. Please use another aadhar number",
   "rcNumber": "RC Number"
+  "alreadyVerified":"Aadhar already exist. Please use another aadhar number",
+  "gps":"GPS",
+  "loadType":"Load Type",
+  "shipper":"Shipper",
+  "advanceReceived":"Advance Received",
+  "balanceReceived":"Balance Received",
+  "paymentStatus":"Payment Status"
+
 }

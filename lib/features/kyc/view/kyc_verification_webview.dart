@@ -1,11 +1,12 @@
 
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -42,7 +43,7 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
               String url=change.url??"";
               if(url.contains('https://gro-devadmin.letsgro.co')){
                 _isBack=true;
-                 await securePrefs.saveBoolean(AppString.sessionKey.iskycAdarWebview,true);          
+                 await securePrefs.saveBoolean(AppString.sessionKey.iskycAdarWebview,true);
                 Navigator.pop(context,true);
               }
            }
@@ -97,7 +98,9 @@ PreferredSizeWidget buildAppBarWidget(BuildContext context) {
       Navigator.pop(context, true);
     }, icon: Icon(Icons.arrow_back)),
     centreTile: true,
-    title: 'KYC',
+    showInUpperCase: true,
+    title: context.appText.kyc.toUpperCase(),
+
     backgroundColor: Colors.transparent,
     actions: [
       20.width,

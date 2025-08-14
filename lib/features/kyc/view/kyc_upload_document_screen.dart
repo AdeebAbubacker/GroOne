@@ -1354,7 +1354,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   Widget _buildAadhaarWidget(BuildContext context){
     return buildTextFieldWithLabelWidget(
       readOnly: true,
-      rightText: context.appText.aadhaarNumber,
+        isMandatory: true,
+        rightText: context.appText.aadhaarNumber,
       leftText: context.appText.verified,
       controller: aadhaarNumberTextController,
       fillColor: AppColors.lightGreyBackgroundColor
@@ -1386,7 +1387,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     FocusNode? currentFocus,
     required TextEditingController controller,
     dynamic Function()? suffixOnTap,
-    Color? fillColor
+    Color? fillColor,
+    bool? isMandatory,
+
   }) {
     return Column(
       children: [
@@ -1397,6 +1400,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               children: [
                 Text(rightText, style: AppTextStyle.textFiled),
                 5.width,
+                if(isMandatory??true)
                 Text("*", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
               ],
             ),

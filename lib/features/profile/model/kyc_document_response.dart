@@ -57,6 +57,7 @@ class Documents {
     required this.chequeDocLinkDetails,
     required this.tdsDocLink,
     required this.tdsDocLinkDetails,
+    required this.aadharDocDetails,
   });
 
   final String aadhar;
@@ -77,6 +78,7 @@ class Documents {
   final NDocLinkDetails? chequeDocLinkDetails;
   final String tdsDocLink;
   final NDocLinkDetails? tdsDocLinkDetails;
+  final NDocLinkDetails? aadharDocDetails;
 
   Documents copyWith({
     String? aadhar,
@@ -97,8 +99,10 @@ class Documents {
     NDocLinkDetails? chequeDocLinkDetails,
     String? tdsDocLink,
     NDocLinkDetails? tdsDocLinkDetails,
+    NDocLinkDetails? aadharDocDetails,
   }) {
     return Documents(
+      aadharDocDetails: aadharDocDetails??this.aadharDocDetails,
       aadhar: aadhar ?? this.aadhar,
       isAadhar: isAadhar ?? this.isAadhar,
       pan: pan ?? this.pan,
@@ -122,6 +126,7 @@ class Documents {
 
   factory Documents.fromJson(Map<String, dynamic> json){
     return Documents(
+      aadharDocDetails:    json["aadharDocLinkDetails"] == null  || json["aadharDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["aadharDocLinkDetails"]),
       aadhar: json["aadhar"] ?? "",
       isAadhar: json["isAadhar"] ?? false,
       pan: json["pan"] ?? "",
