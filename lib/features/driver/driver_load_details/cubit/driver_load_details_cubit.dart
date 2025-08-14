@@ -25,6 +25,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -109,9 +110,9 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
 
   //  Update Load Status Api Call
   void _updateloadStatusUIState(UIState<VpLoadAcceptModel>? uiState) {
-    emit(state.copyWith(loadStatusUiUpdate: uiState));
+    emit(state.copyWith(loadStatusUIState: uiState));
   }
-
+ 
   Future<void> fupdateLoadStatus({
     required String customerId,
     required String loadid,
@@ -125,10 +126,11 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     );
     if (result is Success<VpLoadAcceptModel>) {
       final newStatus = result.value.data?.loadStatus;
+
       emit(
         state.copyWith(
           loadStatusId: newStatus,
-          loadStatusUiUpdate: UIState.success(result.value),
+          loadStatusUIState: UIState.success(result.value),
         ),
       );
     }
@@ -407,6 +409,16 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
       state.copyWith(
         deleteDamageUIState: resetUIState<DeleteDamageModel>(
           state.deleteDamageUIState,
+        ),
+      ),
+    );
+  }
+
+  void resetLoadStatuUpdateReset() {
+    emit(
+      state.copyWith(
+        loadStatusUIState: resetUIState<VpLoadAcceptModel>(
+          state.loadStatusUIState,
         ),
       ),
     );

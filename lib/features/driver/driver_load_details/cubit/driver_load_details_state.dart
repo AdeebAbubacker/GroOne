@@ -38,7 +38,7 @@ class DriverLoadDetailsState extends Equatable {
     UIState<DriverLoadDetailsModel>? lpLoadById,
     UIState<UploadDamageFileModel>? uploadDamageUIState,
     UIState<GetDamageListModel>? damageListUIState,
-    UIState<VpLoadAcceptModel>? loadStatusUiUpdate,
+    UIState<VpLoadAcceptModel>? loadStatusUIState,
     UIState<DeleteDamageModel>? deleteDamageUIState,
     List<DocumentEntity>? tripDocumentList,
     UIState<DamageModel>? createDamageUIState,
@@ -55,7 +55,7 @@ class DriverLoadDetailsState extends Equatable {
       uploadDamageUIState: uploadDamageUIState ?? this.uploadDamageUIState,
       damageListUIState: damageListUIState ?? this.damageListUIState,
       isUpdateDamage: isUpdateDamage ?? this.isUpdateDamage,
-      loadStatusUIState: loadStatusUiUpdate ?? this.loadStatusUIState,
+      loadStatusUIState: loadStatusUIState ?? this.loadStatusUIState,
       tripDocumentList: tripDocumentList ?? this.tripDocumentList,
       deleteDamageUIState: deleteDamageUIState ?? this.deleteDamageUIState,
       createDamageUIState: createDamageUIState ?? this.createDamageUIState,
@@ -83,5 +83,6 @@ class DriverLoadDetailsState extends Equatable {
     trackingDistance,
     locationDistance,
     loadStatusId,
+    loadStatusUIState,
   ];
 }
