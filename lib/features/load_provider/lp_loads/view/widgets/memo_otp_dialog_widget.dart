@@ -74,6 +74,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         AppDialog.show(
+          dismissible: false,
           parentCtx,
           child: SuccessDialogView(
             heading: context.appText.memoESignSuccess,
@@ -102,124 +103,127 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
     super.dispose();
   }
 
+  void validateOtp (bool isLoading) async {
+    if (!isLoading && otpController.text.length == 4) {
+      await lpLoadLocator.verifyOtp(
+        otp: otpController.text,
+        loadId: widget.loadId,
+      );
+      final uiState = lpLoadLocator.state.lpLoadMemoVerifyOtp;
+      handleOtpVerification(uiState);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return CommonDialogView(
-      child: Column(
-        children: [
-          RichText(
-            textAlign: TextAlign.center,
-            text: TextSpan(
-              children: [
-                TextSpan(
-                  text: context.appText.verifyOtp,
-                  style: AppTextStyle.h3.copyWith(
-                    fontSize: 26,
-                    color: AppColors.primaryColor,
-                  ),
-                ),
-                TextSpan(
-                  text:
-                  context.appText.otpSendToMobile,
-                  style: AppTextStyle.body2.copyWith(height: 1.9),
-                ),
-                TextSpan(
-                  text: context.appText.needHelp,
-                  style: AppTextStyle.primaryColor14w400UnderLine,
-                  recognizer:
-                  TapGestureRecognizer()
-                    ..onTap = () {
-                      commonSupportDialog(context);
-                    },
-                ),
-              ],
-            ),
-          ),
-          10.height,
-          Center(
-            child: OtpTextField(
-              numberOfFields: 4,
-              showFieldAsBox: true,
-              fieldWidth: 50,
-              fieldHeight: 50,
-              fillColor: Color(0xffF8F8F8),
-              filled: true,
-              inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              borderColor: AppColors.borderDisableColor,
-              borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-              onCodeChanged: (String code) {
-                setState(() {
-                  otpController.text = code;
-                });
-              },
-              onSubmit: (String verificationCode) {
-                setState(() {
-                  otpController.text = verificationCode;
-                });
-              }, // end
-            ),
-          ),
-          30.height,
-          BlocBuilder<LpLoadCubit, LpLoadState>(
-            bloc: lpLoadLocator,
-            builder: (context, state) {
+      child:  BlocBuilder<LpLoadCubit, LpLoadState>(
+          bloc: lpLoadLocator,
+          builder: (context, state) {
 
-              final bool isLoading = state.lpLoadMemoVerifyOtp?.status == Status.LOADING;
+            final bool isLoading = state.lpLoadMemoVerifyOtp?.status == Status.LOADING;
 
-              return AppButton(
+            return Column(
+            children: [
+              RichText(
+                textAlign: TextAlign.center,
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: context.appText.verifyOtp,
+                      style: AppTextStyle.h3.copyWith(
+                        fontSize: 26,
+                        color: AppColors.primaryColor,
+                      ),
+                    ),
+                    TextSpan(
+                      text:
+                      context.appText.otpSendToMobile,
+                      style: AppTextStyle.body2.copyWith(height: 1.9),
+                    ),
+                    TextSpan(
+                      text: context.appText.needHelp,
+                      style: AppTextStyle.primaryColor14w400UnderLine,
+                      recognizer:
+                      TapGestureRecognizer()
+                        ..onTap = () {
+                          commonSupportDialog(context);
+                        },
+                    ),
+                  ],
+                ),
+              ),
+              20.height,
+              Center(
+                child: OtpTextField(
+                  numberOfFields: 4,
+                  showFieldAsBox: true,
+                  fieldWidth: 50,
+                  fieldHeight: 50,
+                  fillColor: Color(0xffF8F8F8),
+                  filled: true,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  borderColor: AppColors.borderDisableColor,
+                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                  onCodeChanged: (String code) {
+                    setState(() {
+                      otpController.text = code;
+                    });
+                  },
+                  onSubmit: (String verificationCode) {
+                    setState(() {
+                      otpController.text = verificationCode;
+                    });
+                    validateOtp(isLoading);
+                  }, // end
+                ),
+              ),
+              30.height,
+              AppButton(
                 isLoading: lpLoadLocator.state.lpLoadMemoVerifyOtp?.status == Status.LOADING,
-                onPressed: () async {
-                  if (!isLoading && otpController.text.length == 4) {
-                    await lpLoadLocator.verifyOtp(
-                      otp: otpController.text,
-                      loadId: widget.loadId,
-                    );
-                    final uiState = lpLoadLocator.state.lpLoadMemoVerifyOtp;
-                    handleOtpVerification(uiState);
-                  }
-                },
+                onPressed: () => validateOtp(isLoading),
                 title: context.appText.verifyOtp,
                 style: (otpController.text.length == 4)
                     ? AppButtonStyle.primary
                     : AppButtonStyle.disableButton,
-              );
-            },
-          ),
-          20.height,
-          InkWell(
-            onTap:
-                (_secondsRemaining == 0)
-                    ? () async {
-                      await lpLoadLocator.sendOtp(loadId: widget.loadId);
-                      final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;
-                      if (otpState?.status == Status.SUCCESS) {
-                        final message = otpState?.data?.message ?? "";
-                        if (context.mounted) {
-                          ToastMessages.success(message: message);
+              ),
+              20.height,
+              InkWell(
+                onTap:
+                    (_secondsRemaining == 0)
+                        ? () async {
+                          await lpLoadLocator.sendOtp(loadId: widget.loadId);
+                          final otpState = lpLoadLocator.state.lpLoadMemoSendOtp;
+                          if (otpState?.status == Status.SUCCESS) {
+                            final message = otpState?.data?.message ?? "";
+                            if (context.mounted) {
+                              ToastMessages.success(message: message);
+                            }
+                            _secondsRemaining = 10;
+                            startResendTimer();
+                            setState(() {});
+                          } else if (otpState?.status == Status.ERROR) {
+                            final errorType = otpState?.errorType;
+                            ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()),
+                            );
+                          }
                         }
-                        _secondsRemaining = 10;
-                        startResendTimer();
-                        setState(() {});
-                      } else if (otpState?.status == Status.ERROR) {
-                        final errorType = otpState?.errorType;
-                        ToastMessages.error(message: getErrorMsg(errorType: errorType ?? GenericError()),
-                        );
-                      }
-                    }
-                    : null,
+                        : null,
 
-            child: SizedBox(
-              child: Center(
-                child: Text(
-                  _secondsRemaining > 0
-                      ? "Resend OTP in $_secondsRemaining Seconds"
-                      : context.appText.resendOtp,
-                  style: AppTextStyle.textBlackColor14w400,
+                child: SizedBox(
+                  child: Center(
+                    child: Text(
+                      _secondsRemaining > 0
+                          ? "Resend OTP in $_secondsRemaining Seconds"
+                          : context.appText.resendOtp,
+                      style: AppTextStyle.textBlackColor14w400,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
+          );
+        }
       ),
     );
   }

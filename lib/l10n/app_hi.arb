@@ -1057,9 +1057,30 @@
   "unableToCompleteUrReq" : "आपका अनुरोध पूरा नहीं हो सका। कृपया रिफ्रेश करें या बाद में पुनः प्रयास करें।",
   "rcNumber": "आरसी नंबर",
   "unableToCompleteUrReq" : "आपका अनुरोध पूरा नहीं हो सका। कृपया रिफ्रेश करें या बाद में पुनः प्रयास करें।",
-  "pleaseEnterConsigneeDetails": "कृपया कंसाइनी विवरण दर्ज करें"
-
-
+  "pleaseEnterConsigneeDetails": "कृपया कंसाइनी विवरण दर्ज करें",
+  "aadhaarVerification": "आधार सत्यापन",
+  "credits": "क्रेडिट",
+  "debits": "डेबिट",
+  "shortageCharges": "कमी शुल्क",
+  "penalties": "जुर्माने",
+  "noOfDaysMustBeAtLeastOne": "दिनों की संख्या कम से कम 1 होनी चाहिए",
+  "noData": "कोई डेटा नहीं",
+  "failedToLoadData": "डेटा लोड करने में विफल",
+  "contactSupport": "सहायता से संपर्क करें",
+  "addMoreVehicle": "और वाहन जोड़ें",
+  "vehicle": "वाहन",
+  "vehicleSelectedSuccess": "वाहन सफलतापूर्वक चुना गया",
+  "vehicleRCOptional": "वाहन आरसी (वैकल्पिक)",
+  "frontSideRC": "आरसी का सामने वाला भाग",
+  "backSideRC": "आरसी का पिछला भाग",
+  "pleaseVerifyVehicle": "कृपया वाहन सत्यापित करें",
+  "fastagRequestFailed": "FASTag अनुरोध विफल। कृपया बाद में पुनः प्रयास करें।",
+  "fastagRequestSubmitted": "FASTag अनुरोध सफलतापूर्वक सबमिट हुआ!",
+  "fastagTeamReach": "हमारी टीम 48 घंटे में आपसे संपर्क करेगी",
+  "fastagRequest": "FASTag अनुरोध",
+  "unsuccessful": "असफल!",
+  "contactAddress": "संपर्क पता",
+  "createFastagRequest": "FASTag अनुरोध बनाएं"
 
 
 

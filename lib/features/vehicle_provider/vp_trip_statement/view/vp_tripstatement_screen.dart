@@ -139,7 +139,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             value: statementData?.loadId??"",
           ),
           buildDTripStatementWidget(
-            label: context.appText.transporter,
+            label: context.appText.shipper,
             value: statementData?.transporter??"",
           ),
           buildDTripStatementWidget(

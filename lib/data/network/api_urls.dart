@@ -86,6 +86,7 @@ class ApiUrls {
   static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
   static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
   static final String  panVerification = "https://groone-uat.letsgro.co/pan/api/v1/send_pan";
+  static final String  verifiedDocument = "$_baseUrl$_customer$_path$_v1/kyc/verify-doc-number";
 
 
 
@@ -195,6 +196,9 @@ class ApiUrls {
   static final String gpsCreateOrder = "$_baseUrl$_fleet$_path$_v1/orders/create";
   static final String gpsOrderSummary = "$_baseUrl$_fleet$_path$_v1/orders/order-summary";
   static final String gpsCustomerOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
+
+  ///Fastag
+  static final String fastagAddVehicle = "$_fetchUrl$_vendor$_path$_v1/fast-tag/addVehicle";
 
   ///Gps and kavach payment initate
   static final String fleetPayment = "$_fetchUrl$_paymentBroker$_path$_v1/payment/initiate";

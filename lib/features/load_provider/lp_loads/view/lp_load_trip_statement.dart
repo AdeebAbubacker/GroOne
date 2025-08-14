@@ -138,9 +138,6 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
 
   /// Main Details
   Widget buildMainDetailWidget(TripDetails details) {
-    var detention =
-        (details.loadSettlement?.amountPerDay ?? 0) *
-        (details.loadSettlement?.noOfDays ?? 0);
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -156,48 +153,48 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
           buildDetailRow(label: context.appText.lane, value: details.lane),
           buildDetailRow(
             label: context.appText.totalFreight,
-            value: PriceHelper.formatINR(details.totalFreight, symbol: 'Rs '),
+            value: PriceHelper.formatINR(details.totalFreight),
           ),
           buildDetailRow(
             label: context.appText.netFreight,
-            value: PriceHelper.formatINR(details.netFreight, symbol: 'Rs '),
+            value: PriceHelper.formatINR(details.netFreight),
           ),
           buildDetailRow(
             label: "${context.appText.advance} (${details.advancePercentage.split('.').first}%)",
-            value: PriceHelper.formatINR(details.advanceAmount, symbol: 'Rs '),
+            value: PriceHelper.formatINR(details.advanceAmount),
           ),
           buildDetailRow(
             label: context.appText.loadingCharges,
-            value: PriceHelper.formatINR(details.loadSettlement?.loadingCharge, symbol: 'Rs '),
+            value: PriceHelper.formatINR(details.loading),
           ),
           buildDetailRow(
             label: context.appText.unloadingCharges,
-            value: PriceHelper.formatINR(details.loadSettlement?.unLoadingCharge, symbol: 'Rs '),
+            value: PriceHelper.formatINR(details.unloading),
           ),
           buildDetailRow(
             label: context.appText.detentions.capitalizeFirst,
-            value: PriceHelper.formatINR(detention, symbol: 'Rs '),
+            value: PriceHelper.formatINR(details.detentions),
           ),
           buildDetailRow(
             label: context.appText.handlingCharges,
-            value: '(-) ${PriceHelper.formatINR(details.handlingCharges, symbol: 'Rs ')}',
+            value: '(-) ${PriceHelper.formatINR(details.handlingCharges)}',
           ),
           buildDetailRow(
             label: context.appText.damageCharges,
-            value: '(-) ${PriceHelper.formatINR(details.loadSettlement?.debitDamages, symbol: 'Rs ')}',
+            value: '(-) ${PriceHelper.formatINR(details.damages)}',
           ),
           buildDetailRow(
             label: context.appText.shortages,
-            value: '(-) ${PriceHelper.formatINR(details.loadSettlement?.debitShortages, symbol: 'Rs ')}',
+            value: '(-) ${PriceHelper.formatINR(details.shortages)}',
           ),
           buildDetailRow(
             label: context.appText.penalty,
-            value: '(-) ${PriceHelper.formatINR(details.loadSettlement?.debitPenalities, symbol: 'Rs ')}',
+            value: '(-) ${PriceHelper.formatINR(details.penalties)}',
           ),
           commonDivider(height: 10, thickness: 2, dividerColor: AppColors.black),
           buildDetailRow(
             label: context.appText.balanceToBePaid,
-            value: PriceHelper.formatINR(details.balanceToBePaid, symbol: 'Rs '),
+            value: PriceHelper.formatINR(details.balanceToBePaid),
             style: AppTextStyle.h3.copyWith(color: AppColors.primaryColor, fontSize: 20),
           ),
         ],

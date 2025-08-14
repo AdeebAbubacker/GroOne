@@ -16,3 +16,8 @@ class GpsParkingModeError extends GpsParkingModeState {
   final String message;
   GpsParkingModeError(this.message);
 }
+
+class GpsParkingModeDeviceActivationError extends GpsParkingModeState {
+  final String message;
+  GpsParkingModeDeviceActivationError(this.message);
+}

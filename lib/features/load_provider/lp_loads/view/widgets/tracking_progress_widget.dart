@@ -21,7 +21,6 @@ class TrackingProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print("eta is ${eta}");
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

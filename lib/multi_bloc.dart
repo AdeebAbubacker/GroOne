@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_loa
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fastag_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
@@ -106,6 +107,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<VpTripStatementCubit>(create: (_) => locator<VpTripStatementCubit>()),
         BlocProvider<PaymentCubit>(create: (_) => locator<PaymentCubit>()),
         BlocProvider<MastersCubit>(create: (_) => locator<MastersCubit>()),
+        BlocProvider<FastagCubit>(create: (_) => locator<FastagCubit>()),
        ],
       child: child,
     );

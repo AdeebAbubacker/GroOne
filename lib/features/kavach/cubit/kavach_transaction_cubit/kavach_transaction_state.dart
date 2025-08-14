@@ -16,7 +16,7 @@ class KavachTransactionsLoading extends KavachTransactionsState {
 }
 
 class KavachTransactionsLoaded extends KavachTransactionsState {
-  final List<KavachTransactionModel> transactions;
+  final List<KavachOrderListPayment> transactions;
 
   const KavachTransactionsLoaded(this.transactions);
 

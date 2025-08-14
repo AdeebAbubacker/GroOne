@@ -21,6 +21,7 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_count_selector.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
@@ -68,7 +69,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
   bool isDamageAdded=false;
 
  final TextEditingController itemNameTextController = TextEditingController();
- final TextEditingController quantityTextController = TextEditingController();
+ final TextEditingController quantityTextController = TextEditingController(text: '0');
  final TextEditingController descriptionTextController = TextEditingController();
 
 
@@ -305,25 +306,17 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
 
           // Item Name
           AppTextField(
+            mandatoryStar: true,
             validator: (value)=> Validator.fieldRequired(value),
             controller: itemNameTextController,
             labelText: context.appText.itemName,
             hintText: "LED TV 42”",
           ),
-          20.height,
+          10.height,
 
           // Quantity
-          AppTextField(
-            validator: (value)=> Validator.fieldRequired(value),
-            controller: quantityTextController,
-            labelText: context.appText.quantity,
-            hintText: "2",
-            keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly
-            ],
-          ),
-          20.height,
+          AppCountSelector(label: context.appText.quantity, controller: quantityTextController, isMandatory: true),
+          10.height,
 
           // Upload Product Photo
           _buildUploadProductPhotoWidget(),
@@ -332,6 +325,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
 
           // Description
           AppTextField(
+            mandatoryStar: true,
             validator: (value)=> Validator.fieldRequired(value),
             controller: descriptionTextController,
             labelText: context.appText.description,

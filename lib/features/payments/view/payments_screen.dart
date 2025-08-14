@@ -63,7 +63,7 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
   }
 
   Future<void> _delayedLoad() async {
-    await Future.delayed(const Duration(seconds: 7));
+    await Future.delayed(const Duration(seconds: 12));
     if (mounted) {
       await _controller.loadRequest(Uri.parse(widget.url));
       paymentCubit.setLoading(false);

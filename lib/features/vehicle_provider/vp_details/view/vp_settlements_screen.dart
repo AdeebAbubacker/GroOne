@@ -10,6 +10,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_count_selector.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -36,7 +37,7 @@ class VpSettlementsScreen extends StatefulWidget {
 }
 
 class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
-  TextEditingController noOfDays = TextEditingController();
+  TextEditingController noOfDays = TextEditingController(text: '0');
   TextEditingController detentionAmount = TextEditingController();
   TextEditingController loadingAmount = TextEditingController();
   TextEditingController unloadingAmount = TextEditingController();
@@ -63,6 +64,10 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
   void createAndSubmitSettlements(){
     if(formKey.currentState!.validate()){
+      if(noOfDays.text == '0') {
+        ToastMessages.error(message: context.appText.noOfDaysMustBeAtLeastOne);
+        return;
+      }
       vpDetailsCubit.submitSettlement(SettlementApiRequest(
         loadId: widget.loadId??"",
         amountPerDay:int.tryParse(detentionAmount.text)??0,
@@ -103,31 +108,22 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
             children: [
               headingText(text: context.appText.detentions),
 
-              // No. of Days
-              AppTextField(
-                controller: noOfDays,
-                labelText: context.appText.noOfDays,
-                hintText:  context.appText.days,
-                keyboardType: TextInputType.number,
 
-                validator: (value) => Validator.fieldRequired(value),
-
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
-                ],
-              ),
+              AppCountSelector(label: context.appText.noOfDays, controller: noOfDays, isMandatory: true),
 
               // Amount
               AppTextField(
+                mandatoryStar: true,
                 controller: detentionAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
 
-                validator: (value) => Validator.fieldRequired(value),
+                validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.amount),
 
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                  LengthLimitingTextInputFormatter(8),
                 ],
               ),
               2.height,
@@ -135,15 +131,17 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
+                mandatoryStar: true,
                 controller: loadingAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
 
-                validator: (value) => Validator.fieldRequired(value),
+                validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.loadingCharges),
 
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                  LengthLimitingTextInputFormatter(8),
                 ],
               ),
 
@@ -151,15 +149,16 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
+                mandatoryStar: true,
                 controller: unloadingAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
-
-                validator: (value) => Validator.fieldRequired(value),
+                validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.unloadingCharges),
 
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                  LengthLimitingTextInputFormatter(8),
                 ],
               ),
 
@@ -217,6 +216,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
         message:  context.appText.notifiedTheConcernTeam,
         onContinue: (){
           getLoadDetails(widget.loadId??"");
+          Navigator.of(context).pop(true);
           Navigator.of(context).pop(true);
           },
       ),
