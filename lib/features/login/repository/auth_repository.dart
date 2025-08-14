@@ -294,10 +294,12 @@ class AuthRepository {
     await _securedSharedPref.resetPreservingLanguage();
     await _securedSharedPref.resetPreservingLanguage();
     await _securedSharedPref.saveBoolean(AppString.sessionKey.aadharVerified, false);
-    clearAllBusinessDocs();
+
     await _notificationService.clearBadgeCount();
     await _notificationService.clearFcmToken();
+    clearAllBusinessDocs();
   }
+
 
   Future<void> clearAllBusinessDocs() async {
     await _securedSharedPref.deleteKey(AppString.sessionKey.gtsinNumber);

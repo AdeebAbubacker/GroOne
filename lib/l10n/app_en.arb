@@ -1077,6 +1077,7 @@
   "shipper":"Shipper",
   "advanceReceived":"Advance Received",
   "balanceReceived":"Balance Received",
-  "paymentStatus":"Payment Status"
+  "paymentStatus":"Payment Status",
+  "errorMessage":"We encountered a problem processing your request.Our team has been notified and is investigating."
 
 }

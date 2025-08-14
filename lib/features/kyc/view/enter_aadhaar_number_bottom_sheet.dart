@@ -167,6 +167,11 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
           requestID = initState?.data?.requestId ?? '123456';
           _checkVerification(initState?.data);
         }
+
+        if (initState?.status == Status.ERROR) {
+          ToastMessages.error(message: context.appText.errorMessage);
+        }
+
         final aadharVerificationResponse = state.aadharVerificationState;
         final docVerificationState = state.docVerificationState;
         if(aadharVerificationResponse?.status==Status.SUCCESS){

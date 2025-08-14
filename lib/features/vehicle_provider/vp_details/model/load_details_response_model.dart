@@ -1527,9 +1527,11 @@ class LoadSettlement {
   final int? amountPerDay;
   final int? loadingCharge;
   final int? unLoadingCharge;
-  final int? debitDamages;
-  final int? debitShortages;
-  final int? debitPenalities;
+
+  final String? debitDamages;
+  final String? debitShortages;
+  final String? debitPenalities;
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
@@ -1559,9 +1561,9 @@ class LoadSettlement {
       amountPerDay: json['amountPerDay'] as int?,
       loadingCharge: json['loadingCharge'] as int?,
       unLoadingCharge: json['unloadingCharge'] as int?,
-      debitDamages: json['debitDamages'] as int?,
-      debitShortages: json['debitShortages'] as int?,
-      debitPenalities: json['debitPenalities'] as int?,
+      debitDamages: json['debitDamages'].toString(),
+      debitShortages: json['debitShortages'].toString(),
+      debitPenalities: json['debitPenalities'].toString(),
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,

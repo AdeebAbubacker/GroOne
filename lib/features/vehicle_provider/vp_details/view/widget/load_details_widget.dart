@@ -1203,6 +1203,49 @@ Widget _submittedSettlementInfoWidget(
   );
 }
 
+
+/// damage information
+// Widget _approvedDamageInformation(
+//   LoadSettlement? loadSettlement,
+//   BuildContext context,
+// ) {
+//   if (loadSettlement == null) {
+//     return SizedBox.shrink();
+//   }
+//   String debitDamages = PriceHelper.formatINR(loadSettlement.debitDamages ?? "",);
+//
+//   String debitShortage =   PriceHelper.formatINR(loadSettlement.debitShortages ?? "");
+//   String debitPenalties= PriceHelper.formatINR(loadSettlement.debitShortages ?? "");
+//
+//
+//
+//   return Padding(
+//     padding: EdgeInsets.only(top: 15),
+//     child: Column(
+//       spacing: 15,
+//       children: [
+//         InformationView(
+//           title:
+//               "${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays ?? 1} ${context.appText.days})",
+//           amount: detentionsAmount,
+//         ),
+//
+//         InformationView(
+//           title: context.appText.loadingCharges,
+//           amount:
+//               PriceHelper.formatINR(loadSettlement.loadingCharge).toString(),
+//         ),
+//
+//         InformationView(
+//           title: context.appText.unloadingCharges,
+//           amount:
+//               PriceHelper.formatINR(loadSettlement.unLoadingCharge).toString(),
+//         ),
+//       ],
+//     ).paddingSymmetric(horizontal: 15),
+//   );
+// }
+
 // Addable Section Header
 Widget _buildAdableSectionHeader({
   required BuildContext context,
