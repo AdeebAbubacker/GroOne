@@ -1,4 +1,6 @@
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import '../../../../data/model/result.dart';
@@ -25,6 +27,27 @@ class VpLoadRepository {
       return service.fetchVpLoadStatus();
     } catch (e) {
       CustomLog.error(this, "Failed to fetch load Status data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Get Truck Type Repo
+  Future<Result<List<TruckTypeModel>>> getTruckTypeData() async {
+    try {
+      return await service.fetchTruckTypeData();
+    } catch (e) {
+      CustomLog.error(this, "Failed to request get truck type data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Get Preferred Truck Lane Data Repo
+  Future<Result<TruckPrefLaneModel>> getPrefTruckLaneData(String? location,{int? page}) async {
+    try {
+      return await service.fetchTruckPrefLaneData(location,currentPage: page);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request get preferred truck lane data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

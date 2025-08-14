@@ -40,4 +40,33 @@ class PreferenceKey {
   final String selectedLanguage = "selected_language";
   final String iskycAdarWebview = "iskycAdarWebview";
   final String customerSeriesId = "customerSeriesId";
+
+
+
+  /// Aadhar KYC
+  final String aadharVerified = "aadharVerified";
+  final String aadharNumber = "aadharNumber";
+  final String aadharPdf = "aadharPdf";
+
+  final String gtsinNumber = "gtsin";
+  final String panNumber = "panNumber";
+  final String tanNumber = "tanNumber";
+
+  final String isGstNumberVerified = "isGstNumberVerified";
+  final String isPanNumberVerified = "isPanNumberVerified";
+  final String isTanNumberVerified = "isTanNumberVerified";
+
+
+  final String panDocUrl = "panDocUrl";
+  final String tanDocUrl = "tanDocUrl";
+  final String gstDocUrl = "gstDocUrl";
+
+  final String panDocId = "panDocId";
+  final String tanDocID = "tanDocID";
+  final String gstDocID = "gstDocID";
+
+
+
+
+
 }

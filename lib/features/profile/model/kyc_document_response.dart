@@ -57,6 +57,7 @@ class Documents {
     required this.chequeDocLinkDetails,
     required this.tdsDocLink,
     required this.tdsDocLinkDetails,
+    required this.aadharDocDetails,
   });
 
   final String aadhar;
@@ -77,6 +78,7 @@ class Documents {
   final NDocLinkDetails? chequeDocLinkDetails;
   final String tdsDocLink;
   final NDocLinkDetails? tdsDocLinkDetails;
+  final NDocLinkDetails? aadharDocDetails;
 
   Documents copyWith({
     String? aadhar,
@@ -97,8 +99,10 @@ class Documents {
     NDocLinkDetails? chequeDocLinkDetails,
     String? tdsDocLink,
     NDocLinkDetails? tdsDocLinkDetails,
+    NDocLinkDetails? aadharDocDetails,
   }) {
     return Documents(
+      aadharDocDetails: aadharDocDetails??this.aadharDocDetails,
       aadhar: aadhar ?? this.aadhar,
       isAadhar: isAadhar ?? this.isAadhar,
       pan: pan ?? this.pan,
@@ -122,6 +126,7 @@ class Documents {
 
   factory Documents.fromJson(Map<String, dynamic> json){
     return Documents(
+      aadharDocDetails:    json["aadharDocLinkDetails"] == null  || json["aadharDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["aadharDocLinkDetails"]),
       aadhar: json["aadhar"] ?? "",
       isAadhar: json["isAadhar"] ?? false,
       pan: json["pan"] ?? "",
@@ -174,6 +179,7 @@ class NDocLinkDetails {
     required this.documentType,
     required this.fileSize,
     required this.createdAt,
+    required this.fileExtension,
   });
 
   final String documentId;
@@ -181,6 +187,7 @@ class NDocLinkDetails {
   final String documentType;
   final String fileSize;
   final DateTime? createdAt;
+  final String? fileExtension;
 
   NDocLinkDetails copyWith({
     String? documentId,
@@ -188,6 +195,7 @@ class NDocLinkDetails {
     String? documentType,
     String? fileSize,
     DateTime? createdAt,
+    String? fileExtension,
   }) {
     return NDocLinkDetails(
       documentId: documentId ?? this.documentId,
@@ -195,6 +203,7 @@ class NDocLinkDetails {
       documentType: documentType ?? this.documentType,
       fileSize: fileSize ?? this.fileSize,
       createdAt: createdAt ?? this.createdAt,
+      fileExtension: fileExtension ?? this.fileExtension,
     );
   }
 
@@ -205,6 +214,7 @@ class NDocLinkDetails {
       documentType: json["documentType"] ?? "",
       fileSize: json["fileSize"] ?? "",
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      fileExtension: json["fileExtension"] ?? "",
     );
   }
 
@@ -214,6 +224,7 @@ class NDocLinkDetails {
     "documentType": documentType,
     "fileSize": fileSize,
     "createdAt": createdAt?.toIso8601String(),
+    "fileExtension": fileExtension,
   };
 
 }

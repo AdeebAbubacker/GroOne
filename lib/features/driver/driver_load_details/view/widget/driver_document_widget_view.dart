@@ -55,8 +55,7 @@ class DriverDocumentWidgetView extends StatelessWidget {
             showDeleteLoader: documentEntity?.deleteLoading,
             onClickDeleteIcon: () {
               // Delete first document; extend if needed to delete specific doc
-              final firstDocId = documentEntity?.loadDocument?.first.loadDocumentId ?? "";
-              driverLoadDetailsCubit?.deleteLoadDocument(firstDocId, index);
+               driverLoadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.first.loadDocumentId??"",index,);
             },
             onClickDownload: () {
               // Download first document; extend if needed

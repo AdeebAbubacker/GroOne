@@ -142,6 +142,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
   // Login Success Popup
   void loginSuccessDialog(BuildContext context, String routeName) {
     AppDialog.show(
+      dismissible: false,
       context,
       child: SuccessDialogView(
         heading: context.appText.loginSuccessfully,
@@ -149,6 +150,21 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
         afterDismiss: () => context.go(routeName),
       ),
     );
+  }
+
+  void validateOtp() {
+    if (otpString.length == 4) {
+      otpBloc.add(
+        OtpRequested(
+          apiRequest: OtpRequest(
+              mobile: widget.mobileNumber,
+              type: 2,
+              otp: int.parse(otpString),
+              driver: widget.isDriver
+          ),
+        ),
+      );
+    }
   }
 
   @override
@@ -258,6 +274,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
                     },
                     onCompleted: (pin) {
                       otpString = pin;
+                      validateOtp();
                       setState(() {});
                     },
                   ).center(),
@@ -268,20 +285,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
                     title: context.appText.verifyCode,
                     isLoading: isLoading,
                     style: otpString.length == 4 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
-                    onPressed: () {
-                      if (otpString.length == 4) {
-                        otpBloc.add(
-                          OtpRequested(
-                            apiRequest: OtpRequest(
-                              mobile: widget.mobileNumber,
-                               type: 2,
-                              otp: int.parse(otpString),
-                             driver: widget.isDriver
-                            ),
-                          ),
-                        );
-                      }
-                    },
+                    onPressed: validateOtp,
                   ),
                   20.height,
 

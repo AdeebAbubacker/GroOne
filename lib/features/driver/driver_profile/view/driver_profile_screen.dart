@@ -5,7 +5,7 @@ import 'package:gro_one_app/features/driver/driver_profile/view/driver_account_s
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_setting_screen.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
-import 'package:gro_one_app/features/profile/view/master_screen.dart';
+import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
 import 'package:gro_one_app/features/profile/view/setting_screen.dart';

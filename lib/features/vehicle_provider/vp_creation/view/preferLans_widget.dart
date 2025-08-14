@@ -50,7 +50,7 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
             labelText: context.appText.preferredLanes,
             hintText: context.appText.searchedLanes,
             onChanged: (p0) {
-              vpCreationCubit.fetchPrefLane(p0);
+              vpCreationCubit.fetchPrefLane(p0,isInit: true);
             },
           ),
           8.height,

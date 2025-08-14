@@ -27,7 +27,7 @@ class TripStatementData {
   final String? advancePercentage;
   final String? balancePercentage;
   final String? balanceAmount;
-  final int? detentions;
+  final String? detentions;
   final LoadSettlement? loadSettlement;
   final String? balanceToBeReceived;
   final LoadProvider? loadProvider;
@@ -74,7 +74,7 @@ class TripStatementData {
       advancePercentage: json['advancePercentage'] as String?,
       balancePercentage: json['balancePercentage'] as String?,
       balanceAmount: json['balanceAmount'] as String?,
-      detentions: json['detentions'] as int?,
+      detentions: json['detentions'].toString(),
       loadSettlement: json['loadSettlement'] != null
           ? LoadSettlement.fromJson(json['loadSettlement'])
           : null,

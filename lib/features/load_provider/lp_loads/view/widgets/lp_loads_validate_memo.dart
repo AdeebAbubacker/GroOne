@@ -104,7 +104,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
                         final message = otpState?.data?.message ?? "";
                         if (context.mounted) {
                           ToastMessages.success(message: message);
-                          AppDialog.show(context, child: MemoOtpDialogWidget(
+                          AppDialog.show(context,dismissible: false, child: MemoOtpDialogWidget(
                               parentContext: context, loadId: widget.loadId));
                         }
                         setState(() {});

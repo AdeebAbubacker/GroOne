@@ -198,9 +198,10 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
           ],
         );
 
-      } else {
+      }
+          else {
             // When No file selected
-        return Column(
+           return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 

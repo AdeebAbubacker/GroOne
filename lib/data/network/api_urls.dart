@@ -86,6 +86,7 @@ class ApiUrls {
   static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
   static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
   static final String  panVerification = "https://groone-uat.letsgro.co/pan/api/v1/send_pan";
+  static final String  verifiedDocument = "$_baseUrl$_customer$_path$_v1/kyc/verify-doc-number";
 
 
 
@@ -260,7 +261,7 @@ class ApiUrls {
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
   static final String getTicketList = "$_baseUrl$_customer$_path$_v1/support-ticket/";
   static final String createTicket = "$_baseUrl$_customer$_path$_v1/support-ticket/";
-
+  static final String createVehicle = "$_baseUrl$_customer$_path$_v1/vehicle";
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
   static final String checkVehicleNumber = "$_fetchUrl$_customer$_path$_v1/vehicle/check/vehicle-no/";
   static final String checkLicenseNumber = "$_fetchUrl$_customer$_path$_v1/drivers/check-license/";

@@ -468,7 +468,7 @@ class ProfileService {
     required VehicleRequest request,
   }) async {
     try {
-      final url = ApiUrls.getVehicleList + "add";
+      final url = ApiUrls.createVehicle;
       final response = await _apiService.post(url, body: request.toJson());
       if (response is Success) {
         final loads = VehicleNewModel.fromJson(response.value);
@@ -890,7 +890,7 @@ class ProfileService {
     try {
       // === Step 1: Hit API-2 (Check if vehicle exists) ===
       print('=== Step 1: Hit API-2 (Check if vehicle exists) ===');
-      final url = '${ApiUrls.checkVehicleNumber}/$vehicleNumber';
+      final url = '${ApiUrls.checkVehicleNumber}$vehicleNumber';
 
       final api2Response = await _apiService.get(url);
 
