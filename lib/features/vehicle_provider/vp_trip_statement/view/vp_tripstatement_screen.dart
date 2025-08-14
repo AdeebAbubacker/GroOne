@@ -90,8 +90,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
   }
 
   Widget buildTripStatementView(TripStatementResponse? tripStatement){
-
-  return Expanded(
+    return Expanded(
     child: RefreshIndicator(
       onRefresh: () async {
         await _fetchTripStatement();
@@ -118,10 +117,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
 
   /// Main Details
   Widget buildMainDetailWidget({required BuildContext context,TripStatementResponse? tripStatement}) {
-    LoadSettlement? loadSettlement=tripStatement?.data?.loadSettlement;
     TripStatementData? statementData= tripStatement?.data;
-
-
     final detentionsAmount = PriceHelper.formatINR(
       statementData?.detentions.toString(),
     );
@@ -140,11 +136,11 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           buildDTripStatementWidget(
             label: context.appText.shipper,
-            value: statementData?.transporter??"",
+            value: statementData?.shipper??"",
           ),
           buildDTripStatementWidget(
             label: context.appText.vehicleNumber,
-            value: statementData?.vehicleNumber??"",
+            value: formatVehicleNumber(statementData?.vehicleNumber??""),
           ),
           buildDTripStatementWidget(
             label: "${context.appText.memo}#",
@@ -156,52 +152,60 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           buildDTripStatementWidget(
             label: context.appText.totalTransportationCost,
-            value: tripStatement?.data?.totalTransportationCost??"",
+            value: PriceHelper.formatINR(  tripStatement?.data?.totalTransportationCost??""),
+
+
           ),
 
           buildDTripStatementWidget(
             label: "${context.appText.advance} (${statementData?.advancePercentage??""}%)",
-            value: statementData?.advanceAmount??"",
+            value: PriceHelper.formatINR(  statementData?.advanceAmount??""),
           ),
-          if(loadSettlement?.debitDamages!=null)
+
           buildDTripStatementWidget(
             label: context.appText.damageCharges,
-            value: '(-) ${loadSettlement?.debitDamages??"--"}',
-            isNegative: true,
+            value: '(-) ${PriceHelper.formatINR( statementData?.damages??"")}',
+            isNegative: true
           ),
-          if(loadSettlement?.debitShortages!=null)
+
           buildDTripStatementWidget(
             label: context.appText.shortages,
-            value: '(-) ${loadSettlement?.debitShortages??"--"}',
+            value:"(-) ${PriceHelper.formatINR( statementData?.shortages??"")}",
             isNegative: true,
           ),
           buildDTripStatementWidget(
             label: context.appText.penalty,
-            value: '(-) 0',
+            value: '(-) ${PriceHelper.formatINR(statementData?.penalties??"")}',
             isNegative: true,
           ),
-          if(loadSettlement?.loadingCharge!=null)
+
+          buildDTripStatementWidget(
+            label: "${context.appText.platformFee } + ${statementData?.platformFeeGstPercentage}% ${context.appText.gst}",
+            value: '(-) ${PriceHelper.formatINR(statementData?.platformFeeWithGst??"")}',
+            isNegative: true,
+          ),
+
           buildDTripStatementWidget(
             label: context.appText.loadingCharges,
-            value: loadSettlement?.loadingCharge.toString() ??"",
+            value: PriceHelper.formatINR(statementData?.loading??""),
           ),
-          if(loadSettlement?.unloadingCharge!=null)
+
           buildDTripStatementWidget(
             label: context.appText.unloadingCharges,
-            value: loadSettlement?.unloadingCharge.toString() ??"",
+            value: PriceHelper.formatINR( statementData?.unloading??"")
           ),
-          if(loadSettlement?.loadingCharge!=null)
+
           buildDTripStatementWidget(
             label: context.appText.detentions,
             value: detentionsAmount,
           ),
           buildDTripStatementWidget(
             label:  context.appText.advancedReceived,
-            value: tripStatement?.data?.advanceReceived??"--",
+            value: PriceHelper.formatINR(tripStatement?.data?.advanceReceived??""),
           ),
           buildDTripStatementWidget(
             label: context.appText.balanceToBeReceived,
-            value: statementData?.balanceToBeReceived??"",
+            value:PriceHelper.formatINR(statementData?.balanceToBeReceived??""),
           ),
         ],
       ),
@@ -260,18 +264,27 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: AppTextStyle.body3).expand(),
+        Text(label,
+
+          maxLines: 1,
+          style: AppTextStyle.body3.copyWith(
+          fontSize: 14,
+          color: AppColors.textBlackDetailColor,
+
+        ),),
         Align(
-          alignment: Alignment.centerRight,
+          alignment: Alignment.centerLeft,
           child: Text(
              value,
+            maxLines: 1,
             textAlign: TextAlign.right,
-            style: AppTextStyle.body2.copyWith(
+             style: AppTextStyle.body2.copyWith(
               fontSize: 15,
-              color: isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
+              fontWeight: FontWeight.w600,
+               color: isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
             ),
           ),
-        ).expand(),
+        )
       ],
     );
   }

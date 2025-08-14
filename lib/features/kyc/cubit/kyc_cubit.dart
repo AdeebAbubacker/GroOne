@@ -206,10 +206,6 @@ class KycCubit extends BaseCubit<KycState> {
    bool? isTanNumberVerified= await  securePrefs.getBooleans(AppString.sessionKey.isTanNumberVerified);
 
 
-   print("isGtsNumberVerified is ${isGtsNumberVerified}");
-   print("isPanVerified is ${isPanVerified}");
-   print("isTanNumberVerified is ${isTanNumberVerified}");
-
    emit(state.copyWith(
        verifiedGst:isGtsNumberVerified ,
        verifiedTan: isTanNumberVerified,

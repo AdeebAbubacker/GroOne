@@ -300,6 +300,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                 ).paddingSymmetric(horizontal: 20),
                               ),
 
+                              _approvedDamageInformation(loadDetails?.loadSettlement,context),
+
                               20.height,
                               _buildAdableSectionHeader(
                                 context: context,
@@ -753,22 +755,17 @@ class LoadDetailsWidget extends StatelessWidget {
                   ),
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
+                    loadDetails?.podDispatch
                   ),
                   onSubmit: () async {
-                    if (state.loadStatus == LoadStatus.podDispatched) {
-                      bool isPodAdded = await Navigator.push(
+                    if (state.loadStatus == LoadStatus.podDispatched && loadDetails?.podDispatch==null) {
+                      await  Navigator.push(
                         context,
                         commonRoute(
                           VpPodDispatchScreen(loadId: loadDetails?.loadId),
                         ),
                       );
-                      if (isPodAdded) {
-                        changeLoadStatus(
-                          context,
-                          loadDetails?.loadId.toString(),
-                          loadStatus: (state.loadStatusId ?? 0) + 1,
-                        );
-                      }
+                      getLoadDetails(loadDetails?.loadId??"");
                       return;
                     }
 
@@ -850,8 +847,6 @@ class LoadDetailsWidget extends StatelessWidget {
     PodDispatch? podDispatched,
     BuildContext context,
   ) {
-    print("podDispatched data ${podDispatched}");
-
     if (podDispatched == null) {
       return SizedBox.shrink();
     }
@@ -1205,46 +1200,43 @@ Widget _submittedSettlementInfoWidget(
 
 
 /// damage information
-// Widget _approvedDamageInformation(
-//   LoadSettlement? loadSettlement,
-//   BuildContext context,
-// ) {
-//   if (loadSettlement == null) {
-//     return SizedBox.shrink();
-//   }
-//   String debitDamages = PriceHelper.formatINR(loadSettlement.debitDamages ?? "",);
-//
-//   String debitShortage =   PriceHelper.formatINR(loadSettlement.debitShortages ?? "");
-//   String debitPenalties= PriceHelper.formatINR(loadSettlement.debitShortages ?? "");
-//
-//
-//
-//   return Padding(
-//     padding: EdgeInsets.only(top: 15),
-//     child: Column(
-//       spacing: 15,
-//       children: [
-//         InformationView(
-//           title:
-//               "${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays ?? 1} ${context.appText.days})",
-//           amount: detentionsAmount,
-//         ),
-//
-//         InformationView(
-//           title: context.appText.loadingCharges,
-//           amount:
-//               PriceHelper.formatINR(loadSettlement.loadingCharge).toString(),
-//         ),
-//
-//         InformationView(
-//           title: context.appText.unloadingCharges,
-//           amount:
-//               PriceHelper.formatINR(loadSettlement.unLoadingCharge).toString(),
-//         ),
-//       ],
-//     ).paddingSymmetric(horizontal: 15),
-//   );
-// }
+Widget _approvedDamageInformation(
+  LoadSettlement? loadSettlement,
+  BuildContext context,
+) {
+  if (loadSettlement == null) {
+    return SizedBox.shrink();
+  }
+  String debitDamages =  (loadSettlement.debitDamages??"").isNotEmpty && loadSettlement.debitDamages!.trim()!="0" ?  PriceHelper.formatINR(loadSettlement.debitDamages ?? "",):"";
+  String debitShortage =  (loadSettlement.debitShortages ?? "").isNotEmpty  && loadSettlement.debitShortages!.trim() !="0" ?  PriceHelper.formatINR(loadSettlement.debitShortages ?? ""):"";
+  String debitPenalties=  (loadSettlement.debitPenalities ?? "").isNotEmpty && loadSettlement.debitPenalities!.trim()!="0" ?  PriceHelper.formatINR(loadSettlement.debitPenalities ?? ""):"";
+
+
+  return Column(
+    spacing: 15,
+    children: [
+      if(debitDamages.isNotEmpty || debitShortage.isNotEmpty || debitPenalties.isNotEmpty)
+      ...[
+        10.height,
+      ],
+      if(debitDamages.isNotEmpty)
+      InformationView(
+        title: context.appText.damage,
+        amount: debitDamages,
+      ),
+      if(debitShortage.isNotEmpty)
+      InformationView(
+        title: context.appText.shortage,
+        amount: debitShortage
+      ),
+      if(debitPenalties.isNotEmpty)
+      InformationView(
+        title:context.appText.penalties,
+        amount: debitPenalties
+      ),
+    ],
+  ).paddingSymmetric(horizontal: 15);
+}
 
 // Addable Section Header
 Widget _buildAdableSectionHeader({

@@ -251,6 +251,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       children: [
         // Name
         AppTextField(
+
           validator: (value) => Validator.fieldRequired(value),
           controller: nameTextController,
           labelText: context.appText.fullName,
@@ -701,6 +702,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               multiFilesList: multiFilesList,
               title: context.appText.uploadRC,
+              isMandatory: true,
               isSingleFile: true,
               isLoading: isLoading,
               thenUploadFileToSever: () {
