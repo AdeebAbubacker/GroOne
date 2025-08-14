@@ -111,3 +111,38 @@ class MasterDriverDropDownHelper {
     return null;
   }
 }
+
+
+
+
+
+String convertToYMD(String dateStr) {
+  dateStr = dateStr.trim();
+
+  final formats = [
+    'dd/MM/yyyy',
+    'dd-MM-yyyy',
+    'MM/dd/yyyy',
+    'MM-dd-yyyy',
+    'yyyy/MM/dd',
+    'yyyy-MM-dd',
+    'dd MMM yyyy',
+    'MMM dd, yyyy',
+  ];
+
+  for (var format in formats) {
+    try {
+      final parsedDate = DateFormat(format).parseStrict(dateStr);
+      // Format as year-month-day with hyphens
+      return DateFormat('yyyy-MM-dd').format(parsedDate);
+    } catch (_) {}
+  }
+
+  // Fallback to ISO parse
+  try {
+    final parsedDate = DateTime.parse(dateStr);
+    return DateFormat('yyyy-MM-dd').format(parsedDate);
+  } catch (_) {}
+
+  return 'Invalid date';
+}
