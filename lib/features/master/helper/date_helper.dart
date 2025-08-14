@@ -111,3 +111,37 @@ class MasterDriverDropDownHelper {
     return null;
   }
 }
+
+
+
+
+String convertToYMD(String dateStr) {
+  try {
+    // Attempt to parse using DateTime.parse first (ISO strings)
+    DateTime parsedDate = DateTime.parse(dateStr);
+    return DateFormat('yyyy-MM-dd').format(parsedDate);
+  } catch (_) {
+    // Fallback: try common formats
+    final formats = [
+      'dd/MM/yyyy',
+      'dd-MM-yyyy',
+      'MM/dd/yyyy',
+      'MM-dd-yyyy',
+      'yyyy/MM/dd',
+      'yyyy-MM-dd',
+      'dd MMM yyyy',
+      'MMM dd, yyyy',
+    ];
+
+    for (var format in formats) {
+      try {
+        DateTime parsedDate = DateFormat(format).parseStrict(dateStr);
+        return DateFormat('yyyy-MM-dd').format(parsedDate);
+      } catch (_) {}
+    }
+  }
+
+  // If all fails
+  return 'Invalid date';
+}
+

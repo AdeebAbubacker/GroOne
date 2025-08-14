@@ -90,37 +90,70 @@ class _buildAddressTabState extends State<buildAddressTab> {
               }
 
               if (uiState.status == Status.ERROR) {
-                return genericErrorWidget(error: uiState.errorType);
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<ProfileCubit>().fetchAddress(isLoading: true);
+                  },
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: Column(
+                          children: [
+                            genericErrorWidget(error: uiState.errorType),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                );
               }
 
               final addressList = uiState.data?.addresses ?? [];
 
               if (addressList.isEmpty) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SvgPicture.asset(
-                            AppImage.svg.noSearchFound,
-                            height: 120,
+                return RefreshIndicator(
+                   onRefresh: () async {
+                  context.read<ProfileCubit>().fetchAddress(isLoading: true);
+                }, 
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Center(
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    SvgPicture.asset(
+                                      AppImage.svg.noSearchFound,
+                                      height: 120,
+                                    ),
+                                    20.height,
+                                    Text(
+                                      context.appText.noAddressFound,
+                                      style: AppTextStyle.h5,
+                                    ),
+                                    10.height,
+                                    Text(
+                                      context.appText.startByAddingANewAddress,
+                                      style: AppTextStyle.body3,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          20.height,
-                          Text(
-                            context.appText.noAddressFound,
-                            style: AppTextStyle.h5,
-                          ),
-                          10.height,
-                          Text(
-                            context.appText.startByAddingANewAddress,
-                            style: AppTextStyle.body3,
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 );
               }
 
@@ -306,9 +339,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                   state: selectedState ?? "",
                   pincode: pinCodeController.text.trim(),
                   isDefault:
-                      isEdit
-                          ? address.isDefault
-                          : existingAddresses.isEmpty,
+                      isEdit ? address.isDefault : existingAddresses.isEmpty,
                 );
 
                 if (isEdit) {

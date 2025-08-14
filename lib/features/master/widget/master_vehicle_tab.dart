@@ -110,7 +110,26 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
               }
 
               if (uiState.status == Status.ERROR) {
-                return genericErrorWidget(error: uiState.errorType);
+                return RefreshIndicator(
+                  onRefresh: () async {
+                  context.read<ProfileCubit>().fetchVehicle(isLoading: true);
+                },      
+                  child: ListView(
+                     physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5, 
+                    child: Center( 
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                         genericErrorWidget(error: uiState.errorType)
+                        ],
+                      ),
+                    ),
+                    ),
+                    ],
+                  ));
               }
 
               final vehicleList = uiState.data?.data ?? [];
@@ -120,20 +139,34 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                       .toList();
 
               if (filteredVehicleList.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                return RefreshIndicator(
+                   onRefresh: () async {
+                  context.read<ProfileCubit>().fetchVehicle(isLoading: true);
+                }, 
+                  child: ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     children: [
-                      SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
-                      20.height,
-                      Text(
-                        context.appText.noVehiclesFound,
-                        style: AppTextStyle.h5,
-                      ),
-                      10.height,
-                      Text(
-                        context.appText.startByAddingANewVehicle,
-                        style: AppTextStyle.body3,
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset(AppImage.svg.noSearchFound, height: 120),
+                              20.height,
+                              Text(
+                                context.appText.noVehiclesFound,
+                                style: AppTextStyle.h5,
+                              ),
+                              10.height,
+                              Text(
+                                context.appText.startByAddingANewVehicle,
+                                style: AppTextStyle.body3,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -142,7 +175,6 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
 
               return RefreshIndicator(
                 onRefresh: () async {
-                  // Reset page count if you are paginating
                   context.read<ProfileCubit>().fetchVehicle(isLoading: true);
                 },
                 child: NotificationListener<ScrollNotification>(
@@ -685,11 +717,11 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
                   ownerName: owenerNameController.text,
-                  fcExpiryDate: fcExpiryDate,
+                  fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                   insurancePolicyNumber: insurancePolicyNumber.text,
-                  pucExpiryDate: pucExpiryDate,
-                  registrationDate: registrationDate,
-                  insuranceValidityDate: insuranceValidityDate,
+                  pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
+                  registrationDate: convertToYMD(registrationDate.toString()),
+                  insuranceValidityDate: convertToYMD(insuranceValidityDate.toString()),
                 );
 
                 if (isEdit) {
@@ -700,10 +732,10 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                       truckNo: truckNumberController.text.trim(),
                       tonnage: selectedWeightDropDownValue,
                       truckTypeId: selectedTruckType?.id ?? 1,
-                      fcExpiryDate: fcExpiryDate,
-                      insuranceValidityDate: insuranceValidityDate,
-                      pucExpiryDate: pucExpiryDate,
-                      registrationDate: registrationDate,
+                      fcExpiryDate:convertToYMD(fcExpiryDate.toString()),
+                      insuranceValidityDate: convertToYMD(insuranceValidityDate.toString()),
+                      pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
+                      registrationDate: convertToYMD(registrationDate.toString()),
                       insurancePolicyNumber: insurancePolicyNumber.text,
                       ownerName: owenerNameController.text,
                       modelNumber: truckMakeModelController.text,

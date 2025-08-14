@@ -389,13 +389,36 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         }
 
         if (uiState.status == Status.ERROR) {
-          return genericErrorWidget(error: uiState.errorType);
+          return RefreshIndicator(
+          onRefresh: _onPullToRefresh,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.8,
+                child:  genericErrorWidget(error: uiState.errorType),
+              ),
+            ],
+          ),
+        );
+         
         }
 
         final loadList = uiState.data?.data ?? [];
 
         if (loadList.isEmpty) {
-          return genericErrorWidget(error: NotFoundError());
+          return RefreshIndicator(
+          onRefresh: _onPullToRefresh,
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: [
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.8,
+                child: genericErrorWidget(error: NotFoundError()),
+              ),
+            ],
+          ),
+        );
         }
 
         return NotificationListener<ScrollNotification>(

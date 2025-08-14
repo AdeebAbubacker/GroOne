@@ -112,37 +112,65 @@ class _buildDriverTabState extends State<buildDriverTab> {
               }
 
               if (uiState.status == Status.ERROR) {
-                return genericErrorWidget(error: uiState.errorType);
+                  return RefreshIndicator(
+                   onRefresh: () async {
+                  await profileCubit.fetchDriver(isLoading: true);
+                },
+                  child: ListView(
+                     physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.5, 
+                    child: Center( 
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          genericErrorWidget(error: uiState.errorType)
+                        ],
+                      ),
+                    ),
+                    ),
+                    ],
+                  ),
+                );                         
               }
 
               final driverList = uiState.data?.data ?? [];
 
               if (driverList.isEmpty) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          SvgPicture.asset(
-                            AppImage.svg.noSearchFound,
-                            height: 120,
-                          ),
-                          20.height,
-                          Text(
-                            context.appText.noDriversfound,
-                            style: AppTextStyle.h5,
-                          ),
-                          10.height,
-                          Text(
-                            context.appText.startByAddingANewDriver,
-                            style: AppTextStyle.body3,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
+                return RefreshIndicator(
+                   onRefresh: () async {
+                  await profileCubit.fetchDriver(isLoading: true);
+                },
+                  child: ListView(
+                     physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+          height: MediaQuery.of(context).size.height * 0.5, 
+          child: Center( 
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SvgPicture.asset(
+                  AppImage.svg.noSearchFound,
+                  height: 120,
+                ),
+                20.height,
+                Text(
+                  context.appText.noDriversfound,
+                  style: AppTextStyle.h5,
+                ),
+                10.height,
+                Text(
+                  context.appText.startByAddingANewDriver,
+                  style: AppTextStyle.body3,
+                ),
+              ],
+            ),
+          ),
+        ),
+                    ],
+                  ),
                 );
               }
 
@@ -643,8 +671,8 @@ class _buildDriverTabState extends State<buildDriverTab> {
                   email: emailController.text,
                   licenseNumber: licenseNumberController.text,
                   licenseDocLink: rcDocLink,
-                  licenseExpiryDate: licenseExpiryIso ?? '',
-                  dateOfBirth: dateOfBirthIso ?? '',
+                  licenseExpiryDate: convertToYMD(licenseExpiryIso.toString()),
+                  dateOfBirth: convertToYMD(dateOfBirthIso.toString()),
                   licenseCategory: selectedLicneseId,
                   bloodGroup: selectedBloodId,
                   driverStatus: isActive ? 1 : 2,

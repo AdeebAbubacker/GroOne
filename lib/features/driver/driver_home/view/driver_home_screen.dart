@@ -592,6 +592,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           } else if (state is DriverLoadStatusChangeFailed) {
             ToastMessages.error(message: "Failed to update load status");
+            _loadDataByTab(index: tabIndex, forceRefresh: true);
           }
         },
         builder: (context, state) {
