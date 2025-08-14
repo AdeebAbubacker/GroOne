@@ -196,6 +196,9 @@ class ApiUrls {
   static final String gpsOrderSummary = "$_baseUrl$_fleet$_path$_v1/orders/order-summary";
   static final String gpsCustomerOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
 
+  ///Fastag
+  static final String fastagAddVehicle = "$_fetchUrl$_vendor$_path$_v1/fast-tag/addVehicle";
+
   ///Gps and kavach payment initate
   static final String fleetPayment = "$_fetchUrl$_paymentBroker$_path$_v1/payment/initiate";
 

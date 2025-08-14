@@ -1,6 +1,9 @@
+import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/gps_feature/views/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -11,17 +14,15 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/app_json.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:lottie/lottie.dart';
-import '../../../routing/app_route_name.dart';
+import '../../../data/model/result.dart';
 import '../../../utils/app_dialog.dart';
-import '../../../utils/app_image.dart';
+import '../../../utils/validator.dart';
+import '../../en-dhan_fuel/widgets/endhan_document_upload_widget.dart';
+import '../cubit/fastag_cubit.dart';
 import 'fastag_list_screen.dart';
 import '../../kavach/view/widgets/vehicle_selection_field.dart';
 import '../../../utils/toast_messages.dart';
@@ -34,21 +35,13 @@ class BuyNewFastagScreen extends StatefulWidget {
 }
 
 class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
-  final TextEditingController _vehicleNumberController =
-      TextEditingController();
   bool _isLoading = false;
-  final bool _isVehicleVerified = false;
-
   final TextEditingController _referralCodeController = TextEditingController();
-  final List<TextEditingController> _vehicleControllers = [TextEditingController()];
+  final List<TextEditingController> _vehicleControllers = [
+    TextEditingController(),
+  ];
   final List<bool> _vehicleVerifiedList = [false];
 
-
-  // @override
-  // void dispose() {
-  //   _vehicleNumberController.dispose();
-  //   super.dispose();
-  // }
   @override
   void dispose() {
     _referralCodeController.dispose();
@@ -58,6 +51,14 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     super.dispose();
   }
 
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<FastagCubit>().resetRcDocuments();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -107,15 +108,10 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             10.height,
-            Container(
-              color: AppColors.white,
-              padding: EdgeInsets.all(commonSafeAreaPadding),
-              child: AppTextField(
-                labelText: 'Referral Code (Optional)',
-                controller: _referralCodeController,
-                hintText: 'Enter referral code',
-              )
-            ),
+            ReferralAutoCompleteTextField(
+              controller: _referralCodeController,
+              labelText: 'Referral Code (Optional)',
+            ).paddingAll(commonSafeAreaPadding),
             15.height,
 
             // Vehicle Sections
@@ -137,7 +133,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                 },
                 child: Text(
                   '+ Add more Vehicle',
-                  style: AppTextStyle.primaryColor16w400
+                  style: AppTextStyle.primaryColor16w400,
                 ),
               ),
             ),
@@ -192,97 +188,90 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
             },
           ),
           const SizedBox(height: 16),
-          Text('Vehicle RC (optional)', style:AppTextStyle.textFiled),
+          Text('Vehicle RC (optional)', style: AppTextStyle.textFiled),
           const SizedBox(height: 8),
           Row(
             children: [
-              Expanded(child: _buildUploadBox('Front Side of RC')),
-              const SizedBox(width: 12),
-              Expanded(child: _buildUploadBox('Back Side of RC')),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
+              Expanded(
+                child: BlocBuilder<FastagCubit, FastagState>(
+                  builder: (context, state) {
+                    final cubit = context.read<FastagCubit>();
 
-
-
-  // Widget _buildContent() {
-  //   return SingleChildScrollView(
-  //     padding: EdgeInsets.all(commonSafeAreaPadding),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         // Vehicle Number Section
-  //         _buildSectionTitle('Vehicle Number'),
-  //         const SizedBox(height: 8),
-  //
-  //         // Vehicle Selection Field
-  //         VehicleSelectionField(
-  //           controller: _vehicleNumberController,
-  //           hintText: context.appText.selectVehicleNumber,
-  //           index: 0,
-  //           isVerified: _isVehicleVerified,
-  //           isVehicleAlreadySelected: false,
-  //           onVehicleSelected: (selectedIndex, selectedVehicle) {
-  //             setState(() {
-  //               _vehicleNumberController.text = selectedVehicle;
-  //               _isVehicleVerified = true;
-  //             });
-  //             ToastMessages.success(message: 'Vehicle selected successfully');
-  //           },
-  //           onVehicleVerified: (verifiedVehicle) {
-  //             setState(() {
-  //               _isVehicleVerified = verifiedVehicle.isNotEmpty;
-  //             });
-  //           },
-  //         ),
-  //
-  //         const SizedBox(height: 24),
-  //
-  //         // Vehicle RC Section
-  //         _buildSectionTitle('Vehicle RC (optional)'),
-  //         const SizedBox(height: 8),
-  //         Row(
-  //           children: [
-  //             Expanded(child: _buildUploadBox('Front Side of RC')),
-  //             const SizedBox(width: 12),
-  //             Expanded(child: _buildUploadBox('Back Side of RC')),
-  //           ],
-  //         ),
-  //
-  //         const SizedBox(height: 24),
-  //
-  //         // Issued by IDFC Bank Section
-  //         _buildIdfcSection(),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-
-  Widget _buildUploadBox(String label) {
-    return Container(
-      padding: EdgeInsets.all(15),
-      decoration: commonContainerDecoration(borderColor: AppColors.borderColor,color: AppColors.white),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            style: AppTextStyle.bodyGreyColor,
-            textAlign: TextAlign.center,
-          ),
-          5.height,
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.upload, color: AppColors.primaryColor, size: 24),
-              5.width,
-              Text(
-                'Upload',
-                style: AppTextStyle.primaryColor12w400,
+                    return Row(
+                      children: [
+                        Expanded(
+                          child: EndhanDocumentUploadWidget(
+                            feildTitle: 'Front Side of RC',
+                            multiFilesList: state.frontRcDocuments,
+                            isSingleFile: true,
+                            onFilesChanged: (newList) async {
+                              cubit.updateFrontRc(newList);
+                              if (newList.isEmpty) {
+                                cubit.setFrontRcUploaded(false);
+                                return;
+                              }
+                              final filePath = newList.first['path'];
+                              if (filePath != null) {
+                                final uploadResponse = await cubit
+                                    .uploadDocument(File(filePath));
+                                if (uploadResponse?.data?.url != null) {
+                                  cubit.updateFrontRc([
+                                    {
+                                      'fileName': uploadResponse!.data!.url!,
+                                      'path': uploadResponse.data!.url!,
+                                    },
+                                  ]);
+                                  cubit.setFrontRcUploaded(true);
+                                  ToastMessages.success(
+                                    message: 'Front RC uploaded',
+                                  );
+                                } else {
+                                  cubit.setFrontRcUploaded(false);
+                                  ToastMessages.alert(message: 'Upload failed');
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: EndhanDocumentUploadWidget(
+                            feildTitle: 'Back Side of RC',
+                            multiFilesList: state.backRcDocuments,
+                            isSingleFile: true,
+                            onFilesChanged: (newList) async {
+                              cubit.updateBackRc(newList);
+                              if (newList.isEmpty) {
+                                cubit.setBackRcUploaded(false);
+                                return;
+                              }
+                              final filePath = newList.first['path'];
+                              if (filePath != null) {
+                                final uploadResponse = await cubit
+                                    .uploadDocument(File(filePath));
+                                if (uploadResponse?.data?.url != null) {
+                                  cubit.updateBackRc([
+                                    {
+                                      'fileName': uploadResponse!.data!.url!,
+                                      'path': uploadResponse.data!.url!,
+                                    },
+                                  ]);
+                                  cubit.setBackRcUploaded(true);
+                                  ToastMessages.success(
+                                    message: 'Back RC uploaded',
+                                  );
+                                } else {
+                                  cubit.setBackRcUploaded(false);
+                                  ToastMessages.alert(message: 'Upload failed');
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
             ],
           ),
@@ -291,76 +280,105 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     );
   }
 
-  // void _handlePlaceRequest() async {
-  //   // Validate vehicle selection
-  //   if (_vehicleNumberController.text.trim().isEmpty) {
-  //     ToastMessages.alert(message: 'Please select a vehicle');
-  //     return;
-  //   }
-  //
-  //   if (!_isVehicleVerified) {
-  //     ToastMessages.alert(message: 'Please verify the vehicle number');
-  //     return;
-  //   }
-  //
-  //   setState(() {
-  //     _isLoading = true;
-  //   });
-  //
-  //   // Simulate API call
-  //   await Future.delayed(const Duration(seconds: 2));
-  //
-  //   setState(() {
-  //     _isLoading = false;
-  //   });
-  //
-  //   // Show success popup by default
-  //   _showSuccessPopup(context);
-  // }
-
-  void _handlePlaceRequest() async {
-    // Validate all vehicle numbers
+  void _handlePlaceRequest() {
     for (int i = 0; i < _vehicleControllers.length; i++) {
-      final vehicleNumber = _vehicleControllers[i].text.trim();
-      final isVerified = _vehicleVerifiedList[i];
-
-      if (vehicleNumber.isEmpty) {
-        ToastMessages.alert(message: 'Please enter vehicle number for Vehicle ${i + 1}');
-        return;
-      }
-
-      if (!isVerified) {
+      if (_vehicleControllers[i].text.trim().isEmpty ||
+          !_vehicleVerifiedList[i]) {
         ToastMessages.alert(message: 'Please verify Vehicle ${i + 1}');
         return;
       }
     }
 
-    setState(() {
-      _isLoading = true;
-    });
-
-    // Simulate API call
-    await Future.delayed(const Duration(seconds: 2));
-
-    setState(() {
-      _isLoading = false;
-    });
-
-    _showSuccessPopup(context);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: AppColors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: ContactAddressSheet(
+            onSubmit: (addressName, address, city, state, pincode, contactNo) {
+              _submitFastagRequest(
+                addressName: addressName,
+                address: address,
+                city: city,
+                state: state,
+                pincode: pincode,
+                contactNo: contactNo,
+              );
+            },
+          ),
+        );
+      },
+    );
   }
 
+  void _submitFastagRequest({
+    required String addressName,
+    required String address,
+    required String city,
+    required String state,
+    required String pincode,
+    required String contactNo,
+  }) async {
+    setState(() => _isLoading = true);
+
+    final cubit = context.read<FastagCubit>();
+
+    List<Map<String, String>> vehiclesData = [
+      for (int i = 0; i < _vehicleControllers.length; i++)
+        {
+          "vehicleNo": _vehicleControllers[i].text.trim(),
+          "rcFrontPage":
+              cubit.state.frontRcDocuments.isNotEmpty
+                  ? cubit.state.frontRcDocuments.first['fileName']
+                  : "",
+          "rcBackPage":
+              cubit.state.backRcDocuments.isNotEmpty
+                  ? cubit.state.backRcDocuments.first['fileName']
+                  : "",
+        },
+    ];
+
+    final result = await cubit.placeFastagOrder(
+      referralCode: _referralCodeController.text.trim(),
+      addressName: addressName,
+      address: address,
+      city: city,
+      stateName: state,
+      pincode: pincode,
+      contactNo: contactNo,
+      vehicles: vehiclesData,
+    );
+
+    setState(() => _isLoading = false);
+
+    if (result is Success) {
+      _showSuccessPopup(context);
+    } else if (result is Error<bool>) {
+      String errorMessage = "FASTag Request Failed. Please try again later.";
+      if (result.type is ErrorWithMessage) {
+        errorMessage = (result.type as ErrorWithMessage).message ?? errorMessage;
+      }
+      // _showFailurePopup(errorMessage);
+      ToastMessages.error(message: errorMessage);
+    }
+
+  }
 
   void _showSuccessPopup(BuildContext context) {
-    final currentContext = context;
     AppDialog.show(
       context,
       child: SuccessDialogView(
         heading: 'FASTag Request \nSubmitted Successfully!',
         message: 'Our Team will reach out in 48 hrs',
         afterDismiss: () {
-          // if (currentContext.mounted) {
-          //      GoRouter.of(currentContext).go(AppRouteName.fastagList);
-          // }
+          context.read<FastagCubit>().resetRcDocuments();
           Navigator.pop(context);
           Navigator.push(context, commonRoute(FastagListScreen()));
         },
@@ -368,51 +386,214 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     );
   }
 
-  void _showFailurePopup() {
+  void _showFailurePopup(String message) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder:
-          (context) => Dialog(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
+      builder: (context) => Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            20.height,
+            AppIconButton(
+              onPressed: () => Navigator.of(context).pop(),
+              icon: Icons.close,
+            ).align(Alignment.topRight),
+            10.height,
+            Text(
+              'FASTag Request',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.h3.copyWith(
+                color: AppColors.activeRedColor,
+                fontSize: 25,
+              ),
             ),
+            10.height,
+            Text(
+              'Unsuccessful!',
+              textAlign: TextAlign.center,
+              style: AppTextStyle.h3.copyWith(
+                color: AppColors.activeRedColor,
+                fontSize: 25,
+              ),
+            ),
+            20.height,
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.bodyGreyColor,
+            ),
+            20.height,
+          ],
+        ),
+      ),
+    );
+  }
+
+}
+
+class ContactAddressSheet extends StatefulWidget {
+  final Function(String, String, String, String, String, String) onSubmit;
+
+  const ContactAddressSheet({super.key, required this.onSubmit});
+
+  @override
+  State<ContactAddressSheet> createState() => _ContactAddressSheetState();
+}
+
+class _ContactAddressSheetState extends State<ContactAddressSheet> {
+  final _formKey = GlobalKey<FormState>();
+
+  final _addressNameController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _pincodeController = TextEditingController();
+  final _contactNoController = TextEditingController();
+
+  void _submit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    widget.onSubmit(
+      _addressNameController.text.trim(),
+      _addressController.text.trim(),
+      _cityController.text.trim(),
+      _stateController.text.trim(),
+      _pincodeController.text.trim(),
+      _contactNoController.text.trim(),
+    );
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: SingleChildScrollView(
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: Form(
+            key: _formKey,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                20.height,
-                AppIconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: Icons.close,
-                ).align(Alignment.topRight),
-                10.height,
-                Text(
-                  'FASTag Request',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.h3.copyWith(
-                    color: AppColors.activeRedColor,
-                    fontSize: 25,
-                  ),
+                Text("Contact Address", style: AppTextStyle.h4),
+                16.height,
+
+                // Address Name
+                AppTextField(
+                  mandatoryStar: true,
+                  controller: _addressNameController,
+                  labelText: context.appText.addressName,
+                  maxLength: 50,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9\s,./#-]'),
+                    ),
+                  ],
+                  validator:
+                      (value) => Validator.fieldRequired(
+                        value,
+                        fieldName: context.appText.addressName,
+                      ),
                 ),
                 10.height,
-                Text(
-                  'Unsuccessful!',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.h3.copyWith(
-                    color: AppColors.activeRedColor,
-                    fontSize: 25,
-                  ),
+
+                // Address
+                AppTextField(
+                  mandatoryStar: true,
+                  controller: _addressController,
+                  labelText: context.appText.address,
+                  maxLength: 200,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9\s,./#-]'),
+                    ),
+                  ],
+                  validator:
+                      (value) => Validator.fieldRequired(
+                        value,
+                        fieldName: context.appText.address,
+                      ),
+                ),
+                10.height,
+
+                // City
+                AppTextField(
+                  mandatoryStar: true,
+                  controller: _cityController,
+                  labelText: context.appText.city,
+                  maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  ],
+                  validator:
+                      (value) => Validator.alphabetsOnly(
+                        value,
+                        fieldName: context.appText.city,
+                      ),
+                ),
+                10.height,
+
+                // State
+                AppTextField(
+                  mandatoryStar: true,
+                  controller: _stateController,
+                  labelText: context.appText.state,
+                  maxLength: 20,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  ],
+                  validator:
+                      (value) => Validator.alphabetsOnly(
+                        value,
+                        fieldName: context.appText.state,
+                      ),
+                ),
+                10.height,
+
+                // Pincode
+                AppTextField(
+                  mandatoryStar: true,
+                  controller: _pincodeController,
+                  labelText: context.appText.pincode,
+                  maxLength: 6,
+                  keyboardType: TextInputType.number,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) => Validator.pincode(value),
+                ),
+                10.height,
+
+                // Contact Number
+                AppTextField(
+                  mandatoryStar: true,
+                  controller: _contactNoController,
+                  labelText: context.appText.contactNumber,
+                  maxLength: 10,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) => Validator.phone(value),
                 ),
                 20.height,
-                Text(
-                  'Loreum ipsum dolor sit amet',
-                  textAlign: TextAlign.center,
-                  style: AppTextStyle.bodyGreyColor,
+
+                // Submit Button
+                AppButton(
+                  title: 'Create Fastag Request',
+                  style: AppButtonStyle.primary,
+                  onPressed: _submit,
                 ),
-                20.height,
               ],
             ),
           ),
+        ),
+      ),
     );
   }
 }
