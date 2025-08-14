@@ -312,6 +312,7 @@ class AuthRepository {
 
     await _securedSharedPref.deleteKey(AppString.sessionKey.tanDocUrl);
     await _securedSharedPref.deleteKey(AppString.sessionKey.tanDocID);
+    await _securedSharedPref.deleteKey(AppString.sessionKey.iskycAdarWebview);
   }
 
 

@@ -71,7 +71,10 @@ class IncompleteKycStatusWidget extends StatelessWidget {
                 }
 
               } else {
-                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                  pdfPath: aadharPDF,
+                  aadhaarNumber: aadharNumber,
+                )));
               }
             },
             style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(Colors.redAccent)),
