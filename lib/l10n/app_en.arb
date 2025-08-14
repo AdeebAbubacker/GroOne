@@ -1071,7 +1071,7 @@
   "unread":"Unread",
   "alreadyVerified":"Aadhar already exist. Please use another aadhar number",
   "rcNumber": "RC Number",
-   "gps":"GPS",
+  "gps":"GPS",
   "loadType":"Load Type",
   "shipper":"Shipper",
   "advanceReceived":"Advance Received",
