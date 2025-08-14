@@ -96,10 +96,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
     required int loadStatus,
     required String loadId,
   }) async {
-    String? userId = await widget.cubit.getUserId();
+    // String? userId = await widget.cubit.getUserId();
     await widget.cubit
         .fupdateLoadStatus(
-          customerId: userId.toString(),
+          customerId: widget.loadItem.data?.vpCustomer?.customerId ??"",
           loadStatus: loadStatus,
           loadid: loadId,
         )

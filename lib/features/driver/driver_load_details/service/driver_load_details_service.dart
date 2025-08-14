@@ -108,7 +108,7 @@ class DriverLoadDetailsService {
         queryParams: {
           "loadStatus":loadStatus
         },
-          '$statusUpdateUrl/$userId/$loadId');
+          '$statusUpdateUrl$userId/$loadId');
     if (result is Success) {
       final changeLoadStatusResponse = VpLoadAcceptModel.fromJson(result.value);
       return Success(changeLoadStatusResponse);
