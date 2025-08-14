@@ -846,7 +846,7 @@ Widget buildVehicleVerificationFieldWidget({
         inputFormatters: [
           FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
           UpperCaseTextFormatter(),
-          LengthLimitingTextInputFormatter(16),
+          LengthLimitingTextInputFormatter(10),
         ],
 
         readOnly: isVerified,
