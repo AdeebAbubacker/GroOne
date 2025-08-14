@@ -81,6 +81,7 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
             addTile(docs.pan, docs.isPan, docs.panDocLinkDetails);
             addTile(docs.tdsDocLink, true, docs.tdsDocLinkDetails);
             addTile(docs.chequeDocLink, true, docs.chequeDocLinkDetails);
+            addTile(docs.aadhar, true, docs.aadharDocDetails);
 
             if (tiles.isEmpty) {
               return genericErrorWidget(error: NotFoundError(message: context.appText.noDocumentsFound));

@@ -365,6 +365,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       isLoading: false,
       deleteLoading:false,
     );
+
     currentList[currentDocumentIndex] = updatedDocument;
     emit(state.copyWith(tripDocumentList: currentList));
   }
@@ -388,7 +389,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
             uploadLoadingStatus(index, null);
           }
         },);
-
       }
       if (result is Error) {
         uploadLoadingStatus(index, null);

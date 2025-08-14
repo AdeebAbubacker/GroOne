@@ -980,7 +980,7 @@
   "noReportTypesFound": "No report types found",
   "addDriver":"Add Driver",
   "balanceToBeReceived":"Balance to be Received",
-  "podDispatchedDetails":"POD Dispatch details",
+  "podDispatchedDetails":"Swipe to Add POD Details",
   "awbCompany":"AWB Number",
   "onlinePay" : "Online (Pay Now)",
   "myOrders" : "My Orders",
@@ -1070,10 +1070,12 @@
   "unableToCompleteUrReq" : "Unable to complete your request. Please refresh or try later.",
   "pleaseEnterConsigneeDetails" : "Please enter consignee details",
   "unread":"Unread",
-  "alreadyVerified":"Aadhar already exist. Please use another aadhar number"
-  "gps":"GPS",
   "alreadyVerified":"Aadhar already exist. Please use another aadhar number",
+  "gps":"GPS",
   "loadType":"Load Type",
-  "shipper":"Shipper"
+  "shipper":"Shipper",
+  "advanceReceived":"Advance Received",
+  "balanceReceived":"Balance Received",
+  "paymentStatus":"Payment Status"
 
 }

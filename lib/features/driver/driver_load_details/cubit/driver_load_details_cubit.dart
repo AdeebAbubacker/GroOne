@@ -154,18 +154,40 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   }
 
   /// DELETE LOAD DOCUMENT
-  Future<void> deleteLoadDocument(String loadDocumentID, int index) async {
+  Future<void> deleteLoadDocument(String loadDocumentID, int index,{bool otherDocument=false}) async {
     uploadDeleteLoaderStatus(index);
     Result result = await _loadDetailsRepository.deleteLoadDocument(
       loadDocumentID,
     );
     if (result is Success<DeleteLoadDocumentResponse>) {
       /// delete from local
-      uploadDeleteLoaderStatus(index, isDelete: true);
+      if(otherDocument){
+        deleteOtherDocumentFromLocal(index);
+      }else{
+        uploadDeleteLoaderStatus(index,isDelete: true);
+      }
     }
     if (result is Error) {
       uploadDeleteLoaderStatus(index);
     }
+  }
+
+  deleteOtherDocumentFromLocal(int index){
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    int currentDocumentIndex = currentList.indexWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments);
+    List<LoadDocument> loadDocument =  List.from(currentList[currentDocumentIndex].loadDocument??[]);
+    print("removing from local");
+    loadDocument.removeAt(index);
+
+    final updatedDocument = currentList[currentDocumentIndex].copyWith(
+      clearLoadData: false,
+      loadDocument: loadDocument,
+      isLoading: false,
+      deleteLoading:false,
+    );
+
+    currentList[currentDocumentIndex] = updatedDocument;
+    emit(state.copyWith(tripDocumentList: currentList));
   }
 
   Future<void> uploadDocument(

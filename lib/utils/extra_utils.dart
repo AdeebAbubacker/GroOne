@@ -204,8 +204,6 @@ showCustomDialogue({
   bool disableButton = false,
   bool hideButton = false,
 }) {
-  print("hideButton is $hideButton");
-
   return Dialog(
     backgroundColor: AppColors.white,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),

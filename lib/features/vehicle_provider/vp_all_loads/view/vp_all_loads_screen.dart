@@ -270,13 +270,13 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
         ).expand(),
 
-        AppIconButton(
-          onPressed: (){
-            commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
-          },
-          style: AppButtonStyle.primaryIconButtonStyle,
-          icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
-        )
+        // AppIconButton(
+        //   onPressed: (){
+        //     commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
+        //   },
+        //   style: AppButtonStyle.primaryIconButtonStyle,
+        //   icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
+        // )
       ],
     ).paddingAll(commonSafeAreaPadding);
   }
