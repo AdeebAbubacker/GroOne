@@ -145,7 +145,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         fields: {
           'userId': customerId,
           'fileType': 'pan_document',
-          'documentType': 'kyc_document',
+          'documentType': ' ',
         },
         pathName: 'file',
       );
@@ -185,17 +185,24 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     try {
       String? panDocLink;
 
-      if (state.panDocuments.isNotEmpty && state.pan.isNotEmpty) {
-        final document = state.panDocuments.first;
-        if (document['path'] != null) {
-          final uploadResult = await _uploadDocument(File(document['path']), customerId);
-          if (uploadResult is Success<String>) {
-            panDocLink = uploadResult.value;
-          } else {
-            _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Failed to upload PAN document')));
-            return false;
+      if (!state.isPanImageUploaded) {
+        if (state.panDocuments.isNotEmpty) {
+          final filePath = state.panDocuments.first['path'];
+          if (filePath != null && !filePath.startsWith('http')) {
+            final uploadResult = await _uploadDocument(File(filePath), customerId);
+            if (uploadResult is Success<String>) {
+              panDocLink = uploadResult.value;
+            } else {
+              _setUploadKycUIState(
+                UIState.error(ErrorWithMessage(message: 'Failed to upload PAN document')),
+              );
+              return false;
+            }
           }
         }
+      } else {
+        // Already uploaded — URL is in state.panDocuments[0]['path']
+        panDocLink = state.panDocuments.first['path'];
       }
 
       final result = await _repository.uploadKycDocuments(

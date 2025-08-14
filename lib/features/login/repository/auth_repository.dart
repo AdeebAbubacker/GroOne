@@ -116,6 +116,10 @@ class AuthRepository {
         AppString.sessionKey.userEmail,
         userData.emailId,
       );
+      await _securedSharedPref.saveInt(
+        AppString.sessionKey.customerSeriesId,
+        userData.customerSeriesNo??0,
+      );
       if (userData.blueId != null && userData.blueId.toString().isNotEmpty) {
         await _securedSharedPref.saveKey(
           AppString.sessionKey.blueId,
