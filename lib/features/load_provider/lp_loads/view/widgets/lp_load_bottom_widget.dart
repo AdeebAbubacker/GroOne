@@ -389,6 +389,10 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
                             if (isUpdateConsignee) {
                               if (updateState?.status == Status.SUCCESS && addState?.status != Status.LOADING) {
+                                lpLoadLocator.emit(
+                                lpLoadLocator.state.copyWith(
+                                  isFieldUpdatble: true,
+                                ));
                                  FocusScope.of(context).unfocus();
                                 ToastMessages.success(message: context.appText.consigneeUpdatedSuccesfully);
                               }
@@ -404,6 +408,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                  FocusScope.of(context).unfocus();
                                 ToastMessages.success(message: context.appText.consigneeAddedSuccesfully);
                                 final newConsignee = addState?.data;
+                                lpLoadLocator.emit(
+                                lpLoadLocator.state.copyWith(
+                                  isFieldUpdatble: true,
+                                ),
+                              );
                                 if (newConsignee != null) {
                                   setState(() {
                                     consigneeNameController.text = newConsignee.name;
@@ -632,6 +641,7 @@ Widget _buildConsigneeDetail({
   TextEditingController? emailController,
   VoidCallback? onUpdate,
 }) {
+  final isEditable = context.read<LpLoadCubit>().state.isFieldUpdatble;
   return GestureDetector(
     behavior: HitTestBehavior.translucent,
     onTap: () {
@@ -644,13 +654,30 @@ Widget _buildConsigneeDetail({
           children: [
             Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
             Spacer(),
-            if (isUpdatable)
-              AppButton(
-                buttonHeight: 40,
-               title: isUpdateConsignee ? context.appText.update : context.appText.add,
-                style: AppButtonStyle.outlineShrink,
-                textStyle: AppTextStyle.buttonPrimaryColorTextColor,
-                onPressed: onUpdate ?? () {},
+             if (isUpdatable && isUpdateConsignee)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                     isEditable ?   
+                  IconButton(
+               onPressed: () {
+                  final cubit = context.read<LpLoadCubit>();
+                  cubit.emit(
+                    cubit.state.copyWith(
+                      isFieldUpdatble: !cubit.state.isFieldUpdatble,
+                    ),
+                  );
+                  print("isfield upabled ${isEditable}");
+                },
+              icon: SvgPicture.asset(
+                AppIcons.svg.edit,
+                color: AppColors.black,
+              ),
+              splashRadius: 20,
+            ): SizedBox.shrink(),
+                  
+           
+                ],
               ),
           ],
         ),
@@ -658,8 +685,13 @@ Widget _buildConsigneeDetail({
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              
               20.height,
               AppTextField(
+                decoration: commonInputDecoration(
+                fillColor:  (isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),     
+                readOnly: isUpdateConsignee ? isEditable : false,
+                 enabled: isUpdateConsignee ? !isEditable : true,
                 validator: (value) => Validator.fieldRequired(value),
                 controller: nameController,
                 labelText: context.appText.name,
@@ -672,6 +704,10 @@ Widget _buildConsigneeDetail({
               ),
               20.height,
               AppTextField(
+              decoration: commonInputDecoration(
+                fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),    
+              readOnly: isUpdateConsignee ? isEditable : false,
+              enabled: isUpdateConsignee ? !isEditable : true,
                validator: (value) => Validator.phone(value),
                           maxLength: 10,
                           inputFormatters: [
@@ -686,7 +722,11 @@ Widget _buildConsigneeDetail({
 
               ),
               20.height,
-              AppTextField(
+              AppTextField(   
+                decoration: commonInputDecoration(
+                fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),           
+                readOnly: isUpdateConsignee ? isEditable : false,
+                enabled: isUpdateConsignee ? !isEditable : true,
                 validator: (value) => Validator.email(value),
                 keyboardType: TextInputType.emailAddress,
                 controller: emailController,
@@ -696,6 +736,25 @@ Widget _buildConsigneeDetail({
                   LengthLimitingTextInputFormatter(50),
                 ],
               ),
+              16.height,
+             
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                  (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
+                  ? AppButton(
+                      buttonHeight: 40,
+                      title: isUpdateConsignee ? context.appText.update : context.appText.add,
+                      style: AppButtonStyle.outlineShrink,
+                      textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+                      onPressed: onUpdate ?? () {},
+                    )
+                  : SizedBox.shrink()
+                 
+           
+                ],
+              ),
+                  
             ],
           )
         else
