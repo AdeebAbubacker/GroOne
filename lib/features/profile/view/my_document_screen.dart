@@ -73,7 +73,7 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
             List<Widget> tiles = [];
             void addTile(String? val, bool? enabled, var details) {
               if ((enabled ?? true) && (val?.isNotEmpty ?? false)) {
-                tiles.add(docTile(details?.title ?? context.appText.unknown, DateTimeHelper.formatCustomDateTimeIST(details?.createdAt), details?.documentId ?? '', details?.fileExtension));
+                tiles.add(docTile(details?.title ?? context.appText.unknown, DateTimeHelper.formatCustomDateTimeIST(details?.createdAt), details?.documentId ?? '', details?.fileExtension ?? ''));
               }
             }
 
