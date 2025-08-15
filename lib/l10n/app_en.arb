@@ -1111,7 +1111,8 @@
   "gst":"GST",
   "advanceReceived":"Advance Received",
   "balanceReceived":"Balance Received",
-  "paymentSummary":"Payment Summary"
+  "paymentSummary":"Payment Summary",
+  "base":"Base"
 
 
 }
