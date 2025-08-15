@@ -23,7 +23,7 @@ class FastagListResponse {
 }
 
 class FastagItem {
-  final int id;
+  final String id;
   final String vehicleNo;
   final String balance;
   final int orderStatus;
@@ -43,7 +43,7 @@ class FastagItem {
 
   factory FastagItem.fromJson(Map<String, dynamic> json) {
     return FastagItem(
-      id: json['id'],
+      id: json['id'] ?? '',
       vehicleNo: json['vehicleNo'] ?? '',
       balance: json['balance'] ?? '0.00',
       orderStatus: json['orderStatus'] ?? 0,

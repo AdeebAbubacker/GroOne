@@ -45,7 +45,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
       listener: (context, state) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const BuyNewFastagScreen()),
+          MaterialPageRoute(builder: (_) => const FastagNewUserScreen()),
         );
       },
       child: Scaffold(
@@ -59,7 +59,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const FastagNewUserScreen(),
+                    builder: (context) => const BuyNewFastagScreen(),
                   ),
                 );
               },
