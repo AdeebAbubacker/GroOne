@@ -762,7 +762,7 @@
   "networkError" : "Your internet not working,\n Please try again later.",
   "tokenExpireError" : "Authentication Failed, Login Session Expired.",
   "invalidTokenError" : "Authentication Failed, Invalid Token.",
-  "deserializationError" : "Deserialization error: JSON parsing failed due to type mismatch or missing fields.",
+  "deserializationError" : "Something went wrong",
   "requestCancelledError" : "Request Cancelled,\n Please check your entry and try again.",
   "invalidInput" : "Invalid Input,\n Please check your entry and try again.",
   "timeOutError" : "Time out!!,\n Please check your entry and try again.",
