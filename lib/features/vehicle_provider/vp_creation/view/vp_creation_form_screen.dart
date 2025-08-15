@@ -162,10 +162,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         ToastMessages.alert(message: context.appText.ownTruckValidation);
         return;
       }
-      if (int.parse(attachedTruckTextController.text) == 0) {
-        ToastMessages.alert(message: context.appText.attachedTruckValidation);
-        return;
-      }
 
 
       if(selectedPrefLanesTypeList.isEmpty){

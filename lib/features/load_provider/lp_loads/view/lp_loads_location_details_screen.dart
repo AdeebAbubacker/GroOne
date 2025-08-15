@@ -339,23 +339,18 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     final isTrackingAllowed = loadItem.driverConsent == 1;
 
     return Positioned(
-        left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
-        onPressed: () {
-          commonSupportDialog(context);
-        },
-        icon: Container(
-          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
-          child: Row(
-            children: [
-              Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
-              10.width,
-              Text(context.appText.sim, style: AppTextStyle.h5 )
-            ],
-          ).paddingAll(8),
-        )
-    ));
-
-
+      left: 15, bottom: bottomWidgetMaxHeight + 15,
+      child: Container(
+        decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
+        child: Row(
+          children: [
+            Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
+            10.width,
+            Text(context.appText.sim, style: AppTextStyle.h5 )
+          ],
+        ).paddingAll(8),
+      ),
+    );
   }
 }
 

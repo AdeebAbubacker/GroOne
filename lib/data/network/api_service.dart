@@ -24,6 +24,8 @@ class ApiService {
   ); // General timeout for all requests
   final Dio _dio;
   final SecuredSharedPreferences _secureSharedPrefs;
+  Future<String?>? _refreshTokenFuture; // Shared future
+
   // late DioCacheManager _cacheManager;
   ApiService(this._dio, this._secureSharedPrefs) {
     // CacheConfig cacheConfig = CacheConfig(baseUrl: ApiUrls.baseUrl);
@@ -40,11 +42,11 @@ class ApiService {
       'Accept': 'application/json',
     };
     try {
-      String? refreshToken = await _secureSharedPrefs.get(
+      String? accessToken = await _secureSharedPrefs.get(
         AppString.sessionKey.accessToken,
       );
-      if (refreshToken != null && refreshToken.isNotEmpty) {
-        final authHeader = 'Bearer $refreshToken';
+      if (accessToken != null && accessToken.isNotEmpty) {
+        final authHeader = 'Bearer $accessToken';
         headers['Authorization'] = authHeader;
       }
     } catch (e) {
@@ -378,7 +380,13 @@ class ApiService {
       case 400:
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
-        await _handleUnauthorizedError();
+      // Prevent retry loop
+        if (response?.requestOptions.extra['retry'] != true) {
+          final retryResponse = await _handleUnauthorizedErrorAndRetry(response!);
+          if (retryResponse != null) {
+            return Success(retryResponse.data);
+          }
+        }
         final msg = response?.data?['error_description'];
         return Error(UnauthenticatedError(message: msg));
       case 403:
@@ -404,20 +412,50 @@ class ApiService {
     }
   }
 
-  /// Handle unauthorized error by attempting token refresh first
-  Future<void> _handleUnauthorizedError() async {
+  /// Handle 401 → Refresh token → Retry failed request
+  Future<Response?> _handleUnauthorizedErrorAndRetry(Response originalResponse) async {
     try {
-      CustomLog.debug(this, "🔐 Handling 401 Unauthorized error");
+      final requestOptions = originalResponse.requestOptions;
+
+      CustomLog.debug(this, "🔐 Handling 401 Unauthorized for ${requestOptions.uri}");
 
       final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
-
       if (refreshToken == null || refreshToken.isEmpty) {
         CustomLog.debug(this, "No refresh token found, logging out");
         await _clearAuthAndRedirect();
-        return;
+        return null;
       }
 
-      // Call refresh token API using existing post() method for consistent handling
+      // If no refresh is running, start it
+       _refreshTokenFuture ??= _refreshTokenCall(refreshToken);
+
+      final newAccessToken = await _refreshTokenFuture;
+      _refreshTokenFuture = null; // Reset for next time
+
+      if (newAccessToken == null) {
+        await _clearAuthAndRedirect();
+        return null;
+      }
+
+      // Retry the original request with the new token
+      requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+      requestOptions.extra['retry'] = true; // mark retried
+      final retryResponse = await _dio.fetch(requestOptions);
+
+      CustomLog.debug(this, "✅ Retried request successful for ${requestOptions.uri}");
+      return retryResponse;
+    } catch (e) {
+      _refreshTokenFuture = null;
+      CustomLog.error(this, "❌ Token refresh or retry failed", e);
+      await _clearAuthAndRedirect();
+      return null;
+    }
+  }
+
+  /// Actual refresh token API call
+  Future<String?> _refreshTokenCall(String refreshToken) async {
+    CustomLog.debug(this, "🔄 Refreshing access token...");
+    try {
       final refreshResult = await post(
         ApiUrls.refreshToken,
         body: {
@@ -431,7 +469,6 @@ class ApiService {
 
       if (refreshResult is Success) {
         final data = refreshResult.value['data'];
-
         if (data != null && data['access_token'] != null) {
           final newAccessToken = data['access_token'];
           final newRefreshToken = data['refresh_token'];
@@ -440,20 +477,17 @@ class ApiService {
           await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
 
           CustomLog.debug(this, "🔐 Token refreshed successfully");
-          return; // Future requests will now use the new token
+          return newAccessToken;
         }
       }
 
-      // If refresh failed → logout
-      CustomLog.debug(this, "Token refresh failed, logging out");
-      await _clearAuthAndRedirect();
-
+      CustomLog.debug(this, "❌ Refresh token API returned invalid response");
+      return null;
     } catch (e) {
       CustomLog.error(this, "Error refreshing token", e);
-      await _clearAuthAndRedirect();
+      return null;
     }
   }
-
 
   Future<void> _clearAuthAndRedirect() async {
     // Clear all authentication data

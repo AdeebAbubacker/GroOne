@@ -23,9 +23,13 @@ class SecuredSharedPreferences {
 
   Future<void> resetPreservingLanguage() async {
     final langCode = await get(AppString.sessionKey.selectedLanguage);
+    final firstPostedLoad = await get(AppString.sessionKey.firstPostedLoadId);
     await _secureStorage.deleteAll();
     if (langCode != null) {
       await saveKey(AppString.sessionKey.selectedLanguage, langCode);
+    }
+    if (firstPostedLoad != null) {
+      await saveKey(AppString.sessionKey.selectedLanguage, firstPostedLoad);
     }
   }
 

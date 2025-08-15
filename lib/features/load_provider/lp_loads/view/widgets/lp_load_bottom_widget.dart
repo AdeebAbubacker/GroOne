@@ -215,26 +215,25 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                 Row(
                                   children: [
                                     Text("${context.appText.driver.capitalizeFirst} - ", style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
-                                    Text(widget.loadItem.scheduleTripDetails?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
+                                    Text(widget.loadItem.scheduleTripDetails?.driver?.name.capitalize ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
                                   ],
                                 ),
                                 5.height
                               ],
-                              if(widget.loadStatus.index >= LoadStatus.confirmed.index)
-                                ...[
+                            if(widget.loadStatus.index >= LoadStatus.confirmed.index)
+                              ...[
                                 4.height,
                                 Container(
-                                  width: widget.loadStatus.index >= LoadStatus.assigned.index ? MediaQuery.of(context).size.width * 0.60 : null,
+                                    width: widget.loadStatus.index >= LoadStatus.assigned.index ? MediaQuery.of(context).size.width * 0.60 : null,
                                     padding: EdgeInsets.all(6),
                                     decoration: commonContainerDecoration(
                                         color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
                                     child: Text(widget.loadItem.customer?.companyName ?? "",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
                               ]
                           ],
-                        ),
+                        ).expand(flex: 7),
                         if(widget.loadStatus.index >= LoadStatus.assigned.index)
                           ...[
-                            Spacer(),
                             GestureDetector(
                               onTap: () async {
                                 await callRedirect(widget.loadItem.scheduleTripDetails?.driver?.mobile ?? '');
@@ -242,16 +241,18 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                               child: CircleAvatar(
                                   backgroundColor: AppColors.primaryColor,
                                   child: Icon(Icons.call,color: AppColors.white,)),
-                            )
+                            ).expand(flex: 1)
                           ]
 
                       ],
                     ),
 
+                    commonDivider(thickness: 3, height: 15).paddingTop(15),
+
                     // Travel Progress
                    if(widget.loadStatus.index >= LoadStatus.loading.index)
                      ...[
-                       25.height,
+                       20.height,
                        BlocBuilder<LpLoadCubit, LpLoadState>(
                          builder: (context, state) {
                            final trackingData = state.trackingDistance?.data;

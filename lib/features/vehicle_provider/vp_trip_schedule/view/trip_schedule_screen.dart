@@ -89,13 +89,16 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: CommonAppBar(
+    return SafeArea(
+      top: false,
+      child: Scaffold(
         backgroundColor: AppColors.white,
-        title: context.appText.tripScheduling,
+        appBar: CommonAppBar(
+          backgroundColor: AppColors.white,
+          title: context.appText.tripScheduling,
+        ),
+        body: _buildBodyWidget(),
       ),
-      body: _buildBodyWidget(),
     );
   }
 

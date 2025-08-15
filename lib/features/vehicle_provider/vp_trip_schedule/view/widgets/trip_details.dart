@@ -47,7 +47,7 @@ class TripDetails extends StatelessWidget {
           child: Column(
             children: [
               Row(
-                spacing: 5,
+                spacing: 10,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Container(
@@ -154,32 +154,25 @@ class TripDetails extends StatelessWidget {
                   endIndent: 30,
                   thickness: 0.5),
 
-              Row(
-                spacing: 10,
+              10.height,
+              Column(
+                spacing: 15,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
 
-                  Column(
-                    spacing: 15,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-
-                      _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,loadDetails?.truckType?.type??""),
-                      _buildTripEntityTiles(AppIcons.svg.package,"${loadDetails?.commodity?.name}")
+                      _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,loadDetails?.truckType?.type??"").expand(),
+                      _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,"${loadDetails?.truckType?.subType}").expand(),
                     ],
                   ),
 
-                  Column(
-                    spacing: 15,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  Row(
                     children: [
-                      _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,"${loadDetails?.truckType?.subType}"),
-                      _buildTripEntityTiles(AppIcons.svg.weight,"${loadDetails?.weight?.value} Ton"),
+                      _buildTripEntityTiles(AppIcons.svg.package,"${loadDetails?.commodity?.name}").expand(),
+                      _buildTripEntityTiles(AppIcons.svg.weight,"${loadDetails?.weight?.value} Ton").expand(),
                     ],
                   ),
-
-
-
                 ],
               ).paddingSymmetric(horizontal: 20),
               15.height,
@@ -214,7 +207,7 @@ class TripDetails extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         SvgPicture.asset(icon),
-        Text(title)
+        Text(title).expand()
       ],
     );
   }
