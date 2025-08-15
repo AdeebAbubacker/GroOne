@@ -122,6 +122,8 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
       statementData?.detentions.toString(),
     );
 
+    final gstAmount=calculateGstAmount(double.tryParse(statementData?.platformFee??"")??0,double.tryParse(statementData?.platformFeeWithGst??"")??0);
+
     return Container(
       decoration: commonContainerDecoration(),
       padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
@@ -158,11 +160,6 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
 
           buildDTripStatementWidget(
-            label: "${context.appText.advance} (${statementData?.advancePercentage??""}%)",
-            value: PriceHelper.formatINR(  statementData?.advanceAmount??""),
-          ),
-
-          buildDTripStatementWidget(
             label: context.appText.damageCharges,
             value: '(-) ${PriceHelper.formatINR( statementData?.damages??"")}',
             isNegative: true
@@ -180,6 +177,18 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
 
           buildDTripStatementWidget(
+            label: context.appText.platformFee,
+            value: '(-) ${PriceHelper.formatINR(statementData?.platformFee??"")}',
+            isNegative: true,
+          ),
+
+          buildDTripStatementWidget(
+            label: "${context.appText.gst} (${statementData?.platformFeeGstPercentage}%)",
+            value: '(-) ${PriceHelper.formatINR(gstAmount)}',
+            isNegative: true,
+          ),
+
+          buildDTripStatementWidget(
             label: "${context.appText.platformFee } + ${statementData?.platformFeeGstPercentage}% ${context.appText.gst}",
             value: '(-) ${PriceHelper.formatINR(statementData?.platformFeeWithGst??"")}',
             isNegative: true,
@@ -187,17 +196,17 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
 
           buildDTripStatementWidget(
             label: context.appText.loadingCharges,
-            value: PriceHelper.formatINR(statementData?.loading??""),
+            value: "(+)${PriceHelper.formatINR(statementData?.loading??"")}",
           ),
 
           buildDTripStatementWidget(
             label: context.appText.unloadingCharges,
-            value: PriceHelper.formatINR( statementData?.unloading??"")
+            value: "(+) ${PriceHelper.formatINR( statementData?.unloading??"")}"
           ),
 
           buildDTripStatementWidget(
             label: context.appText.detentions,
-            value: detentionsAmount,
+            value: "(+) $detentionsAmount",
           ),
           buildDTripStatementWidget(
             label:  context.appText.advancedReceived,

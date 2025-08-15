@@ -189,7 +189,9 @@ String formatVehicleNumber(String number) {
 
   return number; // fallback
 }
-
+double calculateGstAmount(double amountWithoutGst, double amountWithGst) {
+  return amountWithGst - amountWithoutGst;
+}
 
 
 

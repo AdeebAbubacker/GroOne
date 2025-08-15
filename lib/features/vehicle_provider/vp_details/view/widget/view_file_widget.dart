@@ -62,6 +62,7 @@ class _ViewFileWidgetState extends State<ViewFileWidget> {
                 height: 200,
                 width: double.infinity,
                 path: value[index],
+                fit: BoxFit.fitHeight,
                 errorImage: Icons.image_not_supported,
               );
             },
