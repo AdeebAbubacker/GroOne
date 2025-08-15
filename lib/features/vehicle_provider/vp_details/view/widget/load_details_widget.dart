@@ -511,8 +511,7 @@ class LoadDetailsWidget extends StatelessWidget {
 
     /// This is for advanced Payment
     final advancedPayment = paymentEntity?.payableAdvancePaid ?? "";
-    final advancedPaymentPercentage =
-        paymentEntity?.payableAdvancePercentage ?? "";
+    final advancedPaymentPercentage = paymentEntity?.payableAdvancePercentage ?? "";
     final isAdvancedPaid = paymentEntity?.payableAdvancedPaidFlag ?? false;
 
     /// This is for balance Payment
@@ -877,10 +876,12 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
       if ((advancePayment ?? "" ).isNotEmpty) ...[
         8.height,
         _buildPriceRow(
-          "${context.appText.advancedReceived}($advancedPaymentPer%)",
+          "${context.appText.advancedReceived}",
           advancePayment??"",
           context,
           highlight: true,
+          showPercentage: true,
+          percentage: advancedPaymentPer
         ),
       ],
 
@@ -931,24 +932,43 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
 Widget _buildPriceRow(
   String label,
   String amount,
+
   BuildContext context, {
   bool highlight = false,
+      bool ? showPercentage,
+      String? percentage,
 }) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Text(
-        label,
-        style: AppTextStyle.body2.copyWith(
-          fontWeight: FontWeight.w400,
-          color: AppColors.textBlackColor,
-        ),
+      Row(
+        children: [
+          Text(
+            label,
+            style: AppTextStyle.body2.copyWith(
+              fontWeight: FontWeight.w400,
+              fontSize: 15,
+              color: AppColors.textBlackColor,
+            ),
+          ),
+          if(showPercentage??false)
+            Text(
+             " (${percentage??""}%)",
+              style: AppTextStyle.body1GreyColor.copyWith(
+                fontSize: 10,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w300,
+                color:AppColors.textBlackColor,
+
+              ),
+            ),
+        ],
       ),
       Flexible(
         child: Text(
           amount,
           style: AppTextStyle.body1GreyColor.copyWith(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
             color:
                 highlight

@@ -69,7 +69,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
         child: Column(
           spacing: 5,
           children: [
-            _buildInfoRow(received,PriceHelper.formatINR(   vpLogs?.amount??""),),
+            _buildInfoRow(received,PriceHelper.formatINR(   vpLogs?.amount??""),isBold: true),
             _buildInfoRow(context.appText.transactionID, vpLogs?.transactionId??"", ),
             _buildInfoRow(context.appText.paymentMode, vpLogs?.paymentMethod==1 ?"ONLINE":"NEFT Transfer"),
             _buildInfoRow(context.appText.receivedOn,  DateTimeHelper.formatCustomDateTimeIST(vpLogs?.createdAt),),
@@ -79,7 +79,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
     );
   }
 
-  Widget _buildInfoRow(String? title, String? value, {bool isLink = false,bool? showStatus,bool? status}) {
+  Widget _buildInfoRow(String? title, String? value, {bool isLink = false,bool? showStatus,bool? status,bool? isBold}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       mainAxisSize: MainAxisSize.min,
@@ -89,7 +89,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
             maxLines: 1,
             style: AppTextStyle.h3w500.copyWith(
                 fontSize: 14,
-                fontWeight: FontWeight.w200
+              fontWeight: (isBold??false) ?  FontWeight.bold:FontWeight.normal,
             )).expand(),
 
         if(showStatus??false)
@@ -115,8 +115,8 @@ class _TransactionInformationState extends State<TransactionInformation> {
               value??"",
               maxLines: 2,
               style: TextStyle(
-                color: AppColors.primaryColor,
-                fontWeight: FontWeight.bold,
+                color: AppColors.textBlackDetailColor,
+                fontWeight: (isBold??false) ?  FontWeight.bold:FontWeight.normal,
                 fontSize: 12,
                 decoration: isLink ? TextDecoration.underline : TextDecoration.none,
               ),
