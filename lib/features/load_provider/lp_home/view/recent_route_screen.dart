@@ -18,6 +18,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -203,34 +204,27 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
 
-                // Source or destination vertical line
-                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
+                Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight).paddingSymmetric(vertical: 5),
                 10.width,
 
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    // Source
-                    BookShipmentWidget(
-                      heading: context.appText.source,
-                      subHeading: pickUpLocationText(data),
-                      onClick: () {
-
-                      },
-                    ),
+                    // Source (Pick Up)
+                    Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                    6.height,
+                    Text(pickUpLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor)),
 
                     commonDivider(),
 
                     // Destination
-                    BookShipmentWidget(
-                      heading: context.appText.destination,
-                      subHeading: destinationLocationText(data),
-                      onClick: () {
-
-                      },
-                    ),
+                    Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                    6.height,
+                    Text(destinationLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
 
                   ],
                 ).expand(),
