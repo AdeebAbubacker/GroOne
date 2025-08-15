@@ -1158,7 +1158,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               "city": billingState.selectedAddress.city,
               "state": billingState.selectedAddress.state,
               "postalCode": billingState.selectedAddress.pincode,
-              "country": billingState.selectedAddress.country,
+              "country": 'India',
               "gstId": billingState.selectedAddress.gstin ?? "",
             },
             shippingAddress: {
@@ -1167,7 +1167,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               "city": shippingState.selectedAddress.city,
               "state": shippingState.selectedAddress.state,
               "postalCode": shippingState.selectedAddress.pincode,
-              "country": shippingState.selectedAddress.country,
+              "country": 'India',
               "gstId": shippingState.selectedAddress.gstin ?? ""
             },
             orders: _products.map((product) {
