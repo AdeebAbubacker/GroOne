@@ -153,9 +153,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
       loadId: widget.loadItem.data?.loadId ?? '',
     );
   } else if (loadStatusState?.status == Status.ERROR) {
-    ToastMessages.error(
-      message: "Failed to update load status",
-    );
+     ToastMessages.error(message: getErrorMsg(errorType: loadStatusState?.errorType ?? GenericError()));
      widget.cubit.resetLoadStatuUpdateReset();
   }
 },
