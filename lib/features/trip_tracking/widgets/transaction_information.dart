@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -32,7 +33,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
 
   getTransactionLogsDetails(){
     try{
-      advancedAction=  widget.vpLogs!.firstWhere((element) => element.action=="advanced",);
+      advancedAction=  widget.vpLogs!.firstWhere((element) => element.action=="advance",);
     }catch(e){}
 
     try{
@@ -43,7 +44,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.40,
+
       child: SingleChildScrollView(
         child: Column(
           spacing: 15,
@@ -68,11 +69,11 @@ class _TransactionInformationState extends State<TransactionInformation> {
         child: Column(
           spacing: 5,
           children: [
-            _buildInfoRow(received, vpLogs?.amount??""),
+            _buildInfoRow(received,PriceHelper.formatINR(   vpLogs?.amount??""),),
             _buildInfoRow(context.appText.transactionID, vpLogs?.transactionId??"", ),
-            _buildInfoRow(context.appText.paymentMode, vpLogs?.paymentMethod.toString()),
-            _buildInfoRow(context.appText.receivedOn,  DateTimeHelper.formatCustomDateIST(vpLogs?.createdAt),),
-            _buildInfoRow(context.appText.paymentStatus, "",showStatus: true),
+            _buildInfoRow(context.appText.paymentMode, vpLogs?.paymentMethod==1 ?"ONLINE":"NEFT Transfer"),
+            _buildInfoRow(context.appText.receivedOn,  DateTimeHelper.formatCustomDateTimeIST(vpLogs?.createdAt),),
+            _buildInfoRow(context.appText.paymentStatus, "",showStatus: true,status: vpLogs?.type=="success"),
           ],
         ).paddingAll(12)
     );
@@ -85,14 +86,14 @@ class _TransactionInformationState extends State<TransactionInformation> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(title??"",
+            maxLines: 1,
             style: AppTextStyle.h3w500.copyWith(
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w200
-            )),
-        Spacer(),
+            )).expand(),
+
         if(showStatus??false)
           Container(
-            height: 24,
             decoration: commonContainerDecoration(
               color: (status??false) ? Colors.green.shade100 :  Color(0xffFFD7D9),
               borderRadius: BorderRadius.circular(20),
@@ -107,14 +108,18 @@ class _TransactionInformationState extends State<TransactionInformation> {
           )
         else
 
-        FittedBox(
-          child: Text(
-            value??"",
-            style: TextStyle(
-              color: AppColors.primaryColor,
-              fontWeight: FontWeight.w400,
-              fontSize: 12,
-              decoration: isLink ? TextDecoration.underline : TextDecoration.none,
+        Expanded(
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: Text(
+              value??"",
+              maxLines: 2,
+              style: TextStyle(
+                color: AppColors.primaryColor,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+                decoration: isLink ? TextDecoration.underline : TextDecoration.none,
+              ),
             ),
           ),
         ),
