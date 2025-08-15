@@ -18,7 +18,8 @@ import '../model/kavach_transaction_model.dart';
 
 
 class KavachTransactionsScreen extends StatefulWidget {
-  const KavachTransactionsScreen({super.key});
+  final int fleetProductId;
+  const KavachTransactionsScreen({super.key,this.fleetProductId = 2,});
 
   @override
   State<KavachTransactionsScreen> createState() =>
@@ -32,7 +33,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen> {
   @override
   void initState() {
     super.initState();
-    _transactionsCubit.fetchTransactions();
+    _transactionsCubit.fetchTransactions(fleetProductId: widget.fleetProductId);
   }
 
   Color getStatusColor(String status) {

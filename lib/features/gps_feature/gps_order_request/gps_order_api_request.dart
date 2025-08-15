@@ -371,6 +371,7 @@ class GpsKycUploadRequest {
   final String? pan;
   final String? panDocLink;
   final bool? isPan;
+  final bool fromFleet;
 
   const GpsKycUploadRequest({
     required this.aadhar,
@@ -379,13 +380,15 @@ class GpsKycUploadRequest {
     this.panDocLink,
     this.isPan,
     this.aadharDocLink,
+    this.fromFleet = true,
   });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = {
       'aadhar': aadhar,
       'isAadhar': isAadhar,
-      'aadhar_doc_link': aadharDocLink
+      'aadhar_doc_link': aadharDocLink,
+      'fromFleet': fromFleet,
     };
 
     // Only include PAN fields if PAN is provided
@@ -402,7 +405,7 @@ class GpsKycUploadRequest {
 
   @override
   String toString() {
-    return 'GpsKycUploadRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
+    return 'GpsKycUploadRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan, fromFleet: $fromFleet}';
   }
 }
 
