@@ -346,7 +346,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                               truckMakeModelController.text =
                                   makeModel.toString();
                             }
-                            final ownerName = vehicleData['ownerName'] ??  vehicleData['user_name'];
+                            final ownerName = vehicleData['ownerName'] ?? vehicleData['user_name'];
                             if (ownerName != null) {
                               owenerNameController.text = ownerName.toString();
                             }

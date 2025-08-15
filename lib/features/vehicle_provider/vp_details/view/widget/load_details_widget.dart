@@ -511,8 +511,7 @@ class LoadDetailsWidget extends StatelessWidget {
 
     /// This is for advanced Payment
     final advancedPayment = paymentEntity?.payableAdvancePaid ?? "";
-    final advancedPaymentPercentage =
-        paymentEntity?.payableAdvancePercentage ?? "";
+    final advancedPaymentPercentage = paymentEntity?.payableAdvancePercentage ?? "";
     final isAdvancedPaid = paymentEntity?.payableAdvancedPaidFlag ?? false;
 
     /// This is for balance Payment
@@ -556,24 +555,14 @@ class LoadDetailsWidget extends StatelessWidget {
             5.height,
             _buildLoadProviderAdvancePaymentCardViewOnly(
               context: context,
-              showViewMore:
-                  (loadStatus?.index ?? 0) > LoadStatus.assigned.index,
-              isAdvancedReceived: isAdvancedPaid,
-              agreedAdvance:
-                  (paymentEntity?.payableAdvance ?? "").isNotEmpty
-                      ? PriceHelper.formatINR(
-                        paymentEntity?.payableAdvance ?? "",
-                      )
-                      : "",
-              advancePayment:
-                  isAdvancedPaid ? PriceHelper.formatINR(advancedPayment) : "",
+              showViewMore: paymentEntity?.vpLogs?.isNotEmpty ??false,
+              advancePayment: isAdvancedPaid ? PriceHelper.formatINR(advancedPayment) : "",
               agreedPrice:
                   agreedPrice.isNotEmpty
                       ? PriceHelper.formatINR(agreedPrice)
                       : "",
               advancedPaymentPer: advancedPaymentPercentage,
-              balancePayment:
-                  isBalancePaid ? PriceHelper.formatINR(balancePayment) : "",
+              balancePayment:isBalancePaid ?   PriceHelper.formatINR(balancePayment):"",
               onViewTap: () {
                 showPaymentView(
                   vpLogs: paymentEntity?.vpLogs,
@@ -783,35 +772,25 @@ class LoadDetailsWidget extends StatelessWidget {
     );
   }
 
-  Future showPaymentView(
+   showPaymentView(
     BuildContext context, {
     String? advancePercentage,
     String? advanceAmount,
     String? tripCost, List<VpLog>? vpLogs,
   }) {
-    return showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return showCustomDialogue(
-          hideButton: false,
-          context: context,
-          child: PaymentInformationDialogView(
-            vpLogs: vpLogs,
-            advancedPercentage: advancePercentage,
-            advanceAmount: advanceAmount,
-            balancePayout: PriceHelper.formatINR("4000"),
-            isAdvanceCompleted: true,
-            isBalancePending: false,
-            onProceed: () {},
-            paymentMode: "",
-            receivedOn: "",
-            transactionId: "467898765432",
-            tripCost: tripCost,
-          ),
-          buttonText: context.appText.processed,
-        );
-      },
-    );
+    Navigator.push(context, commonRoute(VpPaymentSummary(
+      vpLogs: vpLogs,
+      advancedPercentage: advancePercentage,
+      advanceAmount: advanceAmount,
+      balancePayout: PriceHelper.formatINR("4000"),
+      isAdvanceCompleted: true,
+      isBalancePending: false,
+      onProceed: () {},
+      paymentMode: "",
+      receivedOn: "",
+      transactionId: "467898765432",
+      tripCost: tripCost,
+    ),));
   }
 
   Widget buildAttachmentView(
@@ -876,15 +855,13 @@ class LoadDetailsWidget extends StatelessWidget {
 //Payment View only
 Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   required BuildContext context,
-  // String? tripPrice,
   String? agreedPrice,
-  required String agreedAdvance,
   String? advancePayment,
   String? balancePayment,
   VoidCallback? onViewTap,
   String? advancedPaymentPer,
-  bool? isAdvancedReceived,
   bool? showViewMore,
+
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -896,61 +873,54 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
           context,
           highlight: true,
         ),
-      if ((agreedAdvance ?? "").isNotEmpty) ...[
+      if ((advancePayment ?? "" ).isNotEmpty) ...[
         8.height,
         _buildPriceRow(
-          "Advance ${isAdvancedReceived ?? false ? "Received" : "Payable"}",
-          agreedAdvance,
+          "${context.appText.advancedReceived}",
+          advancePayment??"",
           context,
           highlight: true,
-        ),
-      ],
-      if ((advancePayment ?? "").isNotEmpty) ...[
-        12.height,
-        _buildStatusRow(
-          title: '${context.appText.advancePayment} ($advancedPaymentPer%)',
-          amount: advancePayment ?? "",
-          statusText: context.appText.received,
-          statusColor: AppColors.lightGreenBox,
+          showPercentage: true,
+          percentage: advancedPaymentPer
         ),
       ],
 
       if ((balancePayment ?? "").isNotEmpty) ...[
-        Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: _buildStatusRow(
-            title: context.appText.balancePayment,
-            amount: balancePayment ?? "",
-            statusText: context.appText.received,
-            statusColor: AppColors.lightGreenBox,
-          ),
+        8.height,
+        _buildPriceRow(
+          context.appText.balanceReceived,
+          balancePayment ?? "",
+          context,
+          highlight: true,
         ),
 
-        12.height,
       ],
 
       if (showViewMore ?? false)
-        Align(
-          alignment: Alignment.center,
-          child: GestureDetector(
-            onTap: onViewTap,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  context.appText.view,
-                  style: AppTextStyle.body.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w400,
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Align(
+            alignment: Alignment.center,
+            child: GestureDetector(
+              onTap: onViewTap,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    context.appText.view,
+                    style: AppTextStyle.body.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 22,
                     color: AppColors.primaryColor,
                   ),
-                ),
-                const Icon(
-                  Icons.chevron_right,
-                  size: 25,
-                  color: AppColors.black,
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -962,24 +932,43 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
 Widget _buildPriceRow(
   String label,
   String amount,
+
   BuildContext context, {
   bool highlight = false,
+      bool ? showPercentage,
+      String? percentage,
 }) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Text(
-        label,
-        style: AppTextStyle.body2.copyWith(
-          fontWeight: FontWeight.w400,
-          color: AppColors.textBlackColor,
-        ),
+      Row(
+        children: [
+          Text(
+            label,
+            style: AppTextStyle.body2.copyWith(
+              fontWeight: FontWeight.w400,
+              fontSize: 15,
+              color: AppColors.textBlackColor,
+            ),
+          ),
+          if(showPercentage??false)
+            Text(
+             " (${percentage??""}%)",
+              style: AppTextStyle.body1GreyColor.copyWith(
+                fontSize: 10,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w300,
+                color:AppColors.textBlackColor,
+
+              ),
+            ),
+        ],
       ),
       Flexible(
         child: Text(
           amount,
           style: AppTextStyle.body1GreyColor.copyWith(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
             color:
                 highlight

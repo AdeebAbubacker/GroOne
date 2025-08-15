@@ -175,6 +175,18 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
             isVerified: _vehicleVerifiedList[index],
             isVehicleAlreadySelected: false,
             onVehicleSelected: (selectedIndex, selectedVehicle) {
+              final isDuplicate = _vehicleControllers.any((controller) =>
+              controller.text.trim().toLowerCase() ==
+                  selectedVehicle.trim().toLowerCase() &&
+                  controller != _vehicleControllers[selectedIndex]);
+
+              if (isDuplicate) {
+                ToastMessages.alert(
+                  message: context.appText.vehicleAlreadySelected,
+                );
+                return;
+              }
+
               setState(() {
                 _vehicleControllers[index].text = selectedVehicle;
                 _vehicleVerifiedList[index] = true;
@@ -380,7 +392,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
         afterDismiss: () {
           context.read<FastagCubit>().resetRcDocuments();
           Navigator.pop(context);
-          Navigator.push(context, commonRoute(FastagListScreen()));
+          Navigator.pushReplacement(context, commonRoute(FastagListScreen()));
         },
       ),
     );

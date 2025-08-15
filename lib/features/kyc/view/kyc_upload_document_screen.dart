@@ -139,6 +139,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   
   void initFunction()=> frameCallback(() async {
+    getKycDetailsFromLocal();
+    getKycVerified();
+    getAllDocs();
+
     await kycCubit.fetchUserRole();
     await kycCubit.fetchUserId();
     await kycCubit.fetchCompanyTypeId();
@@ -150,9 +154,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       aadhaarNumberTextController.text = "";
     }
     uploadAadharDocument();
-    getKycDetailsFromLocal();
-    getKycVerified();
-    getAllDocs();
+
   });
 
   void getKycDetailsFromLocal() => frameCallback(()async{
@@ -245,7 +247,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   });
 
   void uploadAadharDocument()=>frameCallback(() async {
-    if(widget.pdfPath==null && widget.pdfPath!.isEmpty){
+    if(widget.pdfPath==null && (widget.pdfPath??"").isEmpty){
       return;
     }
     await kycCubit.uploadAadharDoc(File(widget.pdfPath??""));
@@ -1022,7 +1024,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               // Enter GST Number
               buildTextFieldWithLabelWidget(
                   maxLength: 15,
-                  onFieldSubmitted: (text) {
+                  onChanged: (text) {
                     setGstNumberIntoLocal(text??"");
                   },
                   inputFormatters: [
@@ -1120,7 +1122,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               // Enter TAN number
               buildTextFieldWithLabelWidget(
                   maxLength: 10,
-                  onFieldSubmitted: (text) {
+                  onChanged: (text) {
                     setTanIntoLocal(text??"");
                   },
                   inputFormatters: [
@@ -1216,7 +1218,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             children: [
               // Enter PAN number
               buildTextFieldWithLabelWidget(
-                onFieldSubmitted: (text) {
+
+                  onChanged: (text) {
                   setPanIntoLocal(text??"");
                 },
                   inputFormatters: [
@@ -1493,9 +1496,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     FocusNode? currentFocus,
     required TextEditingController controller,
     dynamic Function()? suffixOnTap,
-    Function(String? text)? onFieldSubmitted,
+
     Color? fillColor,
     bool? isMandatory,
+    Function(String? text)? onChanged,
 
   }) {
     return Column(
@@ -1525,7 +1529,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           inputFormatters:inputFormatters,
           currentFocus: currentFocus,
           controller: controller,
-          onFieldSubmitted:(p0) => onFieldSubmitted!(p0) ,
+
+          onChanged:(p0) => onChanged!(p0) ,
           decoration: commonInputDecoration(
               fillColor : fillColor ?? AppColors.white,
               suffixIcon: readOnly

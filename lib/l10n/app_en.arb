@@ -1108,7 +1108,11 @@
   "penalties":"Penalties",
   "swipeToCompleteTrip":"Swipe to complete Trip",
   "platformFee":"Platform Fee",
-  "gst":"GST"
+  "gst":"GST",
+  "advanceReceived":"Advance Received",
+  "balanceReceived":"Balance Received",
+  "paymentSummary":"Payment Summary",
+  "base":"Base"
 
 
 }

@@ -49,10 +49,10 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.white,
       appBar: CommonAppBar(title: context.appText.tripStatement),
       body: Padding(
-        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+        padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 10),
         child: Column(
           children: [
             BlocBuilder<VpTripStatementCubit,VpTripStatementState>(
@@ -122,14 +122,15 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
       statementData?.detentions.toString(),
     );
 
+    final gstAmount=calculateGstAmount(double.tryParse(statementData?.platformFee??"")??0,double.tryParse(statementData?.platformFeeWithGst??"")??0);
+
     return Container(
-      decoration: commonContainerDecoration(),
-      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20,
         children: [
-          buildHeadingText(context.appText.mainDetails),
+          buildHeadingText("TRIP"),
+          8.height,
           buildDTripStatementWidget(
             label: context.appText.loadID,
             value: statementData?.loadId??"",
@@ -150,55 +151,67 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             label: context.appText.lane,
             value: statementData?.lane??"",
           ),
+          20.height,
           buildDTripStatementWidget(
             label: context.appText.totalTransportationCost,
             value: PriceHelper.formatINR(  tripStatement?.data?.totalTransportationCost??""),
+          ),
+          10.height,
 
+          buildHeadingText("CREDITS"),
+          8.height,
 
+          buildDTripStatementWidget(
+            label: context.appText.loadingCharges,
+            value: "(+)${PriceHelper.formatINR(statementData?.loading??"")}",
+            isPositive: true
           ),
 
           buildDTripStatementWidget(
-            label: "${context.appText.advance} (${statementData?.advancePercentage??""}%)",
-            value: PriceHelper.formatINR(  statementData?.advanceAmount??""),
+              label: context.appText.unloadingCharges,
+              value: "(+) ${PriceHelper.formatINR( statementData?.unloading??"")}",
+              isPositive: true
           ),
 
           buildDTripStatementWidget(
-            label: context.appText.damageCharges,
+            label: context.appText.detentions,
+            value: "(+) $detentionsAmount", isPositive: true
+          ),
+
+
+          20.height,
+
+          buildHeadingText("DEBITS"),
+          8.height,
+
+          platformFeeView(
+              baseAmount:PriceHelper.formatINR(statementData?.platformFee??""),
+              gstAmount: PriceHelper.formatINR(gstAmount),
+              gstPercentage: statementData?.platformFeeGstPercentage.toString(),
+              totalAmount: PriceHelper.formatINR(statementData?.platformFeeWithGst??""),
+              totalLabeledValue: '(-) ${PriceHelper.formatINR(statementData?.platformFeeWithGst??"")}'
+          ),
+
+          buildDTripStatementWidget(
+            label: context.appText.damage,
             value: '(-) ${PriceHelper.formatINR( statementData?.damages??"")}',
             isNegative: true
           ),
-
           buildDTripStatementWidget(
             label: context.appText.shortages,
             value:"(-) ${PriceHelper.formatINR( statementData?.shortages??"")}",
             isNegative: true,
           ),
           buildDTripStatementWidget(
-            label: context.appText.penalty,
+            label: context.appText.penalties,
             value: '(-) ${PriceHelper.formatINR(statementData?.penalties??"")}',
             isNegative: true,
           ),
+          20.height,
 
-          buildDTripStatementWidget(
-            label: "${context.appText.platformFee } + ${statementData?.platformFeeGstPercentage}% ${context.appText.gst}",
-            value: '(-) ${PriceHelper.formatINR(statementData?.platformFeeWithGst??"")}',
-            isNegative: true,
-          ),
+          buildHeadingText("TOTAL"),
+          8.height,
 
-          buildDTripStatementWidget(
-            label: context.appText.loadingCharges,
-            value: PriceHelper.formatINR(statementData?.loading??""),
-          ),
-
-          buildDTripStatementWidget(
-            label: context.appText.unloadingCharges,
-            value: PriceHelper.formatINR( statementData?.unloading??"")
-          ),
-
-          buildDTripStatementWidget(
-            label: context.appText.detentions,
-            value: detentionsAmount,
-          ),
           buildDTripStatementWidget(
             label:  context.appText.advancedReceived,
             value: PriceHelper.formatINR(tripStatement?.data?.advanceReceived??""),
@@ -219,12 +232,14 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
   Widget buildLoadProviderWidget({required BuildContext context,TripStatementResponse? tripStatement}) {
     return Container(
       decoration: commonContainerDecoration(),
-      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+      padding: EdgeInsets.symmetric(horizontal: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20,
+        mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          buildHeadingText(context.appText.loadProvider),
+
+          buildHeadingText(context.appText.loadProvider.toUpperCase()),
+          8.height,
           buildDTripStatementWidget(
             label: context.appText.name,
             value: tripStatement?.data?.loadProvider?.name??"",
@@ -235,7 +250,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           buildDTripStatementWidget(
             label: context.appText.unloadingDate,
-            value:  DateTimeHelper.formatCustomDateIST(
+            value:  DateTimeHelper.formatCustomDateTimeIST(
               tripStatement?.data?.loadProvider?.unloadingDate,
             ),
           ),
@@ -249,8 +264,9 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
     return Text(
       text,
       style: AppTextStyle.h5.copyWith(
-        color: AppColors.textBlackColor,
-        fontWeight: FontWeight.w700,
+        color: Color(0xff6a7282),
+        fontSize: 13,
+        fontWeight: FontWeight.w600,
       ),
     );
   }
@@ -260,32 +276,125 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
     required String label,
     required String value,
     bool isNegative = false,
+    bool? isPositive=false,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label,
-
-          maxLines: 1,
-          style: AppTextStyle.body3.copyWith(
-          fontSize: 14,
-          color: AppColors.textBlackDetailColor,
-
-        ),),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Text(
-             value,
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        color:Colors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
             maxLines: 1,
-            textAlign: TextAlign.right,
-             style: AppTextStyle.body2.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-               color: isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
+            style: AppTextStyle.body3.copyWith(
+            fontSize: 14,
+            color: AppColors.textBlackDetailColor,
+
+          ),),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+               value,
+              maxLines: 1,
+              textAlign: TextAlign.right,
+               style: AppTextStyle.body2.copyWith(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                 color:(isPositive??false)?  Colors.green:
+
+                 isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
+              ),
             ),
+          )
+        ],
+      ),
+    );
+  }
+
+
+  Widget platformFeeView({
+    String? baseAmount,
+    String? gstAmount,
+    String? totalAmount,
+    String? gstPercentage,
+    String? totalLabeledValue,
+
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        color:Colors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                spacing: 5,
+                children: [
+                  Text(context.appText.platformFee,
+                    maxLines: 1,
+                    style: AppTextStyle.body3.copyWith(
+                      fontSize: 14,
+                      color: AppColors.textBlackDetailColor,
+                    ),),
+                  Container(
+                    height: 20,
+                   padding: EdgeInsets.symmetric(horizontal: 2),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.withOpacity(0.1),
+                      border: Border.all(
+                        color: Colors.grey
+                      ),
+                      borderRadius: BorderRadius.circular(5)
+                    ),
+                    child:  FittedBox(
+                      child: Text("${context.appText.gst} ${gstPercentage}%",
+                        maxLines: 1,
+                        style: AppTextStyle.body3.copyWith(
+                          fontSize: 14,
+                          color: AppColors.textBlackDetailColor.withOpacity(0.6),
+                        ),),
+                    ),
+                  )
+                ],
+              ),
+              Text(
+                "${context.appText.base} $baseAmount + ${context.appText.gst} $gstAmount = $totalAmount",
+                maxLines: 1,
+                textAlign: TextAlign.right,
+                style: AppTextStyle.body2.copyWith(
+                    fontSize: 10,
+                    fontWeight: FontWeight.w200,
+                    color: AppColors.grayColor
+                ),
+              ),
+            ],
           ),
-        )
-      ],
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              totalLabeledValue??"",
+              maxLines: 1,
+              textAlign: TextAlign.right,
+              style: AppTextStyle.body2.copyWith(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color: AppColors.iconRed
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }
