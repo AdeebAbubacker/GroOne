@@ -343,11 +343,12 @@ class KavachService {
     int limit = 10,
     int? status,
     bool forceRefresh = false,
+    int fleetProductId = 2,
   }) async {
     try {
       final statusParam = status != null ? "&status=$status" : "";
       final response = await _apiService.get(
-        '${ApiUrls.kavachOrdersList}?customerId=$customerId&page=$page&limit=$limit$statusParam&fleetProductId=2',
+        '${ApiUrls.kavachOrdersList}?customerId=$customerId&page=$page&limit=$limit$statusParam&fleetProductId=$fleetProductId',
         forceRefresh: forceRefresh,
       );
 

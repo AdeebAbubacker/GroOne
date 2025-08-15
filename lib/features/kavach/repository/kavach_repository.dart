@@ -125,7 +125,7 @@ class KavachRepository {
   }
 
   /// Fetches customer orders for the current user with optional filtering
-  Future<Result<KavachOrderListResponse>> fetchCustomerOrders({ int page = 1, int limit = 10, int? status, bool forceRefresh = false }) async {
+  Future<Result<KavachOrderListResponse>> fetchCustomerOrders({ int page = 1, int limit = 10, int? status, bool forceRefresh = false,int fleetProductId = 2, }) async {
     try {
       final customerId = await userInfoRepo.getUserID() ?? '';
       if (customerId.isEmpty) {
@@ -136,7 +136,8 @@ class KavachRepository {
         page: page,
         limit: limit,
         status: status,
-        forceRefresh: forceRefresh
+        forceRefresh: forceRefresh,
+        fleetProductId: fleetProductId,
       );
     } catch (e) {
       CustomLog.error(this, "Failed to fetch customer orders in repository", e);

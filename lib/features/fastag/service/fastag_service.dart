@@ -123,7 +123,8 @@ class FastagService {
         return Error(ErrorWithMessage(message: 'Customer ID not found'));
       }
 
-      String url = 'https://gro-uat-api.letsgro.co/vendor/api/v1/fast-tag/card/$customerId';
+      // String url = 'https://gro-uat-api.letsgro.co/vendor/api/v1/fast-tag/card/$customerId';
+      String url = ApiUrls.fastagOrderList(customerId);
       if (searchTerm.isNotEmpty) {
         url += '?searchTerm=${Uri.encodeComponent(searchTerm)}';
       }

@@ -365,7 +365,8 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
         pan: state.pan.isNotEmpty ? state.pan : null,
         panDocLink: panDocLink,
         isPan: state.pan.isNotEmpty ? true : null,
-        aadharDocLink: state.aadhaarDocLink, // ✅ Add this
+        aadharDocLink: state.aadhaarDocLink,
+        fromFleet: true
       );
 
       final result = await _repository.uploadKycDocuments(request, customerId);

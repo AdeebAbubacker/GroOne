@@ -199,6 +199,8 @@ class ApiUrls {
 
   ///Fastag
   static final String fastagAddVehicle = "$_fetchUrl$_vendor$_path$_v1/fast-tag/addVehicle";
+  //https://gro-uat-api.letsgro.co/vendor/api/v1/fast-tag/card/$customerId
+  static  String fastagOrderList(String customerId) => "$_fetchUrl$_vendor$_path$_v1/fast-tag/card/$customerId";
 
   ///Gps and kavach payment initate
   static final String fleetPayment = "$_fetchUrl$_paymentBroker$_path$_v1/payment/initiate";

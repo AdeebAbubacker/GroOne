@@ -213,6 +213,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           panDocLink: panDocLink,
           isPan: state.pan.isNotEmpty ? true : null,
           aadharDocLink: state.aadhaarDocLink,
+          fromFleet: true
         ),
         customerId,
       );

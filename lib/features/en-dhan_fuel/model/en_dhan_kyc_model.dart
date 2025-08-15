@@ -95,7 +95,7 @@ class EnDhanDocument {
   final String? identityProofNo;
   final String? addressProofNo;
   final String? createdAt;
-  final int? id;
+  final String? id;
   final String? customerId; // Changed from int? to String?
   final String? aadhar;
   final String? pan;
@@ -141,7 +141,7 @@ class EnDhanDocument {
       identityProofNo: json['identityProofNo'] as String?,
       addressProofNo: json['addressProofNo'] as String?,
       createdAt: json['createdAt'] as String?,
-      id: json['id'] as int?,
+      id: json['id'] as String?,
       customerId: json['customerId'] as String?, // Changed from int? to String?
       aadhar: json['aadhar'] as String?,
       pan: json['pan'] as String?,
