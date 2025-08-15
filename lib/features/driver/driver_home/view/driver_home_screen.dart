@@ -564,6 +564,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     }
     return Expanded(
       child: TabBarView(
+        physics: NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: List.generate(tabLabels.length, (index) {
           return BlocListener<DriverLoadsBloc, DriverLoadsState>(

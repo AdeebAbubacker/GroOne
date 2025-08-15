@@ -302,6 +302,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
     }
 
     MasterDialogueWidget.show(
+      dismissible: true,
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
@@ -696,6 +697,10 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
               ToastMessages.alert(message: "FC Expiry Date is required");
               return;
               }
+               if (registrationDate == null || registrationDate!.isEmpty) {
+              ToastMessages.alert(message: "Registration Date is required");
+              return;
+              }  
               if (pucExpiryDate == null || pucExpiryDate!.isEmpty) {
               ToastMessages.alert(message: "PUC Expiry Date is required");
               return;
@@ -717,11 +722,11 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
                   ownerName: owenerNameController.text,
-                  fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
+                  fcExpiryDate: convertToYMD(fcExpiryDate.toString())  ?? '',
                   insurancePolicyNumber: insurancePolicyNumber.text,
-                  pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
-                  registrationDate: convertToYMD(registrationDate.toString()),
-                  insuranceValidityDate: convertToYMD(insuranceValidityDate.toString()),
+                  pucExpiryDate: convertToYMD(pucExpiryDate.toString())  ?? '', 
+                  registrationDate: convertToYMD(registrationDate.toString())  ?? '', 
+                  insuranceValidityDate: convertToYMD(insuranceValidityDate.toString())  ?? '', 
                 );
 
                 if (isEdit) {
@@ -732,10 +737,10 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                       truckNo: truckNumberController.text.trim(),
                       tonnage: selectedWeightDropDownValue,
                       truckTypeId: selectedTruckType?.id ?? 1,
-                      fcExpiryDate:convertToYMD(fcExpiryDate.toString()),
-                      insuranceValidityDate: convertToYMD(insuranceValidityDate.toString()),
-                      pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
-                      registrationDate: convertToYMD(registrationDate.toString()),
+                      fcExpiryDate: convertToYMD(fcExpiryDate.toString())  ?? '',
+                      insuranceValidityDate: convertToYMD(insuranceValidityDate.toString())  ?? '',
+                      pucExpiryDate: convertToYMD(pucExpiryDate.toString())  ?? '', 
+                      registrationDate: convertToYMD(registrationDate.toString())  ?? '', 
                       insurancePolicyNumber: insurancePolicyNumber.text,
                       ownerName: owenerNameController.text,
                       modelNumber: truckMakeModelController.text,

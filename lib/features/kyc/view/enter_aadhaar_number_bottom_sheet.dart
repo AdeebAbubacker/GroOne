@@ -5,6 +5,7 @@ import 'package:flutter_otp_text_field/flutter_otp_text_field.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
@@ -26,6 +27,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -68,7 +70,7 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
 
   String? aadharRequestId;
 
-
+  final _storage= locator<SecuredSharedPreferences>();
 
   @override
   void initState() {
@@ -88,6 +90,15 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
     kycBloc.resetState();
   });
 
+
+  void setAadharDocumentToLocal(String? aadharPdf,String? aadharNumber)=>frameCallback(() async{
+   await Future.wait(
+      [
+    _storage.saveBoolean(AppString.sessionKey.aadharVerified, true),
+    _storage.saveKey(AppString.sessionKey.aadharNumber, aadhaarNumberTextController.text),
+    _storage.saveKey(AppString.sessionKey.aadharPdf, aadharPdf??"")
+      ]);
+  });
 
 
   @override
@@ -109,6 +120,7 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
        }else{
          path= await KycHelper.saveBase64PdfToFile(aadharVerificationData?.dataPdf??"");
        }
+       setAadharDocumentToLocal(path,aadhaarNumberTextController.text);
 
        Navigator.of(navigatorKey.currentState!.context).pushReplacement(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text,pdfPath: path,))).then((v) {
          if(v != null && v == true){
@@ -155,6 +167,11 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
           requestID = initState?.data?.requestId ?? '123456';
           _checkVerification(initState?.data);
         }
+
+        if (initState?.status == Status.ERROR) {
+          ToastMessages.error(message: context.appText.errorMessage);
+        }
+
         final aadharVerificationResponse = state.aadharVerificationState;
         final docVerificationState = state.docVerificationState;
         if(aadharVerificationResponse?.status==Status.SUCCESS){

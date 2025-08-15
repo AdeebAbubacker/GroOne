@@ -293,6 +293,7 @@ class _buildDriverTabState extends State<buildDriverTab> {
     );
     selectedLicneseId = driver?.licenseCategory;
     MasterDialogueWidget.show(
+      dismissible: true,
       context,
       child: StatefulBuilder(
         builder: (
@@ -671,8 +672,8 @@ class _buildDriverTabState extends State<buildDriverTab> {
                   email: emailController.text,
                   licenseNumber: licenseNumberController.text,
                   licenseDocLink: rcDocLink,
-                  licenseExpiryDate: convertToYMD(licenseExpiryIso.toString()),
-                  dateOfBirth: convertToYMD(dateOfBirthIso.toString()),
+                  licenseExpiryDate: convertToYMD(licenseExpiryIso.toString())  ?? '',
+                  dateOfBirth: convertToYMD(dateOfBirthIso.toString())  ?? '',
                   licenseCategory: selectedLicneseId,
                   bloodGroup: selectedBloodId,
                   driverStatus: isActive ? 1 : 2,

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
@@ -97,6 +98,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   List<dynamic> gstDoc = [];
   List<dynamic> panDoc = [];
   List<dynamic> tanDoc = [];
+
+
+
+
+
   List<dynamic> checkDocLink = [];
   List<dynamic> tdsDocLink = [];
   List<dynamic> tds = [];
@@ -123,11 +129,14 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
 
+
   @override
   void dispose() {
     disposeFunction();
     super.dispose();
   }
+
+
   
   void initFunction()=> frameCallback(() async {
     await kycCubit.fetchUserRole();
@@ -141,8 +150,82 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       aadhaarNumberTextController.text = "";
     }
     uploadAadharDocument();
+    getKycDetailsFromLocal();
+    getKycVerified();
+    getAllDocs();
   });
-  
+
+  void getKycDetailsFromLocal() => frameCallback(()async{
+    gstInTextController.text= await securePrefs.get(AppString.sessionKey.gtsinNumber)??"";
+    tanTextController.text = await  securePrefs.get(AppString.sessionKey.tanNumber)??"";
+    panTextController.text=  await securePrefs.get(AppString.sessionKey.panNumber)??"";
+  });
+
+  // set gst
+  void setGstNumberIntoLocal(String gstNumber) => frameCallback(()async {
+     securePrefs.saveKey(AppString.sessionKey.gtsinNumber,gstNumber);
+  });
+  // Set Pan Number
+  void setPanIntoLocal(String panNumber) => frameCallback(()async {
+    securePrefs.saveKey(AppString.sessionKey.panNumber,panNumber);
+  });
+
+  // Set Tan Number
+  void setTanIntoLocal(String tanNumber) => frameCallback(()async {
+    securePrefs.saveKey(AppString.sessionKey.tanNumber,tanNumber);
+  });
+
+  // set gst doc and url
+  void setGstDocIDAndUrl(String url,String docID) => frameCallback(()async {
+    securePrefs.saveKey(AppString.sessionKey.gstDocUrl,url);
+    securePrefs.saveKey(AppString.sessionKey.gstDocID,docID);
+  });
+
+  // set pan doc and url
+  void setPanDocAndUrl(String url,String docId) => frameCallback(()async {
+    securePrefs.saveKey(AppString.sessionKey.panDocUrl,url);
+    securePrefs.saveKey(AppString.sessionKey.panDocId,docId);
+  });
+
+  // set tan doc and url
+  void setTanDocAndUrl(String url,String docID) => frameCallback(()async {
+    securePrefs.saveKey(AppString.sessionKey.tanDocUrl,url);
+    securePrefs.saveKey(AppString.sessionKey.tanDocID,docID);
+  });
+
+
+  // get all from local
+  Future getAllDocs() async {
+    final gstDocUrl = await securePrefs.get(AppString.sessionKey.gstDocUrl);
+    final gstDocIDLocal = await securePrefs.get(AppString.sessionKey.gstDocID);
+
+    final panDocUrl = await securePrefs.get(AppString.sessionKey.panDocUrl);
+    final panDocIDLocal = await securePrefs.get(AppString.sessionKey.panDocId);
+
+    final tanDocUrl = await securePrefs.get(AppString.sessionKey.tanDocUrl);
+    final tanDocIDLocal = await securePrefs.get(AppString.sessionKey.tanDocID);
+
+
+
+    if((gstDocUrl??"").isNotEmpty) gstDoc=[jsonDecode(gstDocUrl!)];
+    if((panDocUrl??"").isNotEmpty)  panDoc=[jsonDecode(panDocUrl!)];
+    if((tanDocUrl??"").isNotEmpty)   tanDoc=[jsonDecode(tanDocUrl!)];
+
+    if((gstDocIDLocal??"").isNotEmpty)  gstDocId=gstDocIDLocal;
+    if((panDocIDLocal??"").isNotEmpty)  panDocId=panDocIDLocal;
+    if((tanDocIDLocal??"").isNotEmpty)  tanDocId=tanDocIDLocal;
+
+  }
+
+
+
+
+
+  // check from local
+  void getKycVerified(){
+    kycCubit.checkIsKycNumberVerified(securePrefs);
+  }
+
   void disposeFunction()=> frameCallback((){
     gstInTextController.dispose();
     tanTextController.dispose();
@@ -339,11 +422,14 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   // Verify GST api call
   Future<void> verifyGstApiCall(String gstNumber, BuildContext context) async {
     final apiRequest = VerifyGstApiRequest(gst: gstNumber, force: true);
-    await kycCubit.verifyGst(apiRequest);
+
+
+    await kycCubit.verifyGst(apiRequest,securePrefs);
     if (kycCubit.state.gstState?.status == Status.SUCCESS && context.mounted) {
       ToastMessages.success(message: context.appText.gstVerifiedSuccessfully);
     }
     if (kycCubit.state.gstState?.status == Status.ERROR && context.mounted) {
+
       final error = kycCubit.state.gstState?.errorType;
       ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
     }
@@ -356,6 +442,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     await kycCubit.verifyTan(apiRequest);
     if (kycCubit.state.tanState?.status == Status.SUCCESS && context.mounted) {
       ToastMessages.success(message: context.appText.tanVerifiedSuccessfully);
+      securePrefs.saveBoolean(AppString.sessionKey.isTanNumberVerified, true);
     }
     if (kycCubit.state.tanState?.status == Status.ERROR  && context.mounted) {
       final error = kycCubit.state.tanState?.errorType;
@@ -371,12 +458,15 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     if(!context.mounted) return;
     if (kycCubit.state.panState?.status == Status.SUCCESS) {
       ToastMessages.success(message:  context.appText.panVerifiedSuccessfully);
+      securePrefs.saveBoolean(AppString.sessionKey.isPanNumberVerified, true);
     }
     if (kycCubit.state.panState?.status == Status.ERROR) {
        final error = kycCubit.state.panState?.errorType;
       ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
     }
   }
+
+
 
 
 // Submit KYC Validation
@@ -932,6 +1022,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               // Enter GST Number
               buildTextFieldWithLabelWidget(
                   maxLength: 15,
+                  onFieldSubmitted: (text) {
+                    setGstNumberIntoLocal(text??"");
+                  },
                   inputFormatters: [
                     UpperCaseTextFormatter(),
                     GSTInputFormatter()
@@ -970,8 +1063,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 thenUploadFileToSever: () async {
                   final Result result = await uploadGSTDocumentApiCall(gstDoc);
                   if(result is Success) {
+                    print("calling 1");
                     final gstData = kycCubit.state.uploadGSTDocUIState?.data;
                     if(gstData != null &&  gstDoc.isNotEmpty){
+                      print("calling 2 ${gstDoc}");
                       final apiRequest =  CreateDocumentApiRequest(
                         documentTypeId : KycHelper.getDocumentTypeId(KycDocType.gstin),
                         title : KycHelper.getMeta(KycDocType.gstin).title,
@@ -982,10 +1077,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                         mimeType : KycHelper.getMimeTypeFromExtension(gstDoc.first['extension']),
                         fileExtension : gstDoc.first['extension'],
                       );
+                      print("calling 3");
                       await createDocumentApiCall(apiRequest);
                       if(kycCubit.state.createDocumentUIState?.status == Status.SUCCESS){
                         if(kycCubit.state.createDocumentUIState?.data != null && kycCubit.state.createDocumentUIState?.data?.data != null){
                           gstDocId = kycCubit.state.createDocumentUIState!.data!.data!.documentId;
+
+                          setGstDocIDAndUrl(jsonEncode(gstDoc.first),gstDocId??"");
                         }
                       }
                       debugPrint("gstDocId : $gstDocId");
@@ -1022,6 +1120,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               // Enter TAN number
               buildTextFieldWithLabelWidget(
                   maxLength: 10,
+                  onFieldSubmitted: (text) {
+                    setTanIntoLocal(text??"");
+                  },
                   inputFormatters: [
                     UpperCaseTextFormatter(),
                     TANInputFormatter(),
@@ -1077,6 +1178,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                         if(kycCubit.state.createDocumentUIState?.status == Status.SUCCESS){
                           if(kycCubit.state.createDocumentUIState?.data != null && kycCubit.state.createDocumentUIState?.data?.data != null){
                             tanDocId = kycCubit.state.createDocumentUIState!.data!.data!.documentId;
+                            setTanDocAndUrl(jsonEncode(tanDoc.first),tanDocId??"");
                           }
                         }
                         debugPrint("tanDocId : $tanDocId");
@@ -1114,6 +1216,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             children: [
               // Enter PAN number
               buildTextFieldWithLabelWidget(
+                onFieldSubmitted: (text) {
+                  setPanIntoLocal(text??"");
+                },
                   inputFormatters: [
                     UpperCaseTextFormatter(),
                     PANCardInputFormatter(),
@@ -1170,6 +1275,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                         if(kycCubit.state.createDocumentUIState?.status == Status.SUCCESS){
                           if(kycCubit.state.createDocumentUIState?.data != null && kycCubit.state.createDocumentUIState?.data?.data != null){
                             panDocId = kycCubit.state.createDocumentUIState!.data!.data!.documentId;
+                            setPanDocAndUrl(jsonEncode(panDoc.first),panDocId??"");
                           }
                         }
                         debugPrint("panDocId : $panDocId");
@@ -1387,6 +1493,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     FocusNode? currentFocus,
     required TextEditingController controller,
     dynamic Function()? suffixOnTap,
+    Function(String? text)? onFieldSubmitted,
     Color? fillColor,
     bool? isMandatory,
 
@@ -1418,6 +1525,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           inputFormatters:inputFormatters,
           currentFocus: currentFocus,
           controller: controller,
+          onFieldSubmitted:(p0) => onFieldSubmitted!(p0) ,
           decoration: commonInputDecoration(
               fillColor : fillColor ?? AppColors.white,
               suffixIcon: readOnly

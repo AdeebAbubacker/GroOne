@@ -55,15 +55,26 @@ class IncompleteKycStatusWidget extends StatelessWidget {
           TextButton(
             onPressed: () async{
               bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
-               if (companyId != null && (companyId == 2 || companyId == 1)) {
-                if (isKycCompleted) {
-                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+              bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+              String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+              String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
+              if (companyId != null && (companyId == 2 || companyId == 1)) {
+                if (isKycCompleted || isAadharVerified) {
+                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                  aadhaarNumber: aadharNumber,
+                  pdfPath: aadharPDF,
+                )));
                 } else{
-                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet(
+                  ));
                 }
 
               } else {
-                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                  pdfPath: aadharPDF,
+                  aadhaarNumber: aadharNumber,
+                )));
               }
             },
             style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(Colors.redAccent)),

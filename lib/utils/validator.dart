@@ -138,7 +138,7 @@ class Validator {
     }
 
     // Indian vehicle number pattern (no spaces, no hyphens)
-    final regex = RegExp(r'^[A-Z]{2}\d{1,2}[A-Z]{1,2}\d{1,4}$', caseSensitive: false);
+    final regex = RegExp(r'^[A-Z]{2}[ -]?[0-9]{2}[ -]?[A-Z]{1,2}[ -]?[0-9]{4}$', caseSensitive: false);
 
     if (!regex.hasMatch(value.trim().toUpperCase())) {
       return '$fieldName is invalid';
@@ -152,9 +152,6 @@ class Validator {
     }
     
     final trimmedValue = value.trim().toUpperCase();
-    
-    // RC book number format: 2 letters (State code) + 2 digits (RTO code) + 1 or 2 letters (Series) + 4 digits (Vehicle number)
-    // Examples: MH12AB1234, DL01Z1234, KA02ABC1234
     final regex = RegExp(r'^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$');
     
     if (!regex.hasMatch(trimmedValue)) {
@@ -169,21 +166,7 @@ class Validator {
   }
 
   final trimmedValue = value.trim().toUpperCase();
-
-  // Indian driving license format:
-  // - Two uppercase letters (State code, e.g., DL, MH, KA)
-  // - Optional space or hyphen
-  // - Two digits (RTO code)
-  // - Optional space or hyphen
-  // - Four digits (Year of issue)
-  // - Optional space or hyphen
-  // - 6 or 7 digits (Unique license number)
-  //
-  // Examples: DL-0420110149646, MH1220110149646, KA-05-201500123456
-  final regex = RegExp(
-    r'^[A-Z]{2}[- ]?\d{2}[- ]?\d{4}[- ]?\d{6,7}$',
-    caseSensitive: false,
-  );
+  final regex = RegExp(r"^([A-Z]{2})[- ]?([0-9]{2})[- ]?((19|20)[0-9]{2})[- ]?([0-9]{7})$", caseSensitive: false,);
 
   if (!regex.hasMatch(trimmedValue)) {
     return '$fieldName is invalid.';

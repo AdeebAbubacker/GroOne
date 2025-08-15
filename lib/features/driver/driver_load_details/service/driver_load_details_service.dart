@@ -102,6 +102,7 @@ class DriverLoadDetailsService {
   required String loadId,
   required int? loadStatus,
 }) async {
+  print('update stus api called ');
   try {
  final statusUpdateUrl=ApiUrls.updateLoadStatus;
       final result = await _apiService.put(
@@ -110,8 +111,10 @@ class DriverLoadDetailsService {
         },
           '$statusUpdateUrl/$userId/$loadId');
     if (result is Success) {
+ 
       final changeLoadStatusResponse = VpLoadAcceptModel.fromJson(result.value);
       return Success(changeLoadStatusResponse);
+   
     } else if (result is Error) {
       return Error(result.type);
     } else {

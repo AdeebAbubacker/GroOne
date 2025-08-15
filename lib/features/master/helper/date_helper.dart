@@ -115,33 +115,34 @@ class MasterDriverDropDownHelper {
 
 
 
-String convertToYMD(String dateStr) {
-  try {
-    // Attempt to parse using DateTime.parse first (ISO strings)
-    DateTime parsedDate = DateTime.parse(dateStr);
-    return DateFormat('yyyy-MM-dd').format(parsedDate);
-  } catch (_) {
-    // Fallback: try common formats
-    final formats = [
-      'dd/MM/yyyy',
-      'dd-MM-yyyy',
-      'MM/dd/yyyy',
-      'MM-dd-yyyy',
-      'yyyy/MM/dd',
-      'yyyy-MM-dd',
-      'dd MMM yyyy',
-      'MMM dd, yyyy',
-    ];
 
-    for (var format in formats) {
-      try {
-        DateTime parsedDate = DateFormat(format).parseStrict(dateStr);
-        return DateFormat('yyyy-MM-dd').format(parsedDate);
-      } catch (_) {}
-    }
+String convertToYMD(String dateStr) {
+  dateStr = dateStr.trim();
+
+  final formats = [
+    'dd/MM/yyyy',
+    'dd-MM-yyyy',
+    'MM/dd/yyyy',
+    'MM-dd-yyyy',
+    'yyyy/MM/dd',
+    'yyyy-MM-dd',
+    'dd MMM yyyy',
+    'MMM dd, yyyy',
+  ];
+
+  for (var format in formats) {
+    try {
+      final parsedDate = DateFormat(format).parseStrict(dateStr);
+      // Format as year-month-day with hyphens
+      return DateFormat('yyyy-MM-dd').format(parsedDate);
+    } catch (_) {}
   }
 
-  // If all fails
+  // Fallback to ISO parse
+  try {
+    final parsedDate = DateTime.parse(dateStr);
+    return DateFormat('yyyy-MM-dd').format(parsedDate);
+  } catch (_) {}
+
   return 'Invalid date';
 }
-

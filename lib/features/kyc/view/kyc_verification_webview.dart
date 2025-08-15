@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -99,8 +100,7 @@ PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     }, icon: Icon(Icons.arrow_back)),
     centreTile: true,
     showInUpperCase: true,
-    title: context.appText.kyc.toUpperCase(),
-
+    title: context.appText.aadhaarVerification,
     backgroundColor: Colors.transparent,
     actions: [
       20.width,

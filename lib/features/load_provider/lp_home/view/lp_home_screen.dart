@@ -420,16 +420,26 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
               
               return kycWidget(
                 onTap: () async{
-                  //  bool isKycCompleted = await NotificationSessionManager().isKycWebViewCompleted() ?? false; 
-                    bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview); 
+                  bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
+                    bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+
+                    String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                    String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
                   if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    if (isKycCompleted) {
-                      Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                    if (isKycCompleted || isAadharVerified) {
+                      Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                        aadhaarNumber: aadharNumber,
+                        pdfPath: aadharPDF,
+                      )));
                       } else{
                         commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                       }
                   } else {
-                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                      aadhaarNumber: aadharNumber,
+                      pdfPath: aadharPDF,
+                    )));
                   }
                 },
               );

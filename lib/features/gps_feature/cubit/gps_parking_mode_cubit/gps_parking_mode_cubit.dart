@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+
 import '../../../../data/model/result.dart';
 import '../../models/gps_parking_model.dart';
 import '../../repository/gps_repository.dart';
@@ -17,20 +18,35 @@ class GpsParkingModeCubit extends Cubit<GpsParkingModeState> {
     if (result is Success<List<GpsParkingModeModel>>) {
       emit(GpsParkingModeLoaded(result.value));
     } else if (result is Error<List<GpsParkingModeModel>>) {
-      emit(GpsParkingModeError(result.type.toString()));
+      // Handle GPS device activation error specifically
+      if (result.type is GpsDeviceActivationError) {
+        final error = result.type as GpsDeviceActivationError;
+        emit(
+          GpsParkingModeDeviceActivationError(
+            error.message ??
+                'Device activation still in progress. Please try again later.',
+          ),
+        );
+      } else {
+        emit(GpsParkingModeError(result.type.toString()));
+      }
     }
   }
 
-  Future<void> toggleParkingMode(GpsParkingModeModel model, bool newValue) async {
+  Future<void> toggleParkingMode(
+    GpsParkingModeModel model,
+    bool newValue,
+  ) async {
     final currentState = state;
 
     if (currentState is GpsParkingModeLoaded) {
       // Optimistic UI
-      final updatedList = currentState.modes.map((e) {
-        return e.deviceId == model.deviceId
-            ? e.copyWith(parkingMode: newValue)
-            : e;
-      }).toList();
+      final updatedList =
+          currentState.modes.map((e) {
+            return e.deviceId == model.deviceId
+                ? e.copyWith(parkingMode: newValue)
+                : e;
+          }).toList();
       emit(GpsParkingModeLoaded(updatedList));
 
       final result = await _repository.updateParkingMode(
@@ -40,15 +56,17 @@ class GpsParkingModeCubit extends Cubit<GpsParkingModeState> {
       );
 
       if (result is Success<GpsParkingModeModel>) {
-        final refreshedList = updatedList.map((e) {
-          return e.deviceId == result.value.deviceId ? result.value : e;
-        }).toList();
+        final refreshedList =
+            updatedList.map((e) {
+              return e.deviceId == result.value.deviceId ? result.value : e;
+            }).toList();
         emit(GpsParkingModeLoaded(refreshedList));
       } else {
         // Revert on failure
-        final revertedList = currentState.modes.map((e) {
-          return e.deviceId == model.deviceId ? model : e;
-        }).toList();
+        final revertedList =
+            currentState.modes.map((e) {
+              return e.deviceId == model.deviceId ? model : e;
+            }).toList();
         emit(GpsParkingModeLoaded(revertedList));
         // Optional: show error
       }
@@ -72,7 +90,4 @@ class GpsParkingModeCubit extends Cubit<GpsParkingModeState> {
       parkingScheduleDays: parkingScheduleDays,
     );
   }
-
-
-
 }

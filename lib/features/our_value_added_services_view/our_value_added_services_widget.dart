@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/fastag/views/fastag_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
@@ -249,7 +250,7 @@ class _OurValueAddedServicesWidgetState
         imageString: AppImage.png.buyFastTag,
         onClick: () {
           // context.push(AppRouteName.buyFastag);
-          Navigator.push(context, commonRoute(FastagNewUserScreen()));
+          Navigator.push(context, commonRoute(FastagListScreen()));
         },
       ),
       _buildServicesWidget(
