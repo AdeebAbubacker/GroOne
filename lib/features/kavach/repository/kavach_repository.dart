@@ -14,6 +14,7 @@ import '../api_request/kavach_add_address_api_request.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
+import '../model/kavach_invoice_response_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_product_model.dart';
 import '../model/kavach_transaction_model.dart';
@@ -269,6 +270,10 @@ class KavachRepository {
       CustomLog.error(this, "Failed to fetch vehicle data in repository", e);
       return Error(GenericError());
     }
+  }
+
+  Future<Result<KavachInvoiceResponse>> downloadInvoice(String orderId) {
+    return _service.downloadInvoice(orderId);
   }
 
 }

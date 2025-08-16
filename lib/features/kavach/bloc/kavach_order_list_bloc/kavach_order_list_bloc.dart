@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import '../../../../data/model/result.dart';
+import '../../model/kavach_invoice_response_model.dart';
 import '../../model/kavach_order_list_model.dart';
 import '../../repository/kavach_repository.dart';
 import 'kavach_order_list_event.dart';
@@ -10,6 +11,7 @@ class KavachOrderListBloc extends Bloc<KavachOrderListEvent, KavachOrderListStat
 
   KavachOrderListBloc(this._repository) : super(KavachOrderListInitial()) {
     on<FetchKavachOrderList>(_onFetchOrders);
+    on<DownloadInvoiceEvent>(_onDownloadInvoice);
   }
 
   Future<void> _onFetchOrders(FetchKavachOrderList event, Emitter<KavachOrderListState> emit) async {
@@ -59,6 +61,19 @@ class KavachOrderListBloc extends Bloc<KavachOrderListEvent, KavachOrderListStat
       }
     } catch (e) {
       emit(KavachOrderListError("Unexpected error: $e"));
+    }
+  }
+  Future<void> _onDownloadInvoice(
+      DownloadInvoiceEvent event,
+      Emitter<KavachOrderListState> emit,
+      ) async {
+    emit(InvoiceDownloading());
+    final result = await _repository.downloadInvoice(event.orderId);
+
+    if (result is Success<KavachInvoiceResponse>) {
+      emit(InvoiceDownloaded(result.value.url));
+    } else {
+      emit(KavachOrderListError("Failed to download invoice"));
     }
   }
 }

@@ -19,6 +19,8 @@ class EnDhanState extends Equatable {
   final UIState<VehicleVerificationResponse>? vehicleVerificationState;
   final UIState<PincodeResponse>? pincodeState;
   final String? aadhaarDocLink;
+  final UIState<Map<String, dynamic>>? endhanServerStatusState;
+
 
 
   // KYC Form fields
@@ -97,6 +99,7 @@ class EnDhanState extends Equatable {
 
   const EnDhanState({
     this.uploadKycState,
+    this.endhanServerStatusState,
     this.kycCheckState,
     this.customerCreationState,
     this.statesState,
@@ -208,7 +211,8 @@ class EnDhanState extends Equatable {
       panVerificationState: null,
       vehicleVerificationState: null,
       pincodeState: null,
-      
+      endhanServerStatusState: null,
+
       // Clear verification data
       aadhaarRequestId: null,
       verifiedVehicleNumbers: const {},
@@ -287,6 +291,7 @@ class EnDhanState extends Equatable {
     List<dynamic>? regionalOffices,
     List<String>? vehicleTypes,
     String? aadhaarDocLink,
+    UIState<Map<String, dynamic>>? endhanServerStatusState,
   }) {
     return EnDhanState(
       uploadKycState: uploadKycState ?? this.uploadKycState,
@@ -360,6 +365,7 @@ class EnDhanState extends Equatable {
       regionalOffices: regionalOffices ?? this.regionalOffices,
       vehicleTypes: vehicleTypes ?? this.vehicleTypes,
       aadhaarDocLink: aadhaarDocLink ?? this.aadhaarDocLink,
+      endhanServerStatusState: endhanServerStatusState ?? this.endhanServerStatusState,
     );
   }
 
@@ -445,6 +451,7 @@ class EnDhanState extends Equatable {
     regionalOffices,
     vehicleTypes,
     aadhaarDocLink,
+    endhanServerStatusState,
   ];
 }
 

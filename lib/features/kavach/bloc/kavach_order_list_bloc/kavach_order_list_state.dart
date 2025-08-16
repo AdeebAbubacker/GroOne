@@ -35,3 +35,10 @@ class KavachOrderListError extends KavachOrderListState {
 
   KavachOrderListError(this.message);
 }
+
+class InvoiceDownloading extends KavachOrderListState {}
+
+class InvoiceDownloaded extends KavachOrderListState {
+  final String url;
+  InvoiceDownloaded(this.url);
+}

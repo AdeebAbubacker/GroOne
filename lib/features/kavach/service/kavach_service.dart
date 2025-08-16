@@ -13,6 +13,7 @@ import '../api_request/kavach_add_vehicle_request.dart';
 import '../api_request/kavach_payment_api_request.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
+import '../model/kavach_invoice_response_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_transaction_model.dart';
 import '../model/kavach_truck_length_model.dart';
@@ -871,5 +872,27 @@ class KavachService {
       return Error(DeserializationError());
     }
   }
+
+  Future<Result<KavachInvoiceResponse>> downloadInvoice(String orderId) async {
+    final url = ApiUrls.kavachInvoice(orderId);
+    final result = await _apiService.get(
+      url,
+    );
+
+    if (result is Success) {
+      try {
+        final data = result.value as Map<String, dynamic>;
+        final invoice = KavachInvoiceResponse.fromJson(data);
+        return Success(invoice);
+      } catch (e) {
+        return Error(DeserializationError());
+      }
+    } else if (result is Error) {
+      return Error(result.type);
+    } else {
+      return Error(GenericError());
+    }
+  }
+
 }
 

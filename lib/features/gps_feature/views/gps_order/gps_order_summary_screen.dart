@@ -515,7 +515,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             children: [
               Text(context.appText.total, style: AppTextStyle.blackColor14w400),
               Text(
-                '₹${KavachHelper.formatCurrency(totalAmount.round())}',
+                '₹${totalAmount.toStringAsFixed(2)}',
                 style: AppTextStyle.primaryColor16w900,
               ),
             ],
@@ -533,7 +533,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 final paymentRequest = KavachInitiatePaymentRequest(
                   orderId: "ORDER_${DateTime.now().millisecondsSinceEpoch}",
                   // This should be the actual order ID from the order creation
-                  amount: totalAmount.toInt(),
+                  amount: totalAmount,
                   customerName:
                       customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
                   customerEmail: "customer@example.com",
