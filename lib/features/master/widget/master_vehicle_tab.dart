@@ -90,7 +90,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
             vehicleSearchDebounce = Timer(
               const Duration(milliseconds: 300),
               () {
-                profileCubit.fetchVehicle(search: query);
+                profileCubit.fetchVehicle(isLoading: false,search: query);
               },
             );
           },
@@ -140,13 +140,15 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                   vehicleList
                       .where((v) => v.status == 1 || v.status == 2)
                       .toList();
+              final isSearching = vehicleSearchController.text.isNotEmpty;
+
 
               if (filteredVehicleList.isEmpty) {
                 return RefreshIndicator(
                   onRefresh: () async {
                     context.read<ProfileCubit>().fetchVehicle(isLoading: true);
                   },
-                  child: ListView(
+                  child: isSearching ? Text(context.appText.noSearchResults).center() :  ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(

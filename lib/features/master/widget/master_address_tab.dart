@@ -68,7 +68,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
             addressSearchDebounce = Timer(
               const Duration(milliseconds: 300),
               () {
-                profileCubit.fetchAddress(search: query);
+                profileCubit.fetchAddress(isLoading: false,search: query);
               },
             );
           },
@@ -112,12 +112,15 @@ class _buildAddressTabState extends State<buildAddressTab> {
 
               final addressList = uiState.data?.addresses ?? [];
 
+              final isSearching = addressSearchController.text.isNotEmpty;
+
               if (addressList.isEmpty) {
                 return RefreshIndicator(
                    onRefresh: () async {
                   context.read<ProfileCubit>().fetchAddress(isLoading: true);
                 }, 
-                  child: ListView(
+                  child: isSearching ? Text(context.appText.noSearchResults).center() :
+                  ListView(
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(

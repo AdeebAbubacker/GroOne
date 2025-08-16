@@ -258,7 +258,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                            final trackingData = state.trackingDistance?.data;
                            return TrackingProgress(
                              progressPercentage: trackingData?.coverPercentage ?? 0,
-                             remainingDistance: trackingData?.currentdistance ?? '',
+                             coveredDistance: trackingData?.covereddistance ?? '0 Km',
                              totalDistance: trackingData?.overalldistance ?? '0 Km',
                              eta: trackingData?.durationValue ?? 0,
                            );

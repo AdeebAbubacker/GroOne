@@ -192,8 +192,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                 return TrackingProgress(
                                   progressPercentage:
                                       trackingData.coverPercentage ?? 0,
-                                  remainingDistance:
-                                      trackingData.currentdistance ?? '--',
+                                  coveredDistance:
+                                      trackingData.covereddistance ?? '--',
                                   totalDistance:
                                       trackingData.overalldistance ?? '--',
                                   eta: trackingData.durationValue,

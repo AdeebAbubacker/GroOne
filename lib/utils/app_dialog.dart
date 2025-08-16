@@ -7,7 +7,7 @@ class AppDialog extends StatefulWidget {
   final bool dismissible;
   const AppDialog({super.key, required this.child, this.dismissible = false});
 
-  static void show(BuildContext context, {required Widget child, bool dismissible = true}) {
+  static void show(BuildContext context, {required Widget child, bool dismissible = false}) {
     showDialog(
       context: context,
       barrierDismissible: dismissible,

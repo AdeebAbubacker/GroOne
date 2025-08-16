@@ -101,7 +101,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     final selectedType = _tabController!.index;
     lpLoadLocator.updateSelectedTabIndex(selectedType);
 
-    final loadStatus = tabLabels[selectedType].id == 0 ? null : tabLabels[selectedType].id;
+    final loadStatus = tabLabels[selectedType].id == 1 ? null : tabLabels[selectedType].id;
 
     lpLoadLocator.getLpLoadsByType(
       loadListApiRequest: LoadListApiRequest(
@@ -115,7 +115,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     paginationController.isFetchingMore = true;
 
     final selectedType = _tabController!.index;
-    final loadStatus = tabLabels[selectedType].id == 0 ? null : tabLabels[selectedType].id;
+    final loadStatus = tabLabels[selectedType].id == 1 ? null : tabLabels[selectedType].id;
 
     await lpLoadLocator.getLpLoadsByType(
       loadListApiRequest: LoadListApiRequest(
@@ -144,7 +144,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final selectedType = _tabController!.index;
-      final loadStatus = tabLabels[selectedType].id == 0 ? null : tabLabels[selectedType].id;
+      final loadStatus = tabLabels[selectedType].id == 1 ? null : tabLabels[selectedType].id;
       lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest(loadStatus: loadStatus, search: query));
     });
   }
@@ -261,7 +261,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
 
   Future<void> _onPullToRefresh() async{
     final selectedType = _tabController!.index;
-    final loadStatus = tabLabels[selectedType].id == 0 ? null : tabLabels[selectedType].id;
+    final loadStatus = tabLabels[selectedType].id == 1 ? null : tabLabels[selectedType].id;
     lpLoadLocator.getLpLoadsByType(
      loadListApiRequest: LoadListApiRequest(
      loadStatus: loadStatus, page: paginationController.currentPage),

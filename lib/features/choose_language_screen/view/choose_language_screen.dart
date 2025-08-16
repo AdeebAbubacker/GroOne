@@ -72,7 +72,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                 Text('${context.appText.choosePreferredLanguage} ${context.appText.language}',style: AppTextStyle.textBlackColors20w400,),
                 30.height,
                 if (state.languages.isEmpty)
-                  CircularProgressIndicator().center()
+                  CircularProgressIndicator().center().expand()
                 else
                   ListView.separated(
                     shrinkWrap: true,
@@ -94,8 +94,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                         },
                       );
                     },
-                  ),
-                const Spacer(),
+                  ).expand(),
                 Column(
                   children: [
                     Text(

@@ -644,7 +644,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         AppCountSelector(
           label: context.appText.attachedTrucks,
           controller: attachedTruckTextController,
-          isMandatory: true,
         ),
       ],
     );

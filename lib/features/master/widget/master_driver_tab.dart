@@ -91,7 +91,7 @@ class _buildDriverTabState extends State<buildDriverTab> {
           onChanged: (query) {
             driverSearchDebounce?.cancel();
             driverSearchDebounce = Timer(const Duration(milliseconds: 300), () {
-              profileCubit.fetchDriver(search: query);
+              profileCubit.fetchDriver(isLoading: false,search: query);
             });
           },
           onClear: () {
@@ -136,13 +136,14 @@ class _buildDriverTabState extends State<buildDriverTab> {
               }
 
               final driverList = uiState.data?.data ?? [];
+              final isSearching = driverSearchController.text.isNotEmpty;
 
               if (driverList.isEmpty) {
                 return RefreshIndicator(
                    onRefresh: () async {
                   await profileCubit.fetchDriver(isLoading: true);
                 },
-                  child: ListView(
+                  child: isSearching ? Text(context.appText.noSearchResults).center() : ListView(
                      physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
