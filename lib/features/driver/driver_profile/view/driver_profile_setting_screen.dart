@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
-import 'package:gro_one_app/features/profile/view/widgets/profile_my_account_tile.dart';
 import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -10,8 +9,25 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/radio_button.dart';
 import '../../../../utils/app_application_bar.dart';
-import '../../../../utils/app_image.dart';
 import '../../../../utils/app_text_style.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/core/localization_bloc/localization_bloc.dart';
+import 'package:gro_one_app/core/localization_bloc/localization_event.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/settings_response.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+
 
 class DriverProfileSettingScreen extends StatefulWidget {
   const DriverProfileSettingScreen({super.key});
@@ -21,156 +37,195 @@ class DriverProfileSettingScreen extends StatefulWidget {
 }
 
 class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen> {
-  bool loadUpdate = false;
-  bool systemUpdates = false;
-  bool paymentAlerts = false;
-  bool offerPromotions = false;
-  bool enableAppLock = false;
-  bool english = true;
-  bool hindi = false;
-  bool tamil = false;
+  final profileCubit = locator<ProfileCubit>();
+  final prefs = locator<SecuredSharedPreferences>();
+
+  @override
+  void initState() {
+    super.initState();
+    initFunction();
+  }
+
+  void initFunction() => frameCallback(()  async{
+    await profileCubit.fetchSettings();
+    await profileCubit.fetchCustomerSettings();
+    final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
+    _updateLanguage(savedLangCode ?? 'English');
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
-        scrolledUnderElevation: 0,
         backgroundColor: Colors.transparent,
-        title: Text(
-          context.appText.settings,
-          style: AppTextStyle.textBlackColor18w500,
-        ),
-        toolbarHeight: 50,
+        title: Text(context.appText.settings, style: AppTextStyle.body1),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 18),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            spacing: 30,
-            children: [
-              headingText(text: "Notification"),
-              10.width,
-        
-              notificationSwitchWidget(
-                text: "Load Updates",
-                selected: loadUpdate,
-                onChange: (value) {
-                  loadUpdate = value;
-                  setState(() {});
-                },
-              ),
-              notificationSwitchWidget(
-                text: "System Updates",
-                selected: systemUpdates,
-                onChange: (value) {
-                  systemUpdates = value;
-                  setState(() {});
-                },
-              ),
-              dividerWidget(),
-              headingText(text: context.appText.language),
-        
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  languageRadioButtonWidget(
-                    text: "English",
-                    onTap: () {
-                      english = true;
-                      if (english = true) {
-                        hindi = false;
-                        tamil = false;
+      body: BlocBuilder<ProfileCubit, ProfileState>(
+        builder: (context, state) {
+          final settingState = state.settingsState;
+          final customerState = state.customerSettingsState;
+
+          if (settingState?.status == Status.LOADING || customerState?.status == Status.LOADING) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          if (settingState?.status == Status.ERROR) {
+            return genericErrorWidget(error: settingState?.errorType ?? customerState?.errorType);
+          }
+
+          final settingsList = (settingState?.data ?? [])
+              .where((element) => element.section != "Security")
+              .toList();
+
+          final customerData = customerState?.data;
+
+          // Group settings by section
+          final Map<String, List<SettingsResponse>> groupedSettings = {};
+          for (var setting in settingsList) {
+            groupedSettings.putIfAbsent(setting.section, () => []).add(setting);
+          }
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+            child: ListView(
+              children: groupedSettings.entries.map((entry) {
+                final section = entry.key;
+                final settings = entry.value;
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    headingText(section),
+                    ...settings.map((setting) {
+                      final key = setting.key;
+                      final value = DriverCustomerSettingsMapper.getValue(key, customerData, setting.defaultValue);
+
+
+                      if (setting.type == 'toggle') {
+                        if (setting.key == 'offers_promotions' || setting.key == 'payment_alerts') {
+                          return const SizedBox.shrink();
+                        }
+                        return toggleRow(
+                          setting.label,
+                          value == 'true',
+                              (bool newVal) {
+                                final request = DriverCustomerSettingsMapper.buildRequest(key, newVal.toString());
+
+                            if (request != null) {
+                              profileCubit.updateCustomerSettings(request: request);
+                            }
+                          },
+                        );
+                      } else if (setting.type == 'radio') {
+                        final options = setting.options.split(',');
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 10),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              ...options.map((opt) => languageRadio(opt, value == opt))
+                            ],
+                          ),
+                        );
+                      } else if (setting.type == 'link') {
+                        return linkTile(
+                          context,
+                          icon: setting.key == 'privacy_policy'
+                              ? AppIcons.svg.privacyLock
+                              : AppIcons.svg.tAndCDoc,
+                          text: setting.label,
+                          onTap: () {
+                            if (setting.key == 'privacy_policy') {
+                              Navigator.push(context, commonRoute(PrivacyPolicyScreen()));
+                            } else if (setting.key == 'terms_conditions') {
+                              Navigator.push(context, commonRoute(TermsAndConditionsScreen()));
+                            }
+                          },
+                        ).paddingSymmetric(vertical: 20);
+                      } else {
+                        return const SizedBox();
                       }
-                      setState(() {
-        
-                      });
-                    },
-                    selected: english,
-                  ),
-                  languageRadioButtonWidget(text: "Hindi",selected: hindi, onTap: () { hindi = true;
-                  if (hindi = true) {
-                    english = false;
-                    tamil = false;
-                  }
-                  setState(() {
-        
-                  });}),
-                  languageRadioButtonWidget(text: "Tamil",selected: tamil, onTap: () {
-                    tamil = true;
-                    if (tamil = true) {
-                      hindi = false;
-                      english = false;
-                    }   setState(() {
-        
-                    });
-                  }),
-                ],
-              ),
-              dividerWidget(),
-              headingText(text: "Security"),
-              notificationSwitchWidget(
-                text: "Enable App Lock",
-                selected: enableAppLock,
-                onChange: (value) {
-                  enableAppLock = value;
-                  setState(() {});
-                },
-              ),
-              Column(
-                children: [
-                  ProfileMyAccountTile(
-                    imageString:  AppIcons.svg.tAndCDoc,
-                    text: "Terms & Conditions",
-                    onTap: () {
-                        Navigator.of(context).push(commonRoute(TermsAndConditionsScreen(), isForward: true));
-                    },
-                  ),
-                  ProfileMyAccountTile(
-                    imageString:  AppIcons.svg.privacyLock,
-                    text: "Privacy Policy",
-                    onTap: () {
-                        Navigator.of(context).push(commonRoute(PrivacyPolicyScreen(), isForward: true));
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
+                    }),
+                    dividerWidget(),
+                    10.height,
+                  ],
+                );
+              }).toList(),
+            ),
+          );
+        },
       ),
     );
   }
 
-  languageRadioButtonWidget({
-    required String text,
-    bool selected = false,
-    required GestureTapCallback onTap,
-  }) {
+  Widget toggleRow(String text, bool selected, Function(bool) onChanged) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [Text(text, style: AppTextStyle.body3), AppSwitchToggle(switchBool: selected, onChanged: onChanged)],
+    ).paddingSymmetric(vertical: 15);
+  }
+
+  Widget languageRadio(String text, bool selected) {
     return InkWell(
-      onTap: onTap,
+      onTap: () {
+        _updateLanguage(text);
+      },
       child: Row(
         children: [
-          RadioButton(radioBool: selected, onChanged: onTap),
-          10.width,
+          RadioButton(radioBool: selected, onChanged: () {
+            _updateLanguage(text);
+          }),
           Text(text, style: AppTextStyle.blackColor14w400),
         ],
       ),
     );
   }
+  void _updateLanguage(String languageCode) async {
+    final locale = Locale(languageCode.toLowerCase().substring(0, 2));
+    final localeBloc = context.read<LocaleBloc>();
 
-  notificationSwitchWidget({
-    required String text,
-    bool selected = false,
-    required Function(bool) onChange,
-  }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    profileCubit.updateCustomerSettings(
+      request: UpdateSettingsRequest(language: languageCode),
+    );
+
+    await prefs.saveKey(AppString.sessionKey.selectedLanguage, languageCode);
+    localeBloc.add(ChangeLocale(locale));
+  }
+
+  Widget headingText(String text) =>
+      Text(text, style: AppTextStyle.body2.copyWith(color: AppColors.textBlackDetailColor));
+
+  Widget buildLinks(BuildContext context) {
+    return Column(
       children: [
-        Text(text, style: AppTextStyle.textBlackDetailColor14w400),
-
-        AppSwitchToggle(switchBool: selected, onChanged: onChange),
+        linkTile(
+          context,
+          icon: AppIcons.svg.tAndCDoc,
+          text: context.appText.termsAndConditions.capitalizeFirst,
+          onTap: () => Navigator.push(context, commonRoute(TermsAndConditionsScreen())),
+        ).paddingSymmetric(vertical: 20),
+        linkTile(
+          context,
+          icon: AppIcons.svg.privacyLock,
+          text: context.appText.privacyPolicy,
+          onTap: () => Navigator.push(context, commonRoute(PrivacyPolicyScreen())),
+        ),
       ],
+    );
+  }
+
+  Widget linkTile(BuildContext context, {required String icon, required String text, required VoidCallback onTap}) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+        children: [
+          SvgPicture.asset(icon, height: 20, width: 20),
+          20.width,
+          Text(text),
+          Spacer(),
+          Icon(Icons.arrow_forward_ios, size: 12),
+        ],
+      ),
     );
   }
 }

@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/kavach/model/kavach_truck_length_model.dart
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_add_vehicle_bottom_sheet.dart';
+import 'package:gro_one_app/features/master/widget/master_vehicle_tab.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -242,10 +243,11 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    await commonBottomSheetWithBGBlur<String?>(
-                      context: context,
-                      screen: const KavachAddVehicleBottomSheet(),
-                    );
+                    // await commonBottomSheetWithBGBlur<String?>(
+                    //   context: context,
+                    //   screen: const KavachAddVehicleBottomSheet(),
+                    // );
+                    AddVehicleDialog.show(context: context);
                     kavachCheckoutVehicleBloc.add(FetchKavachVehicles());
                   },
                   child: Text(

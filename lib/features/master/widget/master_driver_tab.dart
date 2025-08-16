@@ -818,6 +818,51 @@ class _buildDriverTabState extends State<buildDriverTab> {
   }
 }
 
+
+
+String? formatToDDMMYYYY(String? inputDate) {
+  if (inputDate == null || inputDate.isEmpty) return null;
+
+  try {
+    // Try parsing with multiple formats
+    DateTime parsedDate;
+
+    // If input is already ISO or common format
+    try {
+      parsedDate = DateTime.parse(inputDate);
+    } catch (_) {
+      // If it fails, try with some custom formats
+      List<String> formats = [
+        "dd/MM/yyyy",
+        "MM/dd/yyyy",
+        "dd-MM-yyyy",
+        "MM-dd-yyyy",
+        "yyyy-MM-dd",
+        "yyyy/MM/dd",
+        "yyyyMMdd",
+        "dd MMM yyyy",
+        "MMM dd, yyyy",
+      ];
+
+      parsedDate = formats
+          .map((f) {
+            try {
+              return DateFormat(f).parseStrict(inputDate);
+            } catch (_) {
+              return null;
+            }
+          })
+          .firstWhere((d) => d != null)!;
+    }
+
+    // Finally, format it to dd-MM-yyyy
+    return DateFormat("dd-MM-yyyy").format(parsedDate);
+  } catch (e) {
+    return null; // Invalid date
+  }
+}
+
+
 /// Verify License
 Widget buildLicenseVerificationFieldWidget({
   required TextEditingController licenseNoController,
@@ -960,7 +1005,7 @@ Widget buildLicenseVerificationFieldWidget({
                                   licensereq: LicenseVahanRequest(
                                     licenseNumber:
                                         licenseNoController.text.trim(),
-                                    dob: selectedDoB,
+                                    dob: (formatToDDMMYYYY(selectedDoB)),
                                     name: nameController.text.trim(),
                                   ),
                                 );

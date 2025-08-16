@@ -1080,6 +1080,10 @@
   "fastagRequest": "FASTag கோரிக்கை",
   "unsuccessful": "தோல்வி!",
   "contactAddress": "தொடர்பு முகவரி",
-  "createFastagRequest": "FASTag கோரிக்கையை உருவாக்கவும்"
+  "createFastagRequest": "FASTag கோரிக்கையை உருவாக்கவும்",
+  "pleaseEnterValidAccountNumber": "சரியான கணக்கு எண்ணை உள்ளிடவும்",
+  "accountNumberMustBeBetween9And18Digits": "கணக்கு எண் 9 முதல் 18 இலக்கங்களுக்கு இடையில் இருக்க வேண்டும்",
+  "accountNumberCannotHaveSameDigits": "கணக்கு எண்ணில் எல்லா இலக்கங்களும் ஒரே மாதிரியாக இருக்க முடியாது",
+  "pleaseEnterValidIfscCode": "சரியான IFSC குறியீட்டை உள்ளிடவும்"
 
 }
