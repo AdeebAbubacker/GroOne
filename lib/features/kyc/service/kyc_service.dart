@@ -388,7 +388,7 @@ class KycService {
   Future<Result<CityModel>> fetchCityData(String stateName, {String filter = ''}) async {
     try {
       final url = ApiUrls.getCity;
-      final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter, 'limit': '50'});
+      final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter, 'limit': '250'});
       if (result is Success) {
         final data = CityModel.fromJson(result.value);
         return Success(data);
