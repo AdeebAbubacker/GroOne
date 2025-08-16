@@ -872,7 +872,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                             children: [
                               10.height,
                               AppTextField(
-                                // validator: (value) => isVP ? Validator.fieldRequired(value) : null,
                                 validator: (value) {
                                 if (isVP) {
                                   // VP = mandatory
