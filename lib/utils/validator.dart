@@ -174,6 +174,48 @@ class Validator {
 
   return null;
 }
+ 
+   /// Bank Account Number
+  static String? bankAccountNumber(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return appContext.appText.thisFieldIsRequired;
+    }
 
+    // Allow only digits
+    if (!RegExp(r'^\d+$').hasMatch(value)) {
+      return appContext.appText.pleaseEnterValidAccountNumber;
+    }
+
+    // Length check (commonly 9–18 digits)
+    if (value.length < 9 || value.length > 18) {
+      return appContext.appText.accountNumberMustBeBetween9And18Digits;
+    }
+
+    // Disallow repeated digits like 111111111111
+    if (RegExp(r'^(\d)\1*$').hasMatch(value)) {
+      return appContext.appText.accountNumberCannotHaveSameDigits;
+    }
+
+    return null;
+  }
+  
+ /// IFSC Code
+static String? ifsc(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return appContext.appText.thisFieldIsRequired;
+  }
+
+  // Uppercase the value for validation
+  final code = value.toUpperCase();
+
+  // Regex validation
+  final regex = RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
+  if (!regex.hasMatch(code)) {
+    return appContext.appText.pleaseEnterValidIfscCode;
+  }
+
+  return null;
+}
+ 
 }
 
