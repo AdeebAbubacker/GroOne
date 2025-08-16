@@ -331,7 +331,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   dashColor: AppColors.greyIconColor,
                 ),
                 5.height,
-                _buildDetailRow("Total Amount", "₹${KavachHelper.formatCurrency(totalWithGst.toStringAsFixed(0))}"),
+                _buildDetailRow("Total Amount", "₹${totalWithGst.toStringAsFixed(2)}"),
                 15.height,
               ],
             );
@@ -360,7 +360,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(context.appText.total, style: AppTextStyle.blackColor14w400,),
-              Text('₹${KavachHelper.formatCurrency(totalAmount.toStringAsFixed(2))}', style: AppTextStyle.primaryColor16w900),
+              Text('₹${totalAmount.toStringAsFixed(2)}', style: AppTextStyle.primaryColor16w900),
             ],
           ),
           15.width,
@@ -372,7 +372,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 if (customerId != null && customerId.isNotEmpty) {
                   final paymentRequest = KavachInitiatePaymentRequest(
                     orderId: widget.orderId ?? "ORDER_${DateTime.now().millisecondsSinceEpoch}",
-                    amount: totalAmount.toInt(),
+                    amount: totalAmount,
                     customerName: customerInfo["CompanyName"] ?? "ABC Logistics Pvt Ltd",
                     customerEmail: widget.kavachOrderRequest.customerInfo['email'],
                     customerMobile: customerInfo["contactNumber"] ?? "9876543210",

@@ -237,4 +237,15 @@ class EnDhanRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+  /// Repository - Endhan Server Status
+  Future<Result<Map<String, dynamic>>> checkEndhanServerStatus() async {
+    try {
+      return await _enDhanService.checkEndhanServerStatus();
+    } catch (e) {
+      CustomLog.error(this, "Failed to check Endhan server status", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 }

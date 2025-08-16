@@ -165,6 +165,8 @@ class ApiUrls {
   static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/address";
   static String  kavachTruckType = "$_loadBaseUrl/truck-types/types";
   static String  kavachTruckSubType = "$_loadBaseUrl/truck-types/sub-types";
+  static String kavachInvoice(String orderId) =>
+      "$_baseUrl$_fleet$_path$_v1/invoices/$orderId/get-or-create";
   static String  kavachVehicleVerification = "https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number";
   // static final String kavachPayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
   //static final String  kavachtruckType = "$loadTruckType/truck-types/distinct/types";
@@ -186,6 +188,7 @@ class ApiUrls {
   static final String enDhanVehicleTypes = "$_fetchUrl$_vendor$_path$_v1/dtplus/vehicleType";
   static final String enDhanTransaction = "$_fetchUrl$_vendor$_path$_v1/dtplus/getTransaction";
   static String enDhanGetPincode(String pincode) => "$_fetchUrl$_vendor$_path$_v1/dtplus/getPincode/$pincode";
+  static final String enDhanServerStatus = "$_fetchUrl$_vendor$_path$_v1/dtplus/endhanServerStatus";
 
   /// GPS
   static final String gpsDocumentUpload = ApiUrls.enDhanKycUpload;

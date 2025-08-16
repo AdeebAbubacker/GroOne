@@ -966,4 +966,30 @@ class EnDhanService {
       return Error(ErrorWithMessage(message: errorMessage));
     }
   }
+
+  /// Check Endhan Server Status
+  Future<Result<Map<String, dynamic>>> checkEndhanServerStatus() async {
+    try {
+      final url = ApiUrls.enDhanServerStatus;
+      final result = await _apiService.get(url);
+
+      if (result is Success) {
+        if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          CustomLog.debug(this, "Server Status Response: $response");
+          return Success(response);
+        } else {
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Error checking server status", e);
+      return Error(GenericError());
+    }
+  }
+
 }
