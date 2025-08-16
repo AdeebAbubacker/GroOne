@@ -1,7 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/extensions/extension_functions.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io';
+import '../../../data/model/result.dart';
+import '../../../data/ui_state/status.dart';
+import '../../../dependency_injection/locator.dart';
+import '../../../utils/app_colors.dart';
+import '../../../utils/app_image.dart';
+import '../../../utils/app_route.dart';
+import '../../../utils/common_functions.dart';
+import '../../../utils/common_widgets.dart';
+import '../../../utils/constant_variables.dart';
+import '../../../utils/toast_messages.dart';
+import '../../profile/cubit/profile/profile_cubit.dart';
+import '../../profile/view/profile_screen.dart';
 import '../cubit/chat_cubit.dart';
 import '../cubit/chat_state.dart';
 import '../model/chat_message.dart';
@@ -19,6 +36,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlayingPreview = false;
   String? _currentPlayingPath;
+  final profileCubit = locator<ProfileCubit>();
+
 
   @override
   void initState() {
@@ -123,39 +142,48 @@ class _ChatScreenState extends State<ChatScreen> {
         // Language Selector
         BlocBuilder<ChatCubit, ChatState>(
           builder: (context, state) {
-            return Container(
-              margin: const EdgeInsets.only(right: 8),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.grey[300]!),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: DropdownButton<ChatLanguage>(
-                value: state.selectedLanguage,
-                underline: const SizedBox(),
-                icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black, size: 20),
-                style: const TextStyle(color: Colors.black, fontSize: 14),
-                items: ChatLanguage.values.map((language) {
-                  return DropdownMenuItem(
-                    value: language,
-                    child: Text(language.displayName),
-                  );
-                }).toList(),
-                onChanged: (language) {
-                  if (language != null) {
-                    context.read<ChatCubit>().changeLanguage(language);
-                  }
-                },
+            return Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                margin: const EdgeInsets.only(right: 8),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey[300]!),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: DropdownButton<ChatLanguage>(
+                  value: state.selectedLanguage,
+                  underline: const SizedBox(),
+                  icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black, size: 20),
+                  style: const TextStyle(color: Colors.black, fontSize: 14),
+                  items: ChatLanguage.values.map((language) {
+                    return DropdownMenuItem(
+                      value: language,
+                      child: Text(language.displayName),
+                    );
+                  }).toList(),
+                  onChanged: (language) {
+                    if (language != null) {
+                      context.read<ChatCubit>().changeLanguage(language);
+                    }
+                  },
+                ),
               ),
             );
           },
         ),
         // Headset Icon
-        IconButton(
-          icon: const Icon(Icons.headset_mic, color: Colors.black),
-          onPressed: () {
-            // Add headset functionality if needed
+        GestureDetector(
+          onTap: () {
+            commonSupportDialog(
+              context,
+              message: context.appText.callCustomerSupportSubtitle,
+            );
           },
+          child: Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Image.asset(AppImage.png.customerSupport, height: 28),
+          ),
         ),
       ],
     );
@@ -271,24 +299,83 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildAvatarIcon(bool isUser) {
-    return Container(
-      width: 36,
-      height: 36,
-      decoration: BoxDecoration(
-        color: isUser ? const Color(0xFF4285F4) : const Color(0xFF4285F4),
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Text(
-          isUser ? 'V' : '🤖',
+    return BlocConsumer<ProfileCubit, ProfileState>(
+      bloc: profileCubit,
+      listener: (context, state) {
+        final status = state.profileDetailUIState?.status;
+
+        if (status == Status.ERROR) {
+          final error = state.profileDetailUIState?.errorType;
+          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+        }
+      },
+      builder: (context, state) {
+        if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
+          if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null) {
+            final blueId = state.profileDetailUIState!.data!.customer?.blueId;
+            return Container(
+                width: 36,
+                height: 36,
+                decoration: BoxDecoration(
+                  color: isUser ? const Color(0xFF4285F4) : const Color(0xFF4285F4),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: isUser
+                      ? Text(
+                    getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  )
+                      : SvgPicture.asset(
+                    'assets/icons/svg/chatIcon.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+                  ),
+                ),
+              );
+          }
+        }
+        return Text(
+          getInitialsFromName(this, name : 'You'),
           style: TextStyle(
             color: Colors.white,
-            fontSize: isUser ? 16 : 18,
+            fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
-        ),
-      ),
+        );
+      },
     );
+
+    // return Container(
+    //   width: 36,
+    //   height: 36,
+    //   decoration: BoxDecoration(
+    //     color: isUser ? const Color(0xFF4285F4) : const Color(0xFF4285F4),
+    //     shape: BoxShape.circle,
+    //   ),
+    //   child: Center(
+    //     child: isUser
+    //       ? Text(
+    //           'V',
+    //           style: TextStyle(
+    //             color: Colors.white,
+    //             fontSize: 16,
+    //             fontWeight: FontWeight.w600,
+    //           ),
+    //         )
+    //       : SvgPicture.asset(
+    //           'assets/icons/svg/chatIcon.svg',
+    //           width: 24,
+    //           height: 24,
+    //           colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
+    //         ),
+    //   ),
+    // );
   }
 
   Widget _buildVoiceMessage(String audioPath) {
@@ -513,28 +600,42 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               const Spacer(),
               // Send button
-              ElevatedButton.icon(
-                onPressed: () {
-                  print('Send button pressed'); // Debug log
-                  context.read<ChatCubit>().sendRecordedAudio();
-                  // Reset audio player state
-                  if (_isPlayingPreview) {
-                    _audioPlayer.stop();
-                    setState(() {
-                      _isPlayingPreview = false;
-                      _currentPlayingPath = null;
-                    });
-                  }
+              BlocBuilder<ChatCubit, ChatState>(
+                builder: (context, chatState) {
+                  final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
+                  final canSend = !isWaitingForResponse;
+                  
+                  return ElevatedButton.icon(
+                    onPressed: canSend ? () {
+                      print('Send button pressed'); // Debug log
+                      context.read<ChatCubit>().sendRecordedAudio();
+                      // Reset audio player state
+                      if (_isPlayingPreview) {
+                        _audioPlayer.stop();
+                        setState(() {
+                          _isPlayingPreview = false;
+                          _currentPlayingPath = null;
+                        });
+                      }
+                    } : null, // Disable when waiting for response
+                    icon: Icon(
+                      isWaitingForResponse ? Icons.hourglass_empty : Icons.send, 
+                      size: 18
+                    ),
+                    label: Text(
+                      isWaitingForResponse ? 'Sending...' : 'Send'
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: canSend 
+                        ? const Color(0xFF4285F4) 
+                        : Colors.grey[400],
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                    ),
+                  );
                 },
-                icon: const Icon(Icons.send, size: 18),
-                label: const Text('Send'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF4285F4),
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
               ),
             ],
           ),
@@ -678,40 +779,48 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _buildTypingIndicator() {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildAvatarIcon(false),
-          const SizedBox(width: 8),
-          
-          Flexible(
-            child: Container(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.75,
-              ),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16).copyWith(
-                  bottomLeft: const Radius.circular(4),
-                  bottomRight: const Radius.circular(16),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
+    return BlocBuilder<ChatCubit, ChatState>(
+      builder: (context, chatState) {
+        // Determine if this is for voice or text
+        final isVoiceMessage = chatState.recordedAudioPath != null;
+        final typingText = isVoiceMessage ? 'AI is transcribing...' : 'AI is typing...';
+        
+        return Container(
+          margin: const EdgeInsets.only(bottom: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildAvatarIcon(false),
+              const SizedBox(width: 8),
+              
+              Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
                   ),
-                ],
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16).copyWith(
+                      bottomLeft: const Radius.circular(4),
+                      bottomRight: const Radius.circular(16),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child:_buildTypingDots(),
+                ),
               ),
-              child: _buildTypingDots(),
-            ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
   

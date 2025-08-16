@@ -126,10 +126,21 @@ class ChatCubit extends Cubit<ChatState> {
 
   Future<void> _callVoiceAPI(String audioPath) async {
     try {
+      print('🎤 Starting voice API call for: $audioPath'); // Debug log
+      
+      // Show typing indicator for voice transcription
+      emit(state.copyWith(
+        isTyping: true,
+        isLoading: false,
+        clearError: true,
+      ));
+      
       final aiMessage = await _repository.sendVoiceMessage(
         audioFilePath: audioPath,
         language: state.selectedLanguage.code,
       );
+      
+      print('🎤 Received voice API response: ${aiMessage.message}'); // Debug log
 
       final updatedMessages = List<ChatMessage>.from(state.messages)
         ..add(aiMessage);
@@ -137,10 +148,14 @@ class ChatCubit extends Cubit<ChatState> {
       emit(state.copyWith(
         messages: updatedMessages,
         isLoading: false,
+        isTyping: false,
       ));
     } catch (e) {
+      print('🎤 Voice API call error: $e'); // Debug log
+      
       emit(state.copyWith(
         isLoading: false,
+        isTyping: false,
         error: 'Failed to send voice message: $e',
       ));
     }

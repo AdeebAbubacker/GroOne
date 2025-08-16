@@ -106,8 +106,8 @@ class ChatApiService {
       // Get user ID from secure storage
       final userId = await _securePrefs.get(AppString.sessionKey.userId) ?? '123';
       
-      // Real API endpoint for voice messages
-      const String endpoint = 'https://groone-bot-api.letsgro.co/query-voice';
+      // Real API endpoint for voice transcription
+      const String endpoint = 'https://groone-bot-api.letsgro.co/transcribe';
       
       // Create form data for file upload
       final file = File(audioFilePath);
@@ -120,7 +120,7 @@ class ChatApiService {
         'X-API-Key': 'Z3JvZ2RpdGlhbF9haW1sX2tleQ==',
       };
 
-      // Use multipart for file upload
+      // Use multipart for file upload with correct field name 'file' (singular)
       final result = await _apiService.multipart(
         endpoint,
         [file], // files as positional parameter
@@ -129,13 +129,14 @@ class ChatApiService {
           'user_id': userId,
           'catalog_id': 'groone',
         },
+        pathName: 'file', // API expects 'file' not 'files'
         customHeaders: customHeaders,
       );
 
       // Handle Result<dynamic> return type
       if (result is Success) {
         final responseData = result.value;
-        print('🤖 Voice API Response: $responseData'); // Debug log
+        print('🤖 Transcribe API Response: $responseData'); // Debug log
         
         if (responseData is Map<String, dynamic>) {
           final status = responseData['status'] as String?;
@@ -143,8 +144,33 @@ class ChatApiService {
           if (status == 'success') {
             final data = responseData['data'] as Map<String, dynamic>?;
             if (data != null) {
+              // Transcribe API typically returns transcription text
+              final transcription = data['transcript'] as String?;
               final llmResponse = data['llm_response'] as String?;
-              return llmResponse ?? 'No response received from AI';
+              
+              // Check for common transcription errors and provide helpful messages
+              if (transcription != null) {
+                final lowerTranscription = transcription.toLowerCase();
+                
+                if (lowerTranscription.contains('no speech recognized')) {
+                  return 'No speech recognized. Please try again with a clearer voice message.';
+                } else if (lowerTranscription.contains('unclear') || lowerTranscription.contains('unintelligible')) {
+                  return 'Speech was unclear. Please try again with clearer pronunciation.';
+                } else if (lowerTranscription.contains('too quiet') || lowerTranscription.contains('low volume')) {
+                  return 'Voice was too quiet. Please speak louder and try again.';
+                } else if (lowerTranscription.contains('background noise') || lowerTranscription.contains('noise')) {
+                  return 'Too much background noise. Please record in a quieter environment.';
+                }
+              }
+              
+              // Return AI response if available, otherwise transcription
+              if (llmResponse != null && llmResponse.isNotEmpty) {
+                return llmResponse;
+              } else if (transcription != null && transcription.isNotEmpty) {
+                return 'Transcription: $transcription';
+              } else {
+                return 'Voice message received but no response generated';
+              }
             }
           }
           
