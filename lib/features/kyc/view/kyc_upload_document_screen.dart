@@ -872,7 +872,25 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                             children: [
                               10.height,
                               AppTextField(
-                                validator: (value) => isVP ? Validator.fieldRequired(value) : null,
+                                // validator: (value) => isVP ? Validator.fieldRequired(value) : null,
+                                validator: (value) {
+                                if (isVP) {
+                                  // VP = mandatory
+                                  final requiredError = Validator.fieldRequired(value);
+                                  if (requiredError != null) return requiredError;
+
+                                  final ifscError = Validator.bankAccountNumber(value);
+                                  if (ifscError != null) return ifscError;
+
+                                  return null; 
+                                } else if (isLP) {
+                                  // LP = optional
+                                  if (value != null && value.isNotEmpty) {
+                                    return Validator.bankAccountNumber(value); 
+                                  }
+                                }
+                                return null;
+                              },
                                 controller: accountNumberTextController,
                                 mandatoryStar: isVP,
                                 labelText: context.appText.accountNumber,
@@ -914,7 +932,25 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               20.height,
 
                               AppTextField(
-                                validator: (value) =>  isVP ? Validator.fieldRequired(value) : null,
+                               validator: (value) {
+                                if (isVP) {
+                                  // VP = mandatory
+                                  final requiredError = Validator.fieldRequired(value);
+                                  if (requiredError != null) return requiredError;
+
+                                  final ifscError = Validator.ifsc(value);
+                                  if (ifscError != null) return ifscError;
+
+                                  return null; 
+                                } else if (isLP) {
+                                  // LP = optional
+                                  if (value != null && value.isNotEmpty) {
+                                    return Validator.ifsc(value); 
+                                  }
+                                }
+                                return null;
+                              },
+                                
                                 controller: ifscCodeTextController,
                                 mandatoryStar: isVP,
                                 labelText: context.appText.ifscCode,
