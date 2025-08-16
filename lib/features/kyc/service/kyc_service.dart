@@ -352,14 +352,24 @@ class KycService {
 
 
     /// Get State Service
-    Future<Result<StateModel>> fetchStateData({String filter = ''}) async {
+    Future<Result<StateModel>> fetchStateData({
+      String filter = '',
+      int limit = 50,
+      int page = 1,
+    }) async {
+      
       try {
+        final queryParams = {
+          'limit': '50',
+          if (filter.trim().isNotEmpty) 'search': filter,
+        };
 
         final url = Uri.parse(ApiUrls.getState)
-            .replace(queryParameters: filter.trim().isNotEmpty ? {'search': filter} : null)
+            .replace(queryParameters: queryParams)
             .toString();
 
         final result = await _apiService.get(url);
+
         if (result is Success) {
           final data = StateModel.fromJson(result.value);
           return Success(data);
@@ -374,11 +384,11 @@ class KycService {
     }
 
 
-  /// Get City Service
+   /// Get City Service
   Future<Result<CityModel>> fetchCityData(String stateName, {String filter = ''}) async {
     try {
       final url = ApiUrls.getCity;
-      final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter});
+      final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter, 'limit': '250'});
       if (result is Success) {
         final data = CityModel.fromJson(result.value);
         return Success(data);
