@@ -165,12 +165,12 @@ class Validator {
     return '$fieldName ${appContext.appText.isRequired}';
   }
 
-  final trimmedValue = value.trim().toUpperCase();
-  final regex = RegExp(r"^([A-Z]{2})[- ]?([0-9]{2})[- ]?((19|20)[0-9]{2})[- ]?([0-9]{7})$", caseSensitive: false,);
+  // final trimmedValue = value.trim().toUpperCase();
+  // final regex = RegExp(r"^([A-Z]{2})[- ]?([0-9]{2})[- ]?((19|20)[0-9]{2})[- ]?([0-9]{7})$", caseSensitive: false,);
 
-  if (!regex.hasMatch(trimmedValue)) {
-    return '$fieldName is invalid.';
-  }
+  // if (!regex.hasMatch(trimmedValue)) {
+  //   return '$fieldName is invalid.';
+  // }
 
   return null;
 }

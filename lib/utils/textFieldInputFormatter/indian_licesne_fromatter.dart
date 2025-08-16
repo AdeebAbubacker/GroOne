@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 class IndianLicenseFormatter extends TextInputFormatter {
-  static const int maxLength = 15; 
+  static const int maxLength = 16; 
 
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
