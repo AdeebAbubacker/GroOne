@@ -74,12 +74,10 @@ extension CustomerSettingsMapper on CustomerSettingsResponse {
     'language': (settings) => settings?.language ?? '',
     'load_updates': (settings) => settings?.loadUpdates ?? '',
     'system_updates': (settings) => settings?.systemUpdates ?? '',
-   // 'payment_alerts': (settings) => settings?.paymentAlerts ?? '',
+    'payment_alerts': (settings) => settings?.paymentAlerts ?? '',
     'offers_promotions': (settings) => settings?.offersPromotions ?? '',
     'enable_app_lock': (settings) => settings?.enableAppLock ?? '',
   };
-  
-  
 
   static final requestBuilders = <String, UpdateSettingsRequest Function(String)>{
     'language': (val) => UpdateSettingsRequest(language: val),
