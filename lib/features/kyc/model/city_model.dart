@@ -142,7 +142,7 @@ class PageMeta {
       page: json["page"] ?? 0,
       pageCount: json["pageCount"] ?? 0,
       nextPage: json["nextPage"] ?? 0,
-      pageSize: json["pageSize"] ?? 0,
+      pageSize: parseInt(json["pageSize"]),
       total: json["total"] ?? 0,
     );
   }
@@ -155,4 +155,11 @@ class PageMeta {
     "total": total,
   };
 
+}
+
+int parseInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is int) return value;
+  if (value is String) return int.tryParse(value) ?? 0;
+  return 0;
 }
