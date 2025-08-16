@@ -495,7 +495,7 @@
   "kycSubmittedForVerification": "KYC submitted for verification",
   "willGetBackToYouWithin48Hours": "Will get back to you within 48 hours.",
   "primaryAddress": "Primary Address",
-  "enterAddressName1": "Enter Address name 1",
+  "enterAddressName1": "Eg: Home",
   "fullAddress": "Full Address",
   "enterFullAddress": "Enter full address",
   "selectState": "Select State",

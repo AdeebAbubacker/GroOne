@@ -65,6 +65,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
 
   String? dateAndTime;
   String? sendDateAndTimeInApi;
+  String? handlingChargesRaw;
 
   Future<dynamic>? onSubmit(context) async {
     await lpLoadLocator.getCreditCheck();
@@ -105,8 +106,13 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
       return;
     }
 
-    if(handlingChargesTextController.text.isNotEmpty) {
-      if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
+    if (handlingChargesRaw?.isNotEmpty == true) {
+      final enteredValue = int.tryParse(handlingChargesRaw ?? '') ?? 0;
+      final maxAllowed = int.tryParse(
+        LpHomeHelper.calculateTenPercentOfAverage(widget.price),
+      ) ?? 0;
+
+      if (enteredValue > maxAllowed) {
         ToastMessages.alert(message: context.appText.handlingChargeLessTenPercent);
         return;
       }
@@ -122,7 +128,9 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
   Future<void> _postLoad(BuildContext context) async {
     final req = widget.apiRequest.copyWith(
       note: noteTextController.text,
-      handlingCharges: handlingChargesTextController.text.isNotEmpty ? int.parse(handlingChargesTextController.text) : null,
+      handlingCharges: handlingChargesRaw?.isNotEmpty == true
+          ? int.parse(handlingChargesRaw ?? '')
+          : null,
       expectedDeliveryDateTime: sendDateAndTimeInApi ?? "",
     );
     await loadPostingBloc.loadPostingApiCall(CreateLoadPostingEvent(apiRequest: req));
@@ -146,15 +154,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
     return CommonAppBar(
       backgroundColor: AppColors.white,
       title: context.appText.postLoadSummary,
-      actions: [
-
-        TextButton.icon(
-            onPressed: ()=> context.pop(),
-            icon: Icon(Icons.edit_outlined, color: AppColors.primaryColor, size: 20),
-            label: Text(context.appText.edit, style: AppTextStyle.h5PrimaryColor),
-        ),
-
-      ],
+      actions: [],
     );
   }
 
@@ -227,17 +227,32 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
               keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
               inputFormatters: [
                 FilteringTextInputFormatter.digitsOnly,
+                LengthLimitingTextInputFormatter(8),
               ],
-              onChanged: (value){
+              onChanged: (value) {
+                handlingChargesRaw = value;
 
-                if (handlingChargesTextController.text.isNotEmpty){
-                  if (int.parse(handlingChargesTextController.text) > int.parse(LpHomeHelper.calculateTenPercentOfAverage(widget.price))){
-                    ToastMessages.alert(message: context.appText.handlingChargeLessTenPercent);
+                // Format with INR commas (display only)
+                final formatted = PriceHelper.formatINR(value);
+
+                handlingChargesTextController.value = TextEditingValue(
+                  text: formatted,
+                  selection: TextSelection.collapsed(offset: formatted.length),
+                );
+
+                if (value.isNotEmpty) {
+                  final enteredValue = int.tryParse(value) ?? 0;
+                  final maxAllowed = int.tryParse(
+                    LpHomeHelper.calculateTenPercentOfAverage(widget.price),
+                  ) ?? 0;
+
+                  if (enteredValue > maxAllowed) {
+                    ToastMessages.alert(
+                        message: context.appText.handlingChargeLessTenPercent);
                     return;
-                  } else {
-                    handlingChargesTextController.text = value;
                   }
                 }
+
                 setState(() {});
               },
             ),
@@ -300,7 +315,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
           if(context.mounted) {
             AppDialog.show(
               context,
-              dismissible: true,
+              dismissible: false,
               child: CommonDialogView(
                 hideCloseButton: true,
                 onSingleButtonText: context.appText.continueText,

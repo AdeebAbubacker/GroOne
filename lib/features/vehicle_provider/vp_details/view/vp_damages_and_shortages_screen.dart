@@ -311,6 +311,9 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
             controller: itemNameTextController,
             labelText: context.appText.itemName,
             hintText: "LED TV 42”",
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(50),
+            ],
           ),
           10.height,
 
@@ -332,8 +335,8 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
             hintText: context.appText.tvCrackedScreenNote,
             maxLines: 2,
             inputFormatters: [
-            LengthLimitingTextInputFormatter(500), 
-          ],
+              LengthLimitingTextInputFormatter(240),
+            ],
           ),
           30.height,
 
