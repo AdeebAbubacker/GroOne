@@ -1,6 +1,7 @@
 import 'dart:io';
 import '../../../data/network/api_service.dart';
 import '../../../data/model/result.dart';
+import '../../../data/network/api_urls.dart';
 import '../../../data/storage/secured_shared_preferences.dart';
 import '../../../utils/app_string.dart';
 
@@ -18,7 +19,9 @@ class ChatApiService {
     try {
       // Get user ID from secure storage
       final userId = await _securePrefs.get(AppString.sessionKey.userId) ?? '123';
-      
+     // Get xApiKey from secure storage
+      final xApiKey = ApiUrls.fetchedChatBotXApiKEY;
+
       // Real API endpoint
       const String endpoint = 'https://groone-bot-api.letsgro.co/query-text';
       
@@ -28,12 +31,10 @@ class ChatApiService {
         'user_id': userId,
         'catalog_id': 'groone',
       };
-      
-      print('🤖 Sending text to AI API: $requestBody'); // Debug log
-      
+
       // Add custom headers with X-API-Key
       final customHeaders = {
-        'X-API-Key': 'Z3JvZ2RpdGlhbF9haW1sX2tleQ==',
+        'X-API-Key': xApiKey,
       };
       
       final result = await _apiService.post(
@@ -105,6 +106,8 @@ class ChatApiService {
     try {
       // Get user ID from secure storage
       final userId = await _securePrefs.get(AppString.sessionKey.userId) ?? '123';
+      // Get xApiKey from secure storage
+      final xApiKey = ApiUrls.fetchedChatBotXApiKEY;
       
       // Real API endpoint for voice transcription
       const String endpoint = 'https://groone-bot-api.letsgro.co/transcribe';
@@ -117,7 +120,7 @@ class ChatApiService {
 
       // Add custom headers with X-API-Key
       final customHeaders = {
-        'X-API-Key': 'Z3JvZ2RpdGlhbF9haW1sX2tleQ==',
+        'X-API-Key': xApiKey,
       };
 
       // Use multipart for file upload with correct field name 'file' (singular)
@@ -204,14 +207,16 @@ class ChatApiService {
   Future<List<Map<String, dynamic>>> getChatHistory() async {
     try {
       // Get user ID from secure storage
-      final userId = await _securePrefs.get(AppString.sessionKey.userId) ?? '123';
+      final userId = await _securePrefs.get(AppString.sessionKey.userId) ?? '';
+      // Get xApiKey from secure storage
+      final xApiKey = ApiUrls.fetchedChatBotXApiKEY;
       
       // Real API endpoint for chat history
       const String endpoint = 'https://groone-bot-api.letsgro.co/chat-history';
       
       // Add custom headers with X-API-Key
       final customHeaders = {
-        'X-API-Key': 'Z3JvZ2RpdGlhbF9haW1sX2tleQ==',
+        'X-API-Key': xApiKey,
       };
       
       final result = await _apiService.get(
