@@ -129,6 +129,12 @@ dependencies:
 
   #otp text field
   flutter_otp_text_field: ^1.5.1+1
+  
+  # AI Chat
+  uuid: ^4.5.1
+  record: ^4.4.4        # For voice recording
+  path: ^1.9.0          # For file paths
+  just_audio: ^0.9.39   # For audio playback
 
   # Map & Location
   google_maps_flutter: ^2.12.2
