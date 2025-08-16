@@ -162,7 +162,7 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
                 children: [
                   Expanded(
                     child: Text(
-                      _getDisplayFileName(document["fileName"]),
+                      _getDisplayFileName(document["fileName"] ?? document["path"]),
                       style: AppTextStyle.h6,
                       overflow: TextOverflow.ellipsis,
                     ),

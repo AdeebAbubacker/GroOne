@@ -1,5 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_order_list_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -9,6 +10,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_icon_button.dart';
@@ -16,6 +18,9 @@ import '../../../utils/app_icons.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
+import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
+import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
+import '../bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
 import 'kavach_choose_your_preference_screen.dart';
 import 'kavach_support_screen.dart';
 
@@ -61,8 +66,6 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              
-             
               12.height,
               _productDetails(context),
               12.height,
@@ -74,7 +77,9 @@ class KavachOrderDetailsScreen extends StatelessWidget {
               _paymentSummary(context),
               12.height,
               _groExecutiveWidget(context),
-              40.height,
+              12.height,
+              _downloadButton(),
+              20.height,
             ],
           ),
         ),
@@ -430,11 +435,32 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   }
 
   Widget _downloadButton() {
-    return AppButton(
-      onPressed: () {},
-      title: 'Download Invoice',
-    ).bottomNavigationPadding();
+    return BlocConsumer<KavachOrderListBloc, KavachOrderListState>(
+      listener: (context, state) {
+        if (state is InvoiceDownloaded) {
+          // Open the invoice in browser or PDF viewer
+          launchUrl(Uri.parse(state.url), mode: LaunchMode.externalApplication);
+        } else if (state is KavachOrderListError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      builder: (context, state) {
+        return AppButton(
+          onPressed: () {
+            context
+                .read<KavachOrderListBloc>()
+                .add(DownloadInvoiceEvent(order.id));
+          },
+          title: state is InvoiceDownloading
+              ? "Downloading..."
+              : "Download Invoice",
+        ).bottomNavigationPadding();
+      },
+    );
   }
+
 }
 
 class Product {

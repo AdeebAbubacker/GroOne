@@ -1755,4 +1755,27 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     ));
   }
 
+  Future<void> checkEndhanServerStatus() async {
+    if (_isClosed) return;
+
+    emit(state.copyWith(endhanServerStatusState: UIState.loading()));
+
+    try {
+      final result = await _repository.checkEndhanServerStatus();
+
+      if (_isClosed) return;
+
+      if (result is Success<Map<String, dynamic>>) {
+        emit(state.copyWith(endhanServerStatusState: UIState.success(result.value)));
+      } else if (result is Error) {
+        emit(state.copyWith(endhanServerStatusState: UIState.error((result as Error).type)));
+      }
+    } catch (e) {
+      if (!_isClosed) {
+        emit(state.copyWith(endhanServerStatusState: UIState.error(GenericError())));
+      }
+    }
+  }
+
+
 }
