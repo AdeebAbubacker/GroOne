@@ -15,10 +15,10 @@ class AddConsigneeApiRequest extends Serializable<AddConsigneeApiRequest> {
 
   @override
   Map<String, dynamic> toJson() => {
-        if (name != null) 'name': name,
-        if (email != null) 'email': email,
-        if (mobileNumber != null) 'mobileNumber': mobileNumber,
-        if (loadId != null) 'loadId': loadId,
+      if (name != null && name!.isNotEmpty) 'name': name,
+      if (email != null && email!.isNotEmpty) 'email': email,
+      if (mobileNumber != null && mobileNumber!.isNotEmpty) 'mobileNumber': mobileNumber,
+      if (loadId != null && loadId!.isNotEmpty) 'loadId': loadId,
       };
 
   AddConsigneeApiRequest copyWith({
@@ -51,8 +51,8 @@ class UpdateConsigneeApiRequest extends Serializable<UpdateConsigneeApiRequest> 
   @override
   Map<String, dynamic> toJson() => {
     if (name != null && name!.isNotEmpty) 'name': name,
-    if (email != null && email!.isNotEmpty) 'email': email,
-    if (mobileNumber != null && mobileNumber!.isNotEmpty) 'mobileNumber': mobileNumber,
+      if (email != null && email!.isNotEmpty) 'email': email,
+      if (mobileNumber != null && mobileNumber!.isNotEmpty) 'mobileNumber': mobileNumber,
   };
 
   UpdateConsigneeApiRequest copyWith({
