@@ -540,16 +540,16 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     return (distanceInMeters / 1000).toStringAsFixed(2);
   }
 
-  Future<void> _handleTrackingBasedOnStatus(DriverLoadDetailsModel data) async {
-    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(
-      data.data?.loadStatusDetails?.loadStatus,
-    );
-    final route = data.data?.loadRoute;
+ 
+     Future<void> _handleTrackingBasedOnStatus(DriverLoadDetailsModel? data) async {
+    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data?.data?.loadStatusDetails?.loadStatus);
+    final route = data?.data?.loadRoute;
+    final tracking = data?.data?.trackingDetails;
 
-    if (status != null && route != null) {
+    if (status != null && route != null ) {
       late final TrackingDistanceApiRequest request;
 
-      if (status.index <= LoadStatus.assigned.index) {
+      if (status.index <= LoadStatus.assigned.index || tracking==null) {
         // Use pickup & drop coordinates
         final pickup = route.pickUpLatlon.split(',');
         final drop = route.dropLatlon.split(',');
@@ -563,22 +563,19 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
           destLong: double.tryParse(drop.last) ?? 0.0,
         );
       } else {
-        // Use trackingDetails
-        final tracking = data.data?.trackingDetails;
         request = TrackingDistanceApiRequest(
-          originLat: tracking?.originLat ?? 0.0,
-          originLong: tracking?.originLong ?? 0.0,
-          currentLat: tracking?.currentLat ?? 0.0,
-          currentLong: tracking?.currentLong ?? 0.0,
-          destLat: tracking?.destinationLat ?? 0.0,
-          destLong: tracking?.destinationLong ?? 0.0,
+          originLat: tracking.originLat,
+          originLong: tracking.originLong,
+          currentLat: tracking.currentLat,
+          currentLong: tracking.currentLong,
+          destLat: tracking.destinationLat,
+          destLong: tracking.destinationLong
         );
       }
 
       await getTrackingDistance(request: request);
     }
   }
-
   // Updates the UI state related to tracking distance.
   void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
     emit(state.copyWith(trackingDistance: uiState));
