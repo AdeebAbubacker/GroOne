@@ -318,7 +318,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   iconSvg: AppIcons.svg.package,
                 ),
                 detailWidget(
-                  text: "${widget.driverLoadDetails.weight?.value} Tonn",
+                  text: "${widget.driverLoadDetails.weight?.value} ${context.appText.tons}",
                   iconSvg: AppIcons.svg.weight,
                 ),
               ],
