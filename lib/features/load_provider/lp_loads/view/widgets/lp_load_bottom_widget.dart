@@ -55,7 +55,7 @@ class LpLoadBottomWidget extends StatefulWidget {
 }
 
 class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
-
+ String? consigneeId;  
   @override
   void initState() {
   initFunction();
@@ -407,6 +407,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
                               if (addState?.status == Status.SUCCESS && updateState?.status != Status.LOADING) {
                                  FocusScope.of(context).unfocus();
+                                 
                                 ToastMessages.success(message: context.appText.consigneeAddedSuccesfully);
                                 final newConsignee = addState?.data;
                                 lpLoadLocator.emit(
@@ -419,6 +420,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                     consigneeNameController.text = newConsignee.name;
                                     consigneePhoneController.text = newConsignee.mobileNumber;
                                     consigneeEmailController.text = newConsignee.email;
+                                    consigneeId = newConsignee.id;
                                     isUpdateConsignee = true;
                                   });
                                 }
@@ -454,7 +456,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                     }
                                   }
                                   if (isUpdateConsignee) {
-                                        lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: widget.loadItem.consignees[0].id);
+                                        lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: consigneeId ?? widget.loadItem.consignees[0].id);
                                    } else {
 
                                   if (name.isEmpty || phone.isEmpty) {
