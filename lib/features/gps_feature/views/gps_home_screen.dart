@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_notification_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_parking_mode_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_settings_screen.dart';
@@ -18,23 +18,21 @@ import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wr
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/device_activation_dialog_manager.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../../features/login/repository/user_information_repository.dart';
-import '../../../utils/app_colors.dart';
-import '../../../utils/app_icon_button.dart';
-import '../../../utils/app_icons.dart';
+import '../constants/app_constants.dart';
 import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
-import '../cubit/vehicle_list_cubit.dart';
 import '../repository/gps_repository.dart';
-import 'gps_notification_screen.dart';
+import '../service/gps_data_refresh_service.dart';
 import 'gps_order/gps_models_screen.dart';
 
 class GpsHomeScreen extends StatelessWidget {
@@ -200,7 +198,9 @@ class _GpsHomeContent extends StatelessWidget {
 
             // Handle GPS device activation error specifically
             if (errorType is GpsDeviceActivationError) {
-              _showDeviceActivationDialog(context);
+              DeviceActivationDialogManager().showDeviceActivationDialog(
+                context,
+              );
               return;
             }
 
@@ -586,43 +586,6 @@ class _GpsHomeContent extends StatelessWidget {
       context,
       MaterialPageRoute(builder: (context) => const VehicleListScreen()),
     );
-  }
-
-  /// Show dialog for device activation in progress and navigate to home
-  void _showDeviceActivationDialog(BuildContext context) {
-    AppDialog.show(
-      context,
-      child: CommonDialogView(
-        heading: "Device Activation In Progress",
-        message:
-            "Your GPS device activation is still in progress. Please try again later.",
-        onSingleButtonText: "Continue",
-        onTapSingleButton: () {
-          // Close dialog first
-          Navigator.of(context).pop();
-
-          // Navigate using a simple, reliable method
-          _navigateToHomeScreenSimple();
-        },
-        child: Icon(Icons.device_hub, size: 80, color: AppColors.primaryColor),
-      ),
-    );
-  }
-
-  /// Simple and reliable navigation to home screen
-  void _navigateToHomeScreenSimple() {
-    try {
-      // Use the global navigator key - this is the most reliable method
-      final globalContext = navigatorKey.currentContext;
-      if (globalContext != null) {
-        // Use pushReplacementNamed which is the most reliable for this use case
-        Navigator.of(
-          globalContext,
-        ).pushReplacementNamed(AppRouteName.lpBottomNavigationBar);
-      }
-    } catch (e) {
-      // Handle navigation error silently
-    }
   }
 }
 

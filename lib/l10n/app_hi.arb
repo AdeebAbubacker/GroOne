@@ -809,7 +809,7 @@
   "tripDocument": "यात्रा दस्तावेज़",
   "acceptLoad": "लोड स्वीकार करें",
   "swipeToStartUnLoading": "अनलोडिंग शुरू करने के लिए स्वाइप करें",
-  "swipeToCompleteUnLoading": "अनलोडिंग पूरा करने के लिए स्वाइप करें",
+  "swipeToCompleteUnLoading": "अनलोडिंग पूर्ण करने के लिए स्वाइप करें",
   "swipeToStart": "यात्रा शुरू करने के लिए स्वाइप करें",
   "quotedPrice": "उल्लिखित मूल्य",
   "noLoadsFound": "कोई लोड नहीं मिला।",
@@ -1085,10 +1085,20 @@
   "accountNumberMustBeBetween9And18Digits": "खाता संख्या 9 से 18 अंकों के बीच होनी चाहिए",
   "accountNumberCannotHaveSameDigits": "खाता संख्या में सभी अंक समान नहीं हो सकते",
   "pleaseEnterValidIfscCode": "कृपया मान्य आईएफएससी कोड दर्ज करें",
-  "noLoadsFound": "कोई लोड नहीं मिला।"
-
-
-
-
-
+  "noLoadsFound": "कोई लोड नहीं मिला।",
+  "unableToLoadGeofenceData": "जियोफेंस डेटा लोड करने में असमर्थ",
+  "createYourFirstGeofence": "शुरू करने के लिए अपना पहला जियोफेंस बनाएं",
+  "unableToLoadVehicleData": "वाहन डेटा लोड करने में असमर्थ",
+  "noVehiclesAvailableToAssignGeofences": "जियोफेंस असाइन करने के लिए कोई वाहन उपलब्ध नहीं",
+  "noGeofencesAvailableToAssignToVehicles": "वाहनों को असाइन करने के लिए कोई जियोफेंस उपलब्ध नहीं",
+  "noGeofencesAssignedToThisVehicle": "इस वाहन को कोई जियोफेंस असाइन नहीं किया गया। जियोफेंस को सक्षम करने के लिए नीचे दिए गए स्विच का उपयोग करें।",
+  "unableToLoadParkingModeData": "पार्किंग मोड डेटा लोड करने में असमर्थ",
+  "unableToLoadNotificationData": "सूचना डेटा लोड करने में असमर्थ",
+  "noVehiclesAvailableToDisplay": "दिखाने के लिए कोई वाहन उपलब्ध नहीं",
+  "unableToLoadDashboardData": "डैशबोर्ड डेटा लोड करने में असमर्थ",
+  "noVehiclesFound": "कोई वाहन नहीं मिला",
+  "unableToLoadVehicleGeofenceData": "वाहन जियोफेंस डेटा लोड करने में असमर्थ",
+  "deviceActivationInProgress": "डिवाइस एक्टिवेशन प्रगति में",
+  "deviceActivationMessage": "आपका GPS डिवाइस एक्टिवेशन अभी भी प्रगति में है। कृपया बाद में पुनः प्रयास करें।",
+  "continueButton": "जारी रखें"
 }

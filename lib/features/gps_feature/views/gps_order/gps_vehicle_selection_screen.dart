@@ -1,5 +1,6 @@
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -11,36 +12,39 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/upload_attachment_files.dart';
+import 'package:multi_dropdown/multi_dropdown.dart';
+
 import '../../../../data/model/result.dart';
-import '../../../../utils/app_bottom_sheet_body.dart' show AppBottomSheetBody;
-import '../../../../dependency_injection/locator.dart';
 import '../../../../data/ui_state/status.dart';
+import '../../../../dependency_injection/locator.dart';
+import '../../../../features/login/repository/user_information_repository.dart';
+import '../../../../utils/app_bottom_sheet_body.dart' show AppBottomSheetBody;
+import '../../../../utils/common_functions.dart';
+import '../../../../utils/toast_messages.dart';
+import '../../../../utils/validator.dart';
 import '../../cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import '../../cubit/gps_vehicle_cubit/gps_vehicle_state.dart';
-import '../../models/gps_vehicle_models.dart';
-import '../../models/gps_truck_length_model.dart';
 import '../../gps_order_request/gps_order_api_request.dart';
-import '../../../../features/login/repository/user_information_repository.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
-import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
-import '../../../../utils/toast_messages.dart';
-import '../../../../utils/common_functions.dart';
-import '../../../../utils/validator.dart';
+import '../../models/gps_truck_length_model.dart';
+import '../../models/gps_vehicle_models.dart';
 
 // --- GPS Vehicle List Screen ---
 class GpsVehicleSelectionScreen extends StatefulWidget {
   final String? currentlySelectedVehicle;
-  const GpsVehicleSelectionScreen({Key? key, this.currentlySelectedVehicle}) : super(key: key);
+  const GpsVehicleSelectionScreen({Key? key, this.currentlySelectedVehicle})
+    : super(key: key);
 
   @override
-  State<GpsVehicleSelectionScreen> createState() => _GpsVehicleSelectionScreenState();
+  State<GpsVehicleSelectionScreen> createState() =>
+      _GpsVehicleSelectionScreenState();
 }
 
 class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
@@ -100,7 +104,9 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
         if (vehicle.vehicleStatus == 1) {
           Navigator.pop(context, vehicle.truckNo);
         } else {
-          ToastMessages.alert(message: context.appText.vehicleIsCurrentlyInactive);
+          ToastMessages.alert(
+            message: context.appText.vehicleIsCurrentlyInactive,
+          );
         }
       },
       child: Container(
@@ -201,16 +207,17 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                       await showModalBottomSheet(
                         context: context,
                         isScrollControlled: true,
-                        builder: (modalContext) => BlocProvider.value(
-                          value: _vehicleCubit,
-                          child: AddGpsVehicleForm(
-                            onVehicleAdded: () {
-                              Navigator.of(modalContext).pop();
-                              _vehicleCubit.fetchVehicles();
-                            },
-                            vehicleCubit: _vehicleCubit,
-                          ),
-                        ),
+                        builder:
+                            (modalContext) => BlocProvider.value(
+                              value: _vehicleCubit,
+                              child: AddGpsVehicleForm(
+                                onVehicleAdded: () {
+                                  Navigator.of(modalContext).pop();
+                                  _vehicleCubit.fetchVehicles();
+                                },
+                                vehicleCubit: _vehicleCubit,
+                              ),
+                            ),
                       );
                     },
                     child: Text(
@@ -220,50 +227,61 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
                   ),
                 ],
               ),
-            AppSearchBar(
-              searchController: searchController,
-              onChanged: (text) {
-                setState(() {});
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
-                builder: (context, state) {
-                  if (state.vehicles.status == Status.LOADING) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state.vehicles.status == Status.ERROR) {
-                    return Center(child: Text(context.appText.failedToLoadVehicles));
-                  } else if (state.vehicles.status == Status.SUCCESS) {
-                    final vehicles = state.vehicles.data ?? [];
-
-                    final searchText = searchController.text.toLowerCase();
-                    final filteredVehicles = vehicles.where((vehicle) {
-                      return vehicle.truckNo.toLowerCase().contains(searchText) ||
-                        vehicle.truckMakeAndModel.toLowerCase().contains(searchText) ||
-                        vehicle.rcNumber.toLowerCase().contains(searchText) ||
-                        vehicle.tonnage.toLowerCase().contains(searchText);
-                    }).toList();
-
-                    if (filteredVehicles.isEmpty) {
-                      return Center(
-                        child: Text(context.appText.noVehiclesFound),
-                      );
-                    }
-                    return ListView.separated(
-                      itemCount: filteredVehicles.length,
-                      separatorBuilder: (_, __) => 12.height,
-                      itemBuilder: (_, index) {
-                        final vehicle = filteredVehicles[index];
-                        return vehicleCard(vehicle);
-                      },
-                    );
-                  }
-                  return const SizedBox();
+              AppSearchBar(
+                searchController: searchController,
+                onChanged: (text) {
+                  setState(() {});
                 },
               ),
-            ),
-          ],
-        ).paddingSymmetric(horizontal: 16),
+              Expanded(
+                child: BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
+                  builder: (context, state) {
+                    if (state.vehicles.status == Status.LOADING) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state.vehicles.status == Status.ERROR) {
+                      return Center(
+                        child: Text(context.appText.failedToLoadVehicles),
+                      );
+                    } else if (state.vehicles.status == Status.SUCCESS) {
+                      final vehicles = state.vehicles.data ?? [];
+
+                      final searchText = searchController.text.toLowerCase();
+                      final filteredVehicles =
+                          vehicles.where((vehicle) {
+                            return vehicle.truckNo.toLowerCase().contains(
+                                  searchText,
+                                ) ||
+                                vehicle.truckMakeAndModel
+                                    .toLowerCase()
+                                    .contains(searchText) ||
+                                vehicle.rcNumber.toLowerCase().contains(
+                                  searchText,
+                                ) ||
+                                vehicle.tonnage.toLowerCase().contains(
+                                  searchText,
+                                );
+                          }).toList();
+
+                      if (filteredVehicles.isEmpty) {
+                        return Center(
+                          child: Text(context.appText.noVehiclesFound),
+                        );
+                      }
+                      return ListView.separated(
+                        itemCount: filteredVehicles.length,
+                        separatorBuilder: (_, __) => 12.height,
+                        itemBuilder: (_, index) {
+                          final vehicle = filteredVehicles[index];
+                          return vehicleCard(vehicle);
+                        },
+                      );
+                    }
+                    return const SizedBox();
+                  },
+                ),
+              ),
+            ],
+          ).paddingSymmetric(horizontal: 16),
         ),
       ),
     );
@@ -293,7 +311,8 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
   bool showValidationErrors = false;
 
   List<Map<String, dynamic>> vehicleDocList = [];
-  final MultiSelectController<String> acceptableCommoditiesController = MultiSelectController<String>();
+  final MultiSelectController<String> acceptableCommoditiesController =
+      MultiSelectController<String>();
 
   String? truckTypeDropdownValue;
   String? truckLengthDropdownValue;
@@ -335,7 +354,9 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
       final url = cubit.state.documentUpload.data?.url ?? '';
       if (url.isNotEmpty) {
         multiFilesList.first['path'] = url;
-        ToastMessages.success(message: context.appText.fileUploadedSuccessfully);
+        ToastMessages.success(
+          message: context.appText.fileUploadedSuccessfully,
+        );
         return Success(true);
       }
     } else if (status == Status.ERROR) {
@@ -361,8 +382,10 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
               children: [
                 BlocBuilder<GpsVehicleCubit, GpsVehicleState>(
                   bloc: widget.vehicleCubit,
-                  buildWhen: (previous, current) =>
-                      previous.vehicleVerification != current.vehicleVerification,
+                  buildWhen:
+                      (previous, current) =>
+                          previous.vehicleVerification !=
+                          current.vehicleVerification,
                   builder: (context, state) {
                     final verificationState = state.vehicleVerification;
                     if (verificationState.status == Status.SUCCESS) {
@@ -374,45 +397,63 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                       maxLength: 15,
                       labelText: context.appText.truckNumber,
                       textCapitalization: TextCapitalization.characters,
-                      validator: (value) => Validator.validateVehicleNumber(
-                        value,
-                        fieldName: context.appText.truckNumber,
-                      ),
+                      validator:
+                          (value) => Validator.validateVehicleNumber(
+                            value,
+                            fieldName: context.appText.truckNumber,
+                          ),
                       inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z0-9 ]'),
+                        ),
                       ],
                       readOnly: verificationState.status == Status.SUCCESS,
                       decoration: commonInputDecoration(
-                        suffixIcon: verificationState.status == Status.LOADING
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
-                              )
-                            : verificationState.status == Status.SUCCESS
-                                ? const Icon(Icons.verified, color: Colors.green)
+                        suffixIcon:
+                            verificationState.status == Status.LOADING
+                                ? const SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : verificationState.status == Status.SUCCESS
+                                ? const Icon(
+                                  Icons.verified,
+                                  color: Colors.green,
+                                )
                                 : InkWell(
-                                    onTap: () {
-                                      final vehicleNumber = truckNumberController.text.trim().toUpperCase();
-                                      final validationMessage = Validator.validateVehicleNumber(
-                                        vehicleNumber,
-                                        fieldName: context.appText.truckNumber,
+                                  onTap: () {
+                                    final vehicleNumber =
+                                        truckNumberController.text
+                                            .trim()
+                                            .toUpperCase();
+                                    final validationMessage =
+                                        Validator.validateVehicleNumber(
+                                          vehicleNumber,
+                                          fieldName:
+                                              context.appText.truckNumber,
+                                        );
+                                    if (validationMessage != null) {
+                                      ToastMessages.alert(
+                                        message: validationMessage,
                                       );
-                                      if (validationMessage != null) {
-                                        ToastMessages.alert(message: validationMessage);
-                                        return;
-                                      }
-                                      widget.vehicleCubit.verifyVehicle(vehicleNumber);
-                                    },
-                                    child: Text(
-                                      context.appText.verify,
-                                      style: AppTextStyle.body3.copyWith(
-                                        color: AppColors.primaryColor,
-                                        decoration: TextDecoration.underline,
-                                        decorationColor: AppColors.primaryColor,
-                                      ),
+                                      return;
+                                    }
+                                    widget.vehicleCubit.verifyVehicle(
+                                      vehicleNumber,
+                                    );
+                                  },
+                                  child: Text(
+                                    context.appText.verify,
+                                    style: AppTextStyle.body3.copyWith(
+                                      color: AppColors.primaryColor,
+                                      decoration: TextDecoration.underline,
+                                      decorationColor: AppColors.primaryColor,
                                     ),
                                   ),
+                                ),
                       ),
                     );
                   },
@@ -424,10 +465,11 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                   maxLength: 20,
                   labelText: context.appText.truckMakeAndModel,
                   textCapitalization: TextCapitalization.characters,
-                  validator: (value) => Validator.noSpecialCharacters(
-                    value,
-                    fieldName: context.appText.truckMakeAndModel,
-                  ),
+                  validator:
+                      (value) => Validator.noSpecialCharacters(
+                        value,
+                        fieldName: context.appText.truckMakeAndModel,
+                      ),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9 ]')),
                   ],
@@ -439,13 +481,16 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                   maxLength: 16,
                   textCapitalization: TextCapitalization.characters,
                   inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9\-]')), // Allow letters, digits, and hyphens only
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[A-Za-z0-9\-]'),
+                    ), // Allow letters, digits, and hyphens only
                   ],
                   mandatoryStar: true,
-                  validator: (value) => Validator.licenseNumberValidator(
-                    value,
-                    fieldName: context.appText.licenseNumber,
-                  ),
+                  validator:
+                      (value) => Validator.licenseNumberValidator(
+                        value,
+                        fieldName: context.appText.licenseNumber,
+                      ),
                 ),
                 10.height,
                 Row(
@@ -469,7 +514,10 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                       isSingleFile: true,
                       isLoading: state.documentUpload.status == Status.LOADING,
                       thenUploadFileToSever: () async {
-                        await _uploadGSTDocumentApiCall(context, vehicleDocList);
+                        await _uploadGSTDocumentApiCall(
+                          context,
+                          vehicleDocList,
+                        );
                       },
                     );
                   },
@@ -487,12 +535,15 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                           AppDropdown(
                             labelText: context.appText.truckType,
                             dropdownValue: truckTypeDropdownValue,
-                            dropDownList: state.truckTypes.data!
-                                .map((type) => DropdownMenuItem(
-                                      value: type,
-                                      child: Text(type),
-                                    ))
-                                .toList(),
+                            dropDownList:
+                                state.truckTypes.data!
+                                    .map(
+                                      (type) => DropdownMenuItem(
+                                        value: type,
+                                        child: Text(type),
+                                      ),
+                                    )
+                                    .toList(),
                             hintText: context.appText.selectTruckType,
                             mandatoryStar: true,
                             onChanged: (selected) {
@@ -502,21 +553,26 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                               });
                               cubit.fetchTruckLengths(selected!);
                             },
-                            validator: (value) => value == null || value.isEmpty
-                                ? context.appText.pleaseSelectTruckType
-                                : null,
+                            validator:
+                                (value) =>
+                                    value == null || value.isEmpty
+                                        ? context.appText.pleaseSelectTruckType
+                                        : null,
                           ),
                         15.height,
                         if (state.truckLengths.status == Status.SUCCESS)
                           AppDropdown(
                             labelText: context.appText.truckLength,
                             dropdownValue: truckLengthDropdownValue,
-                            dropDownList: state.truckLengths.data!
-                                .map((e) => DropdownMenuItem(
-                                      value: e.subType,
-                                      child: Text(e.subType),
-                                    ))
-                                .toList(),
+                            dropDownList:
+                                state.truckLengths.data!
+                                    .map(
+                                      (e) => DropdownMenuItem(
+                                        value: e.subType,
+                                        child: Text(e.subType),
+                                      ),
+                                    )
+                                    .toList(),
                             hintText: context.appText.truckLength,
                             mandatoryStar: true,
                             onChanged: (selected) {
@@ -525,18 +581,23 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                                 final selectedModel = state.truckLengths.data!
                                     .firstWhere(
                                       (e) => e.subType == selected,
-                                      orElse: () => GpsTruckLengthModel(
-                                        id: 0,
-                                        type: '',
-                                        subType: '',
-                                      ),
+                                      orElse:
+                                          () => GpsTruckLengthModel(
+                                            id: 0,
+                                            type: '',
+                                            subType: '',
+                                          ),
                                     );
                                 selectedTruckTypeId = selectedModel.id;
                               });
                             },
-                            validator: (value) => value == null || value.isEmpty
-                                ? context.appText.pleaseSelectTruckLength
-                                : null,
+                            validator:
+                                (value) =>
+                                    value == null || value.isEmpty
+                                        ? context
+                                            .appText
+                                            .pleaseSelectTruckLength
+                                        : null,
                           ),
                       ],
                     );
@@ -550,14 +611,18 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                   keyboardType: TextInputType.number,
                   maxLength: 10,
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) => Validator.positiveNumber(
-                    value,
-                    fieldName: context.appText.capacity,
-                  ),
+                  validator:
+                      (value) => Validator.positiveNumber(
+                        value,
+                        fieldName: context.appText.capacity,
+                      ),
                   decoration: commonInputDecoration(
                     suffixIcon: Padding(
                       padding: const EdgeInsets.only(right: 8.0),
-                      child: Text(context.appText.metricTons, style: AppTextStyle.textGreyColor12w400),
+                      child: Text(
+                        context.appText.metricTons,
+                        style: AppTextStyle.textGreyColor12w400,
+                      ),
                     ),
                   ),
                 ),
@@ -569,12 +634,13 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                     if (state.commodities.status == Status.LOADING) {
                       return const SizedBox.shrink();
                     } else if (state.commodities.status == Status.SUCCESS) {
-                      final items = state.commodities.data!.map((commodity) {
-                        return DropdownItem<String>(
-                          label: commodity.name,
-                          value: commodity.id.toString(),
-                        );
-                      }).toList();
+                      final items =
+                          state.commodities.data!.map((commodity) {
+                            return DropdownItem<String>(
+                              label: commodity.name,
+                              value: commodity.id.toString(),
+                            );
+                          }).toList();
                       return AppMultiSelectionDropdown<String>(
                         labelText: context.appText.acceptableCommodities,
                         hintText: context.appText.select,
@@ -582,13 +648,20 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                         controller: acceptableCommoditiesController,
                         items: items,
                         onSelectionChange: (selected) {},
-                        validator: (value) => value == null || value.isEmpty
-                            ? context.appText.pleaseSelectCommodity
-                            : null,
+                        validator:
+                            (value) =>
+                                value == null || value.isEmpty
+                                    ? context.appText.pleaseSelectCommodity
+                                    : null,
                         showValidationError: showValidationErrors,
                       );
                     } else if (state.commodities.status == Status.ERROR) {
-                      return Text('Error: ${state.commodities.errorType}');
+                      return Text(
+                        context.appText.noData,
+                        style: AppTextStyle.h6.copyWith(
+                          color: AppColors.grayColor,
+                        ),
+                      );
                     }
                     return const SizedBox.shrink();
                   },
@@ -631,16 +704,21 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                         }
                         if (isVerified == false) {
                           ToastMessages.alert(
-                            message: context.appText.pleaseVerifyYourVehicleNumber,
+                            message:
+                                context.appText.pleaseVerifyYourVehicleNumber,
                           );
                           return;
                         }
                         // Get user ID from repository (it's a UUID string, not an integer)
-                        final userInfoRepo = locator<UserInformationRepository>();
+                        final userInfoRepo =
+                            locator<UserInformationRepository>();
                         final userIDString = await userInfoRepo.getUserID();
 
                         if (userIDString == null || userIDString.isEmpty) {
-                          ToastMessages.error(message: context.appText.userIdNotFoundPleaseLoginAgain);
+                          ToastMessages.error(
+                            message:
+                                context.appText.userIdNotFoundPleaseLoginAgain,
+                          );
                           return;
                         }
                         final selectedCommoditiesIds =
@@ -656,12 +734,15 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                           rcDocLink: rcDocLink,
                           tonnage: capacityController.text.trim(),
                           truckTypeId: selectedTruckTypeId ?? 1,
-                          truckMakeAndModel: truckMakeModelController.text.trim(),
+                          truckMakeAndModel:
+                              truckMakeModelController.text.trim(),
                           acceptableCommodities: selectedCommoditiesIds,
                           truckLength: selectedTruckTypeId ?? 0,
                           vehicleStatus: isActive ? 1 : 0,
                         );
-                        final result = await widget.vehicleCubit.addVehicle(request);
+                        final result = await widget.vehicleCubit.addVehicle(
+                          request,
+                        );
                         if (result is Success) {
                           Navigator.of(context).pop();
                           widget.onVehicleAdded();

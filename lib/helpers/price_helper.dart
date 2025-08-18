@@ -12,7 +12,7 @@ class PriceHelper {
       final formatter = NumberFormat.currency(
         locale: 'en_IN',
         symbol: symbol,
-        decimalDigits: hasDecimals ? 2 : 0,
+        decimalDigits: 2,
       );
       return formatter.format(numValue);
     } catch (_) {

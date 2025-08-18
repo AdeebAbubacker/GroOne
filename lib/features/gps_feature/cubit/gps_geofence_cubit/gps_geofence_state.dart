@@ -14,10 +14,7 @@ class GpsGeofenceLoaded extends GpsGeofenceState {
   final List<GpsGeofenceModel> geofences;
   final Map<String, Set<String>> vehicleGeofenceMap;
 
-  const GpsGeofenceLoaded(
-      this.geofences, {
-        this.vehicleGeofenceMap = const {},
-      });
+  const GpsGeofenceLoaded(this.geofences, {this.vehicleGeofenceMap = const {}});
 
   GpsGeofenceLoaded copyWith({
     List<GpsGeofenceModel>? geofences,

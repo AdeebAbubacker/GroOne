@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_screen_lifecycle_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_screen_manager.dart';
 
 /// A wrapper widget that handles GPS screen lifecycle management.
 /// This can be used with both stateless and stateful widgets.
@@ -24,15 +25,18 @@ class GpsScreenLifecycleWrapper extends StatefulWidget {
 
 class _GpsScreenLifecycleWrapperState extends State<GpsScreenLifecycleWrapper> {
   late final GpsScreenLifecycleCubit _lifecycleCubit;
+  late final GpsScreenManager _screenManager;
 
   @override
   void initState() {
     super.initState();
     _lifecycleCubit = GpsScreenLifecycleCubit();
+    _screenManager = GpsScreenManager();
 
     if (widget.enableAutoRefresh) {
       // Notify screen manager when screen becomes active
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        _screenManager.onScreenEnter(widget.screenType);
         _lifecycleCubit.onScreenEnter(widget.screenType);
       });
     }
@@ -41,6 +45,7 @@ class _GpsScreenLifecycleWrapperState extends State<GpsScreenLifecycleWrapper> {
   @override
   void dispose() {
     if (widget.enableAutoRefresh) {
+      _screenManager.onScreenExit();
       _lifecycleCubit.onScreenExit();
     }
     _lifecycleCubit.close();

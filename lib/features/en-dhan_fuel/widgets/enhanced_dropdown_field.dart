@@ -16,11 +16,13 @@ class EnhancedDropdownField extends StatefulWidget {
   final String? Function(String?)? validator;
   final bool isLoading;
   final bool showDropdown;
+  final String? displayText;
 
   const EnhancedDropdownField({
     super.key,
     required this.labelText,
     required this.hintText,
+    this.displayText,
     this.value,
     required this.options,
     required this.onChanged,
@@ -60,45 +62,29 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
   }
 
   void _updateDisplayText() {
+    if (widget.displayText != null && widget.displayText!.isNotEmpty) {
+      selectedDisplayText = widget.displayText;
+      _controller.text = selectedDisplayText!;
+      return;
+    }
+
     if (selectedValue != null && selectedValue!.isNotEmpty) {
-      // Always show the selected value as-is first
       selectedDisplayText = selectedValue;
-      
-      // Then try to find a matching option if available
       if (widget.options.isNotEmpty) {
-        // Try to find the option by ID first
         final option = widget.options.firstWhere(
-          (opt) => opt['id'].toString() == selectedValue,
+              (opt) => opt['id'].toString() == selectedValue,
           orElse: () => <String, dynamic>{},
         );
-        
         if (option.isNotEmpty) {
-          // Found by ID, use the name from the option
           selectedDisplayText = option['name'] ?? selectedValue;
-        } else {
-          // Not found by ID, try to find by name (for cases where we have the name but not the exact ID)
-          final nameOption = widget.options.firstWhere(
-            (opt) => opt['name']?.toString().toLowerCase() == selectedValue!.toLowerCase(),
-            orElse: () => <String, dynamic>{},
-          );
-          
-          if (nameOption.isNotEmpty) {
-            // Found by name, use the name from the option
-            selectedDisplayText = nameOption['name'] ?? selectedValue;
-          } else {
-            // Not found by ID or name, keep the selected value as is
-            // This handles cases where pincode API returns a district name not in master list
-          }
         }
-      } else {
-        // If no options available, keep the selected value as is
-        // This also handles cases where pincode API returns a district name not in master list
       }
     } else {
       selectedDisplayText = null;
     }
     _controller.text = selectedDisplayText ?? '';
   }
+
 
   void _showDropdown() {
     if (widget.options.isEmpty) return;

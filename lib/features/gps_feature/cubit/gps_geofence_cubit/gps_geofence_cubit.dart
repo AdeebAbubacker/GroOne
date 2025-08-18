@@ -36,7 +36,7 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
 
   Future<void> loadGeofences({bool forceRefresh = false}) async {
     if (_isClosed) return;
-    
+
     if (_hasLoadedData && state is GpsGeofenceLoaded && !forceRefresh) {
       debugPrint("📍 GpsGeofenceCubit.loadGeofences() - Skipping due to cache");
       return;
@@ -50,7 +50,7 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
       if (!forceRefresh) {
         final storedGeofences = await _loginRepository.getStoredGeofences();
         if (_isClosed) return;
-        
+
         if (storedGeofences.isNotEmpty) {
           debugPrint("📱 Loaded from Realm: ${storedGeofences.length}");
           if (!_isClosed) {
@@ -63,9 +63,9 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
 
       debugPrint("🌐 Fetching geofences from API...");
       final result = await _repository.fetchGeofences();
-      
+
       if (_isClosed) return;
-      
+
       if (result is Success<List<GpsGeofenceModel>>) {
         debugPrint("✅ Fetched from API: ${result.value.length}");
         if (!_isClosed) {
@@ -91,14 +91,12 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
     required String vehicleId,
   }) async {
     if (_isClosed) return;
-    
+
     try {
-      final result = await _repository.fetchGeofencesForVehicle(
-        deviceId
-      );
-      
+      final result = await _repository.fetchGeofencesForVehicle(deviceId);
+
       if (_isClosed) return;
-      
+
       if (result is Success<List<GpsGeofenceModel>>) {
         final activeGeofenceIds = result.value.map((g) => g.id).toSet();
 
@@ -126,15 +124,15 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
 
   Future<void> submitGeofence(GpsGeofenceModel model) async {
     if (_isClosed) return;
-    
+
     if (!_isClosed) {
       emit(GpsGeofenceLoading());
     }
-    
+
     final result = await _repository.addOrUpdateGeofence(model);
-    
+
     if (_isClosed) return;
-    
+
     if (result is Success<void>) {
       if (!_isClosed) {
         emit(GpsGeofenceSubmitSuccess()); // ✅ Emit submit success
@@ -215,8 +213,13 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
       }
     } else if (result is Error<AutoCompleteModel>) {
       final errorType = result.type;
-      emit(GpsGeofenceError(
-          errorType is ErrorWithMessage ? errorType.message : "Autocomplete failed"));
+      emit(
+        GpsGeofenceError(
+          errorType is ErrorWithMessage
+              ? errorType.message
+              : "Autocomplete failed",
+        ),
+      );
     }
   }
 
@@ -231,9 +234,11 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
       emit(GpsGeofenceLatLngLoaded(result.value));
     } else if (result is Error<LatLng>) {
       final err = result.type;
-      emit(GpsGeofenceError(
-        err is ErrorWithMessage ? err.message : "Failed to get location.",
-      ));
+      emit(
+        GpsGeofenceError(
+          err is ErrorWithMessage ? err.message : "Failed to get location.",
+        ),
+      );
     }
   }
 
@@ -242,5 +247,4 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
       emit(GpsGeofenceMapInitial());
     }
   }
-
 }

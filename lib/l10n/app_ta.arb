@@ -1085,6 +1085,20 @@
   "accountNumberMustBeBetween9And18Digits": "கணக்கு எண் 9 முதல் 18 இலக்கங்களுக்கு இடையில் இருக்க வேண்டும்",
   "accountNumberCannotHaveSameDigits": "கணக்கு எண்ணில் எல்லா இலக்கங்களும் ஒரே மாதிரியாக இருக்க முடியாது",
   "pleaseEnterValidIfscCode": "சரியான IFSC குறியீட்டை உள்ளிடவும்",
-  "noLoadsFound": "ஏதும் சரக்குகள் கிடைக்கவில்லை."
-
+  "noLoadsFound": "ஏதும் சரக்குகள் கிடைக்கவில்லை.",
+  "unableToLoadGeofenceData": "ஜியோஃபென்ஸ் தரவை ஏற்ற முடியவில்லை",
+  "createYourFirstGeofence": "தொடங்குவதற்கு உங்கள் முதல் ஜியோஃபென்ஸை உருவாக்கவும்",
+  "unableToLoadVehicleData": "வாகன தரவை ஏற்ற முடியவில்லை",
+  "noVehiclesAvailableToAssignGeofences": "ஜியோஃபென்ஸ்களை ஒதுக்குவதற்கு எந்த வாகனங்களும் கிடைக்கவில்லை",
+  "noGeofencesAvailableToAssignToVehicles": "வாகனங்களுக்கு ஒதுக்குவதற்கு எந்த ஜியோஃபென்ஸ்களும் கிடைக்கவில்லை",
+  "noGeofencesAssignedToThisVehicle": "இந்த வாகனத்திற்கு எந்த ஜியோஃபென்ஸ்களும் ஒதுக்கப்படவில்லை. ஜியோஃபென்ஸ்களை இயக்குவதற்கு கீழே உள்ள சுவிட்ச்களைப் பயன்படுத்தவும்.",
+  "unableToLoadParkingModeData": "பார்க்கிங் மோட் தரவை ஏற்ற முடியவில்லை",
+  "unableToLoadNotificationData": "அறிவிப்பு தரவை ஏற்ற முடியவில்லை",
+  "noVehiclesAvailableToDisplay": "காட்டுவதற்கு எந்த வாகனங்களும் கிடைக்கவில்லை",
+  "unableToLoadDashboardData": "டாஷ்போர்டு தரவை ஏற்ற முடியவில்லை",
+  "noVehiclesFound": "வாகனங்கள் எதுவும் கிடைக்கவில்லை",
+  "unableToLoadVehicleGeofenceData": "வாகன ஜியோஃபென்ஸ் தரவை ஏற்ற முடியவில்லை",
+  "deviceActivationInProgress": "சாதன செயல்படுத்தல் நடந்து கொண்டிருக்கிறது",
+  "deviceActivationMessage": "உங்கள் GPS சாதன செயல்படுத்தல் இன்னும் நடந்து கொண்டிருக்கிறது. தயவுசெய்து பிறகு மீண்டும் முயற்சிக்கவும்.",
+  "continueButton": "தொடரவும்"
 }
