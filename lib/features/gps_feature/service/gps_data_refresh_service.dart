@@ -110,7 +110,7 @@ class GpsDataRefreshService {
     try {
       CustomLog.debug(
         this,
-        "🔄 Performing GPS data refresh for $_currentScreenType",
+        "Performing GPS data refresh for $_currentScreenType",
       );
 
       // Refresh login data (includes vehicle data, geofences, etc.)
@@ -122,9 +122,9 @@ class GpsDataRefreshService {
       // Refresh geofence data
       await _gpsGeofenceCubitInstance.refreshData();
 
-      CustomLog.debug(this, "✅ GPS data refresh completed successfully");
+      CustomLog.debug(this, "GPS data refresh completed successfully");
     } catch (e) {
-      CustomLog.error(this, "❌ Error during GPS data refresh", e);
+      CustomLog.error(this, "Error during GPS data refresh", e);
     }
   }
 

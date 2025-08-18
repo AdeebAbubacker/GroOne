@@ -1,15 +1,13 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/device_activation_dialog_manager.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 import '../../../dependency_injection/locator.dart';
-import '../../../routing/app_route_name.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
@@ -96,7 +94,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
       body: BlocListener<GpsParkingModeCubit, GpsParkingModeState>(
         listener: (context, state) {
           if (state is GpsParkingModeDeviceActivationError) {
-            _showDeviceActivationDialog(context);
+            DeviceActivationDialogManager().showDeviceActivationDialog(context);
           }
         },
         child: Column(
@@ -248,29 +246,6 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  /// Show dialog for device activation in progress and navigate to home
-  void _showDeviceActivationDialog(BuildContext context) {
-    AppDialog.show(
-      context,
-      child: CommonDialogView(
-        heading: "Device Activation In Progress",
-        message:
-            "Your GPS device activation is still in progress. Please try again later.",
-        onSingleButtonText: "Continue",
-        onTapSingleButton: () {
-          // Close dialog first
-          Navigator.of(context).pop();
-
-          // Navigate to home screen
-          Navigator.of(
-            context,
-          ).pushReplacementNamed(AppRouteName.lpBottomNavigationBar);
-        },
-        child: Icon(Icons.device_hub, size: 80, color: AppColors.primaryColor),
       ),
     );
   }
