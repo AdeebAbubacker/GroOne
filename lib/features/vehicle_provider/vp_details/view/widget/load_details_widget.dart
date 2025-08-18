@@ -481,7 +481,7 @@ class LoadDetailsWidget extends StatelessWidget {
           style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
         ),
         Text(
-          " ${driver?.name.capitalizeFirst}",
+          " ${driver?.name.capitalize}",
           style: AppTextStyle.h3w500.copyWith(
             fontSize: 13,
             color: AppColors.textBlackDetailColor,
