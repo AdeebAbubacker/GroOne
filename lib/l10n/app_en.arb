@@ -1119,6 +1119,9 @@
   "pleaseEnterValidIfscCode": "Please enter a valid IFSC code",
   "noLoadsFound": "No Loads Found.",
   "pleaseEnterValidIfscCode": "Please enter a valid IFSC code",
-  "waitingForLpToConfirmed":"Waiting for LP to confirmed"
+  "waitingForLpToConfirmed":"Waiting for LP to confirmed",
+  "stateRequired":"State is required,Please add your state ",
+  "cityRequired":"City is required,Please add your city "
+
 
 }

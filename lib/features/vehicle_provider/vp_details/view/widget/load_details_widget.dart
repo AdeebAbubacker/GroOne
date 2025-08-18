@@ -1173,6 +1173,7 @@ Widget _submittedSettlementInfoWidget(
   final amount = loadSettlement.amountPerDay ?? 1;
   final detentionsAmount = PriceHelper.formatINR(
     (amount * numberOfDays).toString(),
+
   );
 
   return Padding(

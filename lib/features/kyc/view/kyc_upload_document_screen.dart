@@ -640,6 +640,15 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       /// check if state is selected
       //add code for state and city required
 
+      if(selectedState==null && (selectedState??"").isEmpty){
+      ToastMessages.error(message: context.appText.stateRequired);
+      return;
+      }
+
+      if(selectedCity==null && (selectedCity??"").isEmpty){
+        ToastMessages.error(message: context.appText.cityRequired);
+        return;
+      }
 
 
 
