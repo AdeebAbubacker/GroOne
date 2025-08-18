@@ -688,8 +688,10 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           
           // Local variables to store the final state values
           int? finalZonalOfficeId;
+          String? finalZonalOfficeName;
           int? finalRegionalOfficeId;
           int? finalStateId;
+          String? finalStateName;
           int? finalDistrictId;
           String? finalDistrictName;
 
@@ -697,6 +699,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           // Set zonal office and fetch regional offices
           if (data.zonal != null) {
             finalZonalOfficeId = data.zonal!.id;
+            finalZonalOfficeName = data.zonal!.name;
             // Fetch regional offices for this zonal office
             await fetchRegionalOffices(data.zonal!.id);
           }
@@ -709,6 +712,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           // Set state and fetch districts
           if (data.state != null) {
             finalStateId = data.state!.id;
+            finalStateName = data.state!.name;
             // Fetch districts for this state
             await fetchDistricts(data.state!.id);
             
@@ -732,6 +736,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
                         selectedStateId: finalStateId,
                         selectedDistrictId: finalDistrictId,
                         selectedDistrictName: finalDistrictName,
+                        selectedStateName: finalStateName,
+                        selectedZonalOfficeName: finalZonalOfficeName,
                       ));
                     }
         }
