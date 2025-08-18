@@ -414,7 +414,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             children: [
               SizedBox(
                 height: MediaQuery.of(context).size.height * 0.8,
-                child: genericErrorWidget(error: NotFoundError()),
+                child: genericErrorWidget(error: NoLoadsFoundError()),
               ),
             ],
           ),
