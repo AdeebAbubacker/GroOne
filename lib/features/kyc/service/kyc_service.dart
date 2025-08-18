@@ -354,13 +354,11 @@ class KycService {
     /// Get State Service
     Future<Result<StateModel>> fetchStateData({
       String filter = '',
-      // int limit = 50,
       int page = 1,
     }) async {
       
       try {
         final queryParams = {
-          //'limit': '50',
           if (filter.trim().isNotEmpty) 'search': filter,
         };
 
