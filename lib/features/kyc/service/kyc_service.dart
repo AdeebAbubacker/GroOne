@@ -360,7 +360,6 @@ class KycService {
       
       try {
         final queryParams = {
-          'limit': '50',
           if (filter.trim().isNotEmpty) 'search': filter,
         };
 

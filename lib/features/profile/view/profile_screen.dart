@@ -253,14 +253,21 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
           ),
           commonDivider(),
 
-          ProfileMyAccountTile(
-            imageString: AppImage.svg.transaction,
-            text: context.appText.transactions,
-            onTap: () {
-              Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
-            },
+       ... [  Visibility(
+            visible: false,
+            child: ProfileMyAccountTile(
+              imageString: AppImage.svg.transaction,
+              text: context.appText.transactions,
+              onTap: () {
+                Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
+              },
+            ),
           ),
-          commonDivider(),
+         Visibility(
+             visible: false,
+             child: commonDivider()),
+       ],
+
 
           ProfileMyAccountTile(
             imageString: AppImage.svg.settings,
