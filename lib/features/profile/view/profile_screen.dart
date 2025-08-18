@@ -157,10 +157,12 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                 Container(
                   height: profileSize,
                   width: profileSize,
-                  decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle, border: Border.all(
+                  decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle, 
+                  border: Border.all(
                   color: AppColors.blueColor, 
                   width: 2,           
-                ),),
+                ),
+                ),
                   alignment: Alignment.center,
                   child: Text(getInitialsFromName(this, name: state.profileDetailUIState!.data!.customer!.companyName),
                     style: AppTextStyle.h1,
