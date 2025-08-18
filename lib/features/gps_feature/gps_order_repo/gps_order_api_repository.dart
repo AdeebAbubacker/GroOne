@@ -10,6 +10,8 @@ import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_reque
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
+import '../models/gps_payment_status_response.dart';
+
 class GpsOrderApiRepository {
   final GpsOrderApiService _gpsOrderApiService;
 
@@ -219,4 +221,15 @@ class GpsOrderApiRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+
+  Future<Result<PaymentStatusResponse>> checkPaymentStatus(String requestId) async {
+    try {
+      return await _gpsOrderApiService.checkPaymentStatus(requestId);
+    } catch (e) {
+      CustomLog.error(this, "Failed to check payment status", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
 }

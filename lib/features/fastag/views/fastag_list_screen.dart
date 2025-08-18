@@ -66,13 +66,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
               icon: const Icon(Icons.add, color: Colors.white),
               style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
             ),
-            4.width,
-            AppIconButton(
-              onPressed: () {
-                // More options
-              },
-              icon: Image.asset(AppIcons.png.moreVertical),
-            ),
+            5.width,
           ],
         ),
         body: SafeArea(

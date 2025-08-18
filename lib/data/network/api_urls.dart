@@ -168,8 +168,8 @@ class ApiUrls {
   static String kavachInvoice(String orderId) =>
       "$_baseUrl$_fleet$_path$_v1/invoices/$orderId/get-or-create";
   static String  kavachVehicleVerification = "https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number";
-  // static final String kavachPayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
-  //static final String  kavachtruckType = "$loadTruckType/truck-types/distinct/types";
+  //payment-broker/api/v1/payment/fleetPaymentStatus
+  static final String  fleetPaymentStatus = "$_paymentBrokerBase/payment/fleetPaymentStatus";
 
   /// En-Dhan
   static final String enDhanKycUpload = "$_fetchUrl$_vendor$_path$_v1/dtplus/customerDocument";
