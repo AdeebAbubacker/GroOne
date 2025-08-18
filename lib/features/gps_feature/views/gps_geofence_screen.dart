@@ -1,4 +1,3 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -14,14 +13,12 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_searchabledropdown.dart';
-import '../../../utils/common_widgets.dart';
 import '../cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../models/gps_geofence_model.dart';
@@ -113,7 +110,6 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
         return AppIcons.svg.gpsGeofenceCircle;
     }
   }
-
 
   Future<bool?> _showConfirmationDialog(
     BuildContext context,
@@ -251,6 +247,30 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
           return const Center(child: CircularProgressIndicator());
         } else if (state is GpsGeofenceLoaded) {
           final geofences = state.geofences;
+
+          // Check if there are no geofences
+          if (geofences.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    context.appText.noData,
+                    style: AppTextStyle.h5.copyWith(color: AppColors.grayColor),
+                  ),
+                  10.height,
+                  Text(
+                    'Create your first geofence to get started',
+                    style: AppTextStyle.blackColor14w400.copyWith(
+                      color: AppColors.grayColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            );
+          }
+
           return ListView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: geofences.length,
@@ -303,7 +323,23 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
           );
         } else if (state is GpsGeofenceError) {
           return Center(
-            child: Text('${context.appText.error}: ${state.message}'),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  context.appText.noData,
+                  style: AppTextStyle.h5.copyWith(color: AppColors.grayColor),
+                ),
+                10.height,
+                Text(
+                  'Unable to load geofence data',
+                  style: AppTextStyle.blackColor14w400.copyWith(
+                    color: AppColors.grayColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
           );
         }
         return const SizedBox();
@@ -321,7 +357,27 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             if (vehicleState.isLoading) {
               return const Center(child: CircularProgressIndicator());
             } else if (vehicleState.error != null) {
-              return Center(child: Text(context.appText.errorLoadingVehicles));
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      context.appText.noData,
+                      style: AppTextStyle.h5.copyWith(
+                        color: AppColors.grayColor,
+                      ),
+                    ),
+                    10.height,
+                    Text(
+                      'Unable to load vehicle data',
+                      style: AppTextStyle.blackColor14w400.copyWith(
+                        color: AppColors.grayColor,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
+                ),
+              );
             } else {
               // Extract unique vehicle numbers
               final uniqueVehicleNumbers =
@@ -333,7 +389,27 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
 
               // If no vehicles found
               if (uniqueVehicleNumbers.isEmpty) {
-                return Center(child: Text(context.appText.noVehiclesAvailable));
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        context.appText.noData,
+                        style: AppTextStyle.h5.copyWith(
+                          color: AppColors.grayColor,
+                        ),
+                      ),
+                      10.height,
+                      Text(
+                        'No vehicles available to assign geofences',
+                        style: AppTextStyle.blackColor14w400.copyWith(
+                          color: AppColors.grayColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
               }
 
               // Ensure selectedVehicle is in the dropdown
@@ -343,7 +419,8 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               return Padding(
                 padding: const EdgeInsets.all(15),
                 child: SearchableDropdown(
-                  selectedItem: selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                  selectedItem:
+                      selectedVehicle.isNotEmpty ? selectedVehicle : null,
                   items: uniqueVehicleNumbers,
                   hintText: context.appText.selectState,
                   dropdownBuilder: (context, selectedItem) {
@@ -381,9 +458,30 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                       ],
                     );
                   },
-                  emptyBuilder: (context, _) => Center(
-                    child: Text(context.appText.noVehiclesFound),
-                  ).withHeight(MediaQuery.of(context).size.height * 0.5),
+                  emptyBuilder:
+                      (context, _) => Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SvgPicture.asset(
+                              AppIcons.svg.truck,
+                              width: 60,
+                              height: 60,
+                              colorFilter: ColorFilter.mode(
+                                AppColors.grayColor,
+                                BlendMode.srcIn,
+                              ),
+                            ),
+                            15.height,
+                            Text(
+                              context.appText.noVehiclesFound,
+                              style: AppTextStyle.h6.copyWith(
+                                color: AppColors.grayColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ).withHeight(MediaQuery.of(context).size.height * 0.3),
                   onChanged: (String? newValue) {
                     if (newValue == null) return;
 
@@ -391,7 +489,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                       selectedVehicle = newValue;
                     });
 
-                    final selectedVehicleData = vehicleState.filteredVehicles.withoutExpired
+                    final selectedVehicleData = vehicleState
+                        .filteredVehicles
+                        .withoutExpired
                         .firstWhere((v) => v.vehicleNumber == selectedVehicle);
 
                     gpsGeofenceCubit.loadVehicleGeofences(
@@ -404,7 +504,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             }
           },
         ),
-        Text(context.appText.selectGeofence, style: AppTextStyle.h5,).paddingOnly(left: 25),
+        Text(
+          context.appText.selectGeofence,
+          style: AppTextStyle.h5,
+        ).paddingOnly(left: 25),
         //List of geofence
         Expanded(
           child: BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
@@ -418,59 +521,152 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                   final activeGeofences =
                       gpsState.vehicleGeofenceMap[selectedVehicle] ?? {};
 
-                  return ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-                    itemCount: gpsState.geofences.length,
-                    itemBuilder: (context, index) {
-                      final item = gpsState.geofences[index];
-                      final activeGeofences =
-                          gpsState.vehicleGeofenceMap[selectedVehicle] ?? {};
-                      final isEnabled = activeGeofences.contains(item.id);
+                  // Check if there are no geofences available
+                  if (gpsState.geofences.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            context.appText.noData,
+                            style: AppTextStyle.h5.copyWith(
+                              color: AppColors.grayColor,
+                            ),
+                          ),
+                          10.height,
+                          Text(
+                            'No geofences available to assign to vehicles',
+                            style: AppTextStyle.blackColor14w400.copyWith(
+                              color: AppColors.grayColor,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    );
+                  }
 
-                      return Card(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        color: AppColors.white,
-                        elevation: 0,
-                        child: ListTile(
-                          title: Text(
-                            '${item.name} (${_getFormattedValue(item)})',
-                            style: AppTextStyle.h5,
+                  return Column(
+                    children: [
+                      // Show helpful message if no geofences are assigned
+                      if (activeGeofences.isEmpty)
+                        Container(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 10,
                           ),
-                          trailing: Switch(
-                            value: isEnabled,
-                            onChanged: (bool value) async {
-                              final confirmed = await _showConfirmationDialog(
-                                context,
-                                value,
-                              );
-                              if (confirmed == true) {
-                                final selectedVehicleData = context
-                                    .read<VehicleListCubit>()
-                                    .state
-                                    .filteredVehicles
-                                    .withoutExpired
-                                    .firstWhere(
-                                      (v) => v.vehicleNumber == selectedVehicle,
-                                    );
-                                gpsGeofenceCubit.toggleGeofenceForVehicle(
-                                  deviceId:
-                                      selectedVehicleData.deviceId.toString(),
-                                  vehicleId: selectedVehicle,
-                                  geofenceId: item.id,
-                                  enable: value,
-                                );
-                              }
-                            },
+                          padding: const EdgeInsets.all(15),
+                          decoration: BoxDecoration(
+                            color: AppColors.lightGreyBackgroundColor,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: AppColors.grayColor.withValues(alpha: 0.3),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.info_outline,
+                                color: AppColors.grayColor,
+                                size: 20,
+                              ),
+                              10.width,
+                              Expanded(
+                                child: Text(
+                                  'No geofences assigned to this vehicle. Use the switches below to enable geofences.',
+                                  style: AppTextStyle.blackColor14w400.copyWith(
+                                    color: AppColors.grayColor,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      );
-                    },
+                      Expanded(
+                        child: ListView.builder(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                            vertical: 20,
+                          ),
+                          itemCount: gpsState.geofences.length,
+                          itemBuilder: (context, index) {
+                            final item = gpsState.geofences[index];
+                            final activeGeofences =
+                                gpsState.vehicleGeofenceMap[selectedVehicle] ??
+                                {};
+                            final isEnabled = activeGeofences.contains(item.id);
+
+                            return Card(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              color: AppColors.white,
+                              elevation: 0,
+                              child: ListTile(
+                                title: Text(
+                                  '${item.name} (${_getFormattedValue(item)})',
+                                  style: AppTextStyle.h5,
+                                ),
+                                trailing: Switch(
+                                  value: isEnabled,
+                                  onChanged: (bool value) async {
+                                    final confirmed =
+                                        await _showConfirmationDialog(
+                                          context,
+                                          value,
+                                        );
+                                    if (confirmed == true) {
+                                      final selectedVehicleData = context
+                                          .read<VehicleListCubit>()
+                                          .state
+                                          .filteredVehicles
+                                          .withoutExpired
+                                          .firstWhere(
+                                            (v) =>
+                                                v.vehicleNumber ==
+                                                selectedVehicle,
+                                          );
+                                      gpsGeofenceCubit.toggleGeofenceForVehicle(
+                                        deviceId:
+                                            selectedVehicleData.deviceId
+                                                .toString(),
+                                        vehicleId: selectedVehicle,
+                                        geofenceId: item.id,
+                                        enable: value,
+                                      );
+                                    }
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   );
                 }
               } else if (state is GpsGeofenceError) {
-                return Center(child: Text('Error: ${state.message}'));
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        context.appText.noData,
+                        style: AppTextStyle.h5.copyWith(
+                          color: AppColors.grayColor,
+                        ),
+                      ),
+                      10.height,
+                      Text(
+                        'Unable to load vehicle geofence data',
+                        style: AppTextStyle.blackColor14w400.copyWith(
+                          color: AppColors.grayColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
               }
               return const SizedBox();
             },

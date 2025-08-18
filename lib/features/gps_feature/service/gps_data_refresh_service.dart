@@ -98,10 +98,10 @@ class GpsDataRefreshService {
   Duration getRefreshInterval(GpsScreenType screenType) {
     switch (screenType) {
       case GpsScreenType.map:
-        return const Duration(seconds: 5000);
+        return const Duration(seconds: 5);
       case GpsScreenType.home:
       case GpsScreenType.other:
-        return const Duration(seconds: 150000);
+        return const Duration(seconds: 15);
     }
   }
 
