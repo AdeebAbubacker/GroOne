@@ -1116,6 +1116,7 @@
   "pleaseEnterValidAccountNumber": "Please enter a valid account number",
   "accountNumberMustBeBetween9And18Digits": "Account number must be between 9 and 18 digits",
   "accountNumberCannotHaveSameDigits": "Account number cannot have all same digits",
-  "pleaseEnterValidIfscCode": "Please enter a valid IFSC code" 
+  "pleaseEnterValidIfscCode": "Please enter a valid IFSC code",
+  "noLoadsFound": "No Loads Found." 
 
 }

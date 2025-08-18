@@ -1084,7 +1084,8 @@
   "pleaseEnterValidAccountNumber": "कृपया मान्य खाता संख्या दर्ज करें",
   "accountNumberMustBeBetween9And18Digits": "खाता संख्या 9 से 18 अंकों के बीच होनी चाहिए",
   "accountNumberCannotHaveSameDigits": "खाता संख्या में सभी अंक समान नहीं हो सकते",
-  "pleaseEnterValidIfscCode": "कृपया मान्य आईएफएससी कोड दर्ज करें"
+  "pleaseEnterValidIfscCode": "कृपया मान्य आईएफएससी कोड दर्ज करें",
+  "noLoadsFound": "कोई लोड नहीं मिला।"
 
 
 

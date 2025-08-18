@@ -522,6 +522,8 @@ String getErrorMsg({required ErrorType errorType}) {
       return errorType.message;
     case GpsDeviceActivationError _:
       return errorType.getText(appContext);
+    case NoLoadsFoundError _:
+      return errorType.getText(appContext);
     default:
       return "(${errorType.toString()}) error".capitalize;
   }

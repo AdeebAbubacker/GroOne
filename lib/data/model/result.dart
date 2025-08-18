@@ -124,6 +124,23 @@ class NotFoundError extends ErrorType {
   }
 }
 
+// No Loads Found Error
+class NoLoadsFoundError extends ErrorType {
+  final String? message;
+  NoLoadsFoundError({this.message});
+  @override
+  String getText(BuildContext context) {
+    if (message != null) {
+      return message!;
+    }
+    return context.appText.noLoadsFound.capitalize ?? '';
+  }
+
+  factory NoLoadsFoundError.fromApiResponse(Map<String, dynamic> response) {
+    return NoLoadsFoundError(message: response['message'] ?? "");
+  }
+}
+
 class UnauthenticatedError extends ErrorType {
   final String? message;
   UnauthenticatedError({this.message});

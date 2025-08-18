@@ -34,6 +34,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
@@ -156,19 +157,22 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                 Container(
                   height: profileSize,
                   width: profileSize,
-                  decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle, border: Border.all(
+                  color: AppColors.blueColor, 
+                  width: 2,           
+                ),),
                   alignment: Alignment.center,
                   child: Text(getInitialsFromName(this, name: state.profileDetailUIState!.data!.customer!.companyName),
                     style: AppTextStyle.h1,
                   ),
                 ).isAnimate(),
 
-                Text(state.profileDetailUIState!.data!.customer!.companyName, style: AppTextStyle.h5).isAnimate(),
+                Text(state.profileDetailUIState!.data!.customer!.companyName.capitalize, style: AppTextStyle.h5).isAnimate(),
               ],
 
               // Customer Name
               if(state.profileDetailUIState?.data?.customer?.customerName != null && state.profileDetailUIState?.data?.customer?.customerName != "")
-              Text(state.profileDetailUIState!.data!.customer!.customerName, style: AppTextStyle.body).isAnimate(),
+              Text(state.profileDetailUIState!.data!.customer!.customerName.capitalize, style: AppTextStyle.body).isAnimate(),
 
               // Blue Id
               if(state.profileDetailUIState?.data?.customer?.blueId != null && state.profileDetailUIState?.data?.customer?.blueId != "")
@@ -251,15 +255,15 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               Navigator.of(context).push(commonRoute(MyDocumentScreen(), isForward: true));
             },
           ),
-          commonDivider(),
+          // commonDivider(),
 
-          ProfileMyAccountTile(
-            imageString: AppImage.svg.transaction,
-            text: context.appText.transactions,
-            onTap: () {
-              Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
-            },
-          ),
+          // ProfileMyAccountTile(
+          //   imageString: AppImage.svg.transaction,
+          //   text: context.appText.transactions,
+          //   onTap: () {
+          //     Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
+          //   },
+          // ),
           commonDivider(),
 
           ProfileMyAccountTile(
@@ -320,7 +324,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
 
 
   Widget buildProfileVersionWidget() {
-    return Text("Version $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
+    return Text("v $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
   }
 
 }
