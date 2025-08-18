@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gro_one_app/l10n/app_localizations.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -62,10 +63,9 @@ class DeviceActivationDialogManager {
     AppDialog.show(
       context,
       child: CommonDialogView(
-        heading: "Device Activation In Progress",
-        message:
-            "Your GPS device activation is still in progress. Please try again later.",
-        onSingleButtonText: "Continue",
+        heading: AppLocalizations.of(context)!.deviceActivationInProgress,
+        message: AppLocalizations.of(context)!.deviceActivationMessage,
+        onSingleButtonText: AppLocalizations.of(context)!.continueButton,
         onTapSingleButton: () {
           _closeDialog();
           _navigateToHome(context);
@@ -97,10 +97,9 @@ class DeviceActivationDialogManager {
     AppDialog.show(
       context,
       child: CommonDialogView(
-        heading: "Device Activation In Progress",
-        message:
-            "Your GPS device activation is still in progress. Please try again later.",
-        onSingleButtonText: "Continue",
+        heading: AppLocalizations.of(context)!.deviceActivationInProgress,
+        message: AppLocalizations.of(context)!.deviceActivationMessage,
+        onSingleButtonText: AppLocalizations.of(context)!.continueButton,
         onTapSingleButton: () {
           _closeDialog();
           _navigateToHome(context);
