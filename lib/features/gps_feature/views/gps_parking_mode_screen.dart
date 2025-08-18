@@ -128,9 +128,24 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
 
                 if (parkingState is GpsParkingModeError) {
                   return Center(
-                    child: Text(
-                      'Error: ${parkingState.message}',
-                      style: AppTextStyle.bodyGreyColor,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          context.appText.noData,
+                          style: AppTextStyle.h5.copyWith(
+                            color: AppColors.grayColor,
+                          ),
+                        ),
+                        10.height,
+                        Text(
+                          'Unable to load parking mode data',
+                          style: AppTextStyle.blackColor14w400.copyWith(
+                            color: AppColors.grayColor,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ),
                   );
                 }
