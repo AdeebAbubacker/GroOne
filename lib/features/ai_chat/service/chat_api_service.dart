@@ -203,16 +203,19 @@ class ChatApiService {
     }
   }
 
-  /// Get chat history from API (optional)
-  Future<List<Map<String, dynamic>>> getChatHistory() async {
+  /// Get chat history from API with pagination
+  Future<Map<String, dynamic>> getChatHistory({
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
       // Get user ID from secure storage
       final userId = await _securePrefs.get(AppString.sessionKey.userId) ?? '';
       // Get xApiKey from secure storage
       final xApiKey = ApiUrls.fetchedChatBotXApiKEY;
       
-      // Real API endpoint for chat history
-      const String endpoint = 'https://groone-bot-api.letsgro.co/chat-history';
+      // Real API endpoint for chat history with pagination
+      final String endpoint = 'https://groone-bot-api.letsgro.co/messages/$userId/groone';
       
       // Add custom headers with X-API-Key
       final customHeaders = {
@@ -222,8 +225,8 @@ class ChatApiService {
       final result = await _apiService.get(
         endpoint,
         queryParams: {
-          'user_id': userId,
-          'catalog_id': 'groone',
+          'page': page.toString(),
+          'page_size': pageSize.toString(),
         },
         customHeaders: customHeaders,
       );
@@ -232,11 +235,9 @@ class ChatApiService {
       if (result is Success) {
         final data = result.value;
         if (data is Map<String, dynamic>) {
-          // Assuming the API returns: {"messages": [{"id": "", "message": "", ...}]}
-          final List<dynamic> messages = data['messages'] ?? [];
-          return messages.cast<Map<String, dynamic>>();
+          return data;
         }
-        return [];
+        throw Exception('Invalid response format from API');
       } else if (result is Error) {
         throw Exception(result.type.toString());
       } else {
@@ -247,6 +248,90 @@ class ChatApiService {
         throw Exception('Authentication failed');
       } else {
         throw Exception('Failed to get chat history: $e');
+      }
+    }
+  }
+
+  /// Synthesize text to speech
+  Future<String> synthesizeTextToSpeech({
+    required String text,
+    required String language,
+    double speakingRate = 0.85,
+    double pitch = 0.0,
+    String audioFormat = 'OGG_OPUS',
+  }) async {
+    try {
+      print('🎵 Synthesizing text to speech: $text'); // Debug log
+      
+      // Get xApiKey from secure storage
+      final xApiKey = ApiUrls.fetchedChatBotXApiKEY;
+      
+      // Real API endpoint for text-to-speech synthesis
+      const String endpoint = 'https://groone-bot-api.letsgro.co/synthesize';
+      
+      // Add custom headers with X-API-Key
+      final customHeaders = {
+        'X-API-Key': xApiKey,
+        'Content-Type': 'application/json',
+      };
+      
+      // Request body
+      final requestBody = {
+        'text': text,
+        'language': language,
+        'speaking_rate': speakingRate,
+        'pitch': pitch,
+        'audio_format': audioFormat,
+      };
+      
+      final result = await _apiService.post(
+        endpoint,
+        body: requestBody,
+        customHeaders: customHeaders,
+      );
+
+      // Handle Result<dynamic> return type
+      if (result is Success) {
+        final data = result.value;
+        if (data is Map<String, dynamic>) {
+          final status = data['status'] as String?;
+          final message = data['message'] as String?;
+          
+          if (status == 'success') {
+            final responseData = data['data'] as Map<String, dynamic>?;
+            if (responseData != null) {
+              final audioBytes = responseData['audio_bytes'] as String?;
+              if (audioBytes != null && audioBytes.isNotEmpty) {
+                print('🎵 Text-to-speech synthesis successful'); // Debug log
+                return audioBytes;
+              } else {
+                throw Exception('No audio data received');
+              }
+            } else {
+              throw Exception('Invalid response data format');
+            }
+          } else {
+            throw Exception(message ?? 'Synthesis failed');
+          }
+        }
+        throw Exception('Invalid response format from API');
+      } else if (result is Error) {
+        throw Exception(result.type.toString());
+      } else {
+        throw Exception('Unknown response type');
+      }
+    } catch (e) {
+      print('🎵 Text-to-speech synthesis error: $e'); // Debug log
+      
+      // Handle specific error cases
+      if (e.toString().contains('400')) {
+        throw Exception('Invalid text or parameters');
+      } else if (e.toString().contains('401')) {
+        throw Exception('Authentication failed');
+      } else if (e.toString().contains('429')) {
+        throw Exception('Too many requests. Please try again later');
+      } else {
+        throw Exception('Failed to synthesize text to speech: $e');
       }
     }
   }

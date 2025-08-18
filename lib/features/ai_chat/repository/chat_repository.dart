@@ -76,15 +76,49 @@ class ChatRepository {
     }
   }
 
-  /// Load chat history from API
-  Future<List<ChatMessage>> loadChatHistory() async {
+  /// Load chat history from API with pagination
+  Future<Map<String, dynamic>> loadChatHistory({
+    int page = 1,
+    int pageSize = 20,
+  }) async {
     try {
-      final historyData = await _apiService.getChatHistory();
+      print('📚 Repository: Loading chat history page $page...'); // Debug log
+      final historyData = await _apiService.getChatHistory(
+        page: page,
+        pageSize: pageSize,
+      );
       
-      return historyData.map((data) => ChatMessage.fromJson(data)).toList();
+      print('📚 Repository: Received history data: $historyData'); // Debug log
+      return historyData;
     } catch (e) {
-      // Return empty list if failed to load history
-      return [];
+      print('📚 Repository: Error loading chat history: $e'); // Debug log
+      rethrow;
+    }
+  }
+
+  /// Synthesize text to speech
+  Future<String> synthesizeTextToSpeech({
+    required String text,
+    required String language,
+    double speakingRate = 0.85,
+    double pitch = 0.0,
+    String audioFormat = 'OGG_OPUS',
+  }) async {
+    try {
+      print('🎵 Repository: Synthesizing text to speech...'); // Debug log
+      final audioBytes = await _apiService.synthesizeTextToSpeech(
+        text: text,
+        language: language,
+        speakingRate: speakingRate,
+        pitch: pitch,
+        audioFormat: audioFormat,
+      );
+      
+      print('🎵 Repository: Text-to-speech synthesis successful'); // Debug log
+      return audioBytes;
+    } catch (e) {
+      print('🎵 Repository: Error synthesizing text to speech: $e'); // Debug log
+      rethrow;
     }
   }
 }

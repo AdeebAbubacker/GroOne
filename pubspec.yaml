@@ -132,7 +132,7 @@ dependencies:
   
   # AI Chat
   uuid: ^4.5.1
-  record: ^4.4.4        # For voice recording
+  record: ^6.1.0        # For voice recording
   path: ^1.9.0          # For file paths
   just_audio: ^0.9.39   # For audio playback
 

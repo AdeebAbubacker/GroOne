@@ -5,6 +5,7 @@ class ChatMessage {
   final DateTime timestamp;
   final String language;
   final MessageType messageType;
+  bool isPlaying;
 
   ChatMessage({
     required this.id,
@@ -13,6 +14,7 @@ class ChatMessage {
     required this.timestamp,
     required this.language,
     this.messageType = MessageType.text,
+    this.isPlaying = false,
   });
 
   ChatMessage copyWith({

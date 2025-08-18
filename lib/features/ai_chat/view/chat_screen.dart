@@ -7,6 +7,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io';
+import 'dart:convert';
+import 'package:path_provider/path_provider.dart';
 import '../../../data/model/result.dart';
 import '../../../data/ui_state/status.dart';
 import '../../../dependency_injection/locator.dart';
@@ -36,6 +38,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlayingPreview = false;
   String? _currentPlayingPath;
+  bool _isLoadingHistory = false; // Flag to prevent multiple pagination calls
   final profileCubit = locator<ProfileCubit>();
 
 
@@ -45,7 +48,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Listen to audio player state changes
     _audioPlayer.playerStateStream.listen((state) {
       if (mounted) {
-        setState(() {
+      setState(() {
           _isPlayingPreview = state.playing;
         });
         
@@ -58,11 +61,20 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       }
     });
+    
+    // Add scroll listener for automatic pagination
+    _scrollController.addListener(_onScroll);
+    
+    // Load initial chat history
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChatCubit>().loadChatHistory(refresh: true);
+    });
   }
 
   @override
   void dispose() {
     _textController.dispose();
+    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
     _audioPlayer.dispose();
     super.dispose();
@@ -77,6 +89,51 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
   }
+  
+  /// Handle scroll events for automatic pagination
+  void _onScroll() {
+    // Only trigger when scrolled near the very top
+    if (_scrollController.position.pixels <= _scrollController.position.minScrollExtent + 100) {
+      final chatCubit = context.read<ChatCubit>();
+      
+      // Check if we can load more and aren't already loading
+      if (chatCubit.state.hasMoreMessages && !chatCubit.state.isLoading && !_isLoadingHistory) {
+        print('📱 Triggering pagination at scroll position: ${_scrollController.position.pixels}');
+        
+        // Store current scroll position before loading
+        final currentScrollPosition = _scrollController.position.pixels;
+        final currentMaxScrollExtent = _scrollController.position.maxScrollExtent;
+        
+        // Set loading flag to prevent multiple calls
+        _isLoadingHistory = true;
+        
+        // Load more messages
+        chatCubit.loadMoreChatHistory().then((_) {
+          // After loading, adjust scroll position to maintain user's view
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (_scrollController.hasClients) {
+              final newMaxScrollExtent = _scrollController.position.maxScrollExtent;
+              final scrollOffset = newMaxScrollExtent - currentMaxScrollExtent;
+              
+              print('📱 Scroll adjustment: offset=$scrollOffset, current=$currentScrollPosition');
+              
+              // Adjust scroll position to account for new content added at top
+              if (scrollOffset > 0) {
+                _scrollController.jumpTo(currentScrollPosition + scrollOffset);
+              }
+            }
+          });
+          
+          // Reset loading flag
+          _isLoadingHistory = false;
+        }).catchError((error) {
+          print('📱 Pagination error: $error');
+          // Reset loading flag on error
+          _isLoadingHistory = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -86,23 +143,25 @@ class _ChatScreenState extends State<ChatScreen> {
       body: BlocConsumer<ChatCubit, ChatState>(
         listener: (context, state) {
           if (state.error != null) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
                 content: Text(state.error!),
-                backgroundColor: Colors.red,
-              ),
-            );
+        backgroundColor: Colors.red,
+      ),
+    );
             context.read<ChatCubit>().clearError();
           }
           
-          // Auto scroll to bottom when new message added
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            _scrollToBottom();
-          });
+          // Auto scroll to bottom when new message added (but not during pagination)
+          if (!_isLoadingHistory && state.pageNo ==1) {
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _scrollToBottom();
+            });
+          }
         },
         builder: (context, state) {
           return Column(
-            children: [
+          children: [
               // Messages List
               Expanded(
                 child: _buildMessagesList(state.messages),
@@ -147,7 +206,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Container(
                 margin: const EdgeInsets.only(right: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                decoration: BoxDecoration(
+          decoration: BoxDecoration(
                   border: Border.all(color: Colors.grey[300]!),
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -165,10 +224,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   onChanged: (language) {
                     if (language != null) {
                       context.read<ChatCubit>().changeLanguage(language);
-                    }
-                  },
-                ),
-              ),
+              }
+            },
+          ),
+        ),
             );
           },
         ),
@@ -192,8 +251,15 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessagesList(List<ChatMessage> messages) {
     return BlocBuilder<ChatCubit, ChatState>(
       builder: (context, state) {
-        // Add default AI greeting if no messages
-        List<ChatMessage> displayMessages = messages.isEmpty 
+        // Show loading indicator if no messages and still loading
+        if (messages.isEmpty && state.isLoading) {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+
+        // Show default greeting only if no messages and not loading
+        List<ChatMessage> displayMessages = messages.isEmpty && !state.isLoading
             ? [
                 ChatMessage(
                   id: 'greeting',
@@ -206,17 +272,25 @@ class _ChatScreenState extends State<ChatScreen> {
               ]
             : messages;
 
-        return ListView.builder(
+    return ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
-          itemCount: displayMessages.length + (state.isTyping ? 1 : 0),
+          itemCount: displayMessages.length + (state.isTyping ? 1 : 0) + (state.hasMoreMessages ? 1 : 0),
           itemBuilder: (context, index) {
-            if (index < displayMessages.length) {
-              return _buildMessageBubble(displayMessages[index]);
-            } else {
+            if (index == 0 && state.hasMoreMessages) {
+              // Show loading indicator at top when loading more
+              return _buildTopLoadingIndicator();
+            } else if (index < displayMessages.length + (state.hasMoreMessages ? 1 : 0)) {
+              // Messages (adjust index for loading indicator)
+              final messageIndex = index - (state.hasMoreMessages ? 1 : 0);
+              if (messageIndex >= 0 && messageIndex < displayMessages.length) {
+                return _buildMessageBubble(displayMessages[messageIndex]);
+              }
+            } else if (index == displayMessages.length + (state.hasMoreMessages ? 1 : 0) && state.isTyping) {
               // Show typing indicator as last item
               return _buildTypingIndicator();
             }
+            return const SizedBox.shrink();
           },
         );
       },
@@ -226,7 +300,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageBubble(ChatMessage message) {
     final isUser = message.isUser;
     final isVoice = message.messageType == MessageType.voice;
-
+    
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -264,9 +338,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   if (isVoice)
                     _buildVoiceMessage(message.message)
                   else
-                    Text(
+                          Text(
                       message.message,
-                      style: TextStyle(
+                            style: TextStyle(
                         fontSize: 16,
                         color: isUser ? Colors.white : Colors.black,
                       ),
@@ -274,14 +348,35 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(height: 4),
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
+                            children: [
+                              Text(
                         _formatTime(message.timestamp),
-                        style: TextStyle(
+                                style: TextStyle(
                           fontSize: 12,
-                          color: isUser ? Colors.white70 : Colors.grey[600],
+                                  color: isUser ? Colors.white70 : Colors.grey[600],
                         ),
                       ),
+                      if (!isUser && !isVoice) ...[
+                        const SizedBox(width: 8),
+                        // Speaker icon for AI text responses
+                        GestureDetector(
+                          onTap: () => message.isPlaying?null :_playTextToSpeech(message),
+                          child: message.isPlaying
+                            ? SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[600]!),
+                                ),
+                              )
+                            : Icon(
+                                Icons.volume_up,
+                                size: 16,
+                                color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
                     ],
                   ),
                 ],
@@ -313,13 +408,13 @@ class _ChatScreenState extends State<ChatScreen> {
         if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
           if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null) {
             final blueId = state.profileDetailUIState!.data!.customer?.blueId;
-            return Container(
+    return Container(
                 width: 36,
                 height: 36,
-                decoration: BoxDecoration(
+      decoration: BoxDecoration(
                   color: isUser ? const Color(0xFF4285F4) : const Color(0xFF4285F4),
-                  shape: BoxShape.circle,
-                ),
+        shape: BoxShape.circle,
+      ),
                 child: Center(
                   child: isUser
                       ? Text(
@@ -336,9 +431,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     height: 24,
                     colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
                   ),
-                ),
-              );
-          }
+      ),
+    );
+  }
         }
         return Text(
           getInitialsFromName(this, name : 'You'),
@@ -440,13 +535,13 @@ class _ChatScreenState extends State<ChatScreen> {
           // Animated recording indicator
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
-            width: 12,
-            height: 12,
-            decoration: BoxDecoration(
-              color: Colors.red,
-              shape: BoxShape.circle,
-            ),
-          ),
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  shape: BoxShape.circle,
+                ),
+              ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -454,19 +549,19 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 const Text(
                   'Recording...',
-                  style: TextStyle(
+                style: TextStyle(
                     color: Colors.red,
-                    fontWeight: FontWeight.w600,
-                  ),
+                  fontWeight: FontWeight.w600,
                 ),
+              ),
                 const SizedBox(height: 4),
-                Text(
+              Text(
                   '${state.recordingDuration}s / 15s',
-                  style: TextStyle(
-                    color: Colors.red[700],
-                    fontSize: 12,
-                  ),
+                style: TextStyle(
+                  color: Colors.red[700],
+                  fontSize: 12,
                 ),
+              ),
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
                   value: state.recordingDuration / 15.0,
@@ -492,7 +587,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
+              decoration: BoxDecoration(
         color: Colors.blue[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.blue[200]!),
@@ -513,9 +608,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 style: TextStyle(
                   color: Colors.blue[700],
                   fontWeight: FontWeight.w600,
-                ),
               ),
-            ],
+            ),
+          ],
           ),
           const SizedBox(height: 12),
           // Waveform visualization with playback indicator
@@ -671,7 +766,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   return TextField(
                     controller: _textController,
                     enabled: !isDisabled, // Disable when recording, preview, or waiting for response
-                    decoration: InputDecoration(
+                decoration: InputDecoration(
                       hintText: state.isRecording 
                           ? 'Recording...' 
                           : state.recordedAudioPath != null 
@@ -684,9 +779,9 @@ class _ChatScreenState extends State<ChatScreen> {
                             ? Colors.grey[400] 
                             : Colors.grey
                       ),
-                      border: InputBorder.none,
+                  border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                    ),
+                ),
                     onChanged: (text) {
                       setState(() {}); // Update send button state
                     },
@@ -713,9 +808,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
                 } : null, // Disable when waiting for response or when audio is recorded
                 child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
                     color: state.isRecording 
                         ? Colors.red 
                         : state.recordedAudioPath != null 
@@ -723,13 +818,13 @@ class _ChatScreenState extends State<ChatScreen> {
                             : canRecord
                                 ? Colors.grey[400]
                                 : Colors.grey[300], // Lighter grey when disabled
-                    shape: BoxShape.circle,
-                  ),
+              shape: BoxShape.circle,
+            ),
                   child: Icon(
                     state.isRecording 
                         ? Icons.stop 
                         : Icons.mic,
-                    color: Colors.white,
+                color: Colors.white,
                     size: 24,
                   ),
                 ),
@@ -756,14 +851,14 @@ class _ChatScreenState extends State<ChatScreen> {
                     }
                   } : null, // Disable when waiting for response
                   child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
                       color: canSend 
                         ? const Color(0xFF4285F4)
                         : Colors.grey[400], // Grey when disabled
-                      shape: BoxShape.circle,
-                    ),
+              shape: BoxShape.circle,
+            ),
                     child: Icon(
                       isWaitingForResponse ? Icons.hourglass_empty : Icons.send,
                       color: Colors.white,
@@ -772,9 +867,53 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 );
               },
-            ),
+          ),
         ],
       ),
+    );
+  }
+
+  Widget _buildTopLoadingIndicator() {
+    return BlocBuilder<ChatCubit, ChatState>(
+      builder: (context, state) {
+        // Show loading only when actually loading history
+        if (_isLoadingHistory || state.isLoading) {
+          return Container(
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            margin: const EdgeInsets.only(bottom: 16),
+            decoration: BoxDecoration(
+              color: Colors.blue[50],
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.blue[200]!),
+            ),
+            child: Center(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    'Loading older messages...',
+                    style: TextStyle(
+                      color: Colors.blue[700],
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        return const SizedBox.shrink();
+      },
     );
   }
 
@@ -878,6 +1017,64 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         );
       }
+    }
+  }
+
+  /// Play text-to-speech audio
+  Future<void> _playTextToSpeech(ChatMessage message) async {
+    try {
+      print('🎵 Playing text-to-speech for: ${message.message}'); // Debug log
+      
+      // Show loading state
+      setState(() {
+        message.isPlaying= true;
+        _isPlayingPreview = true;
+      });
+      
+      // Call the cubit to synthesize text to speech
+      final audioBytes = await context.read<ChatCubit>().synthesizeTextToSpeech(message.message);
+      
+      if (audioBytes.isNotEmpty) {
+        // Convert base64 audio bytes to temporary file and play
+        final tempDir = await getTemporaryDirectory();
+        final tempFile = File('${tempDir.path}/tts_${DateTime.now().millisecondsSinceEpoch}.ogg');
+        
+        // Write base64 decoded audio bytes to temporary file
+        await tempFile.writeAsBytes(base64Decode(audioBytes));
+        
+        // Play the temporary audio file
+        await _audioPlayer.setFilePath(tempFile.path);
+        await _audioPlayer.play();
+        
+        print('🎵 Text-to-speech playback started'); // Debug log
+        
+        // Clean up temporary file after playback
+        _audioPlayer.playerStateStream.listen((state) {
+          if (state.processingState == ProcessingState.completed) {
+            message.isPlaying= false;
+            tempFile.delete();
+          }
+        });
+      } else {
+        throw Exception('No audio data received');
+      }
+    } catch (e) {
+      print('🎵 Text-to-speech playback error: $e'); // Debug log
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to play text-to-speech: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+      
+      // Reset playing state
+      setState(() {
+        message.isPlaying= false;
+        _isPlayingPreview = false;
+      });
     }
   }
 
