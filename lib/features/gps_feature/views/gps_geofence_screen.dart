@@ -260,7 +260,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                   ),
                   10.height,
                   Text(
-                    'Create your first geofence to get started',
+                    context.appText.createYourFirstGeofence,
                     style: AppTextStyle.blackColor14w400.copyWith(
                       color: AppColors.grayColor,
                     ),
@@ -332,7 +332,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                 ),
                 10.height,
                 Text(
-                  'Unable to load geofence data',
+                  context.appText.unableToLoadGeofenceData,
                   style: AppTextStyle.blackColor14w400.copyWith(
                     color: AppColors.grayColor,
                   ),
@@ -401,7 +401,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                       ),
                       10.height,
                       Text(
-                        'No vehicles available to assign geofences',
+                        context.appText.noVehiclesAvailableToAssignGeofences,
                         style: AppTextStyle.blackColor14w400.copyWith(
                           color: AppColors.grayColor,
                         ),
@@ -535,7 +535,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                           ),
                           10.height,
                           Text(
-                            'No geofences available to assign to vehicles',
+                            context
+                                .appText
+                                .noGeofencesAvailableToAssignToVehicles,
                             style: AppTextStyle.blackColor14w400.copyWith(
                               color: AppColors.grayColor,
                             ),
@@ -573,7 +575,9 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                               10.width,
                               Expanded(
                                 child: Text(
-                                  'No geofences assigned to this vehicle. Use the switches below to enable geofences.',
+                                  context
+                                      .appText
+                                      .noGeofencesAssignedToThisVehicle,
                                   style: AppTextStyle.blackColor14w400.copyWith(
                                     color: AppColors.grayColor,
                                   ),
@@ -658,7 +662,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                       ),
                       10.height,
                       Text(
-                        'Unable to load vehicle geofence data',
+                        context.appText.unableToLoadVehicleGeofenceData,
                         style: AppTextStyle.blackColor14w400.copyWith(
                           color: AppColors.grayColor,
                         ),

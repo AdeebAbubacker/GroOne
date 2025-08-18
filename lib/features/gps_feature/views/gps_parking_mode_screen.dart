@@ -139,7 +139,7 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
                         ),
                         10.height,
                         Text(
-                          'Unable to load parking mode data',
+                          context.appText.unableToLoadParkingModeData,
                           style: AppTextStyle.blackColor14w400.copyWith(
                             color: AppColors.grayColor,
                           ),
