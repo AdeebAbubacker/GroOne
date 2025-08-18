@@ -121,7 +121,7 @@ class PaymentWidget extends StatelessWidget {
                               LpPaymentHelper.showBankDetailsDialog(context, loadItem.bankDetails);
                             } else {
                               final selectedAmountString = isAdvancePaid ? balanceDueToShow : advanceDueToShow;
-                              final paymentAmount = double.tryParse(selectedAmountString.toString())?.toInt() ?? 0;
+                              final paymentAmount = selectedAmountString;
                               LpPaymentHelper.navigateToPaymentScreen(
                                 context: context,
                                 loadId: loadItem.loadId,
@@ -143,7 +143,7 @@ class PaymentWidget extends StatelessWidget {
                                   vpAdvancePercentage: loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
                                   vpBalance: loadItem.loadMemoDetails?.vpBalance ?? '',
                                   vpBalancePercentage: loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
-                                  amount: paymentAmount.toString(),
+                                  amount: paymentAmount,
                                   type: 'online',
                                   action: paymentActionType,
                                   vpAmount: loadItem.loadMemoDetails?.vpAmount ?? ''
