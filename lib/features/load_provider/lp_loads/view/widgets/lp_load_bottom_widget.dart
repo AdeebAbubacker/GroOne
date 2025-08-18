@@ -744,6 +744,43 @@ Widget _buildConsigneeDetail({
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                    (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
+                  ?  AppButton(
+                      buttonHeight: 40,
+                      title:  context.appText.cancel,
+                      style: AppButtonStyle.cancelShrink,
+                      textStyle: AppTextStyle.buttonRedColorTextColor,
+                      onPressed: () {
+                     FocusScope.of(context).unfocus();
+                        final cubit = context.read<LpLoadCubit>();
+                        cubit.emit(
+                          cubit.state.copyWith(
+                            isFieldUpdatble: true,
+                          ),
+                        );
+                      },
+                    )
+                  : SizedBox.shrink()
+                  // SizedBox(
+                  //   width: 120,
+                  //   child: AppButton(
+                  //       buttonHeight: 40,
+                  //       title: context.appText.cancel,
+                  //       style: AppButtonStyle.logout,
+                  //       textStyle: AppTextStyle.secondaryButton,
+                  //      onPressed: () {
+                  //    FocusScope.of(context).unfocus();
+                  //       final cubit = context.read<LpLoadCubit>();
+                  //       cubit.emit(
+                  //         cubit.state.copyWith(
+                  //           isFieldUpdatble: true,
+                  //         ),
+                  //       );
+                  //     },
+                  //     ),
+                  // )
+                  ,
+                  12.width,  
                   (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
                   ? AppButton(
                       buttonHeight: 40,
