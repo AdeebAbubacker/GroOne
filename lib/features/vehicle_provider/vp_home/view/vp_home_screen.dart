@@ -568,7 +568,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                 if (state is VpRecentLoadListSuccess) {
                   final loads = state.vpRecentLoadResponse.data;
                   if (loads.isEmpty) {
-                    return genericErrorWidget(error: NotFoundError());
+                    return genericErrorWidget(error: NoLoadsFoundError());
                   }
 
                   return ListView.separated(

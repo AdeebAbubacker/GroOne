@@ -8,6 +8,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
 import '../../../utils/app_icons.dart';
@@ -58,7 +59,7 @@ class LpMyAccount extends StatelessWidget {
                 headingText(text: context.appText.personalDetails),
                 buildDetailWidget(
                   text1: context.appText.name,
-                  text2: checkUserDetails(customerDetail?.customerName),
+                  text2: checkUserDetails(customerDetail?.customerName.capitalize),
                 ),
 
                 buildDetailWidget(
@@ -128,7 +129,7 @@ class LpMyAccount extends StatelessWidget {
               if (customerDetail != null)
               buildDetailWidget(
                 text1: context.appText.companyName,
-                text2: checkUserDetails(customerDetail?.companyName),
+                text2: checkUserDetails(customerDetail?.companyName.capitalize),
               ),
 
               if (customerDetail?.companyType?.id != 2)

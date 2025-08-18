@@ -291,7 +291,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
         } else if (state is VpLoadLoaded) {
           if (state.loads.isEmpty) {
             _onPullToRefresh;
-            return genericErrorWidget(error: NotFoundError());
+            return genericErrorWidget(error: NoLoadsFoundError());
           }
           return VpHelper.withRefreshIndicator(
               child: ListView.builder(

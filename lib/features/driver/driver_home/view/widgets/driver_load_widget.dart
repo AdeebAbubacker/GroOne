@@ -255,15 +255,19 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildLocationInfoWidget(
-                  widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",
+                Expanded(
+                  child: _buildLocationInfoWidget(
+                    widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",
+                  ),
                 ),
                 Icon(
                   Icons.arrow_right_alt_outlined,
                   color: AppColors.primaryColor,
-                ).paddingSymmetric(horizontal: 2).expand(),
-                _buildLocationInfoWidget(
-                  widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",
+                ).paddingSymmetric(horizontal: 2),
+                Expanded(
+                  child: _buildLocationInfoWidget(
+                    widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",
+                  ),
                 ),
               ],
             ),
@@ -318,7 +322,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   iconSvg: AppIcons.svg.package,
                 ),
                 detailWidget(
-                  text: "${widget.driverLoadDetails.weight?.value} Tonn",
+                  text: "${widget.driverLoadDetails.weight?.value} ${context.appText.ton}",
                   iconSvg: AppIcons.svg.weight,
                 ),
               ],
@@ -460,7 +464,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
     return Text(
       locationText,
       style: AppTextStyle.blackColor15w500,
-      maxLines: 1,
+      maxLines: 2,
       overflow: TextOverflow.ellipsis,
     );
   }
@@ -468,6 +472,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
   Widget detailWidget({required String text, required String iconSvg}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SvgPicture.asset(
           iconSvg,

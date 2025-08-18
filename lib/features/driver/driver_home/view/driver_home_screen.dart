@@ -603,7 +603,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           if (state is DriverLoadsLoaded) {
             if (state.loads.isEmpty) {
               _onPullToRefresh;
-              return genericErrorWidget(error: NotFoundError());
+              return genericErrorWidget(error: NoLoadsFoundError());
             }
             return ListView.builder(
               padding: EdgeInsets.all(commonSafeAreaPadding),

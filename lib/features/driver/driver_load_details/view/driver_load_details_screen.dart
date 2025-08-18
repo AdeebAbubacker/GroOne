@@ -348,7 +348,7 @@ class _DriverLoadsLocationDetailsScreenState
       bottom: bottomWidgetMaxHeight + 10,
       child: IconButton(
         onPressed: () {
-          commonSupportDialog(context);
+         // commonSupportDialog(context);
         },
         icon: Container(
           decoration: commonContainerDecoration(
