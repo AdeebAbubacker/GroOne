@@ -174,8 +174,15 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             }
           }
         }
-
         if (state is KavachPaymentStatusSuccess) {
+          KavachOrderRequest request = widget.kavachOrderRequest;
+          request.paymentRequestId = kavachOrderBloc.paymentRequestId;
+          kavachOrderBloc.add(KavachSubmitOrder(request));
+        }
+        if (state is KavachPaymentStatusFailure) {
+          ToastMessages.error(message: context.appText.paymentFailed);
+        }
+        if (state is KavachOrderSuccess) {
           showSuccessDialog(
             context,
             text: 'Order placed successfully',
@@ -213,9 +220,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               });
             }
           });
-        }
-        if (state is KavachPaymentStatusFailure) {
-          ToastMessages.error(message: context.appText.paymentFailed);
         }
       },
       child: Scaffold(
