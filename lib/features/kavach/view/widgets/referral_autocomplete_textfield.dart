@@ -161,7 +161,8 @@ class _ReferralAutoCompleteTextFieldState
                       style: AppTextStyle.body,
                     ),
                     onTap: () {
-                      final displayText = '${user.empCode} ${user.userName}';
+                      // final displayText = '${user.empCode} ${user.userName}';
+                      final displayText = user.empCode;
                       CustomLog.debug(this, "Kavach user selected: $displayText");
                       widget.controller.text = displayText;
                       widget.controller.selection = TextSelection.fromPosition(
