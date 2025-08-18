@@ -1117,6 +1117,17 @@
   "accountNumberMustBeBetween9And18Digits": "Account number must be between 9 and 18 digits",
   "accountNumberCannotHaveSameDigits": "Account number cannot have all same digits",
   "pleaseEnterValidIfscCode": "Please enter a valid IFSC code",
-  "noLoadsFound": "No Loads Found." 
-
+  "noLoadsFound": "No Loads Found.",
+  "unableToLoadGeofenceData": "Unable to load geofence data",
+  "createYourFirstGeofence": "Create your first geofence to get started",
+  "unableToLoadVehicleData": "Unable to load vehicle data",
+  "noVehiclesAvailableToAssignGeofences": "No vehicles available to assign geofences",
+  "noGeofencesAvailableToAssignToVehicles": "No geofences available to assign to vehicles",
+  "noGeofencesAssignedToThisVehicle": "No geofences assigned to this vehicle. Use the switches below to enable geofences.",
+  "unableToLoadParkingModeData": "Unable to load parking mode data",
+  "unableToLoadNotificationData": "Unable to load notification data",
+  "noVehiclesAvailableToDisplay": "No vehicles available to display",
+  "unableToLoadDashboardData": "Unable to load dashboard data",
+  "noVehiclesFound": "No vehicles found",
+  "unableToLoadVehicleGeofenceData": "Unable to load vehicle geofence data"
 }

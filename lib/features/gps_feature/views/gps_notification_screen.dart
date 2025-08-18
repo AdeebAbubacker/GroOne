@@ -121,7 +121,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                             ),
                             10.height,
                             Text(
-                              'No vehicles available to display',
+                              context.appText.noVehiclesFound,
                               style: AppTextStyle.blackColor14w400.copyWith(
                                 color: AppColors.grayColor,
                               ),
@@ -287,7 +287,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                       ),
                       10.height,
                       Text(
-                        'Unable to load notification data',
+                        context.appText.unableToLoadNotificationData,
                         style: AppTextStyle.blackColor14w400.copyWith(
                           color: AppColors.grayColor,
                         ),

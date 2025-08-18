@@ -445,7 +445,7 @@ class VehicleListView extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'Unable to load vehicle data',
+              context.appText.unableToLoadVehicleData,
               style: TextStyle(fontSize: 14, color: AppColors.grayColor),
               textAlign: TextAlign.center,
             ),
@@ -471,7 +471,7 @@ class VehicleListView extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             Text(
-              'No vehicles available to display',
+              context.appText.noVehiclesAvailableToDisplay,
               style: TextStyle(fontSize: 14, color: AppColors.grayColor),
               textAlign: TextAlign.center,
             ),

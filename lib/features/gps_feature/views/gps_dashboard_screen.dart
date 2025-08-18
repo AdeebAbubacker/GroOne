@@ -86,7 +86,7 @@ class _GpsDashboardContent extends StatelessWidget {
                   ),
                   10.height,
                   Text(
-                    'Unable to load dashboard data',
+                    context.appText.unableToLoadDashboardData,
                     style: AppTextStyle.blackColor14w400.copyWith(
                       color: AppColors.grayColor,
                     ),
@@ -125,7 +125,7 @@ class _GpsDashboardContent extends StatelessWidget {
                   ),
                   10.height,
                   Text(
-                    'No vehicles available to display',
+                    context.appText.noVehiclesAvailableToDisplay,
                     style: AppTextStyle.blackColor14w400.copyWith(
                       color: AppColors.grayColor,
                     ),
@@ -800,7 +800,7 @@ class _GpsDashboardContent extends StatelessWidget {
                 ),
                 5.height,
                 Text(
-                  'No vehicles found',
+                  context.appText.noVehiclesFound,
                   style: AppTextStyle.blackColor14w400.copyWith(
                     color: AppColors.grayColor,
                   ),
