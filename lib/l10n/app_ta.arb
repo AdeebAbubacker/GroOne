@@ -1100,5 +1100,6 @@
   "unableToLoadVehicleGeofenceData": "வாகன ஜியோஃபென்ஸ் தரவை ஏற்ற முடியவில்லை",
   "deviceActivationInProgress": "சாதன செயல்படுத்தல் நடந்து கொண்டிருக்கிறது",
   "deviceActivationMessage": "உங்கள் GPS சாதன செயல்படுத்தல் இன்னும் நடந்து கொண்டிருக்கிறது. தயவுசெய்து பிறகு மீண்டும் முயற்சிக்கவும்.",
-  "continueButton": "தொடரவும்"
+  "continueButton": "தொடரவும்",
+  "waitingForLpToAcceptLoad": "எல்.பி சரக்கை ஏற்க காத்திருக்கிறது"
 }

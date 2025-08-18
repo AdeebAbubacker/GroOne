@@ -1137,7 +1137,8 @@
   "cityRequired":"City is required,Please add your city ",
   "deviceActivationInProgress": "Device Activation In Progress",
   "deviceActivationMessage": "Your GPS device activation is still in progress. Please try again later.",
-  "continueButton": "Continue"
+  "continueButton": "Continue",
+  "waitingForLpToAcceptLoad" : "Waiting for LP to accept load"
 
 
 }
