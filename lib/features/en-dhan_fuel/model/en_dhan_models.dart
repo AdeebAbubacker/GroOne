@@ -701,7 +701,7 @@ class EnDhanCardData {
 
 /// Individual Card Model
 class EnDhanCardModel {
-  final int? id;
+  final String? id;
   final String? customerId;
   final String? endhanCustomerId;
   final String? cardNumber;
@@ -733,7 +733,7 @@ class EnDhanCardModel {
 
   factory EnDhanCardModel.fromJson(Map<String, dynamic> json) {
     return EnDhanCardModel(
-      id: json['id'] as int?,
+      id: json['id'] as String?,
       customerId: json['customerId'] as String?,
       endhanCustomerId: json['endhanCustomerId'] as String?,
       cardNumber: json['cardNo'] as String?,
