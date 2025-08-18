@@ -360,7 +360,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   enable: _isButtonEnabled,
                   statusId: widget.driverLoadDetails.loadStatusId,
                   onPressed: () {
-                    if (widget.driverLoadDetails.loadStatusId == 4 &&
+                    if (widget.driverLoadDetails.loadStatusId == 4 || widget.driverLoadDetails.loadStatusId == 9  &&
                         widget.driverLoadDetails.loadMemoDetails == null) {
                       Navigator.push(
                         context,
