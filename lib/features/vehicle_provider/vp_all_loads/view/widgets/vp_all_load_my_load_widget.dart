@@ -211,6 +211,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   VpMyLoadUIHelper.loadStatusButtonWidget(
                     status: widget.data.loadStatusDetails!.loadStatus,
                     isIntoRangePrice: isPriceIntoRange,
+                    // isPodAdded:  widget.data.po,
                     enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                       loadStatus: widget.data.loadStatusValues ,
                       documentList: widget.data.loadDocument??[]

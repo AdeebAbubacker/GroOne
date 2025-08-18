@@ -83,7 +83,7 @@ enum LoadStatus {
 
 
 
-String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched){
+String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? isMemoGenerated}){
 
   BuildContext context=navigatorKey.currentState!.context;
   switch(status){
@@ -96,7 +96,7 @@ String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched){
     case LoadStatus.podDispatched:
       return  podDispatched==null ?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
     default:
-      return context.appText.swipeToStart;
+      return (isMemoGenerated??false) ?  context.appText.swipeToStart:context.appText.waitingForLpToConfirmed;
   }
 }
 
@@ -135,13 +135,14 @@ enum DocumentFileType {
   ewayBill('eway_bill'),
   materialInvoice('material_invoice'),
   proofOfDelivery('proof_of_delivery'),
-  uploadOtherDocument('upload_other_document'),
+  uploadOtherDocument('other_documents',documentType: "Upload Other documents"),
   damageAndShortage('damages_and_shortages');
 
 
   final String value;
+  final String? documentType;
 
-  const DocumentFileType(this.value);
+  const DocumentFileType(this.value,{this.documentType});
 }
 
 String getButtonText(LoadStatus status,{bool? priceIntoRange}){

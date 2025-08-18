@@ -549,7 +549,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     if (status != null && route != null ) {
       late final TrackingDistanceApiRequest request;
 
-      if (status.index <= LoadStatus.assigned.index || tracking==null) {
+      if (status.index <= LoadStatus.assigned.index ) {
         // Use pickup & drop coordinates
         final pickup = route.pickUpLatlon.split(',');
         final drop = route.dropLatlon.split(',');
@@ -564,12 +564,12 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
         );
       } else {
         request = TrackingDistanceApiRequest(
-          originLat: tracking.originLat,
-          originLong: tracking.originLong,
-          currentLat: tracking.currentLat,
-          currentLong: tracking.currentLong,
-          destLat: tracking.destinationLat,
-          destLong: tracking.destinationLong
+          originLat: tracking?.originLat ?? 0,
+          originLong: tracking?.originLong ??0,
+          currentLat: tracking?.currentLat ??0,
+          currentLong: tracking?.currentLong ??0,
+          destLat: tracking?.destinationLat ?? 0,
+          destLong: tracking?.destinationLong ??0
         );
       }
 

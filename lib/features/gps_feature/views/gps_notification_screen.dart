@@ -1,4 +1,3 @@
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -13,10 +12,8 @@ import 'package:intl/intl.dart';
 
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
-import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_searchabledropdown.dart';
-import '../../../utils/common_widgets.dart';
 import '../cubit/gps_notification_cubit/gps_notification_cubit.dart';
 import '../cubit/vehicle_list_cubit.dart';
 import '../model/gps_combined_vehicle_model.dart';
@@ -66,7 +63,7 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
             icon: const Icon(Icons.refresh, size: 20),
             iconColor: AppColors.primaryColor,
           ),
-          10.width
+          10.width,
         ],
       ),
       body: Column(
@@ -81,7 +78,25 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                     return const Center(child: CircularProgressIndicator());
                   } else if (vehicleState.error != null) {
                     return Center(
-                      child: Text(context.appText.errorLoadingVehicles),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            context.appText.noData,
+                            style: AppTextStyle.h5.copyWith(
+                              color: AppColors.grayColor,
+                            ),
+                          ),
+                          10.height,
+                          Text(
+                            'Unable to load vehicle data',
+                            style: AppTextStyle.blackColor14w400.copyWith(
+                              color: AppColors.grayColor,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
                     );
                   } else {
                     // Extract unique vehicle numbers
@@ -95,7 +110,25 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                     // If no vehicles found
                     if (uniqueVehicleNumbers.isEmpty) {
                       return Center(
-                        child: Text(context.appText.noVehiclesFound),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              context.appText.noData,
+                              style: AppTextStyle.h5.copyWith(
+                                color: AppColors.grayColor,
+                              ),
+                            ),
+                            10.height,
+                            Text(
+                              context.appText.noVehiclesFound,
+                              style: AppTextStyle.blackColor14w400.copyWith(
+                                color: AppColors.grayColor,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
                       );
                     }
                     // Ensure selectedVehicle is in the dropdown
@@ -103,35 +136,56 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                       selectedVehicle = uniqueVehicleNumbers.first;
                     }
                     return SearchableDropdown(
-                      selectedItem: selectedVehicle.isNotEmpty ? selectedVehicle : null,
+                      selectedItem:
+                          selectedVehicle.isNotEmpty ? selectedVehicle : null,
                       items: uniqueVehicleNumbers,
                       hintText: context.appText.selectState,
                       showSearchBox: true,
-                      dropdownBuilder: (context, selectedItem) => Row(
-                        children: [
-                          CircleAvatar(
-                            radius: 15,
-                            backgroundColor: AppColors.primaryLightColor,
-                            child: SvgPicture.asset(
-                              AppIcons.svg.truck,
-                              width: 20,
-                            ),
-                          ).paddingAll(5),
-                          const SizedBox(width: 8),
-                          Text(
-                            selectedItem ?? '',
-                            style: const TextStyle(fontSize: 14),
+                      dropdownBuilder:
+                          (context, selectedItem) => Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 15,
+                                backgroundColor: AppColors.primaryLightColor,
+                                child: SvgPicture.asset(
+                                  AppIcons.svg.truck,
+                                  width: 20,
+                                ),
+                              ).paddingAll(5),
+                              const SizedBox(width: 8),
+                              Text(
+                                selectedItem ?? '',
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
                       onChanged: (String? newValue) {
                         setState(() {
                           selectedVehicle = newValue!;
                         });
                       },
-                      emptyBuilder: (context, searchEntry) => Center(
-                        child: Text(context.appText.noVehiclesFound),
-                      ),
+                      emptyBuilder:
+                          (context, searchEntry) => Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  context.appText.noData,
+                                  style: AppTextStyle.h6.copyWith(
+                                    color: AppColors.grayColor,
+                                  ),
+                                ),
+                                5.height,
+                                Text(
+                                  'No vehicles found',
+                                  style: AppTextStyle.blackColor14w400.copyWith(
+                                    color: AppColors.grayColor,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
                     );
                   }
                 },
@@ -221,7 +275,27 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   ),
                 );
               } else if (state is GpsNotificationError) {
-                return Center(child: Text("Error: ${state.message}"));
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        context.appText.noData,
+                        style: AppTextStyle.h5.copyWith(
+                          color: AppColors.grayColor,
+                        ),
+                      ),
+                      10.height,
+                      Text(
+                        context.appText.unableToLoadNotificationData,
+                        style: AppTextStyle.blackColor14w400.copyWith(
+                          color: AppColors.grayColor,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
               } else {
                 return const SizedBox.shrink();
               }
@@ -249,7 +323,10 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(context.appText.filter, style: AppTextStyle.h4).paddingOnly(left: 15),
+                    Text(
+                      context.appText.filter,
+                      style: AppTextStyle.h4,
+                    ).paddingOnly(left: 15),
                     12.height,
                     ...filterOptions.keys.map((key) {
                       return SwitchListTile(
