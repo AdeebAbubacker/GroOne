@@ -32,6 +32,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/constant_variables.dart' ;
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -108,7 +109,12 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
             Container(
               height: profileSize,
               width: profileSize,
-              decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle,
+              border: Border.all(
+                  color: AppColors.blueColor, 
+                  width: 2,           
+                ),
+                ),
               alignment: Alignment.center,
               child: Text(
                 getInitialsFromName(this, name: driver.name), 
@@ -116,10 +122,10 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
               ),
             ).isAnimate(),
             if (driver.name.isNotEmpty)
-              Text(driver.name, style: AppTextStyle.h5).isAnimate(),
+              Text(driver.name.capitalize, style: AppTextStyle.h5).isAnimate(),
 
             if (driver.driverId != null && driver.driverId!.isNotEmpty)
-              Text("${driver.companyDetails?.companyName}", style: AppTextStyle.body).isAnimate(),
+              Text("${driver.companyDetails?.companyName.capitalize}", style: AppTextStyle.body).isAnimate(),
           ],
         );
       },
@@ -217,6 +223,6 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
   }
 
   Widget buildProfileVersionWidget() {
-    return Text("Version $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
+    return Text("v $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
   }
 }

@@ -157,10 +157,12 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                 Container(
                   height: profileSize,
                   width: profileSize,
-                  decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle, border: Border.all(
-                  color: AppColors.blueColor, 
-                  width: 2,           
-                ),),
+                  decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle,
+                  border: Border.all(
+                  color: AppColors.blueColor,
+                  width: 2,
+                ),
+                ),
                   alignment: Alignment.center,
                   child: Text(getInitialsFromName(this, name: state.profileDetailUIState!.data!.customer!.companyName),
                     style: AppTextStyle.h1,
@@ -255,16 +257,23 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               Navigator.of(context).push(commonRoute(MyDocumentScreen(), isForward: true));
             },
           ),
-          // commonDivider(),
-
-          // ProfileMyAccountTile(
-          //   imageString: AppImage.svg.transaction,
-          //   text: context.appText.transactions,
-          //   onTap: () {
-          //     Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
-          //   },
-          // ),
           commonDivider(),
+
+       ... [  Visibility(
+            visible: false,
+            child: ProfileMyAccountTile(
+              imageString: AppImage.svg.transaction,
+              text: context.appText.transactions,
+              onTap: () {
+                Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
+              },
+            ),
+          ),
+         Visibility(
+             visible: false,
+             child: commonDivider()),
+       ],
+
 
           ProfileMyAccountTile(
             imageString: AppImage.svg.settings,

@@ -33,3 +33,10 @@ class KavachPaymentFailure extends KavachOrderState {
 
   KavachPaymentFailure(this.message);
 }
+
+class KavachPaymentStatusChecking extends KavachOrderState {}
+class KavachPaymentStatusSuccess extends KavachOrderState {}
+class KavachPaymentStatusFailure extends KavachOrderState {
+  final String message;
+  KavachPaymentStatusFailure(this.message);
+}

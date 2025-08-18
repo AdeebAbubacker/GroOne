@@ -458,6 +458,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                  labelText: '${context.appText.zonalOffice} *',
                                  hintText: 'Select zonal office',
                                  value: state.selectedZonalOfficeId?.toString(),
+                                 displayText: state.selectedZonalOfficeName,
                                  options: state.zonalOffices.map((office) => {
                                    'id': office['id'],
                                    'name': office['zone_name'],
@@ -536,6 +537,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                  labelText: '${context.appText.state} *',
                                  hintText: 'Select state',
                                  value: state.selectedStateId?.toString(),
+                                 displayText: state.selectedStateName,
                                  options: state.states.map((state) => {
                                    'id': state['id'],
                                    'name': state['state_name'],
@@ -902,7 +904,8 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
                       ],
                     ),
                     onTap: () {
-                      widget.controller.text = "${user.empCode} ${user.userName}";
+                      // widget.controller.text = "${user.empCode} ${user.userName}";
+                      widget.controller.text = user.empCode;
                       widget.onSelected(user.empCode);
                       _removeOverlay();
                     },

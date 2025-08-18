@@ -66,13 +66,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
               icon: const Icon(Icons.add, color: Colors.white),
               style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
             ),
-            4.width,
-            AppIconButton(
-              onPressed: () {
-                // More options
-              },
-              icon: Image.asset(AppIcons.png.moreVertical),
-            ),
+            15.width,
           ],
         ),
         body: SafeArea(
@@ -231,18 +225,6 @@ class _FastagListScreenState extends State<FastagListScreen> {
                     ),
                   ],
                 ),
-              ),
-              // Navigation Arrow
-              AppIconButton(
-                onPressed: () {
-                  Navigator.push(context, commonRoute(FastagDetailScreen()));
-                },
-                icon: Icon(
-                  Icons.arrow_forward_ios,
-                  size: 16,
-                  color: AppColors.black,
-                ),
-                style: AppButtonStyle.circularIconButtonStyle,
               ),
             ],
           ),

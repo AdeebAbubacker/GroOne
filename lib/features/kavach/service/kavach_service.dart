@@ -894,5 +894,27 @@ class KavachService {
     }
   }
 
+  Future<Result<Map<String, dynamic>>> checkFleetPaymentStatus(String paymentRequestId) async {
+    try {
+      final response = await _apiService.post(
+        '${ApiUrls.fleetPaymentStatus}/$paymentRequestId',
+      );
+
+      if (response is Success) {
+        final data = response.value as Map<String, dynamic>;
+        if (data['success'] == true && data['findData'] != null) {
+          return Success(data['findData']);
+        } else {
+          return Error(ErrorWithMessage(message: data['message'] ?? "Payment status check failed"));
+        }
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
 }
 

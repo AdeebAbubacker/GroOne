@@ -393,7 +393,7 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     try {
       final apiService = locator<ApiService>();
       final result = await apiService.multipart(
-        'https://gro-devapi.letsgro.co/document/api/v1/upload',
+        ApiUrls.documentUpload,
         file,
         fields: {
           'userId': customerId,

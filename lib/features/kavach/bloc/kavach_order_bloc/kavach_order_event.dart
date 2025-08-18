@@ -14,3 +14,8 @@ class KavachInitiatePayment extends KavachOrderEvent {
 
   KavachInitiatePayment(this.request);
 }
+
+class CheckFleetPaymentStatus extends KavachOrderEvent {
+  final String paymentRequestId;
+  CheckFleetPaymentStatus(this.paymentRequestId);
+}

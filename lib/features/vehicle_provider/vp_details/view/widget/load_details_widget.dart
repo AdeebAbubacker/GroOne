@@ -481,7 +481,7 @@ class LoadDetailsWidget extends StatelessWidget {
           style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
         ),
         Text(
-          " ${driver?.name.capitalizeFirst}",
+          " ${driver?.name.capitalize}",
           style: AppTextStyle.h3w500.copyWith(
             fontSize: 13,
             color: AppColors.textBlackDetailColor,
@@ -642,7 +642,7 @@ class LoadDetailsWidget extends StatelessWidget {
               width: 24,
             ),
             Text(
-              cubit.state.locationDistance ?? '',
+              cubit.state.locationDistance ?? '0 KM',
               style: AppTextStyle.body3.copyWith(
                 color: AppColors.veryLightGreyColor,
               ),
@@ -737,6 +737,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   price: 0,
                   loadId: "",
                   enable: cubit.isNextProcessButtonEnabled(
+                    isAgreed:loadDetails?.isAgreed==1 ,
                     documentEntity: state.tripDocumentList ?? [],
                     driverConsent: loadDetails?.driverConsent ?? 0,
                     loadStatus: state.loadStatus,
@@ -744,7 +745,9 @@ class LoadDetailsWidget extends StatelessWidget {
                   ),
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
-                    loadDetails?.podDispatch
+                    loadDetails?.podDispatch,
+                    isMemoGenerated: loadDetails?.loadMemo!=null && loadDetails?.isAgreed==1
+
                   ),
                   onSubmit: () async {
                     if (state.loadStatus == LoadStatus.podDispatched && loadDetails?.podDispatch==null) {
@@ -1095,26 +1098,38 @@ Widget _buildConsigneeDetail({
         else
           Column(
             children: [
-              20.height,
+
               // Contact Name
-              _buildDetailWidget(
-                text1: context.appText.name,
-                text2: name ?? "",
+              if((name??"").isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: _buildDetailWidget(
+                  text1: context.appText.name,
+                  text2: name ?? "",
+                ),
               ),
 
-              20.height,
+
 
               // Contact Number
-              _buildDetailWidget(
-                text1: context.appText.contactNo,
-                text2: phoneNo ?? "",
+              if((phoneNo??"").isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: _buildDetailWidget(
+                  text1: context.appText.contactNo,
+                  text2: phoneNo ?? "",
+                ),
               ),
-              20.height,
+
 
               // Email Id
-              _buildDetailWidget(
-                text1: context.appText.emailId,
-                text2: email ?? "",
+              if((email??"").isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: _buildDetailWidget(
+                  text1: context.appText.emailId,
+                  text2: email ?? "",
+                ),
               ),
             ],
           ),
@@ -1158,6 +1173,7 @@ Widget _submittedSettlementInfoWidget(
   final amount = loadSettlement.amountPerDay ?? 1;
   final detentionsAmount = PriceHelper.formatINR(
     (amount * numberOfDays).toString(),
+
   );
 
   return Padding(

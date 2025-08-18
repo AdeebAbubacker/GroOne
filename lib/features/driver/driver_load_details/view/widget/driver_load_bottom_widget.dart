@@ -538,11 +538,14 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             height: 60,
                             width: MediaQuery.of(context).size.width * 0.90,
                             child:
-                                (loads.data!.loadStatusId == 8)
+                                  (loads.data!.loadStatusId == 8 && loads.data!.podDispatch == null)
+                                    
                                     ? AppButton(
                                       isLoading: false,
-                                      title: getButtonText(
+                                      title: getSwipeDriverButtonTitle(
                                         state.loadStatus ?? LoadStatus.matching,
+                                        loadDetails!.data!.podDispatch,
+
                                       ),
                                       style: AppButtonStyle.primary.copyWith(
                                         shape: WidgetStatePropertyAll(
@@ -567,12 +570,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                             widget.cubit.getDriverLoadsById(
                                               loadId: loads.data!.loadId ?? '',
                                             );
-                                            changeLoadStatus(
-                                              context,
-                                              loadId: loads.data!.loadId ?? '',
-                                              loadStatus:
-                                                  loads.data!.loadStatusId + 1,
-                                            );
                                           }
                                         });
                                       },
@@ -591,6 +588,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                       ),
                                       text: DriverLoadHelper.getBottomButtonTitle(
                                         loads.data!.loadStatusId,
+                                        loads.data?.podDispatch
                                       ),
                                       onSubmit: () {
                                         // Check for sim consent and trip doc
