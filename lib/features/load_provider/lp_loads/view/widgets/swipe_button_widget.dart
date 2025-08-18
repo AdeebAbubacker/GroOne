@@ -24,13 +24,17 @@ class CustomSwipeButton extends StatelessWidget {
       innerColor: Colors.transparent,
       outerColor:enable ?const Color(0xffE5EBFF): AppColors.disableColor.withValues(alpha: 0.5),
       enabled: enable,
+
       sliderButtonIcon: Visibility(
         visible: enable,
           child: _buildChevronIcon()),
       sliderRotate: false,
-      sliderButtonYOffset: -20,
+      sliderButtonYOffset: -30,
       text: text ?? context.appText.swipeToAgree,
-      textStyle: AppTextStyle.body2.copyWith(color:enable?  AppColors.primaryColor:AppColors.disableColor),
+
+      textStyle: AppTextStyle.body2.copyWith(
+
+          color:enable?  AppColors.primaryColor:AppColors.disableColor),
       onSubmit: onSubmit,
 
     ).paddingAll(padding??10);

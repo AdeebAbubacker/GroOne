@@ -311,7 +311,6 @@ class LpLoadService {
       final url = ApiUrls.lpLoadDocument+docId;
       final response = await _apiService.get(url);
 
-
       if (response is Success) {
         final loads = DocumentDetails.fromJson(response.value['data']);
         return Success(loads);

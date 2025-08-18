@@ -81,15 +81,14 @@ List<DocumentEntity> documentTypeList=[
     title:navigatorKey.currentState?.context.appText.uploadPOD,
     visible: false,
     documentType: navigatorKey.currentState?.context.appText.proofOfDelivery,
-
   ),
 
   DocumentEntity(
     documentTypeId: 309,
-    fileType: DocumentFileType.uploadOtherDocument.name,
+    fileType: DocumentFileType.uploadOtherDocument.value,
     title:navigatorKey.currentState?.context.appText.othersDocument,
     visible: true,
-    documentType: navigatorKey.currentState?.context.appText.uploadOtherDocuments,
+    documentType: DocumentFileType.uploadOtherDocument.documentType,
   ),
 ];
 
