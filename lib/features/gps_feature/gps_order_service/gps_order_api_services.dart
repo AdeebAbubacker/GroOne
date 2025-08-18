@@ -10,6 +10,7 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
+import 'package:gro_one_app/features/gps_feature/models/gps_payment_status_response.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
@@ -713,6 +714,31 @@ class GpsOrderApiService {
       return Error(DeserializationError());
     }
   }
+
+  /// Check GPS Payment/Order Status
+  Future<Result<PaymentStatusResponse>> checkPaymentStatus(String requestId) async {
+    try {
+      final response = await _apiService.post(
+        '${ApiUrls.fleetPaymentStatus}/$requestId',
+      );
+
+      if (response is Success) {
+        final data = response.value;
+        if (data is Map<String, dynamic>) {
+          final result = PaymentStatusResponse.fromJson(data);
+          return Success(result);
+        } else {
+          return Error(DeserializationError());
+        }
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to check payment status", e);
+      return Error(DeserializationError());
+    }
+  }
+
 
 
 }

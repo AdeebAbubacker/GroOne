@@ -53,7 +53,6 @@ class KavachSummaryScreen extends StatefulWidget {
   final String? orderId; // Add orderId parameter
   final KavachOrderRequest kavachOrderRequest;
 
-
   const KavachSummaryScreen({
     super.key,
     required this.products,
@@ -117,7 +116,10 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
 
         if (profileState.profileDetailUIState?.data?.customer != null) {
           final customer = profileState.profileDetailUIState!.data!.customer!;
-          companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
+          companyName =
+              customer.companyName.isNotEmpty
+                  ? customer.companyName
+                  : customer.customerName;
           contactNumber = customer.mobileNumber;
           blueId = customer.blueId?.toString() ?? "";
         }
@@ -125,16 +127,20 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
 
       // Fallback to hardcoded values if still not available
       return {
-        "CompanyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
-        "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
-        "BlueMembershipID": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+        "CompanyName":
+            companyName?.isNotEmpty == true
+                ? companyName!
+                : "ABC Logistics Pvt Ltd",
+        "contactNumber":
+            contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
+        "BlueMembershipID": blueId?.isNotEmpty == true ? blueId! : "BLUE123456",
       };
     } catch (e) {
       // Return hardcoded values as fallback
       return {
         "CompanyName": "ABC Logistics Pvt Ltd",
         "contactNumber": "9876543210",
-        "BlueMembershipID": "BLUE123456"
+        "BlueMembershipID": "BLUE123456",
       };
     }
   }
@@ -154,69 +160,85 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             ),
           );
 
+          // if (result == true) {
+          //   KavachOrderRequest request = widget.kavachOrderRequest;
+          //   request.paymentRequestId = kavachOrderBloc.paymentRequestId;
+          //
+          //   // 2️⃣ Payment success — now create order
+          //   kavachOrderBloc.add(KavachSubmitOrder(widget.kavachOrderRequest));
+          // }
           if (result == true) {
-            KavachOrderRequest request = widget.kavachOrderRequest;
-            request.paymentRequestId = kavachOrderBloc.paymentRequestId;
-
-            // 2️⃣ Payment success — now create order
-            kavachOrderBloc.add(KavachSubmitOrder(widget.kavachOrderRequest));
+            final paymentRequestId = kavachOrderBloc.paymentRequestId;
+            if (paymentRequestId != null) {
+              kavachOrderBloc.add(CheckFleetPaymentStatus(paymentRequestId));
+            }
           }
         }
 
-        if (state is KavachOrderSuccess) {
-                showSuccessDialog(
-                  context,
-                  text: 'Order placed successfully',
-                  subheading: ''
-                );
-                Future.delayed(Duration(seconds: 3),() {
-                  if (context.mounted) {
-                    // Clear address blocs before navigating back
-                    try {
-                      // Clear billing address bloc
-                      final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
-                      billingBloc.add(ClearKavachBillingAddress());
+        if (state is KavachPaymentStatusSuccess) {
+          showSuccessDialog(
+            context,
+            text: 'Order placed successfully',
+            subheading: '',
+          );
+          Future.delayed(Duration(seconds: 3), () {
+            if (context.mounted) {
+              // Clear address blocs before navigating back
+              try {
+                // Clear billing address bloc
+                final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+                billingBloc.add(ClearKavachBillingAddress());
 
-                      // Clear shipping address bloc
-                      final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
-                      shippingBloc.add(ClearKavachShippingAddress());
-                    } catch (e) {
-                      // Handle any errors if blocs are not available
-                    }
-
-                    Navigator.of(context).popUntil((route) {
-                      if (route.settings.name == 'KavachOrderListScreen') {
-                        if (route.navigator != null && route.navigator!.context.mounted) {
-                          BlocProvider.of<KavachOrderListBloc>(route.navigator!.context).add(FetchKavachOrderList(forceRefresh: true,isRefresh: true));
-                        }
-                        return true; // Pop until this route
-                      }
-                      return false;
-                    });
-                  }
-                },);
+                // Clear shipping address bloc
+                final shippingBloc =
+                    locator<KavachCheckoutShippingAddressBloc>();
+                shippingBloc.add(ClearKavachShippingAddress());
+              } catch (e) {
+                // Handle any errors if blocs are not available
               }
+
+              Navigator.of(context).popUntil((route) {
+                if (route.settings.name == 'KavachOrderListScreen') {
+                  if (route.navigator != null &&
+                      route.navigator!.context.mounted) {
+                    BlocProvider.of<KavachOrderListBloc>(
+                      route.navigator!.context,
+                    ).add(
+                      FetchKavachOrderList(forceRefresh: true, isRefresh: true),
+                    );
+                  }
+                  return true; // Pop until this route
+                }
+                return false;
+              });
+            }
+          });
+        }
+        if (state is KavachPaymentStatusFailure) {
+          ToastMessages.error(message: context.appText.paymentFailed);
+        }
       },
       child: Scaffold(
-        appBar: CommonAppBar(title: context.appText.summary,
+        appBar: CommonAppBar(
+          title: context.appText.summary,
           actions: [
-          AppIconButton(
-          onPressed: () {
-            Navigator.push(context, commonRoute(KavachSupportScreen()));
-          },
-          icon: AppIcons.svg.filledSupport,
-          iconColor: AppColors.primaryButtonColor,
+            AppIconButton(
+              onPressed: () {
+                Navigator.push(context, commonRoute(KavachSupportScreen()));
+              },
+              icon: AppIcons.svg.filledSupport,
+              iconColor: AppColors.primaryButtonColor,
+            ),
+            5.width,
+          ],
         ),
-          5.width,
-        ],),
         bottomNavigationBar: _buildProceedToPayButton(context),
         body: _buildBodyWidget(context),
       ),
     );
   }
 
-
-  Widget _buildBodyWidget(BuildContext context){
+  Widget _buildBodyWidget(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
         child: Column(
@@ -254,12 +276,11 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
-                  Text(context.appText.billingAddress, style: AppTextStyle.h5,),
+                  Text(context.appText.billingAddress, style: AppTextStyle.h5),
                   10.height,
                   _buildAddressCard(widget.billingAddress),
                   15.height,
-                    Text(context.appText.shippingAddress, style: AppTextStyle.h5,),
+                  Text(context.appText.shippingAddress, style: AppTextStyle.h5),
                   10.height,
                   _buildAddressCard(widget.shippingAddress),
                 ],
@@ -272,7 +293,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     );
   }
 
-  Widget _productWidget(){
+  Widget _productWidget() {
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: commonContainerDecoration(),
@@ -283,7 +304,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             widget.products.length == 1
                 ? "Product Detail"
                 : context.appText.paymentDetails,
-            style: AppTextStyle.h4
+            style: AppTextStyle.h4,
           ),
           10.height,
           ...widget.products.map((product) {
@@ -292,7 +313,9 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             final gstAmount = totalPrice * (product.gstPerc / 100);
             final totalWithGst = totalPrice + gstAmount;
 
-            final isTamilNadu = widget.billingAddress.state.trim().toLowerCase() == "tamil nadu";
+            final isTamilNadu =
+                widget.billingAddress.state.trim().toLowerCase() ==
+                "tamil nadu";
             final cgst = isTamilNadu ? gstAmount / 2 : 0.0;
             final sgst = isTamilNadu ? gstAmount / 2 : 0.0;
             final igst = isTamilNadu ? 0.0 : gstAmount;
@@ -307,21 +330,42 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(product.name, style: AppTextStyle.h5),
-                          Text(product.part, style: AppTextStyle.textDarkGreyColor14w500),
+                          Text(
+                            product.part,
+                            style: AppTextStyle.textDarkGreyColor14w500,
+                          ),
                         ],
                       ),
                     ),
-                    Text("₹${KavachHelper.formatCurrency(totalPrice.toStringAsFixed(2))}", style: AppTextStyle.blackColor15w500),
+                    Text(
+                      "₹${KavachHelper.formatCurrency(totalPrice.toStringAsFixed(2))}",
+                      style: AppTextStyle.blackColor15w500,
+                    ),
                   ],
                 ),
                 5.height,
-                _buildDetailRow("HSN Code",  product.hsnSacCode??'-'),
+                _buildDetailRow("HSN Code", product.hsnSacCode ?? '-'),
                 _buildDetailRow("Qty", qty.toString().padLeft(2, '0')),
-                _buildDetailRow("Rate /Unit ₹", "₹${KavachHelper.formatCurrency(product.price.toStringAsFixed(2))}"),
-                _buildDetailRow("IGST", "₹${KavachHelper.formatCurrency(igst.toStringAsFixed(2))}"),
-                _buildDetailRow("CGST", "₹${KavachHelper.formatCurrency(cgst.toStringAsFixed(2))}"),
-                _buildDetailRow("SGST", "₹${KavachHelper.formatCurrency(sgst.toStringAsFixed(2))}"),
-                _buildDetailRow("Total GST", "₹${KavachHelper.formatCurrency(gstAmount.toStringAsFixed(2))}"),
+                _buildDetailRow(
+                  "Rate /Unit ₹",
+                  "₹${KavachHelper.formatCurrency(product.price.toStringAsFixed(2))}",
+                ),
+                _buildDetailRow(
+                  "IGST",
+                  "₹${KavachHelper.formatCurrency(igst.toStringAsFixed(2))}",
+                ),
+                _buildDetailRow(
+                  "CGST",
+                  "₹${KavachHelper.formatCurrency(cgst.toStringAsFixed(2))}",
+                ),
+                _buildDetailRow(
+                  "SGST",
+                  "₹${KavachHelper.formatCurrency(sgst.toStringAsFixed(2))}",
+                ),
+                _buildDetailRow(
+                  "Total GST",
+                  "₹${KavachHelper.formatCurrency(gstAmount.toStringAsFixed(2))}",
+                ),
                 5.height,
                 DottedLine(
                   direction: Axis.horizontal,
@@ -331,7 +375,10 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   dashColor: AppColors.greyIconColor,
                 ),
                 5.height,
-                _buildDetailRow("Total Amount", "₹${totalWithGst.toStringAsFixed(2)}"),
+                _buildDetailRow(
+                  "Total Amount",
+                  "₹${totalWithGst.toStringAsFixed(2)}",
+                ),
                 15.height,
               ],
             );
@@ -341,7 +388,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     );
   }
 
-  Widget _buildProceedToPayButton(BuildContext context){
+  Widget _buildProceedToPayButton(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -359,35 +406,44 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(context.appText.total, style: AppTextStyle.blackColor14w400,),
-              Text('₹${totalAmount.toStringAsFixed(2)}', style: AppTextStyle.primaryColor16w900),
+              Text(context.appText.total, style: AppTextStyle.blackColor14w400),
+              Text(
+                '₹${totalAmount.toStringAsFixed(2)}',
+                style: AppTextStyle.primaryColor16w900,
+              ),
             ],
           ),
           15.width,
           AppButton(
-              onPressed: () async {
-                final customerInfo = await getCustomerInfo();
-                final customerId = await locator<UserInformationRepository>().getUserID();
+            onPressed: () async {
+              final customerInfo = await getCustomerInfo();
+              final customerId =
+                  await locator<UserInformationRepository>().getUserID();
 
-                if (customerId != null && customerId.isNotEmpty) {
-                  final paymentRequest = KavachInitiatePaymentRequest(
-                    orderId: widget.orderId ?? "ORDER_${DateTime.now().millisecondsSinceEpoch}",
-                    amount: totalAmount,
-                    customerName: customerInfo["CompanyName"] ?? "ABC Logistics Pvt Ltd",
-                    customerEmail: widget.kavachOrderRequest.customerInfo['email'],
-                    customerMobile: customerInfo["contactNumber"] ?? "9876543210",
-                    customerCity: widget.billingAddress.city,
-                    customerId: customerId,
-                    merchantReferenceNo: 'fleet',
-                  );
+              if (customerId != null && customerId.isNotEmpty) {
+                final paymentRequest = KavachInitiatePaymentRequest(
+                  orderId:
+                      widget.orderId ??
+                      "ORDER_${DateTime.now().millisecondsSinceEpoch}",
+                  amount: totalAmount,
+                  customerName:
+                      customerInfo["CompanyName"] ?? "ABC Logistics Pvt Ltd",
+                  customerEmail:
+                      widget.kavachOrderRequest.customerInfo['email'],
+                  customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                  customerCity: widget.billingAddress.city,
+                  customerId: customerId,
+                  merchantReferenceNo: 'fleet',
+                );
 
-                  kavachOrderBloc.add(KavachInitiatePayment(paymentRequest));
-                }},
+                kavachOrderBloc.add(KavachInitiatePayment(paymentRequest));
+              }
+            },
             title: context.appText.placeOrder,
             style: AppButtonStyle.primary,
-          ).expand()
+          ).expand(),
         ],
-      ).paddingOnly(bottom: 30,right: 20,left: 20,top: 15),
+      ).paddingOnly(bottom: 30, right: 20, left: 20, top: 15),
     );
   }
 
@@ -401,13 +457,23 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(address.addressName,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text(cleanAddr1,style: AppTextStyle.textDarkGreyColor14w500,),
-        Text("${address.city}, ${address.state}",style: AppTextStyle.textDarkGreyColor14w500,),
-        Text("${address.country}- ${address.pincode}",style: AppTextStyle.textDarkGreyColor14w500),
+        Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
+        Text(cleanAddr1, style: AppTextStyle.textDarkGreyColor14w500),
+        Text(
+          "${address.city}, ${address.state}",
+          style: AppTextStyle.textDarkGreyColor14w500,
+        ),
+        Text(
+          "${address.country}- ${address.pincode}",
+          style: AppTextStyle.textDarkGreyColor14w500,
+        ),
         Visibility(
-            visible: address.gstin!=null && address.gstin!.isNotEmpty,
-            child: Text("${context.appText.gstKavach} - ${address.gstin}",style: AppTextStyle.textDarkGreyColor14w500,)),
+          visible: address.gstin != null && address.gstin!.isNotEmpty,
+          child: Text(
+            "${context.appText.gstKavach} - ${address.gstin}",
+            style: AppTextStyle.textDarkGreyColor14w500,
+          ),
+        ),
       ],
     );
   }
@@ -416,11 +482,11 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: Text(label, style: AppTextStyle.textDarkGreyColor14w500)),
+        Expanded(
+          child: Text(label, style: AppTextStyle.textDarkGreyColor14w500),
+        ),
         Text(value, style: AppTextStyle.blackColor15w500),
       ],
     ).paddingSymmetric(vertical: 5);
   }
 }
-
-

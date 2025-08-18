@@ -113,7 +113,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
                                 vpAdvancePercentage: widget.loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
                                 vpBalance: widget.loadItem.loadMemoDetails?.vpBalance ?? '',
                                 vpBalancePercentage: widget.loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
-                                amount: widget.loadItem.lpPaymentsData?.receivableBalance ?? '',
+                                amount: tripDetails.balanceToBePaid,
                                 type: 'online',
                                 action: 'balance',
                                 vpAmount: widget.loadItem.loadMemoDetails?.vpAmount ?? ''

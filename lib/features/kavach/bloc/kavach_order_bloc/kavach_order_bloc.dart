@@ -15,6 +15,24 @@ class KavachOrderBloc extends Bloc<KavachOrderEvent, KavachOrderState> {
   KavachOrderBloc(this.repository, this._userInformationRepository) : super(KavachOrderInitial()) {
     on<KavachSubmitOrder>(_onSubmitOrder);
     on<KavachInitiatePayment>(_onInitiatePayment);
+    on<CheckFleetPaymentStatus>((event, emit) async {
+      emit(KavachPaymentStatusChecking());
+      final result = await repository.checkFleetPaymentStatus(event.paymentRequestId);
+
+      if (result is Success<Map<String, dynamic>>) {
+        final data = result.value;
+        final status = data['status']?.toString();
+        if (status == "Success") {
+          // only then place order
+          emit(KavachPaymentStatusSuccess());
+        } else {
+          emit(KavachPaymentStatusFailure("Payment not successful. Status: $status"));
+        }
+      } else if (result is Error) {
+        emit(KavachPaymentStatusFailure("Failed to check payment status"));
+      }
+    });
+
   }
 
   Future<void> _onSubmitOrder(
@@ -57,6 +75,7 @@ class KavachOrderBloc extends Bloc<KavachOrderEvent, KavachOrderState> {
       emit(KavachPaymentFailure(error.type.toString()));
     }
   }
+
 
 
   String? _userId;

@@ -276,5 +276,14 @@ class KavachRepository {
     return _service.downloadInvoice(orderId);
   }
 
+  Future<Result<Map<String, dynamic>>> checkFleetPaymentStatus(String paymentRequestId) async {
+    try {
+      return await _service.checkFleetPaymentStatus(paymentRequestId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
 }
 
