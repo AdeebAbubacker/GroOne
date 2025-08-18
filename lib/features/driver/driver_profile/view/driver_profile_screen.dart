@@ -217,6 +217,6 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
   }
 
   Widget buildProfileVersionWidget() {
-    return Text("Version $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
+    return Text("v $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
   }
 }
