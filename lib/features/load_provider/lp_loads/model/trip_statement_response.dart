@@ -41,6 +41,7 @@ class TripDetails {
     required this.totalFreight,
     required this.netFreight,
     required this.advanceAmount,
+    required this.advancePaid,
     required this.advancePercentage,
     required this.loading,
     required this.unloading,
@@ -63,6 +64,7 @@ class TripDetails {
   final String totalFreight;
   final String netFreight;
   final String advanceAmount;
+  final String advancePaid;
   final String advancePercentage;
   final String loading;
   final String unloading;
@@ -85,6 +87,7 @@ class TripDetails {
     String? totalFreight,
     String? netFreight,
     String? advanceAmount,
+    String? advancePaid,
     String? advancePercentage,
     String? loading,
     String? unloading,
@@ -107,6 +110,7 @@ class TripDetails {
       totalFreight: totalFreight ?? this.totalFreight,
       netFreight: netFreight ?? this.netFreight,
       advanceAmount: advanceAmount ?? this.advanceAmount,
+      advancePaid: advancePaid ?? this.advancePaid,
       advancePercentage: advancePercentage ?? this.advancePercentage,
       loading: loading ?? this.loading,
       unloading: unloading ?? this.unloading,
@@ -132,6 +136,7 @@ class TripDetails {
       totalFreight: json["totalFreight"] ?? "",
       netFreight: json["netFreight"] ?? "",
       advanceAmount: json["advanceAmount"] ?? "",
+      advancePaid: json["advancePaid"] ?? "",
       advancePercentage: json["advancePercentage"] ?? "",
       loading: json["loading"] ?? "",
       unloading: json["unloading"] ?? "",
@@ -156,6 +161,7 @@ class TripDetails {
     "totalFreight": totalFreight,
     "netFreight": netFreight,
     "advanceAmount": advanceAmount,
+    "advancePaid": advancePaid,
     "advancePercentage": advancePercentage,
     "loading": loading,
     "unloading": unloading,

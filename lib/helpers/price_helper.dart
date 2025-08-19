@@ -2,7 +2,7 @@ import 'package:intl/intl.dart';
 
 class PriceHelper {
 
-  static String formatINR(dynamic amount, {String symbol = '₹'}) {
+  static String formatINR(dynamic amount, {String symbol = '₹', bool showDecimal = false}) {
     try {
       final cleanAmount = amount.toString().replaceAll('Rs', '').trim();
 
@@ -12,7 +12,7 @@ class PriceHelper {
       final formatter = NumberFormat.currency(
         locale: 'en_IN',
         symbol: symbol,
-        decimalDigits: 2,
+        decimalDigits: hasDecimals || showDecimal ? 2 : 0,
       );
       return formatter.format(numValue);
     } catch (_) {
