@@ -34,9 +34,9 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isPlayingPreview = false;
   String? _currentPlayingPath;
   bool _isLoadingHistory = false;
-  bool _showLanguageOptions = false; // Flag to prevent multiple pagination calls
+  bool _showLanguageOptions =
+      false; // Flag to prevent multiple pagination calls
   final profileCubit = locator<ProfileCubit>();
-
 
   @override
   void initState() {
@@ -44,7 +44,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Listen to audio player state changes
     _audioPlayer.playerStateStream.listen((state) {
       if (mounted) {
-      setState(() {
+        setState(() {
           _isPlayingPreview = state.playing;
         });
 
@@ -89,39 +89,49 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Handle scroll events for automatic pagination
   void _onScroll() {
     // Only trigger when scrolled near the very top
-    if (_scrollController.position.pixels <= _scrollController.position.minScrollExtent + 100) {
+    if (_scrollController.position.pixels <=
+        _scrollController.position.minScrollExtent + 100) {
       final chatCubit = context.read<ChatCubit>();
 
       // Check if we can load more and aren't already loading
-      if (chatCubit.state.hasMoreMessages && !chatCubit.state.isLoading && !_isLoadingHistory) {
-
+      if (chatCubit.state.hasMoreMessages &&
+          !chatCubit.state.isLoading &&
+          !_isLoadingHistory) {
         // Store current scroll position before loading
         final currentScrollPosition = _scrollController.position.pixels;
-        final currentMaxScrollExtent = _scrollController.position.maxScrollExtent;
+        final currentMaxScrollExtent =
+            _scrollController.position.maxScrollExtent;
 
         // Set loading flag to prevent multiple calls
         _isLoadingHistory = true;
 
         // Load more messages
-        chatCubit.loadMoreChatHistory().then((_) {
-          // After loading, adjust scroll position to maintain user's view
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (_scrollController.hasClients) {
-              final newMaxScrollExtent = _scrollController.position.maxScrollExtent;
-              final scrollOffset = newMaxScrollExtent - currentMaxScrollExtent;
+        chatCubit
+            .loadMoreChatHistory()
+            .then((_) {
+              // After loading, adjust scroll position to maintain user's view
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (_scrollController.hasClients) {
+                  final newMaxScrollExtent =
+                      _scrollController.position.maxScrollExtent;
+                  final scrollOffset =
+                      newMaxScrollExtent - currentMaxScrollExtent;
 
-              // Adjust scroll position to account for new content added at top
-              if (scrollOffset > 0) {
-                _scrollController.jumpTo(currentScrollPosition + scrollOffset);
-              }
-            }
-          });
-          // Reset loading flag
-          _isLoadingHistory = false;
-        }).catchError((error) {
-          // Reset loading flag on error
-          _isLoadingHistory = false;
-        });
+                  // Adjust scroll position to account for new content added at top
+                  if (scrollOffset > 0) {
+                    _scrollController.jumpTo(
+                      currentScrollPosition + scrollOffset,
+                    );
+                  }
+                }
+              });
+              // Reset loading flag
+              _isLoadingHistory = false;
+            })
+            .catchError((error) {
+              // Reset loading flag on error
+              _isLoadingHistory = false;
+            });
       }
     }
   }
@@ -131,45 +141,43 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5), // Light gray background
       appBar: _buildAppBar(),
-      body: BlocConsumer<ChatCubit, ChatState>(
-        listener: (context, state) {
-          if (state.error != null) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-                content: Text(state.error!),
-        backgroundColor: Colors.red,
-      ),
-    );
-            context.read<ChatCubit>().clearError();
-          }
+      body: SafeArea(
+        child: BlocConsumer<ChatCubit, ChatState>(
+          listener: (context, state) {
+            if (state.error != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(state.error!),
+                  backgroundColor: Colors.red,
+                ),
+              );
+              context.read<ChatCubit>().clearError();
+            }
 
-          // Auto scroll to bottom when new message added (but not during pagination)
-          if (!_isLoadingHistory && state.pageNo ==1) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _scrollToBottom();
-            });
-          }
-        },
-        builder: (context, state) {
-          return Column(
-          children: [
-              // Messages List
-              Expanded(
-                child: _buildMessagesList(state.messages),
-              ),
+            // Auto scroll to bottom when new message added (but not during pagination)
+            if (!_isLoadingHistory && state.pageNo == 1) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _scrollToBottom();
+              });
+            }
+          },
+          builder: (context, state) {
+            return Column(
+              children: [
+                // Messages List
+                Expanded(child: _buildMessagesList(state.messages)),
 
-              // Recording Indicator or Audio Preview
-              if (state.isRecording) _buildRecordingIndicator(state),
-              if (state.recordedAudioPath != null) _buildAudioPreview(state),
+                // Recording Indicator or Audio Preview
+                if (state.isRecording) _buildRecordingIndicator(state),
+                if (state.recordedAudioPath != null) _buildAudioPreview(state),
 
-
-
-              // Input Area (hide when audio is recorded or processing voice)
-              // if (state.recordedAudioPath == null && !state.isProcessingVoice) _buildInputArea(state),
-            if (state.recordedAudioPath == null) _buildInputArea(state),
-            ],
-          );
-        },
+                // Input Area (hide when audio is recorded or processing voice)
+                // if (state.recordedAudioPath == null && !state.isProcessingVoice) _buildInputArea(state),
+                if (state.recordedAudioPath == null) _buildInputArea(state),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -214,47 +222,56 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context, state) {
         // Show loading indicator if no messages and still loading
         if (messages.isEmpty && state.isLoading) {
-          return const Center(
-            child: CircularProgressIndicator(),
-          );
+          return const Center(child: CircularProgressIndicator());
         }
 
         // Show default greeting only if no messages and not loading
-        List<ChatMessage> displayMessages = messages.isEmpty && !state.isLoading
-            ? [
-                ChatMessage(
-                  id: 'greeting',
-                  message: 'Hello! How Can i Help you?',
-                  isUser: false,
-                  timestamp: DateTime.now(),
-                  language: 'en',
-                  messageType: MessageType.text,
-                )
-              ]
-            : messages;
+        List<ChatMessage> displayMessages =
+            messages.isEmpty && !state.isLoading
+                ? [
+                  ChatMessage(
+                    id: 'greeting',
+                    message: 'Hello! How Can i Help you?',
+                    isUser: false,
+                    timestamp: DateTime.now(),
+                    language: 'en',
+                    messageType: MessageType.text,
+                  ),
+                ]
+                : messages;
 
-    return ListView.builder(
+        return ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
-          itemCount: displayMessages.length + (state.isTyping ? 1 : 0) + (state.hasMoreMessages ? 1 : 0) + (state.isProcessingVoice ? 2 : 0),
+          itemCount:
+              displayMessages.length +
+              (state.isTyping ? 1 : 0) +
+              (state.hasMoreMessages ? 1 : 0) +
+              (state.isProcessingVoice ? 2 : 0),
           itemBuilder: (context, index) {
             if (index == 0 && state.hasMoreMessages) {
               // Show loading indicator at top when loading more
               return _buildTopLoadingIndicator();
-            } else if (index < displayMessages.length + (state.hasMoreMessages ? 1 : 0)) {
+            } else if (index <
+                displayMessages.length + (state.hasMoreMessages ? 1 : 0)) {
               // Messages (adjust index for loading indicator)
               final messageIndex = index - (state.hasMoreMessages ? 1 : 0);
               if (messageIndex >= 0 && messageIndex < displayMessages.length) {
                 return _buildMessageBubble(displayMessages[messageIndex]);
               }
-            }
-            else if (index == displayMessages.length + (state.hasMoreMessages ? 1 : 0) && state.isTyping && !state.isProcessingVoice) {
+            } else if (index ==
+                    displayMessages.length + (state.hasMoreMessages ? 1 : 0) &&
+                state.isTyping &&
+                !state.isProcessingVoice) {
               // Show typing indicator as last item
               return _buildTypingIndicator();
-            }
-            else if (state.isProcessingVoice) {
+            } else if (state.isProcessingVoice) {
               // Show voice processing indicators
-              final processingIndex = index - displayMessages.length - (state.isTyping ? 1 : 0) - (state.hasMoreMessages ? 1 : 0);
+              final processingIndex =
+                  index -
+                  displayMessages.length -
+                  (state.isTyping ? 1 : 0) -
+                  (state.hasMoreMessages ? 1 : 0);
               if (processingIndex == 0) {
                 // Show "Transcribing..." message (user side)
                 return _buildTranscribingMessage();
@@ -277,13 +294,11 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
-        mainAxisAlignment: isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+        mainAxisAlignment:
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (!isUser) ...[
-            _buildAvatarIcon(false),
-            const SizedBox(width: 8),
-          ],
+          if (!isUser) ...[_buildAvatarIcon(false), const SizedBox(width: 8)],
 
           Flexible(
             child: Container(
@@ -292,10 +307,17 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isUser ? AppColors.primaryColor : Colors.white, // Blue for user, white for AI
+                color: isUser ? AppColors.primaryColor : Colors.white,
+                // Blue for user, white for AI
                 borderRadius: BorderRadius.circular(16).copyWith(
-                  bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(4),
-                  bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(16),
+                  bottomLeft:
+                      isUser
+                          ? const Radius.circular(16)
+                          : const Radius.circular(4),
+                  bottomRight:
+                      isUser
+                          ? const Radius.circular(4)
+                          : const Radius.circular(16),
                 ),
                 boxShadow: [
                   BoxShadow(
@@ -311,9 +333,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   if (isVoice)
                     _buildVoiceMessage(message.message)
                   else
-                          Text(
+                    Text(
                       message.message,
-                            style: TextStyle(
+                      style: TextStyle(
                         fontSize: 16,
                         color: isUser ? Colors.white : Colors.black,
                       ),
@@ -321,19 +343,22 @@ class _ChatScreenState extends State<ChatScreen> {
                   const SizedBox(height: 4),
                   Row(
                     mainAxisSize: MainAxisSize.min,
-                            children: [
-                          Text(
+                    children: [
+                      Text(
                         _formatTime(message.timestamp),
-                                style: TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                                  color: isUser ? AppColors.white : AppColors.grayColor,
+                          color: isUser ? AppColors.white : AppColors.grayColor,
                         ),
                       ),
                       if (!isUser && !isVoice) ...[
                         const SizedBox(width: 8),
                         // Language indicator
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.grayColor.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(8),
@@ -364,12 +389,15 @@ class _ChatScreenState extends State<ChatScreen> {
                             }
                           },
                           child: Icon(
-                                message.isPlaying ? Icons.stop : Icons.volume_up,
-                                size: 16,
-                                color: message.isPlaying ? AppColors.red : AppColors.grayColor,
-                            ),
+                            message.isPlaying ? Icons.stop : Icons.volume_up,
+                            size: 16,
+                            color:
+                                message.isPlaying
+                                    ? AppColors.red
+                                    : AppColors.grayColor,
                           ),
-                        ],
+                        ),
+                      ],
                     ],
                   ),
                 ],
@@ -377,10 +405,7 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
           ),
 
-          if (isUser) ...[
-            const SizedBox(width: 8),
-            _buildAvatarIcon(true),
-          ],
+          if (isUser) ...[const SizedBox(width: 8), _buildAvatarIcon(true)],
         ],
       ),
     );
@@ -394,41 +419,57 @@ class _ChatScreenState extends State<ChatScreen> {
 
         if (status == Status.ERROR) {
           final error = state.profileDetailUIState?.errorType;
-          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+          ToastMessages.error(
+            message: getErrorMsg(errorType: error ?? GenericError()),
+          );
         }
       },
       builder: (context, state) {
-        if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
-          if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null) {
-    return Container(
-                width: 36,
-                height: 36,
-                      decoration: BoxDecoration(
-                  color: AppColors.primaryColor,
-        shape: BoxShape.circle,
-      ),
-                child: Center(
-                  child: isUser
-                      ? Text(
-                    getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName),
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  )
-                      : SvgPicture.asset(
-                    'assets/icons/svg/chatIcon.svg',
-                    width: 24,
-                    height: 24,
-                    colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
-                  ),
-      ),
-    );
-  }
+        if (state.profileDetailUIState != null &&
+            state.profileDetailUIState?.status == Status.SUCCESS) {
+          if (state.profileDetailUIState?.data != null &&
+              state.profileDetailUIState?.data?.customer != null) {
+            return Container(
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: AppColors.primaryColor,
+                shape: BoxShape.circle,
+              ),
+              child: Center(
+                child:
+                    isUser
+                        ? Text(
+                          getInitialsFromName(
+                            this,
+                            name:
+                                state
+                                    .profileDetailUIState!
+                                    .data!
+                                    .customer!
+                                    .companyName,
+                          ),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                        : SvgPicture.asset(
+                          'assets/icons/svg/chatIcon.svg',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+              ),
+            );
+          }
         }
         return Text(
-          getInitialsFromName(this, name : 'You'),
+          getInitialsFromName(this, name: 'You'),
           style: TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -468,28 +509,24 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildVoiceMessage(String audioPath) {
     return SizedBox(
       width: 250,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
               const SizedBox(width: 8),
-              const Icon(
-                Icons.mic,
-                size: 16,
-                color: Colors.white70,
-              ),
+              const Icon(Icons.mic, size: 16, color: Colors.white70),
               const SizedBox(width: 4),
-                              Text(
+              Text(
                 'Voice Message',
-                                style: TextStyle(
+                style: TextStyle(
                   color: Colors.white70,
                   fontSize: 12,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 8),
           // Audio Progress Slider
           StreamBuilder<Duration>(
@@ -498,9 +535,10 @@ class _ChatScreenState extends State<ChatScreen> {
               final position = snapshot.data ?? Duration.zero;
               final duration = _audioPlayer.duration ?? Duration.zero;
               final isCurrentPlaying = _currentPlayingPath == audioPath;
-              final progress = isCurrentPlaying && duration.inMilliseconds > 0
-                  ? position.inMilliseconds / duration.inMilliseconds
-                  : 0.0;
+              final progress =
+                  isCurrentPlaying && duration.inMilliseconds > 0
+                      ? position.inMilliseconds / duration.inMilliseconds
+                      : 0.0;
 
               return Row(
                 children: [
@@ -514,14 +552,17 @@ class _ChatScreenState extends State<ChatScreen> {
                       size: 24,
                     ),
                     onPressed: () async {
-                      if (_isPlayingPreview && _currentPlayingPath == audioPath) {
+                      if (_isPlayingPreview &&
+                          _currentPlayingPath == audioPath) {
                         await _pauseAudio();
                       } else {
                         await _playRecordedAudio(audioPath);
                       }
                     },
                     style: IconButton.styleFrom(
-                      backgroundColor: AppColors.primaryColor.withValues(alpha: 0.2),
+                      backgroundColor: AppColors.primaryColor.withValues(
+                        alpha: 0.2,
+                      ),
                       shape: const CircleBorder(),
                     ),
                   ),
@@ -532,7 +573,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
                         thumbColor: Colors.white,
                         overlayColor: Colors.white.withValues(alpha: 0.2),
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 6,
+                        ),
                         trackHeight: 3,
                       ),
                       child: Slider(
@@ -540,7 +583,8 @@ class _ChatScreenState extends State<ChatScreen> {
                         onChanged: (value) {
                           if (isCurrentPlaying) {
                             final seekPosition = Duration(
-                              milliseconds: (value * duration.inMilliseconds).round(),
+                              milliseconds:
+                                  (value * duration.inMilliseconds).round(),
                             );
                             _audioPlayer.seek(seekPosition);
                           }
@@ -565,15 +609,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     isCurrentPlaying
                         ? '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}'
                         : '0:00',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white70,
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.white70),
                   ),
                 ],
               );
             },
-              ),
+          ),
         ],
       ),
     );
@@ -593,13 +634,13 @@ class _ChatScreenState extends State<ChatScreen> {
           // Animated recording indicator
           AnimatedContainer(
             duration: const Duration(milliseconds: 500),
-                width: 12,
-                height: 12,
-                decoration: BoxDecoration(
-                  color: Colors.red,
-        shape: BoxShape.circle,
-      ),
-              ),
+            width: 12,
+            height: 12,
+            decoration: BoxDecoration(
+              color: Colors.red,
+              shape: BoxShape.circle,
+            ),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -607,26 +648,34 @@ class _ChatScreenState extends State<ChatScreen> {
               children: [
                 const Text(
                   'Recording...',
-                style: TextStyle(
+                  style: TextStyle(
                     color: Colors.red,
-                  fontWeight: FontWeight.w600,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
                 const SizedBox(height: 4),
-              Text(
+                Text(
                   '${state.recordingDuration}s / 15s${state.recordingDuration >= 12 ? ' (stopping soon)' : ''}',
-                style: TextStyle(
-                  color: state.recordingDuration >= 12 ? Colors.red[900] : Colors.red[700],
-                  fontSize: 12,
-                  fontWeight: state.recordingDuration >= 12 ? FontWeight.bold : FontWeight.normal,
+                  style: TextStyle(
+                    color:
+                        state.recordingDuration >= 12
+                            ? Colors.red[900]
+                            : Colors.red[700],
+                    fontSize: 12,
+                    fontWeight:
+                        state.recordingDuration >= 12
+                            ? FontWeight.bold
+                            : FontWeight.normal,
+                  ),
                 ),
-              ),
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
                   value: state.recordingDuration / 15.0,
                   backgroundColor: Colors.red[100],
                   valueColor: AlwaysStoppedAnimation<Color>(
-                    state.recordingDuration >= 12 ? Colors.red[900]! : Colors.red,
+                    state.recordingDuration >= 12
+                        ? Colors.red[900]!
+                        : Colors.red,
                   ),
                 ),
               ],
@@ -658,11 +707,7 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Row(
             children: [
-              Icon(
-                Icons.mic,
-                color: Colors.blue[600],
-                size: 20,
-              ),
+              Icon(Icons.mic, color: Colors.blue[600], size: 20),
               const SizedBox(width: 8),
               Text(
                 'Voice Message (${state.recordingDuration}s)',
@@ -671,7 +716,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   fontWeight: FontWeight.w600,
                 ),
               ),
-          ],
+            ],
           ),
           const SizedBox(height: 12),
           // Waveform visualization with playback indicator
@@ -681,9 +726,10 @@ class _ChatScreenState extends State<ChatScreen> {
             builder: (context, snapshot) {
               final position = snapshot.data ?? Duration.zero;
               final duration = _audioPlayer.duration ?? Duration.zero;
-              final progress = duration.inMilliseconds > 0
-                  ? position.inMilliseconds / duration.inMilliseconds
-                  : 0.0;
+              final progress =
+                  duration.inMilliseconds > 0
+                      ? position.inMilliseconds / duration.inMilliseconds
+                      : 0.0;
 
               return Row(
                 children: [
@@ -693,15 +739,20 @@ class _ChatScreenState extends State<ChatScreen> {
                         activeTrackColor: AppColors.primaryColor,
                         inactiveTrackColor: Colors.grey[300],
                         thumbColor: AppColors.primaryColor,
-                        overlayColor: AppColors.primaryColor.withValues(alpha: 0.2),
-                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                        overlayColor: AppColors.primaryColor.withValues(
+                          alpha: 0.2,
+                        ),
+                        thumbShape: const RoundSliderThumbShape(
+                          enabledThumbRadius: 8,
+                        ),
                         trackHeight: 4,
                       ),
                       child: Slider(
                         value: progress.clamp(0.0, 1.0),
                         onChanged: (value) {
                           final seekPosition = Duration(
-                            milliseconds: (value * duration.inMilliseconds).round(),
+                            milliseconds:
+                                (value * duration.inMilliseconds).round(),
                           );
                           _audioPlayer.seek(seekPosition);
                         },
@@ -721,15 +772,12 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-              Text(
+                  Text(
                     '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}',
                     // '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}/${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}',
-                style: TextStyle(
-                  fontSize: 12,
-                      color: Colors.grey[600],
-                ),
-              ),
-            ],
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
+                ],
               );
             },
           ),
@@ -740,7 +788,8 @@ class _ChatScreenState extends State<ChatScreen> {
               IconButton(
                 onPressed: () async {
                   if (state.recordedAudioPath != null) {
-                    if (_isPlayingPreview && _currentPlayingPath == state.recordedAudioPath) {
+                    if (_isPlayingPreview &&
+                        _currentPlayingPath == state.recordedAudioPath) {
                       await _pauseAudio();
                     } else {
                       await _playRecordedAudio(state.recordedAudioPath!);
@@ -748,7 +797,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
                 },
                 icon: Icon(
-                  (_isPlayingPreview && _currentPlayingPath == state.recordedAudioPath)
+                  (_isPlayingPreview &&
+                          _currentPlayingPath == state.recordedAudioPath)
                       ? Icons.pause
                       : Icons.play_arrow,
                   color: Colors.blue[600],
@@ -762,8 +812,6 @@ class _ChatScreenState extends State<ChatScreen> {
               // Delete button
               IconButton(
                 onPressed: () async {
-
-
                   // Stop audio if playing
                   if (_isPlayingPreview) {
                     await _audioPlayer.stop();
@@ -780,10 +828,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   _textController.clear();
                   setState(() {}); // Force UI refresh
                 },
-                icon: const Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                ),
+                icon: const Icon(Icons.delete, color: Colors.red),
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.red[100],
                   shape: const CircleBorder(),
@@ -793,33 +838,33 @@ class _ChatScreenState extends State<ChatScreen> {
               // Send button
               BlocBuilder<ChatCubit, ChatState>(
                 builder: (context, chatState) {
-                  final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
+                  final isWaitingForResponse =
+                      chatState.isTyping || chatState.isLoading;
                   final canSend = !isWaitingForResponse;
 
                   return ElevatedButton.icon(
-                    onPressed: canSend ? () {
-
-                      context.read<ChatCubit>().sendRecordedAudio();
-                      // Reset audio player state
-                      if (_isPlayingPreview) {
-                        _audioPlayer.stop();
-                        setState(() {
-                          _isPlayingPreview = false;
-                          _currentPlayingPath = null;
-                        });
-                      }
-                    } : null, // Disable when waiting for response
+                    onPressed:
+                        canSend
+                            ? () {
+                              context.read<ChatCubit>().sendRecordedAudio();
+                              // Reset audio player state
+                              if (_isPlayingPreview) {
+                                _audioPlayer.stop();
+                                setState(() {
+                                  _isPlayingPreview = false;
+                                  _currentPlayingPath = null;
+                                });
+                              }
+                            }
+                            : null, // Disable when waiting for response
                     icon: Icon(
                       isWaitingForResponse ? Icons.hourglass_empty : Icons.send,
-                      size: 18
+                      size: 18,
                     ),
-                    label: Text(
-                      isWaitingForResponse ? 'Sending...' : 'Send'
-                    ),
+                    label: Text(isWaitingForResponse ? 'Sending...' : 'Send'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: canSend
-                        ? AppColors.primaryColor
-                        : Colors.grey[400],
+                      backgroundColor:
+                          canSend ? AppColors.primaryColor : Colors.grey[400],
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -844,98 +889,111 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       child: Row(
         children: [
-
-
           // Floating language options (positioned at screen level)
-          _showLanguageOptions? Expanded(child: _buildFloatingLanguageOptions())
-         : Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(25),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: BlocBuilder<ChatCubit, ChatState>(
-                builder: (context, chatState) {
-                  final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
-                  final isDisabled = state.isRecording ||
-                                   state.recordedAudioPath != null ||
-                                   isWaitingForResponse;
-                  return TextField(
-                    controller: _textController,
-                    enabled: !isDisabled, // Disable when recording, preview, or waiting for response
-                decoration: InputDecoration(
-                      hintText: state.isRecording
-                          ? 'Recording...'
-                          : state.recordedAudioPath != null
-                              ? 'Audio recorded'
-                              : isWaitingForResponse
+          _showLanguageOptions
+              ? Expanded(child: _buildFloatingLanguageOptions())
+              : Expanded(
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF5F5F5),
+                    borderRadius: BorderRadius.circular(25),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: BlocBuilder<ChatCubit, ChatState>(
+                    builder: (context, chatState) {
+                      final isWaitingForResponse =
+                          chatState.isTyping || chatState.isLoading;
+                      final isDisabled =
+                          state.isRecording ||
+                          state.recordedAudioPath != null ||
+                          isWaitingForResponse;
+                      return TextField(
+                        controller: _textController,
+                        enabled: !isDisabled,
+                        // Disable when recording, preview, or waiting for response
+                        decoration: InputDecoration(
+                          hintText:
+                              state.isRecording
+                                  ? 'Recording...'
+                                  : state.recordedAudioPath != null
+                                  ? 'Audio recorded'
+                                  : isWaitingForResponse
                                   ? (state.isProcessingVoice
                                       ? 'Transcribing...'
                                       : 'AI is responding...')
                                   : 'Type here',
-                      hintStyle: TextStyle(
-                        color: isDisabled
-                            ? Colors.grey[400]
-                            : Colors.grey
-                      ),
-                  border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                ),
-                    onChanged: (text) {
-                      setState(() {}); // Update send button state
+                          hintStyle: TextStyle(
+                            color: isDisabled ? Colors.grey[400] : Colors.grey,
+                          ),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 12,
+                          ),
+                        ),
+                        onChanged: (text) {
+                          setState(() {}); // Update send button state
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
-            ),
-          ),
 
           const SizedBox(width: 8),
 
           // Voice Button
           BlocBuilder<ChatCubit, ChatState>(
             builder: (context, chatState) {
-              final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
-              final canRecord = !isWaitingForResponse && state.recordedAudioPath == null && !state.isProcessingVoice;
+              final isWaitingForResponse =
+                  chatState.isTyping || chatState.isLoading;
+              final canRecord =
+                  !isWaitingForResponse &&
+                  state.recordedAudioPath == null &&
+                  !state.isProcessingVoice;
 
               return GestureDetector(
-                onTap: canRecord ? () {
-                  if (state.isRecording) {
-                    context.read<ChatCubit>().stopRecording();
-                  } else if (_showLanguageOptions) {
-                    // Hide language options (cancel)
-                    setState(() {
-                      _showLanguageOptions = false;
-                    });
-                  } else {
-                    // Show floating language options
+                onTap:
+                    canRecord
+                        ? () {
+                          if (state.isRecording) {
+                            context.read<ChatCubit>().stopRecording();
+                          } else if (_showLanguageOptions) {
+                            // Hide language options (cancel)
+                            setState(() {
+                              _showLanguageOptions = false;
+                            });
+                          } else {
+                            // Show floating language options
 
-                    setState(() {
-                      _showLanguageOptions = true;
-                    });
-                  }
-                } : null, // Disable when waiting for response or when audio is recorded
+                            setState(() {
+                              _showLanguageOptions = true;
+                            });
+                          }
+                        }
+                        : null,
+                // Disable when waiting for response or when audio is recorded
                 child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-                    color: state.isRecording
-                        ? Colors.red
-                        : state.recordedAudioPath != null
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color:
+                        state.isRecording
+                            ? Colors.red
+                            : state.recordedAudioPath != null
                             ? Colors.blue[300]
                             : canRecord
-                                ? Colors.grey[400]
-                                : Colors.grey[300], // Lighter grey when disabled
-              shape: BoxShape.circle,
-            ),
+                            ? Colors.grey[400]
+                            : Colors.grey[300], // Lighter grey when disabled
+                    shape: BoxShape.circle,
+                  ),
                   child: Icon(
                     state.isRecording
                         ? Icons.stop
                         : _showLanguageOptions
-                            ? Icons.close
-                            : Icons.mic,
-                color: Colors.white,
+                        ? Icons.close
+                        : Icons.mic,
+                    color: Colors.white,
                     size: 24,
                   ),
                 ),
@@ -946,30 +1004,36 @@ class _ChatScreenState extends State<ChatScreen> {
           const SizedBox(width: 8),
 
           // Send Button (only show for text, not for voice)
-          if (_textController.text.trim().isNotEmpty && state.recordedAudioPath == null)
+          if (_textController.text.trim().isNotEmpty &&
+              state.recordedAudioPath == null)
             BlocBuilder<ChatCubit, ChatState>(
               builder: (context, chatState) {
-                final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
+                final isWaitingForResponse =
+                    chatState.isTyping || chatState.isLoading;
                 final canSend = !isWaitingForResponse;
 
                 return GestureDetector(
-                  onTap: canSend ? () {
-                    final text = _textController.text.trim();
-                    if (text.isNotEmpty) {
-                      context.read<ChatCubit>().sendTextMessage(text);
-                      _textController.clear();
-                      setState(() {}); // Update UI
-                    }
-                  } : null, // Disable when waiting for response
+                  onTap:
+                      canSend
+                          ? () {
+                            final text = _textController.text.trim();
+                            if (text.isNotEmpty) {
+                              context.read<ChatCubit>().sendTextMessage(text);
+                              _textController.clear();
+                              setState(() {}); // Update UI
+                            }
+                          }
+                          : null, // Disable when waiting for response
                   child: Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-                      color: canSend
-                        ? AppColors.primaryColor
-                        : Colors.grey[400], // Grey when disabled
-              shape: BoxShape.circle,
-            ),
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                      color:
+                          canSend
+                              ? AppColors.primaryColor
+                              : Colors.grey[400], // Grey when disabled
+                      shape: BoxShape.circle,
+                    ),
                     child: Icon(
                       isWaitingForResponse ? Icons.hourglass_empty : Icons.send,
                       color: Colors.white,
@@ -978,7 +1042,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                 );
               },
-          ),
+            ),
         ],
       ),
     );
@@ -1068,11 +1132,7 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              size: 16,
-              color: Colors.white,
-            ),
+            Icon(icon, size: 16, color: Colors.white),
             const SizedBox(width: 6),
             Text(
               label,
@@ -1110,7 +1170,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue[600]!),
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                        Colors.blue[600]!,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -1146,9 +1208,9 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: AppColors.primaryColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(16).copyWith(
-                  bottomRight: const Radius.circular(4),
-                ),
+                borderRadius: BorderRadius.circular(
+                  16,
+                ).copyWith(bottomRight: const Radius.circular(4)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1163,7 +1225,9 @@ class _ChatScreenState extends State<ChatScreen> {
                         child: Icon(
                           Icons.mic,
                           size: 16,
-                          color: AppColors.primaryColor.withValues(alpha: value),
+                          color: AppColors.primaryColor.withValues(
+                            alpha: value,
+                          ),
                         ),
                       );
                     },
@@ -1259,7 +1323,7 @@ class _ChatScreenState extends State<ChatScreen> {
                       ),
                     ],
                   ),
-                  child:_buildTypingDots(),
+                  child: _buildTypingDots(),
                 ),
               ),
             ],
@@ -1306,8 +1370,19 @@ class _ChatScreenState extends State<ChatScreen> {
 
   String _getMonthName(int month) {
     const months = [
-      '', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      '',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ];
     return months[month];
   }
@@ -1329,13 +1404,9 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-
-
   /// Play text-to-speech audio
   Future<void> _playTextToSpeech(ChatMessage message) async {
     try {
-
-
       // First, stop any currently playing audio and reset all messages' playing state
       if (_audioPlayer.playing) {
         await _audioPlayer.stop();
@@ -1347,7 +1418,6 @@ class _ChatScreenState extends State<ChatScreen> {
         for (var msg in chatState.messages) {
           msg.isPlaying = false;
         }
-
         // Set the current message as playing
         message.isPlaying = true;
         _isPlayingPreview = true;
@@ -1355,21 +1425,23 @@ class _ChatScreenState extends State<ChatScreen> {
 
       // Call the cubit to synthesize text to speech with message's language
       final cubit = context.read<ChatCubit>();
-      final audioBytes = await cubit.synthesizeTextToSpeech(message.message, language: message.language);
+      final audioBytes = await cubit.synthesizeTextToSpeech(
+        message.message,
+        language: message.language,
+      );
 
       if (audioBytes.isNotEmpty) {
         // Convert base64 audio bytes to temporary file and play
         final tempDir = await getTemporaryDirectory();
-        final tempFile = File('${tempDir.path}/tts_${DateTime.now().millisecondsSinceEpoch}.ogg');
-
+        final tempFile = File(
+          '${tempDir.path}/tts_${DateTime.now().millisecondsSinceEpoch}.ogg',
+        );
         // Write base64 decoded audio bytes to temporary file
         await tempFile.writeAsBytes(base64Decode(audioBytes));
 
         // Play the temporary audio file
         await _audioPlayer.setFilePath(tempFile.path);
         await _audioPlayer.play();
-
-
 
         // Clean up temporary file after playback
         _audioPlayer.playerStateStream.listen((state) {
@@ -1387,8 +1459,6 @@ class _ChatScreenState extends State<ChatScreen> {
         throw Exception('No audio data received');
       }
     } catch (e) {
-
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1396,7 +1466,6 @@ class _ChatScreenState extends State<ChatScreen> {
             backgroundColor: Colors.red,
           ),
         );
-
         // Reset playing state
         setState(() {
           message.isPlaying = false;
@@ -1408,38 +1477,27 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _playRecordedAudio(String audioPath) async {
     try {
-
-
       // Check if file exists
       final file = File(audioPath);
       if (!await file.exists()) {
         throw Exception('Audio file not found at: $audioPath');
       }
-
-
-
       // If playing a different audio, stop and set new source
       if (_currentPlayingPath != audioPath) {
         await _audioPlayer.stop();
         await _audioPlayer.setFilePath(audioPath);
         _currentPlayingPath = audioPath;
       }
-
       // Play the audio
       await _audioPlayer.play();
-
       setState(() {
         _isPlayingPreview = true;
       });
-
-
     } catch (e) {
-
       setState(() {
         _isPlayingPreview = false;
         _currentPlayingPath = null;
       });
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1453,16 +1511,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _pauseAudio() async {
     try {
-
       await _audioPlayer.pause();
-
       setState(() {
         _isPlayingPreview = false;
       });
-
-
     } catch (e) {
-
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
