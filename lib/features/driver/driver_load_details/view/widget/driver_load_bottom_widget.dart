@@ -542,43 +542,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                             height: 60,
                             width: MediaQuery.of(context).size.width * 0.90,
                             child:
-                                  (loads.data!.loadStatusId == 8 && loads.data!.podDispatch == null)
-                                    
-                                    ? AppButton(
-                                      isLoading: false,
-                                      title: getSwipeDriverButtonTitle(
-                                        state.loadStatus ?? LoadStatus.matching,
-                                        loadDetails!.data!.podDispatch,
-
-                                      ),
-                                      style: AppButtonStyle.primary.copyWith(
-                                        shape: WidgetStatePropertyAll(
-                                          RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder:
-                                                (context) =>
-                                                    DriverPodDispatchScreen(
-                                                      loadId:
-                                                          loads.data!.loadId ?? '',
-                                                    ),
-                                          ),
-                                        ).then((value) {
-                                          if (value == true) {
-                                            widget.cubit.getDriverLoadsById(
-                                              loadId: loads.data!.loadId ?? '',
-                                            );
-                                          }
-                                        });
-                                      },
-                                    )
-                                    : CustomSwipeButton(
+                                  CustomSwipeButton(
                                       padding: 0,
                                       price: 0,
                                       loadId: loads.data!.loadId.toString(),
@@ -625,6 +589,26 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                             );
                                             return;
                                           }
+                                        }
+
+                                        if(loads.data?.loadStatusId == 8) {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder:
+                                                  (context) =>
+                                                  DriverPodDispatchScreen(
+                                                    loadId:
+                                                    loads.data!.loadId ?? '',
+                                                  ),
+                                            ),
+                                          ).then((value) {
+                                            if (value == true) {
+                                              widget.cubit.getDriverLoadsById(
+                                                loadId: loads.data!.loadId ?? '',
+                                              );
+                                            }
+                                          });
                                         }
     
                                         final loadId = loads!.data!.loadId ?? '';

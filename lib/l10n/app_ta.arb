@@ -1106,5 +1106,6 @@
   "loadingMemo": "சுமை நினைவுப்பத்திரம்",
   "loadDetails": "சுமை விவரங்கள்",
   "trip": "பயணம்",
-  "totalFreightCost": "மொத்த சரக்கு செலவு"
+  "totalFreightCost": "மொத்த சரக்கு செலவு",
+  "skip": "தவிர்க்கவும்"
 }

@@ -650,8 +650,16 @@ void commonSupportDialog(BuildContext context, {String? message}) {
   );
 }
 
+// Cache to avoid excessive debug logging during UI rebuilds
+final Set<String> _loggedNames = <String>{};
+
 String getInitialsFromName(Object instance, {required String name}) {
-  CustomLog.debug(instance, "Name is $name, Length is ${name.length}");
+  // Only log once per session to avoid spam during UI rebuilds
+  if (!_loggedNames.contains(name)) {
+    CustomLog.debug(instance, "Name is $name, Length is ${name.length}");
+    _loggedNames.add(name);
+  }
+  
   if (name.trim().isEmpty) return '?'; // or return ''; if you prefer
 
   final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();

@@ -201,26 +201,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     return BlocListener<GpsOrderCubit, GpsOrderState>(
       bloc: gpsOrderCubit,
       listener: (context, state) async {
-        // --- Show loader ---
-        if (state is GpsOrderLoading || state is GpsPaymentInitiating) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        // --- Hide loader when done ---
-        if (state is GpsOrderSuccess ||
-            state is GpsOrderError ||
-            state is GpsPaymentSuccess ||
-            state is GpsPaymentFailure ||
-            state is GpsPaymentStatusSuccess ||
-            state is GpsPaymentStatusFailure) {
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop(); // close loader
-          }
-        }
         if (state is GpsPaymentSuccess) {
           // Initiate payment → open payment screen
           final result = await Navigator.of(context).push(
@@ -252,6 +232,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         }
 
         if (state is GpsOrderSuccess) {
+          await Future.delayed(Duration(seconds: 1));
           _showSuccessDialogAndNavigate(
             context,
             context.appText.orderPlacedSuccessfully,
@@ -491,6 +472,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
   Widget _buildProceedToPayButton(BuildContext context) {
     final totalAmount = orderSummary?.data.grandTotal ?? _fallbackTotalAmount;
 
+    return BlocBuilder<GpsOrderCubit, GpsOrderState>(
+      bloc: gpsOrderCubit,
+  builder: (context, state) {
+    final isLoading = state is GpsOrderLoading || state is GpsPaymentInitiating;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -517,6 +502,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           ),
           15.width,
           AppButton(
+            isLoading: isLoading,
             onPressed: () async {
               // Get customer information
               final customerInfo = await getCustomerInfo();
@@ -548,6 +534,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         ],
       ).paddingOnly(bottom: 30, right: 20, left: 20, top: 15),
     );
+  },
+);
   }
 
   // Helper function to parse address and extract city, state, postal code

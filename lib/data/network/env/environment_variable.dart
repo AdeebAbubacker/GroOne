@@ -18,6 +18,10 @@ class EnvironmentVariables {
   static String get fetchXApiKEY {
     return _getEnvVariable("X_API_KEY");
   }
+  /// Fetch X API KEY
+  static String get fetchChatBotXApiKEY {
+    return _getEnvVariable("CHATBOT_X_API_KEY");
+  }
 
   /// Fetch UDID
   static String get fetchUDID {
