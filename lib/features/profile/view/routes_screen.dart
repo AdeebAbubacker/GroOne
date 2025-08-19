@@ -59,28 +59,52 @@ class _RouteScreenState extends State<RouteScreen> {
             return CircularProgressIndicator().center();
 
           case Status.SUCCESS:
-            final routes = uiState.data?.data ?? [];
+            final routes = uiState.data?.data.data ?? [];
             if (routes.isEmpty) {
               return genericErrorWidget(error: NotFoundError(message: context.appText.noRouteFound));
             }
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                10.height,
-                ListView.separated(
-                  shrinkWrap: true,
-                  padding: const EdgeInsets.only(bottom: 100),
-                  itemCount: routes.length,
-                  separatorBuilder: (_, __) => const SizedBox(height: 20),
-                  itemBuilder: (context, index) =>
-                      _buildListBody(index: index, data: routes[index]),
-                ).expand(),
-              ],
-            ).paddingSymmetric(horizontal: 15);
+            return RefreshIndicator(
+              onRefresh: () async {
+                initFunction();
+              },
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  10.height,
+                  ListView.separated(
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(bottom: 100),
+                    itemCount: routes.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: 20),
+                    itemBuilder: (context, index) =>
+                        _buildListBody(index: index, data: routes[index]),
+                  ).expand(),
+                ],
+              ).paddingSymmetric(horizontal: 15),
+            );
 
           case Status.ERROR:
-            return genericErrorWidget(error: uiState.errorType ?? GenericError());
+            return RefreshIndicator(
+              onRefresh: () async {
+                initFunction();
+              },
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: constraints.maxHeight),
+                      child: Center(
+                        child: genericErrorWidget(
+                          error: uiState.errorType ?? GenericError(),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
 
           default:
             return genericErrorWidget(error: GenericError());
