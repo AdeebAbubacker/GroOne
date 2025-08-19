@@ -668,7 +668,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                             if (uiState != null) {
                               switch (uiState.status) {
                                 case Status.SUCCESS:
-                                  if (uiState.data != null && uiState.data!.data.isNotEmpty && pickupLocation == null) {
+                                  if (uiState.data != null && uiState.data!.data.data.isNotEmpty && pickupLocation == null) {
                                     navigateToRecentRouteScreen();
                                   } else {
                                     ToastMessages.alert(message: context.appText.noRecentRouteFound);
