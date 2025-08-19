@@ -274,13 +274,6 @@ class _buildDriverTabState extends State<buildDriverTab> {
     int? selectedLicneseId = driver?.licenseCategory;
     int? selectedBloodId = driver?.bloodGroup;
     final emailController = TextEditingController(text: driver?.email ?? "");
-    final localLicenseDocList = <Map<String, dynamic>>[];
-    if (driver?.licenseDocLink != null && driver!.licenseDocLink!.isNotEmpty) {
-      final doc = createFileFromLink(driver.licenseDocLink!);
-      if (doc != null) {
-        localLicenseDocList.add(doc);
-      }
-    }
     bool isInitialized = false;
     String previousLicenseNo = licenseNumberController.text.trim();
     bool isActive = driver != null ? (driver.driverStatus == 1) : true;
@@ -316,22 +309,6 @@ class _buildDriverTabState extends State<buildDriverTab> {
             listenerAdded = true;
           }
 
-          final licenseDocUpload =
-              context.watch<ProfileCubit>().state.licenseDocUpload;
-          final isUploading = licenseDocUpload?.status == Status.LOADING;
-
-          if (!isInitialized && driver?.licenseDocLink?.isNotEmpty == true) {
-            final doc = createFileFromLink(driver!.licenseDocLink!);
-            if (doc != null) {
-              localLicenseDocList
-                ..clear()
-                ..add(doc);
-              vehicleDocList
-                ..clear()
-                ..add(doc);
-            }
-            isInitialized = true;
-          }
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -452,40 +429,10 @@ class _buildDriverTabState extends State<buildDriverTab> {
                             isActive = licenseData['driverStatus'] == 1;
                           }
 
-                          // License Documents
-                          if (licenseData['licenseDocLink'] != null &&
-                              licenseData['licenseDocLink'] is String &&
-                              licenseData['licenseDocLink']!.isNotEmpty) {
-                            localLicenseDocList.clear();
-                            final doc = createFileFromLink(
-                              licenseData['licenseDocLink'],
-                            );
-                            if (doc != null) {
-                              localLicenseDocList.add(doc);
-                            }
-                          }
+               
+                          
                         }
                       });
-                    },
-                  ),
-
-                  16.height,
-                  UploadAttachmentFiles(
-                    multiFilesList: localLicenseDocList,
-                    isSingleFile: true,
-                    uploadTextField: context.appText.uploadLicense,
-                    isLoading: isUploading,
-                    thenUploadFileToSever: () async {
-                      final result = await _uploadLicenseCopy(
-                        context,
-                        localLicenseDocList,
-                      );
-                      if (result is Success) {
-                        setState(() {
-                          vehicleDocList.clear();
-                          vehicleDocList.addAll(localLicenseDocList);
-                        });
-                      }
                     },
                   ),
 
@@ -634,13 +581,6 @@ class _buildDriverTabState extends State<buildDriverTab> {
                   ToastMessages.alert(message: "Please enter Mobile Number");
                   return;
                 }
-
-                if (localLicenseDocList.isEmpty) {
-                  ToastMessages.alert(
-                    message: "Please upload License Document",
-                  );
-                  return;
-                }
                 if (!formKey.currentState!.validate()) {
                   return;
                 }
@@ -659,10 +599,6 @@ class _buildDriverTabState extends State<buildDriverTab> {
                           "yyyy-MM-dd'T'HH:mm:ss.SSS'Z'",
                         ).format(DateFormat('dd/MM/yyyy').parse(selectedDoB!))
                         : null;
-                final rcDocLink =
-                    localLicenseDocList.isNotEmpty
-                        ? localLicenseDocList.first['path']
-                        : '';
 
                 final request = DriverRequest(
                   customerId: profileCubit.userId ?? "",
@@ -672,7 +608,6 @@ class _buildDriverTabState extends State<buildDriverTab> {
                   ),
                   email: emailController.text,
                   licenseNumber: licenseNumberController.text,
-                  licenseDocLink: rcDocLink,
                   licenseExpiryDate: convertToYMD(licenseExpiryIso.toString())  ?? '',
                   dateOfBirth: convertToYMD(dateOfBirthIso.toString())  ?? '',
                   licenseCategory: selectedLicneseId,
