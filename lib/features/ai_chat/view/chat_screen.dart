@@ -1,26 +1,21 @@
+import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/extensions/extension_functions.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:just_audio/just_audio.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'dart:io';
-import 'dart:convert';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+
 import '../../../data/model/result.dart';
 import '../../../data/ui_state/status.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
-import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
-import '../../../utils/common_widgets.dart';
-import '../../../utils/constant_variables.dart';
 import '../../../utils/toast_messages.dart';
 import '../../profile/cubit/profile/profile_cubit.dart';
-import '../../profile/view/profile_screen.dart';
 import '../cubit/chat_cubit.dart';
 import '../cubit/chat_state.dart';
 import '../model/chat_message.dart';
@@ -52,7 +47,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
           _isPlayingPreview = state.playing;
         });
-        
+
         // Reset when audio completes
         if (state.processingState == ProcessingState.completed) {
           setState(() {
@@ -62,10 +57,10 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       }
     });
-    
+
     // Add scroll listener for automatic pagination
     _scrollController.addListener(_onScroll);
-    
+
     // Load initial chat history
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChatCubit>().loadChatHistory(refresh: true);
@@ -90,24 +85,23 @@ class _ChatScreenState extends State<ChatScreen> {
       );
     }
   }
-  
+
   /// Handle scroll events for automatic pagination
   void _onScroll() {
     // Only trigger when scrolled near the very top
     if (_scrollController.position.pixels <= _scrollController.position.minScrollExtent + 100) {
       final chatCubit = context.read<ChatCubit>();
-      
+
       // Check if we can load more and aren't already loading
       if (chatCubit.state.hasMoreMessages && !chatCubit.state.isLoading && !_isLoadingHistory) {
-        print('📱 Triggering pagination at scroll position: ${_scrollController.position.pixels}');
-        
+
         // Store current scroll position before loading
         final currentScrollPosition = _scrollController.position.pixels;
         final currentMaxScrollExtent = _scrollController.position.maxScrollExtent;
-        
+
         // Set loading flag to prevent multiple calls
         _isLoadingHistory = true;
-        
+
         // Load more messages
         chatCubit.loadMoreChatHistory().then((_) {
           // After loading, adjust scroll position to maintain user's view
@@ -115,20 +109,16 @@ class _ChatScreenState extends State<ChatScreen> {
             if (_scrollController.hasClients) {
               final newMaxScrollExtent = _scrollController.position.maxScrollExtent;
               final scrollOffset = newMaxScrollExtent - currentMaxScrollExtent;
-              
-              print('📱 Scroll adjustment: offset=$scrollOffset, current=$currentScrollPosition');
-              
+
               // Adjust scroll position to account for new content added at top
               if (scrollOffset > 0) {
                 _scrollController.jumpTo(currentScrollPosition + scrollOffset);
               }
             }
           });
-          
           // Reset loading flag
           _isLoadingHistory = false;
         }).catchError((error) {
-          print('📱 Pagination error: $error');
           // Reset loading flag on error
           _isLoadingHistory = false;
         });
@@ -162,7 +152,7 @@ class _ChatScreenState extends State<ChatScreen> {
         },
         builder: (context, state) {
           return Column(
-            children: [
+          children: [
               // Messages List
               Expanded(
                 child: _buildMessagesList(state.messages),
@@ -171,12 +161,12 @@ class _ChatScreenState extends State<ChatScreen> {
               // Recording Indicator or Audio Preview
               if (state.isRecording) _buildRecordingIndicator(state),
               if (state.recordedAudioPath != null) _buildAudioPreview(state),
-              
-              // Voice Processing Indicator
-              if (state.isProcessingVoice) _buildVoiceProcessingIndicator(),
 
-              // Input Area (hide when audio is recorded)
-              if (state.recordedAudioPath == null) _buildInputArea(state),
+
+
+              // Input Area (hide when audio is recorded or processing voice)
+              // if (state.recordedAudioPath == null && !state.isProcessingVoice) _buildInputArea(state),
+            if (state.recordedAudioPath == null) _buildInputArea(state),
             ],
           );
         },
@@ -246,7 +236,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return ListView.builder(
           controller: _scrollController,
           padding: const EdgeInsets.all(16),
-          itemCount: displayMessages.length + (state.isTyping ? 1 : 0) + (state.hasMoreMessages ? 1 : 0),
+          itemCount: displayMessages.length + (state.isTyping ? 1 : 0) + (state.hasMoreMessages ? 1 : 0) + (state.isProcessingVoice ? 2 : 0),
           itemBuilder: (context, index) {
             if (index == 0 && state.hasMoreMessages) {
               // Show loading indicator at top when loading more
@@ -257,9 +247,21 @@ class _ChatScreenState extends State<ChatScreen> {
               if (messageIndex >= 0 && messageIndex < displayMessages.length) {
                 return _buildMessageBubble(displayMessages[messageIndex]);
               }
-            } else if (index == displayMessages.length + (state.hasMoreMessages ? 1 : 0) && state.isTyping) {
+            }
+            else if (index == displayMessages.length + (state.hasMoreMessages ? 1 : 0) && state.isTyping && !state.isProcessingVoice) {
               // Show typing indicator as last item
               return _buildTypingIndicator();
+            }
+            else if (state.isProcessingVoice) {
+              // Show voice processing indicators
+              final processingIndex = index - displayMessages.length - (state.isTyping ? 1 : 0) - (state.hasMoreMessages ? 1 : 0);
+              if (processingIndex == 0) {
+                // Show "Transcribing..." message (user side)
+                return _buildTranscribingMessage();
+              } else if (processingIndex == 1) {
+                // Show "AI is thinking..." message (AI side)
+                return _buildTypingIndicator();
+              }
             }
             return const SizedBox.shrink();
           },
@@ -320,7 +322,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Row(
                     mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
+                          Text(
                         _formatTime(message.timestamp),
                                 style: TextStyle(
                           fontSize: 12,
@@ -398,11 +400,10 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (context, state) {
         if (state.profileDetailUIState != null && state.profileDetailUIState?.status == Status.SUCCESS) {
           if (state.profileDetailUIState?.data != null && state.profileDetailUIState?.data?.customer != null) {
-            final blueId = state.profileDetailUIState!.data!.customer?.blueId;
     return Container(
                 width: 36,
                 height: 36,
-      decoration: BoxDecoration(
+                      decoration: BoxDecoration(
                   color: AppColors.primaryColor,
         shape: BoxShape.circle,
       ),
@@ -467,11 +468,11 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildVoiceMessage(String audioPath) {
     return SizedBox(
       width: 250,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
               const SizedBox(width: 8),
               const Icon(
                 Icons.mic,
@@ -479,16 +480,16 @@ class _ChatScreenState extends State<ChatScreen> {
                 color: Colors.white70,
               ),
               const SizedBox(width: 4),
-              Text(
+                              Text(
                 'Voice Message',
-                style: TextStyle(
+                                style: TextStyle(
                   color: Colors.white70,
                   fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
           const SizedBox(height: 8),
           // Audio Progress Slider
           StreamBuilder<Duration>(
@@ -497,8 +498,8 @@ class _ChatScreenState extends State<ChatScreen> {
               final position = snapshot.data ?? Duration.zero;
               final duration = _audioPlayer.duration ?? Duration.zero;
               final isCurrentPlaying = _currentPlayingPath == audioPath;
-              final progress = isCurrentPlaying && duration.inMilliseconds > 0 
-                  ? position.inMilliseconds / duration.inMilliseconds 
+              final progress = isCurrentPlaying && duration.inMilliseconds > 0
+                  ? position.inMilliseconds / duration.inMilliseconds
                   : 0.0;
 
               return Row(
@@ -561,7 +562,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    isCurrentPlaying 
+                    isCurrentPlaying
                         ? '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}'
                         : '0:00',
                     style: TextStyle(
@@ -572,7 +573,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ],
               );
             },
-          ),
+              ),
         ],
       ),
     );
@@ -596,8 +597,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 height: 12,
                 decoration: BoxDecoration(
                   color: Colors.red,
-                  shape: BoxShape.circle,
-                ),
+        shape: BoxShape.circle,
+      ),
               ),
           const SizedBox(width: 12),
           Expanded(
@@ -647,7 +648,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Container(
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
+      decoration: BoxDecoration(
         color: Colors.blue[50],
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: Colors.blue[200]!),
@@ -668,8 +669,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 style: TextStyle(
                   color: AppColors.primaryColor,
                   fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
           ],
           ),
           const SizedBox(height: 12),
@@ -680,8 +681,8 @@ class _ChatScreenState extends State<ChatScreen> {
             builder: (context, snapshot) {
               final position = snapshot.data ?? Duration.zero;
               final duration = _audioPlayer.duration ?? Duration.zero;
-              final progress = duration.inMilliseconds > 0 
-                  ? position.inMilliseconds / duration.inMilliseconds 
+              final progress = duration.inMilliseconds > 0
+                  ? position.inMilliseconds / duration.inMilliseconds
                   : 0.0;
 
               return Row(
@@ -720,15 +721,15 @@ class _ChatScreenState extends State<ChatScreen> {
                     ),
                   ),
                   const SizedBox(width: 8),
-                  Text(
+              Text(
                     '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}',
                     // '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}/${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}',
-                    style: TextStyle(
-                      fontSize: 12,
+                style: TextStyle(
+                  fontSize: 12,
                       color: Colors.grey[600],
-                    ),
-                  ),
-                ],
+                ),
+              ),
+            ],
               );
             },
           ),
@@ -761,7 +762,7 @@ class _ChatScreenState extends State<ChatScreen> {
               // Delete button
               IconButton(
                 onPressed: () async {
-                  print('Delete button pressed'); // Debug log
+
 
                   // Stop audio if playing
                   if (_isPlayingPreview) {
@@ -797,7 +798,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
                   return ElevatedButton.icon(
                     onPressed: canSend ? () {
-                      print('Send button pressed'); // Debug log
+
                       context.read<ChatCubit>().sendRecordedAudio();
                       // Reset audio player state
                       if (_isPlayingPreview) {
@@ -869,7 +870,9 @@ class _ChatScreenState extends State<ChatScreen> {
                           : state.recordedAudioPath != null
                               ? 'Audio recorded'
                               : isWaitingForResponse
-                                  ? 'AI is responding...'
+                                  ? (state.isProcessingVoice
+                                      ? 'Transcribing...'
+                                      : 'AI is responding...')
                                   : 'Type here',
                       hintStyle: TextStyle(
                         color: isDisabled
@@ -894,7 +897,7 @@ class _ChatScreenState extends State<ChatScreen> {
           BlocBuilder<ChatCubit, ChatState>(
             builder: (context, chatState) {
               final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
-              final canRecord = !isWaitingForResponse && state.recordedAudioPath == null;
+              final canRecord = !isWaitingForResponse && state.recordedAudioPath == null && !state.isProcessingVoice;
 
               return GestureDetector(
                 onTap: canRecord ? () {
@@ -907,7 +910,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     });
                   } else {
                     // Show floating language options
-                    print('🎤 Showing language options'); // Debug log
+
                     setState(() {
                       _showLanguageOptions = true;
                     });
@@ -1043,7 +1046,7 @@ class _ChatScreenState extends State<ChatScreen> {
         setState(() {
           _showLanguageOptions = false;
         });
-        
+
         // Update language and start recording
         final cubit = context.read<ChatCubit>();
         cubit.changeLanguage(language);
@@ -1129,116 +1132,64 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
-  Widget _buildVoiceProcessingIndicator() {
+  Widget _buildTranscribingMessage() {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
         children: [
-          // User's voice message skeleton
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Flexible(
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.75,
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryColor.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(16).copyWith(
-                      bottomRight: const Radius.circular(4),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Pulsing mic icon
-                      TweenAnimationBuilder<double>(
-                        tween: Tween(begin: 0.5, end: 1.0),
-                        duration: const Duration(milliseconds: 800),
-                        builder: (context, value, child) {
-                          return Transform.scale(
-                            scale: value,
-                            child: Icon(
-                              Icons.mic,
-                              size: 16,
-                              color: AppColors.primaryColor.withValues(alpha: value),
-                            ),
-                          );
-                        },
-                        onEnd: () {
-                          // Restart animation
-                          setState(() {});
-                        },
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        'Transcribing...',
-                        style: TextStyle(
-                          color: AppColors.primaryColor,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      // Loading dots
-                      _buildLoadingDots(AppColors.primaryColor),
-                    ],
-                  ),
+          Flexible(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.75,
+              ),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.primaryColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(16).copyWith(
+                  bottomRight: const Radius.circular(4),
                 ),
               ),
-              const SizedBox(width: 8),
-              _buildAvatarIcon(true),
-            ],
-          ),
-          
-          const SizedBox(height: 8),
-          
-          // AI response skeleton
-          Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              _buildAvatarIcon(false),
-              const SizedBox(width: 8),
-              Flexible(
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: MediaQuery.of(context).size.width * 0.75,
-                  ),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16).copyWith(
-                      bottomLeft: const Radius.circular(4),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        blurRadius: 2,
-                        offset: const Offset(0, 1),
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'AI is thinking...',
-                        style: TextStyle(
-                          color: AppColors.grayColor,
-                          fontSize: 14,
-                          fontStyle: FontStyle.italic,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Pulsing mic icon
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(begin: 0.5, end: 1.0),
+                    duration: const Duration(milliseconds: 800),
+                    builder: (context, value, child) {
+                      return Transform.scale(
+                        scale: value,
+                        child: Icon(
+                          Icons.mic,
+                          size: 16,
+                          color: AppColors.primaryColor.withValues(alpha: value),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildLoadingDots(AppColors.grayColor),
-                    ],
+                      );
+                    },
+                    onEnd: () {
+                      // Restart animation
+                      setState(() {});
+                    },
                   ),
-                ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Transcribing',
+                    style: TextStyle(
+                      color: AppColors.primaryColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // Loading dots
+                  _buildLoadingDots(AppColors.primaryColor),
+                ],
               ),
-            ],
+            ),
           ),
+          const SizedBox(width: 8),
+          _buildAvatarIcon(true),
         ],
       ),
     );
@@ -1279,10 +1230,6 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildTypingIndicator() {
     return BlocBuilder<ChatCubit, ChatState>(
       builder: (context, chatState) {
-        // Determine if this is for voice or text
-        final isVoiceMessage = chatState.recordedAudioPath != null;
-        final typingText = isVoiceMessage ? 'AI is transcribing...' : 'AI is typing...';
-
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: Row(
@@ -1387,7 +1334,7 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Play text-to-speech audio
   Future<void> _playTextToSpeech(ChatMessage message) async {
     try {
-      print('🎵 Playing text-to-speech for: ${message.message}'); // Debug log
+
 
       // First, stop any currently playing audio and reset all messages' playing state
       if (_audioPlayer.playing) {
@@ -1422,7 +1369,7 @@ class _ChatScreenState extends State<ChatScreen> {
         await _audioPlayer.setFilePath(tempFile.path);
         await _audioPlayer.play();
 
-        print('🎵 Text-to-speech playback started'); // Debug log
+
 
         // Clean up temporary file after playback
         _audioPlayer.playerStateStream.listen((state) {
@@ -1440,7 +1387,7 @@ class _ChatScreenState extends State<ChatScreen> {
         throw Exception('No audio data received');
       }
     } catch (e) {
-      print('🎵 Text-to-speech playback error: $e'); // Debug log
+
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1461,7 +1408,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _playRecordedAudio(String audioPath) async {
     try {
-      print('Playing audio from: $audioPath'); // Debug log
+
 
       // Check if file exists
       final file = File(audioPath);
@@ -1469,7 +1416,7 @@ class _ChatScreenState extends State<ChatScreen> {
         throw Exception('Audio file not found at: $audioPath');
       }
 
-      print('File exists, setting audio source'); // Debug log
+
 
       // If playing a different audio, stop and set new source
       if (_currentPlayingPath != audioPath) {
@@ -1485,9 +1432,9 @@ class _ChatScreenState extends State<ChatScreen> {
         _isPlayingPreview = true;
       });
 
-      print('Audio started playing'); // Debug log
+
     } catch (e) {
-      print('Error playing audio: $e'); // Debug log
+
       setState(() {
         _isPlayingPreview = false;
         _currentPlayingPath = null;
@@ -1506,16 +1453,16 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Future<void> _pauseAudio() async {
     try {
-      print('Pausing audio'); // Debug log
+
       await _audioPlayer.pause();
 
       setState(() {
         _isPlayingPreview = false;
       });
 
-      print('Audio paused'); // Debug log
+
     } catch (e) {
-      print('Error pausing audio: $e'); // Debug log
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(

@@ -20,7 +20,7 @@ class ChatCubit extends Cubit<ChatState> {
   
   // Pagination variables
   int _currentPage = 1;
-  int _pageSize = 20;
+  final int _pageSize = 20;
   bool _hasMoreMessages = true;
   bool _isLoadingHistory = false;
 
@@ -55,53 +55,50 @@ class ChatCubit extends Cubit<ChatState> {
         pageSize: _pageSize,
       );
 
-      if (history is Map<String, dynamic>) {
-        final data = history['data'] as Map<String, dynamic>?;
-        if (data != null) {
-          final messages = data['messages'] as List<dynamic>?;
-          final hasMore = data['has_more'] as bool? ?? false;
-          final currentPage = data['page'] as int? ?? 1;
+      final data = history['data'] as Map<String, dynamic>?;
+      if (data != null) {
+        final messages = data['messages'] as List<dynamic>?;
+        final hasMore = data['has_more'] as bool? ?? false;
+        final currentPage = data['page'] as int? ?? 1;
 
-          if (messages != null) {
-            final List<ChatMessage> chatMessages = [];
+        if (messages != null) {
+          final List<ChatMessage> chatMessages = [];
 
-            for (final messageData in messages) {
-              try {
-                // Convert API message format to ChatMessage
-                final message = _convertApiMessageToChatMessage(messageData);
-                chatMessages.add(message);
-              } catch (e) {
-                print('📚 Error converting message: $e'); // Debug log
-                continue;
-              }
+          for (final messageData in messages) {
+            try {
+              // Convert API message format to ChatMessage
+              final message = _convertApiMessageToChatMessage(messageData);
+              chatMessages.add(message);
+            } catch (e) {
+
+              continue;
             }
-
-            // Sort messages by timestamp to ensure chronological order (oldest first)
-            chatMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-            // For initial load: replace all messages
-            // For pagination: add older messages to the beginning
-            final updatedMessages = state.messages.isEmpty
-                ? chatMessages  // Initial load - set messages directly
-                : [...chatMessages, ...state.messages]; // Pagination - add older messages at top
-
-            _hasMoreMessages = hasMore;
-
-            emit(state.copyWith(
-              messages: updatedMessages,
-              isLoading: false,
-              hasMoreMessages: _hasMoreMessages,
-              pageNo: _currentPage,
-            ));
-            _currentPage = currentPage + 1;
-
-
-            print('📚 Loaded ${chatMessages.length} messages. Total: ${updatedMessages.length}. Has more: $_hasMoreMessages'); // Debug log
           }
+
+          // Sort messages by timestamp to ensure chronological order (oldest first)
+          chatMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+          // For initial load: replace all messages
+          // For pagination: add older messages to the beginning
+          final updatedMessages = state.messages.isEmpty
+              ? chatMessages  // Initial load - set messages directly
+              : [...chatMessages, ...state.messages]; // Pagination - add older messages at top
+
+          _hasMoreMessages = hasMore;
+
+          emit(state.copyWith(
+            messages: updatedMessages,
+            isLoading: false,
+            hasMoreMessages: _hasMoreMessages,
+            pageNo: _currentPage,
+          ));
+          _currentPage = currentPage + 1;
+
+
         }
       }
     } catch (e) {
-      print('📚 Error loading chat history: $e'); // Debug log for developers
+
       emit(state.copyWith(
         isLoading: false,
         error: _getUserFriendlyErrorMessage(e),
@@ -159,7 +156,7 @@ class ChatCubit extends Cubit<ChatState> {
 
   Future<void> _callTextAPI(String userMessage) async {
     try {
-      print('🚀 Starting API call for: $userMessage'); // Debug log
+
 
       // Show typing indicator
       emit(state.copyWith(
@@ -174,7 +171,7 @@ class ChatCubit extends Cubit<ChatState> {
         language: state.selectedLanguage.code,
       );
 
-      print('🚀 Received AI response: ${aiMessage.message}'); // Debug log
+
 
       final updatedMessages = List<ChatMessage>.from(state.messages)
         ..add(aiMessage);
@@ -185,7 +182,7 @@ class ChatCubit extends Cubit<ChatState> {
         isTyping: false,
       ));
     } catch (e) {
-      print('🚀 API call error: $e'); // Debug log for developers
+
 
       emit(state.copyWith(
         isLoading: false,
@@ -197,7 +194,7 @@ class ChatCubit extends Cubit<ChatState> {
 
   Future<void> _callVoiceAPI(String audioPath) async {
     try {
-      print('🎤 Starting voice API call for: $audioPath'); // Debug log
+
 
       // Show typing indicator for voice transcription
       emit(state.copyWith(
@@ -214,8 +211,7 @@ class ChatCubit extends Cubit<ChatState> {
       final userMessage = result['userMessage']!;
       final aiMessage = result['aiMessage']!;
 
-      print('🎤 Received transcript: ${userMessage.message}'); // Debug log
-      print('🎤 Received AI response: ${aiMessage.message}'); // Debug log
+
 
       // Add both user transcript message and AI response
       final updatedMessages = List<ChatMessage>.from(state.messages)
@@ -229,7 +225,7 @@ class ChatCubit extends Cubit<ChatState> {
         isProcessingVoice: false,
       ));
     } catch (e) {
-      print('🎤 Voice API call error: $e'); // Debug log for developers
+
 
       emit(state.copyWith(
         isLoading: false,
@@ -348,13 +344,13 @@ class ChatCubit extends Cubit<ChatState> {
 
   void deleteRecordedAudio() {
     try {
-      print('Deleting recorded audio: ${state.recordedAudioPath}'); // Debug log
+
 
       if (state.recordedAudioPath != null) {
         final file = File(state.recordedAudioPath!);
         if (file.existsSync()) {
           file.deleteSync();
-          print('Audio file deleted successfully'); // Debug log
+
         }
       }
 
@@ -368,9 +364,9 @@ class ChatCubit extends Cubit<ChatState> {
       ));
 
       _currentRecordingPath = null;
-      print('State reset to normal mode'); // Debug log
+
     } catch (e) {
-      print('Error deleting recording: $e'); // Debug log
+
       emit(state.copyWith(
         clearRecordedAudioPath: true,
         recordingDuration: 0,
@@ -398,7 +394,7 @@ class ChatCubit extends Cubit<ChatState> {
   Future<String> synthesizeTextToSpeech(String text, {String? language}) async {
     try {
       final langCode = language ?? state.selectedLanguage.code;
-      print('🎵 Cubit: Starting text-to-speech synthesis for: $text in language: $langCode'); // Debug log
+
 
       // Show loading state
       emit(state.copyWith(isLoading: true,pageNo: 2,));
@@ -411,7 +407,7 @@ class ChatCubit extends Cubit<ChatState> {
         pitch: 0.0,
         audioFormat: 'OGG_OPUS',
       );
-      print('🎵 Cubit: Text-to-speech synthesis successful'); // Debug log
+
 
       // Emit success state
       emit(state.copyWith(
@@ -423,7 +419,7 @@ class ChatCubit extends Cubit<ChatState> {
       // Return the audio bytes for playback
       return audioBytes;
     } catch (e) {
-      print('🎵 Cubit: Text-to-speech synthesis error: $e'); // Debug log for developers
+
 
       emit(state.copyWith(
         isLoading: false,
@@ -446,59 +442,56 @@ class ChatCubit extends Cubit<ChatState> {
     try {
       _isLoadingHistory = true;
 
-      print('📚 Loading more chat history: page $_currentPage, size $_pageSize'); // Debug log
+
 
       final historyData = await _repository.loadChatHistory(
         page: _currentPage,
         pageSize: _pageSize,
       );
 
-      print('📚 Cubit received history data: $historyData'); // Debug log
 
-      if (historyData is Map<String, dynamic>) {
-        final data = historyData['data'] as Map<String, dynamic>?;
-        if (data != null) {
-          final messages = data['messages'] as List<dynamic>?;
-          final hasMore = data['has_more'] as bool? ?? false;
-          final currentPage = data['page'] as int? ?? 1;
 
-          if (messages != null) {
-            final List<ChatMessage> chatMessages = [];
+      final data = historyData['data'] as Map<String, dynamic>?;
+      if (data != null) {
+        final messages = data['messages'] as List<dynamic>?;
+        final hasMore = data['has_more'] as bool? ?? false;
+        final currentPage = data['page'] as int? ?? 1;
 
-            for (final messageData in messages) {
-              try {
-                // Convert API message format to ChatMessage
-                final message = _convertApiMessageToChatMessage(messageData);
-                chatMessages.add(message);
-              } catch (e) {
-                print('📚 Error converting message: $e'); // Debug log
-                continue;
-              }
+        if (messages != null) {
+          final List<ChatMessage> chatMessages = [];
+
+          for (final messageData in messages) {
+            try {
+              // Convert API message format to ChatMessage
+              final message = _convertApiMessageToChatMessage(messageData);
+              chatMessages.add(message);
+            } catch (e) {
+
+              continue;
             }
-
-            // Sort messages by timestamp to ensure chronological order (oldest first)
-            chatMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
-            // Add older messages to the beginning (top) to maintain scroll position
-            final updatedMessages = [...chatMessages, ...state.messages];
-
-            _hasMoreMessages = hasMore;
-
-
-            // Emit state with new messages and pagination info
-            emit(state.copyWith(
-              messages: updatedMessages,
-              hasMoreMessages: _hasMoreMessages,
-              isLoading: false,
-              pageNo: _currentPage,
-            ));
-            _currentPage = currentPage + 1;
-            print('📚 Loaded ${chatMessages.length} messages. Total: ${updatedMessages.length}. Has more: $_hasMoreMessages'); // Debug log
           }
+
+          // Sort messages by timestamp to ensure chronological order (oldest first)
+          chatMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
+
+          // Add older messages to the beginning (top) to maintain scroll position
+          final updatedMessages = [...chatMessages, ...state.messages];
+
+          _hasMoreMessages = hasMore;
+
+          // Emit state with new messages and pagination info
+          emit(state.copyWith(
+            messages: updatedMessages,
+            hasMoreMessages: _hasMoreMessages,
+            isLoading: false,
+            pageNo: _currentPage,
+          ));
+          _currentPage = currentPage + 1;
+
         }
       }
     } catch (e) {
-      print('📚 Error loading more chat history: $e'); // Debug log for developers
+
       emit(state.copyWith(
         error: _getUserFriendlyErrorMessage(e),
         isLoading: false,

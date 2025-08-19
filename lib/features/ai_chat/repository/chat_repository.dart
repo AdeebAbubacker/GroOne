@@ -33,14 +33,14 @@ class ChatRepository {
     required String language,
   }) async {
     try {
-      print('📝 Sending text message to repository: $message'); // Debug log
+
       
       final response = await _apiService.sendTextMessage(
         message: message,
         language: language,
       );
       
-      print('📝 Repository received response: $response'); // Debug log
+
 
       return ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -51,7 +51,7 @@ class ChatRepository {
         messageType: MessageType.text,
       );
     } catch (e) {
-      print('📝 Repository error: $e'); // Debug log
+
       
       // Return user-friendly error message as AI response
       return ChatMessage(
@@ -106,7 +106,7 @@ class ChatRepository {
         'aiMessage': aiMessage,
       };
     } catch (e) {
-      print('🎤 Repository error: $e'); // Debug log for developers
+
       
       // Create error user message and AI error response
       final userMessage = ChatMessage(
@@ -140,16 +140,16 @@ class ChatRepository {
     int pageSize = 20,
   }) async {
     try {
-      print('📚 Repository: Loading chat history page $page...'); // Debug log
+
       final historyData = await _apiService.getChatHistory(
         page: page,
         pageSize: pageSize,
       );
       
-      print('📚 Repository: Received history data: $historyData'); // Debug log
+
       return historyData;
     } catch (e) {
-      print('📚 Repository: Error loading chat history: $e'); // Debug log
+
       rethrow;
     }
   }
@@ -163,7 +163,7 @@ class ChatRepository {
     String audioFormat = 'OGG_OPUS',
   }) async {
     try {
-      print('🎵 Repository: Synthesizing text to speech...'); // Debug log
+
       final audioBytes = await _apiService.synthesizeTextToSpeech(
         text: text,
         language: language,
@@ -172,10 +172,10 @@ class ChatRepository {
         audioFormat: audioFormat,
       );
       
-      print('🎵 Repository: Text-to-speech synthesis successful'); // Debug log
+
       return audioBytes;
     } catch (e) {
-      print('🎵 Repository: Error synthesizing text to speech: $e'); // Debug log
+
       rethrow;
     }
   }

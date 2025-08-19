@@ -72,7 +72,7 @@ class ChatApiService {
       // Handle Result<dynamic> return type
       if (result is Success) {
         final responseData = result.value;
-        print('🤖 AI API Response: $responseData'); // Debug log
+
         
         if (responseData is Map<String, dynamic>) {
           final status = responseData['status'] as String?;
@@ -100,7 +100,7 @@ class ChatApiService {
         throw Exception('Unknown response type');
       }
     } catch (e) {
-      print('🤖 Error in AI API call: $e'); // Debug log for developers
+
       _getUserFriendlyApiError(e);
     }
   }
@@ -160,7 +160,7 @@ class ChatApiService {
       // Handle Result<dynamic> return type
       if (result is Success) {
         final responseData = result.value;
-        print('🤖 Transcribe API Response: $responseData'); // Debug log
+
         
         if (responseData is Map<String, dynamic>) {
           final status = responseData['status'] as String?;
@@ -238,7 +238,7 @@ class ChatApiService {
         throw Exception('Unknown response type');
       }
     } catch (e) {
-      print('🎤 Error in voice API call: $e'); // Debug log for developers
+
       _getUserFriendlyApiError(e);
     }
   }
@@ -284,7 +284,7 @@ class ChatApiService {
         throw Exception('Unknown response type');
       }
     } catch (e) {
-      print('📚 API Service error: $e'); // Debug log for developers
+
       _getUserFriendlyApiError(e);
     }
   }
@@ -298,7 +298,7 @@ class ChatApiService {
     String audioFormat = 'OGG_OPUS',
   }) async {
     try {
-      print('🎵 Synthesizing text to speech: $text'); // Debug log
+
       
       // Get xApiKey from secure storage
       final xApiKey = ApiUrls.fetchedChatBotXApiKEY;
@@ -339,7 +339,7 @@ class ChatApiService {
             if (responseData != null) {
               final audioBytes = responseData['audio_bytes'] as String?;
               if (audioBytes != null && audioBytes.isNotEmpty) {
-                print('🎵 Text-to-speech synthesis successful'); // Debug log
+
                 return audioBytes;
               } else {
                 throw Exception('No audio data received');
@@ -358,7 +358,7 @@ class ChatApiService {
         throw Exception('Unknown response type');
       }
     } catch (e) {
-      print('🎵 Text-to-speech synthesis error: $e'); // Debug log for developers
+
       _getUserFriendlyApiError(e);
     }
   }
