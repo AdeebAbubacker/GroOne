@@ -1404,6 +1404,28 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
+  /// Validate and normalize language code for TTS API
+  /// Returns valid language code or defaults to 'en-IN' for unsupported languages
+  String _getValidLanguageForTTS(String languageCode) {
+    final normalizedCode = languageCode.toLowerCase();
+    
+    // Check for supported languages
+    switch (normalizedCode) {
+      case 'en':
+      case 'en-in':
+        return 'en-IN';
+      case 'hi':
+      case 'hi-in':
+        return 'hi-IN';
+      case 'ta':
+      case 'ta-in':
+        return 'ta-IN';
+      default:
+        // For any other language, default to English
+        return 'en-IN';
+    }
+  }
+
   /// Play text-to-speech audio
   Future<void> _playTextToSpeech(ChatMessage message) async {
     try {
@@ -1423,11 +1445,12 @@ class _ChatScreenState extends State<ChatScreen> {
         _isPlayingPreview = true;
       });
 
-      // Call the cubit to synthesize text to speech with message's language
+      // Call the cubit to synthesize text to speech with validated language code
       final cubit = context.read<ChatCubit>();
+      final validatedLanguage = _getValidLanguageForTTS(message.language);
       final audioBytes = await cubit.synthesizeTextToSpeech(
         message.message,
-        language: message.language,
+        language: validatedLanguage,
       );
 
       if (audioBytes.isNotEmpty) {
