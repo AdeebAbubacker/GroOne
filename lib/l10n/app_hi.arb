@@ -831,9 +831,9 @@
   "viewFiles": "फ़ाइलें देखें",
   "days": "दिन",
   "settlementRecordedSuccessfully": "आपका सेटलमेंट विवरण रिकॉर्ड किया गया है।",
-  "lorryReceipt": "लॉरी रसीद",
-  "ewayBill": "ईवे बिल",
-  "materialInvoice": "सामग्री चालान",
+
+
+
   "pod": "डिलीवरी का प्रमाण",
   "damageAndShortage": "क्षति और कमी",
   "settlement": "सेटलमेंट",
@@ -945,8 +945,8 @@
   "vehicleAddedSuccessfully": "वाहन सफलतापूर्वक जोड़ा गया",
   "licenseExpiryDate": "लाइसेंस समाप्ति तिथि",
   "dateOdBirth": "जन्म तिथि",
-  "proofOfDelivery": "डिलीवरी का प्रमाण",
-  "damagesAndShortageDocument": "क्षति और कमी दस्तावेज़",
+
+
   "editDriver": "ड्राइवर संपादित करें",
   "driverName": "ड्राइवर का नाम",
   "vehicleDeletedSuccessfully": "वाहन सफलतापूर्वक हटाया गया",

@@ -9,6 +9,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/district_autocomplete_textfield.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/state_autocomplete_textfield.dart';
@@ -74,6 +75,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   final kycCubit = locator<KycCubit>();
   final profileCubit = locator<ProfileCubit>();
+  final documentCubit = locator<DocumentTypeCubit>();
   final endhancubit = locator<EnDhanCubit>();
   final securePrefs = locator<SecuredSharedPreferences>();
   final TextEditingController aadhaarNumberTextController =
@@ -245,7 +247,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         kycCubit.state.uploadAadharDocumentModel?.data;
     if (status != null && status == Status.SUCCESS) {
       final apiRequest = CreateDocumentApiRequest(
-        documentTypeId: KycHelper.getDocumentTypeId(KycDocType.aadharCard),
+        documentTypeId: await KycHelper.getDocumentTypeId(KycDocType.aadharCard,documentCubit),
         title: KycHelper.getMeta(KycDocType.aadharCard).title,
         description: KycHelper.getMeta(KycDocType.aadharCard).description,
         originalFilename: uploadAadharDocumentModel?.originalName,
@@ -1170,8 +1172,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                   if (gstData != null && gstDoc.isNotEmpty) {
                     print("calling 2 ${gstDoc}");
                     final apiRequest = CreateDocumentApiRequest(
-                      documentTypeId: KycHelper.getDocumentTypeId(
+                      documentTypeId:await KycHelper.getDocumentTypeId(
                         KycDocType.gstin,
+                          documentCubit
                       ),
                       title: KycHelper.getMeta(KycDocType.gstin).title,
                       description:
@@ -1290,8 +1293,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                     final data = kycCubit.state.uploadTanDocUIState?.data;
                     if (data != null && tanDoc.isNotEmpty) {
                       final apiRequest = CreateDocumentApiRequest(
-                        documentTypeId: KycHelper.getDocumentTypeId(
+                        documentTypeId: await KycHelper.getDocumentTypeId(
                           KycDocType.tan,
+                            documentCubit
                         ),
                         title: KycHelper.getMeta(KycDocType.tan).title,
                         description:
@@ -1413,8 +1417,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                     final data = kycCubit.state.uploadPanDocUIState?.data;
                     if (data != null && panDoc.isNotEmpty) {
                       final apiRequest = CreateDocumentApiRequest(
-                        documentTypeId: KycHelper.getDocumentTypeId(
+                        documentTypeId: await KycHelper.getDocumentTypeId(
                           KycDocType.pan,
+
+                            documentCubit
                         ),
                         title: KycHelper.getMeta(KycDocType.pan).title,
                         description:
@@ -1495,8 +1501,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                   final data = kycCubit.state.uploadCancelledUIState?.data;
                   if (data != null && checkDocLink.isNotEmpty) {
                     final apiRequest = CreateDocumentApiRequest(
-                      documentTypeId: KycHelper.getDocumentTypeId(
+                      documentTypeId: await KycHelper.getDocumentTypeId(
                         KycDocType.cheque,
+                          documentCubit
+
                       ),
                       title: KycHelper.getMeta(KycDocType.cheque).title,
                       description:
@@ -1573,8 +1581,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                   final data = kycCubit.state.uploadTDSDocUIState?.data;
                   if (data != null && tdsDocLink.isNotEmpty) {
                     final apiRequest = CreateDocumentApiRequest(
-                      documentTypeId: KycHelper.getDocumentTypeId(
+                      documentTypeId: await KycHelper.getDocumentTypeId(
                         KycDocType.tds,
+                        documentCubit
                       ),
                       title: KycHelper.getMeta(KycDocType.tds).title,
                       description:

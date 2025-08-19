@@ -46,7 +46,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     this._repository,
     this._lpLoadRepository,
     this._userInformationRepository,
-  ) : super(DriverLoadDetailsState(tripDocumentList: documentTypeList));
+  ) : super(DriverLoadDetailsState(tripDocumentList: DocumentDataModel.documentTypeList));
 
   // Updates the UI state related to loading LP loads by ID.
   void _setLoadByIdUIState(UIState<DriverLoadDetailsModel>? uiState) {
@@ -193,11 +193,10 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   }
 
     deleteOtherDocumentFromLocal(int index){
-      print('deleetd from local');
-    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-    int currentDocumentIndex = currentList.indexWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments);
-    List<LoadDocument> loadDocument =  List.from(currentList[currentDocumentIndex].loadDocument??[]);
 
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    int currentDocumentIndex = currentList.indexWhere((element) => element.documentType==DocumentFileType.uploadOtherDocument.documentType);
+    List<LoadDocument> loadDocument =  List.from(currentList[currentDocumentIndex].loadDocument??[]);
     loadDocument.removeAt(index);
 
     final updatedDocument = currentList[currentDocumentIndex].copyWith(
@@ -296,7 +295,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final otherDocumentObj = currentList.firstWhere(
       (element) =>
-          element.fileType == DocumentFileType.uploadOtherDocument.name,
+          element.fileType == DocumentFileType.uploadOtherDocument.value,
     );
     final currentDocument = otherDocumentObj.copyWith(loadDocument: null);
 
@@ -622,7 +621,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     final currentList = state.tripDocumentList ?? [];
 
     // Check if POD (TypeId = 331) exists
-    final podIndex = currentList.indexWhere((doc) => doc.documentTypeId == 331);
+    final podIndex = currentList.indexWhere((doc) => doc.documentType ==  DocumentFileType.proofOfDelivery.documentType);
     if (podIndex != -1 && status != null && status > 6) {
       final updatedDoc = currentList[podIndex].copyWith(visible: true);
       currentList[podIndex] = updatedDoc;
@@ -657,7 +656,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   bool canAddMoreOtherDocuments() {
     try {
       final otherDocEntity = state.tripDocumentList?.firstWhere(
-        (doc) => doc.documentTypeId == 309,
+        (doc) => doc.documentType==DocumentFileType.uploadOtherDocument.documentType,
       );
       return (otherDocEntity?.loadDocument?.length ?? 0) < 5;
     } catch (e) {

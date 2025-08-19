@@ -3,8 +3,11 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_document_meta_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:image/image.dart' as imgLib;
 import 'package:path_provider/path_provider.dart';
 
@@ -42,20 +45,20 @@ class KycHelper {
 
 
  // Get Document Type Id
- static int? getDocumentTypeId(KycDocType type) {
+ static Future<int?> getDocumentTypeId(KycDocType type,DocumentTypeCubit documentTypeCubit) async {
    switch (type) {
      case KycDocType.pan:
-       return 2;       // "PAN Card"
+       return await documentTypeCubit.getDocumentTypeId(DocumentFileType.panDocument.documentType??"");       // "PAN Card"
      case KycDocType.tan:
-       return 223;     // "Tan Document"
+       return await documentTypeCubit.getDocumentTypeId(DocumentFileType.tanDocument.documentType??"");    // "Tan Document"
      case KycDocType.gstin:
-       return 109;     // "GST Document"
+       return await documentTypeCubit.getDocumentTypeId(DocumentFileType.gstinDocument.documentType??"");   // "GST Document"
      case KycDocType.tds:
-       return 112;     // "TDS"
+       return await documentTypeCubit.getDocumentTypeId(DocumentFileType.tdsDocument.documentType??"");      // "TDS"
      case KycDocType.cheque:
-       return 106;
+       return await documentTypeCubit.getDocumentTypeId(DocumentFileType.chequeDocument.documentType??"");
        case KycDocType.aadharCard:
-       return 1;     // "Cancelled Cheque"
+       return await documentTypeCubit.getDocumentTypeId(DocumentFileType.aadharDocument.documentType??"");    // "Cancelled Cheque"
    }
  }
 

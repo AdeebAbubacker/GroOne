@@ -102,12 +102,17 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             buildMainDetailWidget(context: context,tripStatement: tripStatement),
             buildLoadProviderWidget(context: context,tripStatement: tripStatement),
             10.height,
-            AppButton(
-              title: context.appText.downloadInvoice,
-              onPressed: () {
-              },
-            ),
-            40.height,
+            if((tripStatement?.data?.tripStatementUrl??"").isNotEmpty)
+            ...[
+              AppButton(
+                title: context.appText.downloadTripStatement,
+                onPressed: () {
+                  loadDetailsCubit.downloadDocument(tripStatement?.data?.tripStatementUrl??"",-1);
+                },
+              ),
+              10.height,
+            ]
+
           ],
         ),
       ),

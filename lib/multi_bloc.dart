@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_cubit.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
+import 'package:gro_one_app/features/document/repository/document_repository.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
@@ -108,6 +110,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<PaymentCubit>(create: (_) => locator<PaymentCubit>()),
         BlocProvider<MastersCubit>(create: (_) => locator<MastersCubit>()),
         BlocProvider<FastagCubit>(create: (_) => locator<FastagCubit>()),
+        BlocProvider<DocumentTypeCubit>(create: (_) => locator<DocumentTypeCubit>()),
        ],
       child: child,
     );

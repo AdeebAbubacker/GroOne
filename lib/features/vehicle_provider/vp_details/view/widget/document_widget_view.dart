@@ -47,9 +47,9 @@ class DocumentWidgetView extends StatelessWidget {
           cubit:loadDetailsCubit,
         )));
       },
-        showViewMoreButton:documentEntity?.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments,
-        showAddMoreButton: documentEntity?.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments && (loadDetailsCubit?.isVisibleAddMoreDocument()??false) && loadDetailsCubit?.state.loadStatus==LoadStatus.loading,
-      showDeleteIcon:  loadDetailsCubit?.state.loadStatus==LoadStatus.unloading && documentEntity?.documentType== navigatorKey.currentState?.context.appText.proofOfDelivery || loadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments ,
+        showViewMoreButton:documentEntity?.documentType==DocumentFileType.uploadOtherDocument.documentType,
+        showAddMoreButton: documentEntity?.documentType==DocumentFileType.uploadOtherDocument.documentType && (loadDetailsCubit?.isVisibleAddMoreDocument()??false) && loadDetailsCubit?.state.loadStatus==LoadStatus.loading,
+      showDeleteIcon:  loadDetailsCubit?.state.loadStatus==LoadStatus.unloading && documentEntity?.documentType== DocumentFileType.proofOfDelivery.documentType || loadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=DocumentFileType.uploadOtherDocument.documentType ,
       showDeleteLoader: documentEntity?.deleteLoading,
       onClickDeleteIcon: () {
         loadDetailsCubit?.deleteLoadDocument(documentEntity?.loadDocument?.first.loadDocumentId??"",index);
