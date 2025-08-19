@@ -642,7 +642,7 @@ class LoadDetailsWidget extends StatelessWidget {
               width: 24,
             ),
             Text(
-              cubit.state.locationDistance ?? '0 KM',
+              (cubit.state.locationDistance??"").isNotEmpty ? cubit.state.locationDistance??"":  '0 KM',
               style: AppTextStyle.body3.copyWith(
                 color: AppColors.veryLightGreyColor,
               ),

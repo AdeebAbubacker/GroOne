@@ -53,6 +53,7 @@ class TripDetails {
     required this.balanceToBePaid,
     required this.bankDetails,
     required this.truckSupplier,
+    required this.invoiceUrl,
   });
 
   final String loadId;
@@ -75,6 +76,7 @@ class TripDetails {
   final String balanceToBePaid;
   final BankDetails? bankDetails;
   final TruckSupplier? truckSupplier;
+  final String? invoiceUrl;
 
   TripDetails copyWith({
     String? loadId,
@@ -97,8 +99,11 @@ class TripDetails {
     String? balanceToBePaid,
     BankDetails? bankDetails,
     TruckSupplier? truckSupplier,
+    String? invoiceUrl,
+
   }) {
     return TripDetails(
+      invoiceUrl: invoiceUrl ?? this.invoiceUrl,
       loadId: loadId ?? this.loadId,
       transporter: transporter ?? this.transporter,
       vehicleNumber: vehicleNumber ?? this.vehicleNumber,
@@ -119,6 +124,7 @@ class TripDetails {
       balanceToBePaid: balanceToBePaid ?? this.balanceToBePaid,
       bankDetails: bankDetails ?? this.bankDetails,
       truckSupplier: truckSupplier ?? this.truckSupplier,
+
     );
   }
 
@@ -144,6 +150,8 @@ class TripDetails {
       balanceToBePaid: json["balanceToBePaid"] ?? "",
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
       truckSupplier: json["truckSupplier"] == null ? null : TruckSupplier.fromJson(json["truckSupplier"]),
+
+      invoiceUrl: json["invoiceUrl"]??""
     );
   }
 

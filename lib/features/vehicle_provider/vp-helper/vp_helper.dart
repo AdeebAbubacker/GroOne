@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/download_handler.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -105,10 +106,10 @@ Future<void> downloadAndOpenFile(String url,{String? originalFileName}) async {
     final fileName = path.basename(url);
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, originalFileName);
-
     final dio = Dio();
-    await dio.download(url, filePath);
+    await dio.download(url,filePath);
 
+    print("filePath gettign :: ${filePath} and original file name ${originalFileName}");
     await OpenFilex.open(filePath);
   } catch (e) {
     debugPrint("Error downloading/opening file: $e");
@@ -131,12 +132,20 @@ LoadStatus getLoadStatus(int? status){
 
 enum DocumentFileType {
 
-  lorryReceipt('lorry_receipt'),
-  ewayBill('eway_bill'),
-  materialInvoice('material_invoice'),
-  proofOfDelivery('proof_of_delivery'),
-  uploadOtherDocument('other_documents',documentType: "Upload Other documents"),
-  damageAndShortage('damages_and_shortages');
+  lorryReceipt('lorry_receipt',documentType: "Lorry Receipt"),
+  ewayBill('eway_bill',documentType: "Eway Bill"),
+  materialInvoice('material_invoice',documentType: "Material Invoice"),
+  proofOfDelivery('proof_of_delivery',documentType: "Proof of Delivery"),
+  uploadOtherDocument('other_documents',documentType: "Other Documents",),
+  damageAndShortage('damages_and_shortages',documentType: "Damages and Shortages"),
+  aadharDocument('aadhaar_card',documentType: 'Aadhaar Card'),
+  panDocument('aadhaar_card',documentType: 'PAN Card'),
+  tanDocument('tan_document',documentType: 'Tan Document'),
+  gstinDocument('gst_document',documentType: 'GST Document'),
+  tdsDocument('tds',documentType: 'TDS'),
+  chequeDocument('cancelled_cheque',documentType: 'Cancelled Cheque');
+
+
 
 
   final String value;

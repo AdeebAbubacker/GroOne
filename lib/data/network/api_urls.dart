@@ -55,6 +55,9 @@ class ApiUrls {
   static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
   static final String  deleteDocument = "$_fetchUrl$_document$_path$_v1/documents/";
   static final String  saveDeviceToken = "$_fetchUrl$_customer$_path$_v1$_customer/device-token";
+  static final String  getDeviceToken = "$_fetchUrl$_customer$_path$_v1$_customer/device-token";
+  static final String  getDocumentType = "$_fetchUrl$_document$_path$_v1/document-type";
+
 
 
   /// Onboarding

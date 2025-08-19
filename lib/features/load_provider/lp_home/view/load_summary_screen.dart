@@ -232,14 +232,11 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
               onChanged: (value) {
                 handlingChargesRaw = value;
 
-                // Format with INR commas (display only)
-                final formatted = PriceHelper.formatINR(value);
-
+                final formatted = PriceHelper.formatINR(value,addDecimal:false);
                 handlingChargesTextController.value = TextEditingValue(
                   text: formatted,
                   selection: TextSelection.collapsed(offset: formatted.length),
                 );
-
                 if (value.isNotEmpty) {
                   final enteredValue = int.tryParse(value) ?? 0;
                   final maxAllowed = int.tryParse(

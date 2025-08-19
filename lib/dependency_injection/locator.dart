@@ -7,6 +7,9 @@ import 'package:gro_one_app/features/choose_language_screen/bloc/language_cubit.
 import 'package:gro_one_app/features/choose_language_screen/repository/language_repository.dart';
 import 'package:gro_one_app/features/choose_language_screen/service/language_service.dart';
 import 'package:gro_one_app/features/choose_role_screen/bloc/role_bloc.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
+import 'package:gro_one_app/features/document/repository/document_repository.dart';
+import 'package:gro_one_app/features/document/services/document_service.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
 import 'package:gro_one_app/features/driver/driver_home/service/driver_load_service.dart';
@@ -172,6 +175,13 @@ void initLocator() {
     locator.registerLazySingleton(
       () => VpCreationService(locator<ApiService>()),
     );
+
+
+    // Document Service
+    locator.registerLazySingleton(
+          () => DocumentService(locator<ApiService>()),
+    );
+
     locator.registerLazySingleton(() => LpCreateService(locator<ApiService>()));
     locator.registerLazySingleton(
       () => VpTripStatementService(locator<ApiService>()),
@@ -193,6 +203,8 @@ void initLocator() {
         locator<SecuredSharedPreferences>(),
       ),
     );
+
+
     locator.registerLazySingleton(
       () => FastagService(
         locator<ApiService>(),
@@ -281,6 +293,12 @@ void initLocator() {
       () => VpCreationRepository(
         locator<VpCreationService>(),
         locator<AuthRepository>(),
+      ),
+    );
+
+    locator.registerLazySingleton(
+      () => DocumentRepository(
+        locator<DocumentService>(),
       ),
     );
     locator.registerLazySingleton(
@@ -476,6 +494,9 @@ void initLocator() {
     );
     locator.registerLazySingleton(
       () => LoadCommodityBloc(locator<LpHomeRepository>()),
+    );
+    locator.registerLazySingleton(
+      () => DocumentTypeCubit(locator<DocumentRepository>(),locator<LoadDetailsCubit>()),
     );
     locator.registerLazySingleton(
       () => GpsOrderApiRepository(locator<GpsOrderApiService>()),

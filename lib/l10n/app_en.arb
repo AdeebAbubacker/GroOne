@@ -831,9 +831,9 @@
   "viewFiles":"View Files",
   "days":"Days",
   "settlementRecordedSuccessfully":"Your settlement details has been recorded.",
-  "lorryReceipt":"Lorry Receipt",
-  "ewayBill":"Eway Bill",
-  "materialInvoice":"Material Invoice",
+
+
+
   "pod":"Proof of Document",
   "damageAndShortage":"Damages and Shortages",
   "settlement":"Settlements",
@@ -945,8 +945,6 @@
   "vehicleAddedSuccessfully" : "Vehicle added successfully",
   "licenseExpiryDate" : "License Expiry Date",
   "dateOdBirth" : "DOB",
-  "proofOfDelivery":"Proof of Delivery",
-  "damagesAndShortageDocument":"Damages and Shortages",
   "editDriver" : "Edit Driver",
   "driverName" : "Driver Name",
   "vehicleDeletedSuccessfully" : "Vehicle Deleted Successfully",
@@ -1134,7 +1132,9 @@
   "pleaseEnterValidIfscCode": "Please enter a valid IFSC code",
   "waitingForLpToConfirmed":"Waiting for LP to confirmed",
   "stateRequired":"State is required,Please add your state ",
-  "cityRequired":"City is required,Please add your city "
-
+  "cityRequired":"City is required,Please add your city ",
+  "downloadTripStatement":"Download trip statement",
+  "online":"ONLINE",
+  "transfer":"Transfer"
 
 }

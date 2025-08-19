@@ -23,7 +23,7 @@ class DriverViewOthersDocument extends StatelessWidget {
 
   List<LoadDocument> getOthersDocument(DriverLoadDetailsState state){
     try{
-      return state.tripDocumentList?.firstWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments,).loadDocument??[];
+      return state.tripDocumentList?.firstWhere((element) => element.documentType==DocumentFileType.uploadOtherDocument.documentType,).loadDocument??[];
     }catch(e){
       return [];
     }

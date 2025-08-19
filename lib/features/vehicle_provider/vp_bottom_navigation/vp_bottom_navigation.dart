@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/view/support_screen.dart';
@@ -34,6 +35,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   late final ProfileCubit profileCubit;
+  late final DocumentTypeCubit documentTypeCubit;
 
   ProfileDetailModel? profileResponse;
 
@@ -47,6 +49,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   void initState() {
     // Initialize profileCubit here to ensure dependency injection is ready
     profileCubit = locator<ProfileCubit>();
+    documentTypeCubit = locator<DocumentTypeCubit>();
     initFunction();
     super.initState();
   }
@@ -54,6 +57,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   void initFunction() => frameCallback(() async {
     await profileCubit.fetchProfileDetail(instance: this);
     profileCubit.fetchUserRole();
+    documentTypeCubit.getDocumentTypeList();
     setState(() {});
   });
 
