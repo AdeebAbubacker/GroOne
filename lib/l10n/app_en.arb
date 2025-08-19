@@ -1142,6 +1142,8 @@
   "loadDetails": "Load Details",
   "trip": "TRIP",
   "totalFreightCost": "Total Freight Cost",
+  "skip": "Skip",
+  "totalFreightCost": "Total Freight Cost",
   "cityRequired":"City is required,Please add your city ",
   "downloadTripStatement":"Download trip statement",
   "online":"ONLINE",

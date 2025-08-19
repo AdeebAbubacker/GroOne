@@ -42,7 +42,6 @@ import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
-import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -372,14 +371,15 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   @override
   Widget build(BuildContext context) {
+    int? role = profileCubit.userRole;
     return Scaffold(
-      appBar: buildAppBarWidget(context),
-      body: buildBodyWidget(context),
+      appBar: buildAppBarWidget(context, role),
+      body: buildBodyWidget(context, role),
     );
   }
 
   // Appbar
-  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
+  PreferredSizeWidget buildAppBarWidget(BuildContext context, int? role) {
     return CommonAppBar(
       elevation: 1.0,
       isLeading: false,
@@ -395,60 +395,61 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
           icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
         ),
 
-        // KYC Blinking
-        BlocConsumer<ProfileCubit, ProfileState>(
-          bloc: profileCubit,
-          listener: (context, state) {},
-          builder: (context, state) {
-            final profileState = state.profileDetailUIState;
+        if(role != 4)
+          // KYC Blinking
+          BlocConsumer<ProfileCubit, ProfileState>(
+            bloc: profileCubit,
+            listener: (context, state) {},
+            builder: (context, state) {
+              final profileState = state.profileDetailUIState;
 
-            if (profileState == null || profileState.status != Status.SUCCESS ||
-                profileState.data == null || profileState.data?.customer == null) {
-              return const SizedBox.shrink();
-            }
+              if (profileState == null || profileState.status != Status.SUCCESS ||
+                  profileState.data == null || profileState.data?.customer == null) {
+                return const SizedBox.shrink();
+              }
 
-            final customer = profileState.data!.customer!;
-            final int kycFlag = customer.isKyc.toInt(); // 1 / 2 / 3
-            final companyId = profileState.data!.customer?.companyTypeId;
+              final customer = profileState.data!.customer!;
+              final int kycFlag = customer.isKyc.toInt(); // 1 / 2 / 3
+              final companyId = profileState.data!.customer?.companyTypeId;
 
 
-            if (kycFlag == 3 || kycFlag == 2) {
-              return const SizedBox.shrink();
-            }
+              if (kycFlag == 3 || kycFlag == 2) {
+                return const SizedBox.shrink();
+              }
 
-            if (kycFlag == 1) {
-              
-              return kycWidget(
-                onTap: () async{
-                  bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
-                    bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+              if (kycFlag == 1) {
 
-                    String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
-                    String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+                return kycWidget(
+                  onTap: () async{
+                    bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
+                      bool isAadhaarVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
 
-                  if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    if (isKycCompleted || isAadharVerified) {
+                      String? aadhaarNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                      String? aadhaarPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
+                    if (companyId != null && (companyId == 2 || companyId == 1)) {
+                      if (isKycCompleted || isAadhaarVerified) {
+                        Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                          aadhaarNumber: aadhaarNumber,
+                          pdfPath: aadhaarPDF,
+                        )));
+                        } else{
+                          commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                        }
+                    } else {
                       Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                        aadhaarNumber: aadharNumber,
-                        pdfPath: aadharPDF,
+                        aadhaarNumber: aadhaarNumber,
+                        pdfPath: aadhaarPDF,
                       )));
-                      } else{
-                        commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                      }
-                  } else {
-                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                      aadhaarNumber: aadharNumber,
-                      pdfPath: aadharPDF,
-                    )));
-                  }
-                },
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
+                    }
+                  },
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
 
-          },
-        ),
+            },
+          ),
 
 
         // Profile
@@ -503,7 +504,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   }
 
   // Body
-  Widget buildBodyWidget(BuildContext context) {
+  Widget buildBodyWidget(BuildContext context, int? role) {
     return RefreshIndicator(
       onRefresh: () async {
         initFunction();
@@ -527,7 +528,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildKycLabelWidget(),
+                  if(role != 4)
+                    buildKycLabelWidget(),
                   10.height,
                   OurValueAddedServicesWidget(isGridLayout: profileCubit.userRole == 4),
                   10.height,
