@@ -18,6 +18,7 @@ import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/doc_verification_model.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/state_response_mode.dart';
@@ -83,6 +84,7 @@ class KycService {
         },
       );
       if (result is Success) {
+        print("result of verified gst ${result.value}");
         return Success(true);
       } else if (result is Error) {
         return Error(result.type);
@@ -101,7 +103,7 @@ class KycService {
     final udid = ApiUrls.fetchUDID;
 
     try {
-      final result = await _apiService.post(ApiUrls.tan, body: request,
+      final result = await _apiService.post(ApiUrls.tan, body: request.toJson(),
         customHeaders: {
           "X-API-Key":xApiKey,
           "X-Application-UDID":udid
@@ -119,10 +121,28 @@ class KycService {
     }
   }
 
+  /// Verified Valid Doc
+  Future<Result<DocVerificationModel>> verifiedDocID(String? aadharDoc) async {
+    try {
+      final result = await _apiService.post(ApiUrls.verifiedDocument, body: {
+        "aadhar":aadharDoc
+      },);
+      if (result is Success) {
+        return Success(DocVerificationModel.fromJson(result.value));
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
 
   /// Verify Pan Service
   Future<Result<bool>> verifyPan(VerifyPanApiRequest request) async {
-    print("calling here");
+
     final xApiKey = ApiUrls.xApiKey;
     final udid = ApiUrls.fetchUDID;
     try {
@@ -332,14 +352,22 @@ class KycService {
 
 
     /// Get State Service
-    Future<Result<StateModel>> fetchStateData({String filter = ''}) async {
+    Future<Result<StateModel>> fetchStateData({
+      String filter = '',
+      int page = 1,
+    }) async {
+      
       try {
+        final queryParams = {
+          if (filter.trim().isNotEmpty) 'search': filter,
+        };
 
         final url = Uri.parse(ApiUrls.getState)
-            .replace(queryParameters: filter.trim().isNotEmpty ? {'search': filter} : null)
+            .replace(queryParameters: queryParams)
             .toString();
 
         final result = await _apiService.get(url);
+
         if (result is Success) {
           final data = StateModel.fromJson(result.value);
           return Success(data);
@@ -354,11 +382,11 @@ class KycService {
     }
 
 
-  /// Get City Service
+   /// Get City Service
   Future<Result<CityModel>> fetchCityData(String stateName, {String filter = ''}) async {
     try {
       final url = ApiUrls.getCity;
-      final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter});
+      final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter,});
       if (result is Success) {
         final data = CityModel.fromJson(result.value);
         return Success(data);

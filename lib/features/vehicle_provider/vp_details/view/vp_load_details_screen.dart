@@ -73,66 +73,69 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
-        bloc: cubit,
-          builder: (context, state) {
-          if (state.loadDetailsUIState?.status == Status.LOADING) {
-            return CircularProgressIndicator().center();
-          }
-          if (state.loadDetailsUIState?.status == Status.ERROR) {
-            return VpHelper.withSliverRefresh(
-                () => getLoadDetails(),
-                child: genericErrorWidget(
-              error: state.loadDetailsUIState?.errorType,
-            ));
-          }
-          if (state.loadDetailsUIState?.status == Status.SUCCESS) {
-            final loads = state.loadDetailsUIState?.data;
-            if (loads?.data == null) {
-              return VpHelper.withSliverRefresh(
-                      () => getLoadDetails(),
-                  child: genericErrorWidget(error: NotFoundError()));
+      body: SafeArea(
+        child: BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
+          bloc: cubit,
+            builder: (context, state) {
+            if (state.loadDetailsUIState?.status == Status.LOADING) {
+              return CircularProgressIndicator().center();
             }
-            return Stack(
-              children: [
-                Positioned.fill(child: GoogleMapWidget(
-                  driverLat: loads?.data?.trackingDetails?.currentLat,
-                  driverLong:  loads?.data?.trackingDetails?.currentLong,
-                  pickupLocation: loads?.data?.loadRoute?.pickUpLocation,
-                  dropLocation: loads?.data?.loadRoute?.dropLocation,
-                  pickUpLatLong: loads?.data?.loadRoute?.pickUpLatlon,
-                  dropLatLong: loads?.data?.loadRoute?.dropLatlon,
-                )),
-                Positioned(
-                  top: 65,
-                  left: 15,
-                  right: 15,
-                  child: buildSourceAndDestinationWidget(loads?.data)
-                ),
-                LoadDetailsWidget(
-                  vpHomeBloc: vpHomeBloc,
-                  cubit: cubit,lpHomeCubit: homeCubit,
-                ),
-                buildFloatingWidget(),
-                if((state.loadStatusId??0)>4)
-                buildSimConsentWidget(loads?.data?.driverConsent??0)
-              ],
-            );
-          }
+            if (state.loadDetailsUIState?.status == Status.ERROR) {
+              return VpHelper.withSliverRefresh(
+                  () => getLoadDetails(),
+                  child: genericErrorWidget(
+                error: state.loadDetailsUIState?.errorType,
+              ));
+            }
+            if (state.loadDetailsUIState?.status == Status.SUCCESS) {
+              final loads = state.loadDetailsUIState?.data;
+              if (loads?.data == null) {
+                return VpHelper.withSliverRefresh(
+                        () => getLoadDetails(),
+                    child: genericErrorWidget(error: NotFoundError()));
+              }
+              return Stack(
+                children: [
+                  Positioned.fill(child: GoogleMapWidget(
+                    driverLat: loads?.data?.trackingDetails?.currentLat,
+                    driverLong:  loads?.data?.trackingDetails?.currentLong,
+                    pickupLocation: loads?.data?.loadRoute?.pickUpLocation,
+                    dropLocation: loads?.data?.loadRoute?.dropLocation,
+                    pickUpLatLong: loads?.data?.loadRoute?.pickUpLatlon,
+                    dropLatLong: loads?.data?.loadRoute?.dropLatlon,
+                  )),
+                  Positioned(
+                    top: 15,
+                    left: 16,
+                    right: 16,
+                    child: buildSourceAndDestinationWidget(loads?.data)
+                  ),
 
-          return genericErrorWidget(error: GenericError());
-        },
-        listener: (context, state) {
-          if (state.loadDetailsUIState?.status == Status.SUCCESS) {
-            final loads = state.loadDetailsUIState?.data;
-            if (loads?.data !=null) {
-              if ((state.loadStatusId??0)>=4 && !_consentStatusCalled) {
-                _consentStatusCalled = true;
+                  LoadDetailsWidget(
+                    vpHomeBloc: vpHomeBloc,
+                    cubit: cubit,lpHomeCubit: homeCubit,
+                  ),
+                  buildFloatingWidget(),
+                  if((state.loadStatusId??0)>4)
+                  buildSimConsentWidget(loads?.data?.driverConsent??0)
+                ],
+              );
+            }
+        
+            return genericErrorWidget(error: GenericError());
+          },
+          listener: (context, state) {
+            if (state.loadDetailsUIState?.status == Status.SUCCESS) {
+              final loads = state.loadDetailsUIState?.data;
+              if (loads?.data !=null) {
+                if ((state.loadStatusId??0)>=4 && !_consentStatusCalled) {
+                  _consentStatusCalled = true;
+                }
               }
             }
           }
-        }
-        ),
+          ),
+      ),
     );
   }
 
@@ -148,9 +151,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
       children: [
 
         IconButton(
-              onPressed: () {
-                commonSupportDialog(context);
-              },
+              onPressed: () {},
               icon: Container(
                 padding: EdgeInsets.all(4),
                 decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
@@ -182,22 +183,18 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     final isTrackingAllowed = driverConsent==1;
 
     return Positioned(
-        left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
-        onPressed: () {
-          commonSupportDialog(context);
-        },
-        icon: Container(
-          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
-          child: Row(
-            children: [
-              Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
-              10.width,
-              Text(context.appText.sim, style: AppTextStyle.h5 )
-            ],
-          ).paddingAll(8),
-        )
-    ));
-
+      left: 12, bottom: bottomWidgetMaxHeight + 15,
+      child: Container(
+        decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
+        child: Row(
+          children: [
+            Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
+            10.width,
+            Text(context.appText.sim, style: AppTextStyle.h5 )
+          ],
+        ).paddingAll(8),
+      ),
+    );
 
   }
 
@@ -252,6 +249,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                       loadDetails?.expectedDeliveryDateTime ?? DateTime.now(),
                     ),
                   ),
+
                   if ((state.loadStatusId??1)>=3)
                    ...[
                       LoadStatusLabel(

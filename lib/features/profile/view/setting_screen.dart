@@ -49,7 +49,7 @@ class _LpSettingState extends State<LpSetting> {
     await profileCubit.fetchSettings();
     await profileCubit.fetchCustomerSettings();
     final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
-    _updateLanguage(savedLangCode ?? '');
+    _updateLanguage(savedLangCode ?? 'English');
   });
 
   @override

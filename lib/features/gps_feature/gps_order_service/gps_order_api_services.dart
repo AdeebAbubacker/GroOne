@@ -1,5 +1,7 @@
 
 
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
@@ -8,6 +10,7 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
+import 'package:gro_one_app/features/gps_feature/models/gps_payment_status_response.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
@@ -589,6 +592,7 @@ class GpsOrderApiService {
       );
 
       if (result is Success) {
+        log(result.value.toString());
         CustomLog.debug(this, "GPS Customer Orders List - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
@@ -672,29 +676,69 @@ class GpsOrderApiService {
     }
   }
 
-  /// Initiate GPS Payment
   Future<Result<OrderAddedSuccess>> initiatePayment(KavachInitiatePaymentRequest request) async {
     try {
-      final url = ApiUrls.lppayment;
-      CustomLog.debug(this, "GPS Payment URL: $url");
-      CustomLog.debug(this, "GPS Payment Request: ${request.toJson()}");
-      
-      final result = await _apiService.post(url, body: request.toJson());
+      final response = await _apiService.post(
+        ApiUrls.fleetPayment,
+        body: request.toJson(),
+      );
 
-      if (result is Success) {
-        return await _apiService.getResponseStatus(
-          result.value,
-          (data) => OrderAddedSuccess.fromJson(data),
-        );
-      } else if (result is Error) {
-        return Error(result.type);
+      if (response is Success) {
+        dynamic data = response.value;
+
+        // Ensure response value is a Map before passing to fromJson
+        if (data is Map<String, dynamic>) {
+          if (data.containsKey("success") && data["success"] == false) {
+            return Error(GenericError());
+          }
+
+          // If 'data' field is a string or null, replace it with null to avoid parsing errors
+          if (data.containsKey("data") && data["data"] is String) {
+            data = {
+              ...data,
+              "data": null, // prevent String -> Map cast error
+            };
+          }
+          final result = OrderAddedSuccess.fromJson(data);
+          CustomLog.debug(this, "Payment initiated successfully");
+          return Success(result);
+        } else {
+          // Unexpected response format
+          return Error(DeserializationError());
+        }
       } else {
-        return Error(GenericError());
+        return Error(response is Error ? response.type : GenericError());
       }
-    } catch (e) {
-      CustomLog.error(this, "Failed to initiate GPS payment", e);
+    } catch (e, s) {
+      CustomLog.error(this, "Failed to initiate payment", e);
       return Error(DeserializationError());
     }
   }
+
+  /// Check GPS Payment/Order Status
+  Future<Result<PaymentStatusResponse>> checkPaymentStatus(String requestId) async {
+    try {
+      final response = await _apiService.post(
+        '${ApiUrls.fleetPaymentStatus}/$requestId',
+      );
+
+      if (response is Success) {
+        final data = response.value;
+        if (data is Map<String, dynamic>) {
+          final result = PaymentStatusResponse.fromJson(data);
+          return Success(result);
+        } else {
+          return Error(DeserializationError());
+        }
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Failed to check payment status", e);
+      return Error(DeserializationError());
+    }
+  }
+
+
 
 }

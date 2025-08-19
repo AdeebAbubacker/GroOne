@@ -69,23 +69,10 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 20.height,
-                RichText(
-                  text: TextSpan(
-                    children: [
-                      TextSpan(
-                        text: context.appText.choosePreferredLanguage,
-                        style: AppTextStyle.textBlackColors20w400,
-                      ),
-                      TextSpan(
-                        text: " ${context.appText.language}",
-                        style: AppTextStyle.textBlackColor20w500,
-                      ),
-                    ],
-                  ),
-                ),
+                Text('${context.appText.choosePreferredLanguage} ${context.appText.language}',style: AppTextStyle.textBlackColors20w400,),
                 30.height,
                 if (state.languages.isEmpty)
-                  CircularProgressIndicator().center()
+                  CircularProgressIndicator().center().expand()
                 else
                   ListView.separated(
                     shrinkWrap: true,
@@ -107,8 +94,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                         },
                       );
                     },
-                  ),
-                const Spacer(),
+                  ).expand(),
                 Column(
                   children: [
                     Text(

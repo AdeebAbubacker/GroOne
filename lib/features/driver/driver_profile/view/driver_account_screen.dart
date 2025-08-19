@@ -7,6 +7,7 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
 class DriverAccountScreen extends StatelessWidget {
@@ -38,7 +39,7 @@ class DriverAccountScreen extends StatelessWidget {
                 headingText(text: context.appText.personalDetails),
                 buildDetailWidget(
                   text1: context.appText.name,
-                  text2: checkUserDetails(driverProfileDetailsModel.data?.name),
+                  text2: checkUserDetails(driverProfileDetailsModel.data?.name.capitalize),
                 ),
 
                 buildDetailWidget(
@@ -62,7 +63,7 @@ class DriverAccountScreen extends StatelessWidget {
            
               buildDetailWidget(
                 text1: context.appText.companyName,
-                text2: checkUserDetails(driverProfileDetailsModel.data?.companyDetails?.companyName ?? ''),
+                text2: checkUserDetails(driverProfileDetailsModel.data?.companyDetails?.companyName.capitalize ?? ''),
               ),
               20.height,
             ],

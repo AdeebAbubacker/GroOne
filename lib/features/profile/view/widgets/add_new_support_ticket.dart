@@ -73,85 +73,88 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey.shade100,
-      appBar: CommonAppBar(
+    return SafeArea(
+      top: false,
+      child: Scaffold(
         backgroundColor: Colors.grey.shade100,
-        title: context.appText.addNewTicket,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppTextField(
-                labelText: context.appText.issueCategory,
-                controller: issueCategoryController,
-                validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.issueCategory),
-              ),
-              12.height,
-              AppTextField(
-                labelText: context.appText.title,
-                controller: titleController,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
-                ],
-                validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.title),
-              ),
-              12.height,
-              AppTextField(
-                maxLines: 3,
-                labelText: context.appText.description,
-                controller: descriptionController,
-                validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.description),
-              ),
-              12.height,
+        appBar: CommonAppBar(
+          backgroundColor: Colors.grey.shade100,
+          title: context.appText.addNewTicket,
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppTextField(
+                  labelText: context.appText.issueCategory,
+                  controller: issueCategoryController,
+                  validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.issueCategory),
+                ),
+                12.height,
+                AppTextField(
+                  labelText: context.appText.title,
+                  controller: titleController,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  ],
+                  validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.title),
+                ),
+                12.height,
+                AppTextField(
+                  maxLines: 3,
+                  labelText: context.appText.description,
+                  controller: descriptionController,
+                  validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.description),
+                ),
+                12.height,
 
-              UploadAttachmentFiles(
-                title: context.appText.attachment,
-                multiFilesList: ticketList,
-                isSingleFile: true,
-                allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
-                thenUploadFileToSever: () async {
-                  final Result result = await uploadTicketDocumentApiCall(ticketList);
-                  if(result is Success) {
-                    final ticketData = profileCubit.state.uploadTicketDocUIState?.data;
-                    if(ticketData != null &&  ticketList.isNotEmpty){
-                      final mimeType = lookupMimeType(ticketList.first['extension']);
-                      final apiRequest =  CreateDocumentApiRequest(
-                        documentTypeId : 342,
-                        title : 'Support Ticket',
-                        description : 'Ticket',
-                        originalFilename : ticketData.originalName,
-                        filePath : ticketData.filePath,
-                        fileSize : ticketData.size,
-                        mimeType : mimeType,
-                        fileExtension : ticketList.first['extension'],
-                      );
-                      await createDocumentApiCall(apiRequest);
-                      if(profileCubit.state.createDocumentUIState?.status == Status.SUCCESS){
-                        if(profileCubit.state.createDocumentUIState?.data != null && profileCubit.state.createDocumentUIState?.data?.data != null){
-                          ticketDocId = profileCubit.state.createDocumentUIState!.data!.data!.documentId;
+                UploadAttachmentFiles(
+                  title: context.appText.attachment,
+                  multiFilesList: ticketList,
+                  isSingleFile: true,
+                  allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
+                  thenUploadFileToSever: () async {
+                    final Result result = await uploadTicketDocumentApiCall(ticketList);
+                    if(result is Success) {
+                      final ticketData = profileCubit.state.uploadTicketDocUIState?.data;
+                      if(ticketData != null &&  ticketList.isNotEmpty){
+                        final mimeType = lookupMimeType(ticketList.first['extension']);
+                        final apiRequest =  CreateDocumentApiRequest(
+                          documentTypeId : 342,
+                          title : 'Support Ticket',
+                          description : 'Ticket',
+                          originalFilename : ticketData.originalName,
+                          filePath : ticketData.filePath,
+                          fileSize : ticketData.size,
+                          mimeType : mimeType,
+                          fileExtension : ticketList.first['extension'],
+                        );
+                        await createDocumentApiCall(apiRequest);
+                        if(profileCubit.state.createDocumentUIState?.status == Status.SUCCESS){
+                          if(profileCubit.state.createDocumentUIState?.data != null && profileCubit.state.createDocumentUIState?.data?.data != null){
+                            ticketDocId = profileCubit.state.createDocumentUIState!.data!.data!.documentId;
+                          }
                         }
+                        debugPrint("ticketDocId : $ticketDocId");
                       }
-                      debugPrint("ticketDocId : $ticketDocId");
                     }
-                  }
-                },
-                  onDelete: (index) {
-                    ticketList.remove(index);
-                  }
-              ),
+                  },
+                    onDelete: (index) {
+                      ticketList.remove(index);
+                    }
+                ),
 
-              const Spacer(),
+                const Spacer(),
 
-              AppButton(
-                onPressed: _submitForm,
-                title: context.appText.submit,
-              ),
-            ],
+                AppButton(
+                  onPressed: _submitForm,
+                  title: context.appText.submit,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -164,6 +167,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
     if (status != null &&  status == Status.SUCCESS) {
       final data = profileCubit.state.uploadTicketDocUIState?.data;
       final url = data?.url ?? '';
+      print('url is $url');
       if (url.isNotEmpty) {
         ticketList.first['path'] = url;
         return Success(true);

@@ -57,7 +57,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: Text(context.appText.memoGenerated),
+        title: Text(context.appText.loadingMemo),
         titleTextStyle: AppTextStyle.h4,
         centerTitle: true,
       ),
@@ -104,7 +104,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
                         final message = otpState?.data?.message ?? "";
                         if (context.mounted) {
                           ToastMessages.success(message: message);
-                          AppDialog.show(context, child: MemoOtpDialogWidget(
+                          AppDialog.show(context,dismissible: false, child: MemoOtpDialogWidget(
                               parentContext: context, loadId: widget.loadId));
                         }
                         setState(() {});
@@ -134,17 +134,17 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
         crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 20,
         children: [
-          buildHeadingText(context.appText.mainDetails),
+          buildHeadingText(context.appText.loadDetails),
           buildDMemoDetailWidget(label: context.appText.loadId, value: memoDetails.loadId),
           buildDMemoDetailWidget(label: context.appText.transporter, value: memoDetails.transporter),
           buildDMemoDetailWidget(label: context.appText.vehicleNumber, value: memoDetails.vehicleNumber),
           buildDMemoDetailWidget(label: context.appText.memo, value: memoDetails.memoNumber),
           buildDMemoDetailWidget(label: context.appText.lane, value: memoDetails.lane),
-          buildDMemoDetailWidget(label: context.appText.totalFreight, value: PriceHelper.formatINR(memoDetails.totalFreight, symbol: 'Rs ')),
-          buildDMemoDetailWidget(label: context.appText.handlingCharges, value:' (-)   ${PriceHelper.formatINR(memoDetails.handlingCharges, symbol: 'Rs ')}'),
-          buildDMemoDetailWidget(label: context.appText.netFreight, value: PriceHelper.formatINR(memoDetails.netFreight, symbol: 'Rs ')),
-          buildDMemoDetailWidget(label: "${context.appText.advance} (${memoDetails.advancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.advanceAmount, symbol: 'Rs ')),
-          buildDMemoDetailWidget(label: "${context.appText.balance} (${memoDetails.balancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.balanceAmount, symbol: 'Rs ')),
+          buildDMemoDetailWidget(label: context.appText.totalFreight, value: PriceHelper.formatINR(memoDetails.totalFreight)),
+          buildDMemoDetailWidget(label: context.appText.handlingCharges, value:' (-)   ${PriceHelper.formatINR(memoDetails.handlingCharges)}'),
+          buildDMemoDetailWidget(label: context.appText.netFreight, value: PriceHelper.formatINR(memoDetails.netFreight, )),
+          buildDMemoDetailWidget(label: "${context.appText.advance} (${memoDetails.advancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.advanceAmount)),
+          buildDMemoDetailWidget(label: "${context.appText.balance} (${memoDetails.balancePercentage.split('.').first}%)", value: PriceHelper.formatINR(memoDetails.balanceAmount)),
         ],
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
@@ -14,6 +15,7 @@ import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -42,6 +44,8 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
   final bloc = locator<VpAcceptLoadBloc>();
   final lpHomeBloc = locator<LpHomeBloc>();
+  final securePrefs = locator<SecuredSharedPreferences>();
+
 
   @override
   Widget build(BuildContext context) {
@@ -92,25 +96,19 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                    ),
                  ],
                ).expand(),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      children: [
-                        _buildLocationInfoWidget( widget.data.pickUpWholeAddr.capitalize),
-                        Icon(
-                          Icons.arrow_right_alt_outlined,
-                          color: AppColors.primaryColor,
-                        ).paddingSymmetric(horizontal: 5),
 
-                        _buildLocationInfoWidget(widget.data.dropWholeAddr.capitalize),
-                        // widget.data.dropWholeAddr.capitalize
-                      ],
-                    ),
-
-                  ],
-                ).expand(),
+              ],
+            ),
+            10.height,
+            Row(
+              children: [
+                _buildLocationInfoWidget( widget.data.pickUpWholeAddr.capitalize).expand(),
+                Icon(
+                  Icons.arrow_right_alt_outlined,
+                  color: AppColors.primaryColor,
+                ).paddingSymmetric(horizontal: 5).expand(),
+                _buildLocationInfoWidget(widget.data.dropWholeAddr.capitalize).expand(),
+                // widget.data.dropWholeAddr.capitalize
               ],
             ),
             commonDivider(),
@@ -223,12 +221,25 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                             context: context,
                             screen: KycPendingDialogue(
                               hideButton:widget.kycStatus==2 ,
-                              onPressed: () {
+                              onPressed: () async {
                                 context.pop();
+                                bool isAadharVerified=await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+                                String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                                String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
                                 if (widget.companyTypeId == 2 || widget.companyTypeId == 1) {
+                                  if(isAadharVerified){
+                                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                                      pdfPath: aadharPDF,
+                                      aadhaarNumber: aadharNumber,
+                                    )));
+                                    return;
+                                  }
                                   commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                                 } else {
-                                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                                    pdfPath: aadharPDF,
+                                    aadhaarNumber: aadharNumber,
+                                  )));
                                 }
                               },
                             ),

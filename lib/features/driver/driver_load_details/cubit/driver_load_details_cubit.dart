@@ -25,6 +25,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/update_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -62,10 +63,6 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
       final loadStatus = getLoadStatus(result.value.data?.loadStatusId);
       emit(
         state.copyWith(
-          locationDistance: getDistance(
-            result.value.data?.loadRoute?.pickUpLatlon ?? "0",
-            result.value.data?.loadRoute?.dropLatlon ?? "0",
-          ),
           lpLoadById: UIState.success(result.value),
           loadStatusId: result.value.data?.loadStatusId,
           loadStatus: loadStatus,
@@ -113,9 +110,9 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
 
   //  Update Load Status Api Call
   void _updateloadStatusUIState(UIState<VpLoadAcceptModel>? uiState) {
-    emit(state.copyWith(loadStatusUiUpdate: uiState));
+    emit(state.copyWith(loadStatusUIState: uiState));
   }
-
+ 
   Future<void> fupdateLoadStatus({
     required String customerId,
     required String loadid,
@@ -129,10 +126,11 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     );
     if (result is Success<VpLoadAcceptModel>) {
       final newStatus = result.value.data?.loadStatus;
+
       emit(
         state.copyWith(
           loadStatusId: newStatus,
-          loadStatusUiUpdate: UIState.success(result.value),
+          loadStatusUIState: UIState.success(result.value),
         ),
       );
     }
@@ -158,19 +156,60 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   }
 
   /// DELETE LOAD DOCUMENT
-  Future<void> deleteLoadDocument(String loadDocumentID, int index) async {
-    uploadDeleteLoaderStatus(index);
-    Result result = await _loadDetailsRepository.deleteLoadDocument(
-      loadDocumentID,
-    );
+  // Future<void> deleteLoadDocument(String loadDocumentID, int index) async {
+  //   uploadDeleteLoaderStatus(index);
+  //   Result result = await _loadDetailsRepository.deleteLoadDocument(
+  //     loadDocumentID,
+  //   );
+  //   if (result is Success<DeleteLoadDocumentResponse>) {
+  //     /// delete from local
+  //     uploadDeleteLoaderStatus(index, isDelete: true);
+  //   }
+  //   if (result is Error) {
+  //     uploadDeleteLoaderStatus(index);
+  //   }
+  // }
+    /// DELETE LOAD DOCUMENT
+  Future<void> deleteLoadDocument(String loadDocumentID,int index,{bool otherDocument=false}) async {
+    if(!otherDocument){
+      uploadDeleteLoaderStatus(index);
+    }
+
+    Result result = await _loadDetailsRepository.deleteLoadDocument(loadDocumentID);
     if (result is Success<DeleteLoadDocumentResponse>) {
       /// delete from local
-      uploadDeleteLoaderStatus(index, isDelete: true);
+      if(otherDocument){
+         print('local deleete called');
+        deleteOtherDocumentFromLocal(index);
+      }else{
+         print('not ------------deleetd from local');
+        uploadDeleteLoaderStatus(index,isDelete: true);
+      }
+
     }
     if (result is Error) {
       uploadDeleteLoaderStatus(index);
     }
   }
+
+    deleteOtherDocumentFromLocal(int index){
+      print('deleetd from local');
+    final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
+    int currentDocumentIndex = currentList.indexWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments);
+    List<LoadDocument> loadDocument =  List.from(currentList[currentDocumentIndex].loadDocument??[]);
+
+    loadDocument.removeAt(index);
+
+    final updatedDocument = currentList[currentDocumentIndex].copyWith(
+      clearLoadData: false,
+      loadDocument: loadDocument,
+      isLoading: false,
+      deleteLoading:false,
+    );
+    currentList[currentDocumentIndex] = updatedDocument;
+    emit(state.copyWith(tripDocumentList: currentList));
+  }
+
 
   Future<void> uploadDocument(
     File file,
@@ -375,6 +414,16 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     );
   }
 
+  void resetLoadStatuUpdateReset() {
+    emit(
+      state.copyWith(
+        loadStatusUIState: resetUIState<VpLoadAcceptModel>(
+          state.loadStatusUIState,
+        ),
+      ),
+    );
+  }
+
   void resetUploadDamageFileUIState() {
     emit(
       state.copyWith(
@@ -491,16 +540,16 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     return (distanceInMeters / 1000).toStringAsFixed(2);
   }
 
-  Future<void> _handleTrackingBasedOnStatus(DriverLoadDetailsModel data) async {
-    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(
-      data.data?.loadStatusDetails?.loadStatus,
-    );
-    final route = data.data?.loadRoute;
+ 
+     Future<void> _handleTrackingBasedOnStatus(DriverLoadDetailsModel? data) async {
+    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data?.data?.loadStatusDetails?.loadStatus);
+    final route = data?.data?.loadRoute;
+    final tracking = data?.data?.trackingDetails;
 
-    if (status != null && route != null) {
+    if (status != null && route != null ) {
       late final TrackingDistanceApiRequest request;
 
-      if (status.index <= LoadStatus.assigned.index) {
+      if (status.index <= LoadStatus.assigned.index ) {
         // Use pickup & drop coordinates
         final pickup = route.pickUpLatlon.split(',');
         final drop = route.dropLatlon.split(',');
@@ -514,22 +563,19 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
           destLong: double.tryParse(drop.last) ?? 0.0,
         );
       } else {
-        // Use trackingDetails
-        final tracking = data.data?.trackingDetails;
         request = TrackingDistanceApiRequest(
-          originLat: tracking?.originLat ?? 0.0,
-          originLong: tracking?.originLong ?? 0.0,
-          currentLat: tracking?.currentLat ?? 0.0,
-          currentLong: tracking?.currentLong ?? 0.0,
-          destLat: tracking?.destinationLat ?? 0.0,
-          destLong: tracking?.destinationLong ?? 0.0,
+          originLat: tracking?.originLat ?? 0,
+          originLong: tracking?.originLong ??0,
+          currentLat: tracking?.currentLat ??0,
+          currentLong: tracking?.currentLong ??0,
+          destLat: tracking?.destinationLat ?? 0,
+          destLong: tracking?.destinationLong ??0
         );
       }
 
       await getTrackingDistance(request: request);
     }
   }
-
   // Updates the UI state related to tracking distance.
   void _setTrackingDistanceState(UIState<TrackingDistanceResponse>? uiState) {
     emit(state.copyWith(trackingDistance: uiState));

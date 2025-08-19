@@ -21,6 +21,7 @@ import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/location_service.dart';
 import 'package:gro_one_app/utils/app_share_helper.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -579,12 +580,13 @@ class _VehicleMapContent extends StatelessWidget {
                                     .read<VehicleListCubit>()
                                     .toggleMapType(),
                         onReachability: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Reachability feature coming soon!',
-                              ),
-                            ),
+                          // Navigate to GPS reports screen with reachability pre-selected
+                          context.push(
+                            AppRouteName.gpsReports,
+                            extra: {
+                              'preSelectedReportType': 'reachability',
+                              'preSelectedVehicle': selectedVehicle,
+                            },
                           );
                         },
                         onNearbyVehicles: () async {
@@ -2835,8 +2837,10 @@ class _DateRangePickerBottomSheetState
     final now = DateTime.now();
     if (endDate.isAfter(now)) {
       endDate = now;
-      // Recalculate start date to maintain 7-day limit
-      startDate = endDate.subtract(const Duration(days: 6));
+      // Recalculate start date to maintain 7-day limit, but allow shorter ranges
+      if (startDate.isAfter(endDate)) {
+        startDate = endDate;
+      }
     }
 
     _updateControllers();
@@ -2857,9 +2861,11 @@ class _DateRangePickerBottomSheetState
     DateTime? lastDate;
 
     if (isStartDate) {
-      // For start date: can't be more than 6 days before current end date
+      // For start date: can be any date up to 6 days before end date
       firstDate = DateTime(2020);
-      lastDate = endDate.subtract(const Duration(days: 6));
+      lastDate = endDate.subtract(
+        const Duration(days: 0),
+      ); // Allow selecting same day as end date
       // Ensure lastDate is not in the future
       if (lastDate.isAfter(DateTime.now())) {
         lastDate = DateTime.now();
@@ -2869,8 +2875,10 @@ class _DateRangePickerBottomSheetState
         lastDate = firstDate;
       }
     } else {
-      // For end date: can't be more than 6 days after current start date
-      firstDate = startDate.add(const Duration(days: 6));
+      // For end date: can be any date from start date up to 6 days after
+      firstDate = startDate.add(
+        const Duration(days: 0),
+      ); // Allow selecting same day as start date
       lastDate = DateTime.now();
       // Ensure firstDate is not after lastDate
       if (firstDate.isAfter(lastDate)) {
@@ -2908,7 +2916,7 @@ class _DateRangePickerBottomSheetState
           if (endDate.isBefore(startDate)) {
             endDate = startDate;
           }
-          // Ensure date range doesn't exceed 7 days
+          // Ensure date range doesn't exceed 7 days, but allow shorter ranges
           if (endDate.difference(startDate).inDays > 6) {
             endDate = startDate.add(const Duration(days: 6));
           }
@@ -2918,7 +2926,7 @@ class _DateRangePickerBottomSheetState
           if (startDate.isAfter(endDate)) {
             startDate = endDate;
           }
-          // Ensure date range doesn't exceed 7 days
+          // Ensure date range doesn't exceed 7 days, but allow shorter ranges
           if (endDate.difference(startDate).inDays > 6) {
             startDate = endDate.subtract(const Duration(days: 6));
           }
@@ -3055,6 +3063,24 @@ class _DateRangePickerBottomSheetState
                     const SizedBox(width: 8),
                     Expanded(
                       child: _QuickDateButton(
+                        label: 'Last 3 Days',
+                        onTap: () {
+                          final now = DateTime.now();
+                          setState(() {
+                            startDate = now.subtract(const Duration(days: 2));
+                            endDate = now;
+                            _updateControllers();
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _QuickDateButton(
                         label: 'Last 7 Days',
                         onTap: () {
                           final now = DateTime.now();
@@ -3066,53 +3092,23 @@ class _DateRangePickerBottomSheetState
                         },
                       ),
                     ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _QuickDateButton(
+                        label: 'Last 2 Days',
+                        onTap: () {
+                          final now = DateTime.now();
+                          setState(() {
+                            startDate = now.subtract(const Duration(days: 1));
+                            endDate = now;
+                            _updateControllers();
+                          });
+                        },
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Date range indicator
-                Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color:
-                        (endDate.difference(startDate).inDays <= 6)
-                            ? Colors.green.withValues(alpha: 0.1)
-                            : Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                      color:
-                          (endDate.difference(startDate).inDays <= 6)
-                              ? Colors.green.withValues(alpha: 0.3)
-                              : Colors.orange.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.calendar_today,
-                        color:
-                            (endDate.difference(startDate).inDays <= 6)
-                                ? Colors.green[700]
-                                : Colors.orange[700],
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
-                          'Selected Range: ${_formatDate(startDate)} to ${_formatDate(endDate)} (${endDate.difference(startDate).inDays + 1} days)',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color:
-                                (endDate.difference(startDate).inDays <= 6)
-                                    ? Colors.green[700]
-                                    : Colors.orange[700],
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 20),
                 // Helper text
                 Container(
                   padding: const EdgeInsets.all(12),
@@ -3133,7 +3129,7 @@ class _DateRangePickerBottomSheetState
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Select a date range to view the vehicle path (maximum 7 days). The date picker will automatically restrict selections to ensure the range never exceeds 7 days.',
+                          'Select a date range to view the vehicle path (minimum 1 day, maximum 7 days). You can select any date range within these limits.',
                           style: TextStyle(
                             fontSize: 12,
                             color: Colors.blue[700],
@@ -3171,7 +3167,25 @@ class _DateRangePickerBottomSheetState
                           // Validate date range
                           final daysDifference =
                               endDate.difference(startDate).inDays;
-                          if (daysDifference > 6) {
+                          if (daysDifference < 0) {
+                            // Show warning for invalid date range
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (context) => AlertDialog(
+                                    title: const Text('Invalid Date Range'),
+                                    content: const Text(
+                                      'Start date cannot be after end date. Please select a valid date range.',
+                                    ),
+                                    actions: [
+                                      ElevatedButton(
+                                        onPressed: () => Navigator.pop(context),
+                                        child: const Text('OK'),
+                                      ),
+                                    ],
+                                  ),
+                            );
+                          } else if (daysDifference > 6) {
                             // Show warning for date ranges exceeding 7 days
                             showDialog(
                               context: context,

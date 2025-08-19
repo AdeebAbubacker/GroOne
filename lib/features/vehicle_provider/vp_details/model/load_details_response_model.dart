@@ -67,7 +67,7 @@ class LoadDetailModelData {
     required this.customer,
     required this.vpCustomer,
     required this.weight,
-    required this.paymentDetails,
+
     required this.paymentEntry,
     required this.driverConsent,
     required this.loadMemo,
@@ -114,7 +114,7 @@ class LoadDetailModelData {
   final Customer? customer;
   final Customer? vpCustomer;
   final Weight? weight;
-  final PaymentDetails? paymentDetails;
+
   final LoadPaymentDetails? paymentEntry;
   final int? driverConsent;
   final MemoDetails? loadMemo;
@@ -161,7 +161,7 @@ class LoadDetailModelData {
     Customer? customer,
     Customer? vpCustomer,
     Weight? weight,
-    PaymentDetails? paymentDetails,
+
     LoadPaymentDetails? paymentEntry,
     int? driverConsent,
 
@@ -217,7 +217,7 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
       customer: customer ?? this.customer,
       vpCustomer: vpCustomer ?? this.vpCustomer,
       weight: weight ?? this.weight,
-      paymentDetails: paymentDetails ?? this.paymentDetails,
+
     );
   }
 
@@ -273,7 +273,7 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
       weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
-      paymentDetails: json["paymentDetails"] == null ? null : PaymentDetails.fromJson(json["paymentDetails"]),
+
     );
   }
 
@@ -930,66 +930,9 @@ class MemoDetails {
 }
 
 
-class PaymentDetails {
-  PaymentDetails({
-    required this.status,
-    required this.message,
-    required this.data,
-  });
 
-  final int status;
-  final String message;
-  final PaymentDetailsData? data;
 
-  PaymentDetails copyWith({
-    int? status,
-    String? message,
-    PaymentDetailsData? data,
-  }) {
-    return PaymentDetails(
-      status: status ?? this.status,
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
 
-  factory PaymentDetails.fromJson(Map<String, dynamic> json){
-    return PaymentDetails(
-      status: json["status"] ?? 0,
-      message: json["message"] ?? "",
-      data: json["data"] == null ? null : PaymentDetailsData.fromJson(json["data"]),
-    );
-  }
-
-}
-
-class PaymentDetailsData {
-  PaymentDetailsData({
-    required this.logs,
-    required this.payments,
-  });
-
-  final List<dynamic> logs;
-  final List<dynamic> payments;
-
-  PaymentDetailsData copyWith({
-    List<dynamic>? logs,
-    List<dynamic>? payments,
-  }) {
-    return PaymentDetailsData(
-      logs: logs ?? this.logs,
-      payments: payments ?? this.payments,
-    );
-  }
-
-  factory PaymentDetailsData.fromJson(Map<String, dynamic> json){
-    return PaymentDetailsData(
-      logs: json["logs"] == null ? [] : List<dynamic>.from(json["logs"]!.map((x) => x)),
-      payments: json["payments"] == null ? [] : List<dynamic>.from(json["payments"]!.map((x) => x)),
-    );
-  }
-
-}
 
 class ScheduleTripDetails {
   ScheduleTripDetails({
@@ -1465,6 +1408,8 @@ class LoadPaymentDetails {
   final DateTime? deletedAt;
   final bool? payableAdvancedPaidFlag;
   final bool? payableBalancePaidFlag;
+  final String? payableAgreedPrice;
+  final List<VpLog>? vpLogs;
 
   LoadPaymentDetails({
     this.id,
@@ -1491,15 +1436,19 @@ class LoadPaymentDetails {
     this.deletedAt,
     this.payableAdvancedPaidFlag,
     this.payableBalancePaidFlag,
+    this.payableAgreedPrice,
+    this.vpLogs,
   });
 
   factory LoadPaymentDetails.fromJson(Map<String, dynamic> json) {
     return LoadPaymentDetails(
+      vpLogs: json['vpLogs']!=null &&  (json['vpLogs'] as List).isNotEmpty ? List<VpLog>.from(json['vpLogs']!.map((x)=>VpLog.fromJson(x))).toList():[],
       id: json['id'] as String?,
       seriesNo: json['seriesNo'] as int?,
       loadId: json['loadId'] as String?,
       lpId: json['lpId'] as String?,
       vpId: json['vpId'] as String?,
+      payableAgreedPrice: json['payableAgreedPrice'].toString(),
       agreedPrice: json['agreedPrice'] as String?,
       receivableAdvance: json['receivableAdvance'] as String?,
       receivableBalance: json['receivableBalance'] as String?,
@@ -1521,8 +1470,6 @@ class LoadPaymentDetails {
       payableBalancePaidFlag: json['payableBalancePaidFlg']??false,
     );
   }
-
-
 }
 
 
@@ -1580,9 +1527,11 @@ class LoadSettlement {
   final int? amountPerDay;
   final int? loadingCharge;
   final int? unLoadingCharge;
-  final int? debitDamages;
-  final int? debitShortages;
-  final int? debitPenalities;
+
+  final String? debitDamages;
+  final String? debitShortages;
+  final String? debitPenalities;
+
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? deletedAt;
@@ -1612,9 +1561,9 @@ class LoadSettlement {
       amountPerDay: json['amountPerDay'] as int?,
       loadingCharge: json['loadingCharge'] as int?,
       unLoadingCharge: json['unloadingCharge'] as int?,
-      debitDamages: json['debitDamages'] as int?,
-      debitShortages: json['debitShortages'] as int?,
-      debitPenalities: json['debitPenalities'] as int?,
+      debitDamages: json['debitDamages'].toString(),
+      debitShortages: json['debitShortages'].toString(),
+      debitPenalities: json['debitPenalities'].toString(),
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : null,
@@ -1669,6 +1618,90 @@ class PodDispatch {
   }
 
 }
+
+class VpLog {
+  final String? id;
+  final int? seriesNo;
+  final String? loadId;
+  final String? customerId;
+  final String? orderId;
+  final String? amount;
+  final String? transactionId;
+  final int? paymentMethod;
+  final String? type;
+  final int? customerRoleId;
+  final String? action;
+  final DateTime? createdAt;
+
+  VpLog({
+    this.id,
+    this.seriesNo,
+    this.loadId,
+    this.customerId,
+    this.orderId,
+    this.amount,
+    this.transactionId,
+    this.paymentMethod,
+    this.type,
+    this.customerRoleId,
+    this.action,
+    this.createdAt,
+  });
+
+  factory VpLog.fromJson(Map<String, dynamic> json) {
+    return VpLog(
+      id: json['id'] as String?,
+      seriesNo: json['seriesNo'] as int?,
+      loadId: json['loadId'] as String?,
+      customerId: json['customerId'] as String?,
+      orderId: json['orderId'] as String?,
+      amount: json['amount'] as String?,
+      transactionId: json['transactionId'] as String?,
+      paymentMethod: json['paymentMethod'] as int?,
+      type: json['type'] as String?,
+      customerRoleId: json['customerRoleId'] as int?,
+      action: json['action'] as String?,
+      createdAt: json['createdAt']!=null ? DateTime.tryParse(json['createdAt']):null,
+    );
+  }
+
+
+}
+
+
+final dummyLogs={
+  "vpLogs": [
+    {
+      "id": "5d295e8a-c10b-46bd-90e5-a5ce40b2c397",
+      "seriesNo": 168,
+      "loadId": "2a6ea368-224c-451d-9a4a-2f56ec75925d",
+      "customerId": "3",
+      "orderId": "2248515111",
+      "amount": "18000.00",
+      "transactionId": "bs3899411bebb0",
+      "paymentMethod": 1,
+      "type": "success",
+      "customerRoleId": 1,
+      "action": "balance",
+      "createdAt": "2025-08-11T07:40:38.590Z"
+    },
+    {
+      "id": "5d295e8a-c10b-46bd-90e5-a5ce40b2c397",
+      "seriesNo": 168,
+      "loadId": "2a6ea368-224c-451d-9a4a-2f56ec75925d",
+      "customerId": "3",
+      "orderId": "2248515111",
+      "amount": "18000.00",
+      "transactionId": "bs3899411bebb0",
+      "paymentMethod": 1,
+      "type": "success",
+      "customerRoleId": 1,
+      "action": "advanced",
+      "createdAt": "2025-08-11T07:40:38.590Z"
+    }
+  ],
+};
+
 
 
 

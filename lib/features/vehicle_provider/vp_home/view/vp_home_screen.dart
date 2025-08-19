@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
@@ -13,6 +14,8 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.d
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/notification/view/notification_screen.dart';
+
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
@@ -28,11 +31,13 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recen
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
@@ -66,6 +71,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    final vpHomeScreenBloc = locator<VpHomeBloc>();
    final vpRecentLoadListBloc = locator<VpRecentLoadListBloc>();
    final loginBloc = locator<LoginBloc>();
+   final securePrefs = locator<SecuredSharedPreferences>();
+   final lpHomeCubit = locator<LPHomeCubit>();
 
 
   final searchController = TextEditingController();
@@ -94,8 +101,6 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
     lpHomeBloc.getUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
-
-
     profileCubit.fetchCompanyTypeId();
     await profileCubit.fetchProfileDetail(instance: this);
   });
@@ -168,7 +173,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
         // Notification
         IconButton(
           onPressed: () {
-
+            Navigator.push(context, commonRoute(NotificationScreen()));
           },
           icon: SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
         ),
@@ -198,11 +203,28 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
             if (kycFlag == 1) {
               return kycWidget(
-                onTap: () {
+                onTap: () async{
+                   bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
+                   bool aadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+
+                   String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                   String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
                   if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                    if (isKycCompleted || aadharVerified) {
+                      Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                        aadhaarNumber: aadharNumber,
+                        pdfPath: aadharPDF,
+                      )));
+                      } else{
+                        commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                      }
+                    
                   } else {
-                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                      aadhaarNumber: aadharNumber,
+                      pdfPath: aadharPDF,
+                    )));
                   }
                 },
               );
@@ -294,6 +316,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
             await profileCubit.startKycSuccessTimer(true);
             // Set flag that popup is shown
             await  profileCubit.saveHasShowBluePopup(false);
+            lpHomeCubit.setBluIDFlag();
           }
 
           profileCubit.startKycSuccessTimer(false);
@@ -323,7 +346,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
           } else if (customer.isKyc == 1) {
-            return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
+            return
+
+              IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
         return  20.width;
@@ -418,15 +443,31 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                         onBack: (){
                           vpHomeScreenBloc.add(VpMyLoadListRequested());
                         },
-                        onClickAssignDriver: () {
+                        onClickAssignDriver: () async{       
+                           bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);            
+                           bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+
+                           String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                           String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
                           final isKycDone = VpVariables.isKycVerified;
                           final companyId = int.parse(profileCubit.companyTypeId ?? "0");
                           if (isKycDone) {
                             context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
                           } else if (companyId == 2 || companyId == 1) {
-                            commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                           if (isKycCompleted || isAadharVerified) {
+                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                              aadhaarNumber: aadharNumber,
+                              pdfPath: aadharPDF,
+                            )));
+                            } else{
+                              commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                            }
                           } else {
-                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                            Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                              aadhaarNumber: aadharNumber,
+                              pdfPath: aadharPDF,
+                            )));
                           }
                         },
                       ),
@@ -527,7 +568,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                 if (state is VpRecentLoadListSuccess) {
                   final loads = state.vpRecentLoadResponse.data;
                   if (loads.isEmpty) {
-                    return genericErrorWidget(error: NotFoundError());
+                    return genericErrorWidget(error: NoLoadsFoundError());
                   }
 
                   return ListView.separated(

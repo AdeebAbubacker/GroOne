@@ -3,7 +3,7 @@ import 'package:gro_one_app/data/model/serializable.dart';
 class KavachInitiatePaymentRequest
     extends Serializable<KavachInitiatePaymentRequest> {
   final String orderId;
-  final int amount;
+  final double amount;
   final String customerName;
   final String customerEmail;
   final String customerMobile;
@@ -29,9 +29,9 @@ class KavachInitiatePaymentRequest
     "customer_email_id": customerEmail,
     "customer_mobile_no": customerMobile,
     "customer_city": customerCity,
-    "merchant_reference_no": merchantReferenceNo,
     "merchant_reference_no1": customerId,
     "merchant_reference_no2": orderId,
+    "merchant_reference_no3": merchantReferenceNo,
   };
 }
 

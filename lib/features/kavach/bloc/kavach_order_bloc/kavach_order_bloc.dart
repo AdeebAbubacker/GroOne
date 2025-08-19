@@ -10,10 +10,29 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added
 class KavachOrderBloc extends Bloc<KavachOrderEvent, KavachOrderState> {
   final KavachRepository repository;
   final UserInformationRepository _userInformationRepository;
+  String? paymentRequestId;
 
   KavachOrderBloc(this.repository, this._userInformationRepository) : super(KavachOrderInitial()) {
     on<KavachSubmitOrder>(_onSubmitOrder);
     on<KavachInitiatePayment>(_onInitiatePayment);
+    on<CheckFleetPaymentStatus>((event, emit) async {
+      emit(KavachPaymentStatusChecking());
+      final result = await repository.checkFleetPaymentStatus(event.paymentRequestId);
+
+      if (result is Success<Map<String, dynamic>>) {
+        final data = result.value;
+        final status = data['status']?.toString();
+        if (status == "Success") {
+          // only then place order
+          emit(KavachPaymentStatusSuccess());
+        } else {
+          emit(KavachPaymentStatusFailure("Payment not successful. Status: $status"));
+        }
+      } else if (result is Error) {
+        emit(KavachPaymentStatusFailure("Failed to check payment status"));
+      }
+    });
+
   }
 
   Future<void> _onSubmitOrder(
@@ -49,12 +68,14 @@ class KavachOrderBloc extends Bloc<KavachOrderEvent, KavachOrderState> {
     final result = await repository.initiatePayment(event.request);
 
     if (result is Success<OrderAddedSuccess>) {
+      paymentRequestId = result.value.data?.data?.paymentRequestId;
       emit(KavachPaymentSuccess(result.value));
     } else if (result is Error) {
       final error = result as Error;
       emit(KavachPaymentFailure(error.type.toString()));
     }
   }
+
 
 
   String? _userId;

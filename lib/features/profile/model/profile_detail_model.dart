@@ -204,6 +204,7 @@ class Customer {
     required this.deletedAt,
     required this.kycType,
     required this.companyType,
+      this.customerSeriesNo,
   });
 
   final String customerId;
@@ -227,6 +228,7 @@ class Customer {
   final dynamic deletedAt;
   final Type? kycType;
   final Type? companyType;
+  final int? customerSeriesNo;
 
   Customer copyWith({
     String? customerId,
@@ -301,6 +303,7 @@ class Customer {
       deletedAt: json["deletedAt"],
       kycType: json["kycType"] == null ? null : Type.fromJson(json["kycType"]),
       companyType: json["companyType"] == null ? null : Type.fromJson(json["companyType"]),
+      customerSeriesNo: json['customerSeriesNo']?? 0
     );
   }
 

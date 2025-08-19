@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
@@ -41,10 +42,12 @@ import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
@@ -80,7 +83,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   final profileCubit = locator<ProfileCubit>();
   final lpLoadLocator = locator<LpLoadCubit>();
   final loginBloc = locator<LoginBloc>();
-
+  final securePrefs = locator<SecuredSharedPreferences>();
 
   final dateTimeTextController = TextEditingController();
   final weightTextController = TextEditingController();
@@ -414,12 +417,29 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
             }
 
             if (kycFlag == 1) {
+              
               return kycWidget(
-                onTap: () {
+                onTap: () async{
+                  bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
+                    bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+
+                    String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                    String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
                   if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                    if (isKycCompleted || isAadharVerified) {
+                      Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                        aadhaarNumber: aadharNumber,
+                        pdfPath: aadharPDF,
+                      )));
+                      } else{
+                        commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                      }
                   } else {
-                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                      aadhaarNumber: aadharNumber,
+                      pdfPath: aadharPDF,
+                    )));
                   }
                 },
               );

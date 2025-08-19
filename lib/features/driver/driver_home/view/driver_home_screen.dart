@@ -564,6 +564,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     }
     return Expanded(
       child: TabBarView(
+        physics: NeverScrollableScrollPhysics(),
         controller: _tabController,
         children: List.generate(tabLabels.length, (index) {
           return BlocListener<DriverLoadsBloc, DriverLoadsState>(
@@ -592,6 +593,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           } else if (state is DriverLoadStatusChangeFailed) {
             ToastMessages.error(message: "Failed to update load status");
+            _loadDataByTab(index: tabIndex, forceRefresh: true);
           }
         },
         builder: (context, state) {
@@ -601,7 +603,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           if (state is DriverLoadsLoaded) {
             if (state.loads.isEmpty) {
               _onPullToRefresh;
-              return genericErrorWidget(error: NotFoundError());
+              return genericErrorWidget(error: NoLoadsFoundError());
             }
             return ListView.builder(
               padding: EdgeInsets.all(commonSafeAreaPadding),

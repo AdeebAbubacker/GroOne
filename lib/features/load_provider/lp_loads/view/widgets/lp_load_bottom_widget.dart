@@ -55,7 +55,7 @@ class LpLoadBottomWidget extends StatefulWidget {
 }
 
 class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
-
+ String? consigneeId;  
   @override
   void initState() {
   initFunction();
@@ -85,7 +85,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     final consigneePhone = consignees.isNotEmpty ? consignees[0].mobileNumber : '';
     final consigneeEmail = consignees.isNotEmpty ? consignees[0].email : '';
 
-    consigneeNameController = TextEditingController(text: consigneeName);
+    consigneeNameController = TextEditingController(text: consigneeName.capitalizeFirst);
     consigneePhoneController = TextEditingController(text: consigneePhone);
     consigneeEmailController = TextEditingController(text: consigneeEmail);
     isUpdateConsignee = widget.loadItem.consignees.isNotEmpty;
@@ -164,7 +164,6 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
 
-    print("disnace ${lpLoadLocator.state.locationDistance ?? ''}");
     return Positioned(
       bottom: 0,
       left: 0,
@@ -216,26 +215,25 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                 Row(
                                   children: [
                                     Text("${context.appText.driver.capitalizeFirst} - ", style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray)),
-                                    Text(widget.loadItem.scheduleTripDetails?.driver?.name ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
+                                    Text(widget.loadItem.scheduleTripDetails?.driver?.name.capitalize ?? '', style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.black)),
                                   ],
                                 ),
                                 5.height
                               ],
-                              if(widget.loadStatus.index >= LoadStatus.confirmed.index)
-                                ...[
+                            if(widget.loadStatus.index >= LoadStatus.confirmed.index)
+                              ...[
                                 4.height,
                                 Container(
-                                  width: widget.loadStatus.index >= LoadStatus.assigned.index ? MediaQuery.of(context).size.width * 0.60 : null,
+                                    width: widget.loadStatus.index >= LoadStatus.assigned.index ? MediaQuery.of(context).size.width * 0.60 : null,
                                     padding: EdgeInsets.all(6),
                                     decoration: commonContainerDecoration(
                                         color: Color(0xffE5EBFF), borderRadius: BorderRadius.circular(6)),
                                     child: Text(widget.loadItem.customer?.companyName ?? "",style: AppTextStyle.body3.copyWith(color: AppColors.primaryColor)))
                               ]
                           ],
-                        ),
+                        ).expand(flex: 7),
                         if(widget.loadStatus.index >= LoadStatus.assigned.index)
                           ...[
-                            Spacer(),
                             GestureDetector(
                               onTap: () async {
                                 await callRedirect(widget.loadItem.scheduleTripDetails?.driver?.mobile ?? '');
@@ -243,27 +241,26 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                               child: CircleAvatar(
                                   backgroundColor: AppColors.primaryColor,
                                   child: Icon(Icons.call,color: AppColors.white,)),
-                            )
+                            ).expand(flex: 1)
                           ]
 
                       ],
                     ),
 
+                    commonDivider(thickness: 3, height: 15).paddingTop(15),
+
                     // Travel Progress
                    if(widget.loadStatus.index >= LoadStatus.loading.index)
                      ...[
-                       25.height,
+                       20.height,
                        BlocBuilder<LpLoadCubit, LpLoadState>(
                          builder: (context, state) {
                            final trackingData = state.trackingDistance?.data;
-                           if (trackingData == null) {
-                             return SizedBox();
-                           }
                            return TrackingProgress(
-                             progressPercentage: trackingData.coverPercentage??0,
-                             remainingDistance: trackingData.currentdistance,
-                             totalDistance: trackingData.overalldistance,
-                             eta: trackingData.durationValue,
+                             progressPercentage: trackingData?.coverPercentage ?? 0,
+                             coveredDistance: trackingData?.covereddistance ?? '0 Km',
+                             totalDistance: trackingData?.overalldistance ?? '0 Km',
+                             eta: trackingData?.durationValue ?? 0,
                            );
                          },
                        ),
@@ -380,7 +377,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                     ),
                     25.height,
 
-                    if(widget.loadStatus.index >= LoadStatus.loading.index)
+                    if(widget.loadStatus.index >= LoadStatus.assigned.index)
                       ...[
                         BlocConsumer<LpLoadCubit, LpLoadState>(
                           bloc: lpLoadLocator,
@@ -393,6 +390,10 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
                             if (isUpdateConsignee) {
                               if (updateState?.status == Status.SUCCESS && addState?.status != Status.LOADING) {
+                                lpLoadLocator.emit(
+                                lpLoadLocator.state.copyWith(
+                                  isFieldUpdatble: true,
+                                ));
                                  FocusScope.of(context).unfocus();
                                 ToastMessages.success(message: context.appText.consigneeUpdatedSuccesfully);
                               }
@@ -406,13 +407,20 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
                               if (addState?.status == Status.SUCCESS && updateState?.status != Status.LOADING) {
                                  FocusScope.of(context).unfocus();
+                                 
                                 ToastMessages.success(message: context.appText.consigneeAddedSuccesfully);
                                 final newConsignee = addState?.data;
+                                lpLoadLocator.emit(
+                                lpLoadLocator.state.copyWith(
+                                  isFieldUpdatble: true,
+                                ),
+                              );
                                 if (newConsignee != null) {
                                   setState(() {
                                     consigneeNameController.text = newConsignee.name;
                                     consigneePhoneController.text = newConsignee.mobileNumber;
                                     consigneeEmailController.text = newConsignee.email;
+                                    consigneeId = newConsignee.id;
                                     isUpdateConsignee = true;
                                   });
                                 }
@@ -448,19 +456,14 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                     }
                                   }
                                   if (isUpdateConsignee) {
-                                        lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: widget.loadItem.consignees[0].id);
+                                        lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: consigneeId ?? widget.loadItem.consignees[0].id);
                                    } else {
 
-                                  if (name.isEmpty || phone.isEmpty || email.isEmpty) {
+                                  if (name.isEmpty || phone.isEmpty) {
                                     ToastMessages.alert(message: context.appText.allFieldsAremandatory);
                                     return;
                                   }
 
-                                  final String? validation = Validator.email(email);
-                                  if (validation != null) {
-                                    ToastMessages.alert(message: validation);
-                                    return;
-                                  }
                                   final String? phoneValidation = Validator.phone(phone);
                                   if (phoneValidation != null) {
                                     ToastMessages.alert(message: phoneValidation);
@@ -473,6 +476,10 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                           },
                         ),
                         16.height,
+                      ],
+
+                    if(widget.loadStatus.index >= LoadStatus.loading.index)
+                      ...[
 
                         if(widget.loadItem.loadDocument.isNotEmpty)
                         // Download Documents
@@ -544,20 +551,25 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
               CustomSwipeButton(
                 price: widget.loadItem.loadPrice?.rate ?? 0,
                 loadId: widget.loadItem.loadId,
+                enable: isUpdateConsignee,
                 onSubmit: () async {
-                 String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-
-                  if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
-                    if(context.mounted) onSubmit(widget.loadItem, context);
+                  if(!isUpdateConsignee) {
+                    ToastMessages.error(message: context.appText.pleaseEnterConsigneeDetails);
                   } else {
-                    if(context.mounted) showAdvancePaymentDialog(context,widget.loadItem, '');
+                    String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+
+                    if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
+                      if(context.mounted) onSubmit(widget.loadItem, context);
+                    } else {
+                      if(context.mounted) showAdvancePaymentDialog(context,widget.loadItem, '');
+                    }
                   }
-                },
+                  }
               ),
             if(widget.loadStatus == LoadStatus.completed)
               AppButton(onPressed: () {
                 Navigator.push(context, commonRoute(LpLoadSummaryScreen(loadId: widget.loadItem.loadId, loadItem: widget.loadItem)));
-              }, title: context.appText.tripSettlement).paddingSymmetric(horizontal: 10, vertical: 10)
+              }, title: context.appText.viewTripStatement).paddingSymmetric(horizontal: 10, vertical: 10)
           ],
         ),
       ),
@@ -568,16 +580,24 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     final days = settlement?.noOfDays ?? 1;
     final perDay = settlement?.amountPerDay ?? 1;
 
-    String inr(dynamic val) => PriceHelper.formatINR(val.toString());
+    String inr(dynamic val) => PriceHelper.formatINR(val.toString(), showDecimal: true);
 
     return Padding(
       padding: const EdgeInsets.only(top: 15),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         spacing: 15,
         children: [
-          _buildRow("${context.appText.detentions.capitalizeFirst} ($days ${context.appText.days})", inr(days * perDay)),
-          _buildRow(context.appText.loadingCharges, inr(settlement?.loadingCharge)),
-          _buildRow(context.appText.unloadingCharges, inr(settlement?.unLoadingCharge)),
+          Text(context.appText.credits, style: AppTextStyle.h5.copyWith(fontSize: 17)),
+          _buildRow("${context.appText.detentions.capitalizeFirst} ($days ${context.appText.days})", ' (+) ${inr(days * perDay)}'),
+          _buildRow(context.appText.loadingCharges, '(+) ${inr(settlement?.loadingCharge)}'),
+          _buildRow(context.appText.unloadingCharges, '(+) ${inr(settlement?.unLoadingCharge)}'),
+          Divider(),
+          Text(context.appText.debits, style: AppTextStyle.h5.copyWith(fontSize: 17)),
+          _buildRow(context.appText.damageCharges, '(-) ${inr(settlement?.debitDamages ?? 0)}'),
+          _buildRow(context.appText.shortageCharges, '(-) ${inr(settlement?.debitShortages ?? 0)}'),
+          _buildRow(context.appText.penalties, '(-) ${inr(settlement?.debitPenalities ?? 0)}'),
+          5.height,
         ],
       ),
     );
@@ -624,87 +644,142 @@ Widget _buildConsigneeDetail({
   TextEditingController? emailController,
   VoidCallback? onUpdate,
 }) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
-        children: [
-          Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
-          Spacer(),
-          if (isUpdatable)
-            AppButton(
-              buttonHeight: 40,
-             title: isUpdateConsignee ? context.appText.update : context.appText.add,
-              style: AppButtonStyle.outlineShrink,
-              textStyle: AppTextStyle.buttonPrimaryColorTextColor,
-              onPressed: onUpdate ?? () {},
-            ),
-        ],
-      ),
-      if (isTextField)
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+  final isEditable = context.read<LpLoadCubit>().state.isFieldUpdatble;
+  return GestureDetector(
+    behavior: HitTestBehavior.translucent,
+    onTap: () {
+      FocusManager.instance.primaryFocus?.unfocus();
+    },
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            20.height,
-            AppTextField(
-              validator: (value) => Validator.fieldRequired(value),
-              controller: nameController,
-              labelText: context.appText.name,
-              hintText: context.appText.fullNameHint,
-              mandatoryStar:  isUpdateConsignee ? false : true,
-              inputFormatters: [
-                FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
-                LengthLimitingTextInputFormatter(50)
-              ],
-            ),
-            20.height,
-            AppTextField(
-             validator: (value) => Validator.phone(value),
-                        maxLength: 10,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.digitsOnly,
-                          LengthLimitingTextInputFormatter(10),
-                        ],
-                        keyboardType: iosNumberKeyboard,
-              controller: phoneController,
-              labelText: context.appText.contactNumber,
-               hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
-                mandatoryStar:  isUpdateConsignee ? false : true,
-
-            ),
-            20.height,
-            AppTextField(
-              validator: (value) => Validator.email(value),
-              keyboardType: TextInputType.emailAddress,
-              controller: emailController,
-              labelText: context.appText.emailId,  
-              hintText: context.appText.emailHint,
-              mandatoryStar:  isUpdateConsignee ? false : true,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(50),
-              ],
-            ),
-          ],
-        )
-      else
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            20.height,
-            _buildDetailWidget(text1: context.appText.name, text2: name ?? ""),
-            20.height,
-            _buildDetailWidget(
-              text1: context.appText.contactNo,
-              text2: phoneNo ?? "",
-            ),
-            20.height,
-            _buildDetailWidget(
-              text1: context.appText.emailId,
-              text2: email ?? "",
-            ),
+            Text(context.appText.consigneeDetails, style: AppTextStyle.h4),
+            Spacer(),
+             if (isUpdatable && isUpdateConsignee)
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                     isEditable ?   
+                  IconButton(
+               onPressed: () {
+                  final cubit = context.read<LpLoadCubit>();
+                  cubit.emit(
+                    cubit.state.copyWith(
+                      isFieldUpdatble: !cubit.state.isFieldUpdatble,
+                    ),
+                  );
+                  print("isfield upabled ${isEditable}");
+                },
+              icon: SvgPicture.asset(
+                AppIcons.svg.edit,
+                color: AppColors.black,
+              ),
+              splashRadius: 20,
+            ): SizedBox.shrink(),
+                  
+           
+                ],
+              ),
           ],
         ),
-    ],
+        if (isTextField)
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              
+              20.height,
+              AppTextField(
+                decoration: commonInputDecoration(
+                fillColor:  (isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),     
+                readOnly: isUpdateConsignee ? isEditable : false,
+                 enabled: isUpdateConsignee ? !isEditable : true,
+                validator: (value) => Validator.fieldRequired(value),
+                controller: nameController,
+                labelText: context.appText.name,
+                hintText: context.appText.fullNameHint,
+                mandatoryStar:  isUpdateConsignee ? false : true,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
+                  LengthLimitingTextInputFormatter(50)
+                ],
+              ),
+              20.height,
+              AppTextField(
+              decoration: commonInputDecoration(
+                fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),    
+              readOnly: isUpdateConsignee ? isEditable : false,
+              enabled: isUpdateConsignee ? !isEditable : true,
+               validator: (value) => Validator.phone(value),
+                          maxLength: 10,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                            LengthLimitingTextInputFormatter(10),
+                          ],
+                          keyboardType: iosNumberKeyboard,
+                controller: phoneController,
+                labelText: context.appText.contactNumber,
+                 hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
+                  mandatoryStar:  isUpdateConsignee ? false : true,
+
+              ),
+              20.height,
+              AppTextField(   
+                decoration: commonInputDecoration(
+                fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),           
+                readOnly: isUpdateConsignee ? isEditable : false,
+                enabled: isUpdateConsignee ? !isEditable : true,
+                validator: (value) => Validator.email(value),
+                keyboardType: TextInputType.emailAddress,
+                controller: emailController,
+                labelText: context.appText.emailId,
+                hintText: context.appText.emailHint,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(50),
+                ],
+              ),
+              16.height,
+             
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                  (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
+                  ? AppButton(
+                      buttonHeight: 40,
+                      title: isUpdateConsignee ? context.appText.update : context.appText.add,
+                      style: AppButtonStyle.outlineShrink,
+                      textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+                      onPressed: onUpdate ?? () {},
+                    )
+                  : SizedBox.shrink()
+                 
+           
+                ],
+              ),
+                  
+            ],
+          )
+        else
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              20.height,
+              _buildDetailWidget(text1: context.appText.name, text2: name ?? ""),
+              20.height,
+              _buildDetailWidget(
+                text1: context.appText.contactNo,
+                text2: phoneNo ?? "",
+              ),
+              20.height,
+              _buildDetailWidget(
+                text1: context.appText.emailId,
+                text2: email ?? "",
+              ),
+            ],
+          ),
+      ],
+    ),
   );
 }
 

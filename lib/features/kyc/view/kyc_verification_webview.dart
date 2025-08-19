@@ -1,5 +1,11 @@
 
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -16,6 +22,7 @@ class KycVerificationWebView extends StatefulWidget {
 
 class KycVerificationWebViewState extends State<KycVerificationWebView> {
   late final WebViewController _controller;
+  final securePrefs = locator<SecuredSharedPreferences>();
   bool _isLoading = true;
   bool _isBack=false;
 
@@ -27,7 +34,7 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
       ..setBackgroundColor(Colors.white)
       ..setNavigationDelegate(
         NavigationDelegate(
-         onUrlChange: (change) {
+         onUrlChange: (change) async{
            if(_isBack) {
              return;
            }
@@ -35,9 +42,9 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
            Uri? uri=Uri.tryParse(change.url??"");
            if((uri?.path??"").isNotEmpty){
               String url=change.url??"";
-              print("url ${url}");
               if(url.contains('https://gro-devadmin.letsgro.co')){
                 _isBack=true;
+                 await securePrefs.saveBoolean(AppString.sessionKey.iskycAdarWebview,true);
                 Navigator.pop(context,true);
               }
            }
@@ -53,7 +60,7 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
   Future<void> _delayedLoad() async {
     await Future.delayed(const Duration(seconds: 2));
     if (mounted) {
-      print("url is ${widget.url??""}");
+
 
       await _controller.loadRequest(
         Uri.parse(widget.url??""),
@@ -66,17 +73,19 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
 
   @override
   Widget build(BuildContext context) {
-    return  WillPopScope(
-      onWillPop: () async {
-        Navigator.pop(context, true);
-        return false;
-      },
-      child: Scaffold(
-        appBar: buildAppBarWidget(context),
-        body: _isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : WebViewWidget(
-             controller: _controller),
+    return  SafeArea(
+      child: WillPopScope(
+        onWillPop: () async {
+          Navigator.pop(context, true);
+          return false;
+        },
+        child: Scaffold(
+          appBar: buildAppBarWidget(context),
+          body: _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : WebViewWidget(
+               controller: _controller),
+        ),
       ),
     );
   }
@@ -90,7 +99,8 @@ PreferredSizeWidget buildAppBarWidget(BuildContext context) {
       Navigator.pop(context, true);
     }, icon: Icon(Icons.arrow_back)),
     centreTile: true,
-    title: 'KYC',
+    showInUpperCase: true,
+    title: context.appText.aadhaarVerification,
     backgroundColor: Colors.transparent,
     actions: [
       20.width,

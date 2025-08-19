@@ -1,38 +1,38 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_login_cubit.dart';
-import 'package:gro_one_app/features/gps_feature/model/gps_mobile_config_model.dart';
-import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_notification_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_parking_mode_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_settings_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_subscription_screen.dart';
-import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
+import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/device_activation_dialog_manager.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-import '../../../utils/app_colors.dart';
-import '../../../utils/app_icon_button.dart';
-import '../../../utils/app_icons.dart';
-import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
-import '../cubit/vehicle_list_cubit.dart';
-import '../repository/gps_repository.dart';
-import 'gps_notification_screen.dart';
 import '../../../features/login/repository/user_information_repository.dart';
+import '../constants/app_constants.dart';
+import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
+import '../repository/gps_repository.dart';
+import '../service/gps_data_refresh_service.dart';
 import 'gps_order/gps_models_screen.dart';
 
 class GpsHomeScreen extends StatelessWidget {
@@ -194,10 +194,20 @@ class _GpsHomeContent extends StatelessWidget {
         listener: (context, state) {
           // Only show snackbars for errors during initial load, not success messages
           if (state.loginState?.status == Status.ERROR) {
+            final errorType = state.loginState?.errorType;
+
+            // Handle GPS device activation error specifically
+            if (errorType is GpsDeviceActivationError) {
+              DeviceActivationDialogManager().showDeviceActivationDialog(
+                context,
+              );
+              return;
+            }
+
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'GPS Login failed: ${state.loginState?.errorType?.toString() ?? 'Unknown error'}',
+                  'GPS Login failed: ${errorType?.toString() ?? 'Unknown error'}',
                 ),
                 backgroundColor: Colors.red,
               ),
@@ -331,8 +341,8 @@ class _GpsHomeContent extends StatelessWidget {
                       ),
                       // Bottom banner
                       _buildBottomBannerImageWidget(),
-                      // Buy New GPS button
 
+                      // Buy New GPS button
                     ],
                   ),
                 ),

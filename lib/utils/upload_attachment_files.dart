@@ -31,6 +31,7 @@ class UploadAttachmentFiles extends StatefulWidget {
   final Function? thenUploadFileToSever;
   final void Function(int)? onDelete;
   final List? allowedExtensions;
+  final bool? isMandatory;
   const UploadAttachmentFiles({super.key,
     required this.multiFilesList,
     this.isSingleFile = false,
@@ -40,6 +41,7 @@ class UploadAttachmentFiles extends StatefulWidget {
     this.isLoading = false,
     this.hideDeleteButton = false,
     this.onDelete,
+    this.isMandatory,
     this.uploadTextField,
     this.allowedExtensions,
     this.isdocSupportWithoutPdf = false,
@@ -166,7 +168,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                                         else
                                           const Icon(CupertinoIcons.doc_text_fill, size: 20, color : AppColors.primaryColor),
                             10.width,
-                            Text(widget.multiFilesList[index]["fileName"].toString().capitalizeFirst, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.body).expand(),
+                            Text(widget.multiFilesList[index]["fileName"].toString().split('/').last.toString(), maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTextStyle.body).expand(),
                             10.width,
                             // AppIconButton(onPressed: (){}, icon: AppIcons.svg.edit)
 
@@ -198,14 +200,21 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
           ],
         );
 
-      } else {
+      }
+          else {
             // When No file selected
-        return Column(
+           return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
             if (widget.title != null)...[
-              Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
+              Row(
+                children: [
+                  Text(widget.title ?? context.appText.attachment, style: AppTextStyle.textFiled),
+                   if(widget.isMandatory == true)
+                    Text(" *", style:AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                ],
+              ),
               Text(widget.isdocSupportWithoutPdf? context.appText.docSupport :context.appText.docSupportWithoutPdf, style: AppTextStyle.body4GreyColor),
               10.height,
             ],

@@ -1,4 +1,5 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
 import '../../../data/network/api_urls.dart';
@@ -261,8 +262,26 @@ class GpsService {
                   .map((e) => GpsParkingModeModel.fromJson(e))
                   .toList(),
         );
+      } else if (response is Error) {
+        // Handle 404 error specifically for GPS parking mode API
+        if (response.type is NotFoundError) {
+          CustomLog.info(
+            this,
+            "GPS parking mode API returned 404 - device activation in progress",
+          );
+
+          // Return specific error for GPS device activation
+          return Error(
+            GpsDeviceActivationError(
+              message:
+                  "Device activation still in progress. Please try again later.",
+            ),
+          );
+        }
+
+        return Error(response.type);
       } else {
-        return Error(response is Error ? response.type : GenericError());
+        return Error(GenericError());
       }
     } catch (e) {
       CustomLog.error(this, "Failed to fetch parking mode list", e);
@@ -356,8 +375,9 @@ class GpsService {
     }
   }
 
-
-  Future<Result<Map<String, dynamic>>> fetchDeprecatedNotificationStatus(String token) async {
+  Future<Result<Map<String, dynamic>>> fetchDeprecatedNotificationStatus(
+    String token,
+  ) async {
     try {
       final response = await _apiService.get(
         ApiUrls.getDeprecatedNotificationStatus,
@@ -375,11 +395,10 @@ class GpsService {
     }
   }
 
-
   Future<Result<void>> updateDeprecatedNotificationStatus(
-      Map<String, dynamic> payload,
-      String token,
-      ) async {
+    Map<String, dynamic> payload,
+    String token,
+  ) async {
     try {
       final response = await _apiService.post(
         ApiUrls.updateDeprecatedNotificationStatus,
@@ -404,13 +423,15 @@ class GpsService {
   }
 
   Future<Result<void>> updateNotificationToggle(
-      Map<String, dynamic> payload,
-      String token,
-      int userConfigurationId
-      ) async {
+    Map<String, dynamic> payload,
+    String token,
+    int userConfigurationId,
+  ) async {
     try {
       final response = await _apiService.patch(
-        ApiUrls.gpsUpdateNotificationToggle(userConfigurationId), // replace with user-specific ID if needed
+        ApiUrls.gpsUpdateNotificationToggle(
+          userConfigurationId,
+        ), // replace with user-specific ID if needed
         body: payload,
         customHeaders: {'Authorization': token},
       );
@@ -448,7 +469,4 @@ class GpsService {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-
-
-
 }

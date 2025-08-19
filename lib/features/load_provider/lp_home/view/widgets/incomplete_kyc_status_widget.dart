@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_route.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -13,8 +17,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class IncompleteKycStatusWidget extends StatelessWidget {
   final num? companyId;
-  const IncompleteKycStatusWidget({super.key, required this.companyId});
-
+  IncompleteKycStatusWidget({super.key, required this.companyId});
+  final securePrefs = locator<SecuredSharedPreferences>();
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -49,12 +53,28 @@ class IncompleteKycStatusWidget extends StatelessWidget {
 
           // Verify KYC button
           TextButton(
-            onPressed: () {
+            onPressed: () async{
+              bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
+              bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+              String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+              String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
               if (companyId != null && (companyId == 2 || companyId == 1)) {
-                print("tap here");
-                commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                if (isKycCompleted || isAadharVerified) {
+                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                  aadhaarNumber: aadharNumber,
+                  pdfPath: aadharPDF,
+                )));
+                } else{
+                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet(
+                  ));
+                }
+
               } else {
-                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen()));
+                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                  pdfPath: aadharPDF,
+                  aadhaarNumber: aadharNumber,
+                )));
               }
             },
             style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(Colors.redAccent)),

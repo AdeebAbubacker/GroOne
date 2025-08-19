@@ -58,17 +58,17 @@ class VehicleDetailsData {
     final String vehicleId;
     final String customerId;
     final String truckNo;
-    final dynamic ownerName;
-    final dynamic registrationDate;
+    final String ownerName;
+    final DateTime? registrationDate;
     final String tonnage;
     final int truckTypeId;
     final String modelNumber;
     final String rcNumber;
     final String rcDocLink;
-    final dynamic insurancePolicyNumber;
-    final dynamic insuranceValidityDate;
-    final dynamic fcExpiryDate;
-    final dynamic pucExpiryDate;
+    final String insurancePolicyNumber;
+    final DateTime? insuranceValidityDate;
+    final DateTime? fcExpiryDate;
+    final DateTime? pucExpiryDate;
     final int status;
     final DateTime? createdAt;
     final dynamic updatedAt;
@@ -80,17 +80,17 @@ class VehicleDetailsData {
         String? vehicleId,
         String? customerId,
         String? truckNo,
-        dynamic? ownerName,
-        dynamic? registrationDate,
+        String? ownerName,
+        DateTime? registrationDate,
         String? tonnage,
         int? truckTypeId,
         String? modelNumber,
         String? rcNumber,
         String? rcDocLink,
-        dynamic? insurancePolicyNumber,
-        dynamic? insuranceValidityDate,
-        dynamic? fcExpiryDate,
-        dynamic? pucExpiryDate,
+        String? insurancePolicyNumber,
+        DateTime? insuranceValidityDate,
+        DateTime? fcExpiryDate,
+        DateTime? pucExpiryDate,
         int? status,
         DateTime? createdAt,
         dynamic? updatedAt,
@@ -127,25 +127,23 @@ class VehicleDetailsData {
             vehicleId: json["vehicleId"] ?? "",
             customerId: json["customerId"] ?? "",
             truckNo: json["truckNo"] ?? "",
-            ownerName: json["ownerName"],
-            registrationDate: json["registrationDate"],
+            ownerName: json["ownerName"] ?? "",
+            registrationDate: DateTime.tryParse(json["registrationDate"] ?? ""),
             tonnage: json["tonnage"] ?? "",
             truckTypeId: json["truckTypeId"] ?? 0,
             modelNumber: json["modelNumber"] ?? "",
             rcNumber: json["rcNumber"] ?? "",
             rcDocLink: json["rcDocLink"] ?? "",
-            insurancePolicyNumber: json["insurancePolicyNumber"],
-            insuranceValidityDate: json["insuranceValidityDate"],
-            fcExpiryDate: json["fcExpiryDate"],
-            pucExpiryDate: json["pucExpiryDate"],
+            insurancePolicyNumber: json["insurancePolicyNumber"] ?? "",
+            insuranceValidityDate: DateTime.tryParse(json["insuranceValidityDate"] ?? ""),
+            fcExpiryDate: DateTime.tryParse(json["fcExpiryDate"] ?? ""),
+            pucExpiryDate: DateTime.tryParse(json["pucExpiryDate"] ?? ""),
             status: json["status"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             updatedAt: json["updatedAt"],
             deletedAt: json["deletedAt"],
             companyName: json["companyName"] ?? "",
-            truckType: (json["truckType"] != null && json["truckType"] is Map<String, dynamic>)
-            ? TruckType.fromJson(json["truckType"])
-            : null,
+            truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
         );
     }
 
@@ -203,7 +201,6 @@ class TruckType {
     }
 
 }
-
 
 
 class PageMeta {

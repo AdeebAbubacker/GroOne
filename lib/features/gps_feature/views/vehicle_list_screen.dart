@@ -54,7 +54,7 @@ class VehicleListView extends StatelessWidget {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text(
-                'Vehicle data failed: [${state.vehicleDataState?.errorType?.toString() ?? 'Unknown error'}',
+                'Unable to load vehicle data. Please try again later.',
               ),
               backgroundColor: Colors.red,
             ),
@@ -98,46 +98,57 @@ class VehicleListView extends StatelessWidget {
                 ],
               ),
               // Add a button to navigate to VehicleMapScreen
-              Positioned(
-                right: 16,
-                bottom: 60,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    elevation: 4,
-                  ),
-                  icon: Icon(
-                    Icons.map_outlined,
-                    color: AppConstants.primaryColor,
-                  ),
-                  label: Text(
-                    context.appText.viewAllVehicles,
-                    style: TextStyle(
-                      color: AppConstants.primaryColor,
-                      fontWeight: FontWeight.w600,
-                      fontSize: 16,
-                    ),
-                  ),
-                  onPressed: () {
-                    final vehicles =
-                        context
-                            .read<VehicleListCubit>()
-                            .state
-                            .vehicleDataState
-                            ?.data ??
-                        [];
-                    context.push(
-                      AppRouteName.vehicleMap,
-                      extra: {
-                        'vehicles': vehicles,
-                        'initialSelectedVehicle': null,
+              BlocBuilder<VehicleListCubit, VehicleListState>(
+                builder: (context, state) {
+                  // Hide map button when there's no data, error, or loading
+                  if (state.isLoading ||
+                      state.error != null ||
+                      state.filteredVehicles.withExpired.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+
+                  return Positioned(
+                    right: 16,
+                    bottom: 60,
+                    child: ElevatedButton.icon(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 4,
+                      ),
+                      icon: Icon(
+                        Icons.map_outlined,
+                        color: AppConstants.primaryColor,
+                      ),
+                      label: Text(
+                        context.appText.viewAllVehicles,
+                        style: TextStyle(
+                          color: AppConstants.primaryColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      onPressed: () {
+                        final vehicles =
+                            context
+                                .read<VehicleListCubit>()
+                                .state
+                                .vehicleDataState
+                                ?.data ??
+                            [];
+                        context.push(
+                          AppRouteName.vehicleMap,
+                          extra: {
+                            'vehicles': vehicles,
+                            'initialSelectedVehicle': null,
+                          },
+                        );
                       },
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
               ),
               // Add the floating action menu only on map view
               BlocBuilder<VehicleListCubit, VehicleListState>(
@@ -154,10 +165,13 @@ class VehicleListView extends StatelessWidget {
                           () =>
                               context.read<VehicleListCubit>().toggleMapType(),
                       onReachability: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text('Reachability feature coming soon!'),
-                          ),
+                        // Navigate to GPS reports screen with reachability pre-selected
+                        context.push(
+                          AppRouteName.gpsReports,
+                          extra: {
+                            'preSelectedReportType': 'reachability',
+                            'preSelectedVehicle': null,
+                          },
                         );
                       },
                       onNearbyVehicles: () {
@@ -421,10 +435,19 @@ class VehicleListView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(state.error!),
-            ElevatedButton(
-              onPressed: () => context.read<VehicleListCubit>().refreshData(),
-              child: Text(context.appText.retry),
+            Text(
+              context.appText.noData,
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grayColor,
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              context.appText.unableToLoadVehicleData,
+              style: TextStyle(fontSize: 14, color: AppColors.grayColor),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -438,27 +461,19 @@ class VehicleListView extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.directions_car_outlined,
-              size: 64,
-              color: AppConstants.textSecondaryColor,
-            ),
-            const SizedBox(height: 16),
             Text(
-              context.appText.noVehiclesFound,
+              context.appText.noData,
               style: TextStyle(
-                color: AppConstants.textSecondaryColor,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: AppColors.grayColor,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 10),
             Text(
-              context.appText.tryAdjustingSearchOrFilters,
-              style: TextStyle(
-                color: AppConstants.textSecondaryColor,
-                fontSize: 14,
-              ),
+              context.appText.noVehiclesAvailableToDisplay,
+              style: TextStyle(fontSize: 14, color: AppColors.grayColor),
+              textAlign: TextAlign.center,
             ),
           ],
         ),

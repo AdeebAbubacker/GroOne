@@ -365,7 +365,8 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
         pan: state.pan.isNotEmpty ? state.pan : null,
         panDocLink: panDocLink,
         isPan: state.pan.isNotEmpty ? true : null,
-        aadharDocLink: state.aadhaarDocLink, // ✅ Add this
+        aadharDocLink: state.aadhaarDocLink,
+        fromFleet: true
       );
 
       final result = await _repository.uploadKycDocuments(request, customerId);
@@ -392,7 +393,7 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     try {
       final apiService = locator<ApiService>();
       final result = await apiService.multipart(
-        'https://gro-devapi.letsgro.co/document/api/v1/upload',
+        ApiUrls.documentUpload,
         file,
         fields: {
           'userId': customerId,

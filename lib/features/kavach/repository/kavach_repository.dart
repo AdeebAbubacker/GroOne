@@ -14,6 +14,7 @@ import '../api_request/kavach_add_address_api_request.dart';
 import '../api_request/kavach_add_vehicle_request.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
+import '../model/kavach_invoice_response_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_product_model.dart';
 import '../model/kavach_transaction_model.dart';
@@ -125,7 +126,7 @@ class KavachRepository {
   }
 
   /// Fetches customer orders for the current user with optional filtering
-  Future<Result<KavachOrderListResponse>> fetchCustomerOrders({ int page = 1, int limit = 10, int? status, bool forceRefresh = false }) async {
+  Future<Result<KavachOrderListResponse>> fetchCustomerOrders({ int page = 1, int limit = 10, int? status, bool forceRefresh = false,int fleetProductId = 2, }) async {
     try {
       final customerId = await userInfoRepo.getUserID() ?? '';
       if (customerId.isEmpty) {
@@ -136,7 +137,8 @@ class KavachRepository {
         page: page,
         limit: limit,
         status: status,
-        forceRefresh: forceRefresh
+        forceRefresh: forceRefresh,
+        fleetProductId: fleetProductId,
       );
     } catch (e) {
       CustomLog.error(this, "Failed to fetch customer orders in repository", e);
@@ -243,20 +245,6 @@ class KavachRepository {
     }
   }
 
-  /// Fetches transactions for the user
-  Future<Result<List<KavachTransactionModel>>> fetchTransactions() async {
-    try {
-      final customerId = await userInfoRepo.getUserID() ?? '';
-      if (customerId.isEmpty) {
-        return Error(ErrorWithMessage(message: "Customer ID not found"));
-      }
-      return await _service.getTransactions(customerId);
-    } catch (e) {
-      CustomLog.error(this, "Failed to fetch transactions in repository", e);
-      return Error(ErrorWithMessage(message: e.toString()));
-    }
-  }
-
   /// Fetches users for referral code functionality
   Future<Result<List<KavachUserModel>>> fetchUsers({
     String search = "",
@@ -283,6 +271,19 @@ class KavachRepository {
       return Error(GenericError());
     }
   }
+
+  Future<Result<KavachInvoiceResponse>> downloadInvoice(String orderId) {
+    return _service.downloadInvoice(orderId);
+  }
+
+  Future<Result<Map<String, dynamic>>> checkFleetPaymentStatus(String paymentRequestId) async {
+    try {
+      return await _service.checkFleetPaymentStatus(paymentRequestId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 
 }
 

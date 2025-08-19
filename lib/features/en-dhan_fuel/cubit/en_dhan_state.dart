@@ -19,6 +19,8 @@ class EnDhanState extends Equatable {
   final UIState<VehicleVerificationResponse>? vehicleVerificationState;
   final UIState<PincodeResponse>? pincodeState;
   final String? aadhaarDocLink;
+  final UIState<Map<String, dynamic>>? endhanServerStatusState;
+
 
 
   // KYC Form fields
@@ -87,6 +89,9 @@ class EnDhanState extends Equatable {
   final int? selectedZonalOfficeId;
   final int? selectedRegionalOfficeId;
   final List<CardFormData> cards;
+  final String? selectedStateName;       // For showing state name in UI
+  final String? selectedZonalOfficeName; // For showing zonal name in UI
+  final String? selectedRegionalOfficeName; // Optional, if you want same for RO
   
   // Master Data
   final List<dynamic> states;
@@ -97,6 +102,7 @@ class EnDhanState extends Equatable {
 
   const EnDhanState({
     this.uploadKycState,
+    this.endhanServerStatusState,
     this.kycCheckState,
     this.customerCreationState,
     this.statesState,
@@ -167,6 +173,9 @@ class EnDhanState extends Equatable {
     this.regionalOffices = const [],
     this.vehicleTypes = const [],
     this.aadhaarDocLink,
+    this.selectedStateName,
+    this.selectedZonalOfficeName,
+    this.selectedRegionalOfficeName,
   });
 
   /// Factory constructor for initial state with mutable document lists
@@ -208,7 +217,8 @@ class EnDhanState extends Equatable {
       panVerificationState: null,
       vehicleVerificationState: null,
       pincodeState: null,
-      
+      endhanServerStatusState: null,
+
       // Clear verification data
       aadhaarRequestId: null,
       verifiedVehicleNumbers: const {},
@@ -287,6 +297,11 @@ class EnDhanState extends Equatable {
     List<dynamic>? regionalOffices,
     List<String>? vehicleTypes,
     String? aadhaarDocLink,
+    UIState<Map<String, dynamic>>? endhanServerStatusState,
+    String? selectedStateName,
+    String? selectedZonalOfficeName,
+    String? selectedRegionalOfficeName,
+
   }) {
     return EnDhanState(
       uploadKycState: uploadKycState ?? this.uploadKycState,
@@ -360,6 +375,10 @@ class EnDhanState extends Equatable {
       regionalOffices: regionalOffices ?? this.regionalOffices,
       vehicleTypes: vehicleTypes ?? this.vehicleTypes,
       aadhaarDocLink: aadhaarDocLink ?? this.aadhaarDocLink,
+      endhanServerStatusState: endhanServerStatusState ?? this.endhanServerStatusState,
+      selectedStateName: selectedStateName ?? this.selectedStateName,
+      selectedZonalOfficeName: selectedZonalOfficeName ?? this.selectedZonalOfficeName,
+      selectedRegionalOfficeName: selectedRegionalOfficeName ?? this.selectedRegionalOfficeName,
     );
   }
 
@@ -445,6 +464,10 @@ class EnDhanState extends Equatable {
     regionalOffices,
     vehicleTypes,
     aadhaarDocLink,
+    endhanServerStatusState,
+    selectedStateName,
+    selectedZonalOfficeName,
+    selectedRegionalOfficeName,
   ];
 }
 

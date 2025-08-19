@@ -13,6 +13,7 @@ import '../api_request/kavach_add_vehicle_request.dart';
 import '../api_request/kavach_payment_api_request.dart';
 import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
+import '../model/kavach_invoice_response_model.dart';
 import '../model/kavach_order_list_model.dart';
 import '../model/kavach_transaction_model.dart';
 import '../model/kavach_truck_length_model.dart';
@@ -343,11 +344,12 @@ class KavachService {
     int limit = 10,
     int? status,
     bool forceRefresh = false,
+    int fleetProductId = 2,
   }) async {
     try {
       final statusParam = status != null ? "&status=$status" : "";
       final response = await _apiService.get(
-        '${ApiUrls.kavachOrdersList}?customerId=$customerId&page=$page&limit=$limit$statusParam&fleetProductId=2',
+        '${ApiUrls.kavachOrdersList}?customerId=$customerId&page=$page&limit=$limit$statusParam&fleetProductId=$fleetProductId',
         forceRefresh: forceRefresh,
       );
 
@@ -827,72 +829,6 @@ class KavachService {
     }
   }
 
-
-  /// Fetches transaction data from the API
-  Future<Result<List<KavachTransactionModel>>> getTransactions(String customerId) async {
-    try {
-      CustomLog.debug(this, "Fetching transactions for customer: $customerId");
-      
-      final result = await _apiService.get(
-        ///todo: currently using mock API so it is hardcoded will change it when receive the API for this.
-        'https://gro-devapi.letsgro.co/vendor/api/v1/payment/getTransaction',
-      );
-
-      if (result is Success) {
-        CustomLog.debug(this, "Transaction API raw response: ${result.value}");
-        CustomLog.debug(this, "Transaction API response type: ${result.value.runtimeType}");
-        
-        try {
-          final responseData = result.value;
-          
-          if (responseData is Map<String, dynamic>) {
-            CustomLog.debug(this, "Response keys: ${responseData.keys.toList()}");
-            
-            // Check if Transactions is directly in response
-            if (responseData.containsKey('Transactions') && responseData['Transactions'] is List) {
-              final txnList = responseData['Transactions'] as List;
-              CustomLog.debug(this, "Found Transactions directly in response: ${txnList.length}");
-              
-              if (txnList.isNotEmpty) {
-                try {
-                  final transactions = txnList
-                      .map((json) {
-                        CustomLog.debug(this, "Parsing transaction: $json");
-                        return KavachTransactionModel.fromJson(json);
-                      })
-                      .toList();
-                  CustomLog.debug(this, "Successfully parsed ${transactions.length} transactions");
-                  return Success(transactions);
-                } catch (e) {
-                  CustomLog.error(this, "Failed to parse transaction data", e);
-                  return Error(DeserializationError());
-                }
-              } else {
-                CustomLog.debug(this, "No transactions found in response");
-                return Success(<KavachTransactionModel>[]);
-              }
-            } else {
-              CustomLog.error(this, "Transactions key not found or not a list in response. Available keys: ${responseData.keys.toList()}", null);
-              return Error(DeserializationError());
-            }
-          } else {
-            CustomLog.error(this, "Invalid response format - expected Map, got ${responseData.runtimeType}", null);
-            return Error(DeserializationError());
-          }
-        } catch (e) {
-          CustomLog.error(this, "Failed to parse transaction response", e);
-          return Error(DeserializationError());
-        }
-      } else {
-        CustomLog.error(this, "Transaction API call failed: ${result.runtimeType}", null);
-        return Error(result is Error ? result.type : GenericError());
-      }
-    } catch (e) {
-      CustomLog.error(this, "Failed to fetch transactions", e);
-      return Error(DeserializationError());
-    }
-  }
-
   /// Fetches users for referral code functionality
   Future<Result<List<KavachUserModel>>> fetchUsers({
     String search = "",
@@ -936,5 +872,49 @@ class KavachService {
       return Error(DeserializationError());
     }
   }
+
+  Future<Result<KavachInvoiceResponse>> downloadInvoice(String orderId) async {
+    final url = ApiUrls.kavachInvoice(orderId);
+    final result = await _apiService.get(
+      url,
+    );
+
+    if (result is Success) {
+      try {
+        final data = result.value as Map<String, dynamic>;
+        final invoice = KavachInvoiceResponse.fromJson(data);
+        return Success(invoice);
+      } catch (e) {
+        return Error(DeserializationError());
+      }
+    } else if (result is Error) {
+      return Error(result.type);
+    } else {
+      return Error(GenericError());
+    }
+  }
+
+  Future<Result<Map<String, dynamic>>> checkFleetPaymentStatus(String paymentRequestId) async {
+    try {
+      final response = await _apiService.post(
+        '${ApiUrls.fleetPaymentStatus}/$paymentRequestId',
+      );
+
+      if (response is Success) {
+        final data = response.value as Map<String, dynamic>;
+        if (data['success'] == true && data['findData'] != null) {
+          return Success(data['findData']);
+        } else {
+          return Error(ErrorWithMessage(message: data['message'] ?? "Payment status check failed"));
+        }
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
 }
 

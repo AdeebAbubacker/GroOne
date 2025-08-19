@@ -126,7 +126,7 @@ class Validator {
     final regex = RegExp(r'^[A-Z]{2}-\d{13}$');
 
     if (!regex.hasMatch(value.trim().toUpperCase())) {
-      return '$fieldName should be in format: XX-1234567890123 (2 letters, hyphen, 13 digits)';
+      return '$fieldName';
     }
 
     return null;
@@ -138,10 +138,10 @@ class Validator {
     }
 
     // Indian vehicle number pattern (no spaces, no hyphens)
-    final regex = RegExp(r'^[A-Z]{2}\d{1,2}[A-Z]{1,2}\d{1,4}$', caseSensitive: false);
+    final regex = RegExp(r'^[A-Z]{2}[ -]?[0-9]{2}[ -]?[A-Z]{1,2}[ -]?[0-9]{4}$', caseSensitive: false);
 
     if (!regex.hasMatch(value.trim().toUpperCase())) {
-      return '$fieldName is invalid. Example: MH12AB1234';
+      return '$fieldName is invalid';
     }
     return null;
   }
@@ -152,9 +152,6 @@ class Validator {
     }
     
     final trimmedValue = value.trim().toUpperCase();
-    
-    // RC book number format: 2 letters (State code) + 2 digits (RTO code) + 1 or 2 letters (Series) + 4 digits (Vehicle number)
-    // Examples: MH12AB1234, DL01Z1234, KA02ABC1234
     final regex = RegExp(r'^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$');
     
     if (!regex.hasMatch(trimmedValue)) {
@@ -168,29 +165,57 @@ class Validator {
     return '$fieldName ${appContext.appText.isRequired}';
   }
 
-  final trimmedValue = value.trim().toUpperCase();
+  // final trimmedValue = value.trim().toUpperCase();
+  // final regex = RegExp(r"^([A-Z]{2})[- ]?([0-9]{2})[- ]?((19|20)[0-9]{2})[- ]?([0-9]{7})$", caseSensitive: false,);
 
-  // Indian driving license format:
-  // - Two uppercase letters (State code, e.g., DL, MH, KA)
-  // - Optional space or hyphen
-  // - Two digits (RTO code)
-  // - Optional space or hyphen
-  // - Four digits (Year of issue)
-  // - Optional space or hyphen
-  // - 6 or 7 digits (Unique license number)
-  //
-  // Examples: DL-0420110149646, MH1220110149646, KA-05-201500123456
-  final regex = RegExp(
-    r'^[A-Z]{2}[- ]?\d{2}[- ]?\d{4}[- ]?\d{6,7}$',
-    caseSensitive: false,
-  );
+  // if (!regex.hasMatch(trimmedValue)) {
+  //   return '$fieldName is invalid.';
+  // }
 
-  if (!regex.hasMatch(trimmedValue)) {
-    return '$fieldName is invalid. Example: DL-0420110149646';
+  return null;
+}
+ 
+   /// Bank Account Number
+  static String? bankAccountNumber(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return appContext.appText.thisFieldIsRequired;
+    }
+
+    // Allow only digits
+    if (!RegExp(r'^\d+$').hasMatch(value)) {
+      return appContext.appText.pleaseEnterValidAccountNumber;
+    }
+
+    // Length check (commonly 9–18 digits)
+    if (value.length < 9 || value.length > 18) {
+      return appContext.appText.accountNumberMustBeBetween9And18Digits;
+    }
+
+    // Disallow repeated digits like 111111111111
+    if (RegExp(r'^(\d)\1*$').hasMatch(value)) {
+      return appContext.appText.accountNumberCannotHaveSameDigits;
+    }
+
+    return null;
+  }
+  
+ /// IFSC Code
+static String? ifsc(String? value) {
+  if (value == null || value.trim().isEmpty) {
+    return appContext.appText.thisFieldIsRequired;
+  }
+
+  // Uppercase the value for validation
+  final code = value.toUpperCase();
+
+  // Regex validation
+  final regex = RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
+  if (!regex.hasMatch(code)) {
+    return appContext.appText.pleaseEnterValidIfscCode;
   }
 
   return null;
 }
-
+ 
 }
 

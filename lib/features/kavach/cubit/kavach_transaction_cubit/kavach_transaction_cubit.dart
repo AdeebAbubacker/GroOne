@@ -1,6 +1,7 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../../../data/model/result.dart';
+import '../../model/kavach_order_list_model.dart';
 import '../../model/kavach_transaction_model.dart';
 import '../../repository/kavach_repository.dart';
 part 'kavach_transaction_state.dart';
@@ -24,36 +25,25 @@ class KavachTransactionsCubit extends Cubit<KavachTransactionsState> {
     emit(const KavachTransactionsInitial());
   }
 
-  Future<void> fetchTransactions() async {
-    if (_isClosed) return;
-    
-    if (!_isClosed) {
-      emit(const KavachTransactionsLoading());
-    }
-    
-    try {
-      final result = await _repository.fetchTransactions();
-      
-      if (_isClosed) return;
-      
-      if (result is Success<List<KavachTransactionModel>>) {
-        if (!_isClosed) {
-          emit(KavachTransactionsLoaded(result.value));
-        }
-      } else if (result is Error<List<KavachTransactionModel>>) {
-        if (!_isClosed) {
-          emit(KavachTransactionsError(result.type));
-        }
-      } else {
-        if (!_isClosed) {
-          emit(KavachTransactionsError(GenericError()));
-        }
-      }
-    } catch (e) {
-      if (!_isClosed) {
-        emit(KavachTransactionsError(GenericError()));
-      }
+  Future<void> fetchTransactions({int fleetProductId = 2}) async {
+    emit(const KavachTransactionsLoading());
+
+    final result = await _repository.fetchCustomerOrders(fleetProductId: fleetProductId);
+
+    if (result is Success<KavachOrderListResponse>) {
+      // Flatten all payments
+      final payments = result.value.orders
+          .expand((order) => order.payments)
+          .toList();
+
+      emit(KavachTransactionsLoaded(payments));
+    } else if (result is Error<KavachOrderListResponse>) {
+      emit(KavachTransactionsError(result.type));
+    } else {
+      emit(KavachTransactionsError(GenericError()));
     }
   }
+
+
 }
 

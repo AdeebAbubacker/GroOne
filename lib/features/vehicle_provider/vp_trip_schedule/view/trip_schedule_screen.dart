@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
-import 'package:gro_one_app/features/profile/view/master_screen.dart';
+import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -89,13 +89,16 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.white,
-      appBar: CommonAppBar(
+    return SafeArea(
+      top: false,
+      child: Scaffold(
         backgroundColor: AppColors.white,
-        title: context.appText.tripScheduling,
+        appBar: CommonAppBar(
+          backgroundColor: AppColors.white,
+          title: context.appText.tripScheduling,
+        ),
+        body: _buildBodyWidget(),
       ),
-      body: _buildBodyWidget(),
     );
   }
 
@@ -207,11 +210,12 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       onTap: () async {
                         final String? date = await commonDatePicker(
                           context,
-                          firstDate: DateTime.now(),
-                          initialDate:
-                              DateTimeHelper.convertToDateTimeWithCurrentTime(
-                                DateTime.now().toString(),
-                              ),
+                          firstDate:  loadDetails?.pickUpDateTime?.add(Duration(
+                            days: 1
+                          )),
+                          initialDate: loadDetails?.pickUpDateTime?.add(Duration(
+                              days: 1
+                          )),
                         );
                         if (!context.mounted) return;
                         final String? time = await commonTimePicker(context);

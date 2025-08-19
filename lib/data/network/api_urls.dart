@@ -90,6 +90,7 @@ class ApiUrls {
   static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
   static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
   static final String  panVerification = "https://groone-uat.letsgro.co/pan/api/v1/send_pan";
+  static final String  verifiedDocument = "$_baseUrl$_customer$_path$_v1/kyc/verify-doc-number";
 
 
 
@@ -168,9 +169,11 @@ class ApiUrls {
   static String  kavachAddress = "$_baseUrl$_customer$_path$_v1/address";
   static String  kavachTruckType = "$_loadBaseUrl/truck-types/types";
   static String  kavachTruckSubType = "$_loadBaseUrl/truck-types/sub-types";
+  static String kavachInvoice(String orderId) =>
+      "$_baseUrl$_fleet$_path$_v1/invoices/$orderId/get-or-create";
   static String  kavachVehicleVerification = "https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number";
-  // static final String kavachPayment = "$_fetchUrl$_vendor$_path$_v1/payment/addCustomerPaymentOption";
-  //static final String  kavachtruckType = "$loadTruckType/truck-types/distinct/types";
+  //payment-broker/api/v1/payment/fleetPaymentStatus
+  static final String  fleetPaymentStatus = "$_paymentBrokerBase/payment/fleetPaymentStatus";
 
   /// En-Dhan
   static final String enDhanKycUpload = "$_fetchUrl$_vendor$_path$_v1/dtplus/customerDocument";
@@ -189,6 +192,7 @@ class ApiUrls {
   static final String enDhanVehicleTypes = "$_fetchUrl$_vendor$_path$_v1/dtplus/vehicleType";
   static final String enDhanTransaction = "$_fetchUrl$_vendor$_path$_v1/dtplus/getTransaction";
   static String enDhanGetPincode(String pincode) => "$_fetchUrl$_vendor$_path$_v1/dtplus/getPincode/$pincode";
+  static final String enDhanServerStatus = "$_fetchUrl$_vendor$_path$_v1/dtplus/endhanServerStatus";
 
   /// GPS
   static final String gpsDocumentUpload = ApiUrls.enDhanKycUpload;
@@ -200,6 +204,11 @@ class ApiUrls {
   static final String gpsOrderSummary = "$_baseUrl$_fleet$_path$_v1/orders/order-summary";
   static final String gpsCustomerOrdersList = "$_baseUrl$_fleet$_path$_v1/orders/customer-orders/list";
 
+  ///Fastag
+  static final String fastagAddVehicle = "$_fetchUrl$_vendor$_path$_v1/fast-tag/addVehicle";
+  //https://gro-uat-api.letsgro.co/vendor/api/v1/fast-tag/card/$customerId
+  static  String fastagOrderList(String customerId) => "$_fetchUrl$_vendor$_path$_v1/fast-tag/card/$customerId";
+
   ///Gps and kavach payment initate
   static final String fleetPayment = "$_fetchUrl$_paymentBroker$_path$_v1/payment/initiate";
 
@@ -207,7 +216,7 @@ class ApiUrls {
   static final String documentUpload = "$_fetchUrl/document/api/v1/upload";
 
   // User Management API
-  static final String getAllUsers = "$_fetchUrl/user/api/v1/users/allUsers";
+  static final String getAllUsers = "$_fetchUrl/user/api/v1/users/getReferralCode";
 
   /// Google Map
   static String  googleDirectionApi = "$_baseUrl/ratediscovery/api/v1/map-location/directions";
@@ -261,7 +270,7 @@ class ApiUrls {
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
   static final String getTicketList = "$_baseUrl$_customer$_path$_v1/support-ticket/";
   static final String createTicket = "$_baseUrl$_customer$_path$_v1/support-ticket/";
-
+  static final String createVehicle = "$_baseUrl$_customer$_path$_v1/vehicle";
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";
   static final String checkVehicleNumber = "$_fetchUrl$_customer$_path$_v1/vehicle/check/vehicle-no/";
   static final String checkLicenseNumber = "$_fetchUrl$_customer$_path$_v1/drivers/check-license/";

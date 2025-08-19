@@ -1,7 +1,7 @@
 class TrackingDistanceResponse {
   TrackingDistanceResponse({
-    required this.currentdistance,
-    required this.currentdistanceValue,
+    required this.covereddistance,
+    required this.covereddistanceValue,
     required this.overalldistance,
     required this.overalldistanceValue,
     required this.duration,
@@ -10,8 +10,8 @@ class TrackingDistanceResponse {
     required this.coverPercentage,
   });
 
-  final String currentdistance;
-  final int currentdistanceValue;
+  final String covereddistance;
+  final int covereddistanceValue;
   final String overalldistance;
   final int overalldistanceValue;
   final String duration;
@@ -21,8 +21,8 @@ class TrackingDistanceResponse {
 
 
   TrackingDistanceResponse copyWith({
-    String? currentdistance,
-    int? currentdistanceValue,
+    String? covereddistance,
+    int? covereddistanceValue,
     String? overalldistance,
     int? overalldistanceValue,
     String? duration,
@@ -32,8 +32,8 @@ class TrackingDistanceResponse {
   }) {
     return TrackingDistanceResponse(
       coverPercentage: coverPercentage ?? this.coverPercentage,
-      currentdistance: currentdistance ?? this.currentdistance,
-      currentdistanceValue: currentdistanceValue ?? this.currentdistanceValue,
+      covereddistance: covereddistance ?? this.covereddistance,
+      covereddistanceValue: covereddistanceValue ?? this.covereddistanceValue,
       overalldistance: overalldistance ?? this.overalldistance,
       overalldistanceValue: overalldistanceValue ?? this.overalldistanceValue,
       duration: duration ?? this.duration,
@@ -44,8 +44,8 @@ class TrackingDistanceResponse {
 
   factory TrackingDistanceResponse.fromJson(Map<String, dynamic> json){
     return TrackingDistanceResponse(
-      currentdistance: json["currentdistance"] ?? "",
-      currentdistanceValue: json["currentdistanceValue"] ?? 0,
+      covereddistance: json["covereddistance"] ?? "",
+      covereddistanceValue: json["covereddistanceValue"] ?? 0,
       overalldistance: json["overalldistance"] ?? "",
       overalldistanceValue: json["overalldistanceValue"] ?? 0,
       duration: json["duration"] ?? "",

@@ -7,6 +7,8 @@ import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_reque
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
+import '../../models/gps_payment_status_response.dart';
+
 // Events
 abstract class GpsOrderEvent {}
 
@@ -27,6 +29,12 @@ class InitiateGpsPayment extends GpsOrderEvent {
 
   InitiateGpsPayment(this.request);
 }
+
+class CheckGpsPaymentStatus extends GpsOrderEvent {
+  final String requestId;
+  CheckGpsPaymentStatus(this.requestId);
+}
+
 
 // States
 abstract class GpsOrderState {}
@@ -75,11 +83,23 @@ class GpsPaymentFailure extends GpsOrderState {
   GpsPaymentFailure(this.message);
 }
 
+class GpsPaymentStatusSuccess extends GpsOrderState {
+  final PaymentStatusResponse statusResponse;
+  GpsPaymentStatusSuccess(this.statusResponse);
+}
+
+class GpsPaymentStatusFailure extends GpsOrderState {
+  final String message;
+  GpsPaymentStatusFailure(this.message);
+}
+
+
 // Cubit
 class GpsOrderCubit extends Cubit<GpsOrderState> {
   final GpsOrderApiRepository _repository;
   final UserInformationRepository _userRepository;
   bool _isClosed = false;
+  String? paymentRequestId;
 
   GpsOrderCubit(this._repository, this._userRepository) : super(GpsOrderInitial());
 
@@ -162,6 +182,7 @@ class GpsOrderCubit extends Cubit<GpsOrderState> {
     try {
       final result = await _repository.initiatePayment(request);
       if (result is Success<OrderAddedSuccess>) {
+        paymentRequestId = result.value.data?.data?.paymentRequestId;
         emit(GpsPaymentSuccess(result.value));
       } else if (result is Error<OrderAddedSuccess>) {
         final errorMessage = result.type is ErrorWithMessage
@@ -177,4 +198,31 @@ class GpsOrderCubit extends Cubit<GpsOrderState> {
   Future<String?> getUserId() async {
     return await _userRepository.getUserID();
   }
+
+  Future<void> checkPaymentStatus(String requestId) async {
+    try {
+      emit(GpsPaymentInitiating());
+      final result = await _repository.checkPaymentStatus(requestId);
+
+      if (result is Success<PaymentStatusResponse>) {
+        final status = result.value.findData?.status;
+
+        if (status == "Success") {
+          emit(GpsPaymentStatusSuccess(result.value));
+        } else {
+          emit(GpsPaymentStatusFailure("Payment failed. Status: $status"));
+        }
+      } else if (result is Error<PaymentStatusResponse>) {
+        final errorMessage = result.type is ErrorWithMessage
+            ? (result.type as ErrorWithMessage).message
+            : 'Failed to check payment status';
+        emit(GpsPaymentStatusFailure(errorMessage));
+      }
+    } catch (e) {
+      emit(GpsPaymentStatusFailure(e.toString()));
+    }
+  }
+
+
+
 } 

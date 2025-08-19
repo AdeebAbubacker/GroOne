@@ -49,6 +49,9 @@ class ToastMessages{
 
   /// Error Msg
   static error({required String message}) {
+    if(message == 'The access token is invalid or has expired') {
+      return;
+    }
     Flushbar(
       messageText: Text(message, style: AppTextStyle.body),
       flushbarPosition: FlushbarPosition.TOP ,

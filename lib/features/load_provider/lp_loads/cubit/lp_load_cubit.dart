@@ -520,7 +520,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   void _updateConsigneeState(UIState<ConsigneAddedSuccessModel>? uiState) {
     emit(state.copyWith(lpUpdateConsignee: uiState));
   }
-
+  
+  void _isFieldUpdabled(bool isFieldUpdable){
+    emit(state.copyWith(isFieldUpdatble: isFieldUpdable));
+  }
   // Updates Excisting consignee to a load
   Future<void> updateConsignee({required UpdateConsigneeApiRequest updateConsigneeReq,required String consigneeId}) async {
     _updateConsigneeState(UIState.loading());

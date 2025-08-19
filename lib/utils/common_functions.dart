@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
@@ -6,32 +7,28 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
-import 'package:gro_one_app/utils/global_variables.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
-import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
 import 'package:mime/mime.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as path;
+import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'app_dialog.dart';
 import 'app_image.dart';
-import 'common_dialog_view/common_dialog_view.dart';
 import 'constant_variables.dart';
 
 /// Field Focus change
@@ -235,17 +232,22 @@ class ImagePickerFrom {
   static Future<T?> fromCamera<T>({List? allowedExtensions}) async {
     dynamic imageFile;
     final XFile? pickedFromCamera = await picker.pickImage(
-      source: ImageSource.camera,);
+      source: ImageSource.camera,
+    );
     if (pickedFromCamera == null) {
       ToastMessages.alert(message: appContext.appText.noImageSelected);
     } else {
-      final compressedFIle= await ImagePickerFrom.compressImage(File(pickedFromCamera.path));
-      if(compressedFIle==null){
+      final compressedFIle = await ImagePickerFrom.compressImage(
+        File(pickedFromCamera.path),
+      );
+      if (compressedFIle == null) {
         return null;
       }
-      final File fileImage = File(pickedFromCamera.path??"");
+      final File fileImage = File(pickedFromCamera.path ?? "");
       final File fileName = File(pickedFromCamera.name);
-      final String fileExtension = path.extension(pickedFromCamera.path).replaceFirst('.', '');
+      final String fileExtension = path
+          .extension(pickedFromCamera.path)
+          .replaceFirst('.', '');
       dynamic data = {
         "fileName": compressedFIle.path,
         "path": compressedFIle.path,
@@ -264,43 +266,42 @@ class ImagePickerFrom {
     dynamic imageFile;
     final XFile? pickedFromGallery = await picker.pickImage(
       source: ImageSource.gallery,
-
     );
     if (pickedFromGallery == null) {
       ToastMessages.alert(message: appContext.appText.noImageSelected);
     } else {
       final compressedFile = await compressImage(File(pickedFromGallery.path));
 
-      int fileSize =await  compressedFile?.length()??0;
-      if(compressedFile==null){
+      int fileSize = await compressedFile?.length() ?? 0;
+      if (compressedFile == null) {
         return null;
       }
 
       final File fileImage = File(compressedFile.path);
       final File fileName = File(compressedFile.name);
-      final String fileExtension = path.extension(compressedFile.path).replaceFirst('.', '');
+      final String fileExtension = path
+          .extension(compressedFile.path)
+          .replaceFirst('.', '');
       dynamic data = {
         "fileName": compressedFile.path,
         "path": compressedFile.path,
         "extension": fileExtension,
         "dateTime": DateTime.now().toString(),
       };
-      if (_imageConstraint(File(compressedFile.path), allowedExtensions: allowedExtensions)) {
+      if (_imageConstraint(
+        File(compressedFile.path),
+        allowedExtensions: allowedExtensions,
+      )) {
         imageFile = data;
       }
     }
     return imageFile;
   }
 
-
-
-
-
   static Future<XFile?> compressImage(File file) async {
     print("call compress image");
     const int maxSizeInBytes = 5 * 1024 * 1024;
     const int minQuality = 30;
-
 
     final mimeType = lookupMimeType(file.path);
     if (mimeType == null || !mimeType.startsWith('image/')) {
@@ -330,7 +331,9 @@ class ImagePickerFrom {
 
       if (result != null && await result.length() <= maxSizeInBytes) {
         final compressedSize = await result.length();
-        print("📉 Compressed (quality $quality): ${(compressedSize / (1024 * 1024)).toStringAsFixed(2)} MB");
+        print(
+          "📉 Compressed (quality $quality): ${(compressedSize / (1024 * 1024)).toStringAsFixed(2)} MB",
+        );
 
         if (compressedSize <= maxSizeInBytes) {
           compressedFile = File(result.path);
@@ -344,29 +347,19 @@ class ImagePickerFrom {
     if (compressedFile == null) {
       print("❌ Compression failed or still too large. Returning original.");
     } else {
-      print("✅ Final compressed size: ${(await compressedFile.length() / (1024 * 1024)).toStringAsFixed(2)} MB");
+      print(
+        "✅ Final compressed size: ${(await compressedFile.length() / (1024 * 1024)).toStringAsFixed(2)} MB",
+      );
     }
 
     return XFile(compressedFile?.path ?? file.path);
   }
 
-
-
-
-
-
   // Image Constraint
   static bool _imageConstraint(File image, {List? allowedExtensions}) {
     final extension = image.path.split('.').last.toLowerCase();
 
-    final defaultAllowed = [
-      'jpg',
-      'jpeg',
-      'png',
-      'heif',
-      'heic',
-      'pdf',
-    ];
+    final defaultAllowed = ['jpg', 'jpeg', 'png', 'heif', 'heic', 'pdf'];
 
     if (!(allowedExtensions ?? defaultAllowed).contains(extension)) {
       ToastMessages.alert(message: appContext.appText.imageSupport);
@@ -387,8 +380,6 @@ Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
       allowMultiple: false,
       withData: true,
       withReadStream: true,
-
-
     );
 
     if (result == null || result.files.isEmpty) {
@@ -419,20 +410,22 @@ Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
       "mp3",
     };
 
-    final extensionSet = allowedExtensions != null
-        ? allowedExtensions.map((e) => e.toLowerCase()).toSet()
-        : defaultAllowedExtensions;
+    final extensionSet =
+        allowedExtensions != null
+            ? allowedExtensions.map((e) => e.toLowerCase()).toSet()
+            : defaultAllowedExtensions;
 
     var validFiles = {};
 
     for (final file in result.files) {
       final extension = file.extension?.toLowerCase() ?? '';
-      final compressedFIle= await ImagePickerFrom.compressImage(File(file.path!));
+      final compressedFIle = await ImagePickerFrom.compressImage(
+        File(file.path!),
+      );
       String? path;
-      if(compressedFIle!=null){
+      if (compressedFIle != null) {
         path = compressedFIle.path;
       }
-
 
       if (!extensionSet.contains(extension)) {
         ToastMessages.alert(message: "Invalid file format: ${file.name}");
@@ -451,13 +444,12 @@ Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
         "dateTime": DateTime.now().toString(),
       };
 
-      if ((await compressedFIle?.length()??0) > 5 * 1024 * 1024) {
+      if ((await compressedFIle?.length() ?? 0) > 5 * 1024 * 1024) {
         ToastMessages.alert(message: appContext.appText.imageSize);
         return null;
       } else {
         return validFiles;
       }
-
     }
     return null;
   } catch (e) {
@@ -500,13 +492,13 @@ String getErrorMsg({required ErrorType errorType}) {
       return context.appText.genericError;
     case InternetNetworkError _:
       return context.appText.networkError;
-    case BadRequestError _://
+    case BadRequestError _: //
       return errorType.getText(appContext);
     case TokenExpiredError _:
       return context.appText.tokenExpireError;
     case InvalidTokenError _:
       return context.appText.invalidTokenError;
-    case ConflictError _://
+    case ConflictError _: //
       return errorType.message ?? '';
     case DeserializationError _:
       return context.appText.deserializationError;
@@ -528,6 +520,10 @@ String getErrorMsg({required ErrorType errorType}) {
       return errorType.message ?? '';
     case ErrorWithMessage _:
       return errorType.message;
+    case GpsDeviceActivationError _:
+      return errorType.getText(appContext);
+    case NoLoadsFoundError _:
+      return errorType.getText(appContext);
     default:
       return "(${errorType.toString()}) error".capitalize;
   }
@@ -636,8 +632,6 @@ String formatDateTimeKavach(String dateTimeString) {
 
   return formatted;
 }
-
-
 
 /// Common Support Dialog
 void commonSupportDialog(BuildContext context, {String? message}) {

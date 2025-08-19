@@ -8,8 +8,6 @@ import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_event.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_state.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -167,7 +165,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       String? companyName = await userInfoRepo.getUsername();
       String? contactNumber = await userInfoRepo.getUserMobileNumber();
       String? blueId = await userInfoRepo.getBlueID();
-      
+      String? email = await userInfoRepo.getUserEmail();
+      String? mobileNumber = await userInfoRepo.getUserMobileNumber();
+
       // If session data is not available, fetch from profile
       if (companyName == null || companyName.isEmpty) {
         await profileCubit.fetchProfileDetail();
@@ -177,6 +177,8 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           final customer = profileState.profileDetailUIState!.data!.customer!;
           companyName = customer.companyName.isNotEmpty ? customer.companyName : customer.customerName;
           contactNumber = customer.mobileNumber;
+          mobileNumber = customer.mobileNumber;
+          email = customer.emailId;
           blueId = customer.blueId?.toString() ?? "";
         }
       }
@@ -185,14 +187,18 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       return {
         "CompanyName": companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
         "contactNumber": contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
-        "BlueMembershipID": blueId?.isNotEmpty == true ? blueId! : "BLUE123456"
+        "BlueMembershipID": blueId?.isNotEmpty == true ? blueId! : "BLUE123456",
+        "email": email ?? "venkat03it@gmail.com",
+        "mobileNumber": mobileNumber ?? "9876543210",
       };
     } catch (e) {
       // Return hardcoded values as fallback
       return {
         "CompanyName": "ABC Logistics Pvt Ltd",
         "contactNumber": "9876543210",
-        "BlueMembershipID": "BLUE123456"
+        "BlueMembershipID": "BLUE123456",
+        "email": "venkat03it@gmail.com",
+        "mobileNumber": "9876543210",
       };
     }
   }
@@ -340,95 +346,49 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<KavachOrderBloc, KavachOrderState>(
-      bloc: kavachOrderBloc,
-      listener: (context, state) async {
-        if (state is KavachOrderSubmitting) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
-        } else if (state is KavachOrderSuccess) {
-          // Dismiss loading dialog first
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          }
-          
-          // Wait a bit to ensure dialog is dismissed
-          await Future.delayed(Duration(milliseconds: 100));
-          
-          // Navigate to summary screen with order data
-          if (context.mounted) {
-            Navigator.of(context).push(
-              commonRoute(
-                KavachSummaryScreen(
-                  products: _products,
-                  quantities: _quantities,
-                  availableStocks: _availableStocks,
-                  shippingAddress: _getCurrentShippingAddress(context)!,
-                  billingAddress: _getCurrentBillingAddress(context)!,
-                  selectedVehicleNumbers: _getSelectedVehicles(),
-                  shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
-                  shippingPersonInCharge: shippingPersonInChargeController.text.trim(),
-                  orderReferencedBy: referralCodeController.text.trim(),
-                  selectedVehiclePerProduct: vehicleControllersPerProduct.map(
-                    (key, value) => MapEntry(
-                      key,
-                      value.map((controller) => controller.text.trim()).toList(),
-                    ),
+    return Scaffold(
+      appBar: CommonAppBar(
+        centreTile: false,
+        title: context.appText.checkout,
+        leading : IconButton(
+            onPressed: () {
+              Navigator.of(context).pop({
+                'quantities': _quantities,
+                'vehicles': vehicleControllersPerProduct.map(
+                      (key, value) => MapEntry(
+                    key,
+                    value.map((controller) => controller.text.trim()).toList(),
                   ),
-                  orderId: state.orderId, // Pass the order ID to summary screen
                 ),
-              ),
-            );
-          }
-        }
-      },
-      child: Scaffold(
-        appBar: CommonAppBar(
-          centreTile: false,
-          title: context.appText.checkout,
-          leading : IconButton(
-              onPressed: () {
-                Navigator.of(context).pop({
-                  'quantities': _quantities,
-                  'vehicles': vehicleControllersPerProduct.map(
-                        (key, value) => MapEntry(
-                      key,
-                      value.map((controller) => controller.text.trim()).toList(),
-                    ),
-                  ),
-                  'referralCode': referralCodeController.text.trim(),
-                  'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
-                  'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
-                  'shippingSameAsBilling': shippingSameAsBilling,
-                  'selectedBillingAddress': selectedBillingAddress,
-                  'selectedShippingAddress': selectedShippingAddress,
-                  'billingAddresses': billingAddresses,
-                  'shippingAddresses': shippingAddresses,
-              });
-            },
-            icon: SvgPicture.asset(
-              AppIcons.svg.goBack,
-              colorFilter: AppColors.svg(Colors.black),
-            ),
+                'referralCode': referralCodeController.text.trim(),
+                'shippingPersonInCharge': shippingPersonInChargeController.text.trim(),
+                'shippingPersonContactNo': shippingPersonContactNoController.text.trim(),
+                'shippingSameAsBilling': shippingSameAsBilling,
+                'selectedBillingAddress': selectedBillingAddress,
+                'selectedShippingAddress': selectedShippingAddress,
+                'billingAddresses': billingAddresses,
+                'shippingAddresses': shippingAddresses,
+            });
+          },
+          icon: SvgPicture.asset(
+            AppIcons.svg.goBack,
+            colorFilter: AppColors.svg(Colors.black),
           ),
-
-          actions: [
-            AppIconButton(
-              onPressed: () {
-                Navigator.push(context, commonRoute(KavachSupportScreen()));
-              },
-              icon: AppIcons.svg.filledSupport,
-              iconColor: AppColors.primaryButtonColor,
-            ),
-            5.width,
-          ],
         ),
-        bottomNavigationBar: buildPlaceOrderButtonWidget(),
-        body: buildBodyWidget(context),
+
+        actions: [
+          AppIconButton(
+            onPressed: () {
+              Navigator.push(context, commonRoute(KavachSupportScreen()));
+            },
+            icon: AppIcons.svg.filledSupport,
+            iconColor: AppColors.primaryButtonColor,
+          ),
+          5.width,
+        ],
       ),
+      bottomNavigationBar: buildPlaceOrderButtonWidget(),
+      body: buildBodyWidget(context),
     );
   }
 
@@ -1175,9 +1135,12 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             createdEmpUserId = 52864; // Employee ID for referral code GDP00584
           }
 
+          int? customerSeries = await userInfoRepo.getCustomerSeriesId();
+
           final request = KavachOrderRequest(
             orderSource: "MOBILE",
-            isOrderPaid: false, // Set to false since payment will be handled separately
+            customerSeriesId: customerSeries??200,
+            isOrderPaid: true, // Set to false since payment will be handled separately
             customerId: await kavachOrderBloc.getUserId() ?? '',
             createdEmpUserId: createdEmpUserId,
             createdEmpId: createdEmpId,
@@ -1195,7 +1158,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               "city": billingState.selectedAddress.city,
               "state": billingState.selectedAddress.state,
               "postalCode": billingState.selectedAddress.pincode,
-              "country": billingState.selectedAddress.country,
+              "country": 'India',
               "gstId": billingState.selectedAddress.gstin ?? "",
             },
             shippingAddress: {
@@ -1204,7 +1167,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
               "city": shippingState.selectedAddress.city,
               "state": shippingState.selectedAddress.state,
               "postalCode": shippingState.selectedAddress.pincode,
-              "country": shippingState.selectedAddress.country,
+              "country": 'India',
               "gstId": shippingState.selectedAddress.gstin ?? ""
             },
             orders: _products.map((product) {
@@ -1223,7 +1186,29 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
             }).toList(),
           );
 
-          kavachOrderBloc.add(KavachSubmitOrder(request));
+          // kavachOrderBloc.add(KavachSubmitOrder(request));
+          Navigator.of(context).push(
+            commonRoute(
+              KavachSummaryScreen(
+                products: _products,
+                quantities: _quantities,
+                availableStocks: _availableStocks,
+                shippingAddress: _getCurrentShippingAddress(context)!,
+                billingAddress: _getCurrentBillingAddress(context)!,
+                selectedVehicleNumbers: _getSelectedVehicles(),
+                shippingPersonContactNo: shippingPersonContactNoController.text.trim(),
+                shippingPersonInCharge: shippingPersonInChargeController.text.trim(),
+                orderReferencedBy: referralCodeController.text.trim(),
+                selectedVehiclePerProduct: vehicleControllersPerProduct.map(
+                      (key, value) => MapEntry(
+                    key,
+                    value.map((controller) => controller.text.trim()).toList(),
+                  ),
+                ),
+                kavachOrderRequest: request, // Pass full request object instead of orderId
+              ),
+            ),
+          );
         } else {
           ToastMessages.alert(message: context.appText.completeAllFields);
         }

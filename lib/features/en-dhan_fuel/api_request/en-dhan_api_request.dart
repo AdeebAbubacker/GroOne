@@ -7,6 +7,7 @@ class EnDhanKycApiRequest {
   final String? aadharDocLink;
   final String? panDocLink;
   final bool? isPan;
+  final bool fromFleet;
 
 
 
@@ -17,13 +18,15 @@ class EnDhanKycApiRequest {
     this.panDocLink,
     this.isPan,
     this.aadharDocLink,
+    this.fromFleet = true,
   });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = {
       'aadhar': aadhar,
       'isAadhar': isAadhar,
-      'aadhar_doc_link': aadharDocLink
+      'aadhar_doc_link': aadharDocLink,
+      'fromFleet': fromFleet,
     };
 
     // Only include PAN fields if PAN is provided
@@ -40,7 +43,7 @@ class EnDhanKycApiRequest {
 
   @override
   String toString() {
-    return 'EnDhanKycApiRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
+    return 'EnDhanKycApiRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan, fromFleet: $fromFleet}';
   }
 }
 

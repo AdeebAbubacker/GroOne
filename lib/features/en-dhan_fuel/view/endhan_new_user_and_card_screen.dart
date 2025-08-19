@@ -63,6 +63,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     // Initialize API calls with a small delay to ensure cubit is ready
     Future.microtask(() {
       if (!cubit.isClosed && mounted) {
+        cubit.checkEndhanServerStatus();
         cubit.checkKycDocuments();
       }
     });
@@ -181,14 +182,6 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               textAlign: TextAlign.center,
             ),
             12.height,
-            // Supporting message
-            Text(
-              context.appText.addYourFirstFuelCard,
-              style: AppTextStyle.body3.copyWith(
-                color: AppColors.greyTextColor,
-              ),
-              textAlign: TextAlign.center,
-            ),
           ],
         ),
       ),
@@ -386,13 +379,48 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                       onPressed: () {
                         // Check if there are already cards
                         final cards = state.cardsState?.data?.data?.document ?? [];
-                        // if (cards.isNotEmpty) {
-                        //   // Show popup if cards already exist
-                        //   _showAlreadyAddedCardDialog(context);
-                        // } else {
-                          // Navigate to create card screen if no cards exist
-                          Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
-                      // }
+                        if (cards.isNotEmpty) {
+                          // Show popup if cards already exist
+                          _showAlreadyAddedCardDialog(context);
+                        } else {
+                          final serverStatus = state.endhanServerStatusState;
+
+                          // ✅ Check loading or error state first
+                          if (serverStatus?.status == Status.LOADING) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Checking Endhan server...")),
+                            );
+                            return;
+                          }
+
+                          if (serverStatus?.status == Status.ERROR) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text("Could not check Endhan server status")),
+                            );
+                            return;
+                          }
+
+                          // ✅ Now check API response
+                          if (serverStatus?.data?["success"] == false) {
+                            // Server is down, show dialog instead of navigating
+                            AppDialog.show(
+                              context,
+                              dismissible: true,
+                              child: CommonDialogView(
+                                hideCloseButton: true,
+                                onTapSingleButton: () => Navigator.of(context).pop(),
+                                onSingleButtonText: context.appText.ok,
+                                child: Text(
+                                  serverStatus?.data?["message"] ?? "Endhan server not working",
+                                  style: AppTextStyle.h5.copyWith(color: Colors.red),
+                                ),
+                              ),
+                            );
+                          }else{
+                            // Navigate to create card screen if no cards exist
+                            Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                          }
+                      }
                       },
                       icon: Icon(Icons.add, color: Colors.white),
                       style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -647,6 +675,35 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             child: AppButton(
                 title: context.appText.buyNewFuelCard,
                 onPressed: (){
+                  final serverStatus = context.read<EnDhanCubit>().state.endhanServerStatusState;
+                  if (serverStatus?.status == Status.LOADING) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Checking Endhan server...")),
+                    );
+                    return;
+                  }
+                  if (serverStatus?.status == Status.ERROR) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Could not check Endhan server status")),
+                    );
+                    return;
+                  }
+                  if (serverStatus?.data?["success"] == false) {
+                    AppDialog.show(
+                      context,
+                      dismissible: true,
+                      child: CommonDialogView(
+                        hideCloseButton: true,
+                        onTapSingleButton: () => Navigator.of(context).pop(),
+                        onSingleButtonText: context.appText.ok,
+                        child: Text(
+                          serverStatus?.data?["message"] ?? "Endhan server not working",
+                          style: AppTextStyle.h5.copyWith(color: Colors.red),
+                        ),
+                      ),
+                    );
+                    return;
+                  }
                   if (showKycScreen) {
                     final kycData = context.read<EnDhanCubit>().state.kycData;
                     final document = kycData?.document;

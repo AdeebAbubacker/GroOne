@@ -22,7 +22,10 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
    final void Function()? onLeadingTap;
    final PreferredSizeWidget? bottom;
    final bool? centreTile;
-  const CommonAppBar({super.key, this.isLeading ,this.backgroundColor, this.elevation, this.actions, this.title, this.titleColor, this.leading, this.leadingColor, this.onLeadingTap, this.bottom, this.toolbarHeight, this.leadingStyle, this.scrolledUnderElevation,  this.isCrossLeadingIcon = false, this.centreTile = true});
+   final bool? showInUpperCase;
+  const CommonAppBar({super.key,
+    this.showInUpperCase,
+    this.isLeading ,this.backgroundColor, this.elevation, this.actions, this.title, this.titleColor, this.leading, this.leadingColor, this.onLeadingTap, this.bottom, this.toolbarHeight, this.leadingStyle, this.scrolledUnderElevation,  this.isCrossLeadingIcon = false, this.centreTile = true});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +33,10 @@ class CommonAppBar extends StatelessWidget implements PreferredSizeWidget {
     Widget? getWidget(){
       if(title is String){
         if(title != null){
-          return Text(title.toString().capitalize, style: AppTextStyle.appBar.copyWith(color: titleColor ?? AppColors.primaryTextColor));
+          String decoratedTitle=title.toString().capitalize;
+          if(showInUpperCase??false) decoratedTitle=title.toString().toUpperCase();
+          return Text(
+              decoratedTitle, style: AppTextStyle.appBar.copyWith(color: titleColor ?? AppColors.primaryTextColor));
         } else {
           return null;
         }

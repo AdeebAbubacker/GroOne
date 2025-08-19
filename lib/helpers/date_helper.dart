@@ -66,7 +66,7 @@ class DateTimeHelper {
   /// Output: 14 Jul, 2025, 7.30 PM
   static String formatCustomDate(DateTime date) {
     try {
-    return DateFormat("d MMM y, h.mm a").format(date.toLocal());
+    return DateFormat("d MMM y, hh:mm a").format(date.toLocal());
     } catch (e) {
       return "Invalid Date";
     }
@@ -77,7 +77,7 @@ class DateTimeHelper {
     try {
       if (date == null) return "Invalid Date";
       final istDate = date.toUtc().add(const Duration(hours: 5, minutes: 30));
-      return DateFormat("d MMM y, h.mm a").format(istDate);
+      return DateFormat("d MMM y, hh:mm a").format(istDate);
     } catch (e) {
       return "Invalid Date";
     }
@@ -169,7 +169,7 @@ class DateTimeHelper {
   static String getCurrentDateTimeWithAddedDuration(int durationInSeconds) {
     try {
       final dateTime = DateTime.now().add(Duration(seconds: durationInSeconds));
-      return DateFormat("d MMM y, h.mm a").format(dateTime);
+      return DateFormat("d MMM y, hh:mm a").format(dateTime);
     } catch (e) {
       return "Invalid Date";
     }

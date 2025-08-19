@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
@@ -18,6 +19,7 @@ import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/doc_verification_model.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
@@ -30,6 +32,7 @@ import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/utils/app_string.dart';
 part 'kyc_state.dart';
 
 
@@ -116,7 +119,9 @@ class KycCubit extends BaseCubit<KycState> {
   }
 
   Future<void> sendKycRequest(KycInitRequest request) async {
-    emit(state.copyWith(kycInitResponse: UIState.loading()));
+    emit(state.copyWith(
+        docVerificationState: resetUIState<DocVerificationModel>(state.docVerificationState),
+        kycInitResponse: UIState.loading()));
     Result result = await _repo.initKycRequest(request);
     if (result is Success<KycInitResponse>) {
       emit(state.copyWith(kycInitResponse: UIState.success(result.value)));
@@ -128,6 +133,7 @@ class KycCubit extends BaseCubit<KycState> {
 
   Future<void> getKYCStatus(String requestID) async {
     emit(state.copyWith(
+        docVerificationState: resetUIState<DocVerificationModel>(state.docVerificationState),
         kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
         aadharVerificationResponse: UIState.loading()));
     Result result = await _repo.getKYCStatus(requestID);
@@ -153,10 +159,11 @@ class KycCubit extends BaseCubit<KycState> {
 
 
   // Verify Gst
-  Future<void> verifyGst(VerifyGstApiRequest request) async {
+  Future<void> verifyGst(VerifyGstApiRequest request,SecuredSharedPreferences securePrefs) async {
     emit(state.copyWith(gstState: UIState.loading()));
     Result result = await _repo.verifyGST(request);
     if (result is Success<bool>) {
+      await securePrefs.saveBoolean(AppString.sessionKey.isGstNumberVerified, true);
       emit(state.copyWith(verifiedGst: true));
     }
     if (result is Error) {
@@ -178,6 +185,33 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
+  // Verify Doc
+  Future<void> verifyDocId(String aadharNumber) async {
+    emit(state.copyWith(
+        kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
+        docVerificationState: UIState.loading()));
+    Result result = await _repo.verifiedDocID(aadharNumber);
+    if (result is Success<DocVerificationModel>) {
+      emit(state.copyWith(docVerificationState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(docVerificationState: UIState.error(result.type)));
+    }
+  }
+
+  // Check Kyc Verified
+  Future<void> checkIsKycNumberVerified(SecuredSharedPreferences securePrefs) async{
+   bool? isPanVerified=await securePrefs.getBooleans(AppString.sessionKey.isPanNumberVerified);
+   bool? isGtsNumberVerified=await  securePrefs.getBooleans(AppString.sessionKey.isGstNumberVerified);
+   bool? isTanNumberVerified= await  securePrefs.getBooleans(AppString.sessionKey.isTanNumberVerified);
+
+
+   emit(state.copyWith(
+       verifiedGst:isGtsNumberVerified ,
+       verifiedTan: isTanNumberVerified,
+       verifiedPan: isPanVerified));
+  }
+
 
   // Verify Pan
   Future<void> verifyPan(VerifyPanApiRequest request) async {
@@ -197,6 +231,7 @@ class KycCubit extends BaseCubit<KycState> {
   void _setUploadGstDocUIState(UIState<UploadGSTDocumentModel>? uiState){
     emit(state.copyWith(uploadGSTDocUIState: uiState));
   }
+
   Future<void> uploadGstDoc(File file) async {
     _setUploadGstDocUIState(UIState.loading());
     Result result = await _repo.getUploadGstData(file);
@@ -213,6 +248,7 @@ class KycCubit extends BaseCubit<KycState> {
   void _setUploadTanDocUIState(UIState<UploadTANDocumentModel>? uiState){
     emit(state.copyWith(uploadTanDocUIState: uiState));
   }
+
   Future<void> uploadTanDoc(File file) async {
     _setUploadTanDocUIState(UIState.loading());
     Result result = await _repo.getUploadTanData(file);

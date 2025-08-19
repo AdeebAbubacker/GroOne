@@ -228,44 +228,49 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   ],
                 ).expand(),
                 5.width,
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      children: [
-                        _buildLocationInfoWidget(
-                          widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ??
-                              "",
-                        ),
-                        Icon(
-                          Icons.arrow_right_alt_outlined,
-                          color: AppColors.primaryColor,
-                        ).paddingSymmetric(horizontal: 2),
-                        _buildLocationInfoWidget(
-                          widget.driverLoadDetails.loadRoute?.dropWholeAddr ??
-                              "",
-                        ),
-                      ],
-                    ),
-                    if (widget.driverLoadDetails.loadStatusId >= 4 &&
-                        widget.driverLoadDetails.loadStatusId != null)
-                      DriverLoadHelper.loadStatusWidget(
-                      statusBgColor: widget.driverLoadDetails?.loadStatusDetails?.statusBgColor,
-                      statusTxtColor: widget.driverLoadDetails?.loadStatusDetails?.statusTxtColor,
-                        (widget.driverLoadDetails.loadOnhold ?? false)
-                            ? context.appText.loadOnHold
-                            : widget
-                                .driverLoadDetails
-                                .loadStatusDetails!
-                                .loadStatus,
-                        context,
-                      ),
-                  ],
-                ).expand(),
+                if (widget.driverLoadDetails.loadStatusId >= 4 &&
+                    widget.driverLoadDetails.loadStatusId != null)
+                  DriverLoadHelper.loadStatusWidget(
+                    statusBgColor:
+                        widget
+                            .driverLoadDetails
+                            ?.loadStatusDetails
+                            ?.statusBgColor,
+                    statusTxtColor:
+                        widget
+                            .driverLoadDetails
+                            ?.loadStatusDetails
+                            ?.statusTxtColor,
+                    (widget.driverLoadDetails.loadOnhold ?? false)
+                        ? context.appText.loadOnHold
+                        : widget
+                            .driverLoadDetails
+                            .loadStatusDetails!
+                            .loadStatus,
+                    context,
+                  ),
               ],
             ),
-
+            10.height,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: _buildLocationInfoWidget(
+                    widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",
+                  ),
+                ),
+                Icon(
+                  Icons.arrow_right_alt_outlined,
+                  color: AppColors.primaryColor,
+                ).paddingSymmetric(horizontal: 2),
+                Expanded(
+                  child: _buildLocationInfoWidget(
+                    widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",
+                  ),
+                ),
+              ],
+            ),
             commonDivider(),
 
             //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
@@ -317,7 +322,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   iconSvg: AppIcons.svg.package,
                 ),
                 detailWidget(
-                  text: "${widget.driverLoadDetails.weight?.value} Tonn",
+                  text: "${widget.driverLoadDetails.weight?.value} ${context.appText.ton}",
                   iconSvg: AppIcons.svg.weight,
                 ),
               ],
@@ -355,7 +360,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   enable: _isButtonEnabled,
                   statusId: widget.driverLoadDetails.loadStatusId,
                   onPressed: () {
-                    if (widget.driverLoadDetails.loadStatusId == 4 &&
+                    if (widget.driverLoadDetails.loadStatusId == 4 || widget.driverLoadDetails.loadStatusId == 9  &&
                         widget.driverLoadDetails.loadMemoDetails == null) {
                       Navigator.push(
                         context,
@@ -459,13 +464,15 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
     return Text(
       locationText,
       style: AppTextStyle.blackColor15w500,
-      maxLines: 1,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
     );
   }
 
   Widget detailWidget({required String text, required String iconSvg}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SvgPicture.asset(
           iconSvg,

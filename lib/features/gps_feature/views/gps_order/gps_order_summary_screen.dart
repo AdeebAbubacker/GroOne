@@ -81,7 +81,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     try {
       gpsOrderCubit = locator<GpsOrderCubit>();
     } catch (e) {
-      print('Error getting GPS order cubit: $e');
       final repository = locator<GpsOrderApiRepository>();
       final userRepository = locator<UserInformationRepository>();
       gpsOrderCubit = GpsOrderCubit(repository, userRepository);
@@ -116,15 +115,13 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           }).toList();
 
       final request = GpsOrderSummaryRequest(products: products);
-
-      print('Fetching GPS order summary with request: ${request.toJson()}');
-      print('Request products count: ${products.length}');
       for (int i = 0; i < products.length; i++) {
-        print('Product $i: ${products[i].toJson()}');
+        if (kDebugMode) {
+          print('Product $i: ${products[i].toJson()}');
+        }
       }
       await gpsOrderCubit.getOrderSummary(request);
     } catch (e) {
-      print('Error fetching order summary: $e');
       setState(() {
         isLoadingSummary = false;
       });
@@ -154,6 +151,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       String? companyName = await userInfoRepo.getUsername();
       String? contactNumber = await userInfoRepo.getUserMobileNumber();
       String? blueId = await userInfoRepo.getBlueID();
+      String? email = await userInfoRepo.getUserEmail();
+      String? mobileNumber = await userInfoRepo.getUserMobileNumber();
 
       // If session data is not available, fetch from profile
       if (companyName == null || companyName.isEmpty) {
@@ -168,6 +167,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                   : customer.customerName;
           contactNumber = customer.mobileNumber;
           blueId = customer.blueId?.toString() ?? "";
+          email = customer.emailId;
+          blueId = customer.blueId?.toString() ?? "";
         }
       }
 
@@ -180,6 +181,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         "contactNumber":
             contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
         "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456",
+        "email": email ?? "venkat03it@gmail.com",
+        "mobileNumber": mobileNumber ?? "9876543210",
       };
     } catch (e) {
       // Return hardcoded values as fallback
@@ -187,6 +190,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         "companyName": "ABC Logistics Pvt Ltd",
         "contactNumber": "9876543210",
         "blueMembershipId": "BLUE123456",
+        "email": "venkat03it@gmail.com",
+        "mobileNumber": "9876543210",
       };
     }
   }
@@ -196,60 +201,28 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     return BlocListener<GpsOrderCubit, GpsOrderState>(
       bloc: gpsOrderCubit,
       listener: (context, state) async {
-        // Handle order creation states
-        if (state is GpsOrderLoading) {
+        // --- Show loader ---
+        if (state is GpsOrderLoading || state is GpsPaymentInitiating) {
           showDialog(
             context: context,
             barrierDismissible: false,
             builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
-        } else if (state is GpsOrderSuccess) {
-          // Close loading dialog if it's open
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          }
-
-          // Show success dialog and handle navigation
-          _showSuccessDialogAndNavigate(
-            context,
-            context.appText.orderPlacedSuccessfully,
-          );
-          // showSuccessDialog(
-          //   context,
-          //   text: 'Order placed successfully',
-          //   subheading: '',
-          //   onTap: () {
-          //     // Navigate directly without closing dialog first
-          // Navigator.of(context).pushAndRemoveUntil(
-          //   MaterialPageRoute(builder: (context) => GpsOrderBenefitsAndOrderListScreen()),
-          //   (route) => false,
-          // );
-          //   },
-          // );
-        } else if (state is GpsOrderError) {
-          // Close loading dialog if it's open
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          }
-          ToastMessages.error(
-            message: "Failed to place order: ${state.message}",
           );
         }
 
-        // Handle payment states
-        if (state is GpsPaymentInitiating) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
-        } else if (state is GpsPaymentSuccess) {
-          // Dismiss loading dialog
+        // --- Hide loader when done ---
+        if (state is GpsOrderSuccess ||
+            state is GpsOrderError ||
+            state is GpsPaymentSuccess ||
+            state is GpsPaymentFailure ||
+            state is GpsPaymentStatusSuccess ||
+            state is GpsPaymentStatusFailure) {
           if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(); // close loader
           }
-
-          // Navigate to payment screen
+        }
+        if (state is GpsPaymentSuccess) {
+          // Initiate payment → open payment screen
           final result = await Navigator.of(context).push(
             commonRoute(
               PaymentsScreen(
@@ -259,17 +232,35 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             ),
           );
 
-          // Handle payment completion
           if (result == true) {
-            _showSuccessDialogAndNavigate(context, 'Order placed successfully');
+            // final cubit = context.read<GpsOrderCubit>();
+            final requestId = gpsOrderCubit.paymentRequestId;
+            if (requestId != null) {
+              gpsOrderCubit.checkPaymentStatus(requestId);
+            }
           }
-        } else if (state is GpsPaymentFailure) {
-          // Dismiss loading dialog
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop();
-          }
+        }
+
+        if (state is GpsPaymentStatusSuccess) {
+          // Payment really succeeded → Create order
+          _createGpsOrder();
+        }
+
+        if (state is GpsPaymentStatusFailure) {
+          // Payment failed → show toast
+          ToastMessages.error(message: context.appText.paymentFailed);
+        }
+
+        if (state is GpsOrderSuccess) {
+          _showSuccessDialogAndNavigate(
+            context,
+            context.appText.orderPlacedSuccessfully,
+          );
+        }
+
+        if (state is GpsOrderError) {
           ToastMessages.error(
-            message: "Failed to initiate payment: ${state.message}",
+            message: "Order creation failed: ${state.message}",
           );
         }
 
@@ -519,7 +510,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             children: [
               Text(context.appText.total, style: AppTextStyle.blackColor14w400),
               Text(
-                '₹${KavachHelper.formatCurrency(totalAmount.round())}',
+                '₹${totalAmount.toStringAsFixed(2)}',
                 style: AppTextStyle.primaryColor16w900,
               ),
             ],
@@ -537,14 +528,14 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 final paymentRequest = KavachInitiatePaymentRequest(
                   orderId: "ORDER_${DateTime.now().millisecondsSinceEpoch}",
                   // This should be the actual order ID from the order creation
-                  amount: totalAmount.toInt(),
+                  amount: totalAmount,
                   customerName:
                       customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
                   customerEmail: "customer@example.com",
                   // This should be fetched from user profile
                   customerMobile: customerInfo["contactNumber"] ?? "9876543210",
                   customerCity: widget.billingAddress.city,
-                  customerId: '',
+                  customerId: customerId,
                   merchantReferenceNo: 'fleet',
                 );
 
@@ -601,7 +592,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         }
       }
     } catch (e) {
-      print('Error parsing address: $e');
+      if (kDebugMode) {
+        print('Error parsing address: $e');
+      }
     }
 
     return {'city': city, 'state': state, 'postalCode': postalCode};
@@ -619,6 +612,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         companyName: customerInfoMap["companyName"] ?? "ABC Logistics Pvt Ltd",
         contactNumber: customerInfoMap["contactNumber"] ?? "9876543210",
         blueMembershipId: customerInfoMap["blueMembershipId"] ?? "BLUE123456",
+        email: customerInfoMap['email'] ?? "venkat03it@gmail.com",
+        mobileNumber: customerInfoMap['mobileNumber'] ?? '9876543210',
       );
 
       // Determine if referral code is provided and extract employee details
@@ -701,9 +696,13 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             );
           }).toList();
 
+      int? customerSeriesId = await userInfoRepo.getCustomerSeriesId();
+
       // Create the order request
       final request = GpsOrderRequest(
+        paymentRequestId: gpsOrderCubit.paymentRequestId,
         orderSource: "MOBILE",
+        customerSeriesId: customerSeriesId ?? 200,
         isOrderPaid: true,
         // Always true as per documentation
         customerId: customerId,
@@ -729,16 +728,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         orders: orders,
       );
 
-      print('GPS Order Request: ${request.toJson()}');
-
-      if (kDebugMode) {
-        log(jsonEncode(request));
-      }
-
       // Create the order
       await gpsOrderCubit.createOrder(request);
     } catch (e) {
-      print('Error creating GPS order: $e');
       ToastMessages.alert(message: 'Failed to create order: $e');
     }
   }

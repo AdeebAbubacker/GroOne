@@ -92,35 +92,27 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 ],
               ).expand(),
               5.width,
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    children: [
-                      _buildLocationInfoWidget(widget.data.pickUpLocation),
-                      Icon(
-                        Icons.arrow_right_alt_outlined,
-                        color: AppColors.primaryColor,
-                      ).paddingSymmetric(horizontal: 2),
-                      _buildLocationInfoWidget(widget.data.dropLocation),
-                    ],
-                  ),
-                  if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
-                    VpMyLoadUIHelper.loadStatusWidget(
-                      statusBgColor: widget.data.loadStatusDetails!.statusBgColor,
-                      statusTxtColor: widget.data.loadStatusDetails!.statusTxtColor,
-                        (widget.data.loadUnHold??false) ? context.appText.loadOnHold:
-                        widget.data.loadStatusDetails!.loadStatus, context)
-                  // LoadStatusLabel(
-                  //     loadStatusTitle:widget.data.loadStatusDetails?.loadStatus,
-                  //     loadStatus: widget.data.loadStatusValues,
-                  // )
-                ],
-              ).expand(),
+              if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
+                VpMyLoadUIHelper.loadStatusWidget(
+                    statusBgColor: widget.data.loadStatusDetails!.statusBgColor,
+                    statusTxtColor: widget.data.loadStatusDetails!.statusTxtColor,
+                    (widget.data.loadUnHold??false) ? context.appText.loadOnHold:
+                    widget.data.loadStatusDetails!.loadStatus, context)
+
             ],
           ),
-
+          10.height,
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _buildLocationInfoWidget(widget.data.pickUpLocation).expand(),
+              Icon(
+                Icons.arrow_right_alt_outlined,
+                color: AppColors.primaryColor,
+              ).paddingSymmetric(horizontal: 2).expand(),
+              _buildLocationInfoWidget(widget.data.dropLocation).expand(),
+            ],
+          ),
           commonDivider(),
           //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
 
@@ -219,6 +211,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   VpMyLoadUIHelper.loadStatusButtonWidget(
                     status: widget.data.loadStatusDetails!.loadStatus,
                     isIntoRangePrice: isPriceIntoRange,
+                    // isPodAdded:  widget.data.po,
                     enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                       loadStatus: widget.data.loadStatusValues ,
                       documentList: widget.data.loadDocument??[]

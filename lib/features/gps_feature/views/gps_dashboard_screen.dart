@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -13,6 +14,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:intl/intl.dart';
+
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_searchabledropdown.dart';
 import '../constants/app_constants.dart';
@@ -78,11 +80,17 @@ class _GpsDashboardContent extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text('${context.appText.error}: ${state.error}'),
-                  ElevatedButton(
-                    onPressed:
-                        () => context.read<VehicleListCubit>().refreshData(),
-                    child: Text(context.appText.retry),
+                  Text(
+                    context.appText.noData,
+                    style: AppTextStyle.h5.copyWith(color: AppColors.grayColor),
+                  ),
+                  10.height,
+                  Text(
+                    context.appText.unableToLoadDashboardData,
+                    style: AppTextStyle.blackColor14w400.copyWith(
+                      color: AppColors.grayColor,
+                    ),
+                    textAlign: TextAlign.center,
                   ),
                 ],
               ),
@@ -107,7 +115,25 @@ class _GpsDashboardContent extends StatelessWidget {
               elevation: 1,
               centreTile: false,
             ),
-            body: Center(child: Text(context.appText.noVehiclesFound)),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    context.appText.noData,
+                    style: AppTextStyle.h5.copyWith(color: AppColors.grayColor),
+                  ),
+                  10.height,
+                  Text(
+                    context.appText.noVehiclesAvailableToDisplay,
+                    style: AppTextStyle.blackColor14w400.copyWith(
+                      color: AppColors.grayColor,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
           );
         }
 
@@ -764,7 +790,25 @@ class _GpsDashboardContent extends StatelessWidget {
         );
       },
       emptyBuilder:
-          (context, _) => Center(child: Text(context.appText.noVehiclesFound)),
+          (context, _) => Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  context.appText.noData,
+                  style: AppTextStyle.h6.copyWith(color: AppColors.grayColor),
+                ),
+                5.height,
+                Text(
+                  context.appText.noVehiclesFound,
+                  style: AppTextStyle.blackColor14w400.copyWith(
+                    color: AppColors.grayColor,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ],
+            ),
+          ),
     );
   }
 }

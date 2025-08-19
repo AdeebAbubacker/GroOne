@@ -371,6 +371,7 @@ class GpsKycUploadRequest {
   final String? pan;
   final String? panDocLink;
   final bool? isPan;
+  final bool fromFleet;
 
   const GpsKycUploadRequest({
     required this.aadhar,
@@ -379,13 +380,15 @@ class GpsKycUploadRequest {
     this.panDocLink,
     this.isPan,
     this.aadharDocLink,
+    this.fromFleet = true,
   });
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> json = {
       'aadhar': aadhar,
       'isAadhar': isAadhar,
-      'aadhar_doc_link': aadharDocLink
+      'aadhar_doc_link': aadharDocLink,
+      'fromFleet': fromFleet,
     };
 
     // Only include PAN fields if PAN is provided
@@ -402,7 +405,7 @@ class GpsKycUploadRequest {
 
   @override
   String toString() {
-    return 'GpsKycUploadRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan}';
+    return 'GpsKycUploadRequest{aadhar: $aadhar, isAadhar: $isAadhar, aadharDocLink: $aadharDocLink, pan: $pan, panDocLink: $panDocLink, isPan: $isPan, fromFleet: $fromFleet}';
   }
 }
 
@@ -566,17 +569,23 @@ class GpsCustomerInfo {
   final String companyName;
   final String contactNumber;
   final String blueMembershipId;
+  final String mobileNumber;
+  final String email;
 
   GpsCustomerInfo({
     required this.companyName,
     required this.contactNumber,
     required this.blueMembershipId,
+    required this.mobileNumber,
+    required this.email
   });
 
   Map<String, dynamic> toJson() => {
     "CompanyName": companyName,
     "contactNumber": contactNumber,
     "BlueMembershipID": blueMembershipId,
+    "mobileNumber": mobileNumber,
+    "email": email,
   };
 }
 
@@ -614,6 +623,8 @@ class GpsOrderAddress {
 /// GPS Order Creation Request Model
 class GpsOrderRequest {
   final String orderSource;
+  String? paymentRequestId;
+  final int customerSeriesId;
   final bool isOrderPaid;
   final String customerId;
   final int createdEmpUserId;
@@ -632,6 +643,8 @@ class GpsOrderRequest {
 
   GpsOrderRequest({
     required this.orderSource,
+    required this.customerSeriesId,
+    this.paymentRequestId,
     required this.isOrderPaid,
     required this.customerId,
     required this.createdEmpUserId,
@@ -652,6 +665,7 @@ class GpsOrderRequest {
   Map<String, dynamic> toJson() {
     final json = {
       "orderSource": orderSource,
+      "customerSeriesId" : customerSeriesId,
       "isOrderPaid": isOrderPaid,
       "customerId": customerId,
       "createdEmpUserId": createdEmpUserId,
@@ -672,13 +686,12 @@ class GpsOrderRequest {
     if (createdEmpId != null) {
       json["createdEmpId"] = createdEmpId!;
     }
+
+    if (paymentRequestId != null) {
+      json["paymentUid"] = paymentRequestId??'';
+    }
     
     return json;
-  }
-
-  @override
-  String toString() {
-    return 'GpsOrderRequest{orderSource: $orderSource, isOrderPaid: $isOrderPaid, customerId: $customerId, createdEmpUserId: $createdEmpUserId, createdEmpId: $createdEmpId, orderReferencedBy: $orderReferencedBy, totalPrice: $totalPrice, categoryId: $categoryId, shippingPersonIncharge: $shippingPersonIncharge, shippingPersonContactNo: $shippingPersonContactNo, customerInfo: $customerInfo, billingAddress: $billingAddress, shippingAddress: $shippingAddress, orders: $orders}';
   }
 }
 

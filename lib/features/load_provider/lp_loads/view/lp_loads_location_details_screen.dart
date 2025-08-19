@@ -261,7 +261,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                       4.height,
                       if (status == LoadStatus.kycPending || status == LoadStatus.matching)
                         Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)),
-                      if((status == LoadStatus.inTransit && (loadItem.lpPaymentsData == null)))
+                      if(((status?.index ?? 0) >= LoadStatus.inTransit.index && loadItem.lpPaymentsData?.receivableAdvancePaidFlg == false))
                         Row(
                           children: [
                             const Icon(Icons.error, size: 16, color: AppColors.iconRed),
@@ -272,7 +272,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                             ).flexible(),
                           ],
                         ),
-                      if((status == LoadStatus.completed && (loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)))
+                      if((status == LoadStatus.completed && (loadItem.lpPaymentsData?.receivableBalancePaidFlg == false &&loadItem.lpPaymentsData?.receivableAdvancePaidFlg == true)))
                         Row(
                           children: [
                             const Icon(Icons.error, size: 16, color: AppColors.iconRed),
@@ -339,23 +339,18 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
     final isTrackingAllowed = loadItem.driverConsent == 1;
 
     return Positioned(
-        left: 5, bottom: bottomWidgetMaxHeight + 10,child: IconButton(
-        onPressed: () {
-          commonSupportDialog(context);
-        },
-        icon: Container(
-          decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
-          child: Row(
-            children: [
-              Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
-              10.width,
-              Text(context.appText.sim, style: AppTextStyle.h5 )
-            ],
-          ).paddingAll(8),
-        )
-    ));
-
-
+      left: 15, bottom: bottomWidgetMaxHeight + 15,
+      child: Container(
+        decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(6)),
+        child: Row(
+          children: [
+            Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
+            10.width,
+            Text(context.appText.sim, style: AppTextStyle.h5 )
+          ],
+        ).paddingAll(8),
+      ),
+    );
   }
 }
 

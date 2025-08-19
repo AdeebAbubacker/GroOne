@@ -7,21 +7,20 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class TrackingProgress extends StatelessWidget {
   final int progressPercentage;
-  final String remainingDistance;
+  final String coveredDistance;
   final String totalDistance;
   final int eta;
 
   const TrackingProgress({
     super.key,
     required this.progressPercentage,
-    required this.remainingDistance,
+    required this.coveredDistance,
     required this.totalDistance,
     required this.eta,
   });
 
   @override
   Widget build(BuildContext context) {
-    print("eta is ${eta}");
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -61,7 +60,7 @@ class TrackingProgress extends StatelessWidget {
                   text: TextSpan(
                     children: [
                       TextSpan(
-                        text: "${calculateDistanceCovered(totalDistance,remainingDistance)} km",
+                        text: coveredDistance,
                         style: AppTextStyle.body3.copyWith(fontWeight: FontWeight.w600, fontSize: 14),
                       ),
                       TextSpan(

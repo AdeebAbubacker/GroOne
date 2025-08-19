@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -84,11 +86,12 @@ class DriverLoadHelper {
   // }
 
 
-    static  String getBottomButtonTitle(int statusId){
+    static  String getBottomButtonTitle(int statusId,PodDispatchModel? podDispatched,bool isLpAgreed){
       BuildContext context=navigatorKey.currentState!.context;
       switch(statusId){
+       
         case 4:
-          return context.appText.swipeToStart; 
+          return isLpAgreed ?  context.appText.swipeToStart : context.appText.waitingForLpToAcceptLoad; 
           case 5:
           
         return context.appText.swipeToCompleteLoading;
@@ -98,12 +101,12 @@ class DriverLoadHelper {
           case 7:
           return context.appText.swipeToCompleteUnLoading;
           case 8:
-          return context.appText.podDispatchDetail;
+      return podDispatched == null ?  context.appText.podDispatchedDetails : context.appText.swipeToCompleteTrip;
         default:
           return context.appText.swipeToStart;
       }
     }
-
+   
 
   static Widget loadStatusButtonWidget({
     required int statusId,
@@ -404,4 +407,22 @@ class DriverLoadHelper {
     }
   }
 
+}
+
+
+String getSwipeDriverButtonTitle(LoadStatus status,PodDispatchModel? podDispatched){
+
+  BuildContext context=navigatorKey.currentState!.context;
+  switch(status){
+    case LoadStatus.loading:
+      return context.appText.swipeToCompleteLoading;
+      case LoadStatus.inTransit:
+      return context.appText.swipeToStartUnLoading;
+      case LoadStatus.unloading:
+      return context.appText.swipeToCompleteUnLoading;
+    case LoadStatus.podDispatched:
+      return  podDispatched==null ?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
+    default:
+      return context.appText.swipeToStart;
+  }
 }

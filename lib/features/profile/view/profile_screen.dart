@@ -12,7 +12,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/benefits_of_membership_screen.dart';
-import 'package:gro_one_app/features/profile/view/master_screen.dart';
+import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
 import 'package:gro_one_app/features/profile/view/setting_screen.dart';
@@ -34,6 +34,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
@@ -156,19 +157,24 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                 Container(
                   height: profileSize,
                   width: profileSize,
-                  decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle,
+                  border: Border.all(
+                  color: AppColors.blueColor,
+                  width: 2,
+                ),
+                ),
                   alignment: Alignment.center,
                   child: Text(getInitialsFromName(this, name: state.profileDetailUIState!.data!.customer!.companyName),
                     style: AppTextStyle.h1,
                   ),
                 ).isAnimate(),
 
-                Text(state.profileDetailUIState!.data!.customer!.companyName, style: AppTextStyle.h5).isAnimate(),
+                Text(state.profileDetailUIState!.data!.customer!.companyName.capitalize, style: AppTextStyle.h5).isAnimate(),
               ],
 
               // Customer Name
               if(state.profileDetailUIState?.data?.customer?.customerName != null && state.profileDetailUIState?.data?.customer?.customerName != "")
-              Text(state.profileDetailUIState!.data!.customer!.customerName, style: AppTextStyle.body).isAnimate(),
+              Text(state.profileDetailUIState!.data!.customer!.customerName.capitalize, style: AppTextStyle.body).isAnimate(),
 
               // Blue Id
               if(state.profileDetailUIState?.data?.customer?.blueId != null && state.profileDetailUIState?.data?.customer?.blueId != "")
@@ -212,7 +218,6 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                   Navigator.push(context, commonRoute(LpMyAccount(
                     customerDetail: state.profileDetailUIState!.data!.customer!,
                     bankDetails : state.profileDetailUIState!.data!.bankDetails!,
-                    address: state.profileDetailUIState!.data!.address!,
                     kycDoc: state.profileDetailUIState!.data!.kycDocs[0],
                   ), isForward: true));
                 },
@@ -254,14 +259,21 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
           ),
           commonDivider(),
 
-          ProfileMyAccountTile(
-            imageString: AppImage.svg.transaction,
-            text: context.appText.transactions,
-            onTap: () {
-              Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
-            },
+       ... [  Visibility(
+            visible: false,
+            child: ProfileMyAccountTile(
+              imageString: AppImage.svg.transaction,
+              text: context.appText.transactions,
+              onTap: () {
+                Navigator.of(context).push(commonRoute(LpTransaction(), isForward: true));
+              },
+            ),
           ),
-          commonDivider(),
+         Visibility(
+             visible: false,
+             child: commonDivider()),
+       ],
+
 
           ProfileMyAccountTile(
             imageString: AppImage.svg.settings,
@@ -321,7 +333,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
 
 
   Widget buildProfileVersionWidget() {
-    return Text("Version $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
+    return Text("v $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
   }
 
 }

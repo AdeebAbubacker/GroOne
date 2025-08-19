@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/doc_verification_model.dart';
 import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
@@ -79,6 +80,16 @@ class KycRepository {
   Future<Result<bool>> verifyTan(VerifyTanApiRequest request) async {
     try {
       return await _service.verifyTan(request);
+    } catch (e) {
+      CustomLog.error(this, "Failed to request Login In", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Verify Doc Id
+  Future<Result<DocVerificationModel>> verifiedDocID(String aadharNumber) async {
+    try {
+      return await _service.verifiedDocID(aadharNumber);
     } catch (e) {
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));

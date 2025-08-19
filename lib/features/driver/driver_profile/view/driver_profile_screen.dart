@@ -5,7 +5,7 @@ import 'package:gro_one_app/features/driver/driver_profile/view/driver_account_s
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_setting_screen.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
-import 'package:gro_one_app/features/profile/view/master_screen.dart';
+import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
 import 'package:gro_one_app/features/profile/view/setting_screen.dart';
@@ -32,6 +32,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/constant_variables.dart' ;
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -108,7 +109,12 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
             Container(
               height: profileSize,
               width: profileSize,
-              decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: AppColors.greyIconBackgroundColor, shape: BoxShape.circle,
+              border: Border.all(
+                  color: AppColors.blueColor, 
+                  width: 2,           
+                ),
+                ),
               alignment: Alignment.center,
               child: Text(
                 getInitialsFromName(this, name: driver.name), 
@@ -116,10 +122,10 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
               ),
             ).isAnimate(),
             if (driver.name.isNotEmpty)
-              Text(driver.name, style: AppTextStyle.h5).isAnimate(),
+              Text(driver.name.capitalize, style: AppTextStyle.h5).isAnimate(),
 
             if (driver.driverId != null && driver.driverId!.isNotEmpty)
-              Text("${driver.companyDetails?.companyName}", style: AppTextStyle.body).isAnimate(),
+              Text("${driver.companyDetails?.companyName.capitalize}", style: AppTextStyle.body).isAnimate(),
           ],
         );
       },
@@ -217,6 +223,6 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
   }
 
   Widget buildProfileVersionWidget() {
-    return Text("Version $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
+    return Text("v $appVersion", style: AppTextStyle.textGreyDetailColor14w400);
   }
 }

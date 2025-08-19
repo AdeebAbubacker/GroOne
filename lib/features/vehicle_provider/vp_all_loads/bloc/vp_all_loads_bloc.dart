@@ -19,6 +19,7 @@ class VpLoadBloc extends Bloc<VpLoadEvent, VpLoadState> {
         emit(VpLoadError("Failed to load data"));
       }
     });
+
    on<FetchLoadStatus>((event, emit) async {
       emit(VPLoadStatusLoading());
       final result = await repo.fetchLoadStatus();

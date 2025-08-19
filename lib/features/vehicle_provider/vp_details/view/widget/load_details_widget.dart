@@ -7,7 +7,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart' hide DataTruckType;
+import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart'
+    hide DataTruckType;
 import 'package:gro_one_app/features/kavach/view/kavach_support_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
@@ -191,8 +192,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                 return TrackingProgress(
                                   progressPercentage:
                                       trackingData.coverPercentage ?? 0,
-                                  remainingDistance:
-                                      trackingData.currentdistance ?? '--',
+                                  coveredDistance:
+                                      trackingData.covereddistance ?? '--',
                                   totalDistance:
                                       trackingData.overalldistance ?? '--',
                                   eta: trackingData.durationValue,
@@ -217,6 +218,7 @@ class LoadDetailsWidget extends StatelessWidget {
                             state.loadStatusId ?? 0,
                             loadDetails?.paymentEntry,
                             loadDetails?.loadMemo,
+                            loadDetails?.loadStatusValue,
                           ),
                           15.height,
                           _buildLoadEntityWidget(
@@ -249,13 +251,18 @@ class LoadDetailsWidget extends StatelessWidget {
                               state,
                             ),
 
-                            _buildDispatchedDetails(loadDetails?.podDispatch,context),
+                            _buildDispatchedDetails(
+                              loadDetails?.podDispatch,
+                              context,
+                            ),
 
                             if ((loadDetails?.loadStatusId ?? 0) >= 7) ...[
                               20.height,
                               _buildAdableSectionHeader(
                                 showAddButton:
-                                    state.loadStatus != LoadStatus.completed &&   state.loadStatus != LoadStatus.podDispatched,
+                                    state.loadStatus != LoadStatus.completed &&
+                                    state.loadStatus !=
+                                        LoadStatus.podDispatched,
                                 context: context,
                                 title: context.appText.damageAndShortage,
                                 onAdd: () async {
@@ -292,6 +299,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                   ],
                                 ).paddingSymmetric(horizontal: 20),
                               ),
+
+                              _approvedDamageInformation(loadDetails?.loadSettlement,context),
 
                               20.height,
                               _buildAdableSectionHeader(
@@ -381,7 +390,11 @@ class LoadDetailsWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 10,
         children: [
-          Image.asset(AppImage.png.dummyTruckLoad, width: 57, height: 42),
+          Image.asset(
+            AppImage.png.dummyTruckLoad,
+            width: 57,
+            height: 42,
+          ).expand(flex: 2),
           Column(
             spacing: 8,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -416,7 +429,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   ),
                 ),
             ],
-          ),
+          ).expand(flex: 7),
           if ((loadStatus?.index ?? 0) >= LoadStatus.assigned.index)
             GestureDetector(
               onTap:
@@ -424,7 +437,7 @@ class LoadDetailsWidget extends StatelessWidget {
                     loadDetails?.scheduleTripDetails?.driver?.mobile ?? "",
                   ),
               child: SvgPicture.asset(AppIcons.svg.phoneCall),
-            ),
+            ).expand(flex: 1),
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
@@ -435,6 +448,8 @@ class LoadDetailsWidget extends StatelessWidget {
     ScheduleTripDetailsVehicle? vehicle,
     DataTruckType? truckType,
   ) {
+    final truckDetails =
+        "${truckType?.type ?? ""} (${truckType?.subType ?? ""})";
     return Row(
       children: [
         Container(
@@ -448,14 +463,11 @@ class LoadDetailsWidget extends StatelessWidget {
         ),
         5.width,
         Text(
-          truckType?.type ?? "",
+          truckDetails,
           style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
-        ),
+          overflow: TextOverflow.ellipsis,
+        ).expand(),
         5.width,
-        Text(
-          "(${truckType?.subType ?? ""})",
-          style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
-        ),
       ],
     );
   }
@@ -469,7 +481,7 @@ class LoadDetailsWidget extends StatelessWidget {
           style: AppTextStyle.body3.copyWith(color: AppColors.thinLightGray),
         ),
         Text(
-          " ${driver?.name.capitalizeFirst}",
+          " ${driver?.name.capitalize}",
           style: AppTextStyle.h3w500.copyWith(
             fontSize: 13,
             color: AppColors.textBlackDetailColor,
@@ -487,40 +499,35 @@ class LoadDetailsWidget extends StatelessWidget {
     BuildContext context,
     int loadStatusID,
     LoadPaymentDetails? paymentEntity,
-      MemoDetails? loadMemo,
+    MemoDetails? loadMemo,
+    LoadStatus? loadStatus,
   ) {
     final vpLoadPrice =
         (vpMaxRate == null || vpMaxRate.isEmpty || vpMaxRate == "0")
             ? PriceHelper.formatINR(vpRate)
             : '${PriceHelper.formatINR(vpRate)} - ${PriceHelper.formatINR(vpMaxRate)}';
 
-
-    final agreedPrice=loadMemo?.vpAdvance??"";
+    final agreedPrice = paymentEntity?.payableAgreedPrice ?? "";
 
     /// This is for advanced Payment
-    final advancedPayment= paymentEntity?.payableAdvancePaid??"";
-    final advancedPaymentPercentage=paymentEntity?.payableAdvancePercentage??"";
-    final isAdvancedPaid=paymentEntity?.payableAdvancedPaidFlag??false;
+    final advancedPayment = paymentEntity?.payableAdvancePaid ?? "";
+    final advancedPaymentPercentage = paymentEntity?.payableAdvancePercentage ?? "";
+    final isAdvancedPaid = paymentEntity?.payableAdvancedPaidFlag ?? false;
+
     /// This is for balance Payment
-    final balancePayment=paymentEntity?.payableBalancePaid;
-    final isBalancePaid=paymentEntity?.payableBalancePaidFlag??false;
-
-
-
-
+    final balancePayment = paymentEntity?.payableBalancePaid;
+    final isBalancePaid = paymentEntity?.payableBalancePaidFlag ?? false;
 
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-
       decoration: commonContainerDecoration(
         color: AppColors.lightBlueColor,
         borderRadius: BorderRadius.circular(6),
       ),
-
       child: Column(
         children: [
           Visibility(
-            visible: loadMemo==null && agreedPrice.isEmpty,
+            visible: loadMemo == null && agreedPrice.isEmpty,
             child: Row(
               mainAxisAlignment:
                   isAccepted
@@ -544,21 +551,33 @@ class LoadDetailsWidget extends StatelessWidget {
             ),
           ),
 
-        ...[
-          5.height,
-          _buildLoadProviderAdvancePaymentCardViewOnly(
-            context: context,
-            agreedAdvance: (paymentEntity?.payableAdvance??"").isNotEmpty ? PriceHelper.formatINR(paymentEntity?.payableAdvance??""):"",
-            advancePayment:isAdvancedPaid ? PriceHelper.formatINR(advancedPayment):"",
-            agreedPrice:   agreedPrice.isNotEmpty ? PriceHelper.formatINR(agreedPrice):"",
-            advancedPaymentPer: advancedPaymentPercentage,
-            balancePayment: isBalancePaid ?  PriceHelper.formatINR(balancePayment) :"",
-            onViewTap: () {
-
-            },
-            // tripPrice: "1000",
-          ),
-        ]
+          ...[
+            5.height,
+            _buildLoadProviderAdvancePaymentCardViewOnly(
+              context: context,
+              showViewMore: paymentEntity?.vpLogs?.isNotEmpty ??false,
+              advancePayment: isAdvancedPaid ? PriceHelper.formatINR(advancedPayment) : "",
+              agreedPrice:
+                  agreedPrice.isNotEmpty
+                      ? PriceHelper.formatINR(agreedPrice)
+                      : "",
+              advancedPaymentPer: advancedPaymentPercentage,
+              balancePayment:isBalancePaid ?   PriceHelper.formatINR(balancePayment):"",
+              onViewTap: () {
+                showPaymentView(
+                  vpLogs: paymentEntity?.vpLogs,
+                  context,
+                  tripCost:
+                      agreedPrice.isNotEmpty
+                          ? PriceHelper.formatINR(agreedPrice)
+                          : "",
+                  advanceAmount: PriceHelper.formatINR(advancedPayment),
+                  advancePercentage: advancedPaymentPercentage,
+                );
+              },
+              // tripPrice: "1000",
+            ),
+          ],
         ],
       ),
     ).paddingSymmetric(horizontal: 15);
@@ -622,7 +641,12 @@ class LoadDetailsWidget extends StatelessWidget {
               height: 24,
               width: 24,
             ),
-             Text(cubit.state.locationDistance ?? '', style: AppTextStyle.body3.copyWith(color: AppColors.veryLightGreyColor)),
+            Text(
+              cubit.state.locationDistance ?? '0 KM',
+              style: AppTextStyle.body3.copyWith(
+                color: AppColors.veryLightGreyColor,
+              ),
+            ),
           ],
         ),
       ],
@@ -634,8 +658,10 @@ class LoadDetailsWidget extends StatelessWidget {
     LoadDetailsState state,
     BuildContext context,
   ) {
-
-    bool isPriceIntoRange=checkPriceIntoRange(loadDetails?.loadPrice?.vpRate??"0",loadDetails?.loadPrice?.vpMaxRate??"0");
+    bool isPriceIntoRange = checkPriceIntoRange(
+      loadDetails?.loadPrice?.vpRate ?? "0",
+      loadDetails?.loadPrice?.vpMaxRate ?? "0",
+    );
     return Container(
       decoration: commonContainerDecoration(
         color: Colors.white,
@@ -665,11 +691,13 @@ class LoadDetailsWidget extends StatelessWidget {
               ).expand(),
             if (state.loadStatus == LoadStatus.matching ||
                 state.loadStatus == LoadStatus.accepted ||
-                state.loadStatus == LoadStatus.completed ||
-                state.loadStatus == LoadStatus.podDispatched)
+                state.loadStatus == LoadStatus.completed)
               AppButton(
                 isLoading: state.vpLoadStatus?.status == Status.LOADING,
-                title: getButtonText(state.loadStatus ?? LoadStatus.matching,priceIntoRange: isPriceIntoRange),
+                title: getButtonText(
+                  state.loadStatus ?? LoadStatus.matching,
+                  priceIntoRange: isPriceIntoRange,
+                ),
                 style: AppButtonStyle.primary.copyWith(
                   shape: WidgetStatePropertyAll(
                     RoundedRectangleBorder(
@@ -678,33 +706,21 @@ class LoadDetailsWidget extends StatelessWidget {
                   ),
                 ),
                 onPressed: () async {
-
-                  if(isPriceIntoRange){
+                  if (isPriceIntoRange) {
                     await callRedirect(SUPPORT_NUMBER);
                     return;
                   }
 
                   if (state.loadStatus == LoadStatus.completed) {
-                    Navigator.push(context, commonRoute(VpTripStatementScreen(
-                      loadDetailModelData: loadDetails,
-                      loadId: loadDetails?.loadId,
-                    )));
-                    return;
-                  }
-                  if (state.loadStatus == LoadStatus.podDispatched) {
-                  bool isPodAdded= await Navigator.push(
+                    Navigator.push(
                       context,
                       commonRoute(
-                        VpPodDispatchScreen(loadId: loadDetails?.loadId),
+                        VpTripStatementScreen(
+                          loadDetailModelData: loadDetails,
+                          loadId: loadDetails?.loadId,
+                        ),
                       ),
                     );
-                  if(isPodAdded){
-                    changeLoadStatus(
-                      context,
-                      loadDetails?.loadId.toString(),
-                      loadStatus: (state.loadStatusId ?? 0) + 1,
-                    );
-                  }
                     return;
                   }
                   changeLoadStatus(context, loadDetails?.loadId.toString());
@@ -712,8 +728,7 @@ class LoadDetailsWidget extends StatelessWidget {
                 textStyle: TextStyle(fontSize: 14, color: AppColors.white),
               ).expand(),
             if ((state.loadStatusId ?? 0) >= 4 &&
-                state.loadStatus != LoadStatus.completed &&
-                state.loadStatus != LoadStatus.podDispatched)
+                state.loadStatus != LoadStatus.completed)
               SizedBox(
                 height: 60,
                 width: MediaQuery.of(context).size.width * 0.90,
@@ -722,6 +737,7 @@ class LoadDetailsWidget extends StatelessWidget {
                   price: 0,
                   loadId: "",
                   enable: cubit.isNextProcessButtonEnabled(
+                    isAgreed:loadDetails?.isAgreed==1 ,
                     documentEntity: state.tripDocumentList ?? [],
                     driverConsent: loadDetails?.driverConsent ?? 0,
                     loadStatus: state.loadStatus,
@@ -729,8 +745,22 @@ class LoadDetailsWidget extends StatelessWidget {
                   ),
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
+                    loadDetails?.podDispatch,
+                    isMemoGenerated: loadDetails?.loadMemo!=null && loadDetails?.isAgreed==1
+
                   ),
-                  onSubmit: () {
+                  onSubmit: () async {
+                    if (state.loadStatus == LoadStatus.podDispatched && loadDetails?.podDispatch==null) {
+                      await  Navigator.push(
+                        context,
+                        commonRoute(
+                          VpPodDispatchScreen(loadId: loadDetails?.loadId),
+                        ),
+                      );
+                      getLoadDetails(loadDetails?.loadId??"");
+                      return;
+                    }
+
                     return changeLoadStatus(
                       context,
                       loadDetails?.loadId.toString(),
@@ -745,36 +775,26 @@ class LoadDetailsWidget extends StatelessWidget {
     );
   }
 
-  // Future showPaymentView(BuildContext context, LoadPaymentDetails? paymentEntity) {
-  //   return showDialog(
-  //     context: context,
-  //     builder: (BuildContext context) {
-  //       return showCustomDialogue(
-  //         hideButton: false,
-  //         context: context,
-  //         child: PaymentInformationDialogView(
-  //           advanceAmount: PriceHelper.formatINR(
-  //             paymentEntity?.advancePaid ?? "",
-  //           ),
-  //           balancePayout: PriceHelper.formatINR(
-  //             paymentEntity?.payableBalance ?? "",
-  //           ),
-  //           isAdvanceCompleted: true,
-  //           isBalancePending: false,
-  //           onProceed: () {},
-  //           paymentMode: paymentEntity?.paymentType,
-  //           receivedOn: formatDateTimeKavach(
-  //             paymentEntity?.paymentDate?.toString() ??
-  //                 DateTime.now().toString(),
-  //           ),
-  //           transactionId: "467898765432",
-  //           tripCost: PriceHelper.formatINR(paymentEntity?.agreedPrice ?? ""),
-  //         ),
-  //         buttonText: context.appText.processed,
-  //       );
-  //     },
-  //   );
-  // }
+   showPaymentView(
+    BuildContext context, {
+    String? advancePercentage,
+    String? advanceAmount,
+    String? tripCost, List<VpLog>? vpLogs,
+  }) {
+    Navigator.push(context, commonRoute(VpPaymentSummary(
+      vpLogs: vpLogs,
+      advancedPercentage: advancePercentage,
+      advanceAmount: advanceAmount,
+      balancePayout: PriceHelper.formatINR("4000"),
+      isAdvanceCompleted: true,
+      isBalancePending: false,
+      onProceed: () {},
+      paymentMode: "",
+      receivedOn: "",
+      transactionId: "467898765432",
+      tripCost: tripCost,
+    ),));
+  }
 
   Widget buildAttachmentView(
     BuildContext context,
@@ -805,28 +825,28 @@ class LoadDetailsWidget extends StatelessWidget {
     );
   }
 
-  Widget _buildDispatchedDetails(PodDispatch? podDispatched,BuildContext context) {
-
-
-    print("podDispatched data ${podDispatched}");
-
+  Widget _buildDispatchedDetails(
+    PodDispatch? podDispatched,
+    BuildContext context,
+  ) {
     if (podDispatched == null) {
       return SizedBox.shrink();
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: [commonDivider(),
+      children: [
+        commonDivider(),
         _buildHeading(text: context.appText.podDispatch),
         15.height,
         InformationView(
           title: context.appText.courierCompany,
-          amount:podDispatched.courierCompany ,
+          amount: podDispatched.courierCompany,
         ).paddingSymmetric(horizontal: 15),
         10.height,
         InformationView(
           title: context.appText.awbNumber,
-          amount:podDispatched.awbNumber ,
+          amount: podDispatched.awbNumber,
         ).paddingSymmetric(horizontal: 15),
         10.height,
         commonDivider(thickness: 3, height: 15),
@@ -838,82 +858,75 @@ class LoadDetailsWidget extends StatelessWidget {
 //Payment View only
 Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   required BuildContext context,
-  // String? tripPrice,
   String? agreedPrice,
-  required String agreedAdvance,
   String? advancePayment,
   String? balancePayment,
   VoidCallback? onViewTap,
-  String? advancedPaymentPer
+  String? advancedPaymentPer,
+  bool? showViewMore,
+
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-
-      if((agreedPrice??"").isNotEmpty)
+      if ((agreedPrice ?? "").isNotEmpty)
         _buildPriceRow(
           context.appText.agreedPrice,
           agreedPrice ?? '',
           context,
           highlight: true,
         ),
-      if((agreedAdvance??"").isNotEmpty)
-...[      8.height,
-      _buildPriceRow(
-        context.appText.agreedAdvance,
-        agreedAdvance,
-        context,
-        highlight: true,
-      ),],
-      if((advancePayment??"").isNotEmpty)
-     ...[ 12.height,
-      _buildStatusRow(
-          title: '${context.appText.advancePayment} ($advancedPaymentPer%)',
-          amount: advancePayment ?? "",
-          statusText: context.appText.received,
-          statusColor: AppColors.lightGreenBox,
-        ),],
+      if ((advancePayment ?? "" ).isNotEmpty) ...[
+        8.height,
+        _buildPriceRow(
+          "${context.appText.advancedReceived}",
+          advancePayment??"",
+          context,
+          highlight: true,
+          showPercentage: true,
+          percentage: advancedPaymentPer
+        ),
+      ],
 
-
-      if((balancePayment??"").isNotEmpty)
-   ...[   Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: _buildStatusRow(
-            title: context.appText.balancePayment,
-            amount: balancePayment ?? "",
-            statusText: context.appText.received,
-            statusColor: AppColors.lightGreenBox,
-          ),
+      if ((balancePayment ?? "").isNotEmpty) ...[
+        8.height,
+        _buildPriceRow(
+          context.appText.balanceReceived,
+          balancePayment ?? "",
+          context,
+          highlight: true,
         ),
 
-     12.height,
-   ]
+      ],
 
-      // if (paymentStatus != 4)
-      //   Align(
-      //     alignment: Alignment.center,
-      //     child: GestureDetector(
-      //       onTap: onViewTap,
-      //       child: Row(
-      //         mainAxisSize: MainAxisSize.min,
-      //         children: [
-      //           Text(
-      //             context.appText.view,
-      //             style: AppTextStyle.body.copyWith(
-      //               fontSize: 12,
-      //               fontWeight: FontWeight.w400,
-      //               color: AppColors.primaryColor,
-      //             ),
-      //           ),
-      //           const Icon(
-      //             Icons.chevron_right,
-      //             size: 25,
-      //             color: AppColors.black,
-      //           ),
-      //         ],
-      //       ),
-      //     ),
-      //   ),
+      if (showViewMore ?? false)
+        Padding(
+          padding: const EdgeInsets.only(top: 10),
+          child: Align(
+            alignment: Alignment.center,
+            child: GestureDetector(
+              onTap: onViewTap,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    context.appText.view,
+                    style: AppTextStyle.body.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 22,
+                    color: AppColors.primaryColor,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
     ],
   );
 }
@@ -922,24 +935,43 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
 Widget _buildPriceRow(
   String label,
   String amount,
+
   BuildContext context, {
   bool highlight = false,
+      bool ? showPercentage,
+      String? percentage,
 }) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Text(
-        label,
-        style: AppTextStyle.body2.copyWith(
-          fontWeight: FontWeight.w400,
-          color: AppColors.textBlackColor,
-        ),
+      Row(
+        children: [
+          Text(
+            label,
+            style: AppTextStyle.body2.copyWith(
+              fontWeight: FontWeight.w400,
+              fontSize: 15,
+              color: AppColors.textBlackColor,
+            ),
+          ),
+          if(showPercentage??false)
+            Text(
+             " (${percentage??""}%)",
+              style: AppTextStyle.body1GreyColor.copyWith(
+                fontSize: 10,
+                fontStyle: FontStyle.italic,
+                fontWeight: FontWeight.w300,
+                color:AppColors.textBlackColor,
+
+              ),
+            ),
+        ],
       ),
       Flexible(
         child: Text(
           amount,
           style: AppTextStyle.body1GreyColor.copyWith(
-            fontSize: 18,
+            fontSize: 15,
             fontWeight: FontWeight.w700,
             color:
                 highlight
@@ -1066,26 +1098,38 @@ Widget _buildConsigneeDetail({
         else
           Column(
             children: [
-              20.height,
+
               // Contact Name
-              _buildDetailWidget(
-                text1: context.appText.name,
-                text2: name ?? "",
+              if((name??"").isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: _buildDetailWidget(
+                  text1: context.appText.name,
+                  text2: name ?? "",
+                ),
               ),
 
-              20.height,
+
 
               // Contact Number
-              _buildDetailWidget(
-                text1: context.appText.contactNo,
-                text2: phoneNo ?? "",
+              if((phoneNo??"").isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: _buildDetailWidget(
+                  text1: context.appText.contactNo,
+                  text2: phoneNo ?? "",
+                ),
               ),
-              20.height,
+
 
               // Email Id
-              _buildDetailWidget(
-                text1: context.appText.emailId,
-                text2: email ?? "",
+              if((email??"").isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: _buildDetailWidget(
+                  text1: context.appText.emailId,
+                  text2: email ?? "",
+                ),
               ),
             ],
           ),
@@ -1129,6 +1173,7 @@ Widget _submittedSettlementInfoWidget(
   final amount = loadSettlement.amountPerDay ?? 1;
   final detentionsAmount = PriceHelper.formatINR(
     (amount * numberOfDays).toString(),
+
   );
 
   return Padding(
@@ -1156,6 +1201,46 @@ Widget _submittedSettlementInfoWidget(
       ],
     ).paddingSymmetric(horizontal: 15),
   );
+}
+
+
+/// damage information
+Widget _approvedDamageInformation(
+  LoadSettlement? loadSettlement,
+  BuildContext context,
+) {
+  if (loadSettlement == null) {
+    return SizedBox.shrink();
+  }
+  String debitDamages =  (loadSettlement.debitDamages??"").isNotEmpty && loadSettlement.debitDamages!.trim()!="0" ?  PriceHelper.formatINR(loadSettlement.debitDamages ?? "",):"";
+  String debitShortage =  (loadSettlement.debitShortages ?? "").isNotEmpty  && loadSettlement.debitShortages!.trim() !="0" ?  PriceHelper.formatINR(loadSettlement.debitShortages ?? ""):"";
+  String debitPenalties=  (loadSettlement.debitPenalities ?? "").isNotEmpty && loadSettlement.debitPenalities!.trim()!="0" ?  PriceHelper.formatINR(loadSettlement.debitPenalities ?? ""):"";
+
+
+  return Column(
+    spacing: 15,
+    children: [
+      if(debitDamages.isNotEmpty || debitShortage.isNotEmpty || debitPenalties.isNotEmpty)
+      ...[
+        10.height,
+      ],
+      if(debitDamages.isNotEmpty)
+      InformationView(
+        title: context.appText.damage,
+        amount: debitDamages,
+      ),
+      if(debitShortage.isNotEmpty)
+      InformationView(
+        title: context.appText.shortage,
+        amount: debitShortage
+      ),
+      if(debitPenalties.isNotEmpty)
+      InformationView(
+        title:context.appText.penalties,
+        amount: debitPenalties
+      ),
+    ],
+  ).paddingSymmetric(horizontal: 15);
 }
 
 // Addable Section Header

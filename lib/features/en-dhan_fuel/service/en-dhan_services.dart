@@ -62,20 +62,32 @@ class EnDhanService {
     String customerId,
   ) async {
     try {
-      final url = ApiUrls.enDhanKycUpload;
+      final url = ApiUrls.submitKyc;
 
       // Add customerId to the request body
       final requestBody = request.toJson();
-      requestBody['customerId'] = customerId;
+      // requestBody['customerId'] = customerId;
 
-      final result = await _apiService.post(url, body: requestBody);
-
+      final result = await _apiService.post(url+customerId, body: requestBody);
       if (result is Success) {
+        final value = result.value;
+
+        // If API returned only message, treat it as success
+        if (value is Map && value.containsKey('message') && !value.containsKey('success')) {
+          return Success(EnDhanKycModel(
+            success: true,
+            message: value['message'],
+            data: null,
+          ));
+        }
+
         return await _apiService.getResponseStatus(
-          result.value,
-          (data) => EnDhanKycModel.fromJson(data),
+          value,
+              (data) => EnDhanKycModel.fromJson(data),
         );
-      } else if (result is Error) {
+      }
+
+      else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -954,4 +966,30 @@ class EnDhanService {
       return Error(ErrorWithMessage(message: errorMessage));
     }
   }
+
+  /// Check Endhan Server Status
+  Future<Result<Map<String, dynamic>>> checkEndhanServerStatus() async {
+    try {
+      final url = ApiUrls.enDhanServerStatus;
+      final result = await _apiService.get(url);
+
+      if (result is Success) {
+        if (result.value is Map<String, dynamic>) {
+          final response = result.value as Map<String, dynamic>;
+          CustomLog.debug(this, "Server Status Response: $response");
+          return Success(response);
+        } else {
+          return Error(DeserializationError());
+        }
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Error checking server status", e);
+      return Error(GenericError());
+    }
+  }
+
 }

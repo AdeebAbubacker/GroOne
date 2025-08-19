@@ -94,27 +94,19 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                   ],
                 ).expand(),
                 5.width,
+              ],
+            ),
+            10.height,
+            Row(
+              children: [
+                _buildLocationInfoWidget(    widget.data.pickUpLocation.capitalize).expand(),
+                Icon(
+                  Icons.arrow_right_alt_outlined,
+                  color: AppColors.primaryColor,
+                ).paddingSymmetric(horizontal: 5).expand(),
 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Wrap(
-                      children: [
+                _buildLocationInfoWidget(   widget.data.dropLocation.capitalize,).expand(),
 
-                        _buildLocationInfoWidget(    widget.data.pickUpLocation.capitalize),
-
-                        Icon(
-                          Icons.arrow_right_alt_outlined,
-                          color: AppColors.primaryColor,
-                        ).paddingSymmetric(horizontal: 5),
-
-                        _buildLocationInfoWidget(   widget.data.dropLocation.capitalize,),
-
-                      ],
-                    ),
-
-                  ],
-                ).expand(),
               ],
             ),
             commonDivider(),

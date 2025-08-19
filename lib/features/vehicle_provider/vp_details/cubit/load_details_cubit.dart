@@ -109,7 +109,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
       setTripDocuments(
           state.loadDetailsUIState?.data?.data?.loadDocument ?? []);
-      print("calling api");
       _handleTrackingBasedOnStatus(state.loadDetailsUIState?.data?.data);
     }
     if (result is Error) {
@@ -151,7 +150,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     if (status != null && route != null ) {
       late final TrackingDistanceApiRequest request;
 
-      if (status.index <= LoadStatus.assigned.index || tracking==null) {
+      if (status.index <= LoadStatus.assigned.index) {
         // Use pickup & drop coordinates
         final pickup = route.pickUpLatlon.split(',');
         final drop = route.dropLatlon.split(',');
@@ -166,12 +165,12 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         );
       } else {
         request = TrackingDistanceApiRequest(
-          originLat: tracking.originLat,
-          originLong: tracking.originLong,
-          currentLat: tracking.currentLat,
-          currentLong: tracking.currentLong,
-          destLat: tracking.destinationLat,
-          destLong: tracking.destinationLong
+          originLat: tracking?.originLat??0,
+          originLong: tracking?.originLong??0,
+          currentLat: tracking?.currentLat ?? 0,
+          currentLong: tracking?.currentLong ??0,
+          destLat: tracking?.destinationLat ??0,
+          destLong: tracking?.destinationLong ?? 0
         );
       }
 
@@ -365,6 +364,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       isLoading: false,
       deleteLoading:false,
     );
+
     currentList[currentDocumentIndex] = updatedDocument;
     emit(state.copyWith(tripDocumentList: currentList));
   }
@@ -388,7 +388,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
             uploadLoadingStatus(index, null);
           }
         },);
-
       }
       if (result is Error) {
         uploadLoadingStatus(index, null);
@@ -408,8 +407,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   // Lp load tracking distance
   Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
-    _setTrackingDistanceState(UIState.loading());
-
+    _setTrackingDistanceState(UIState.loading(),);
+    emit(state.copyWith(locationDistance: null));
     Result result = await _lpLoadsrepository.getTrackingDistance(request: request);
 
     if (result is Success<TrackingDistanceResponse>) {
@@ -623,10 +622,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true,bool? isAgreed}) {
     switch(loadStatus){
       case LoadStatus.assigned:
-        return (checkMemo??true) ? memo!=null:true;
+        return (checkMemo??true) ? memo!=null && (isAgreed??false):true;
         case LoadStatus.loading:
           return  checkIsDocumentUploaded(documentEntity);
       case LoadStatus.unloading:

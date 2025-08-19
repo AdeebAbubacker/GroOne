@@ -1,5 +1,6 @@
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
@@ -7,14 +8,20 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../utils/app_application_bar.dart';
+import '../../../../utils/app_button.dart';
 import '../../../../utils/app_button_style.dart';
 import '../../../../utils/app_icon_button.dart';
 import '../../../../utils/app_icons.dart';
 
 import '../../../../utils/app_route.dart';
 
+import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
+import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
+import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
 import 'gps_models_screen.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
 import 'package:intl/intl.dart';
@@ -67,16 +74,45 @@ class GpsOrderDetailScreen extends StatelessWidget {
               12.height,
                _addressSection(order.billingAddress, context),
               _addressSection(order.shippingAddress, context),
-             
+
               12.height,
               _paymentSummary(context),
               12.height,
               _groExecutiveWidget(context),
-              40.height,
+              12.height,
+              _downloadButton(),
+              20.height,
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _downloadButton() {
+    return BlocConsumer<KavachOrderListBloc, KavachOrderListState>(
+      listener: (context, state) {
+        if (state is InvoiceDownloaded) {
+          // Open the invoice in browser or PDF viewer
+          launchUrl(Uri.parse(state.url), mode: LaunchMode.externalApplication);
+        } else if (state is KavachOrderListError) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(state.message)),
+          );
+        }
+      },
+      builder: (context, state) {
+        return AppButton(
+          onPressed: () {
+            context
+                .read<KavachOrderListBloc>()
+                .add(DownloadInvoiceEvent(order.id));
+          },
+          title: state is InvoiceDownloading
+              ? "Downloading..."
+              : "Download Invoice",
+        ).bottomNavigationPadding();
+      },
     );
   }
 
@@ -110,20 +146,20 @@ class GpsOrderDetailScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: getGpsOrderStatusColor(
-                    order.statusHistory.isNotEmpty 
-                        ? order.statusHistory.first.orderStatus.statusLabel 
+                    order.statusHistory.isNotEmpty
+                        ? order.statusHistory.first.orderStatus.statusLabel
                         : 'Unknown',
                   ).withValues(alpha: 0.09),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
-                  order.statusHistory.isNotEmpty 
-                      ? order.statusHistory.first.orderStatus.statusLabel 
+                  order.statusHistory.isNotEmpty
+                      ? order.statusHistory.first.orderStatus.statusLabel
                       : 'Unknown',
                   style: TextStyle(
                     color: getGpsOrderStatusColor(
-                      order.statusHistory.isNotEmpty 
-                          ? order.statusHistory.first.orderStatus.statusLabel 
+                      order.statusHistory.isNotEmpty
+                          ? order.statusHistory.first.orderStatus.statusLabel
                           : 'Unknown',
                     ),
                     fontWeight: FontWeight.w600,
@@ -135,9 +171,9 @@ class GpsOrderDetailScreen extends StatelessWidget {
           ),
           25.height,
           Text(
-            order.lineItems.length == 1 
-                ? "Product Detail" 
-                : context.appText.productDetails, 
+            order.lineItems.length == 1
+                ? "Product Detail"
+                : context.appText.productDetails,
             style: AppTextStyle.h5
           ),
           8.height,
@@ -237,7 +273,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
 
   String _formatVehicleNumbers(List<GpsOrderVehicle> vehicles) {
     if (vehicles.isEmpty) return '';
-    
+
     if (vehicles.length <= 2) {
       return vehicles.map((v) => v.vehicleNumber).join(', ');
     } else {
