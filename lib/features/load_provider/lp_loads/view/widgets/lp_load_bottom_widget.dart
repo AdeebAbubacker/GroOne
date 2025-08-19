@@ -456,19 +456,6 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                     }
                                   }
                                   if (isUpdateConsignee) {
-                                         final String? phoneValidation = Validator.phone(phone);
-                                          if (phoneValidation != null) {
-                                              ToastMessages.alert(message: phoneValidation);
-                                              return;
-                                            }
-
-                                          if (email.isNotEmpty) {
-                                              final String? validation = Validator.email(email);
-                                              if (validation != null) {
-                                                ToastMessages.alert(message: validation);
-                                                return;
-                                              }
-                                            }
                                         lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: consigneeId ?? widget.loadItem.consignees[0].id);
                                    } else {
 
@@ -582,7 +569,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
             if(widget.loadStatus == LoadStatus.completed)
               AppButton(onPressed: () {
                 Navigator.push(context, commonRoute(LpLoadSummaryScreen(loadId: widget.loadItem.loadId, loadItem: widget.loadItem)));
-              }, title: context.appText.viewTripStatement).paddingSymmetric(horizontal: 10, vertical: 10)
+              }, title: context.appText.tripSettlement).paddingSymmetric(horizontal: 10, vertical: 10)
           ],
         ),
       ),
@@ -593,7 +580,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     final days = settlement?.noOfDays ?? 1;
     final perDay = settlement?.amountPerDay ?? 1;
 
-    String inr(dynamic val) => PriceHelper.formatINR(val.toString(), showDecimal: true);
+    String inr(dynamic val) => PriceHelper.formatINR(val.toString());
 
     return Padding(
       padding: const EdgeInsets.only(top: 15),
@@ -773,7 +760,26 @@ Widget _buildConsigneeDetail({
                         );
                       },
                     )
-                  : SizedBox.shrink(),
+                  : SizedBox.shrink()
+                  // SizedBox(
+                  //   width: 120,
+                  //   child: AppButton(
+                  //       buttonHeight: 40,
+                  //       title: context.appText.cancel,
+                  //       style: AppButtonStyle.logout,
+                  //       textStyle: AppTextStyle.secondaryButton,
+                  //      onPressed: () {
+                  //    FocusScope.of(context).unfocus();
+                  //       final cubit = context.read<LpLoadCubit>();
+                  //       cubit.emit(
+                  //         cubit.state.copyWith(
+                  //           isFieldUpdatble: true,
+                  //         ),
+                  //       );
+                  //     },
+                  //     ),
+                  // )
+                  ,
                   12.width,  
                   (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
                   ? AppButton(
