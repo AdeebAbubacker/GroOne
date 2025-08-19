@@ -86,11 +86,12 @@ class DriverLoadHelper {
   // }
 
 
-    static  String getBottomButtonTitle(int statusId,PodDispatchModel? podDispatched){
+    static  String getBottomButtonTitle(int statusId,PodDispatchModel? podDispatched,bool isLpAgreed){
       BuildContext context=navigatorKey.currentState!.context;
       switch(statusId){
+       
         case 4:
-          return context.appText.swipeToStart; 
+          return isLpAgreed ?  context.appText.swipeToStart : context.appText.waitingForLpToAcceptLoad; 
           case 5:
           
         return context.appText.swipeToCompleteLoading;

@@ -71,6 +71,5 @@ class GpsScreenManager {
   void dispose() {
     _refreshServiceInstance.dispose();
     _isInitialized = false;
-    CustomLog.info(this, "GPS Screen Manager disposed");
   }
 }

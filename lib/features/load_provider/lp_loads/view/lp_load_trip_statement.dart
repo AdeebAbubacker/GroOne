@@ -46,7 +46,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         scrolledUnderElevation: 0,
         title: Text(context.appText.tripStatement, style: AppTextStyle.h4),
@@ -153,58 +153,92 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
   Widget buildMainDetailWidget(TripDetails details) {
     return Container(
       decoration: commonContainerDecoration(),
-      padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20,
         children: [
-          buildHeadingText(context.appText.mainDetails),
+          buildHeadingText(context.appText.trip),
+          8.height,
           buildDetailRow(label: context.appText.loadId, value: details.loadId),
-          buildDetailRow(label: context.appText.transporter, value: details.transporter),
+          buildDetailRow(label: context.appText.transporter, value: details.transporter.capitalize),
           buildDetailRow(label: context.appText.vehicleNumber, value: details.vehicleNumber),
           buildDetailRow(label: context.appText.memo, value: details.memoNumber),
           buildDetailRow(label: context.appText.lane, value: details.lane),
+          20.height,
           buildDetailRow(
-            label: context.appText.totalFreight,
+            label: context.appText.totalFreightCost,
             value: PriceHelper.formatINR(details.totalFreight),
           ),
+
+          if(details.loading != '0.00' || details.unloading != '0.00' || details.detentions != '0.00')
+            ...[
+              20.height,
+              buildHeadingText(context.appText.credits.toUpperCase()),
+            ],
+          8.height,
+
+          if(details.loading != '0.00')
+          buildDetailRow(
+            label: context.appText.loadingCharges,
+            value: '(+) ${PriceHelper.formatINR(details.loading)}',
+            isPositive: true
+          ),
+          if(details.unloading != '0.00')
+          buildDetailRow(
+            label: context.appText.unloadingCharges,
+            value: '(+) ${PriceHelper.formatINR(details.unloading)}',
+            isPositive: true
+          ),
+          if(details.detentions != '0.00')
+            buildDetailRow(
+            label: context.appText.detentions.capitalizeFirst,
+            value: '(+) ${PriceHelper.formatINR(details.detentions)}',
+            isPositive: true
+          ),
+
+
+          if(details.handlingCharges != '0.00' || details.damages != '0.00' || details.shortages != '0.00' || details.penalties != '0.00')
+            ...[
+              20.height,
+              buildHeadingText(context.appText.debits.toUpperCase()),
+            ],
+          8.height,
+          if(details.handlingCharges != '0.00')
+          buildDetailRow(
+            label: context.appText.handlingCharges,
+            value: '(-) ${PriceHelper.formatINR(details.handlingCharges)}',
+            isNegative: true
+          ),
+          if(details.damages != '0.00')
+          buildDetailRow(
+            label: context.appText.damage,
+            value: '(-) ${PriceHelper.formatINR(details.damages)}',
+            isNegative: true
+          ),
+          if(details.shortages != '0.00')
+          buildDetailRow(
+            label: context.appText.shortages,
+            value: '(-) ${PriceHelper.formatINR(details.shortages)}',
+            isNegative: true
+          ),
+          if(details.penalties != '0.00')
+          buildDetailRow(
+            label: context.appText.penalties,
+            value: '(-) ${PriceHelper.formatINR(details.penalties)}',
+            isNegative: true
+          ),
+          20.height,
+
+          buildHeadingText(context.appText.total.toUpperCase()),
+          8.height,
           buildDetailRow(
             label: context.appText.netFreight,
             value: PriceHelper.formatINR(details.netFreight),
           ),
           buildDetailRow(
-            label: "${context.appText.advance} (${details.advancePercentage.split('.').first}%)",
-            value: PriceHelper.formatINR(details.advanceAmount),
+            label: context.appText.advance,
+            value: PriceHelper.formatINR(details.advancePaid ?? ''),
           ),
-          buildDetailRow(
-            label: context.appText.loadingCharges,
-            value: PriceHelper.formatINR(details.loading),
-          ),
-          buildDetailRow(
-            label: context.appText.unloadingCharges,
-            value: PriceHelper.formatINR(details.unloading),
-          ),
-          buildDetailRow(
-            label: context.appText.detentions.capitalizeFirst,
-            value: PriceHelper.formatINR(details.detentions),
-          ),
-          buildDetailRow(
-            label: context.appText.handlingCharges,
-            value: '(-) ${PriceHelper.formatINR(details.handlingCharges)}',
-          ),
-          buildDetailRow(
-            label: context.appText.damageCharges,
-            value: '(-) ${PriceHelper.formatINR(details.damages)}',
-          ),
-          buildDetailRow(
-            label: context.appText.shortages,
-            value: '(-) ${PriceHelper.formatINR(details.shortages)}',
-          ),
-          buildDetailRow(
-            label: context.appText.penalty,
-            value: '(-) ${PriceHelper.formatINR(details.penalties)}',
-          ),
-          commonDivider(height: 10, thickness: 2, dividerColor: AppColors.black),
           buildDetailRow(
             label: context.appText.balanceToBePaid,
             value: PriceHelper.formatINR(details.balanceToBePaid),
@@ -220,12 +254,12 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
     final bank = details.bankDetails;
     return Container(
       decoration: commonContainerDecoration(),
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20,
         children: [
-          buildHeadingText(context.appText.bankDetails),
+          buildHeadingText(context.appText.bankDetails, isHeading: true),
+          10.height,
           buildDetailRow(label: context.appText.beneficiaryName, value: bank?.beneficiaryName ?? ''),
           buildDetailRow(label: context.appText.bankName, value: bank?.bankName ?? ''),
           buildDetailRow(label: context.appText.accountNumber, value: bank?.accountNumber ?? ''),
@@ -241,13 +275,13 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
     final truck = details.truckSupplier;
     return Container(
       decoration: commonContainerDecoration(),
-      padding: const EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 5),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: 20,
         children: [
-          buildHeadingText(context.appText.truckSupplier),
-          buildDetailRow(label: context.appText.partnerName, value: truck?.partnerName ?? ''),
+          buildHeadingText(context.appText.truckSupplier, isHeading: true),
+          10.height,
+          buildDetailRow(label: context.appText.partnerName, value: truck?.partnerName.capitalize ?? ''),
           buildDetailRow(label: context.appText.panNumber, value: truck?.panNumber ?? ''),
           buildDetailRow(label: context.appText.vehicleNumber, value: truck?.vehicleNumber ?? ''),
         ],
@@ -255,10 +289,12 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
     );
   }
 
-  Widget buildHeadingText(String text) {
+  Widget buildHeadingText(String text, {bool isHeading = false}) {
     return Text(
       text,
-      style: AppTextStyle.h5.copyWith(color: AppColors.textBlackColor, fontWeight: FontWeight.w700),
+      style: AppTextStyle.h5.copyWith(
+          color: isHeading ? AppColors.textBlackColor :  Color(0xff6a7282), fontWeight: FontWeight.w700,
+      ),
     );
   }
 
@@ -266,13 +302,36 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
     required String label,
     required String value,
     TextStyle? style,
+    bool isNegative = false,
+    bool? isPositive=false,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: AppTextStyle.body3.copyWith(fontSize: 14)),
-        Text(value, style: style ?? AppTextStyle.body2),
-      ],
+    return Container(
+      padding: const EdgeInsets.all(12),
+      margin: const EdgeInsets.only(bottom: 0),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        color: AppColors.white,
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: AppTextStyle.body3.copyWith(fontSize: 14)),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              maxLines: 1,
+              textAlign: TextAlign.right,
+              style: AppTextStyle.body2.copyWith(
+                fontSize: 15,
+                fontWeight: FontWeight.w600,
+                color:(isPositive??false)?  AppColors.greenColor:
+                isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

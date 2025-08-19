@@ -297,72 +297,98 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
 
 /// inside buildButtonWidget:
   Widget buildButtonWidget(BuildContext context) {
-    return BlocConsumer<LoadPostingBloc, LoadPostingState>(
-      bloc: loadPostingBloc,
-      listenWhen: (previous, current) =>  previous != current,
-      listener: (context, state) async {
-        if (state is CreateLoadError) {
-          ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-        }
-        if (state is CreateLoadSuccess) {
-          final createdLoadId = state.createLoadModel.data?.loadId;
-          if (createdLoadId != null) {
-            await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
-          }
-          if(context.mounted) {
-            AppDialog.show(
-              context,
-              dismissible: false,
-              child: CommonDialogView(
-                hideCloseButton: true,
-                onSingleButtonText: context.appText.continueText,
-                onTapSingleButton: () {
-                  analyticsHelper.logEvent(AnalyticEventName.CREATE_LOAD, widget.apiRequest.toJson());
-                  Navigator.of(context).pop(true);
-                  Navigator.of(context).pop(true);
-                },
-                child: Column(
-                  children: [
-                    Lottie.asset(AppJSON.success, width: 150, repeat: false, frameRate: FrameRate(120)),
-                    Text('${context.appText.loadId} : ${state.createLoadModel.data?.loadSeriesId}', style: AppTextStyle.h4),
-                    20.height,
-                    Text(context.appText.loadPostedSuccess, style: AppTextStyle.greenColor20w700),
-                    20.height,
-                    Text(context.appText.weWillAssignVehicleAndDriver, style: AppTextStyle.bodyGreyColor),
-                  ],
-                ),
-              ),
-            );
-          }
-          lpHomeCubit.fetchGetLoadList();
-          lpHomeCubit.clearPickUpAndDestination();
-        }
-      },
-      builder: (context, state) {
-        final isLoading = state is CreateLoadLoading;
-        return Row(
-          children: [
-            AppButton(
-              onPressed: () {
-                commonSupportDialog(context);
-              },
-              style: AppButtonStyle.outline,
-              title: context.appText.support,
-            ).expand(),
-            15.width,
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<LoadPostingBloc, LoadPostingState>(
+          bloc: loadPostingBloc,
+          listenWhen: (previous, current) => previous != current,
+          listener: (context, state) async {
+            if (state is CreateLoadError) {
+              ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            }
+            if (state is CreateLoadSuccess) {
+              final createdLoadId = state.createLoadModel.data?.loadId;
+              if (createdLoadId != null) {
+                await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
+              }
+              if (context.mounted) {
+                AppDialog.show(
+                  context,
+                  dismissible: false,
+                  child: CommonDialogView(
+                    hideCloseButton: true,
+                    onSingleButtonText: context.appText.continueText,
+                    onTapSingleButton: () {
+                      analyticsHelper.logEvent(
+                        AnalyticEventName.CREATE_LOAD,
+                        widget.apiRequest.toJson(),
+                      );
+                      Navigator.of(context).pop(true);
+                      Navigator.of(context).pop(true);
+                    },
+                    child: Column(
+                      children: [
+                        Lottie.asset(AppJSON.success,
+                            width: 150, repeat: false, frameRate: FrameRate(120)),
+                        Text(
+                          '${context.appText.loadId} : ${state.createLoadModel.data?.loadSeriesId}',
+                          style: AppTextStyle.h4,
+                        ),
+                        20.height,
+                        Text(context.appText.loadPostedSuccess,
+                            style: AppTextStyle.greenColor20w700),
+                        20.height,
+                        Text(context.appText.weWillAssignVehicleAndDriver,
+                            style: AppTextStyle.bodyGreyColor),
+                      ],
+                    ),
+                  ),
+                );
+              }
+              lpHomeCubit.fetchGetLoadList();
+              lpHomeCubit.clearPickUpAndDestination();
+            }
+          },
+        ),
+      ],
+      child: BlocBuilder<LpLoadCubit, LpLoadState>(
+        bloc: lpLoadLocator,
+        builder: (context, lpState) {
+          final creditLoading = lpState.lpCreditCheck?.status == Status.LOADING;
 
-            AppButton(
-              title: context.appText.postLoad,
-              isLoading: isLoading,
-              onPressed: isLoading ? () {} : () async {
-                await postLoadApiCall(context);
-              },
-            ).expand(),
-          ],
-        ).bottomNavigationPadding();
-      },
+          return BlocBuilder<LoadPostingBloc, LoadPostingState>(
+            bloc: loadPostingBloc,
+            builder: (context, loadState) {
+              final isPosting = loadState is CreateLoadLoading;
+
+              final isLoading = creditLoading || isPosting;
+
+              return Row(
+                children: [
+                  AppButton(
+                    onPressed: () {
+                      commonSupportDialog(context);
+                    },
+                    style: AppButtonStyle.outline,
+                    title: context.appText.support,
+                  ).expand(),
+                  15.width,
+                  AppButton(
+                    title: context.appText.postLoad,
+                    isLoading: isLoading,
+                    onPressed: isLoading
+                        ? () {}
+                        : () async {
+                      await postLoadApiCall(context);
+                    },
+                  ).expand(),
+                ],
+              ).bottomNavigationPadding();
+            },
+          );
+        },
+      ),
     );
   }
-
 
 }

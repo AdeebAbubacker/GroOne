@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -117,11 +118,14 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
     required int driverConsent,
     required List<DocumentEntity>? tripDocumentList,
     required bool isMemoUploaded,
+    required bool isLpgreed,
   }) {
     if (loadStatus == null) return false;
     if (loadStatus == 4) {
-      return isMemoUploaded; // Only return true if memo is uploaded
+      return isMemoUploaded && isLpgreed; 
     }
+    
+    
 
     if (loadStatus == 5) {
       if (tripDocumentList == null ||
@@ -579,6 +583,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                       price: 0,
                                       loadId: loads.data!.loadId.toString(),
                                       enable: isChangeStatusButtonEnabled(
+                                        isLpgreed:  loads.data?.isAgreed == 1,
                                         isMemoUploaded:
                                             loads.data?.loadMemo != null,
                                         loadStatus: loads.data?.loadStatusId,
@@ -586,11 +591,13 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                             loads.data?.driverConsent ?? 0,
                                         tripDocumentList: state.tripDocumentList,
                                       ),
-                                      text: DriverLoadHelper.getBottomButtonTitle(
+                                      text: DriverLoadHelper.getBottomButtonTitle(                             
                                         loads.data!.loadStatusId,
-                                        loads.data?.podDispatch
+                                        loads.data?.podDispatch,
+                                        loads.data?.isAgreed == 1
                                       ),
                                       onSubmit: () {
+                                         print("-----------------------------");
                                         // Check for sim consent and trip doc
                                         if (loads.data?.loadStatusId == 5) {
                                           final tripDocumentList =

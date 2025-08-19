@@ -12,6 +12,10 @@ class ApiUrls {
   static String get xApiKey => EnvironmentVariables.fetchXApiKEY;
   static String get fetchUDID => EnvironmentVariables.fetchUDID;
 
+  /// ChatBot XApiKEY
+  static String get fetchedChatBotXApiKEY => EnvironmentVariables.fetchChatBotXApiKEY;
+
+
 
 
 

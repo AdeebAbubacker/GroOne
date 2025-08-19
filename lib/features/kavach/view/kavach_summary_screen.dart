@@ -150,6 +150,23 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     return BlocListener<KavachOrderBloc, KavachOrderState>(
       bloc: kavachOrderBloc,
       listener: (context, state) async {
+        if (state is KavachOrderSubmitting || state is KavachPaymentInitiating || state is KavachPaymentStatusChecking) {
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (_) => const Center(child: CircularProgressIndicator()),
+          );
+        }
+        if (state is KavachOrderSuccess ||
+            state is KavachOrderFailure ||
+            state is KavachPaymentSuccess ||
+            state is KavachPaymentFailure ||
+            state is KavachPaymentStatusSuccess ||
+            state is KavachPaymentStatusFailure) {
+          if (Navigator.canPop(context)) {
+            Navigator.of(context).pop(); // close loader
+          }
+        }
         if (state is KavachPaymentSuccess) {
           final result = await Navigator.of(context).push(
             commonRoute(
@@ -159,14 +176,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               ),
             ),
           );
-
-          // if (result == true) {
-          //   KavachOrderRequest request = widget.kavachOrderRequest;
-          //   request.paymentRequestId = kavachOrderBloc.paymentRequestId;
-          //
-          //   // 2️⃣ Payment success — now create order
-          //   kavachOrderBloc.add(KavachSubmitOrder(widget.kavachOrderRequest));
-          // }
           if (result == true) {
             final paymentRequestId = kavachOrderBloc.paymentRequestId;
             if (paymentRequestId != null) {
@@ -174,8 +183,15 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             }
           }
         }
-
         if (state is KavachPaymentStatusSuccess) {
+          KavachOrderRequest request = widget.kavachOrderRequest;
+          request.paymentRequestId = kavachOrderBloc.paymentRequestId;
+          kavachOrderBloc.add(KavachSubmitOrder(request));
+        }
+        if (state is KavachPaymentStatusFailure) {
+          ToastMessages.error(message: context.appText.paymentFailed);
+        }
+        if (state is KavachOrderSuccess) {
           showSuccessDialog(
             context,
             text: 'Order placed successfully',
@@ -214,8 +230,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             }
           });
         }
-        if (state is KavachPaymentStatusFailure) {
-          ToastMessages.error(message: context.appText.paymentFailed);
+        if (state is KavachOrderFailure) {
+          ToastMessages.error(message: state.message);
         }
       },
       child: Scaffold(

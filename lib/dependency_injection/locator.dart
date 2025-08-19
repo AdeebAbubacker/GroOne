@@ -139,6 +139,9 @@ import '../features/gps_feature/service/gps_screen_manager.dart';
 import '../features/gps_feature/service/gps_vehicle_extra_info_service.dart';
 import '../features/gps_feature/service/path_replay_service.dart';
 import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import '../features/ai_chat/cubit/chat_cubit.dart';
+import '../features/ai_chat/service/chat_api_service.dart';
+import '../features/ai_chat/repository/chat_repository.dart';
 import '../service/pushNotification/notification_service.dart';
 
 var locator = GetIt.instance;
@@ -735,6 +738,14 @@ void initLocator() {
     locator.registerLazySingleton(
       () => MastersCubit(locator<ProfileRepository>()),
     );
+    
+        // AI Chat dependencies
+    locator.registerLazySingleton(() => ChatApiService(
+      locator<ApiService>(), 
+      locator<SecuredSharedPreferences>()
+    ));
+    locator.registerLazySingleton(() => ChatRepository(locator<ChatApiService>()));
+    locator.registerLazySingleton(() => ChatCubit(locator<ChatRepository>()));
 
     CustomLog.info(locator, "All instances registered.");
   } catch (e) {

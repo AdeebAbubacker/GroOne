@@ -1097,5 +1097,14 @@
   "noVehiclesAvailableToDisplay": "दिखाने के लिए कोई वाहन उपलब्ध नहीं",
   "unableToLoadDashboardData": "डैशबोर्ड डेटा लोड करने में असमर्थ",
   "noVehiclesFound": "कोई वाहन नहीं मिला",
-  "unableToLoadVehicleGeofenceData": "वाहन जियोफेंस डेटा लोड करने में असमर्थ"
+  "unableToLoadVehicleGeofenceData": "वाहन जियोफेंस डेटा लोड करने में असमर्थ",
+  "deviceActivationInProgress": "डिवाइस एक्टिवेशन प्रगति में",
+  "deviceActivationMessage": "आपका GPS डिवाइस एक्टिवेशन अभी भी प्रगति में है। कृपया बाद में पुनः प्रयास करें।",
+  "continueButton": "जारी रखें",
+  "waitingForLpToAcceptLoad": "एलपी द्वारा लोड स्वीकार करने की प्रतीक्षा",
+  "confirmAdvance": "एडवांस की पुष्टि करें",
+  "loadingMemo": "लोडिंग मेमो",
+  "loadDetails": "लोड विवरण",
+  "trip": "यात्रा",
+  "totalFreightCost": "कुल भाड़ा लागत"
 }

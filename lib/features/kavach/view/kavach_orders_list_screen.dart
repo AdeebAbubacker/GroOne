@@ -250,7 +250,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                     controller: _tabController,
                     children: [
                       _buildTab(status: null),
-                      _buildTab(status: 4),
+                      _buildTab(status: 5),
                       _buildTab(status: 7),
                       _buildTab(status: 8),
                       _buildTab(status: 10),
