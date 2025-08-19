@@ -117,7 +117,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CommonAppBar(title: context.appText.recentRoutes, isCrossLeadingIcon: true, scrolledUnderElevation: 0.0),
+      appBar: CommonAppBar(title: context.appText.recentRoutesTitle, isCrossLeadingIcon: true, scrolledUnderElevation: 0.0),
       body: _buildBodyWidget(context),
       bottomNavigationBar: _buildSelectButton(context),
     );

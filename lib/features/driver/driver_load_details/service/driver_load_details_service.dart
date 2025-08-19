@@ -42,10 +42,18 @@ class DriverLoadDetailsService {
         print('error');
         return Error(GenericError());
       }
-    } catch (e) {
-      print('${e.toString()}');
-      return Error(DeserializationError());
-    }
+    } 
+    // catch (e) {
+    //   print('${e.toString()}');
+    //   return Error(DeserializationError());
+    // }
+    catch (e, stackTrace) {
+    // Capture the stack trace here
+    print('Exception: $e');
+    print('Stack trace: $stackTrace');
+
+    return Error(DeserializationError());
+  }
   }
 
   /// Upload File Service
