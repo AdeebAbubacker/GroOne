@@ -264,7 +264,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                   ),
                   textAlign: TextAlign.right,
                 ),
-              if((loadStatus.index >= LoadStatus.inTransit.index && (widget.loadItem.lpPaymentsData == null)))
+              if((loadStatus.index >= LoadStatus.inTransit.index && (widget.loadItem.lpPaymentsData?.receivableAdvancePaidFlg == false)))
                 Row(
                   children: [
                     const Icon(Icons.error, size: 16, color: AppColors.iconRed),
@@ -275,7 +275,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                     ).flexible(),
                   ],
                 ),
-              if((loadStatus == LoadStatus.completed && (widget.loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)))
+              if((loadStatus == LoadStatus.completed && (widget.loadItem.lpPaymentsData?.receivableBalancePaidFlg == false && widget.loadItem.lpPaymentsData?.receivableAdvancePaidFlg == true)))
                 Row(
                   children: [
                     const Icon(Icons.error, size: 16, color: AppColors.iconRed),
