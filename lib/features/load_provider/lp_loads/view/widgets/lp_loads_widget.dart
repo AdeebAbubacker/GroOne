@@ -300,11 +300,14 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
       children: [
         Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
         5.width,
-        Text(
-          widget.loadItem.loadRoute?.pickUpWholeAddr ?? "",
-          style: AppTextStyle.body4.copyWith(fontSize: 12),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        Tooltip(
+          message: widget.loadItem.loadRoute?.pickUpWholeAddr ?? "",
+          child: Text(
+            widget.loadItem.loadRoute?.pickUpWholeAddr ?? "",
+            style: AppTextStyle.body4.copyWith(fontSize: 12),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ).flexible(flex: 2),
         DottedLine(
           direction: Axis.horizontal,
@@ -315,11 +318,14 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
           dashGapLength: 3.0,
         ).paddingOnly(right: 8, left: 12).expand(),
         Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
-        Text(
-          widget.loadItem.loadRoute?.dropWholeAddr ?? "",
-          style: AppTextStyle.body4.copyWith(fontSize: 12),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+        Tooltip(
+          message: widget.loadItem.loadRoute?.dropWholeAddr ?? "",
+          child: Text(
+            widget.loadItem.loadRoute?.dropWholeAddr ?? "",
+            style: AppTextStyle.body4.copyWith(fontSize: 12),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
         ).flexible(flex: 2),
       ],
     );
@@ -389,3 +395,4 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
     );
   }
 }
+//-------

@@ -144,8 +144,16 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                   children: [
                     Icon(Icons.gps_fixed, color: AppColors.greenColor, size: 20),
                     5.width,
-                    Text(widget.loadData.loadRoute?.pickUpWholeAddr ?? '', style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
-                  ],
+                   Tooltip(
+                  message: widget.loadData.loadRoute?.pickUpWholeAddr ?? '',
+                  child: Text(
+                    widget.loadData.loadRoute?.pickUpWholeAddr ?? '',
+                    style: AppTextStyle.body2,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ).flexible(),
+                ],
                 ).expand(),
 
                 DottedLine(
@@ -161,7 +169,15 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
                   children: [
                     Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
                     5.width,
-                    Text(widget.loadData.loadRoute?.dropWholeAddr ?? '',  style: AppTextStyle.body2, maxLines: 1, overflow: TextOverflow.ellipsis).flexible(),
+                  Tooltip(
+                  message: widget.loadData.loadRoute?.dropWholeAddr ?? '',
+                  child: Text(
+                    widget.loadData.loadRoute?.dropWholeAddr ?? '',
+                    style: AppTextStyle.body2,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ).flexible(),                 
                   ],
                 ).expand(),
               ],
