@@ -760,26 +760,7 @@ Widget _buildConsigneeDetail({
                         );
                       },
                     )
-                  : SizedBox.shrink()
-                  // SizedBox(
-                  //   width: 120,
-                  //   child: AppButton(
-                  //       buttonHeight: 40,
-                  //       title: context.appText.cancel,
-                  //       style: AppButtonStyle.logout,
-                  //       textStyle: AppTextStyle.secondaryButton,
-                  //      onPressed: () {
-                  //    FocusScope.of(context).unfocus();
-                  //       final cubit = context.read<LpLoadCubit>();
-                  //       cubit.emit(
-                  //         cubit.state.copyWith(
-                  //           isFieldUpdatble: true,
-                  //         ),
-                  //       );
-                  //     },
-                  //     ),
-                  // )
-                  ,
+                  : SizedBox.shrink(),
                   12.width,  
                   (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
                   ? AppButton(
