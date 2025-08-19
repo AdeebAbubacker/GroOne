@@ -126,7 +126,6 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
       child: Scaffold(
         appBar: CommonAppBar(title: context.appText.podDispatch),
         body: _buildBodyWidget(context),
-        bottomNavigationBar: _buildSubmitButtonWidget(),
       ),
     );
   }
@@ -164,68 +163,39 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
             onChanged: (value){
               clearDropDownFields();
             },
+          ).expand(),
+
+          // Submit Button
+          BlocConsumer<PodDispatchCubit, PodDispatchState>(
+            bloc: cubit,
+            listenWhen: (previous, current) =>  previous.submitPodUIState?.status != current.submitPodUIState?.status,
+            listener: (context, state) async {
+              final status = state.submitPodUIState?.status;
+              if (status == Status.SUCCESS) {
+                Navigator.of(context).pop(true);
+              }
+              if (status == Status.ERROR) {
+                final error = state.submitPodUIState?.errorType;
+                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+              }
+            },
+            builder: (context, state) {
+              final isLoading = state.submitPodUIState?.status == Status.LOADING;
+              return AppButton(
+                title: context.appText.submit,
+                isLoading: isLoading,
+                onPressed: isLoading ? (){} : () => submitPodApiCall(),
+              ).paddingSymmetric(horizontal: 10);
+            },
           ),
+
+          // Skip Button
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(context.appText.skip),
+          ).center(),
        ],
       ),
-    );
-  }
-
-
-  ///  Submit Button
-  Widget _buildSubmitButtonWidget(){
-    return BlocConsumer<PodDispatchCubit, PodDispatchState>(
-      bloc: cubit,
-      listenWhen: (previous, current) =>  previous.submitPodUIState?.status != current.submitPodUIState?.status,
-      listener: (context, state) async {
-        final status = state.submitPodUIState?.status;
-        if (status == Status.SUCCESS) {
-           Navigator.of(context).pop(true);
-        }
-        if (status == Status.ERROR) {
-          final error = state.submitPodUIState?.errorType;
-          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-        }
-      },
-      builder: (context, state) {
-        final isLoading = state.submitPodUIState?.status == Status.LOADING;
-        return AppButton(
-          title: context.appText.submit,
-          isLoading: isLoading,
-          onPressed: isLoading ? (){} : () => submitPodApiCall(),
-        ).bottomNavigationPadding();
-      },
-    );
-  }
-
-
- // Or Divider
-  Widget orDivider() {
-    return Row(
-      children: [
-         Expanded(
-          child: Divider(
-            thickness: 1,
-          color: AppColors.primaryColor,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Text(
-            context.appText.or,
-            style: AppTextStyle.textGreyDetailColor14w400.copyWith(
-              fontSize: 16,
-              fontWeight: FontWeight.w500,
-              color: AppColors.primaryColor,
-              ),
-          ),
-        ),
-        Expanded(
-          child: Divider(
-            thickness: 1,
-          color: AppColors.primaryColor,
-          ),
-        ),
-      ],
     );
   }
 }
