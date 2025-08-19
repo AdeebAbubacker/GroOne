@@ -550,7 +550,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
                   return damageRecordCard(
                     context: context,
                     imageIds: data.image,
-                    imageUrl: imageList?[index]??"",
+                    imageUrl: (imageList != null && imageList.length > index) ? imageList[index] : "",
                     itemName: data.itemName??"",
                     quantity:  data.quantity.toString(),
                     description:  data.description??"",

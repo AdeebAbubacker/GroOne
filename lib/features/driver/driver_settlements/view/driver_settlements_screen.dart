@@ -10,6 +10,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_count_selector.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -24,6 +25,8 @@ import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../../data/ui_state/status.dart';
 
+
+
 class DriverSettlementsScreen extends StatefulWidget {
   final String? loadId;
   final String? vehicleID;
@@ -36,7 +39,7 @@ class DriverSettlementsScreen extends StatefulWidget {
 }
 
 class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
-  TextEditingController noOfDays = TextEditingController();
+  TextEditingController noOfDays = TextEditingController(text: '0');
   TextEditingController detentionAmount = TextEditingController();
   TextEditingController loadingAmount = TextEditingController();
   TextEditingController unloadingAmount = TextEditingController();
@@ -63,6 +66,10 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
 
   void createAndSubmitSettlements(){
     if(formKey.currentState!.validate()){
+      if(noOfDays.text == '0') {
+        ToastMessages.error(message: context.appText.noOfDaysMustBeAtLeastOne);
+        return;
+      }
       vpDetailsCubit.submitSettlement(SettlementApiRequest(
         loadId: widget.loadId??"",
         amountPerDay:int.tryParse(detentionAmount.text)??0,
@@ -103,31 +110,27 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
             children: [
               headingText(text: context.appText.detentions),
 
-              // No. of Days
-              AppTextField(
-                controller: noOfDays,
-                labelText: context.appText.noOfDays,
-                hintText:  context.appText.days,
-                keyboardType: TextInputType.number,
 
-                validator: (value) => Validator.fieldRequired(value),
-
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
-                ],
-              ),
+              AppCountSelector(label: context.appText.noOfDays, controller: noOfDays, isMandatory: true),
 
               // Amount
               AppTextField(
+                mandatoryStar: int.tryParse(noOfDays.text) != null && int.tryParse(noOfDays.text)! > 0,
                 controller: detentionAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
 
-                validator: (value) => Validator.fieldRequired(value),
+                validator: (value) {
+                if (int.tryParse(noOfDays.text) != null && int.tryParse(noOfDays.text)! > 0) {
+                  return Validator.fieldRequired(value, fieldName: context.appText.amount);
+                }
+                return null;
+              },
 
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                  LengthLimitingTextInputFormatter(8),
                 ],
               ),
               2.height,
@@ -140,10 +143,9 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
 
-                validator: (value) => Validator.fieldRequired(value),
-
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                  LengthLimitingTextInputFormatter(8),
                 ],
               ),
 
@@ -156,10 +158,9 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
 
-                validator: (value) => Validator.fieldRequired(value),
-
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                  LengthLimitingTextInputFormatter(8),
                 ],
               ),
 
@@ -217,6 +218,7 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
         message:  context.appText.notifiedTheConcernTeam,
         onContinue: (){
           getLoadDetails(widget.loadId??"");
+          Navigator.of(context).pop(true);
           Navigator.of(context).pop(true);
           },
       ),

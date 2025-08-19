@@ -184,4 +184,18 @@ class AppButtonStyle {
   side: const BorderSide(color: AppColors.primaryColor, width: 1.5),
 );
 
+
+ static ButtonStyle cancelShrink = OutlinedButton.styleFrom(
+  enableFeedback: true,
+  splashFactory: NoSplash.splashFactory,
+  surfaceTintColor: Colors.white,
+  backgroundColor: Colors.white,
+  elevation: 0.0,
+  minimumSize: const Size(0, commonButtonHeight), 
+  shape: RoundedRectangleBorder(
+    borderRadius: BorderRadius.circular(commonButtonRadius),
+  ),
+  side: const BorderSide(color: AppColors.red, width: 1.5),
+);
+
 }

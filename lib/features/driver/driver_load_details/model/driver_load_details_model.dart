@@ -1109,8 +1109,8 @@ class LoadPrice {
             maxRate: json["maxRate"] ?? 0,
             vpRate: json["vpRate"] ?? 0,
             vpMaxRate: json["vpMaxRate"] ?? 0,
-            margin: json["margin"] ?? 0,
-            maxMargin: json["maxMargin"] ?? 0,
+            margin:  parseInt(json["margin"]) ?? 0,
+            maxMargin: parseInt(json["maxMargin"]) ?? 0,
             marginPercentage: json["marginPercentage"] ?? 0,
             handlingCharges: json["handlingCharges"] ?? 0,
             status: json["status"] ?? 0,
@@ -2398,4 +2398,15 @@ class PodDispatchModel {
         );
     }
 
+}
+
+
+int parseInt(dynamic value) {
+  if (value == null) return 0;
+  if (value is int) return value;
+  if (value is double) return value.toInt(); 
+  if (value is String) {
+    return double.tryParse(value)?.toInt() ?? 0; 
+  }
+  return 0; 
 }
