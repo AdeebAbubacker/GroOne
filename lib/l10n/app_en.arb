@@ -1143,5 +1143,6 @@
   "loadingMemo": "Loading Memo",
   "loadDetails": "Load Details",
   "trip": "TRIP",
-  "totalFreightCost": "Total Freight Cost"
+  "totalFreightCost": "Total Freight Cost",
+  "skip": "Skip"
 }

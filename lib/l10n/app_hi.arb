@@ -1106,5 +1106,6 @@
   "loadingMemo": "लोडिंग मेमो",
   "loadDetails": "लोड विवरण",
   "trip": "यात्रा",
-  "totalFreightCost": "कुल भाड़ा लागत"
+  "totalFreightCost": "कुल भाड़ा लागत",
+  "skip": "छोड़ें"
 }
