@@ -455,7 +455,6 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                       return;
                                     }
                                   }
-                                  //--------
                                   if (isUpdateConsignee) {
                                          final String? phoneValidation = Validator.phone(phone);
                                           if (phoneValidation != null) {
