@@ -253,24 +253,25 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
             ),
             10.height,
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: _buildLocationInfoWidget(
-                    widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",
-                  ),
+            children: [
+              Expanded(
+                child: _buildLocationInfoWidget(
+                  widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",
                 ),
-                Icon(
-                  Icons.arrow_right_alt_outlined,
-                  color: AppColors.primaryColor,
-                ).paddingSymmetric(horizontal: 2),
-                Expanded(
-                  child: _buildLocationInfoWidget(
-                    widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",
-                  ),
+              ),
+              Spacer(flex: 1), // pushes arrow away from pickup
+              Icon(
+                Icons.arrow_right_alt_outlined,
+                color: AppColors.primaryColor,
+              ),
+              Spacer(flex: 1), // pushes arrow away from drop
+              Expanded(
+                child: _buildLocationInfoWidget(
+                widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
             commonDivider(),
 
             //  statusButtonWidget(statusBackgroundColor: AppColors.boxGreen, statusTextColor: AppColors.textGreen, statusText: "Advance Paid")
@@ -461,11 +462,14 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
 
   Widget _buildLocationInfoWidget(String? location) {
     String locationText = location?.split(",").first ?? "";
-    return Text(
-      locationText,
-      style: AppTextStyle.blackColor15w500,
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
+    return Tooltip(
+      message: locationText,
+      child: Text(
+        locationText,
+        style: AppTextStyle.blackColor15w500,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+      ),
     );
   }
 
