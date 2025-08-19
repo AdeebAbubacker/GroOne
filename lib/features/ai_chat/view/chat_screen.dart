@@ -38,7 +38,8 @@ class _ChatScreenState extends State<ChatScreen> {
   final AudioPlayer _audioPlayer = AudioPlayer();
   bool _isPlayingPreview = false;
   String? _currentPlayingPath;
-  bool _isLoadingHistory = false; // Flag to prevent multiple pagination calls
+  bool _isLoadingHistory = false;
+  bool _showLanguageOptions = false; // Flag to prevent multiple pagination calls
   final profileCubit = locator<ProfileCubit>();
 
 
@@ -161,7 +162,7 @@ class _ChatScreenState extends State<ChatScreen> {
         },
         builder: (context, state) {
           return Column(
-          children: [
+            children: [
               // Messages List
               Expanded(
                 child: _buildMessagesList(state.messages),
@@ -170,6 +171,9 @@ class _ChatScreenState extends State<ChatScreen> {
               // Recording Indicator or Audio Preview
               if (state.isRecording) _buildRecordingIndicator(state),
               if (state.recordedAudioPath != null) _buildAudioPreview(state),
+              
+              // Voice Processing Indicator
+              if (state.isProcessingVoice) _buildVoiceProcessingIndicator(),
 
               // Input Area (hide when audio is recorded)
               if (state.recordedAudioPath == null) _buildInputArea(state),
@@ -198,39 +202,6 @@ class _ChatScreenState extends State<ChatScreen> {
         ),
       ),
       actions: [
-        // Language Selector
-        BlocBuilder<ChatCubit, ChatState>(
-          builder: (context, state) {
-            return Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                margin: const EdgeInsets.only(right: 8),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey[300]!),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: DropdownButton<ChatLanguage>(
-                  value: state.selectedLanguage,
-                  underline: const SizedBox(),
-                  icon: const Icon(Icons.keyboard_arrow_down, color: Colors.black, size: 20),
-                  style: const TextStyle(color: Colors.black, fontSize: 14),
-                  items: ChatLanguage.values.map((language) {
-                    return DropdownMenuItem(
-                      value: language,
-                      child: Text(language.displayName),
-                    );
-                  }).toList(),
-                  onChanged: (language) {
-                    if (language != null) {
-                      context.read<ChatCubit>().changeLanguage(language);
-              }
-            },
-          ),
-        ),
-            );
-          },
-        ),
         // Headset Icon
         GestureDetector(
           onTap: () {
@@ -872,8 +843,11 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       child: Row(
         children: [
-          // Text Input
-          Expanded(
+
+
+          // Floating language options (positioned at screen level)
+          _showLanguageOptions? Expanded(child: _buildFloatingLanguageOptions())
+         : Expanded(
             child: Container(
               decoration: BoxDecoration(
                 color: const Color(0xFFF5F5F5),
@@ -886,7 +860,6 @@ class _ChatScreenState extends State<ChatScreen> {
                   final isDisabled = state.isRecording ||
                                    state.recordedAudioPath != null ||
                                    isWaitingForResponse;
-
                   return TextField(
                     controller: _textController,
                     enabled: !isDisabled, // Disable when recording, preview, or waiting for response
@@ -927,8 +900,17 @@ class _ChatScreenState extends State<ChatScreen> {
                 onTap: canRecord ? () {
                   if (state.isRecording) {
                     context.read<ChatCubit>().stopRecording();
+                  } else if (_showLanguageOptions) {
+                    // Hide language options (cancel)
+                    setState(() {
+                      _showLanguageOptions = false;
+                    });
                   } else {
-                    context.read<ChatCubit>().startRecording();
+                    // Show floating language options
+                    print('🎤 Showing language options'); // Debug log
+                    setState(() {
+                      _showLanguageOptions = true;
+                    });
                   }
                 } : null, // Disable when waiting for response or when audio is recorded
                 child: Container(
@@ -947,7 +929,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   child: Icon(
                     state.isRecording
                         ? Icons.stop
-                        : Icons.mic,
+                        : _showLanguageOptions
+                            ? Icons.close
+                            : Icons.mic,
                 color: Colors.white,
                     size: 24,
                   ),
@@ -997,6 +981,110 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  /// Build floating language options (horizontal layout)
+  Widget _buildFloatingLanguageOptions() {
+    return Positioned(
+      bottom: 120, // Position higher above the input area
+      left: 16,
+      right: 16,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.95),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            // English option
+            _buildFloatingLanguageButton(
+              ChatLanguage.english,
+              'English',
+              Icons.language,
+              Colors.blue[600]!,
+            ),
+            // Hindi option
+            _buildFloatingLanguageButton(
+              ChatLanguage.hindi,
+              'हिंदी',
+              Icons.language,
+              Colors.orange[600]!,
+            ),
+            // Tamil option
+            _buildFloatingLanguageButton(
+              ChatLanguage.tamil,
+              'தமிழ்',
+              Icons.language,
+              Colors.green[600]!,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Build individual floating language button
+  Widget _buildFloatingLanguageButton(
+    ChatLanguage language,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
+    return GestureDetector(
+      onTap: () {
+        // Hide options
+        setState(() {
+          _showLanguageOptions = false;
+        });
+        
+        // Update language and start recording
+        final cubit = context.read<ChatCubit>();
+        cubit.changeLanguage(language);
+        cubit.startRecording();
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.2),
+              blurRadius: 8,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              size: 16,
+              color: Colors.white,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildTopLoadingIndicator() {
     return BlocBuilder<ChatCubit, ChatState>(
       builder: (context, state) {
@@ -1038,6 +1126,153 @@ class _ChatScreenState extends State<ChatScreen> {
         }
         return const SizedBox.shrink();
       },
+    );
+  }
+
+  Widget _buildVoiceProcessingIndicator() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Column(
+        children: [
+          // User's voice message skeleton
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(16).copyWith(
+                      bottomRight: const Radius.circular(4),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Pulsing mic icon
+                      TweenAnimationBuilder<double>(
+                        tween: Tween(begin: 0.5, end: 1.0),
+                        duration: const Duration(milliseconds: 800),
+                        builder: (context, value, child) {
+                          return Transform.scale(
+                            scale: value,
+                            child: Icon(
+                              Icons.mic,
+                              size: 16,
+                              color: AppColors.primaryColor.withValues(alpha: value),
+                            ),
+                          );
+                        },
+                        onEnd: () {
+                          // Restart animation
+                          setState(() {});
+                        },
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Transcribing...',
+                        style: TextStyle(
+                          color: AppColors.primaryColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      // Loading dots
+                      _buildLoadingDots(AppColors.primaryColor),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _buildAvatarIcon(true),
+            ],
+          ),
+          
+          const SizedBox(height: 8),
+          
+          // AI response skeleton
+          Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              _buildAvatarIcon(false),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16).copyWith(
+                      bottomLeft: const Radius.circular(4),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'AI is thinking...',
+                        style: TextStyle(
+                          color: AppColors.grayColor,
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      _buildLoadingDots(AppColors.grayColor),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLoadingDots(Color color) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(3, (index) {
+        return TweenAnimationBuilder<double>(
+          tween: Tween(begin: 0.3, end: 1.0),
+          duration: Duration(milliseconds: 600 + (index * 200)),
+          builder: (context, value, child) {
+            return Container(
+              margin: const EdgeInsets.symmetric(horizontal: 1),
+              child: Opacity(
+                opacity: value,
+                child: Container(
+                  width: 4,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+            );
+          },
+          onEnd: () {
+            // Restart animation
+            setState(() {});
+          },
+        );
+      }),
     );
   }
 
@@ -1146,6 +1381,8 @@ class _ChatScreenState extends State<ChatScreen> {
         return 'EN';
     }
   }
+
+
 
   /// Play text-to-speech audio
   Future<void> _playTextToSpeech(ChatMessage message) async {

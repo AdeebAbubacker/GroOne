@@ -66,7 +66,8 @@ class ChatRepository {
   }
 
   /// Send voice message and get AI response
-  Future<ChatMessage> sendVoiceMessage({
+  /// Returns a Map with 'userMessage' and 'aiMessage' keys
+  Future<Map<String, ChatMessage>> sendVoiceMessage({
     required String audioFilePath,
     required String language,
   }) async {
@@ -76,26 +77,60 @@ class ChatRepository {
         language: language,
       );
 
-      return ChatMessage(
+      final transcript = response['transcript'] ?? 'Audio transcribed';
+      final aiResponse = response['message'] ?? 'No response received';
+      final detectedLanguage = response['language'] ?? language;
+
+      // Create user message with transcript text (not audio)
+      final userMessage = ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: response['message'] ?? 'No response received',
+        message: transcript,
+        isUser: true,
+        timestamp: DateTime.now(),
+        language: detectedLanguage,
+        messageType: MessageType.text, // Changed from voice to text
+      );
+
+      // Create AI response message
+      final aiMessage = ChatMessage(
+        id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
+        message: aiResponse,
         isUser: false,
         timestamp: DateTime.now(),
-        language: response['language'] ?? language, // Use detected language
+        language: detectedLanguage,
         messageType: MessageType.text,
       );
+
+      return {
+        'userMessage': userMessage,
+        'aiMessage': aiMessage,
+      };
     } catch (e) {
       print('🎤 Repository error: $e'); // Debug log for developers
       
-      // Return user-friendly error message as AI response
-      return ChatMessage(
+      // Create error user message and AI error response
+      final userMessage = ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
+        message: 'Voice message (transcription failed)',
+        isUser: true,
+        timestamp: DateTime.now(),
+        language: language,
+        messageType: MessageType.text,
+      );
+
+      final aiMessage = ChatMessage(
+        id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
         message: _getUserFriendlyErrorMessage(e),
         isUser: false,
         timestamp: DateTime.now(),
         language: language,
         messageType: MessageType.text,
       );
+
+      return {
+        'userMessage': userMessage,
+        'aiMessage': aiMessage,
+      };
     }
   }
 

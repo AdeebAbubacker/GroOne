@@ -146,20 +146,9 @@ class ChatCubit extends Cubit<ChatState> {
   }
 
   void sendVoiceMessage(String audioPath) {
-    final userMessage = ChatMessage(
-      id: _uuid.v4(),
-      message: audioPath,
-      isUser: true,
-      timestamp: DateTime.now(),
-      language: state.selectedLanguage.code,
-      messageType: MessageType.voice,
-    );
-
-    final updatedMessages = List<ChatMessage>.from(state.messages)
-      ..add(userMessage);
-
+    // Don't add user message here - repository will create both user transcript and AI response
     emit(state.copyWith(
-      messages: updatedMessages,
+      isProcessingVoice: true,
       isLoading: true,
       error: null,
     ));
@@ -217,20 +206,27 @@ class ChatCubit extends Cubit<ChatState> {
         clearError: true,
       ));
 
-      final aiMessage = await _repository.sendVoiceMessage(
+      final result = await _repository.sendVoiceMessage(
         audioFilePath: audioPath,
         language: state.selectedLanguage.code,
       );
 
-      print('🎤 Received voice API response: ${aiMessage.message}'); // Debug log
+      final userMessage = result['userMessage']!;
+      final aiMessage = result['aiMessage']!;
 
+      print('🎤 Received transcript: ${userMessage.message}'); // Debug log
+      print('🎤 Received AI response: ${aiMessage.message}'); // Debug log
+
+      // Add both user transcript message and AI response
       final updatedMessages = List<ChatMessage>.from(state.messages)
+        ..add(userMessage)
         ..add(aiMessage);
 
       emit(state.copyWith(
         messages: updatedMessages,
         isLoading: false,
         isTyping: false,
+        isProcessingVoice: false,
       ));
     } catch (e) {
       print('🎤 Voice API call error: $e'); // Debug log for developers
@@ -238,6 +234,7 @@ class ChatCubit extends Cubit<ChatState> {
       emit(state.copyWith(
         isLoading: false,
         isTyping: false,
+        isProcessingVoice: false,
         error: _getUserFriendlyErrorMessage(e),
       ));
     }

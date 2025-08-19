@@ -7,6 +7,7 @@ class ChatState extends Equatable {
   final bool isLoading;
   final bool isRecording;
   final bool isTyping; // AI is typing response
+  final bool isProcessingVoice; // Voice message is being transcribed
   final bool hasMoreMessages; // Whether there are more messages to load
   final String? recordedAudioPath;
   final int recordingDuration;
@@ -19,6 +20,7 @@ class ChatState extends Equatable {
     this.isLoading = false,
     this.isRecording = false,
     this.isTyping = false,
+    this.isProcessingVoice = false,
     this.hasMoreMessages = true,
     this.recordedAudioPath,
     this.recordingDuration = 0,
@@ -32,6 +34,7 @@ class ChatState extends Equatable {
     bool? isLoading,
     bool? isRecording,
     bool? isTyping,
+    bool? isProcessingVoice,
     bool? hasMoreMessages,
     String? recordedAudioPath,
     bool clearRecordedAudioPath = false,
@@ -46,6 +49,7 @@ class ChatState extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       isRecording: isRecording ?? this.isRecording,
       isTyping: isTyping ?? this.isTyping,
+      isProcessingVoice: isProcessingVoice ?? this.isProcessingVoice,
       pageNo: pageNo ?? this.pageNo,
       hasMoreMessages: hasMoreMessages ?? this.hasMoreMessages,
       recordedAudioPath: clearRecordedAudioPath ? null : (recordedAudioPath ?? this.recordedAudioPath),
@@ -61,6 +65,7 @@ class ChatState extends Equatable {
         isLoading,
         isRecording,
         isTyping,
+        isProcessingVoice,
         hasMoreMessages,
         recordedAudioPath,
         recordingDuration,

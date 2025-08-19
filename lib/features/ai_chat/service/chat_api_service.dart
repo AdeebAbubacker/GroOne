@@ -119,7 +119,7 @@ class ChatApiService {
   }
 
   /// Send voice message to AI chat API
-  /// Returns a Map with 'message' and 'language' keys
+  /// Returns a Map with 'transcript', 'message' and 'language' keys
   Future<Map<String, String>> sendVoiceMessage({
     required String audioFilePath,
     required String language,
@@ -179,40 +179,47 @@ class ChatApiService {
                 
                 if (lowerTranscription.contains('no speech recognized')) {
                   return {
+                    'transcript': 'No speech recognized',
                     'message': 'No speech recognized. Please try again with a clearer voice message.',
                     'language': language, // fallback to request language
                   };
                 } else if (lowerTranscription.contains('unclear') || lowerTranscription.contains('unintelligible')) {
                   return {
+                    'transcript': transcription,
                     'message': 'Speech was unclear. Please try again with clearer pronunciation.',
                     'language': language, // fallback to request language
                   };
                 } else if (lowerTranscription.contains('too quiet') || lowerTranscription.contains('low volume')) {
                   return {
+                    'transcript': transcription,
                     'message': 'Voice was too quiet. Please speak louder and try again.',
                     'language': language, // fallback to request language
                   };
                 } else if (lowerTranscription.contains('background noise') || lowerTranscription.contains('noise')) {
                   return {
+                    'transcript': transcription,
                     'message': 'Too much background noise. Please record in a quieter environment.',
                     'language': language, // fallback to request language
                   };
                 }
               }
               
-              // Return AI response if available, otherwise transcription
+              // Return transcript and AI response
               if (llmResponse != null && llmResponse.isNotEmpty) {
                 return {
+                  'transcript': transcription ?? 'Audio transcribed',
                   'message': llmResponse,
                   'language': detectedLanguage ?? language, // use detected language or fallback
                 };
               } else if (transcription != null && transcription.isNotEmpty) {
                 return {
+                  'transcript': transcription,
                   'message': 'Transcription: $transcription',
                   'language': detectedLanguage ?? language, // use detected language or fallback
                 };
               } else {
                 return {
+                  'transcript': 'Audio received',
                   'message': 'Voice message received but no response generated',
                   'language': language, // fallback to request language
                 };
