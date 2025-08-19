@@ -113,13 +113,18 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
-                mandatoryStar: true,
+                mandatoryStar: int.tryParse(noOfDays.text) != null && int.tryParse(noOfDays.text)! > 0,
                 controller: detentionAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
 
-                validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.amount),
+                validator: (value) {
+                if (int.tryParse(noOfDays.text) != null && int.tryParse(noOfDays.text)! > 0) {
+                  return Validator.fieldRequired(value, fieldName: context.appText.amount);
+                }
+                return null;
+              },
 
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
@@ -131,13 +136,10 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
-                mandatoryStar: true,
                 controller: loadingAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
-
-                validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.loadingCharges),
 
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
@@ -149,12 +151,10 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
-                mandatoryStar: true,
                 controller: unloadingAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
-                validator: (value) => Validator.fieldRequired(value, fieldName: context.appText.unloadingCharges),
 
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
