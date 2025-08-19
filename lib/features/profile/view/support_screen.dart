@@ -26,6 +26,8 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../../utils/app_icons.dart';
+import '../../ai_chat/view/chat_screen.dart';
+import '../../ai_chat/cubit/chat_cubit.dart';
 
 
 
@@ -113,11 +115,54 @@ class _LpSupportState extends State<LpSupport> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Scaffold(
-        appBar: buildAppBar(),
-        body: Padding(
+    return Scaffold(
+      appBar: buildAppBar(),
+      floatingActionButton: Container(
+        width: 70,
+        height: 70,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF64B5F6), // Light blue
+              Color(0xFF1976D2), // Darker blue
+            ],
+          ),
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: FloatingActionButton(
+          onPressed: () {
+            // Navigate to ChatScreen
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => BlocProvider.value(
+                  value: locator<ChatCubit>(),
+                  child: ChatScreen(),
+                ),
+              ),
+            );
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              'assets/icons/gif/lntAnimateLogo.gif',
+            ),
+          ),
+        ),
+      ),
+      body: SafeArea(
+        child: Padding(
           padding: const EdgeInsets.all(18),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -414,6 +459,103 @@ class _LpSupportState extends State<LpSupport> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildRobotIcon() {
+    return Container(
+      width: 36,
+      height: 36,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          // Robot Head
+          Positioned(
+            top: 2,
+            child: Container(
+              width: 20,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  // Left Eye
+                  Container(
+                    width: 3,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF1976D2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  // Right Eye
+                  Container(
+                    width: 3,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: Color(0xFF1976D2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          // Robot Body
+          Positioned(
+            bottom: 4,
+            child: Container(
+              width: 14,
+              height: 16,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(7),
+              ),
+            ),
+          ),
+          // Left Arm
+          Positioned(
+            left: 6,
+            bottom: 10,
+            child: Container(
+              width: 4,
+              height: 8,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          // Right Arm
+          Positioned(
+            right: 6,
+            bottom: 10,
+            child: Container(
+              width: 4,
+              height: 8,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          // Head connector
+          Positioned(
+            top: 16,
+            child: Container(
+              width: 6,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
