@@ -456,6 +456,21 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                                     }
                                   }
                                   if (isUpdateConsignee) {
+                                     if (phone.isNotEmpty) {
+                                    final String? phoneValidation = Validator.phone(phone);
+                                    if (phoneValidation != null) {
+                                      ToastMessages.alert(message: phoneValidation);
+                                      return;
+                                    }
+                                    }
+
+                                    if (email.isNotEmpty) {
+                                      final String? validation = Validator.email(email);
+                                      if (validation != null) {
+                                        ToastMessages.alert(message: validation);
+                                        return;
+                                      }
+                                    }
                                         lpLoadLocator.updateConsignee(updateConsigneeReq: UpdateConsigneeApiRequest(email: email,mobileNumber: phone,name: name), consigneeId: consigneeId ?? widget.loadItem.consignees[0].id);
                                    } else {
 
