@@ -37,7 +37,8 @@ class ChatApiService {
   }
 
   /// Send text message to AI chat API
-  Future<String> sendTextMessage({
+  /// Returns a Map with 'message' and 'language' keys
+  Future<Map<String, String>> sendTextMessage({
     required String message,
     required String language,
   }) async {
@@ -80,7 +81,11 @@ class ChatApiService {
             final data = responseData['data'] as Map<String, dynamic>?;
             if (data != null) {
               final llmResponse = data['llm_response'] as String?;
-              return llmResponse ?? 'No response received from AI';
+              final detectedLanguage = data['detected_language'] as String?;
+              return {
+                'message': llmResponse ?? 'No response received from AI',
+                'language': detectedLanguage ?? language, // fallback to request language
+              };
             }
           }
           
@@ -114,7 +119,8 @@ class ChatApiService {
   }
 
   /// Send voice message to AI chat API
-  Future<String> sendVoiceMessage({
+  /// Returns a Map with 'message' and 'language' keys
+  Future<Map<String, String>> sendVoiceMessage({
     required String audioFilePath,
     required String language,
   }) async {
@@ -165,29 +171,51 @@ class ChatApiService {
               // Transcribe API typically returns transcription text
               final transcription = data['transcript'] as String?;
               final llmResponse = data['llm_response'] as String?;
+              final detectedLanguage = data['detected_language'] as String?;
               
               // Check for common transcription errors and provide helpful messages
               if (transcription != null) {
                 final lowerTranscription = transcription.toLowerCase();
                 
                 if (lowerTranscription.contains('no speech recognized')) {
-                  return 'No speech recognized. Please try again with a clearer voice message.';
+                  return {
+                    'message': 'No speech recognized. Please try again with a clearer voice message.',
+                    'language': language, // fallback to request language
+                  };
                 } else if (lowerTranscription.contains('unclear') || lowerTranscription.contains('unintelligible')) {
-                  return 'Speech was unclear. Please try again with clearer pronunciation.';
+                  return {
+                    'message': 'Speech was unclear. Please try again with clearer pronunciation.',
+                    'language': language, // fallback to request language
+                  };
                 } else if (lowerTranscription.contains('too quiet') || lowerTranscription.contains('low volume')) {
-                  return 'Voice was too quiet. Please speak louder and try again.';
+                  return {
+                    'message': 'Voice was too quiet. Please speak louder and try again.',
+                    'language': language, // fallback to request language
+                  };
                 } else if (lowerTranscription.contains('background noise') || lowerTranscription.contains('noise')) {
-                  return 'Too much background noise. Please record in a quieter environment.';
+                  return {
+                    'message': 'Too much background noise. Please record in a quieter environment.',
+                    'language': language, // fallback to request language
+                  };
                 }
               }
               
               // Return AI response if available, otherwise transcription
               if (llmResponse != null && llmResponse.isNotEmpty) {
-                return llmResponse;
+                return {
+                  'message': llmResponse,
+                  'language': detectedLanguage ?? language, // use detected language or fallback
+                };
               } else if (transcription != null && transcription.isNotEmpty) {
-                return 'Transcription: $transcription';
+                return {
+                  'message': 'Transcription: $transcription',
+                  'language': detectedLanguage ?? language, // use detected language or fallback
+                };
               } else {
-                return 'Voice message received but no response generated';
+                return {
+                  'message': 'Voice message received but no response generated',
+                  'language': language, // fallback to request language
+                };
               }
             }
           }

@@ -118,8 +118,8 @@ class _LpSupportState extends State<LpSupport> {
     return Scaffold(
       appBar: buildAppBar(),
       floatingActionButton: Container(
-        width: 60,
-        height: 60,
+        width: 70,
+        height: 70,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
@@ -153,10 +153,11 @@ class _LpSupportState extends State<LpSupport> {
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
-          child: Image.asset(
-            'assets/icons/gif/lntAnimateLogo.gif',
-            width: 36,
-            height: 36,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset(
+              'assets/icons/gif/lntAnimateLogo.gif',
+            ),
           ),
         ),
       ),

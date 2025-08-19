@@ -44,10 +44,10 @@ class ChatRepository {
 
       return ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: response,
+        message: response['message'] ?? 'No response received',
         isUser: false,
         timestamp: DateTime.now(),
-        language: language,
+        language: response['language'] ?? language, // Use detected language
         messageType: MessageType.text,
       );
     } catch (e) {
@@ -78,10 +78,10 @@ class ChatRepository {
 
       return ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: response,
+        message: response['message'] ?? 'No response received',
         isUser: false,
         timestamp: DateTime.now(),
-        language: language,
+        language: response['language'] ?? language, // Use detected language
         messageType: MessageType.text,
       );
     } catch (e) {
