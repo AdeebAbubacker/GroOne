@@ -9,6 +9,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 
 import '../../../utils/app_icons.dart';
@@ -64,7 +65,7 @@ class LpMyAccount extends StatelessWidget {
 
                 buildDetailWidget(
                   text1: context.appText.mobileNumber,
-                  text2: checkUserDetails(customerDetail?.mobileNumber),
+                  text2: checkUserDetails('+91 ${customerDetail?.mobileNumber}'),
                 ),
 
                 buildDetailWidget(
@@ -88,12 +89,20 @@ class LpMyAccount extends StatelessWidget {
 
                 buildDetailWidget(
                   text1: context.appText.registrationData,
-                  text2: customerDetail?.createdAt != null ? DateTimeHelper.getFormattedDate(customerDetail!.createdAt!) : "--",
+                  text2: customerDetail?.createdAt != null ? DateTimeHelper.getFormattedDateWithShortMonthName(customerDetail!.createdAt!) : "--",
                 ),
 
-                buildDetailWidget(
-                  text1: context.appText.kycStatus,
-                  text2: customerDetail?.isKyc == 3 ? context.appText.verified : context.appText.unVerified,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(context.appText.kycStatus, style: AppTextStyle.textGreyDetailColor14w400).expand(),
+                    Text(customerDetail?.isKyc == 3 ? context.appText.verified : context.appText.unVerified, style: AppTextStyle.textGreyDetailColor14w400),
+                    if(customerDetail?.isKyc == 3)
+                      ...[
+                        5.width,
+                        const Icon(Icons.verified, color: Colors.green)
+                      ]
+                  ],
                 ),
 
                 dividerWidget(),

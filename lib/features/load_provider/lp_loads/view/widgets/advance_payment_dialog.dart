@@ -85,7 +85,7 @@ class AdvancePaymentDialog extends StatelessWidget {
             }
 
           },
-          title: context.appText.verifyAdvance,
+          title: context.appText.confirmAdvance,
         ),
         20.height,
       ],

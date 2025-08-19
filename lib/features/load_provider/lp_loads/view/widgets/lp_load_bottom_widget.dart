@@ -582,7 +582,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
             if(widget.loadStatus == LoadStatus.completed)
               AppButton(onPressed: () {
                 Navigator.push(context, commonRoute(LpLoadSummaryScreen(loadId: widget.loadItem.loadId, loadItem: widget.loadItem)));
-              }, title: context.appText.tripSettlement).paddingSymmetric(horizontal: 10, vertical: 10)
+              }, title: context.appText.viewTripStatement).paddingSymmetric(horizontal: 10, vertical: 10)
           ],
         ),
       ),
@@ -593,7 +593,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     final days = settlement?.noOfDays ?? 1;
     final perDay = settlement?.amountPerDay ?? 1;
 
-    String inr(dynamic val) => PriceHelper.formatINR(val.toString());
+    String inr(dynamic val) => PriceHelper.formatINR(val.toString(), showDecimal: true);
 
     return Padding(
       padding: const EdgeInsets.only(top: 15),
