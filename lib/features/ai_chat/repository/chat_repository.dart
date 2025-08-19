@@ -6,6 +6,27 @@ class ChatRepository {
 
   ChatRepository(this._apiService);
 
+  /// Convert technical errors to user-friendly messages
+  String _getUserFriendlyErrorMessage(dynamic error) {
+    final errorString = error.toString().toLowerCase();
+    
+    if (errorString.contains('network') || errorString.contains('connection')) {
+      return 'I\'m having trouble connecting right now. Please check your internet and try again.';
+    } else if (errorString.contains('timeout')) {
+      return 'I\'m taking too long to respond. Please try again.';
+    } else if (errorString.contains('genericerror') || errorString.contains('generic error')) {
+      return 'Something went wrong on my end. Please try again in a moment.';
+    } else if (errorString.contains('unauthorized') || errorString.contains('403') || errorString.contains('401')) {
+      return 'I\'m having authentication issues. Please try again later.';
+    } else if (errorString.contains('server') || errorString.contains('500')) {
+      return 'I\'m experiencing technical difficulties. Please try again later.';
+    } else if (errorString.contains('not found') || errorString.contains('404')) {
+      return 'I couldn\'t find the information you requested. Please try again.';
+    } else {
+      return 'I\'m having trouble right now. Please try again in a moment.';
+    }
+  }
+
   /// Send text message and get AI response
   Future<ChatMessage> sendTextMessage({
     required String message,
@@ -32,10 +53,10 @@ class ChatRepository {
     } catch (e) {
       print('📝 Repository error: $e'); // Debug log
       
-      // Return error message as AI response
+      // Return user-friendly error message as AI response
       return ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: 'Sorry, I encountered an error: ${e.toString()}',
+        message: _getUserFriendlyErrorMessage(e),
         isUser: false,
         timestamp: DateTime.now(),
         language: language,
@@ -64,10 +85,12 @@ class ChatRepository {
         messageType: MessageType.text,
       );
     } catch (e) {
-      // Return error message as AI response
+      print('🎤 Repository error: $e'); // Debug log for developers
+      
+      // Return user-friendly error message as AI response
       return ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: 'Sorry, I couldn\'t process your voice message: ${e.toString()}',
+        message: _getUserFriendlyErrorMessage(e),
         isUser: false,
         timestamp: DateTime.now(),
         language: language,

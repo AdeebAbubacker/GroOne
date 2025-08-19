@@ -26,6 +26,27 @@ class ChatCubit extends Cubit<ChatState> {
 
   ChatCubit(this._repository) : super(const ChatState());
 
+  /// Convert technical errors to user-friendly messages
+  String _getUserFriendlyErrorMessage(dynamic error) {
+    final errorString = error.toString().toLowerCase();
+    
+    if (errorString.contains('network') || errorString.contains('connection')) {
+      return 'Unable to connect. Please check your internet connection and try again.';
+    } else if (errorString.contains('timeout')) {
+      return 'Request timed out. Please try again.';
+    } else if (errorString.contains('genericerror') || errorString.contains('generic error')) {
+      return 'Something went wrong. Please try again later.';
+    } else if (errorString.contains('unauthorized') || errorString.contains('403') || errorString.contains('401')) {
+      return 'Access denied. Please check your credentials.';
+    } else if (errorString.contains('server') || errorString.contains('500')) {
+      return 'Server error. Please try again later.';
+    } else if (errorString.contains('not found') || errorString.contains('404')) {
+      return 'Requested information not found.';
+    } else {
+      return 'Unable to load chat history. Please try again.';
+    }
+  }
+
   Future<void> _loadChatHistory() async {
     try {
       emit(state.copyWith(isLoading: true));
@@ -80,9 +101,10 @@ class ChatCubit extends Cubit<ChatState> {
         }
       }
     } catch (e) {
+      print('📚 Error loading chat history: $e'); // Debug log for developers
       emit(state.copyWith(
         isLoading: false,
-        error: 'Failed to load chat history: $e',
+        error: _getUserFriendlyErrorMessage(e),
       ));
     }
   }
@@ -174,12 +196,12 @@ class ChatCubit extends Cubit<ChatState> {
         isTyping: false,
       ));
     } catch (e) {
-      print('🚀 API call error: $e'); // Debug log
+      print('🚀 API call error: $e'); // Debug log for developers
 
       emit(state.copyWith(
         isLoading: false,
         isTyping: false,
-        error: 'Failed to send message: $e',
+        error: _getUserFriendlyErrorMessage(e),
       ));
     }
   }
@@ -211,12 +233,12 @@ class ChatCubit extends Cubit<ChatState> {
         isTyping: false,
       ));
     } catch (e) {
-      print('🎤 Voice API call error: $e'); // Debug log
+      print('🎤 Voice API call error: $e'); // Debug log for developers
 
       emit(state.copyWith(
         isLoading: false,
         isTyping: false,
-        error: 'Failed to send voice message: $e',
+        error: _getUserFriendlyErrorMessage(e),
       ));
     }
   }
@@ -376,9 +398,10 @@ class ChatCubit extends Cubit<ChatState> {
   }
 
   /// Synthesize text to speech
-  Future<String> synthesizeTextToSpeech(String text) async {
+  Future<String> synthesizeTextToSpeech(String text, {String? language}) async {
     try {
-      print('🎵 Cubit: Starting text-to-speech synthesis for: $text'); // Debug log
+      final langCode = language ?? state.selectedLanguage.code;
+      print('🎵 Cubit: Starting text-to-speech synthesis for: $text in language: $langCode'); // Debug log
 
       // Show loading state
       emit(state.copyWith(isLoading: true,pageNo: 2,));
@@ -386,12 +409,11 @@ class ChatCubit extends Cubit<ChatState> {
       // Call the repository to synthesize text to speech
       final audioBytes = await _repository.synthesizeTextToSpeech(
         text: text,
-        language: state.selectedLanguage.code,
+        language: langCode,
         speakingRate: 0.85,
         pitch: 0.0,
         audioFormat: 'OGG_OPUS',
       );
-
       print('🎵 Cubit: Text-to-speech synthesis successful'); // Debug log
 
       // Emit success state
@@ -404,11 +426,11 @@ class ChatCubit extends Cubit<ChatState> {
       // Return the audio bytes for playback
       return audioBytes;
     } catch (e) {
-      print('🎵 Cubit: Text-to-speech synthesis error: $e'); // Debug log
+      print('🎵 Cubit: Text-to-speech synthesis error: $e'); // Debug log for developers
 
       emit(state.copyWith(
         isLoading: false,
-        error: 'Failed to synthesize text to speech: $e',
+        error: _getUserFriendlyErrorMessage(e),
         pageNo: 2,
       ));
 
@@ -479,9 +501,9 @@ class ChatCubit extends Cubit<ChatState> {
         }
       }
     } catch (e) {
-      print('📚 Error loading more chat history: $e'); // Debug log
+      print('📚 Error loading more chat history: $e'); // Debug log for developers
       emit(state.copyWith(
-        error: 'Failed to load more chat history: $e',
+        error: _getUserFriendlyErrorMessage(e),
         isLoading: false,
       ));
     } finally {

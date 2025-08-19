@@ -151,7 +151,7 @@ class _ChatScreenState extends State<ChatScreen> {
     );
             context.read<ChatCubit>().clearError();
           }
-          
+
           // Auto scroll to bottom when new message added (but not during pagination)
           if (!_isLoadingHistory && state.pageNo ==1) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -166,11 +166,11 @@ class _ChatScreenState extends State<ChatScreen> {
               Expanded(
                 child: _buildMessagesList(state.messages),
               ),
-              
+
               // Recording Indicator or Audio Preview
               if (state.isRecording) _buildRecordingIndicator(state),
               if (state.recordedAudioPath != null) _buildAudioPreview(state),
-              
+
               // Input Area (hide when audio is recorded)
               if (state.recordedAudioPath == null) _buildInputArea(state),
             ],
@@ -300,7 +300,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildMessageBubble(ChatMessage message) {
     final isUser = message.isUser;
     final isVoice = message.messageType == MessageType.voice;
-    
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -311,7 +311,7 @@ class _ChatScreenState extends State<ChatScreen> {
             _buildAvatarIcon(false),
             const SizedBox(width: 8),
           ],
-          
+
           Flexible(
             child: Container(
               constraints: BoxConstraints(
@@ -319,7 +319,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: isUser ? const Color(0xFF4285F4) : Colors.white, // Blue for user, white for AI
+                color: isUser ? AppColors.primaryColor : Colors.white, // Blue for user, white for AI
                 borderRadius: BorderRadius.circular(16).copyWith(
                   bottomLeft: isUser ? const Radius.circular(16) : const Radius.circular(4),
                   bottomRight: isUser ? const Radius.circular(4) : const Radius.circular(16),
@@ -353,27 +353,47 @@ class _ChatScreenState extends State<ChatScreen> {
                         _formatTime(message.timestamp),
                                 style: TextStyle(
                           fontSize: 12,
-                                  color: isUser ? Colors.white70 : Colors.grey[600],
+                                  color: isUser ? AppColors.white : AppColors.grayColor,
                         ),
                       ),
                       if (!isUser && !isVoice) ...[
                         const SizedBox(width: 8),
+                        // Language indicator
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.grayColor.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            _getLanguageDisplayName(message.language),
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppColors.grayColor,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
                         // Speaker icon for AI text responses
                         GestureDetector(
-                          onTap: () => message.isPlaying?null :_playTextToSpeech(message),
-                          child: message.isPlaying
-                            ? SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(Colors.grey[600]!),
-                                ),
-                              )
-                            : Icon(
-                                Icons.volume_up,
+                          onTap: () {
+                            if (message.isPlaying) {
+                              // Stop current audio if this message is playing
+                              _audioPlayer.stop();
+                              setState(() {
+                                message.isPlaying = false;
+                                _isPlayingPreview = false;
+                              });
+                            } else {
+                              // Play audio for this message
+                              _playTextToSpeech(message);
+                            }
+                          },
+                          child: Icon(
+                                message.isPlaying ? Icons.stop : Icons.volume_up,
                                 size: 16,
-                                color: Colors.grey[600],
+                                color: message.isPlaying ? AppColors.red : AppColors.grayColor,
                             ),
                           ),
                         ],
@@ -383,7 +403,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-          
+
           if (isUser) ...[
             const SizedBox(width: 8),
             _buildAvatarIcon(true),
@@ -412,7 +432,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 width: 36,
                 height: 36,
       decoration: BoxDecoration(
-                  color: isUser ? const Color(0xFF4285F4) : const Color(0xFF4285F4),
+                  color: AppColors.primaryColor,
         shape: BoxShape.circle,
       ),
                 child: Center(
@@ -475,46 +495,112 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _buildVoiceMessage(String audioPath) {
     return SizedBox(
-      width: 200,
-      child: Row(
+      width: 250,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          IconButton(
-            icon: Icon(
-              Icons.play_arrow,
-              color: Colors.blue[700],
-            ),
-            onPressed: () => _playVoiceMessage(audioPath),
-          ),
-          Expanded(
-            child: Container(
-              height: 2,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(1),
+          Row(
+            children: [
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.mic,
+                size: 16,
+                color: Colors.white70,
               ),
-              child: Row(
-                children: List.generate(20, (index) {
-                  return Expanded(
-                    child: Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 1),
-                      height: 2,
-                      decoration: BoxDecoration(
-                        color: index < 8 ? Colors.blue[700] : Colors.grey[300],
-                        borderRadius: BorderRadius.circular(1),
+              const SizedBox(width: 4),
+              Text(
+                'Voice Message',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Audio Progress Slider
+          StreamBuilder<Duration>(
+            stream: _audioPlayer.positionStream,
+            builder: (context, snapshot) {
+              final position = snapshot.data ?? Duration.zero;
+              final duration = _audioPlayer.duration ?? Duration.zero;
+              final isCurrentPlaying = _currentPlayingPath == audioPath;
+              final progress = isCurrentPlaying && duration.inMilliseconds > 0 
+                  ? position.inMilliseconds / duration.inMilliseconds 
+                  : 0.0;
+
+              return Row(
+                children: [
+                  // Play/Pause button
+                  IconButton(
+                    icon: Icon(
+                      (_isPlayingPreview && _currentPlayingPath == audioPath)
+                          ? Icons.pause
+                          : Icons.play_arrow,
+                      color: AppColors.white,
+                      size: 24,
+                    ),
+                    onPressed: () async {
+                      if (_isPlayingPreview && _currentPlayingPath == audioPath) {
+                        await _pauseAudio();
+                      } else {
+                        await _playRecordedAudio(audioPath);
+                      }
+                    },
+                    style: IconButton.styleFrom(
+                      backgroundColor: AppColors.primaryColor.withValues(alpha: 0.2),
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                  Expanded(
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: Colors.white,
+                        inactiveTrackColor: Colors.white.withValues(alpha: 0.3),
+                        thumbColor: Colors.white,
+                        overlayColor: Colors.white.withValues(alpha: 0.2),
+                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 6),
+                        trackHeight: 3,
+                      ),
+                      child: Slider(
+                        value: progress.clamp(0.0, 1.0),
+                        onChanged: (value) {
+                          if (isCurrentPlaying) {
+                            final seekPosition = Duration(
+                              milliseconds: (value * duration.inMilliseconds).round(),
+                            );
+                            _audioPlayer.seek(seekPosition);
+                          }
+                        },
+                        onChangeStart: (value) {
+                          // Pause during seeking for better UX
+                          if (isCurrentPlaying && _audioPlayer.playing) {
+                            _audioPlayer.pause();
+                          }
+                        },
+                        onChangeEnd: (value) {
+                          // Resume playing after seeking if it was playing before
+                          if (isCurrentPlaying && _isPlayingPreview) {
+                            _audioPlayer.play();
+                          }
+                        },
                       ),
                     ),
-                  );
-                }),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            '0:15',
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey[600],
-            ),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    isCurrentPlaying 
+                        ? '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}'
+                        : '0:00',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
         ],
       ),
@@ -556,17 +642,20 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
                 const SizedBox(height: 4),
               Text(
-                  '${state.recordingDuration}s / 15s',
+                  '${state.recordingDuration}s / 15s${state.recordingDuration >= 12 ? ' (stopping soon)' : ''}',
                 style: TextStyle(
-                  color: Colors.red[700],
+                  color: state.recordingDuration >= 12 ? Colors.red[900] : Colors.red[700],
                   fontSize: 12,
+                  fontWeight: state.recordingDuration >= 12 ? FontWeight.bold : FontWeight.normal,
                 ),
               ),
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
                   value: state.recordingDuration / 15.0,
                   backgroundColor: Colors.red[100],
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.red),
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    state.recordingDuration >= 12 ? Colors.red[900]! : Colors.red,
+                  ),
                 ),
               ],
             ),
@@ -606,7 +695,7 @@ class _ChatScreenState extends State<ChatScreen> {
               Text(
                 'Voice Message (${state.recordingDuration}s)',
                 style: TextStyle(
-                  color: Colors.blue[700],
+                  color: AppColors.primaryColor,
                   fontWeight: FontWeight.w600,
               ),
             ),
@@ -614,28 +703,63 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           const SizedBox(height: 12),
           // Waveform visualization with playback indicator
-          SizedBox(
-            height: 40,
-            child: Row(
-              children: List.generate(20, (index) {
-                bool isActive = _isPlayingPreview && _currentPlayingPath == state.recordedAudioPath;
-                bool isPlayed = isActive && index < 10; // Simulate progress
-                
-                return Expanded(
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    margin: const EdgeInsets.symmetric(horizontal: 1),
-                    height: (index % 3 + 1) * 10.0,
-                    decoration: BoxDecoration(
-                      color: isPlayed 
-                          ? Colors.blue[600]  // Darker blue for played portion
-                          : Colors.blue[300], // Light blue for unplayed
-                      borderRadius: BorderRadius.circular(2),
+          // Audio Progress Slider
+          StreamBuilder<Duration>(
+            stream: _audioPlayer.positionStream,
+            builder: (context, snapshot) {
+              final position = snapshot.data ?? Duration.zero;
+              final duration = _audioPlayer.duration ?? Duration.zero;
+              final progress = duration.inMilliseconds > 0 
+                  ? position.inMilliseconds / duration.inMilliseconds 
+                  : 0.0;
+
+              return Row(
+                children: [
+                  Expanded(
+                    child: SliderTheme(
+                      data: SliderTheme.of(context).copyWith(
+                        activeTrackColor: AppColors.primaryColor,
+                        inactiveTrackColor: Colors.grey[300],
+                        thumbColor: AppColors.primaryColor,
+                        overlayColor: AppColors.primaryColor.withValues(alpha: 0.2),
+                        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+                        trackHeight: 4,
+                      ),
+                      child: Slider(
+                        value: progress.clamp(0.0, 1.0),
+                        onChanged: (value) {
+                          final seekPosition = Duration(
+                            milliseconds: (value * duration.inMilliseconds).round(),
+                          );
+                          _audioPlayer.seek(seekPosition);
+                        },
+                        onChangeStart: (value) {
+                          // Pause during seeking for better UX
+                          if (_audioPlayer.playing) {
+                            _audioPlayer.pause();
+                          }
+                        },
+                        onChangeEnd: (value) {
+                          // Resume playing after seeking if it was playing before
+                          if (_isPlayingPreview) {
+                            _audioPlayer.play();
+                          }
+                        },
+                      ),
                     ),
                   ),
-                );
-              }),
-            ),
+                  const SizedBox(width: 8),
+                  Text(
+                    '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}',
+                    // '${position.inMinutes}:${(position.inSeconds % 60).toString().padLeft(2, '0')}/${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                ],
+              );
+            },
           ),
           const SizedBox(width: 12),
           Row(
@@ -652,8 +776,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   }
                 },
                 icon: Icon(
-                  (_isPlayingPreview && _currentPlayingPath == state.recordedAudioPath) 
-                      ? Icons.pause 
+                  (_isPlayingPreview && _currentPlayingPath == state.recordedAudioPath)
+                      ? Icons.pause
                       : Icons.play_arrow,
                   color: Colors.blue[600],
                 ),
@@ -667,18 +791,18 @@ class _ChatScreenState extends State<ChatScreen> {
               IconButton(
                 onPressed: () async {
                   print('Delete button pressed'); // Debug log
-                  
+
                   // Stop audio if playing
                   if (_isPlayingPreview) {
                     await _audioPlayer.stop();
                   }
-                  
+
                   // Reset audio player state
                   setState(() {
                     _isPlayingPreview = false;
                     _currentPlayingPath = null;
                   });
-                  
+
                   context.read<ChatCubit>().deleteRecordedAudio();
                   // Clear text controller as well
                   _textController.clear();
@@ -699,7 +823,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 builder: (context, chatState) {
                   final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
                   final canSend = !isWaitingForResponse;
-                  
+
                   return ElevatedButton.icon(
                     onPressed: canSend ? () {
                       print('Send button pressed'); // Debug log
@@ -714,15 +838,15 @@ class _ChatScreenState extends State<ChatScreen> {
                       }
                     } : null, // Disable when waiting for response
                     icon: Icon(
-                      isWaitingForResponse ? Icons.hourglass_empty : Icons.send, 
+                      isWaitingForResponse ? Icons.hourglass_empty : Icons.send,
                       size: 18
                     ),
                     label: Text(
                       isWaitingForResponse ? 'Sending...' : 'Send'
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: canSend 
-                        ? const Color(0xFF4285F4) 
+                      backgroundColor: canSend
+                        ? AppColors.primaryColor
                         : Colors.grey[400],
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
@@ -759,24 +883,24 @@ class _ChatScreenState extends State<ChatScreen> {
               child: BlocBuilder<ChatCubit, ChatState>(
                 builder: (context, chatState) {
                   final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
-                  final isDisabled = state.isRecording || 
-                                   state.recordedAudioPath != null || 
+                  final isDisabled = state.isRecording ||
+                                   state.recordedAudioPath != null ||
                                    isWaitingForResponse;
-                  
+
                   return TextField(
                     controller: _textController,
                     enabled: !isDisabled, // Disable when recording, preview, or waiting for response
                 decoration: InputDecoration(
-                      hintText: state.isRecording 
-                          ? 'Recording...' 
-                          : state.recordedAudioPath != null 
+                      hintText: state.isRecording
+                          ? 'Recording...'
+                          : state.recordedAudioPath != null
                               ? 'Audio recorded'
                               : isWaitingForResponse
                                   ? 'AI is responding...'
                                   : 'Type here',
                       hintStyle: TextStyle(
-                        color: isDisabled 
-                            ? Colors.grey[400] 
+                        color: isDisabled
+                            ? Colors.grey[400]
                             : Colors.grey
                       ),
                   border: InputBorder.none,
@@ -790,15 +914,15 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Voice Button
           BlocBuilder<ChatCubit, ChatState>(
             builder: (context, chatState) {
               final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
               final canRecord = !isWaitingForResponse && state.recordedAudioPath == null;
-              
+
               return GestureDetector(
                 onTap: canRecord ? () {
                   if (state.isRecording) {
@@ -811,9 +935,9 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-                    color: state.isRecording 
-                        ? Colors.red 
-                        : state.recordedAudioPath != null 
+                    color: state.isRecording
+                        ? Colors.red
+                        : state.recordedAudioPath != null
                             ? Colors.blue[300]
                             : canRecord
                                 ? Colors.grey[400]
@@ -821,8 +945,8 @@ class _ChatScreenState extends State<ChatScreen> {
               shape: BoxShape.circle,
             ),
                   child: Icon(
-                    state.isRecording 
-                        ? Icons.stop 
+                    state.isRecording
+                        ? Icons.stop
                         : Icons.mic,
                 color: Colors.white,
                     size: 24,
@@ -831,16 +955,16 @@ class _ChatScreenState extends State<ChatScreen> {
               );
             },
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Send Button (only show for text, not for voice)
           if (_textController.text.trim().isNotEmpty && state.recordedAudioPath == null)
             BlocBuilder<ChatCubit, ChatState>(
               builder: (context, chatState) {
                 final isWaitingForResponse = chatState.isTyping || chatState.isLoading;
                 final canSend = !isWaitingForResponse;
-                
+
                 return GestureDetector(
                   onTap: canSend ? () {
                     final text = _textController.text.trim();
@@ -854,8 +978,8 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-                      color: canSend 
-                        ? const Color(0xFF4285F4)
+                      color: canSend
+                        ? AppColors.primaryColor
                         : Colors.grey[400], // Grey when disabled
               shape: BoxShape.circle,
             ),
@@ -902,7 +1026,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   Text(
                     'Loading older messages...',
                     style: TextStyle(
-                      color: Colors.blue[700],
+                      color: AppColors.primaryColor,
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -923,7 +1047,7 @@ class _ChatScreenState extends State<ChatScreen> {
         // Determine if this is for voice or text
         final isVoiceMessage = chatState.recordedAudioPath != null;
         final typingText = isVoiceMessage ? 'AI is transcribing...' : 'AI is typing...';
-        
+
         return Container(
           margin: const EdgeInsets.only(bottom: 16),
           child: Row(
@@ -932,7 +1056,7 @@ class _ChatScreenState extends State<ChatScreen> {
             children: [
               _buildAvatarIcon(false),
               const SizedBox(width: 8),
-              
+
               Flexible(
                 child: Container(
                   constraints: BoxConstraints(
@@ -962,7 +1086,7 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
-  
+
   Widget _buildTypingDots() {
     return Row(
       mainAxisSize: MainAxisSize.min,
@@ -984,13 +1108,17 @@ class _ChatScreenState extends State<ChatScreen> {
   String _formatTime(DateTime dateTime) {
     final now = DateTime.now();
     final difference = now.difference(dateTime);
-    
+
+    final hour = dateTime.hour.toString().padLeft(2, '0');
+    final minute = dateTime.minute.toString().padLeft(2, '0');
+    final timeString = '$hour:$minute';
+
     if (difference.inDays > 0) {
-      return '${dateTime.day} ${_getMonthName(dateTime.month)}, ${dateTime.year}';
+      // Show full date with time for older messages
+      return '${dateTime.day} ${_getMonthName(dateTime.month)}, ${dateTime.year} $timeString';
     } else {
-      final hour = dateTime.hour.toString().padLeft(2, '0');
-      final minute = dateTime.minute.toString().padLeft(2, '0');
-      return '$hour:$minute';
+      // Show date and time for today's messages
+      return '${dateTime.day} ${_getMonthName(dateTime.month)} $timeString';
     }
   }
 
@@ -1002,21 +1130,20 @@ class _ChatScreenState extends State<ChatScreen> {
     return months[month];
   }
 
-  Future<void> _playVoiceMessage(String audioPath) async {
-    try {
-      if (File(audioPath).existsSync()) {
-        await _audioPlayer.setFilePath(audioPath);
-        await _audioPlayer.play();
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to play audio: $e'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+  /// Get language display name from language code
+  String _getLanguageDisplayName(String languageCode) {
+    switch (languageCode.toLowerCase()) {
+      case 'en':
+      case 'en-in':
+        return 'EN';
+      case 'hi':
+      case 'hi-in':
+        return 'हि';
+      case 'ta':
+      case 'ta-in':
+        return 'த';
+      default:
+        return 'EN';
     }
   }
 
@@ -1024,34 +1151,51 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _playTextToSpeech(ChatMessage message) async {
     try {
       print('🎵 Playing text-to-speech for: ${message.message}'); // Debug log
-      
-      // Show loading state
+
+      // First, stop any currently playing audio and reset all messages' playing state
+      if (_audioPlayer.playing) {
+        await _audioPlayer.stop();
+      }
+
+      // Reset all messages' playing state
       setState(() {
-        message.isPlaying= true;
+        final chatState = context.read<ChatCubit>().state;
+        for (var msg in chatState.messages) {
+          msg.isPlaying = false;
+        }
+
+        // Set the current message as playing
+        message.isPlaying = true;
         _isPlayingPreview = true;
       });
-      
-      // Call the cubit to synthesize text to speech
-      final audioBytes = await context.read<ChatCubit>().synthesizeTextToSpeech(message.message);
-      
+
+      // Call the cubit to synthesize text to speech with message's language
+      final cubit = context.read<ChatCubit>();
+      final audioBytes = await cubit.synthesizeTextToSpeech(message.message, language: message.language);
+
       if (audioBytes.isNotEmpty) {
         // Convert base64 audio bytes to temporary file and play
         final tempDir = await getTemporaryDirectory();
         final tempFile = File('${tempDir.path}/tts_${DateTime.now().millisecondsSinceEpoch}.ogg');
-        
+
         // Write base64 decoded audio bytes to temporary file
         await tempFile.writeAsBytes(base64Decode(audioBytes));
-        
+
         // Play the temporary audio file
         await _audioPlayer.setFilePath(tempFile.path);
         await _audioPlayer.play();
-        
+
         print('🎵 Text-to-speech playback started'); // Debug log
-        
+
         // Clean up temporary file after playback
         _audioPlayer.playerStateStream.listen((state) {
           if (state.processingState == ProcessingState.completed) {
-            message.isPlaying= false;
+            if (mounted) {
+              setState(() {
+                message.isPlaying = false;
+                _isPlayingPreview = false;
+              });
+            }
             tempFile.delete();
           }
         });
@@ -1060,7 +1204,7 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     } catch (e) {
       print('🎵 Text-to-speech playback error: $e'); // Debug log
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1068,42 +1212,42 @@ class _ChatScreenState extends State<ChatScreen> {
             backgroundColor: Colors.red,
           ),
         );
+
+        // Reset playing state
+        setState(() {
+          message.isPlaying = false;
+          _isPlayingPreview = false;
+        });
       }
-      
-      // Reset playing state
-      setState(() {
-        message.isPlaying= false;
-        _isPlayingPreview = false;
-      });
     }
   }
 
   Future<void> _playRecordedAudio(String audioPath) async {
     try {
       print('Playing audio from: $audioPath'); // Debug log
-      
+
       // Check if file exists
       final file = File(audioPath);
       if (!await file.exists()) {
         throw Exception('Audio file not found at: $audioPath');
       }
-      
+
       print('File exists, setting audio source'); // Debug log
-      
+
       // If playing a different audio, stop and set new source
       if (_currentPlayingPath != audioPath) {
         await _audioPlayer.stop();
         await _audioPlayer.setFilePath(audioPath);
         _currentPlayingPath = audioPath;
       }
-      
+
       // Play the audio
       await _audioPlayer.play();
-      
+
       setState(() {
         _isPlayingPreview = true;
       });
-      
+
       print('Audio started playing'); // Debug log
     } catch (e) {
       print('Error playing audio: $e'); // Debug log
@@ -1111,7 +1255,7 @@ class _ChatScreenState extends State<ChatScreen> {
         _isPlayingPreview = false;
         _currentPlayingPath = null;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1122,16 +1266,16 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
   }
-  
+
   Future<void> _pauseAudio() async {
     try {
       print('Pausing audio'); // Debug log
       await _audioPlayer.pause();
-      
+
       setState(() {
         _isPlayingPreview = false;
       });
-      
+
       print('Audio paused'); // Debug log
     } catch (e) {
       print('Error pausing audio: $e'); // Debug log

@@ -11,6 +11,31 @@ class ChatApiService {
 
   ChatApiService(this._apiService, this._securePrefs);
 
+  /// Convert technical errors to user-friendly messages for API layer
+  Never _getUserFriendlyApiError(dynamic error) {
+    final errorString = error.toString().toLowerCase();
+    
+    if (errorString.contains('502') || errorString.contains('bad gateway')) {
+      throw Exception('Server temporarily unavailable. Please try again later.');
+    } else if (errorString.contains('500') || errorString.contains('server')) {
+      throw Exception('Server error. Please try again later.');
+    } else if (errorString.contains('401') || errorString.contains('unauthorized')) {
+      throw Exception('Authentication failed. Please try again.');
+    } else if (errorString.contains('403') || errorString.contains('forbidden')) {
+      throw Exception('Access denied. Please check your credentials.');
+    } else if (errorString.contains('404') || errorString.contains('not found')) {
+      throw Exception('Requested information not found.');
+    } else if (errorString.contains('timeout')) {
+      throw Exception('Request timed out. Please try again.');
+    } else if (errorString.contains('network') || errorString.contains('connection')) {
+      throw Exception('Unable to connect. Please check your internet connection.');
+    } else if (errorString.contains('genericerror') || errorString.contains('generic error')) {
+      throw Exception('Something went wrong. Please try again later.');
+    } else {
+      throw Exception('Unable to complete request. Please try again.');
+    }
+  }
+
   /// Send text message to AI chat API
   Future<String> sendTextMessage({
     required String message,
@@ -70,18 +95,8 @@ class ChatApiService {
         throw Exception('Unknown response type');
       }
     } catch (e) {
-      print('🤖 Error in AI API call: $e'); // Debug log
-      
-      // Handle specific error cases
-      if (e.toString().contains('400')) {
-        throw Exception('Invalid message format');
-      } else if (e.toString().contains('401')) {
-        throw Exception('Authentication failed');
-      } else if (e.toString().contains('429')) {
-        throw Exception('Too many requests. Please try again later');
-      } else {
-        throw Exception('Failed to send text message: $e');
-      }
+      print('🤖 Error in AI API call: $e'); // Debug log for developers
+      _getUserFriendlyApiError(e);
     }
   }
   
@@ -188,18 +203,8 @@ class ChatApiService {
         throw Exception('Unknown response type');
       }
     } catch (e) {
-      // Handle specific error cases
-      if (e.toString().contains('400')) {
-        throw Exception('Invalid audio format');
-      } else if (e.toString().contains('401')) {
-        throw Exception('Authentication failed');
-      } else if (e.toString().contains('413')) {
-        throw Exception('Audio file too large');
-      } else if (e.toString().contains('429')) {
-        throw Exception('Too many requests. Please try again later');
-      } else {
-        throw Exception('Failed to send voice message: $e');
-      }
+      print('🎤 Error in voice API call: $e'); // Debug log for developers
+      _getUserFriendlyApiError(e);
     }
   }
 
@@ -244,11 +249,8 @@ class ChatApiService {
         throw Exception('Unknown response type');
       }
     } catch (e) {
-      if (e.toString().contains('401')) {
-        throw Exception('Authentication failed');
-      } else {
-        throw Exception('Failed to get chat history: $e');
-      }
+      print('📚 API Service error: $e'); // Debug log for developers
+      _getUserFriendlyApiError(e);
     }
   }
 
@@ -321,18 +323,8 @@ class ChatApiService {
         throw Exception('Unknown response type');
       }
     } catch (e) {
-      print('🎵 Text-to-speech synthesis error: $e'); // Debug log
-      
-      // Handle specific error cases
-      if (e.toString().contains('400')) {
-        throw Exception('Invalid text or parameters');
-      } else if (e.toString().contains('401')) {
-        throw Exception('Authentication failed');
-      } else if (e.toString().contains('429')) {
-        throw Exception('Too many requests. Please try again later');
-      } else {
-        throw Exception('Failed to synthesize text to speech: $e');
-      }
+      print('🎵 Text-to-speech synthesis error: $e'); // Debug log for developers
+      _getUserFriendlyApiError(e);
     }
   }
 }
