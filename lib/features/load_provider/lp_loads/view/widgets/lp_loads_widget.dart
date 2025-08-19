@@ -276,6 +276,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                   ],
                 ),
               if((loadStatus == LoadStatus.completed && (widget.loadItem.lpPaymentsData?.receivableBalancePaidFlg == false && widget.loadItem.lpPaymentsData?.receivableAdvancePaidFlg == true)))
+
                 Row(
                   children: [
                     const Icon(Icons.error, size: 16, color: AppColors.iconRed),
