@@ -13,16 +13,18 @@ class DriverLoadService {
   final ApiService _apiService;
   DriverLoadService(this._apiService);
 
-  Future<Result<List<DriverLoadDetails>>> fetchDriverLoads({
-    int? status,
+  Future<Result<DriverListDataDetails>> fetchDriverLoads({
+     int? status,
     required String driverId,
     String search = "",
     int? truckTypeId,
     int? commodityTypeId,
-    bool forceRefresh = false
+    bool forceRefresh = false,
+    int page = 1,
+    int limit = 20,
   }) async {
     try {
-       String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId";
+       String url = "${ApiUrls.driverLoadListBaseUrl}&driverId=$driverId&page=$page&limit=$limit";
        if (status != null && status > 3) {
       url += "&loadStatus=$status";
       }
@@ -41,17 +43,23 @@ class DriverLoadService {
       );
 
       if (response is Success) {
-        final data = response.value['data'] as List;
-        final loads = data.map((e) => DriverLoadDetails.fromJson(e)).toList();
+        final data = response.value;
+        final loads = DriverListDataDetails.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
         return Error(response.type);
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
-      return Error(DeserializationError());
-    }
+    } 
+    // catch (e) {
+    //   return Error(DeserializationError());
+    // }
+    catch (e, stackTrace) {
+        print("Trip Path Parsing Error: $e");
+        print("Stack trace: $stackTrace");
+        throw Exception("Failed to fetch trip path data: $e");
+      }
   }
 
   Future<Result<VpLoadAcceptModel>> changeLoadStatus({
