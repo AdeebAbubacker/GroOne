@@ -729,7 +729,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         title: context.appText.uploadDocument,
       ),
       body: _buildBodyWidget(),
-      bottomNavigationBar: buildSubmitKycButtonWidget(),
     );
   }
 
@@ -1022,6 +1021,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       ),
                     ),
                     30.height,
+                    buildSubmitKycButtonWidget()
                   ],
                 );
               },
@@ -1670,7 +1670,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           },
         );
       },
-    ).bottomNavigationPadding();
+    ).paddingBottom(50);
   }
 
   // Aadhaar Text Field

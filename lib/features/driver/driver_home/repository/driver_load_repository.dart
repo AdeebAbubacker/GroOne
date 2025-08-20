@@ -26,7 +26,6 @@ class DriverLoadRepository {
       driverId: customerId,
       status: loadStatus ?? 3, 
       search: search,
-      laneId: laneId,
       truckTypeId: truckTypeId,
       commodityTypeId: commodityTypeId, 
       forceRefresh: forceRefresh)

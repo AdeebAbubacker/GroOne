@@ -1,29 +1,67 @@
 class RecentRoutesModel {
+  final String message;
+  final RecentRoutesDataWrapper data;
+
   RecentRoutesModel({
     required this.message,
     required this.data,
   });
 
-  final String message;
-  final List<RecentRouteData> data;
-
-  RecentRoutesModel copyWith({
-    String? message,
-    List<RecentRouteData>? data,
-  }) {
-    return RecentRoutesModel(
-      message: message ?? this.message,
-      data: data ?? this.data,
-    );
-  }
-
-  factory RecentRoutesModel.fromJson(Map<String, dynamic> json){
+  factory RecentRoutesModel.fromJson(Map<String, dynamic> json) {
     return RecentRoutesModel(
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<RecentRouteData>.from(json["data"]!.map((x) => RecentRouteData.fromJson(x))),
+      data: RecentRoutesDataWrapper.fromJson(json["data"] ?? {}),
     );
   }
+}
 
+class RecentRoutesDataWrapper {
+  final List<RecentRouteData> data;
+  final int total;
+  final PageMeta pageMeta;
+
+  RecentRoutesDataWrapper({
+    required this.data,
+    required this.total,
+    required this.pageMeta,
+  });
+
+  factory RecentRoutesDataWrapper.fromJson(Map<String, dynamic> json) {
+    return RecentRoutesDataWrapper(
+      data: json["data"] == null
+          ? []
+          : List<RecentRouteData>.from(
+          json["data"].map((x) => RecentRouteData.fromJson(x))),
+      total: json["total"] ?? 0,
+      pageMeta: PageMeta.fromJson(json["pageMeta"] ?? {}),
+    );
+  }
+}
+
+class PageMeta {
+  final int page;
+  final int pageCount;
+  final int? nextPage;
+  final int pageSize;
+  final int total;
+
+  PageMeta({
+    required this.page,
+    required this.pageCount,
+    required this.nextPage,
+    required this.pageSize,
+    required this.total,
+  });
+
+  factory PageMeta.fromJson(Map<String, dynamic> json) {
+    return PageMeta(
+      page: json["page"] ?? 0,
+      pageCount: json["pageCount"] ?? 0,
+      nextPage: json["nextPage"],
+      pageSize: json["pageSize"] ?? 0,
+      total: json["total"] ?? 0,
+    );
+  }
 }
 
 class RecentRouteData {
@@ -77,59 +115,7 @@ class RecentRouteData {
   final List<LoadStatusLog> loadStatusLogs;
   final LoadPrice? loadPrice;
 
-  RecentRouteData copyWith({
-    String? loadId,
-    String? loadSeriesId,
-    int? laneId,
-    int? rateId,
-    String? customerId,
-    int? commodityId,
-    DateTime? pickUpDateTime,
-    int? truckTypeId,
-    int? consignmentWeight,
-    String? notes,
-    int? loadStatusId,
-    DateTime? expectedDeliveryDateTime,
-    int? isAgreed,
-    dynamic acceptedBy,
-    int? createdPlatform,
-    int? updatedPlatform,
-    int? status,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    dynamic deletedAt,
-    LoadRoute? loadRoute,
-    List<LoadStatusLog>? loadStatusLogs,
-    LoadPrice? loadPrice,
-  }) {
-    return RecentRouteData(
-      loadId: loadId ?? this.loadId,
-      loadSeriesId: loadSeriesId ?? this.loadSeriesId,
-      laneId: laneId ?? this.laneId,
-      rateId: rateId ?? this.rateId,
-      customerId: customerId ?? this.customerId,
-      commodityId: commodityId ?? this.commodityId,
-      pickUpDateTime: pickUpDateTime ?? this.pickUpDateTime,
-      truckTypeId: truckTypeId ?? this.truckTypeId,
-      consignmentWeight: consignmentWeight ?? this.consignmentWeight,
-      notes: notes ?? this.notes,
-      loadStatusId: loadStatusId ?? this.loadStatusId,
-      expectedDeliveryDateTime: expectedDeliveryDateTime ?? this.expectedDeliveryDateTime,
-      isAgreed: isAgreed ?? this.isAgreed,
-      acceptedBy: acceptedBy ?? this.acceptedBy,
-      createdPlatform: createdPlatform ?? this.createdPlatform,
-      updatedPlatform: updatedPlatform ?? this.updatedPlatform,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-      loadRoute: loadRoute ?? this.loadRoute,
-      loadStatusLogs: loadStatusLogs ?? this.loadStatusLogs,
-      loadPrice: loadPrice ?? this.loadPrice,
-    );
-  }
-
-  factory RecentRouteData.fromJson(Map<String, dynamic> json){
+  factory RecentRouteData.fromJson(Map<String, dynamic> json) {
     return RecentRouteData(
       loadId: json["loadId"] ?? "",
       loadSeriesId: json["loadSeriesId"] ?? "",
@@ -142,7 +128,8 @@ class RecentRouteData {
       consignmentWeight: json["consignmentWeight"] ?? 0,
       notes: json["notes"] ?? "",
       loadStatusId: json["loadStatusId"] ?? 0,
-      expectedDeliveryDateTime: DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
+      expectedDeliveryDateTime:
+      DateTime.tryParse(json["expectedDeliveryDateTime"] ?? ""),
       isAgreed: json["isAgreed"] ?? 0,
       acceptedBy: json["acceptedBy"],
       createdPlatform: json["createdPlatform"] ?? 0,
@@ -151,12 +138,16 @@ class RecentRouteData {
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
-      loadRoute: json["loadRoute"] == null ? null : LoadRoute.fromJson(json["loadRoute"]),
-      loadStatusLogs: json["loadStatusLogs"] == null ? [] : List<LoadStatusLog>.from(json["loadStatusLogs"]!.map((x) => LoadStatusLog.fromJson(x))),
-      loadPrice: json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
+      loadRoute:
+      json["loadRoute"] == null ? null : LoadRoute.fromJson(json["loadRoute"]),
+      loadStatusLogs: json["loadStatusLogs"] == null
+          ? []
+          : List<LoadStatusLog>.from(
+          json["loadStatusLogs"].map((x) => LoadStatusLog.fromJson(x))),
+      loadPrice:
+      json["loadPrice"] == null ? null : LoadPrice.fromJson(json["loadPrice"]),
     );
   }
-
 }
 
 class LoadPrice {
@@ -178,27 +169,7 @@ class LoadPrice {
   final DateTime? createAt;
   final dynamic deletedAt;
 
-  LoadPrice copyWith({
-    String? loadPriceId,
-    String? loadId,
-    int? rate,
-    int? handlingCharges,
-    int? status,
-    DateTime? createAt,
-    dynamic deletedAt,
-  }) {
-    return LoadPrice(
-      loadPriceId: loadPriceId ?? this.loadPriceId,
-      loadId: loadId ?? this.loadId,
-      rate: rate ?? this.rate,
-      handlingCharges: handlingCharges ?? this.handlingCharges,
-      status: status ?? this.status,
-      createAt: createAt ?? this.createAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-    );
-  }
-
-  factory LoadPrice.fromJson(Map<String, dynamic> json){
+  factory LoadPrice.fromJson(Map<String, dynamic> json) {
     return LoadPrice(
       loadPriceId: json["loadPriceId"] ?? "",
       loadId: json["loadId"] ?? "",
@@ -209,7 +180,6 @@ class LoadPrice {
       deletedAt: json["deletedAt"],
     );
   }
-
 }
 
 class LoadRoute {
@@ -245,41 +215,7 @@ class LoadRoute {
   final DateTime? updatedAt;
   final dynamic deletedAt;
 
-  LoadRoute copyWith({
-    String? loadRouteId,
-    String? loadId,
-    String? pickUpAddr,
-    String? pickUpLocation,
-    String? pickUpLatlon,
-    String? dropAddr,
-    String? dropLocation,
-    String? dropLatlon,
-    String? pickUpWholeAddr,
-    String? dropWholeAddr,
-    int? status,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    dynamic deletedAt,
-  }) {
-    return LoadRoute(
-      loadRouteId: loadRouteId ?? this.loadRouteId,
-      loadId: loadId ?? this.loadId,
-      pickUpAddr: pickUpAddr ?? this.pickUpAddr,
-      pickUpLocation: pickUpLocation ?? this.pickUpLocation,
-      pickUpLatlon: pickUpLatlon ?? this.pickUpLatlon,
-      dropAddr: dropAddr ?? this.dropAddr,
-      dropLocation: dropLocation ?? this.dropLocation,
-      dropLatlon: dropLatlon ?? this.dropLatlon,
-      pickUpWholeAddr: pickUpWholeAddr ?? this.pickUpWholeAddr,
-      dropWholeAddr: dropWholeAddr ?? this.dropWholeAddr,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-    );
-  }
-
-  factory LoadRoute.fromJson(Map<String, dynamic> json){
+  factory LoadRoute.fromJson(Map<String, dynamic> json) {
     return LoadRoute(
       loadRouteId: json["loadRouteId"] ?? "",
       loadId: json["loadId"] ?? "",
@@ -297,7 +233,6 @@ class LoadRoute {
       deletedAt: json["deletedAt"],
     );
   }
-
 }
 
 class LoadStatusLog {
@@ -321,29 +256,7 @@ class LoadStatusLog {
   final DateTime? updatedAt;
   final dynamic deletedAt;
 
-  LoadStatusLog copyWith({
-    String? loadStatusLogId,
-    int? loadStatus,
-    String? loadId,
-    String? changedBy,
-    int? status,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    dynamic deletedAt,
-  }) {
-    return LoadStatusLog(
-      loadStatusLogId: loadStatusLogId ?? this.loadStatusLogId,
-      loadStatus: loadStatus ?? this.loadStatus,
-      loadId: loadId ?? this.loadId,
-      changedBy: changedBy ?? this.changedBy,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt,
-    );
-  }
-
-  factory LoadStatusLog.fromJson(Map<String, dynamic> json){
+  factory LoadStatusLog.fromJson(Map<String, dynamic> json) {
     return LoadStatusLog(
       loadStatusLogId: json["loadStatusLogId"] ?? "",
       loadStatus: json["loadStatus"] ?? 0,
@@ -355,5 +268,4 @@ class LoadStatusLog {
       deletedAt: json["deletedAt"],
     );
   }
-
 }

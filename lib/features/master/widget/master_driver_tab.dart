@@ -468,29 +468,7 @@ class _buildDriverTabState extends State<buildDriverTab> {
                       });
                     },
                   ),
-
                   16.height,
-                  UploadAttachmentFiles(
-                    multiFilesList: localLicenseDocList,
-                    isSingleFile: true,
-                    uploadTextField: context.appText.uploadLicense,
-                    isLoading: isUploading,
-                    thenUploadFileToSever: () async {
-                      final result = await _uploadLicenseCopy(
-                        context,
-                        localLicenseDocList,
-                      );
-                      if (result is Success) {
-                        setState(() {
-                          vehicleDocList.clear();
-                          vehicleDocList.addAll(localLicenseDocList);
-                        });
-                      }
-                    },
-                  ),
-
-                  16.height,
-
                   ///License Expiry date
                   InkWell(
                     onTap: () async {
@@ -793,33 +771,6 @@ class _buildDriverTabState extends State<buildDriverTab> {
     return number;
   }
 
-  /// Upload License Copy
-  Future<Result<bool>> _uploadLicenseCopy(
-    BuildContext context,
-    List<Map<String, dynamic>> multiFilesList,
-  ) async {
-    final cubit = context.read<ProfileCubit>();
-    await cubit.uploadLicenseDoc(File(multiFilesList.first['path']));
-    final status = cubit.state.vehicleDocUpload!.status;
-
-    if (status == Status.SUCCESS) {
-      final url = cubit.state.vehicleDocUpload!.data?.data?.url ?? '';
-      if (url.isNotEmpty) {
-        multiFilesList.first['path'] = url;
-        ToastMessages.success(message: 'File uploaded successfully');
-        return Success(true);
-      }
-    } else if (status == Status.ERROR) {
-      final errorType = cubit.state.vehicleDocUpload!.errorType;
-      ToastMessages.error(
-        message: getErrorMsg(errorType: errorType ?? GenericError()),
-      );
-    }
-    return Error(GenericError());
-  }
-}
-
-
 
 String? formatToDDMMYYYY(String? inputDate) {
   if (inputDate == null || inputDate.isEmpty) return null;
@@ -1036,4 +987,5 @@ Widget buildLicenseVerificationFieldWidget({
       );
     },
   );
+}
 }

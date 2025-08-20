@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -61,12 +62,29 @@ class SearchableDropdown extends StatelessWidget {
           },
           popupProps: PopupProps.menu(
             showSearchBox: showSearchBox,
-            // constraints: const BoxConstraints(maxHeight: 250),
-            emptyBuilder:  emptyBuilder ?? (context, searchEntry) => const Center(
-              child: Text("No results found"),
+            emptyBuilder: emptyBuilder ??
+           (context, searchEntry) => const SizedBox(
+              height: 120,
+              child: Center(child: Text("No results found")),
             ),
             loadingBuilder: (context, searchEntry) =>
                 const Center(child: CircularProgressIndicator()),
+            constraints: BoxConstraints(
+              maxHeight: items.isEmpty
+                  ? 140 
+                  : items.length <= 2
+                      ? (items.length * 48 + 80).toDouble()
+                      : 250,
+            ), 
+            searchFieldProps: TextFieldProps(
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              hintText: "${context.appText.search}...",
+              border: const OutlineInputBorder(),
+              isDense: true,
+            ),
+          ),
+
           ),
           decoratorProps: DropDownDecoratorProps(
             decoration: commonInputDecoration(

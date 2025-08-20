@@ -62,10 +62,10 @@ class EnDhanService {
     String customerId,
   ) async {
     try {
-      final url = ApiUrls.submitKyc;
+      final url = ApiUrls.endhanSubmitKyc;
 
       // Add customerId to the request body
-      final requestBody = request.toJson();
+      final requestBody = request.toJson(includeFromFleet: false);
       // requestBody['customerId'] = customerId;
 
       final result = await _apiService.post(url+customerId, body: requestBody);

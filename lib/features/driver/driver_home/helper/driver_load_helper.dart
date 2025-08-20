@@ -112,7 +112,8 @@ class DriverLoadHelper {
     required int statusId,
     bool isLoading = false,
     required VoidCallback onPressed,
-    bool? enable=true
+    bool? enable=true,
+    required BuildContext context,
   }) {
     switch (statusId) {
       case 4:
@@ -120,7 +121,7 @@ class DriverLoadHelper {
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "Start Trip",
+          title: context.appText.startTrip,
         );
      
 
@@ -139,7 +140,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-           text: "Swipe to Complete Loading",
+           text: context.appText.swipeToCompleteLoading,
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -163,7 +164,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text:  "Swipe to unload",
+          text: context.appText.swipeToUnLoad,
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -186,7 +187,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to complete trip",
+          text:context.appText.swipeToCompleteTrip,
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -201,7 +202,7 @@ class DriverLoadHelper {
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "View Detail",
+          title: context.appText.viewDetails,
         );
       default:
         return Container();
@@ -224,7 +225,7 @@ class DriverLoadHelper {
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "Start Trip",
+          title: context.appText.startTrip,
         );
       } else{
             
@@ -240,7 +241,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-           text: "Swipe to Start Trip",
+           text: context.appText.swipeToStart,
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -266,7 +267,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-           text: "Swipe to Complete Loading",
+           text: context.appText.swipeToCompleteLoading,
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -290,7 +291,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text:  "Swipe to Unload",
+          text: context.appText.swipeToUnLoad,
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -313,7 +314,7 @@ class DriverLoadHelper {
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to complete unloading",
+          text: context.appText.swipeToCompleteUnLoading,
           textStyle: AppTextStyle.button.copyWith(
          color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
          onSubmit: isLoading
@@ -335,7 +336,7 @@ class DriverLoadHelper {
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "View Detail",
+          title: context.appText.viewDetails,
         );
       default:
         return Container();

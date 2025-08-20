@@ -82,7 +82,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
                   buildTruckSupplierWidget(tripDetails),
 
                   20.height,
-                  if (widget.loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)
+                  if (tripDetails.balanceToBePaid != '0.00')
                     LpPaymentHelper.buildPaymentActionButton(
                       context: context,
                       label: context.appText.payBalance,
