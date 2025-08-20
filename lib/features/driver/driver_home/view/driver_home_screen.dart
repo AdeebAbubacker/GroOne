@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
@@ -77,6 +78,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   late VpLoadBloc vpLoadBloc;
   List<LoadStatusResponse> tabLabels = [];
   late TabController _tabController;
+  final documentTypeCubit=locator<DocumentTypeCubit>();
+
 
   @override
   void initState() {
@@ -145,6 +148,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
     _loadDataByTab(index: widget.initialTabIndex);
     initFunction();
+    _callDocumentListingAPi();
+  }
+
+
+
+  _callDocumentListingAPi(){
+    documentTypeCubit.getDocumentTypeList();
   }
 
   @override

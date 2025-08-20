@@ -59,6 +59,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     CustomLog.debug(this, "Damage Id Set : ${state.damageId}");
   }
 
+  void skipPodView({bool? value}){
+    emit(state.copyWith(iPodSkip: value ?? true));
+  }
+
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
     loadStatus = getLoadStatus(status);

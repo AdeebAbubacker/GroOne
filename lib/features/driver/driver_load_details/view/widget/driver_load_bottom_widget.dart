@@ -744,12 +744,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
     DriverLoadDetailsCubit cubit,
   ) {
     final tripDocumentList = state.tripDocumentList ?? [];
-
-    for (final doc in tripDocumentList) {
-      print(
-        "Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}",
-      );
-    }
     return Column(
       children: List.generate(
         tripDocumentList.length,
