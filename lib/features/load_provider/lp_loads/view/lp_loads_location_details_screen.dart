@@ -214,7 +214,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                     ),
                     Text(
                       loadItem.expectedDeliveryDateTime != null
-                          ? DateTimeHelper.formatCustomDateIST(loadItem.expectedDeliveryDateTime!)
+                          ? 'ETA: ${DateTimeHelper.formatCustomDateIST(loadItem.expectedDeliveryDateTime!)}'
                           : "--",
                       style: AppTextStyle.body4.copyWith(color: AppColors.lightBlackColor),
                     ),
@@ -272,7 +272,7 @@ class _LpLoadsLocationDetailsScreenState extends State<LpLoadsLocationDetailsScr
                             ).flexible(),
                           ],
                         ),
-                      if((status == LoadStatus.completed && (loadItem.lpPaymentsData?.receivableBalancePaidFlg == false &&loadItem.lpPaymentsData?.receivableAdvancePaidFlg == true)))
+                      if((status == LoadStatus.completed && (loadItem.lpPaymentsData?.receivableBalancePaidFlg == false && loadItem.lpPaymentsData?.receivableAdvancePaidFlg == true && loadItem.lpPaymentsData?.receivableBalance != '0.00')))
                         Row(
                           children: [
                             const Icon(Icons.error, size: 16, color: AppColors.iconRed),

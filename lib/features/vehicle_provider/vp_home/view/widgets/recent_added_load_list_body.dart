@@ -174,7 +174,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                 ],
               ),
             ),
-            20.height,
+            10.height,
             BlocBuilder<VpAcceptLoadBloc, VpAcceptLoadState>(
               bloc: bloc,
               builder: (context, state) {

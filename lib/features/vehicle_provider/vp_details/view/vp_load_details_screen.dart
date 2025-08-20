@@ -245,9 +245,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
                   20.width,
                   _buildLocationDetailsTileWidget(
                     loadDetails?.loadRoute?.dropLocation,
-                    DateTimeHelper.formatCustomDateIST(
-                      loadDetails?.expectedDeliveryDateTime ?? DateTime.now(),
-                    ),
+                      'ETA: ${DateTimeHelper.formatCustomDateIST(loadDetails?.expectedDeliveryDateTime ?? DateTime.now())}'
                   ),
 
                   if ((state.loadStatusId??1)>=3)
