@@ -161,6 +161,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               ),
             ),
           );
+          await Future.delayed(Duration(seconds: 1));
           if (result == true) {
             final paymentRequestId = kavachOrderBloc.paymentRequestId;
             if (paymentRequestId != null) {
@@ -177,7 +178,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           ToastMessages.error(message: context.appText.paymentFailed);
         }
         if (state is KavachOrderSuccess) {
-          await Future.delayed(Duration(seconds: 1));
+          await Future.delayed(Duration(milliseconds: 500));
           ///new
           AppDialog.show(
             context,
