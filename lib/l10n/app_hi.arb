@@ -1111,5 +1111,6 @@
   "swipeToUnload": "अनलोड करने के लिए स्वाइप करें",
   "viewDetail": "विवरण देखें",
   "swipeToCompleteTrip": "यात्रा पूरी करने के लिए स्वाइप करें",
-  "startTrip": "यात्रा शुरू करें"
+  "startTrip": "यात्रा शुरू करें",
+  "noSimTrackingConsentFromDriver" : "ड्राइवर से सिम ट्रैकिंग की सहमति नहीं है"
 }

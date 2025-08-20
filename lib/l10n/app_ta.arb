@@ -1111,5 +1111,6 @@
   "swipeToUnload": "இறக்க ஸ்வைப் செய்யவும்",
   "viewDetail": "விவரங்களை காண்க",
   "swipeToCompleteTrip": "பயணத்தை முடிக்க ஸ்வைப் செய்யவும்",
-  "startTrip": "பயணத்தை தொடங்கவும்"
+  "startTrip": "பயணத்தை தொடங்கவும்",
+  "noSimTrackingConsentFromDriver" : "டிரைவரிடமிருந்து சிம் கண்காணிப்பு ஒப்புதல் இல்லை"
 }

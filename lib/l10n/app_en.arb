@@ -1152,6 +1152,7 @@
   "viewDetail" : "View Detail",
   "swipeToCompleteTrip" : "Swipe to complete trip",
   "swipeToUnload" : "Swipe to unload",
-  "startTrip" : "Start Trip"
+  "startTrip" : "Start Trip",
+  "noSimTrackingConsentFromDriver" : "No SIM tracking consent from driver"
 
 }
