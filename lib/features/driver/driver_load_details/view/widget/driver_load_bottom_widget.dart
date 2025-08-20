@@ -682,7 +682,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
       return podDocExists;
     }
 
-    // Default case for other statuses
     return true;
   }
 
