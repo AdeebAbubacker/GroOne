@@ -470,24 +470,24 @@ class _buildDriverTabState extends State<buildDriverTab> {
                   ),
 
                   16.height,
-                  UploadAttachmentFiles(
-                    multiFilesList: localLicenseDocList,
-                    isSingleFile: true,
-                    uploadTextField: context.appText.uploadLicense,
-                    isLoading: isUploading,
-                    thenUploadFileToSever: () async {
-                      final result = await _uploadLicenseCopy(
-                        context,
-                        localLicenseDocList,
-                      );
-                      if (result is Success) {
-                        setState(() {
-                          vehicleDocList.clear();
-                          vehicleDocList.addAll(localLicenseDocList);
-                        });
-                      }
-                    },
-                  ),
+                  // UploadAttachmentFiles(
+                  //   multiFilesList: localLicenseDocList,
+                  //   isSingleFile: true,
+                  //   uploadTextField: context.appText.uploadLicense,
+                  //   isLoading: isUploading,
+                  //   thenUploadFileToSever: () async {
+                  //     final result = await _uploadLicenseCopy(
+                  //       context,
+                  //       localLicenseDocList,
+                  //     );
+                  //     if (result is Success) {
+                  //       setState(() {
+                  //         vehicleDocList.clear();
+                  //         vehicleDocList.addAll(localLicenseDocList);
+                  //       });
+                  //     }
+                  //   },
+                  // ),
 
                   16.height,
 
