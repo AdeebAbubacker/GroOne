@@ -205,16 +205,16 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                         name: vehicleDetailsData.truckNo,
                         phone: vehicleDetailsData.companyName ?? '',
                         driverStatus: vehicleDetailsData.status,
-                        onEdit: () async {
-                          mastersCubit.resetVehicleVerification();
-                          await Future.delayed(
-                            const Duration(milliseconds: 50),
-                          );
-                          showAddVehiclePopup(
-                            context,
-                            vehcile: vehicleDetailsData,
-                          );
-                        },
+                        // onEdit: () async {
+                        //   mastersCubit.resetVehicleVerification();
+                        //   await Future.delayed(
+                        //     const Duration(milliseconds: 50),
+                        //   );
+                        //   showAddVehiclePopup(
+                        //     context,
+                        //     vehcile: vehicleDetailsData,
+                        //   );
+                        // },
                         onDelete:
                             () => showDeletePopUp(
                               context: context,
@@ -1391,7 +1391,7 @@ class AddVehicleDialog {
               if (formKey.currentState!.validate()) {
                 final request = VehicleRequest(
                   customerId: context.read<ProfileCubit>().userId ?? "",
-                  truckNo: truckNumberController.text.trim(),
+                  truckNo: formatVehicleForAPI(truckNumberController.text.trim()),
                   tonnage: selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
@@ -1434,4 +1434,12 @@ class AddVehicleDialog {
       ),
     );
   }
+}
+
+
+String formatVehicleForAPI(String vehicleNo) {
+  final parts = vehicleNo.trim().split(' ');
+  if (parts.length < 4) return vehicleNo; // fallback
+  // Rearrange as per API requirement
+  return '${parts[3]} ${parts[2]} ${parts[1]} ${parts[0]}';
 }

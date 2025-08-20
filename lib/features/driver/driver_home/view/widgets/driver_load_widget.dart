@@ -283,7 +283,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   ? Column(
                     children: [
                       Text(
-                        "No SIM tracking consent from driver",
+                        context.appText.noSimTrackingConsentFromDriver,
                         style: AppTextStyle.textBlackColor16w400.copyWith(
                           color: AppColors.iconRed,
                         ),

@@ -219,7 +219,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                     loads!.data!.loadStatusId > 4)
                                   Center(
                                     child: Text(
-                                      "No SIM tracking consent from driver",
+                                      context.appText.noSimTrackingConsentFromDriver,
                                       style: AppTextStyle.textBlackColor16w400
                                           .copyWith(color: AppColors.iconRed),
                                     ),
@@ -484,7 +484,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                       20.height,
                                     ],
                                   ),
-                                if ((loads!.data!.loadStatusId ?? 0) > 8)
+                                if ((loads!.data!.loadStatusId ?? 0) > 7)
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -591,25 +591,26 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                           }
                                         }
 
-                                        if(loads.data?.loadStatusId == 8) {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder:
-                                                  (context) =>
-                                                  DriverPodDispatchScreen(
-                                                    loadId:
-                                                    loads.data!.loadId ?? '',
-                                                  ),
-                                            ),
-                                          ).then((value) {
-                                            if (value == true) {
-                                              widget.cubit.getDriverLoadsById(
-                                                loadId: loads.data!.loadId ?? '',
-                                              );
-                                            }
-                                          });
+                                        if (loads.data?.loadStatusId == 8 &&
+                                        state.iPodSkip != true &&
+                                        loads.data?.podDispatch?.courierCompany == null) {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => DriverPodDispatchScreen(
+                                            loadId: loads.data!.loadId ?? '',
+                                          ),
+                                        ),
+                                      ).then((value) {
+                                        if (value == true) {
+                                          widget.cubit.getDriverLoadsById(
+                                            loadId: loads.data!.loadId ?? '',
+                                          );
                                         }
+                                      });
+                                      return;
+                                    }
+
     
                                         final loadId = loads!.data!.loadId ?? '';
                                         final currentStatus =
@@ -681,7 +682,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
       return podDocExists;
     }
 
-    // Default case for other statuses
     return true;
   }
 

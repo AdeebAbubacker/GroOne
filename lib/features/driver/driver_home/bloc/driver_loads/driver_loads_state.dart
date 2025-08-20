@@ -8,7 +8,7 @@ class DriverLoadsInitial extends DriverLoadsState {}
 class DriverLoadsLoading extends DriverLoadsState {}
 
 class DriverLoadsLoaded extends DriverLoadsState {
-  final List<DriverLoadDetails> loads;
+  final DriverListDataDetails loads;
   DriverLoadsLoaded(this.loads);
 }
 
