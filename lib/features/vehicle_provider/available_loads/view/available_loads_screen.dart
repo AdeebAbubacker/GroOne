@@ -70,14 +70,14 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
             Row(
               children: [
                 AppSearchBar(searchController: searchController).expand(),
-                15.width,
-                AppIconButton(
-                  onPressed: (){
-                    commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
-                  },
-                  style: AppButtonStyle.primaryIconButtonStyle,
-                  icon: SvgPicture.asset(AppIcons.svg.filter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
-                )
+                // 15.width,
+                // AppIconButton(
+                //   onPressed: (){
+                //     commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
+                //   },
+                //   style: AppButtonStyle.primaryIconButtonStyle,
+                //   icon: SvgPicture.asset(AppIcons.svg.filter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
+                // )
               ],
             ),
             10.height,

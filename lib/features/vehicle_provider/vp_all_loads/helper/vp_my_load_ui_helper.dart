@@ -183,7 +183,7 @@ class VpMyLoadUIHelper {
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: context.appText.podDispatchedDetails,
+          title:  (isPodAdded??false )   ? context.appText.swipeToCompleteTrip  : context.appText.podDispatchedDetails,
         );
       case "Completed":
         return AppButton(

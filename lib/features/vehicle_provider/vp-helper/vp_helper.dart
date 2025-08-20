@@ -84,7 +84,7 @@ enum LoadStatus {
 
 
 
-String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? isMemoGenerated}){
+String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? isMemoGenerated,required bool isPodSkip}){
 
   BuildContext context=navigatorKey.currentState!.context;
   switch(status){
@@ -95,7 +95,7 @@ String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? i
       case LoadStatus.unloading:
       return context.appText.swipeToCompleteUnLoading;
     case LoadStatus.podDispatched:
-      return  podDispatched==null ?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
+      return  podDispatched==null  && isPodSkip==false?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
     default:
       return (isMemoGenerated??false) ?  context.appText.swipeToStart:context.appText.waitingForLpToConfirmed;
   }

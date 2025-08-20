@@ -182,11 +182,14 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
         ),
 
         // Notification
-        IconButton(
-          onPressed: () {
-            Navigator.push(context, commonRoute(NotificationScreen()));
-          },
-          icon: SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+        Visibility(
+visible: false,
+          child: IconButton(
+            onPressed: () {
+              Navigator.push(context, commonRoute(NotificationScreen()));
+            },
+            icon: SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+          ),
         ),
 
         // KYC Blinking

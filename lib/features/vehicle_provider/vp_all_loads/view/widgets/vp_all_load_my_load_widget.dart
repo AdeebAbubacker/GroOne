@@ -57,6 +57,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
   @override
   Widget build(BuildContext context) {
+
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
@@ -211,8 +212,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   VpMyLoadUIHelper.loadStatusButtonWidget(
                     status: widget.data.loadStatusDetails!.loadStatus,
                     isIntoRangePrice: isPriceIntoRange,
-                    // isPodAdded:  widget.data.po,
-                    enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
+                      isPodAdded: widget.data.podDispatch!=null,
+                      enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                       loadStatus: widget.data.loadStatusValues ,
                       documentList: widget.data.loadDocument??[]
                     ),
