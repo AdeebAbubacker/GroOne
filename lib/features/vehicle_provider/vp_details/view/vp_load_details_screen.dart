@@ -70,6 +70,8 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
     cubit.resetTripDocumentState();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

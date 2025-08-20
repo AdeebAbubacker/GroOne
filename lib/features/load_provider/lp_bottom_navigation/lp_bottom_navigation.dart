@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_screen.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
@@ -44,6 +45,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
   final List<int> _navigationHistory = [0]; // start with home tab
 
 
+  final documentTypeCubit=locator<DocumentTypeCubit>();
 
   @override
   void initState() {
@@ -53,6 +55,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
       profileCubit.fetchUserRole();
       setState(() {});
     });
+    documentTypeCubit.getDocumentTypeList();
     super.initState();
   }
 

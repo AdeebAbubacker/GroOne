@@ -98,6 +98,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   void resetTripDocumentState(){
     emit(state.copyWith(
+       iPodSkip: false,
         tripDocumentList: DocumentDataModel.documentTypeList));
   }
 

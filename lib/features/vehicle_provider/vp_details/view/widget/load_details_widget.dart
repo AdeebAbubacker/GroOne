@@ -746,11 +746,12 @@ class LoadDetailsWidget extends StatelessWidget {
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
                     loadDetails?.podDispatch,
+                    isPodSkip: state.iPodSkip??false,
                     isMemoGenerated: loadDetails?.loadMemo!=null && loadDetails?.isAgreed==1
 
                   ),
                   onSubmit: () async {
-                    if (state.loadStatus == LoadStatus.podDispatched && loadDetails?.podDispatch==null) {
+                    if (state.loadStatus == LoadStatus.podDispatched && loadDetails?.podDispatch==null && (state.iPodSkip??false)==false) {
                       await  Navigator.push(
                         context,
                         commonRoute(
