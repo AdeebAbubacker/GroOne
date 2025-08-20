@@ -14,10 +14,9 @@ class DriverLoadService {
   DriverLoadService(this._apiService);
 
   Future<Result<List<DriverLoadDetails>>> fetchDriverLoads({
-     int? status,
+    int? status,
     required String driverId,
     String search = "",
-    int? laneId,
     int? truckTypeId,
     int? commodityTypeId,
     bool forceRefresh = false
@@ -35,9 +34,6 @@ class DriverLoadService {
       }
       if (commodityTypeId != null) {
         url += "&commodityId=$commodityTypeId";
-      }
-      if (laneId != null) {
-        url += "&laneId=$laneId";
       }
       final response = await _apiService.get(
         url,

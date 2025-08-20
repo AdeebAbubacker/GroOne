@@ -179,7 +179,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
       driverLoadBloc.add(
         FetchDriverLoads(
           loadStatus: loadStatus,
-          search: parsedNumber == null ? query : "",
+          search: query,
           laneId: parsedNumber,
         ),
       );
