@@ -77,34 +77,16 @@ class FastagNewUserScreen extends StatelessWidget {
   }
 
   Widget buildFastagBenefitsDetailsWidget(BuildContext context) {
-    Widget innerUIWidget({
-      required String icon,
+    Widget benefitItem({
       required String title,
       required String subTitle,
     }) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Icon
-          Container(
-            decoration: commonContainerDecoration(
-              color: AppColors.lightPrimaryColor,
-              borderRadius: BorderRadius.circular(100),
-              borderColor: AppColors.primaryColor,
-            ),
-            child: Image.asset(icon, width: 25).paddingAll(15),
-          ),
-          15.width,
-
-          // Heading or SubHeading
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTextStyle.h5),
-              5.height,
-              Text(subTitle, style: AppTextStyle.body3),
-            ],
-          ).expand(),
+          Text(title, style: AppTextStyle.h5),
+          5.height,
+          Text(subTitle, style: AppTextStyle.body3),
         ],
       );
     }
@@ -112,24 +94,36 @@ class FastagNewUserScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.fastagBenefits, style: AppTextStyle.body1),
+        Text(context.appText.fastagBenefitsTitle, style: AppTextStyle.body1),
         20.height,
-        innerUIWidget(
-          icon: AppIcons.png.cardPayment,
-          title: context.appText.cashlessFuelToll,
-          subTitle: context.appText.cashlessFuelTollDesc,
+
+        benefitItem(
+          title: context.appText.fastagBenefitTrustedTitle,
+          subTitle: context.appText.fastagBenefitTrustedDesc,
         ),
         20.height,
-        innerUIWidget(
-          icon: AppIcons.png.tracking,
-          title: context.appText.realTimeExpense,
-          subTitle: context.appText.realTimeExpenseDesc,
+
+        benefitItem(
+          title: context.appText.fastagBenefitInstantTitle,
+          subTitle: context.appText.fastagBenefitInstantDesc,
         ),
         20.height,
-        innerUIWidget(
-          icon: AppIcons.png.reconcilation,
-          title: context.appText.easyReconciliation,
-          subTitle: context.appText.easyReconciliationDesc,
+
+        benefitItem(
+          title: context.appText.fastagBenefitSupportTitle,
+          subTitle: context.appText.fastagBenefitSupportDesc,
+        ),
+        20.height,
+
+        benefitItem(
+          title: context.appText.fastagBenefitSecureTitle,
+          subTitle: context.appText.fastagBenefitSecureDesc,
+        ),
+        20.height,
+
+        benefitItem(
+          title: context.appText.fastagBenefitHistoryTitle,
+          subTitle: context.appText.fastagBenefitHistoryDesc,
         ),
       ],
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);
