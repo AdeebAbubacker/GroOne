@@ -179,6 +179,7 @@ class ApiUrls {
   static final String  fleetPaymentStatus = "$_paymentBrokerBase/payment/fleetPaymentStatus";
 
   /// En-Dhan
+  static final String  endhanSubmitKyc = "$_baseUrl$_customer$_path$_v1/kyc/endhan/";
   static final String enDhanKycUpload = "$_fetchUrl$_vendor$_path$_v1/dtplus/customerDocument";
   static String enDhanKycCheck(String customerId) => "$_fetchUrl$_vendor$_path$_v1/dtplus/customerDocument/$customerId";
 

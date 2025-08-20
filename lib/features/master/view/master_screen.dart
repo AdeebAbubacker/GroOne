@@ -93,6 +93,9 @@ class _MasterScreenState extends State<MasterScreen>
       length: 3,
       vsync: this,
     );
+    _tabController.addListener(() {
+      if (mounted) setState(() {});
+    });
     kycCubit.fetchStateList();
     initFunction();
   }
@@ -243,6 +246,25 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
+  Widget _buildTab(String text, bool isSelected) {
+    return Container(
+      height: 30,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
+        borderRadius: BorderRadius.circular(30),
+      ),
+      child: Text(
+        text,
+        style: AppTextStyle.h6.copyWith(
+          fontWeight: FontWeight.w600,
+          color: isSelected ? AppColors.white : AppColors.black,
+        ),
+      ),
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -259,43 +281,27 @@ class _MasterScreenState extends State<MasterScreen>
         ),
         body: Column(
           children: [
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                indicator: BoxDecoration(
-                  color: AppColors.primaryColor,
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerHeight: 0,
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.black,
-                labelStyle: AppTextStyle.h6.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-                unselectedLabelStyle: AppTextStyle.h6,
-                tabs: [
-                  SizedBox(
-                    height: 30,
-                    child: Tab(text: context.appText.address),
-                  ),
-                  SizedBox(
-                    height: 30,
-                    child: Tab(text: context.appText.vehicles),
-                  ),
-                  SizedBox(
-                    height: 30,
-                    child: Tab(text: context.appText.drivers),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
+           15.height,
+          TabBar(
+          controller: _tabController,
+          indicator: BoxDecoration(
+            color: Colors.transparent, // selected tab bg
+            borderRadius: BorderRadius.circular(30),
+          ),
+          indicatorSize: TabBarIndicatorSize.tab,
+          dividerHeight: 0,
+          labelColor: AppColors.white,
+          unselectedLabelColor: AppColors.white,
+          labelStyle: AppTextStyle.h6.copyWith(fontWeight: FontWeight.w600),
+          unselectedLabelStyle: AppTextStyle.h6,
+          overlayColor: WidgetStateProperty.all(Colors.transparent),
+          tabs: [
+            _buildTab(context.appText.address, _tabController.index == 0),
+            _buildTab(context.appText.vehicles, _tabController.index == 1),
+            _buildTab(context.appText.drivers, _tabController.index == 2),
+          ],
+        ),
+        Expanded(
               child: TabBarView(
                 controller: _tabController,
                 children: [

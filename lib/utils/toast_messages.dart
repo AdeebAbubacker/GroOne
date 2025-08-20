@@ -106,4 +106,36 @@ class ToastMessages{
       duration: const Duration(milliseconds: 3000),
     ).show(navigatorKey.currentState!.context);
   }
+
+  static updateAvailable({required String message}) {
+    Flushbar? flush;
+
+    flush = Flushbar(
+      messageText: Text(message, style: AppTextStyle.body),
+      flushbarPosition: FlushbarPosition.TOP,
+      backgroundColor: AppColors.scaffoldBackgroundColor,
+      isDismissible: true,
+      boxShadows: const [
+        BoxShadow(
+          color: Colors.black12,
+          blurRadius: 5.0,
+          spreadRadius: 1.5,
+        )
+      ],
+      icon: const Icon(Icons.system_update, size: 25, color: Colors.blue)
+          .paddingAll(10)
+          .paddingLeft(5),
+      mainButton: IconButton(
+        icon: const Icon(Icons.close, color: Colors.black54),
+        onPressed: () {
+          flush?.dismiss();
+        },
+      ),
+      // optional auto-dismiss:
+      duration: const Duration(seconds: 5),
+    );
+
+    flush.show(navigatorKey.currentState!.context);
+  }
+
 }
