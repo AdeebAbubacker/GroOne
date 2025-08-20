@@ -1107,5 +1107,9 @@
   "loadDetails": "लोड विवरण",
   "trip": "यात्रा",
   "totalFreightCost": "कुल भाड़ा लागत",
-  "skip": "छोड़ें"
+  "skip": "छोड़ें",
+  "swipeToUnload": "अनलोड करने के लिए स्वाइप करें",
+  "viewDetail": "विवरण देखें",
+  "swipeToCompleteTrip": "यात्रा पूरी करने के लिए स्वाइप करें",
+  "startTrip": "यात्रा शुरू करें"
 }

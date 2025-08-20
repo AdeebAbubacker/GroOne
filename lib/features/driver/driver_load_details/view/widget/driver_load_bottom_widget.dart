@@ -453,7 +453,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                       LoadStatus.completed &&
                                                   loads?.data?.loadSettlement ==
                                                       null,
-                                              title: 'Settlements',
+                                              title: context.appText.settlements,
                                               onAdd: () {
                                                 Navigator.push(
                                                   context,
