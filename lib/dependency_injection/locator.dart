@@ -499,7 +499,7 @@ void initLocator() {
       () => LoadCommodityBloc(locator<LpHomeRepository>()),
     );
     locator.registerLazySingleton(
-      () => DocumentTypeCubit(locator<DocumentRepository>(),locator<LoadDetailsCubit>()),
+      () => DocumentTypeCubit(locator<DocumentRepository>(),locator<LoadDetailsCubit>(),locator<DriverLoadDetailsCubit>()),
     );
     locator.registerLazySingleton(
       () => GpsOrderApiRepository(locator<GpsOrderApiService>()),

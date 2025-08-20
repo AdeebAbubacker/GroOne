@@ -340,10 +340,9 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   locationDistance: state.locationDistance,
                                   context: context,
                                 ),
-                           
+    
                                 if (loads!.data!.consignees != null &&
                                     widget.loadItem.data!.consignees.isNotEmpty)
-                                  15.height,
                                   _buildConsigneeDetail(
                                     context: context,
                                     email:
@@ -371,6 +370,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                             .mobileNumber ??
                                         '',
                                   ),
+                                20.height,
                                 if ((loads!.data!.loadStatusId ?? 0) > 4)
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -744,12 +744,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
     DriverLoadDetailsCubit cubit,
   ) {
     final tripDocumentList = state.tripDocumentList ?? [];
-
-    for (final doc in tripDocumentList) {
-      print(
-        "Title: ${doc.title}, TypeId: ${doc.documentTypeId}, FileType: ${doc.fileType}",
-      );
-    }
     return Column(
       children: List.generate(
         tripDocumentList.length,
@@ -795,12 +789,14 @@ Widget _buildConsigneeDetail({
       // Contact Name
       _buildDetailWidget(text1: context.appText.name, text2: name ?? ""),
 
+      20.height,
 
       // Contact Number
       _buildDetailWidget(
         text1: context.appText.contactNo,
         text2: phoneNo ?? "",
       ),
+      20.height,
 
       // Email Id
       _buildDetailWidget(text1: context.appText.emailId, text2: email ?? ""),
@@ -809,36 +805,24 @@ Widget _buildConsigneeDetail({
 }
 
 // Detail Widget
-// Detail Widget
-Widget _buildDetailWidget({required String text1, required String? text2}) {
-  if (text2 == null || text2.isEmpty) {
-    return const SizedBox.shrink(); 
-  }
-
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+Widget _buildDetailWidget({required String text1, required String text2}) {
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            text1,
-            style: AppTextStyle.body2.copyWith(color: AppColors.textBlackColor),
-          ),
-          Text(
-            text2,
-            style: AppTextStyle.body2.copyWith(
-              fontWeight: FontWeight.w500,
-              color: AppColors.primaryColor,
-            ),
-          ),
-        ],
+      Text(
+        text1,
+        style: AppTextStyle.body2.copyWith(color: AppColors.textBlackColor),
       ),
-      20.height, 
+      Text(
+        text2,
+        style: AppTextStyle.body2.copyWith(
+          fontWeight: FontWeight.w500,
+          color: AppColors.primaryColor,
+        ),
+      ),
     ],
   );
 }
-
 
 // Addable Section Header
 Widget _buildAdableSectionHeader({

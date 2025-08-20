@@ -21,8 +21,8 @@ Future<void> initializeApp() async {
     await FirebaseMessaging.instance.requestPermission();
 
     // Firebase Secondary App Initialization
-  await FirebaseService.initializeSecondaryApp();
-  debugPrint("Firebase Secondary App Initialized");
+    await FirebaseService.initializeSecondaryApp();
+    debugPrint("Firebase Secondary App Initialized");
 
   // Crashlytics
     FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterError;

@@ -46,7 +46,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     this._repository,
     this._lpLoadRepository,
     this._userInformationRepository,
-  ) : super(DriverLoadDetailsState(tripDocumentList: DocumentDataModel.documentTypeList));
+  ) : super(DriverLoadDetailsState(tripDocumentList: []));
 
   // Updates the UI state related to loading LP loads by ID.
   void _setLoadByIdUIState(UIState<DriverLoadDetailsModel>? uiState) {
@@ -111,6 +111,13 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   //  Update Load Status Api Call
   void _updateloadStatusUIState(UIState<VpLoadAcceptModel>? uiState) {
     emit(state.copyWith(loadStatusUIState: uiState));
+  }
+
+  // set Trip Document List
+  setDocumentState(){
+    emit(state.copyWith(
+        tripDocumentList: DocumentDataModel.documentTypeList
+    ));
   }
  
   Future<void> fupdateLoadStatus({
@@ -483,35 +490,30 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
 
   setTripDocuments(List<LoadDocument>? loadDocument) {
     List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+    print("loadDocument from api ${loadDocument?.length} and document list is ${documentList}");
     for (DocumentEntity item in documentList) {
+      print("working loop perfect");
       /// find load item for api response set into local document entity
       item.loadDocument = filterLoadDocumentById(loadDocument, item);
     }
     emit(state.copyWith(tripDocumentList: documentList));
   }
 
-  List<LoadDocument> filterLoadDocumentById(
-    List<LoadDocument>? loadDocument,
-    DocumentEntity item,
-  ) {
+  List<LoadDocument> filterLoadDocumentById(List<LoadDocument>? loadDocument,DocumentEntity item){
     try {
-      if (item.documentType !=
-          navigatorKey.currentState?.context.appText.uploadOtherDocuments) {
+      if(item.documentType!=DocumentFileType.uploadOtherDocument.documentType){
         LoadDocument? foundedDocument = loadDocument!.firstWhere(
-          (element) =>
-              element.documentDetails?.documentType == item.documentType,
+              (element) =>
+          element.documentDetails?.documentType == item.documentType,
         );
 
         return [foundedDocument];
       } else {
-        return loadDocument!
-            .where(
+        return loadDocument!.where(
               (element) =>
-                  element.documentDetails?.documentType == item.documentType,
-            )
-            .toList();
-      }
-    } catch (e) {
+          element.documentDetails?.documentType == item.documentType,
+        ).toList();
+      }} catch (e) {
       return [];
     }
   }

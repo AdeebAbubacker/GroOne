@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -102,6 +103,7 @@ class VpPodDispatchScreen extends StatefulWidget {
 class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
   final cubit = locator<PodDispatchCubit>();
+  final loadDetailsCubit = locator<LoadDetailsCubit>();
 
   final courierCompanyTextController = TextEditingController();
   final awbNumberTextController = TextEditingController();
@@ -238,27 +240,37 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
   ///  Submit Button
   Widget _buildSubmitButtonWidget(){
-    return BlocConsumer<PodDispatchCubit, PodDispatchState>(
-      bloc: cubit,
-      listenWhen: (previous, current) =>  previous.submitPodUIState?.status != current.submitPodUIState?.status,
-      listener: (context, state) async {
-        final status = state.submitPodUIState?.status;
-        if (status == Status.SUCCESS) {
-           Navigator.of(context).pop(true);
-        }
-        if (status == Status.ERROR) {
-          final error = state.submitPodUIState?.errorType;
-          ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-        }
-      },
-      builder: (context, state) {
-        final isLoading = state.submitPodUIState?.status == Status.LOADING;
-        return AppButton(
-          title: context.appText.submit,
-          isLoading: isLoading,
-          onPressed: isLoading ? (){} : () => submitPodApiCall(),
-        ).bottomNavigationPadding();
-      },
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        BlocConsumer<PodDispatchCubit, PodDispatchState>(
+          bloc: cubit,
+          listenWhen: (previous, current) =>  previous.submitPodUIState?.status != current.submitPodUIState?.status,
+          listener: (context, state) async {
+            final status = state.submitPodUIState?.status;
+            if (status == Status.SUCCESS) {
+               Navigator.of(context).pop(true);
+            }
+            if (status == Status.ERROR) {
+              final error = state.submitPodUIState?.errorType;
+              ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+            }
+          },
+          builder: (context, state) {
+            final isLoading = state.submitPodUIState?.status == Status.LOADING;
+            return AppButton(
+
+              title: context.appText.submit,
+              isLoading: isLoading,
+              onPressed: isLoading ? (){} : () => submitPodApiCall(),
+            ).bottomNavigationPadding();
+          },
+        ),
+        GestureDetector(
+            onTap: ()=>loadDetailsCubit.skipPodView(),
+            child: Text("SKIP POD"))
+      ],
     );
   }
 
