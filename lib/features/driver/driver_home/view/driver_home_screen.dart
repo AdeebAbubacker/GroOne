@@ -255,8 +255,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 final routeList = uiState?.data?.data?.routeList ?? [];
 
                 return RouteSearchableDropdown(
-                  labelText: 'Route',
-                  hintText: 'Route',
+                  labelText: context.appText.routes,
+                  hintText: context.appText.routes,
                   routeList: routeList,
                   selectedRouteStatus: routeDropDownValue,
                   onRouteChanged: (RouteList? value) {
