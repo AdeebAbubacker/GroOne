@@ -15,7 +15,7 @@ class ChatRepository {
     } else if (errorString.contains('timeout')) {
       return 'I\'m taking too long to respond. Please try again.';
     } else if (errorString.contains('genericerror') || errorString.contains('generic error')) {
-      return 'Something went wrong on my end. Please try again in a moment.';
+      return 'We encountered a problem processing your request.Our team has been notified and is investigating.';
     } else if (errorString.contains('unauthorized') || errorString.contains('403') || errorString.contains('401')) {
       return 'I\'m having authentication issues. Please try again later.';
     } else if (errorString.contains('server') || errorString.contains('500')) {

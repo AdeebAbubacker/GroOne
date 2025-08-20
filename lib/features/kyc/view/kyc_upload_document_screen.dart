@@ -488,17 +488,19 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     required List tdsDocLink,
   }) {
     bool need(String msg, bool ok) {
-      if (!ok)
+      if (!ok) {
         ToastMessages.alert(message: '${context.appText.pleaseUpload} $msg');
+      }
       return ok;
     }
 
     bool checkId(String? id, String label) {
       final ok = id != null;
-      if (!ok)
+      if (!ok) {
         ToastMessages.alert(
-          message: '${context.appText.somethingWentWrong} ($label ID)',
+          message: context.appText.errorMessage,
         );
+      }
       return ok;
     }
 
@@ -651,8 +653,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         ToastMessages.error(message: context.appText.cityRequired);
         return;
       }
-
-
 
       final kycRequest = SubmitKycApiRequest(
         adharDocLink: aadharDocId,
@@ -1215,7 +1215,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               onDelete: (index) async {
                 if (gstDocId == null) {
                   ToastMessages.alert(
-                    message: "Something went wrong, while delete this document",
+                    message: context.appText.errorMessage,
                   );
                   return;
                 }
@@ -1336,7 +1336,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               onDelete: (index) async {
                 if (tanDocId == null) {
                   ToastMessages.alert(
-                    message: "Something went wrong, while delete this document",
+                    message:context.appText.errorMessage,
                   );
                   return;
                 }
@@ -1461,7 +1461,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               onDelete: (index) async {
                 if (panDocId == null) {
                   ToastMessages.alert(
-                    message: "Something went wrong, while delete this document",
+                    message: context.appText.errorMessage,
                   );
                   return;
                 }
@@ -1540,7 +1540,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             onDelete: (index) async {
               if (cancelledChequeDocId == null) {
                 ToastMessages.alert(
-                  message: "Something went wrong, while delete this document",
+                  message: context.appText.errorMessage,
                 );
                 return;
               }
@@ -1619,7 +1619,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             onDelete: (index) async {
               if (tdsDocId == null) {
                 ToastMessages.alert(
-                  message: "Something went wrong, while delete this document",
+                  message: context.appText.errorMessage,
                 );
                 return;
               }

@@ -30,7 +30,7 @@ class ChatApiService {
     } else if (errorString.contains('network') || errorString.contains('connection')) {
       throw Exception('Unable to connect. Please check your internet connection.');
     } else if (errorString.contains('genericerror') || errorString.contains('generic error')) {
-      throw Exception('Something went wrong. Please try again later.');
+      throw Exception('We encountered a problem processing your request.Our team has been notified and is investigating.');
     } else {
       throw Exception('Unable to complete request. Please try again.');
     }
