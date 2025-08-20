@@ -270,6 +270,7 @@ class _MasterScreenState extends State<MasterScreen>
                   color: AppColors.primaryColor,
                   borderRadius: BorderRadius.circular(30),
                 ),
+                
                 indicatorSize: TabBarIndicatorSize.tab,
                 dividerHeight: 0,
                 labelColor: Colors.white,

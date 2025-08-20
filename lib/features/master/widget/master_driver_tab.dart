@@ -200,13 +200,13 @@ class _buildDriverTabState extends State<buildDriverTab> {
                         name: driver.name,
                         phone: driver.mobile,
                         driverStatus: driver.driverStatus,
-                        onEdit: () async {
-                          mastersCubit.resetLicenseVerification();
-                          await Future.delayed(
-                            const Duration(milliseconds: 50),
-                          );
-                          showAddDriverPopup(context, driver: driver);
-                        },
+                        // onEdit: () async {
+                        //   mastersCubit.resetLicenseVerification();
+                        //   await Future.delayed(
+                        //     const Duration(milliseconds: 50),
+                        //   );
+                        //   showAddDriverPopup(context, driver: driver);
+                        // },
                         onDelete:
                             () => showDeletePopUp(
                               context: context,
