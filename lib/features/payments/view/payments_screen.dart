@@ -73,14 +73,6 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
     if (url.contains('/updateTransaction')) paymentCubit.setPaymentStarted(true);
     if (url.contains('/process-response')) paymentCubit.setPaymentLoading(true);
     if (url.contains('/BankRespReceive')) paymentCubit.setPaymentLoading(false);
-    // if (url.contains('/redirect')) {
-    //   paymentCubit.setTransactionCompleted(true);
-    //   Future.delayed(const Duration(seconds: 6), () {
-    //     if(mounted){
-    //       Navigator.pop(context, true);
-    //     }
-    //   });
-    // }
     if (url.contains('/redirect')) {
       paymentCubit.setTransactionCompleted(true);
       _redirectTimer = Timer(const Duration(seconds: 4), () {
