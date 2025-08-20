@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/transaction_information.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -10,93 +9,61 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-import '../../../utils/app_icons.dart';
-
-class VpPaymentSummary  extends StatelessWidget {
+class PaymentSummary extends StatelessWidget {
   final String? tripCost;
-  final String? advanceAmount;
-  final bool? isAdvanceCompleted;
-  final String? transactionId;
-  final String? paymentMode;
-  final String? receivedOn;
-  final String? balancePayout;
-  final bool? isBalancePending;
-  final VoidCallback? onProceed;
- final String? advancedPercentage;
   final List<VpLog>? vpLogs;
+  final List<VpLog>? lpLogs;
 
-
-  const VpPaymentSummary({
+  const PaymentSummary({
     super.key,
     required this.tripCost,
-    required this.advanceAmount,
-    required this.isAdvanceCompleted,
-    required this.transactionId,
-    required this.paymentMode,
-    required this.receivedOn,
-    required this.balancePayout,
-    required this.isBalancePending,
-    required this.onProceed,
-    required this.advancedPercentage,
-    required this.vpLogs,
-
+    this.vpLogs,
+    this.lpLogs,
   });
 
   @override
   Widget build(BuildContext context) {
+    final logs = vpLogs ?? lpLogs ?? [];
+
     return Scaffold(
-        backgroundColor: AppColors.backgroundColor,
-        appBar: CommonAppBar(title: context.appText.paymentSummary),
-        body: SizedBox(
-        child:Column(
+      backgroundColor: AppColors.backgroundColor,
+      appBar: CommonAppBar(title: context.appText.paymentSummary),
+      body: SizedBox(
+        child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             15.height,
             Container(
-              decoration:commonContainerDecoration(
-                color: Color(0xffE9F3FA).withOpacity(0.8),
+              decoration: commonContainerDecoration(
+                color: AppColors.lightBlueColor,
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Row(
-                spacing: 5,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text("${context.appText.agreedPrice}: ", style:AppTextStyle.h3w500.copyWith(
+                  Text(
+                    "${context.appText.agreedPrice}: ",
+                    style: AppTextStyle.h3w500.copyWith(
                       fontSize: 14,
                       fontWeight: FontWeight.w100,
-                      color: AppColors.textBlackColor
-                  )),
-                  Text(tripCost.toString(), style: AppTextStyle.h3PrimaryColor.copyWith(
-                    fontSize: 16
-                  )),
+                      color: AppColors.textBlackColor,
+                    ),
+                  ),
+                  Text(
+                    tripCost.toString(),
+                    style: AppTextStyle.h3PrimaryColor.copyWith(fontSize: 16),
+                  ),
                 ],
               ).paddingAll(12),
             ),
             12.height,
             TransactionInformation(
-              vpLogs: vpLogs,
-              advancedPer: advancedPercentage,
+              vpLogs: logs,
             ),
           ],
         ),
       ).paddingSymmetric(horizontal: 15),
     );
-
-
-
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

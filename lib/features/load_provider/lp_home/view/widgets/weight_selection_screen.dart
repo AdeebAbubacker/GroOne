@@ -5,6 +5,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 
@@ -37,59 +38,62 @@ class _WeightSelectionScreenState extends State<WeightSelectionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(context.appText.selectWeight, style: AppTextStyle.body1)),
-      body: Column(
-        children: [
-          Expanded(
-            child: GridView.builder(
-              padding: EdgeInsets.all(16),
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                childAspectRatio: 1.5,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-              ),
-              itemCount: widget.dataList.length,
-              itemBuilder: (context, index) {
-                final weight = widget.dataList[index];
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: AppBar(title: Text(context.appText.selectWeight, style: AppTextStyle.body1)),
+        body: Column(
+          children: [
+            Expanded(
+              child: GridView.builder(
+                padding: EdgeInsets.all(16),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3,
+                  childAspectRatio: 1.5,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemCount: widget.dataList.length,
+                itemBuilder: (context, index) {
+                  final weight = widget.dataList[index];
 
-                final isSelected = selectedId == weight.id;
-                return InkWell(
-                  onTap: () {
-                    setState(() {
-                      selectedId = weight.id;
-                    });
-                  },
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: AppColors.lightPrimaryColor2,
-                      border: Border.all(
-                        color: isSelected ? AppColors.primaryColor : AppColors.borderColor,
-                        width: isSelected ? 2 : 1,
+                  final isSelected = selectedId == weight.id;
+                  return InkWell(
+                    onTap: () {
+                      setState(() {
+                        selectedId = weight.id;
+                      });
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: AppColors.lightPrimaryColor2,
+                        border: Border.all(
+                          color: isSelected ? AppColors.primaryColor : AppColors.borderColor,
+                          width: isSelected ? 2 : 1,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "${weight.value} MT",
-                        style: AppTextStyle.body3.copyWith(
-                          color:
-                              isSelected
-                                  ? AppColors.primaryColor
-                                  : AppColors.black,
+                      child: Center(
+                        child: Text(
+                          "${weight.value} MT",
+                          style: AppTextStyle.body3.copyWith(
+                            color:
+                                isSelected
+                                    ? AppColors.primaryColor
+                                    : AppColors.black,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
-          ),
 
-        ],
+          ],
+        ),
+        bottomNavigationBar: buildSubmitButton(),
       ),
-      bottomNavigationBar: buildSubmitButton(),
     );
   }
 
@@ -102,7 +106,7 @@ class _WeightSelectionScreenState extends State<WeightSelectionScreen> {
         widget.onSelect(selectedWeight);
         Navigator.pop(context);
       } : (){},
-    ).bottomNavigationPadding();
+    ).paddingAll(commonPadding);
   }
 
 }

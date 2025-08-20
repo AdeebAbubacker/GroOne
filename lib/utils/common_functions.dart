@@ -365,7 +365,7 @@ class ImagePickerFrom {
       ToastMessages.alert(message: appContext.appText.imageSupport);
       return false;
     }
-    if (image.lengthSync() > 5000000) {
+    if (image.lengthSync() > 7000000) {
       ToastMessages.alert(message: appContext.appText.imageSize);
       return false;
     }
@@ -444,7 +444,7 @@ Future<Map?> pickMultipleFiles<T>({List? allowedExtensions}) async {
         "dateTime": DateTime.now().toString(),
       };
 
-      if ((await compressedFIle?.length() ?? 0) > 5 * 1024 * 1024) {
+      if ((await compressedFIle?.length() ?? 0) > 7 * 1024 * 1024) {
         ToastMessages.alert(message: appContext.appText.imageSize);
         return null;
       } else {
@@ -507,7 +507,7 @@ String getErrorMsg({required ErrorType errorType}) {
     case UnauthenticatedError _:
       return errorType.getText(appContext);
     case NetworkTimeoutError _:
-      return context.appText.timeOutError;
+      return context.appText.somethingWentWrong;
     case ResponseStatusFailed _:
       return errorType.getText();
     case SerializationError _:
@@ -660,7 +660,7 @@ String getInitialsFromName(Object instance, {required String name}) {
     _loggedNames.add(name);
   }
   
-  if (name.trim().isEmpty) return '?'; // or return ''; if you prefer
+  if (name.trim().isEmpty) return ''; // or return ''; if you prefer
 
   final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();
 
