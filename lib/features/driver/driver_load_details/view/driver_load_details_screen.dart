@@ -83,6 +83,7 @@ class _DriverLoadsLocationDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: SafeArea(
         child: BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
