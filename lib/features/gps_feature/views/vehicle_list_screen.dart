@@ -485,9 +485,11 @@ class VehicleListView extends StatelessWidget {
       child: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: vehiclesToShow.length,
+        addAutomaticKeepAlives: false,
+        addRepaintBoundaries: true,
         itemBuilder: (context, index) {
           final vehicle = vehiclesToShow[index];
-          return _buildVehicleCard(context, vehicle);
+          return RepaintBoundary(child: _buildVehicleCard(context, vehicle));
         },
       ),
     );

@@ -47,7 +47,7 @@ void main() async {
 
     // Initialize the unified notification service
     // Note: SecuredSharedPreferences should be initialized in initializeApp()
-    final secureStorage = FlutterSecureStorage();
+    const secureStorage = FlutterSecureStorage();
     final securedSharedPrefs = SecuredSharedPreferences(secureStorage);
 
     // Get saved language code from secure storage
@@ -69,7 +69,7 @@ void main() async {
     );
   } catch (e) {
     // Handle initialization errors gracefully
-    print('❌ App initialization error: $e');
+    debugPrint('❌ App initialization error: $e');
     // You might want to show an error widget or retry mechanism
     runApp(const ErrorApp());
   }
@@ -138,7 +138,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // Any other initialization logic
       // await authRepo.signOut(); // Uncomment if needed
     } catch (e) {
-      print('InitFun error: $e');
+      debugPrint('InitFun error: $e');
     }
   });
 
