@@ -90,11 +90,11 @@ class DriverLoadHelper {
       BuildContext context=navigatorKey.currentState!.context;
       switch(statusId){
        
-        case 4:
+          case 4:
           return isLpAgreed ?  context.appText.swipeToStart : context.appText.waitingForLpToAcceptLoad; 
           case 5:
           
-        return context.appText.swipeToCompleteLoading;
+          return context.appText.swipeToCompleteLoading;
           
           case 6:
           return  context.appText.swipeToStartUnLoading;

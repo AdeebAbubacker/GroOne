@@ -60,7 +60,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   void skipPodView({bool? value}){
-    emit(state.copyWith(iPodSkip: value ?? true));
+    emit(state.copyWith(iPodSkip: value??false));
   }
 
   acceptLoad(int? status) {
@@ -650,7 +650,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
-  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  dynamic memo, LoadStatus? loadStatus}) {
+  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  MemoDetails? memo , LoadStatus? loadStatus,int? isAgreed}) {
     switch(loadStatus){
       case LoadStatus.loading:
       return  checkLoadingDocumentAddedOrNot(documentList,true);
@@ -659,7 +659,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         return checkLoadingDocumentAddedOrNot(documentList,false);
 
       case LoadStatus.assigned:
-        return false;
+        return memo!=null && isAgreed==1;
 
       default:
         return true;

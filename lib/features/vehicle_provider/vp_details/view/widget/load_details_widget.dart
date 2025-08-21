@@ -1184,12 +1184,13 @@ Widget _submittedSettlementInfoWidget(
           amount: detentionsAmount,
         ),
 
+        if(loadSettlement.loadingCharge!=0)
         InformationView(
           title: context.appText.loadingCharges,
           amount:
               PriceHelper.formatINR(loadSettlement.loadingCharge).toString(),
         ),
-
+        if(loadSettlement.loadingCharge!=0)
         InformationView(
           title: context.appText.unloadingCharges,
           amount:

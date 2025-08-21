@@ -96,6 +96,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               5.width,
               if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
                 VpMyLoadUIHelper.loadStatusWidget(
+
                     statusBgColor: widget.data.loadStatusDetails!.statusBgColor,
                     statusTxtColor: widget.data.loadStatusDetails!.statusTxtColor,
                     (widget.data.loadUnHold??false) ? context.appText.loadOnHold:
@@ -217,6 +218,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                           isPodAdded: widget.data.podDispatch!=null,
                           enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                           loadStatus: widget.data.loadStatusValues ,
+                          isAgreed: widget.data.isAgreed,
                           documentList: widget.data.loadDocument??[]
                     ),
                       context: context,

@@ -261,7 +261,7 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
         ),
         TextButton(
           onPressed: () {
-            loadDetailsCubit.skipPodView();
+            loadDetailsCubit.skipPodView(value: true);
             Navigator.pop(context);
           },
           child: Text(context.appText.skip),

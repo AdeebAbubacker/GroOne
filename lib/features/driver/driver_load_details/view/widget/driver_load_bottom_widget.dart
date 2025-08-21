@@ -541,8 +541,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                           child: SizedBox(
                             height: 60,
                             width: MediaQuery.of(context).size.width * 0.90,
-                            child:
-                                  CustomSwipeButton(
+                            child: CustomSwipeButton(
                                       padding: 0,
                                       price: 0,
                                       loadId: loads.data!.loadId.toString(),

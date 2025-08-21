@@ -81,6 +81,8 @@ class VpRecentLoadData {
     required this.driverConsent,
     required this.loadUnHold,
     required this.podDispatch,
+    required this.memoDetails,
+    required this.isAgreed,
 
   });
 
@@ -136,6 +138,8 @@ class VpRecentLoadData {
   final LoadStatusDetailsResponse? loadStatusDetails;
 
   final PodDispatch? podDispatch;
+  final MemoDetails? memoDetails;
+  final int? isAgreed;
 
   VpRecentLoadData copyWith({
     String? id,
@@ -180,11 +184,15 @@ class VpRecentLoadData {
     LoadStatus? loadStatusValues,
     bool? loadUnHold,
     List<LoadDocument>? loadDocument,
-    PodDispatch? podDispatch
+    PodDispatch? podDispatch,
+    MemoDetails? memoDetails,
+    int? isAgreed,
 
 
   }) {
     return VpRecentLoadData(
+      isAgreed: isAgreed ?? this.isAgreed,
+      memoDetails: memoDetails ?? this.memoDetails,
       podDispatch: podDispatch??this.podDispatch,
       loadDocument: loadDocument??this.loadDocument,
       loadUnHold: loadUnHold ?? this.loadUnHold,
@@ -240,6 +248,8 @@ class VpRecentLoadData {
     /// change get loadStatusValues dynamically once ui work has been done
     ///
     return VpRecentLoadData(
+       isAgreed: json['isAgreed'],
+        memoDetails:json['loadMemo']!=null ?MemoDetails.fromJson(json['loadMemo']) :null,
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
       loadUnHold: json['loadOnhold'],
       driverConsent: json['driverConsent'],

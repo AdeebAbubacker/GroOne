@@ -174,7 +174,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<FastagCubit>(create: (_) => locator<FastagCubit>()),
         BlocProvider<DocumentTypeCubit>(create: (_) => locator<DocumentTypeCubit>()),
         BlocProvider<LoadFilterCubit>(create: (_) => locator<LoadFilterCubit>()),
-       ],
+
         BlocProvider<DocumentTypeCubit>(
           create: (_) => locator<DocumentTypeCubit>(),
         ),
@@ -185,7 +185,9 @@ class MultiBlocWrapper extends StatelessWidget {
           create: (_) => locator<PrivacyPolicyBloc>(),
         ),
       ],
+
       child: child,
     );
   }
 }
+

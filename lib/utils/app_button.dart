@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -13,10 +14,9 @@ class AppButton extends StatelessWidget {
   final bool? isLoading;
   final double? buttonHeight;
   final Widget? richTextWidget;
+  final Widget? icon; // ✅ added this
 
-
-  const AppButton({super.key,
-  final Widget? icon;
+  final bool? enable;
 
   const AppButton({
     super.key,
@@ -25,29 +25,31 @@ class AppButton extends StatelessWidget {
     this.style,
     this.buttonHeight,
     this.richTextWidget,
-    this.icon,
+    this.icon, // ✅ added this
     this.isLoading = false,
+    this.enable = true,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
+
     return SizedBox(
       height: buttonHeight,
       child: ElevatedButton(
-        onPressed: isLoading == true
-            ? () {}
+        onPressed:   isLoading == true || enable==false
+            ? null // better UX: disabled state
             : () {
           commonHapticFeedback();
-          if(onPressed!=null){
-            onPressed?.call();
-          }
-
+          onPressed?.call();
         },
-        style: isLoading == true
-            ? AppButtonStyle.disableButton
+        style:
+
+        isLoading == true || !(enable??true)
+            ? AppButtonStyle.disableButton.copyWith(
+        )
             : (style ?? AppButtonStyle.primary),
-        child: isLoading == true
+        child: isLoading == true && enable==true
             ? const CupertinoActivityIndicator(color: Colors.white)
             : richTextWidget ??
             Row(
@@ -66,8 +68,10 @@ class AppButton extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: textStyle ??
                         (style == AppButtonStyle.outline
-                            ? AppTextStyle.buttonPrimaryColorTextColor
-                            : AppTextStyle.buttonWhiteTextColor),
+                            ? AppTextStyle.buttonPrimaryColorTextColor.copyWith()
+                            : AppTextStyle.buttonWhiteTextColor.copyWith(
+                          color: (enable??false) ? Colors.white:AppColors.disableColor
+                        )),
                   ),
                 ),
               ],

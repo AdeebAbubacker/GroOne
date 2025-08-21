@@ -84,6 +84,11 @@ class ApiService {
     CancelToken? cancelToken,
     Map<String, String>? customHeaders,
   }) async {
+
+    if (!HasInternetConnection.isInternet) {
+      return Error(InternetNetworkError());
+    }
+
     dynamic prettyHeader = const JsonEncoder.withIndent(
       '  ',
     ).convert(await _getHeaders());
@@ -119,6 +124,9 @@ class ApiService {
     Map<String, dynamic>? queryParams,
     Map<String, String>? customHeaders,
   }) async {
+    if (!HasInternetConnection.isInternet) {
+      return Error(InternetNetworkError());
+    }
     Object prettyBodyString;
     if (queryParams != null) {
       prettyBodyString = const JsonEncoder.withIndent(
@@ -165,6 +173,7 @@ class ApiService {
     Map<String, dynamic>? queryParams,
     Map<String, String>? customHeaders,
   }) async {
+
     Object prettyBodyString;
     if (queryParams != null) {
       prettyBodyString = const JsonEncoder.withIndent(

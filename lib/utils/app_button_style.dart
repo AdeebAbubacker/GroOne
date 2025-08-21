@@ -22,7 +22,7 @@ class AppButtonStyle {
 
   /// Disable
   static ButtonStyle disableButton = primary.copyWith(
-    backgroundColor: WidgetStateProperty.all(AppColors.deActiveButtonColor),
+    backgroundColor: WidgetStateProperty.all(AppColors.disableColor.withValues(alpha: 0.5),),
     elevation: WidgetStateProperty.all(0),
   );
 
