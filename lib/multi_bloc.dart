@@ -26,6 +26,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/payments/cubit/payment_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
@@ -171,6 +172,9 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<PaymentCubit>(create: (_) => locator<PaymentCubit>()),
         BlocProvider<MastersCubit>(create: (_) => locator<MastersCubit>()),
         BlocProvider<FastagCubit>(create: (_) => locator<FastagCubit>()),
+        BlocProvider<DocumentTypeCubit>(create: (_) => locator<DocumentTypeCubit>()),
+        BlocProvider<LoadFilterCubit>(create: (_) => locator<LoadFilterCubit>()),
+
         BlocProvider<DocumentTypeCubit>(
           create: (_) => locator<DocumentTypeCubit>(),
         ),
@@ -181,7 +185,9 @@ class MultiBlocWrapper extends StatelessWidget {
           create: (_) => locator<PrivacyPolicyBloc>(),
         ),
       ],
+
       child: child,
     );
   }
 }
+

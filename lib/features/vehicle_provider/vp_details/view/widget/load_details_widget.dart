@@ -1178,18 +1178,20 @@ Widget _submittedSettlementInfoWidget(
     child: Column(
       spacing: 15,
       children: [
+        if(numberOfDays!=0 && amount!=0 )
         InformationView(
           title:
               "${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays ?? 1} ${context.appText.days})",
           amount: detentionsAmount,
         ),
 
+        if(loadSettlement.loadingCharge!=0)
         InformationView(
           title: context.appText.loadingCharges,
           amount:
               PriceHelper.formatINR(loadSettlement.loadingCharge).toString(),
         ),
-
+        if(loadSettlement.loadingCharge!=0)
         InformationView(
           title: context.appText.unloadingCharges,
           amount:

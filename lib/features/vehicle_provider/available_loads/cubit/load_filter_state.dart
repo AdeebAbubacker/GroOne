@@ -5,27 +5,27 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pr
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 
 class LoadFilterState extends Equatable {
-  final UIState<LoadCommodityListModel>? commodityResponseUIState;
+  final UIState<List<LoadCommodityListModel>>? commodityResponseUIState;
   final UIState<TruckPrefLaneModel>? truckTypeLaneUIState;
-  final UIState<TruckTypeModel>? commodityResponseState;
+  final UIState<List<TruckTypeModel>>? truckTypeUIState;
 
   // Constructor
   const LoadFilterState({
     this.commodityResponseUIState,
     this.truckTypeLaneUIState,
-    this.commodityResponseState,
+    this.truckTypeUIState,
   });
 
   // copyWith
   LoadFilterState copyWith({
-    UIState<LoadCommodityListModel>? commodityResponseUIState,
+    UIState<List<LoadCommodityListModel>>? commodityResponseUIState,
     UIState<TruckPrefLaneModel>? truckTypeLaneUIState,
-    UIState<TruckTypeModel>? commodityResponseState,
+    UIState<List<TruckTypeModel>>? truckTypeUIState,
   }) {
     return LoadFilterState(
       commodityResponseUIState: commodityResponseUIState ?? this.commodityResponseUIState,
       truckTypeLaneUIState: truckTypeLaneUIState ?? this.truckTypeLaneUIState,
-      commodityResponseState: commodityResponseState ?? this.commodityResponseState,
+      truckTypeUIState: truckTypeUIState ?? this.truckTypeUIState,
     );
   }
 
@@ -33,6 +33,6 @@ class LoadFilterState extends Equatable {
   List<Object?> get props => [
     commodityResponseUIState,
     truckTypeLaneUIState,
-    commodityResponseState,
+    truckTypeUIState,
   ];
 }

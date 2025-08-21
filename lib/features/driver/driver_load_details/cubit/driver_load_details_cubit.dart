@@ -552,14 +552,10 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     );
     return (distanceInMeters / 1000).toStringAsFixed(2);
   }
-  
-  /// Tracking Details
-  Future<void> _handleTrackingBasedOnStatus(
-    DriverLoadDetailsModel? data,
-  ) async {
-    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(
-      data?.data?.loadStatusDetails?.loadStatus,
-    );
+
+ 
+     Future<void> _handleTrackingBasedOnStatus(DriverLoadDetailsModel? data) async {
+    final status =  getVPLoadStatusFromString(data?.data?.loadStatusDetails?.loadStatus);
     final route = data?.data?.loadRoute;
     final tracking = data?.data?.trackingDetails;
 
