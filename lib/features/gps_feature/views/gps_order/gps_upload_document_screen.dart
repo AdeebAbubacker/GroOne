@@ -352,7 +352,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                 isFormValid
                     ? AppButtonStyle.primary
                     : AppButtonStyle.disableButton,
-          ).paddingOnly(left: 15,right: 15, bottom: 30);
+          ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15);
         },
       ),
     );
