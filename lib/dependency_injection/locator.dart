@@ -201,7 +201,7 @@ void _registerCriticalServices() {
 /// Register core services needed for basic functionality
 void _registerCoreServices() {
   locator.registerLazySingleton(
-    () => SplashService(locator<SecuredSharedPreferences>()),
+    () => SplashService(locator<SecuredSharedPreferences>(), locator<ApiService>()),
   );
   locator.registerLazySingleton(() => NotificationService());
   locator.registerLazySingleton(() => LocationService());

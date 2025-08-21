@@ -493,6 +493,9 @@ class _buildDriverTabState extends State<buildDriverTab> {
                       selectedlicenseExpiryDate ?? 'Select date',
                       fillColor: Colors.white,
                       mandatoryStar: true,
+                      textStyle: (selectedlicenseExpiryDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                     ),
                   ),
                   16.height,
@@ -895,6 +898,7 @@ Widget buildLicenseVerificationFieldWidget({
               selectedDoB.isEmpty ? 'DOB' : selectedDoB,
               fillColor: Colors.white,
               mandatoryStar: true,
+              textStyle: selectedDoB.isEmpty ?AppTextStyle.textFieldHint :  AppTextStyle.textFiled.copyWith(color:AppColors.primaryTextColor),
             ),
           ),
           16.height,

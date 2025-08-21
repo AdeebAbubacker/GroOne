@@ -1045,7 +1045,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                 isFormValid
                     ? AppButtonStyle.primary
                     : AppButtonStyle.disableButton,
-          ).paddingAll(20);
+          ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15);
         },
       ),
     );

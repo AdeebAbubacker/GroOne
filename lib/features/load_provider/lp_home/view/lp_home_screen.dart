@@ -39,6 +39,8 @@ import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
+import 'package:gro_one_app/features/splash/splash_screen.dart';
+import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -87,6 +89,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   final lpLoadLocator = locator<LpLoadCubit>();
   final loginBloc = locator<LoginBloc>();
   final securePrefs = locator<SecuredSharedPreferences>();
+  final splashViewModel = locator<SplashViewModel>();
+
 
   final dateTimeTextController = TextEditingController();
   final weightTextController = TextEditingController();
@@ -137,6 +141,19 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   void initFunction() => frameCallback(() async {
+    await splashViewModel.checkAppUpdate();
+
+    final updateState = splashViewModel.appUpdateUIState;
+    if (updateState != null && updateState.status == Status.SUCCESS) {
+      final updateType = parseUpdateType(updateState.data!);
+
+      if (updateType == AppUpdateType.force && mounted) {
+        ToastMessages.updateAvailable(
+          message: context.appText.updateAvailableText,
+        );
+      }
+    }
+
     profileCubit.fetchProfileDetail();
 
     await profileCubit.fetchUserRole().then((val) {
@@ -324,6 +341,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   // Blue Membership Dialog
   void blueMembershipDialog(BuildContext context, String blueId, parameters)=> frameCallback(() {
     AppDialog.show(
+      dismissible: true,
       context,
       child: CommonDialogView(
         hideCloseButton: true,
@@ -400,12 +418,12 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
         ),
 
         // Notification
-        IconButton(
-          onPressed: () {
-            //Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: "000000000000")));
-          },
-          icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
-        ),
+        // IconButton(
+        //   onPressed: () {
+        //     //Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: "000000000000")));
+        //   },
+        //   icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+        // ),
 
         if(role != 4)
           // KYC Blinking

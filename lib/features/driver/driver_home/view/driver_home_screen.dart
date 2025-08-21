@@ -237,7 +237,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 );
 
                 return SearchableDropdown(
-                  hintText: 'Truck Type',
+                  hintText: context.appText.selectTruckType,
                   items: truckTypeLabels,
                   selectedItem: truckTypeDropDownValue,
                   onChanged: (value) {
@@ -257,7 +257,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
                 return RouteSearchableDropdown(
                   labelText: context.appText.routes,
-                  hintText: context.appText.routes,
+                  hintText: '${context.appText.select} ${context.appText.route}',
                   routeList: routeList,
                   selectedRouteStatus: routeDropDownValue,
                   onRouteChanged: (RouteList? value) {
@@ -300,7 +300,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                           setState(() {});
                         },
 
-                        hintText: context.appText.commodity,
+                        hintText: '${context.appText.select} ${context.appText.commodity}' ,
                       ),
                     ],
                   );

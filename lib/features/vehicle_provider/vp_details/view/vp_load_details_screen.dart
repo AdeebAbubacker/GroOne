@@ -152,14 +152,14 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
         right: 5, bottom: bottomWidgetMaxHeight + 10,child: Column(
       children: [
 
-        IconButton(
-              onPressed: () {},
-              icon: Container(
-                padding: EdgeInsets.all(4),
-                decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
-                child: Icon(Icons.location_searching, color: AppColors.primaryColor),
-              )
-          ),
+        // IconButton(
+        //       onPressed: () {},
+        //       icon: Container(
+        //         padding: EdgeInsets.all(4),
+        //         decoration: commonContainerDecoration(shadow: true,shadowColor: AppColors.secondaryButtonColor,borderRadius: BorderRadius.circular(20)),
+        //         child: Icon(Icons.location_searching, color: AppColors.primaryColor),
+        //       )
+        //   ),
         IconButton(
             onPressed: () {
               commonSupportDialog(context);

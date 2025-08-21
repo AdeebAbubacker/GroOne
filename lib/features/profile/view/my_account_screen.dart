@@ -96,7 +96,7 @@ class LpMyAccount extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(context.appText.kycStatus, style: AppTextStyle.textGreyDetailColor14w400).expand(),
-                    Text(customerDetail?.isKyc == 3 ? context.appText.verified : context.appText.unVerified, style: AppTextStyle.textGreyDetailColor14w400),
+                    Text(customerDetail?.kycType?.kycType ?? '', style: AppTextStyle.textGreyDetailColor14w400),
                     if(customerDetail?.isKyc == 3)
                       ...[
                         5.width,

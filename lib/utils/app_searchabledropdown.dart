@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_search/dropdown_search.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -75,11 +76,15 @@ class SearchableDropdown extends StatelessWidget {
                   : items.length <= 2
                       ? (items.length * 48 + 80).toDouble()
                       : 250,
+            ),
+             menuProps: MenuProps(
+             backgroundColor: AppColors.white, 
             ), 
             searchFieldProps: TextFieldProps(
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               hintText: "${context.appText.search}...",
+              hintStyle: AppTextStyle.bodyGreyColor.copyWith(color: AppColors.greyTextColor, fontWeight: FontWeight.w500, fontSize: 16),
               border: const OutlineInputBorder(),
               isDense: true,
             ),
