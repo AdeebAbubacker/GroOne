@@ -700,6 +700,9 @@ class _MasterScreenState extends State<MasterScreen>
                             : pucExpiryDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        textStyle: (pucExpiryDate == 'PUC Expiry Date') 
+                      ? AppTextStyle.textGreyDetailColor12w400 
+                      : AppTextStyle.textFiled,
                       ),
                     ),
 
@@ -833,6 +836,7 @@ Widget buildReadOnlyField(
   String label,
   String value, {
   Color? fillColor,
+  TextStyle? textStyle,
   bool mandatoryStar = false,
 }) {
   return Column(
@@ -855,11 +859,11 @@ Widget buildReadOnlyField(
         decoration: commonContainerDecoration(
           color: fillColor ?? AppColors.lightGreyBackgroundColor,
           borderRadius: BorderRadius.circular(commonTexFieldRadius),
-          borderColor: AppColors.borderDisableColor,
+          borderColor: AppColors.borderColor,
         ),
         child: Row(
           children: [
-            Text(value, style: AppTextStyle.textFiled),
+            Text(value, style:textStyle ?? AppTextStyle.textFiled),
             Spacer(),
             SvgPicture.asset(AppIcons.svg.calendar),
           ],
