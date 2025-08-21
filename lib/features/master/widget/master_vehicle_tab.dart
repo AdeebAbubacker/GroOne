@@ -40,6 +40,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/vehicle_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
@@ -743,7 +744,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
               if (formKey.currentState!.validate()) {
                 final request = VehicleRequest(
                   customerId: profileCubit.userId ?? "",
-                  truckNo: truckNumberController.text.trim(),
+                  truckNo: cleanVehicleNumber(truckNumberController.text.trim()),
                   tonnage: selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
@@ -762,7 +763,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                     vehicleId: vehcile.vehicleId,
                     request: VehicleRequest(
                       customerId: profileCubit.userId ?? "",
-                      truckNo: truckNumberController.text.trim(),
+                      truckNo: cleanVehicleNumber(truckNumberController.text.trim()),
                       tonnage: selectedWeightDropDownValue,
                       truckTypeId: selectedTruckType?.id ?? 1,
                       fcExpiryDate: convertToYMD(fcExpiryDate.toString()) ?? '',
@@ -869,6 +870,7 @@ Widget buildVehicleVerificationFieldWidget({
 
       return AppTextField(
             onChanged: (value) {
+      
       final verificationState = context.read<MastersCubit>().state.vehicleVerification;
       if (verificationState.status == Status.SUCCESS) {
         // Reset verification if user edits
@@ -891,7 +893,8 @@ Widget buildVehicleVerificationFieldWidget({
         inputFormatters: [
           FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
           UpperCaseTextFormatter(),
-          LengthLimitingTextInputFormatter(10),
+          LengthLimitingTextInputFormatter(19),
+           VehicleNumberInputFormatter(),
         ],
 
    
@@ -911,7 +914,7 @@ Widget buildVehicleVerificationFieldWidget({
                           vehicleNoController.text.trim().toUpperCase();
 
                       final validationMessage = Validator.validateVehicleNumber(
-                        vehicleNumber,
+                        cleanVehicleNumber(vehicleNumber),
                         fieldName: "Vehicle reg no",
                       );
 
@@ -922,7 +925,7 @@ Widget buildVehicleVerificationFieldWidget({
 
                       final result = await context
                           .read<MastersCubit>()
-                          .fetchAndVerifyVehicle(vehicleNumber);
+                          .fetchAndVerifyVehicle(cleanVehicleNumber(vehicleNumber),);
 
                       if (result is Success<Map<String, dynamic>>) {
                         ToastMessages.success(
@@ -1391,7 +1394,7 @@ class AddVehicleDialog {
               if (formKey.currentState!.validate()) {
                 final request = VehicleRequest(
                   customerId: context.read<ProfileCubit>().userId ?? "",
-                  truckNo: truckNumberController.text.trim(),
+                  truckNo: cleanVehicleNumber(truckNumberController.text.trim()),
                   tonnage: selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
@@ -1434,4 +1437,9 @@ class AddVehicleDialog {
       ),
     );
   }
+}
+
+// Helper to remove spaces before sending to API
+String cleanVehicleNumber(String input) {
+  return input.replaceAll(' ', '').toUpperCase();
 }
