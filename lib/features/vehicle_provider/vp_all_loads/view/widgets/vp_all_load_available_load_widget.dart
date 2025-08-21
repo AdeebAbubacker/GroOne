@@ -230,7 +230,6 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                           bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
                         } else {
 
-
                           commonBottomSheetWithBGBlur(
                             context: context,
                             screen: KycPendingDialogue(
@@ -250,9 +249,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                         }
                       },
                       isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
-                      title:  isPriceIntoRange ? context.appText.adminContact:
-
-                      context.appText.acceptLoad,
+                      title:  isPriceIntoRange ? context.appText.adminContact: context.appText.acceptLoad,
                     ).expand(),
                   ],
                 );

@@ -140,6 +140,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     setState(() {});
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -278,7 +280,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
         //   icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
         // )
       ],
-    ).paddingAll(commonSafeAreaPadding);
+    ).paddingOnly(left: commonSafeAreaPadding,right: commonSafeAreaPadding, top: commonSafeAreaPadding);
   }
 
 

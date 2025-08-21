@@ -200,13 +200,13 @@ class _buildDriverTabState extends State<buildDriverTab> {
                         name: driver.name,
                         phone: driver.mobile,
                         driverStatus: driver.driverStatus,
-                        onEdit: () async {
-                          mastersCubit.resetLicenseVerification();
-                          await Future.delayed(
-                            const Duration(milliseconds: 50),
-                          );
-                          showAddDriverPopup(context, driver: driver);
-                        },
+                        // onEdit: () async {
+                        //   mastersCubit.resetLicenseVerification();
+                        //   await Future.delayed(
+                        //     const Duration(milliseconds: 50),
+                        //   );
+                        //   showAddDriverPopup(context, driver: driver);
+                        // },
                         onDelete:
                             () => showDeletePopUp(
                               context: context,
@@ -468,29 +468,7 @@ class _buildDriverTabState extends State<buildDriverTab> {
                       });
                     },
                   ),
-
                   16.height,
-                  // UploadAttachmentFiles(
-                  //   multiFilesList: localLicenseDocList,
-                  //   isSingleFile: true,
-                  //   uploadTextField: context.appText.uploadLicense,
-                  //   isLoading: isUploading,
-                  //   thenUploadFileToSever: () async {
-                  //     final result = await _uploadLicenseCopy(
-                  //       context,
-                  //       localLicenseDocList,
-                  //     );
-                  //     if (result is Success) {
-                  //       setState(() {
-                  //         vehicleDocList.clear();
-                  //         vehicleDocList.addAll(localLicenseDocList);
-                  //       });
-                  //     }
-                  //   },
-                  // ),
-
-                  16.height,
-
                   ///License Expiry date
                   InkWell(
                     onTap: () async {

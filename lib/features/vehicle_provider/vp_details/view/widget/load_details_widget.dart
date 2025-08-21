@@ -676,6 +676,11 @@ class LoadDetailsWidget extends StatelessWidget {
           ...[
             if (state.loadStatus == LoadStatus.matching && !isPriceIntoRange)
               AppButton(
+                icon: SvgPicture.asset(
+                  AppIcons.svg.support,
+                  width: 20,
+                  colorFilter: AppColors.svg(AppColors.primaryColor),
+                ),
                 title: context.appText.support,
                 style: AppButtonStyle.outline.copyWith(
                   shape: WidgetStatePropertyAll(
@@ -746,11 +751,12 @@ class LoadDetailsWidget extends StatelessWidget {
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
                     loadDetails?.podDispatch,
+                    isPodSkip: state.iPodSkip??false,
                     isMemoGenerated: loadDetails?.loadMemo!=null && loadDetails?.isAgreed==1
 
                   ),
                   onSubmit: () async {
-                    if (state.loadStatus == LoadStatus.podDispatched && loadDetails?.podDispatch==null) {
+                    if (state.loadStatus == LoadStatus.podDispatched && loadDetails?.podDispatch==null && (state.iPodSkip??false)==false) {
                       await  Navigator.push(
                         context,
                         commonRoute(
@@ -781,17 +787,8 @@ class LoadDetailsWidget extends StatelessWidget {
     String? advanceAmount,
     String? tripCost, List<VpLog>? vpLogs,
   }) {
-    Navigator.push(context, commonRoute(VpPaymentSummary(
+    Navigator.push(context, commonRoute(PaymentSummary(
       vpLogs: vpLogs,
-      advancedPercentage: advancePercentage,
-      advanceAmount: advanceAmount,
-      balancePayout: PriceHelper.formatINR("4000"),
-      isAdvanceCompleted: true,
-      isBalancePending: false,
-      onProceed: () {},
-      paymentMode: "",
-      receivedOn: "",
-      transactionId: "467898765432",
       tripCost: tripCost,
     ),));
   }

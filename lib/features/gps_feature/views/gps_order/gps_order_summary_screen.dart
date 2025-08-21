@@ -211,7 +211,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               ),
             ),
           );
-
+          await Future.delayed(Duration(seconds: 1));
           if (result == true) {
             // final cubit = context.read<GpsOrderCubit>();
             final requestId = gpsOrderCubit.paymentRequestId;
@@ -232,10 +232,51 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         }
 
         if (state is GpsOrderSuccess) {
-          await Future.delayed(Duration(seconds: 1));
-          _showSuccessDialogAndNavigate(
+          await Future.delayed(Duration(milliseconds: 500));
+          AppDialog.show(
             context,
-            context.appText.orderPlacedSuccessfully,
+            child: SuccessDialogView(
+              message: context.appText.orderPlacedSuccessfully,
+              onContinue: () {
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
+                  if (context.mounted) {
+                    try {
+                      // Try multiple navigation approaches
+                      GoRouter.of(context).go(AppRouteName.gps);
+                    } catch (e) {
+                      try {
+                        context.go(AppRouteName.gps);
+                      } catch (fallbackError) {
+                        try {
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            AppRouteName.gps,
+                                (route) => false,
+                          );
+                        } catch (navigatorError) {
+                          try {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => GpsHomeScreen(),
+                              ),
+                                  (route) => false,
+                            );
+                          } catch (pushError) {
+                            // Last resort: Try to navigate to a different route
+                            try {
+                              context.go(AppRouteName.lpBottomNavigationBar);
+                            } catch (lastResortError) {
+                              ToastMessages.error(
+                                message: 'Navigation failed. Please try again.',
+                              );
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                });
+              },
+            ),
           );
         }
 
@@ -745,13 +786,13 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       child: SuccessDialogView(
         message: message,
         onContinue: () {
-          // Close the dialog first
-          Navigator.of(currentContext).pop();
+          // // Close the dialog first
+          // Navigator.of(currentContext).pop();
 
           // Use a post-frame callback to ensure dialog is fully closed
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             // Add a small delay to ensure dialog is fully closed
-            await Future.delayed(Duration(milliseconds: 100));
+            // await Future.delayed(Duration(milliseconds: 100));
 
             if (currentContext.mounted) {
               try {

@@ -206,16 +206,16 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                         name: vehicleDetailsData.truckNo,
                         phone: vehicleDetailsData.companyName ?? '',
                         driverStatus: vehicleDetailsData.status,
-                        onEdit: () async {
-                          mastersCubit.resetVehicleVerification();
-                          await Future.delayed(
-                            const Duration(milliseconds: 50),
-                          );
-                          showAddVehiclePopup(
-                            context,
-                            vehcile: vehicleDetailsData,
-                          );
-                        },
+                        // onEdit: () async {
+                        //   mastersCubit.resetVehicleVerification();
+                        //   await Future.delayed(
+                        //     const Duration(milliseconds: 50),
+                        //   );
+                        //   showAddVehiclePopup(
+                        //     context,
+                        //     vehcile: vehicleDetailsData,
+                        //   );
+                        // },
                         onDelete:
                             () => showDeletePopUp(
                               context: context,

@@ -45,20 +45,18 @@ class _AvailableLoadsFilterScreenState
 
   @override
   void initState() {
-    // TODO: implement initState
     initFunction();
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     disposeFunction();
     super.dispose();
   }
 
   void initFunction() => frameCallback(() {
-    //  Call your init methods
+
   });
 
   void disposeFunction() => frameCallback(() {});

@@ -157,7 +157,7 @@ class UnauthenticatedError extends ErrorType {
 class NetworkTimeoutError extends ErrorType {
   @override
   String getText(BuildContext context) {
-    return context.appText.timeOutError.capitalize;
+    return context.appText.somethingWentWrong.capitalize;
   }
 }
 

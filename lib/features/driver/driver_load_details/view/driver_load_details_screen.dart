@@ -262,9 +262,7 @@ class _DriverLoadsLocationDetailsScreenState
                     ),
                     Text(
                       loadItem.data?.expectedDeliveryDateTime != null
-                          ? DateTimeHelper.getFormattedDate(
-                            loadItem.data!.expectedDeliveryDateTime!,
-                          )
+                          ? 'ETA: ${DateTimeHelper.formatCustomDateIST(loadItem.data!.expectedDeliveryDateTime!)}'
                           : "--",
                       style: AppTextStyle.body4.copyWith(
                         color: AppColors.lightBlackColor,
@@ -300,21 +298,21 @@ class _DriverLoadsLocationDetailsScreenState
       bottom: bottomWidgetMaxHeight + 10,
       child: Column(
         children: [
-          IconButton(
-            onPressed: () {},
-            icon: Container(
-              padding: EdgeInsets.all(4),
-              decoration: commonContainerDecoration(
-                shadow: true,
-                shadowColor: AppColors.secondaryButtonColor,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Icon(
-                Icons.location_searching,
-                color: AppColors.primaryColor,
-              ),
-            ),
-          ),
+          // IconButton(
+          //   onPressed: () {},
+          //   icon: Container(
+          //     padding: EdgeInsets.all(4),
+          //     decoration: commonContainerDecoration(
+          //       shadow: true,
+          //       shadowColor: AppColors.secondaryButtonColor,
+          //       borderRadius: BorderRadius.circular(20),
+          //     ),
+          //     child: Icon(
+          //       Icons.location_searching,
+          //       color: AppColors.primaryColor,
+          //     ),
+          //   ),
+          // ),
           IconButton(
             onPressed: () {
               commonSupportDialog(context);

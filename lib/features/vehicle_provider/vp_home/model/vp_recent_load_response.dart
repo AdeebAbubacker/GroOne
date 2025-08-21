@@ -25,6 +25,7 @@ class VpRecentLoadResponse {
   }
 
   factory VpRecentLoadResponse.fromJson(Map<String, dynamic> json){
+
     return VpRecentLoadResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
@@ -79,6 +80,7 @@ class VpRecentLoadData {
     required this.loadStatusValues,
     required this.driverConsent,
     required this.loadUnHold,
+    required this.podDispatch,
 
   });
 
@@ -133,6 +135,8 @@ class VpRecentLoadData {
 
   final LoadStatusDetailsResponse? loadStatusDetails;
 
+  final PodDispatch? podDispatch;
+
   VpRecentLoadData copyWith({
     String? id,
     String? loadId,
@@ -176,10 +180,12 @@ class VpRecentLoadData {
     LoadStatus? loadStatusValues,
     bool? loadUnHold,
     List<LoadDocument>? loadDocument,
+    PodDispatch? podDispatch
 
 
   }) {
     return VpRecentLoadData(
+      podDispatch: podDispatch??this.podDispatch,
       loadDocument: loadDocument??this.loadDocument,
       loadUnHold: loadUnHold ?? this.loadUnHold,
       driverConsent:  driverConsent??this.driverConsent,
@@ -227,6 +233,9 @@ class VpRecentLoadData {
   }
 
   factory VpRecentLoadData.fromJson(Map<String, dynamic> json){
+
+
+
     /// TODO:
     /// change get loadStatusValues dynamically once ui work has been done
     ///
@@ -274,6 +283,7 @@ class VpRecentLoadData {
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
+      podDispatch: json['podDispatch']!=null ? PodDispatch.fromJson(json['podDispatch']):null
     );
   }
 
