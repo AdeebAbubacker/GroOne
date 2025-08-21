@@ -863,7 +863,7 @@ Widget buildReadOnlyField(
         ),
         child: Row(
           children: [
-            Text(value, style:textStyle ?? AppTextStyle.textFiled),
+            Text(value, style:textStyle),
             Spacer(),
             SvgPicture.asset(AppIcons.svg.calendar),
           ],
