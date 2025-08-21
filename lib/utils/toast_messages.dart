@@ -139,26 +139,4 @@ class ToastMessages{
     flush.show(navigatorKey.currentState!.context);
   }
 
-  static showForceUpdateDialog(BuildContext context, String version) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => AlertDialog(
-        title: const Text("Update Required"),
-        content: Text(
-          "You must update to version $version to continue using the app.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              launchUrl(Uri.parse("https://play.google.com/store/apps/details?id=com.example"));
-            },
-            child: const Text("Update"),
-          ),
-        ],
-      ),
-    );
-  }
-
-
 }

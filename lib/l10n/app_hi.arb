@@ -1183,7 +1183,11 @@
   "insuranceValidityDate": "बीमा वैधता तिथि",
   "pucExpiryDate": "पीयूसी समाप्ति तिथि",
   "registrationDate": "पंजीकरण तिथि",
-  "fcExpiryDate": "एफसी समाप्ति तिथि"
+  "fcExpiryDate": "एफसी समाप्ति तिथि",
+  "updateRequired": "अपडेट आवश्यक",
+  "updateAppText1": "आपको ऐप का उपयोग जारी रखने के लिए संस्करण ",
+  "updateAppText2": " पर अपडेट करना होगा।",
+  "updateAvailableText": "अपडेट उपलब्ध है! कृपया बेहतर अनुभव के लिए अपडेट करें।"
 
 
 }

@@ -12,6 +12,7 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class CommonDialogView extends StatefulWidget {
+  final Widget? messageWidget;
   final String? message;
   final String? heading;
   final Color? headingColor;
@@ -38,6 +39,7 @@ class CommonDialogView extends StatefulWidget {
     this.showYesNoButtonButtons = false,
     this.yesButtonText,
     this.noButtonText,
+    this.messageWidget,
     this.message,
     this.heading,
     this.onTapSingleButton,
@@ -105,7 +107,12 @@ class _CommonDialogViewState extends State<CommonDialogView> {
           10.height,
         ],
 
-        if(widget.message != null)...[
+        if (widget.messageWidget != null) ...[
+          widget.messageWidget ?? Container(),
+          20.height,
+        ] else
+
+          if(widget.message != null)...[
           Text(widget.message!, textAlign: TextAlign.center, style:  widget.messageTextStyle ??  AppTextStyle.bodyGreyColor),
           20.height,
         ],
