@@ -717,10 +717,18 @@ Widget _buildConsigneeDetail({
         text1: context.appText.contactNo,
         text2: phoneNo ?? "",
       ),
-      20.height,
-
+    
       // Email Id
-      _buildDetailWidget(text1: context.appText.emailId, text2: email ?? ""),
+      Visibility(
+         visible: email != null && email.isNotEmpty,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+             20.height,
+            _buildDetailWidget(text1: context.appText.emailId, text2: email ?? ""),
+          ],
+        ),
+      ),
     ],
   ).paddingSymmetric(horizontal: 15);
 }
