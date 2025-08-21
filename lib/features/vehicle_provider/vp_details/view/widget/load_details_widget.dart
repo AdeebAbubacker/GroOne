@@ -1178,6 +1178,7 @@ Widget _submittedSettlementInfoWidget(
     child: Column(
       spacing: 15,
       children: [
+        if(numberOfDays!=0 && amount!=0 )
         InformationView(
           title:
               "${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays ?? 1} ${context.appText.days})",
