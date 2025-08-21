@@ -573,7 +573,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             style: AppButtonStyle.primary,
           ).expand(),
         ],
-      ).paddingOnly(bottom: 30, right: 20, left: 20, top: 15),
+      ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15),
     );
   },
 );
