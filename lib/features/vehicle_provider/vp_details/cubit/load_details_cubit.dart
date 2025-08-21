@@ -60,7 +60,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   void skipPodView({bool? value}){
-    emit(state.copyWith(iPodSkip: value ?? true));
+    emit(state.copyWith(iPodSkip: value??false));
   }
 
   acceptLoad(int? status) {
@@ -105,6 +105,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   Future<void> getLoadDetails(String loadId) async {
     emit(state.copyWith(
+
         loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
@@ -153,18 +154,16 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   Future<void> _handleTrackingBasedOnStatus(LoadDetailModelData? data) async {
-    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data?.loadStatusDetails?.loadStatus);
+    final status = getVPLoadStatusFromString(data?.loadStatusDetails?.loadStatus);
     final route = data?.loadRoute;
     final tracking = data?.trackingDetails;
 
     if (status != null && route != null ) {
       late final TrackingDistanceApiRequest request;
-
       if (status.index <= LoadStatus.assigned.index) {
         // Use pickup & drop coordinates
         final pickup = route.pickUpLatlon.split(',');
         final drop = route.dropLatlon.split(',');
-
         request = TrackingDistanceApiRequest(
           originLat: double.tryParse(pickup.first) ?? 0.0,
           originLong: double.tryParse(pickup.last) ?? 0.0,
@@ -174,6 +173,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           destLong: double.tryParse(drop.last) ?? 0.0,
         );
       } else {
+
         request = TrackingDistanceApiRequest(
           originLat: tracking?.originLat??0,
           originLong: tracking?.originLong??0,
@@ -650,14 +650,17 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
-  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  dynamic memo, LoadStatus? loadStatus}) {
+  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  MemoDetails? memo , LoadStatus? loadStatus,int? isAgreed}) {
     switch(loadStatus){
-
       case LoadStatus.loading:
       return  checkLoadingDocumentAddedOrNot(documentList,true);
 
       case LoadStatus.unloading:
         return checkLoadingDocumentAddedOrNot(documentList,false);
+
+      case LoadStatus.assigned:
+        return memo!=null && isAgreed==1;
+
       default:
         return true;
     }
@@ -715,12 +718,4 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       return false;
     }
   }
-
-
-
-
-
-
-
-
 }

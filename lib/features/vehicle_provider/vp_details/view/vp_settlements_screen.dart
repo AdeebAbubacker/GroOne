@@ -63,20 +63,14 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
 
   void createAndSubmitSettlements(){
-    if(formKey.currentState!.validate()){
-      if(noOfDays.text == '0') {
-        ToastMessages.error(message: context.appText.noOfDaysMustBeAtLeastOne);
-        return;
-      }
-      vpDetailsCubit.submitSettlement(SettlementApiRequest(
-        loadId: widget.loadId??"",
-        amountPerDay:int.tryParse(detentionAmount.text)??0,
-        loadingCharge: int.tryParse(loadingAmount.text)??0,
-        noOfDays:int.tryParse(noOfDays.text)??0,
-        unloadingCharge: int.tryParse(unloadingAmount.text)??0,
-        vehicleId: widget.vehicleID??"",
-      ));
-    }
+    vpDetailsCubit.submitSettlement(SettlementApiRequest(
+      loadId: widget.loadId??"",
+      amountPerDay:int.tryParse(detentionAmount.text)??0,
+      loadingCharge: int.tryParse(loadingAmount.text)??0,
+      noOfDays:int.tryParse(noOfDays.text)??0,
+      unloadingCharge: int.tryParse(unloadingAmount.text)??0,
+      vehicleId: widget.vehicleID??"",
+    ));
   }
 
   void clearValues()=> frameCallback((){
@@ -109,23 +103,14 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
               headingText(text: context.appText.detentions),
 
 
-              AppCountSelector(label: context.appText.noOfDays, controller: noOfDays, isMandatory: true),
+              AppCountSelector(label: context.appText.noOfDays, controller: noOfDays, isMandatory: false),
 
               // Amount
               AppTextField(
-                mandatoryStar: int.tryParse(noOfDays.text) != null && int.tryParse(noOfDays.text)! > 0,
                 controller: detentionAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
-
-                validator: (value) {
-                if (int.tryParse(noOfDays.text) != null && int.tryParse(noOfDays.text)! > 0) {
-                  return Validator.fieldRequired(value, fieldName: context.appText.amount);
-                }
-                return null;
-              },
-
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
                   LengthLimitingTextInputFormatter(8),

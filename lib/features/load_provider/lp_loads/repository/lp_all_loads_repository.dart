@@ -187,7 +187,6 @@ class  LpLoadRepository {
   }
 
   Future<Result<TrackingDistanceResponse>> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
-
     try {
       return service.getTrackingDistance(request: request);
     } catch (e) {
