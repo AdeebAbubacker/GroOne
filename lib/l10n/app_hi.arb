@@ -472,7 +472,6 @@
   "progress": "प्रगति",
   "podDispatchDetail": "पीओडी डिस्पैच विवरण",
   "driverConsentGiven": "ड्राइवर की सहमति दी गई",
-  "noSimTrackingConsentFromDriver": "ड्राइवर से सिम ट्रैकिंग की सहमति नहीं मिली",
   "acceptedPrice": "स्वीकृत मूल्य",
   "loadAcceptedSuccessfully": "लोड सफलतापूर्वक स्वीकार किया गया",
   "loadProvider": "लोड प्रदाता",
@@ -1171,6 +1170,20 @@
   "kavachBenefit7Desc": "सुरक्षित ईंधन = कम तनाव, बेहतर मुनाफ़ा और सुरक्षित संचालन।",
   "indicativePrice": "सांकेतिक मूल्य ",
   "refNo": "संदर्भ संख्या",
-  "postLoadNote": "नोट: दिखाई गई कीमतें सांकेतिक हैं। अंतिम कीमत GRO ग्राहक सहायता टीम के साथ चर्चा के बाद निर्धारित की जाएगी।"
+  "postLoadNote": "नोट: दिखाई गई कीमतें सांकेतिक हैं। अंतिम कीमत GRO ग्राहक सहायता टीम के साथ चर्चा के बाद निर्धारित की जाएगी।",
+  "pleaseVerifyVehicleregNo": "कृपया आगे बढ़ने से पहले वाहन पंजीकरण संख्या की पुष्टि करें",
+  "ownerNameRequired" : "मालिक का नाम आवश्यक है",
+  "fcExpiryDateRequired": "एफसी समाप्ति तिथि आवश्यक है",
+  "registrationDateRequired": "पंजीकरण तिथि आवश्यक है",
+  "pucExpiryDateRequired": "पीयूसी समाप्ति तिथि आवश्यक है",
+  "insuranceValidityDateRequired": "बीमा वैधता तिथि आवश्यक है",
+  "insurancePolicyNumberRequired": "बीमा पॉलिसी नंबर आवश्यक है",
+  "ownerName": "मालिक का नाम",
+  "insurancePolicyNumber": "बीमा पॉलिसी नंबर",
+  "insuranceValidityDate": "बीमा वैधता तिथि",
+  "pucExpiryDate": "पीयूसी समाप्ति तिथि",
+  "registrationDate": "पंजीकरण तिथि",
+  "fcExpiryDate": "एफसी समाप्ति तिथि"
+
 
 }

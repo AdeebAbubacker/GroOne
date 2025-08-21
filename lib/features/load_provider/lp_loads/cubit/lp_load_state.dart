@@ -29,6 +29,7 @@ class LpLoadState extends Equatable {
   final String? downloadingKey;
   final bool? isFeedbackAdded;
   final bool isFieldUpdatble;
+  final  bool isFeedBackUpdatble;
   final Map<String, bool> downloadedFiles;
   final List<String>? allDamageImageList;
 
@@ -66,6 +67,7 @@ class LpLoadState extends Equatable {
     this.allDamageImageList,
     this.loadStatus,
     this.isFieldUpdatble = true,
+    this.isFeedBackUpdatble = false,
   });
 
   LpLoadState copyWith({
@@ -97,6 +99,7 @@ class LpLoadState extends Equatable {
     String? downloadingKey,
     bool? isFeedbackAdded,
     bool isFieldUpdatble = true,
+    bool isFeedBackUpdatble = false,
     Map<String, bool>? downloadedFiles,
     List<String>? allDamageImageList
   }) {
@@ -130,7 +133,8 @@ class LpLoadState extends Equatable {
       downloadedFiles: downloadedFiles ?? this.downloadedFiles,
       allDamageImageList: allDamageImageList ?? this.allDamageImageList,
       loadStatus: loadStatus ?? this.loadStatus,
-      isFieldUpdatble : isFieldUpdatble ?? this.isFieldUpdatble
+      isFieldUpdatble : isFieldUpdatble ?? this.isFieldUpdatble,
+      isFeedBackUpdatble: isFeedBackUpdatble ?? this.isFeedBackUpdatble,
     );
   }
 
@@ -166,5 +170,6 @@ class LpLoadState extends Equatable {
     allDamageImageList,
     loadStatus,
     isFieldUpdatble,
+    isFeedBackUpdatble,
   ];
 }

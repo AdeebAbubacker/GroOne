@@ -4,7 +4,6 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
 import '../../../helpers/map_helper.dart';
@@ -428,12 +427,14 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
       builder: (context, state) {
         if (state is GpsGeofenceAutoCompleteLoaded) {
           final suggestions = state.autoCompleteData.predictions;
-          if (suggestions.isEmpty) return Container();
+          if (suggestions.isEmpty) return const SizedBox.shrink();
           return ConstrainedBox(
-            constraints: BoxConstraints(maxHeight: 200),
+            constraints: const BoxConstraints(maxHeight: 200),
             child: ListView.builder(
               shrinkWrap: true,
               itemCount: suggestions.length,
+              addAutomaticKeepAlives: false,
+              addRepaintBoundaries: true,
               itemBuilder: (context, index) {
                 final item = suggestions[index];
                 return ListTile(
@@ -456,7 +457,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
         if (state is GpsGeofenceLoading) {
           return const Center(child: CircularProgressIndicator());
         }
-        return Container();
+        return const SizedBox.shrink();
       },
     );
   }
@@ -593,7 +594,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                             ),
                           ),
                           AppIconButton(
-                            icon: Icon(Icons.search),
+                            icon: const Icon(Icons.search),
                             onPressed: () {
                               // Implement search functionality
                             },
@@ -622,7 +623,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           _mode == GeofenceMode.addCircle ||
                           _mode == GeofenceMode.editCircle,
                     ),
-                    10.height,
+                    const SizedBox(height: 10),
                     // Button to add a new polygon geofence
                     _buildFloatingButton(
                       Icons.square_outlined,
@@ -633,7 +634,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           _mode == GeofenceMode.addPolygon ||
                           _mode == GeofenceMode.editPolygon,
                     ),
-                    10.height,
+                    const SizedBox(height: 10),
                     // Button to add a new polyline geofence
                     _buildFloatingButton(
                       Icons.timeline, // Using a timeline icon for polyline
@@ -644,7 +645,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           _mode == GeofenceMode.addPolyline ||
                           _mode == GeofenceMode.editPolyline,
                     ),
-                    10.height,
+                    const SizedBox(height: 10),
                     // Button to remove last point (only for polygon/polyline drawing)
                     if ((_mode == GeofenceMode.addPolygon &&
                             _currentPolygonPoints.isNotEmpty) ||
@@ -655,7 +656,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                         _removeLastPoint,
                         color: Colors.white,
                       ),
-                    10.height,
+                    const SizedBox(height: 10),
                     // Edit button - only show if an existing geofence is being viewed, to switch to edit mode
                     if (widget.geofence != null && !isEditMode && !isAddMode)
                       _buildFloatingButton(Icons.edit_outlined, () {
@@ -681,7 +682,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           }
                         });
                       }, color: Colors.blue),
-                    10.height,
+                    const SizedBox(height: 10),
                     _buildFloatingButton(
                       _mapType == MapType.normal ? Icons.satellite : Icons.map,
                       _toggleMapType,
@@ -706,7 +707,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                       BoxShadow(
                         color: Colors.black12,
                         blurRadius: 10,
-                        offset: Offset(0, -2),
+                        offset: const Offset(0, -2),
                       ),
                     ],
                   ),
@@ -770,9 +771,9 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                       else
                         Text(
                           context.appText.selectGeofenceTypeHint,
-                          style: TextStyle(fontStyle: FontStyle.italic),
+                          style: const TextStyle(fontStyle: FontStyle.italic),
                         ),
-                      12.height,
+                      const SizedBox(height: 12),
                       // Geofence Name Input
                       AppTextField(
                         labelText: context.appText.geofenceName,
@@ -783,7 +784,7 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen> {
                           }
                         },
                       ),
-                      16.height,
+                      const SizedBox(height: 16),
                       // Confirm Button (Enable only if a valid shape is drawn)
                       ElevatedButton(
                         onPressed:

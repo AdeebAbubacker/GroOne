@@ -1168,5 +1168,18 @@
   "kavachBenefit7Desc": "பாதுகாப்பான எரிபொருள் = குறைந்த மன அழுத்தம், அதிக லாபம் மற்றும் பாதுகாப்பான செயல்பாடு.",
   "indicativePrice": "தோராயமான விலை",
   "postLoadNote":"குறிப்பு: தரப்பட்டுள்ள விலைகள் தோராயமானவை. இறுதி விலை, GRO வாடிக்கையாளர் ஆதரவு குழுவுடன் கலந்தாலோசித்த பிறகு உறுதிப்படுத்தப்படும்.",
-  "refNo":"குறிப்பு எண்"
+  "refNo":"குறிப்பு எண்",
+  "pleaseVerifyVehicleregNo": "தொடருவதற்கு முன் வாகன பதிவு எண்ணை சரிபார்க்கவும்",
+  "ownerNameRequired" : "உரிமையாளர் பெயர் அவசியம்",
+  "fcExpiryDateRequired": "எஃப்சி காலாவதி தேதி அவசியம்",
+  "registrationDateRequired": "பதிவு தேதி அவசியம்",
+  "pucExpiryDateRequired": "பியூசி காலாவதி தேதி அவசியம்",
+  "insuranceValidityDateRequired": "காப்பீட்டு செல்லுபடியாகும் தேதி அவசியம்",
+  "insurancePolicyNumberRequired": "காப்பீட்டு கொள்கை எண் அவசியம்",
+  "ownerName": "உரிமையாளரின் பெயர்",
+  "insurancePolicyNumber": "காப்பீட்டு கொள்கை எண்",
+  "insuranceValidityDate": "காப்பீட்டு செல்லுபடியாகும் தேதி",
+  "pucExpiryDate": "பியூசி காலாவதி தேதி",
+  "registrationDate": "பதிவு தேதி",
+  "fcExpiryDate": "எஃப்சி காலாவதி தேதி"
 }

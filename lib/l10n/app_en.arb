@@ -1017,7 +1017,7 @@
   "multipleSharingFailed": "Multiple sharing failed",
   "noLocationToShare": "No location data available to share",
   "noTicketsFound": "No Tickets Found",
-  "othersDocument":"Others Document",
+  "othersDocument":"Others Document's",
   "viewTripStatement":"View Trip Statement",
   "totalTransportationCost":"Total transportation cost",
   "noFAQFound":"No FAQ Found",
@@ -1152,6 +1152,7 @@
   "swipeToCompleteTrip" : "Swipe to complete trip",
   "swipeToUnload" : "Swipe to unload",
   "startTrip" : "Start Trip",
+  "noSimTrackingConsentFromDriver" : "No SIM tracking consent from driver",
   "fuelCardEn" : "Fuel Card",
   "fuelSecurityDevice" : "Fuel Security Device",
   "fastagBenefitsTitle": "Why Choose FASTag?",
@@ -1211,6 +1212,20 @@
   "kavachBenefit7Desc": "Secure fuel = less stress, better margins, and safer operations.",
   "refNo":"Ref No",
   "indicativePrice":"Indicative Price",
-  "postLoadNote":"Note: Prices shown are indicative. Final pricing will be confirmed after discussion with the GRO customer support team."
+  "postLoadNote":"Note: Prices shown are indicative. Final pricing will be confirmed after discussion with the GRO customer support team.",
+  "pleaseVerifyVehicleregNo": "Please verify the Vehcile Reg No before proceeding",
+  "ownerNameRequired" : "Owner Name is required",
+  "fcExpiryDateRequired": "FC Expiry Date is required",
+  "registrationDateRequired": "Registration Date is required",
+  "pucExpiryDateRequired": "PUC Expiry Date is required",
+  "insuranceValidityDateRequired": "Insurance Validity Date is required",
+  "insurancePolicyNumberRequired": "Insurance Policy Number is required",
+  "ownerName": "Owner Name",
+  "insurancePolicyNumber": "Insurance Policy Number",
+  "insuranceValidityDate": "Insurance Validity Date",
+  "pucExpiryDate": "PUC Expiry Date",
+  "registrationDate": "Registration Date",
+  "fcExpiryDate": "FC Expiry Date"
+  
 
 }

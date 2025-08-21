@@ -1,3 +1,89 @@
+class DriverListDataDetails {
+    DriverListDataDetails({
+        required this.data,
+        required this.total,
+        required this.pageMeta,
+    });
+
+    final List<DriverLoadDetails> data;
+    final int total;
+    final PageMeta? pageMeta;
+
+    DriverListDataDetails copyWith({
+        List<DriverLoadDetails>? data,
+        int? total,
+        PageMeta? pageMeta,
+    }) {
+        return DriverListDataDetails(
+            data: data ?? this.data,
+            total: total ?? this.total,
+            pageMeta: pageMeta ?? this.pageMeta,
+        );
+    }
+
+    factory DriverListDataDetails.fromJson(Map<String, dynamic> json){ 
+        return DriverListDataDetails(
+            data: json["data"] == null ? [] : List<DriverLoadDetails>.from(json["data"]!.map((x) => DriverLoadDetails.fromJson(x))),
+            total: json["total"] ?? 0,
+            pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+        );
+    }
+
+}
+
+
+class PageMeta {
+    PageMeta({
+        required this.page,
+        required this.pageCount,
+        required this.nextPage,
+        required this.pageSize,
+        required this.total,
+    });
+
+    final int page;
+    final int pageCount;
+    final dynamic nextPage;
+    final int pageSize;
+    final int total;
+
+    PageMeta copyWith({
+        int? page,
+        int? pageCount,
+        dynamic? nextPage,
+        int? pageSize,
+        int? total,
+    }) {
+        return PageMeta(
+            page: page ?? this.page,
+            pageCount: pageCount ?? this.pageCount,
+            nextPage: nextPage ?? this.nextPage,
+            pageSize: pageSize ?? this.pageSize,
+            total: total ?? this.total,
+        );
+    }
+
+    factory PageMeta.fromJson(Map<String, dynamic> json){ 
+       int parseInt(dynamic value) {
+    if (value == null) return 0;
+    if (value is int) return value;
+    if (value is String) return int.tryParse(value) ?? 0;
+    return 0;
+  }
+    return PageMeta(
+    page: parseInt(json["page"]),
+    pageCount: parseInt(json["pageCount"]),
+    nextPage: json["nextPage"],
+    pageSize: parseInt(json["pageSize"]),
+    total: parseInt(json["total"]),
+        );
+    }
+
+}
+
+
+
+
 class LoadApproval {
     LoadApproval({
         required this.id,

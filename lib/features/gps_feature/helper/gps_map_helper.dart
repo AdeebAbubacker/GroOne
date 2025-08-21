@@ -22,6 +22,9 @@ class GpsMapHelper {
   static const double _defaultZoomWide = 4.0;
   static const double _defaultZoomClose = 12.0;
 
+  // Cache for bitmap descriptors to avoid recreating them
+  static final Map<String, BitmapDescriptor> _bitmapCache = {};
+
   /// Creates a GoogleMap widget with common configurations
   static Widget createGpsMap({
     required CameraPosition initialCameraPosition,
@@ -176,7 +179,7 @@ class GpsMapHelper {
         targetWidth: 32,
       );
     } catch (e) {
-      print('Failed to load red car icon in helper: $e');
+      debugPrint('Failed to load red car icon in helper: $e');
       // Fallback to default yellow marker if custom icon fails to load
       vehicleIcon = BitmapDescriptor.defaultMarkerWithHue(
         BitmapDescriptor.hueYellow,
