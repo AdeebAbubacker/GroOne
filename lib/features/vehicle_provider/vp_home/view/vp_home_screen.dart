@@ -127,6 +127,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    void blueMembershipDialog(BuildContext context, String blueId, parameters)=> frameCallback(() {
      AppDialog.show(
        context,
+       dismissible: true,
        child: CommonDialogView(
          hideCloseButton: true,
          child: BlueMembershipDialogView(
