@@ -133,18 +133,22 @@ class Validator {
   }
 
   static String? validateVehicleNumber(String? value, {required String fieldName}) {
-    if (value == null || value.trim().isEmpty) {
-      return '$fieldName ${appContext.appText.isRequired}';
-    }
-
-    // Indian vehicle number pattern (no spaces, no hyphens)
-    final regex = RegExp(r'^[A-Z]{2}[ -]?[0-9]{2}[ -]?[A-Z]{1,2}[ -]?[0-9]{4}$', caseSensitive: false);
-
-    if (!regex.hasMatch(value.trim().toUpperCase())) {
-      return '$fieldName is invalid';
-    }
-    return null;
+  if (value == null || value.trim().isEmpty) {
+    return '$fieldName ${appContext.appText.isRequired}';
   }
+
+  // Remove spaces before validating
+  final cleaned = value.replaceAll(' ', '').toUpperCase();
+
+  // Indian vehicle number pattern (no spaces, strict alphanumeric)
+  final regex = RegExp(r'^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$');
+
+  if (!regex.hasMatch(cleaned)) {
+    return '$fieldName is invalid';
+  }
+  return null;
+}
+
 
   static String? rcBookNumberValidator(String? value, {required String fieldName}) {
     if (value == null || value.trim().isEmpty) {
