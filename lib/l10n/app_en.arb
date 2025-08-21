@@ -1213,6 +1213,20 @@
   "kavachBenefit7Desc": "Secure fuel = less stress, better margins, and safer operations.",
   "refNo":"Ref No",
   "indicativePrice":"Indicative Price",
-  "postLoadNote":"Note: Prices shown are indicative. Final pricing will be confirmed after discussion with the GRO customer support team."
+  "postLoadNote":"Note: Prices shown are indicative. Final pricing will be confirmed after discussion with the GRO customer support team.",
+  "pleaseVerifyVehicleregNo": "Please verify the Vehcile Reg No before proceeding",
+  "ownerNameRequired" : "Owner Name is required",
+  "fcExpiryDateRequired": "FC Expiry Date is required",
+  "registrationDateRequired": "Registration Date is required",
+  "pucExpiryDateRequired": "PUC Expiry Date is required",
+  "insuranceValidityDateRequired": "Insurance Validity Date is required",
+  "insurancePolicyNumberRequired": "Insurance Policy Number is required",
+  "ownerName": "Owner Name",
+  "insurancePolicyNumber": "Insurance Policy Number",
+  "insuranceValidityDate": "Insurance Validity Date",
+  "pucExpiryDate": "PUC Expiry Date",
+  "registrationDate": "Registration Date",
+  "fcExpiryDate": "FC Expiry Date"
+  
 
 }

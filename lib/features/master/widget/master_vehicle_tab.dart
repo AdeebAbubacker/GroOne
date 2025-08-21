@@ -431,8 +431,8 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                     AppTextField(
                       validator: (value) => Validator.fieldRequired(value),
                       controller: owenerNameController,
-                      labelText: "Owner Name",
-                      hintText: "Owner Name",
+                      labelText: context.appText.ownerName,
+                      hintText: context.appText.ownerName,
                       mandatoryStar: true,
                     ),
                     16.height,
@@ -458,12 +458,15 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                         }
                       },
                       child: buildReadOnlyField(
-                        "Registartion Date",
+                        context.appText.registrationDate,
                         (registrationDate?.isEmpty ?? true)
                             ? 'Registartion Date'
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        textStyle: (registrationDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                       ),
                     ),
 
@@ -509,7 +512,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                         );
 
                         return SearchableDropdown(
-                          hintText: context.appText.truckType,
+                          hintText: context.appText.selectTruckType,
                           items: truckTypeLabels,
                           selectedItem:
                               selectedTruckType == null
@@ -536,7 +539,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                         );
 
                         return SearchableDropdown(
-                          hintText: context.appText.capacity,
+                          hintText: '${context.appText.select} ${context.appText.capacity}',
                           items: weightLabels,
                           selectedItem: selectedWeightDropDownValue,
                           onChanged: (value) {
@@ -551,8 +554,8 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                     AppTextField(
                       validator: (value) => Validator.fieldRequired(value),
                       controller: insurancePolicyNumber,
-                      labelText: "Insurance Policy Number",
-                      hintText: "Insurance Policy Number",
+                      labelText: context.appText.insurancePolicyNumber,
+                      hintText: context.appText.insurancePolicyNumber,
                       mandatoryStar: true,
                     ),
                     16.height,
@@ -578,12 +581,15 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                         }
                       },
                       child: buildReadOnlyField(
-                        "Insurance Validity Date",
+                        context.appText.insuranceValidityDate,
                         (insuranceValidityDate?.isEmpty ?? true)
                             ? 'Insurance Validity Date'
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        textStyle: (insuranceValidityDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                       ),
                     ),
                     16.height,
@@ -626,10 +632,13 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                             }
                           },
                           child: buildReadOnlyField(
-                            "FC Expiry Date",
+                            context.appText.fcExpiryDate,
                             fcExpiryDate ?? 'FC Expiry Date',
                             fillColor: Colors.white,
                             mandatoryStar: true,
+                             textStyle: (fcExpiryDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                           ),
                         );
                       },
@@ -658,12 +667,15 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                         }
                       },
                       child: buildReadOnlyField(
-                        "PUC Expiry Date",
+                        context.appText.pucExpiryDate,
                         (pucExpiryDate?.isEmpty ?? true)
                             ? 'PUC Expiry Date'
                             : pucExpiryDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        textStyle: (pucExpiryDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                       ),
                     ),
 
@@ -706,38 +718,38 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
               }
               if (!isVehicleVerified) {
                 ToastMessages.alert(
-                  message: "Please verify the Vehcile Reg No before proceeding",
+                  message: context.appText.pleaseVerifyVehicleregNo,
                 );
                 return;
               }
               if (owenerNameController.text == null ||
                   owenerNameController!.text.isEmpty) {
-                ToastMessages.alert(message: "Owner Name is required");
+                ToastMessages.alert(message:  context.appText.ownerNameRequired,);
                 return;
               }
               if (fcExpiryDate == null || fcExpiryDate!.isEmpty) {
-                ToastMessages.alert(message: "FC Expiry Date is required");
+                ToastMessages.alert(message: context.appText.fcExpiryDateRequired);
                 return;
               }
               if (registrationDate == null || registrationDate!.isEmpty) {
-                ToastMessages.alert(message: "Registration Date is required");
+                ToastMessages.alert(message: context.appText.registrationDateRequired);
                 return;
               }
               if (pucExpiryDate == null || pucExpiryDate!.isEmpty) {
-                ToastMessages.alert(message: "PUC Expiry Date is required");
+                ToastMessages.alert(message: context.appText.pucExpiryDateRequired);
                 return;
               }
               if (insuranceValidityDate == null ||
                   insuranceValidityDate!.isEmpty) {
                 ToastMessages.alert(
-                  message: "Insurance Validity Date is required",
+                  message: context.appText.insuranceValidityDateRequired,
                 );
                 return;
               }
               if (insurancePolicyNumber.text == null ||
                   insurancePolicyNumber!.text.isEmpty) {
                 ToastMessages.alert(
-                  message: "Insurance Policy Number is required",
+                  message: context.appText.insurancePolicyNumberRequired,
                 );
                 return;
               }
@@ -1089,8 +1101,8 @@ class AddVehicleDialog {
                     AppTextField(
                       validator: (value) => Validator.fieldRequired(value),
                       controller: owenerNameController,
-                      labelText: "Owner Name",
-                      hintText: "Owner Name",
+                      labelText: context.appText.ownerName,
+                      hintText: context.appText.ownerName,
                       mandatoryStar: true,
                     ),
                     16.height,
@@ -1116,12 +1128,15 @@ class AddVehicleDialog {
                         }
                       },
                       child: buildReadOnlyField(
-                        "Registartion Date",
+                         context.appText.registrationDate,
                         (registrationDate?.isEmpty ?? true)
                             ? 'Registartion Date'
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        textStyle: (registrationDate ?? "").isEmpty
+                            ? AppTextStyle.textFieldHint
+                            : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                       ),
                     ),
 
@@ -1209,8 +1224,8 @@ class AddVehicleDialog {
                     AppTextField(
                       validator: (value) => Validator.fieldRequired(value),
                       controller: insurancePolicyNumber,
-                      labelText: "Insurance Policy Number",
-                      hintText: "Insurance Policy Number",
+                      labelText: context.appText.insurancePolicyNumber,
+                      hintText: context.appText.insurancePolicyNumber,
                       mandatoryStar: true,
                     ),
                     16.height,
@@ -1236,11 +1251,14 @@ class AddVehicleDialog {
                         }
                       },
                       child: buildReadOnlyField(
-                        "Insurance Validity Date",
+                        context.appText.insuranceValidityDate,
                         (insuranceValidityDate?.isEmpty ?? true)
                             ? 'Insurance Validity Date'
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
+                        textStyle: (insuranceValidityDate ?? "").isEmpty
+                            ? AppTextStyle.textFieldHint
+                            : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                         mandatoryStar: true,
                       ),
                     ),
@@ -1284,9 +1302,12 @@ class AddVehicleDialog {
                             }
                           },
                           child: buildReadOnlyField(
-                            "FC Expiry Date",
+                           context.appText.fcExpiryDate,
                             fcExpiryDate ?? 'FC Expiry Date',
                             fillColor: Colors.white,
+                            textStyle: (fcExpiryDate ?? "").isEmpty
+                            ? AppTextStyle.textFieldHint
+                            : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                             mandatoryStar: true,
                           ),
                         );
@@ -1316,11 +1337,14 @@ class AddVehicleDialog {
                         }
                       },
                       child: buildReadOnlyField(
-                        "PUC Expiry Date",
+                        context.appText.pucExpiryDate,
                         (pucExpiryDate?.isEmpty ?? true)
                             ? 'PUC Expiry Date'
                             : pucExpiryDate!,
                         fillColor: Colors.white,
+                        textStyle: (pucExpiryDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                         mandatoryStar: true,
                       ),
                     ),
@@ -1356,38 +1380,38 @@ class AddVehicleDialog {
               }
               if (!isVehicleVerified) {
                 ToastMessages.alert(
-                  message: "Please verify the Vehcile Reg No before proceeding",
+                  message: context.appText.pleaseVerifyVehicleregNo,
                 );
                 return;
               }
               if (owenerNameController.text == null ||
                   owenerNameController!.text.isEmpty) {
-                ToastMessages.alert(message: "Owner Name is required");
+                ToastMessages.alert(message: context.appText.ownerNameRequired);
                 return;
               }
               if (fcExpiryDate == null || fcExpiryDate!.isEmpty) {
-                ToastMessages.alert(message: "FC Expiry Date is required");
+                ToastMessages.alert(message: context.appText.fcExpiryDateRequired);
                 return;
               }
               if (registrationDate == null || registrationDate!.isEmpty) {
-                ToastMessages.alert(message: "Registration Date is required");
+                ToastMessages.alert(message: context.appText.registrationDateRequired);
                 return;
               }
               if (pucExpiryDate == null || pucExpiryDate!.isEmpty) {
-                ToastMessages.alert(message: "PUC Expiry Date is required");
+                ToastMessages.alert(message: context.appText.pucExpiryDateRequired);
                 return;
               }
               if (insuranceValidityDate == null ||
                   insuranceValidityDate!.isEmpty) {
                 ToastMessages.alert(
-                  message: "Insurance Validity Date is required",
+                  message: context.appText.insuranceValidityDateRequired,
                 );
                 return;
               }
               if (insurancePolicyNumber.text == null ||
                   insurancePolicyNumber!.text.isEmpty) {
                 ToastMessages.alert(
-                  message: "Insurance Policy Number is required",
+                  message: context.appText.insurancePolicyNumberRequired,
                 );
                 return;
               }
