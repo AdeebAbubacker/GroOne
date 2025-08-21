@@ -143,13 +143,13 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   void initFunction() => frameCallback(() async {
     await splashViewModel.checkAppUpdate();
 
-    final updateState = splashViewModel.appUpdateUIState; // read state
+    final updateState = splashViewModel.appUpdateUIState;
     if (updateState != null && updateState.status == Status.SUCCESS) {
       final updateType = parseUpdateType(updateState.data!);
 
       if (updateType == AppUpdateType.force && mounted) {
         ToastMessages.updateAvailable(
-          message: "Update available! Please update for the best experience.",
+          message: context.appText.updateAvailableText,
         );
       }
     }

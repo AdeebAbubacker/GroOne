@@ -6,14 +6,19 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/splash/model/app_update_response.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 enum AppUpdateType { none, soft, force }
 
@@ -84,7 +89,28 @@ class _SplashScreenState extends State<SplashScreen> {
       final update = updateState.data!;
       if (update.updateRequired && update.isForce) {
         if (!context.mounted) return;
-        ToastMessages.showForceUpdateDialog(context, update.version);
+        AppDialog.show(context,dismissible: true, child: CommonDialogView(
+          heading: context.appText.updateRequired,
+          hideCloseButton: true,
+            messageWidget: Text.rich(
+              TextSpan(
+                text: context.appText.updateAppText1,
+                style: AppTextStyle.h5,
+                children: [
+                  TextSpan(
+                    text: update.version,
+                    style: AppTextStyle.h4,
+                  ),
+                  TextSpan(text: context.appText.updateAppText2, style: AppTextStyle.h5),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          onTapSingleButton: () {
+            launchUrl(Uri.parse("https://play.google.com/store/apps/details?id=com.example"));
+          },
+          onSingleButtonText: context.appText.update,
+        ));
         return;
       }
     }

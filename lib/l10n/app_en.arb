@@ -1225,7 +1225,11 @@
   "insuranceValidityDate": "Insurance Validity Date",
   "pucExpiryDate": "PUC Expiry Date",
   "registrationDate": "Registration Date",
-  "fcExpiryDate": "FC Expiry Date"
-  
+  "fcExpiryDate": "FC Expiry Date",
+  "updateRequired": "Update Required",
+  "updateAppText1": "You must update to version ",
+  "updateAppText2": " to continue using the app.",
+  "updateAvailableText": "Update available! Please update for the best experience."
+
 
 }
