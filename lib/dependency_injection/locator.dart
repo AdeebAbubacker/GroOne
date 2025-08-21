@@ -168,7 +168,7 @@ void initLocator() {
 
     // Service
     locator.registerLazySingleton(
-      () => SplashService(locator<SecuredSharedPreferences>()),
+      () => SplashService(locator<SecuredSharedPreferences>(), locator<ApiService>()),
     );
     locator.registerLazySingleton(() => NotificationService());
     locator.registerLazySingleton(() => LocationService());

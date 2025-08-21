@@ -342,7 +342,11 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
       return null;
     }
   }
-
+  
+    void skipPodView({bool? value}){
+    emit(state.copyWith(iPodSkip: value ?? true));
+  }
+  
   Future<LoadDocument?> saveDocument(
     CreateDocumentResponse createDocumentResponse,
     String loadId,

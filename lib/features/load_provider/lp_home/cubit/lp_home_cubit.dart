@@ -121,10 +121,9 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   void _setRecentUIState(UIState<RecentRoutesModel>? uiState){
     emit(state.copyWith(recentRouteState: uiState));
   }
-  Future<void> fetchRecentRoute() async {
-    _setRecentUIState(UIState.loading());
-    emit(state.copyWith(recentRouteState: UIState.loading()));
-    dynamic result = await _repo.getRecentRouteData();
+  Future<void> fetchRecentRoute({bool isLoading = true,String search = ''}) async {
+   if(isLoading)  _setRecentUIState(UIState.loading());
+    dynamic result = await _repo.getRecentRouteData(search);
     if (result is Success<RecentRoutesModel>) {
       _setRecentUIState(UIState.success(result.value));
     }

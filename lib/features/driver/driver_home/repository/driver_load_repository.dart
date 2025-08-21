@@ -12,12 +12,13 @@ class DriverLoadRepository {
 
   DriverLoadRepository(this.service, this.userRepo);
 
-  Future<Result<List<DriverLoadDetails>>> fetchDriverLoads({
+  Future<Result<DriverListDataDetails>> fetchDriverLoads({
     int? loadStatus,
     int? laneId,
     String search = "",
     int? truckTypeId,
     int? commodityTypeId,
+    int? page, int? limit,
     bool forceRefresh = false
   }) async {
     try{
@@ -26,9 +27,10 @@ class DriverLoadRepository {
       driverId: customerId,
       status: loadStatus ?? 3, 
       search: search,
-      laneId: laneId,
       truckTypeId: truckTypeId,
-      commodityTypeId: commodityTypeId, 
+      commodityTypeId: commodityTypeId,
+      page: page ?? 1,
+      limit: limit ?? 20, 
       forceRefresh: forceRefresh)
       ;
  

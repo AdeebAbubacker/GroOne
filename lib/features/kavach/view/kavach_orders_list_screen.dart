@@ -319,54 +319,32 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     );
   }
   Widget buildKavachBenefitsDetailsWidget(BuildContext context) {
-    Widget innerUIWidget({
-      required String icon,
-      required String title,
-      required String subTitle,
-    }) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Icon
-          Container(
-            decoration: commonContainerDecoration(
-              color: AppColors.lightPrimaryColor,
-              borderRadius: BorderRadius.circular(100),
-              borderColor: AppColors.primaryColor,
-            ),
-            child: Image.asset(icon, width: 25).paddingAll(15),
-          ),
-          15.width,
-
-          // Heading or SubHeading
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTextStyle.h5),
-              5.height,
-              Text(subTitle, style: AppTextStyle.body3),
-            ],
-          ).expand(),
-        ],
+    Widget benefitItem(String title, String subtitle) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyle.h5),
+            5.height,
+            Text(subtitle, style: AppTextStyle.body3.copyWith(color: AppColors.textGreyColor)),
+          ],
+        ),
       );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.benefitsofTankLock, style: AppTextStyle.body1),
+        Text(context.appText.benefitsOfKavach, style: AppTextStyle.body1),
         20.height,
-        innerUIWidget(
-          icon: AppIcons.png.lockAndKey,
-          title: context.appText.benefitsOfKavachHeading1,
-          subTitle: context.appText.benefitsOfKavachSubHeading1,
-        ),
-        20.height,
-        innerUIWidget(
-          icon: AppIcons.png.insightGraph,
-          title: context.appText.benefitsOfKavachHeading2,
-          subTitle: context.appText.benefitsOfKavachSubHeading2,
-        ),
+        benefitItem(context.appText.kavachBenefit1Title, context.appText.kavachBenefit1Desc),
+        benefitItem(context.appText.kavachBenefit2Title, context.appText.kavachBenefit2Desc),
+        benefitItem(context.appText.kavachBenefit3Title, context.appText.kavachBenefit3Desc),
+        benefitItem(context.appText.kavachBenefit4Title, context.appText.kavachBenefit4Desc),
+        benefitItem(context.appText.kavachBenefit5Title, context.appText.kavachBenefit5Desc),
+        benefitItem(context.appText.kavachBenefit6Title, context.appText.kavachBenefit6Desc),
+        benefitItem(context.appText.kavachBenefit7Title, context.appText.kavachBenefit7Desc),
       ],
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);
   }

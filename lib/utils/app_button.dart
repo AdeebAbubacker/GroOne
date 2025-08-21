@@ -16,35 +16,62 @@ class AppButton extends StatelessWidget {
 
 
   const AppButton({super.key,
+  final Widget? icon;
+
+  const AppButton({
+    super.key,
     this.title,
     this.textStyle,
     this.style,
     this.buttonHeight,
     this.richTextWidget,
+    this.icon,
     this.isLoading = false,
     required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-
-
     return SizedBox(
       height: buttonHeight,
       child: ElevatedButton(
-        onPressed: isLoading == true ? (){} : (){
+        onPressed: isLoading == true
+            ? () {}
+            : () {
           commonHapticFeedback();
           if(onPressed!=null){
             onPressed?.call();
           }
 
         },
-        style: isLoading == true ? AppButtonStyle.disableButton : (style ?? AppButtonStyle.primary),
+        style: isLoading == true
+            ? AppButtonStyle.disableButton
+            : (style ?? AppButtonStyle.primary),
         child: isLoading == true
-            ?  CupertinoActivityIndicator(color: Colors.white)
-            : richTextWidget ?? Text(title ?? "", textAlign: TextAlign.center, maxLines: 1, overflow: TextOverflow.ellipsis,
-          style: textStyle ?? (style == AppButtonStyle.outline ? AppTextStyle.buttonPrimaryColorTextColor : AppTextStyle.buttonWhiteTextColor),
-        ),
+            ? const CupertinoActivityIndicator(color: Colors.white)
+            : richTextWidget ??
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                if (icon != null) ...[
+                  icon!,
+                  const SizedBox(width: 8),
+                ],
+                Flexible(
+                  child: Text(
+                    title ?? "",
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: textStyle ??
+                        (style == AppButtonStyle.outline
+                            ? AppTextStyle.buttonPrimaryColorTextColor
+                            : AppTextStyle.buttonWhiteTextColor),
+                  ),
+                ),
+              ],
+            ),
       ),
     );
   }

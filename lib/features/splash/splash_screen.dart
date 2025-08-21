@@ -4,6 +4,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/features/splash/model/app_update_response.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_json.dart';
@@ -14,6 +15,14 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
 
+enum AppUpdateType { none, soft, force }
+
+AppUpdateType parseUpdateType(AppUpdateResponse resp) {
+  if (resp.updateRequired) {
+    return resp.isForce ? AppUpdateType.force : AppUpdateType.soft;
+  }
+  return AppUpdateType.none;
+}
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -67,6 +76,18 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> init(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 4));
+
+    await splashViewModel.checkAppUpdate();
+
+    final updateState = splashViewModel.appUpdateUIState;
+    if (updateState != null && updateState.status == Status.SUCCESS) {
+      final update = updateState.data!;
+      if (update.updateRequired && update.isForce) {
+        if (!context.mounted) return;
+        ToastMessages.showForceUpdateDialog(context, update.version);
+        return;
+      }
+    }
 
     final prefs = locator<SecuredSharedPreferences>();
     final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);

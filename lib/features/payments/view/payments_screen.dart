@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -39,6 +41,21 @@ class PaymentsScreenView extends StatefulWidget {
 class _PaymentsScreenViewState extends State<PaymentsScreenView> {
   late final WebViewController _controller;
   final paymentCubit = locator<PaymentCubit>();
+  Timer? _redirectTimer;
+  bool _hasPopped = false;
+
+  void _safePop() {
+    if (!_hasPopped && mounted) {
+      _hasPopped = true;
+      Navigator.pop(context, true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _redirectTimer?.cancel(); // ✅ cancel to avoid firing after dispose
+    super.dispose();
+  }
 
   @override
   void initState() {
@@ -58,7 +75,9 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
     if (url.contains('/BankRespReceive')) paymentCubit.setPaymentLoading(false);
     if (url.contains('/redirect')) {
       paymentCubit.setTransactionCompleted(true);
-      Future.delayed(const Duration(seconds: 6), () => Navigator.pop(context, true));
+      _redirectTimer = Timer(const Duration(seconds: 4), () {
+        _safePop(); // 👈 USE SAFE POP
+      });
     }
   }
 
@@ -98,7 +117,8 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
     if (state.paymentStarted && !state.transactionCompleted) {
       return await _showExitDialog();
     }
-    return true;
+    _safePop(); // 👈 USE SAFE POP
+    return false; // prevent extra pops
   }
 
   @override

@@ -6,11 +6,13 @@ import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/lp_payment_helper.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -88,8 +90,8 @@ class PaymentWidget extends StatelessWidget {
           8.height,
 
           /// balance
-          if (isAdvancePaid)
-            _buildPaymentRow(
+            if (isAdvancePaid && paymentBalanceDue != '0.00')
+              _buildPaymentRow(
               title: isBalancePaid ? context.appText.balancePaid : context.appText.payableBalance,
               amount: balanceDueToShow,
               context: context,
@@ -100,8 +102,8 @@ class PaymentWidget extends StatelessWidget {
           12.height,
 
 
-          if(!isBalancePaid)
-          // Action Button
+          if(!isBalancePaid && paymentBalanceDue != '0.00')
+            // Action Button
             AppButton(
                 title: context.appText.payAdvance,
                 onPressed: () async {
@@ -208,7 +210,38 @@ class PaymentWidget extends StatelessWidget {
                   ],
                 )
 
-            )
+            ),
+
+          if(paymentData?.lpLogs.isNotEmpty ?? false)
+          ...[
+            10.height,
+            GestureDetector(
+              onTap: () {
+                Navigator.push(context, commonRoute(PaymentSummary(
+                  vpLogs: loadItem.lpPaymentsData?.lpLogs ?? [],
+                  tripCost: PriceHelper.formatINR(agreedPriceToShow),
+                ),));
+              },
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'View Transaction Details',
+                    style: AppTextStyle.body.copyWith(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w400,
+                      color: AppColors.primaryColor,
+                    ),
+                  ),
+                  const Icon(
+                    Icons.chevron_right,
+                    size: 22,
+                    color: AppColors.primaryColor,
+                  ),
+                ],
+              ),
+            ),
+          ]
         ],
       ),
     );

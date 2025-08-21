@@ -116,10 +116,13 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(title: context.appText.recentRoutesTitle, isCrossLeadingIcon: true, scrolledUnderElevation: 0.0),
-      body: _buildBodyWidget(context),
-      bottomNavigationBar: _buildSelectButton(context),
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: CommonAppBar(title: context.appText.recentRoutesTitle, isCrossLeadingIcon: true, scrolledUnderElevation: 0.0),
+        body: _buildBodyWidget(context),
+        bottomNavigationBar: _buildSelectButton(context),
+      ),
     );
   }
 
@@ -132,7 +135,16 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   }
 
   Widget _buildSearchBarWidget(){
-    return AppSearchBar(searchController: searchController);
+    return AppSearchBar(
+        searchController: searchController,
+      onChanged: (val) {
+        lpHomeCubit.fetchRecentRoute(isLoading: false,search: searchController.text);
+      },
+      onClear: () {
+          searchController.clear();
+        lpHomeCubit.fetchRecentRoute(isLoading: false);
+      },
+    );
   }
 
 
@@ -146,30 +158,34 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
             case Status.LOADING :
               return CircularProgressIndicator().center();
             case Status.SUCCESS :
-              if(state.recentRouteUIState?.data != null){
-                if(state.recentRouteUIState!.data!.data.isNotEmpty){
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      10.height,
+              if (state.recentRouteUIState?.data != null) {
+                final routes = state.recentRouteUIState!.data!.data.data ?? [];
 
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    10.height,
+                    _buildSearchBarWidget(), // 🔍 Always show search bar
+                    20.height,
+
+                    if (routes.isNotEmpty)
                       ListView.separated(
                         shrinkWrap: true,
                         padding: EdgeInsets.only(bottom: 100),
-                        itemCount: state.recentRouteUIState!.data!.data.length,
-                        separatorBuilder: (BuildContext context, int index) => 20.height,
+                        itemCount: routes.length,
+                        separatorBuilder: (context, index) => 20.height,
                         itemBuilder: (context, index) {
+                          final route = routes[index];
                           return GestureDetector(
-                            onTap: ()=> updateSelectedRouteState(index, state.recentRouteUIState!.data!.data[index]),
-                            child: _buildListBody(index: index, data: state.recentRouteUIState!.data!.data[index]),
+                            onTap: () => updateSelectedRouteState(index, route),
+                            child: _buildListBody(index: index, data: route),
                           );
                         },
-                      ).expand(),
-                    ],
-                  );
-                } else {
-                  return genericErrorWidget(error: NotFoundError(), onRefresh: ()=> initFunction());
-                }
+                      ).expand()
+                    else
+                      genericErrorWidget(error: NotFoundError()).expand(),
+                  ],
+                );
               } else {
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
@@ -275,7 +291,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
          }
         ).expand(),
       ],
-    ).bottomNavigationPadding();
+    ).paddingAll(commonPadding);
   }
 
 }

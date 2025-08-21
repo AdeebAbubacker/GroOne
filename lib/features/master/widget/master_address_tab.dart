@@ -261,6 +261,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
       child: StatefulBuilder(
         builder: (context, setState) {
           return MasterCommonDialogView(
+            isAddress: true,
             hideCloseButton: true,
             showYesNoButtonButtons: true,
             yesButtonText:

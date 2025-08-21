@@ -14,9 +14,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../utils/app_icons.dart';
 
 class TransactionInformation extends StatefulWidget {
-  final List<VpLog>? vpLogs;
-  final String? advancedPer;
-  const TransactionInformation({super.key, this.vpLogs, this.advancedPer});
+  final List? vpLogs;
+  const TransactionInformation({super.key, this.vpLogs});
 
   @override
   State<TransactionInformation> createState() => _TransactionInformationState();
@@ -38,7 +37,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
         return _buildInfoWidget(
                     context,
                     widget.vpLogs?[index],
-                    widget.vpLogs?[index].action.capitalizeFirst,
+                    widget.vpLogs?[index].action,
                   );
       },),
     );
@@ -58,12 +57,12 @@ class _TransactionInformationState extends State<TransactionInformation> {
         spacing: 5,
         children: [
           _buildInfoRow(
-            received,
+            received.capitalize,
             PriceHelper.formatINR(vpLogs?.amount ?? ""),
             isBold: true,
           ),
           _buildInfoRow(
-            context.appText.transactionID,
+            "${context.appText.transactionID} / ${context.appText.refNo}",
             vpLogs?.transactionId ?? "",
           ),
           _buildInfoRow(

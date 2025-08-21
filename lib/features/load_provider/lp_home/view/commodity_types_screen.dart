@@ -53,13 +53,16 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(
-        title: context.appText.selectCommodityTypes,
-        isCrossLeadingIcon: true,
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: CommonAppBar(
+          title: context.appText.selectCommodityTypes,
+          isCrossLeadingIcon: true,
+        ),
+        body: _buildBodyWidget(context),
+        bottomNavigationBar: _buildSelectButton(context),
       ),
-      body: _buildBodyWidget(context),
-      bottomNavigationBar: _buildSelectButton(context),
     );
   }
 
@@ -142,6 +145,6 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
         widget.onSelect(selectedIndex ?? 0);
         Navigator.of(context).pop();
       },
-    ).bottomNavigationPadding();
+    ).paddingAll(commonPadding);
   }
 }

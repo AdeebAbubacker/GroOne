@@ -104,10 +104,10 @@ class LpHomeService{
 
 
   /// Fetch Recent Route
-  Future<Result<RecentRoutesModel>> fetchRecentRouteData(String userId) async {
+  Future<Result<RecentRoutesModel>> fetchRecentRouteData(String userId, {String search = ''}) async {
     try {
       final url = ApiUrls.getRecentRoute;
-      final result = await _apiService.get(url, queryParams: {'customerId': userId});
+      final result = await _apiService.get(url, queryParams: {'customerId': userId, 'search' : search});
       if (result is Success) {
         final data = RecentRoutesModel.fromJson(result.value);
         return Success(data);
