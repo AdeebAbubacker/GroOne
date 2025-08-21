@@ -558,10 +558,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                       text: DriverLoadHelper.getBottomButtonTitle(                             
                                         loads.data!.loadStatusId,
                                         loads.data?.podDispatch,
-                                        loads.data?.isAgreed == 1
+                                        loads.data?.isAgreed == 1,
+                                        driverLoadDetailsCubit.state.iPodSkip,
                                       ),
                                       onSubmit: () {
-                                         print("-----------------------------");
                                         // Check for sim consent and trip doc
                                         if (loads.data?.loadStatusId == 5) {
                                           final tripDocumentList =

@@ -66,6 +66,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
           lpLoadById: UIState.success(result.value),
           loadStatusId: result.value.data?.loadStatusId,
           loadStatus: loadStatus,
+          iPodSkip: state.iPodSkip,
         ),
       );
       await _handleTrackingBasedOnStatus(result.value);
@@ -130,6 +131,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
       customerId: customerId,
       loadId: loadid,
       loadStatus: loadStatus,
+      
     );
     if (result is Success<VpLoadAcceptModel>) {
       final newStatus = result.value.data?.loadStatus;
@@ -138,6 +140,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
         state.copyWith(
           loadStatusId: newStatus,
           loadStatusUIState: UIState.success(result.value),
+          iPodSkip: state.iPodSkip
         ),
       );
     }
@@ -344,7 +347,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   }
   
     void skipPodView({bool? value}){
-    emit(state.copyWith(iPodSkip: value ?? true));
+    emit(state.copyWith(iPodSkip: value ?? false));
   }
   
   Future<LoadDocument?> saveDocument(

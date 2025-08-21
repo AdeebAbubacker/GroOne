@@ -86,7 +86,7 @@ class DriverLoadHelper {
   // }
 
 
-    static  String getBottomButtonTitle(int statusId,PodDispatchModel? podDispatched,bool isLpAgreed){
+    static  String getBottomButtonTitle(int statusId,PodDispatchModel? podDispatched,bool isLpAgreed,bool isPodSkipped ){
       BuildContext context=navigatorKey.currentState!.context;
       switch(statusId){
        
@@ -100,8 +100,11 @@ class DriverLoadHelper {
           return  context.appText.swipeToStartUnLoading;
           case 7:
           return context.appText.swipeToCompleteUnLoading;
-          case 8:
-      return podDispatched == null ?  context.appText.podDispatchedDetails : context.appText.swipeToCompleteTrip;
+         case 8:
+     return (podDispatched != null || isPodSkipped == true)
+      ? context.appText.swipeToCompleteTrip
+      : context.appText.podDispatchedDetails;
+
         default:
           return context.appText.swipeToStart;
       }
