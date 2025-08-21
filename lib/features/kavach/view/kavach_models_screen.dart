@@ -278,7 +278,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                       // Handle support button when BS6 is selected
                       commonSupportDialog(context);
                     },
-                  ),
+                  ).paddingBottom(30),
                 ),
               );
             }
