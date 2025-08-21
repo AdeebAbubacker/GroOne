@@ -4,6 +4,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 
 class ToastMessages{
@@ -137,5 +138,27 @@ class ToastMessages{
 
     flush.show(navigatorKey.currentState!.context);
   }
+
+  static showForceUpdateDialog(BuildContext context, String version) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => AlertDialog(
+        title: const Text("Update Required"),
+        content: Text(
+          "You must update to version $version to continue using the app.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              launchUrl(Uri.parse("https://play.google.com/store/apps/details?id=com.example"));
+            },
+            child: const Text("Update"),
+          ),
+        ],
+      ),
+    );
+  }
+
 
 }

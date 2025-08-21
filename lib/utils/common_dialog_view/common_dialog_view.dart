@@ -173,6 +173,7 @@ class MasterCommonDialogView extends StatefulWidget {
   final GestureTapCallback? onClickYesButton;
   final GestureTapCallback? onClickNoButton;
   final CrossAxisAlignment? crossAxisAlignment;
+  final bool isAddress;
 
   const MasterCommonDialogView({
     super.key,
@@ -194,6 +195,7 @@ class MasterCommonDialogView extends StatefulWidget {
     this.headingTextStyle,
     this.messageTextStyle,
     this.yesButtonTextStyle,
+    this.isAddress = false,
   });
 
   @override
@@ -212,7 +214,7 @@ class _MasterCommonDialogViewState extends State<MasterCommonDialogView> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: widget.isAddress ? MediaQuery.of(context).size.height * 0.65 : MediaQuery.of(context).size.height * 0.85,
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,

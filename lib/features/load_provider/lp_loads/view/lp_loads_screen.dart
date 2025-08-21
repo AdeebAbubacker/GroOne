@@ -291,10 +291,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       leading:  Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
       actions: [
         // Notification
-        IconButton(
-          onPressed: () {},
-          icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
-        ),
+        // IconButton(
+        //   onPressed: () {},
+        //   icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+        // ),
 
       ],
     );

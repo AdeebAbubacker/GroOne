@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
+import 'package:gro_one_app/features/splash/model/app_update_response.dart';
 import 'package:gro_one_app/features/splash/splash_repository.dart';
 
 class SplashViewModel extends ChangeNotifier{
@@ -42,6 +43,25 @@ class SplashViewModel extends ChangeNotifier{
       _setUserRoleUIState(UIState.error(result.type));
     }
   }
+
+  UIState<AppUpdateResponse>? _appUpdateUIState;
+  UIState<AppUpdateResponse>? get appUpdateUIState => _appUpdateUIState;
+
+  void _setAppUpdateUIState(UIState<AppUpdateResponse>? value) {
+    _appUpdateUIState = value;
+    notifyListeners();
+  }
+
+  Future<void> checkAppUpdate() async {
+    Result result = await _splashRepository.checkAppUpdate();
+    if (result is Success<AppUpdateResponse>) {
+      _setAppUpdateUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setAppUpdateUIState(UIState.error(result.type));
+    }
+  }
+
 
 
 
