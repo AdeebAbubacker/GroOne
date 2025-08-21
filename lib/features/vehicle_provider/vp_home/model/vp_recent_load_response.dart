@@ -283,7 +283,7 @@ class VpRecentLoadData {
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
-      podDispatch: json['podDispatch']!=null ? PodDispatch.fromJson(json['podDispatch']):null
+      podDispatch: json['podDispatch']!=null && ( json['podDispatch'] as Map).isNotEmpty ? PodDispatch.fromJson(json['podDispatch']):null
     );
   }
 

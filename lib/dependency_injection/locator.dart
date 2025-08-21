@@ -94,6 +94,7 @@ import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/features/terms_and_conditions/bloc/terms_and_conditions_bloc.dart';
 import 'package:gro_one_app/features/terms_and_conditions/repository/t_and_c_repository.dart';
 import 'package:gro_one_app/features/terms_and_conditions/service/terms_and_conditions_service.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/repository/vp_all_load_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/service/vp_all_load_service.dart';
@@ -487,6 +488,11 @@ void initLocator() {
     locator.registerLazySingleton(
       () => LpHomeBloc(
         locator<UserInformationRepository>(),
+      ),
+    );
+    locator.registerLazySingleton(
+      () => LoadFilterCubit(
+        locator<VpLoadRepository>(),
       ),
     );
     locator.registerLazySingleton(

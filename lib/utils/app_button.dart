@@ -6,13 +6,15 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 class AppButton extends StatelessWidget {
-  final void Function() onPressed;
+  final void Function()? onPressed;
   final String? title;
   final TextStyle? textStyle;
   final ButtonStyle? style;
   final bool? isLoading;
   final double? buttonHeight;
   final Widget? richTextWidget;
+
+
   const AppButton({super.key,
     this.title,
     this.textStyle,
@@ -32,7 +34,10 @@ class AppButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: isLoading == true ? (){} : (){
           commonHapticFeedback();
-          onPressed.call();
+          if(onPressed!=null){
+            onPressed?.call();
+          }
+
         },
         style: isLoading == true ? AppButtonStyle.disableButton : (style ?? AppButtonStyle.primary),
         child: isLoading == true

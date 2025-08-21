@@ -543,7 +543,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
 
  
      Future<void> _handleTrackingBasedOnStatus(DriverLoadDetailsModel? data) async {
-    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data?.data?.loadStatusDetails?.loadStatus);
+    final status =  getVPLoadStatusFromString(data?.data?.loadStatusDetails?.loadStatus);
     final route = data?.data?.loadRoute;
     final tracking = data?.data?.trackingDetails;
 

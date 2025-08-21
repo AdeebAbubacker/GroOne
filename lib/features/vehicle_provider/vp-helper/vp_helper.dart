@@ -129,6 +129,28 @@ LoadStatus getLoadStatus(int? status){
   };
 }
 
+ LoadStatus? getVPLoadStatusFromString(String? loadType) {
+switch (loadType) {
+  case 'Confirmed':
+return LoadStatus.accepted;
+case 'Assigned':
+return LoadStatus.assigned;
+case 'Loading':
+return LoadStatus.loading;
+case 'In Transit':
+return LoadStatus.inTransit;
+case 'Unloading':
+return LoadStatus.unloading;
+
+case 'POD Dispatch':
+return LoadStatus.podDispatched;
+case 'Completed':
+return LoadStatus.completed;
+default:
+return null;
+}
+}
+
 
 enum DocumentFileType {
 
