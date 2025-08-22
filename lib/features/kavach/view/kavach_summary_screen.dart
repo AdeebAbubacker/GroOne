@@ -260,7 +260,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 children: [
                   Text(
                     widget.selectedVehicleNumbers.length == 1
-                        ? "Vehicle Detail"
+                        ? context.appText.vehicleDetail
                         : context.appText.vehicleDetails,
                     style: AppTextStyle.h5,
                   ),
@@ -306,9 +306,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.products.length == 1
-                ? "Product Detail"
-                : context.appText.paymentDetails,
+            context.appText.paymentDetails,
             style: AppTextStyle.h4,
           ),
           10.height,
@@ -349,26 +347,26 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   ],
                 ),
                 5.height,
-                _buildDetailRow("HSN Code", product.hsnSacCode ?? '-'),
-                _buildDetailRow("Qty", qty.toString().padLeft(2, '0')),
+                _buildDetailRow(context.appText.hsnCode, product.hsnSacCode ?? '-'),
+                _buildDetailRow(context.appText.qty, qty.toString().padLeft(2, '0')),
                 _buildDetailRow(
-                  "Rate /Unit ₹",
+                  context.appText.ratePerUnit,
                   "₹${KavachHelper.formatCurrency(product.price.toStringAsFixed(2))}",
                 ),
                 _buildDetailRow(
-                  "IGST",
+                  context.appText.igst,
                   "₹${KavachHelper.formatCurrency(igst.toStringAsFixed(2))}",
                 ),
                 _buildDetailRow(
-                  "CGST",
+                  context.appText.cgst,
                   "₹${KavachHelper.formatCurrency(cgst.toStringAsFixed(2))}",
                 ),
                 _buildDetailRow(
-                  "SGST",
+                  context.appText.sgst,
                   "₹${KavachHelper.formatCurrency(sgst.toStringAsFixed(2))}",
                 ),
                 _buildDetailRow(
-                  "Total GST",
+                  context.appText.totalGst,
                   "₹${KavachHelper.formatCurrency(gstAmount.toStringAsFixed(2))}",
                 ),
                 5.height,
@@ -381,7 +379,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 ),
                 5.height,
                 _buildDetailRow(
-                  "Total Amount",
+                  context.appText.totalAmount,
                   "₹${totalWithGst.toStringAsFixed(2)}",
                 ),
                 15.height,

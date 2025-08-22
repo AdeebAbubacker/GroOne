@@ -100,7 +100,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
     } else if (feature == AddressListFeature.gps && gpsBillingAddressCubit != null) {
       return _buildGpsBody(context);
     }
-    return const Center(child: Text('Invalid feature configuration'));
+    return Center(child: Text(context.appText.invalidFeatureConfiguration));
   }
 
   Widget _buildKavachBody(BuildContext context) {
@@ -122,7 +122,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                       Icon(Icons.error, color: Colors.red, size: 48),
                       10.height,
                       Text(
-                        'Failed to load addresses',
+                        context.appText.failedToLoadAddresses,
                         style: AppTextStyle.h5,
                       ),
                       10.height,
@@ -130,7 +130,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                         onPressed: () {
                           context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
                         },
-                        title: 'Retry',
+                        title: context.appText.retry,
                         style: AppButtonStyle.outline,
                       ),
                     ],
@@ -159,14 +159,14 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                             Icon(Icons.location_off, color: Colors.grey, size: 48),
                             10.height,
                             Text(
-                              'No available billing addresses',
+                             context.appText.noAvailableBillingAddresses,
                               style: AppTextStyle.h5,
                             ),
                             5.height,
                             Text(
-                              selectedShippingAddress != null 
-                                  ? 'All addresses are already selected for shipping'
-                                  : 'Add your first billing address',
+                              selectedShippingAddress != null
+                                  ? context.appText.allAddressesAlreadySelectedForShipping
+                                  : context.appText.addYourFirstBillingAddress,
                               style: AppTextStyle.bodyGreyColor,
                             ),
                           ],
@@ -219,14 +219,14 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                             Icon(Icons.location_off, color: Colors.grey, size: 48),
                             10.height,
                             Text(
-                              'No available billing addresses',
+                              context.appText.noAvailableBillingAddresses,
                               style: AppTextStyle.h5,
                             ),
                             5.height,
                             Text(
-                              selectedShippingAddress != null 
-                                  ? 'All addresses are already selected for shipping'
-                                  : 'Add your first billing address',
+                              selectedShippingAddress != null
+                                  ? context.appText.allAddressesAlreadySelectedForShipping
+                                  : context.appText.addYourFirstBillingAddress,
                               style: AppTextStyle.bodyGreyColor,
                             ),
                           ],
@@ -249,7 +249,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                   // Show message that user must select an address first
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Please select an address first'),
+                      content: Text(context.appText.pleaseSelectAddressFirst),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -274,12 +274,12 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                     Icon(Icons.location_off, color: Colors.grey, size: 48),
                     10.height,
                     Text(
-                      'No addresses found',
+                      context.appText.noAddressFound,
                       style: AppTextStyle.h5,
                     ),
                     5.height,
                     Text(
-                      'Add your first billing address',
+                      context.appText.addYourFirstBillingAddress,
                       style: AppTextStyle.bodyGreyColor,
                     ),
                   ],
@@ -311,7 +311,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                       Icon(Icons.error, color: Colors.red, size: 48),
                       10.height,
                       Text(
-                        'Failed to load addresses',
+                        context.appText.failedToLoadAddresses,
                         style: AppTextStyle.h5,
                       ),
                       10.height,
@@ -319,7 +319,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                         onPressed: () {
                           gpsBillingAddressCubit!.fetchGpsBillingAddresses();
                         },
-                        title: 'Retry',
+                        title: context.appText.retry,
                         style: AppButtonStyle.outline,
                       ),
                     ],
@@ -348,14 +348,14 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                             Icon(Icons.location_off, color: Colors.grey, size: 48),
                             10.height,
                             Text(
-                              'No available billing addresses',
+                              context.appText.noAvailableBillingAddresses,
                               style: AppTextStyle.h5,
                             ),
                             5.height,
                             Text(
-                              selectedShippingAddress != null 
-                                  ? 'All addresses are already selected for shipping'
-                                  : 'Add your first billing address',
+                              selectedShippingAddress != null
+                                  ? context.appText.allAddressesAlreadySelectedForShipping
+                                  : context.appText.addYourFirstBillingAddress,
                               style: AppTextStyle.bodyGreyColor,
                             ),
                           ],
@@ -411,14 +411,14 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                             Icon(Icons.location_off, color: Colors.grey, size: 48),
                             10.height,
                             Text(
-                              'No available billing addresses',
+                              context.appText.noAvailableBillingAddresses,
                               style: AppTextStyle.h5,
                             ),
                             5.height,
                             Text(
                               selectedShippingAddress != null 
-                                  ? 'All addresses are already selected for shipping'
-                                  : 'Add your first billing address',
+                                  ? context.appText.allAddressesAlreadySelectedForShipping
+                                  : context.appText.addYourFirstBillingAddress,
                               style: AppTextStyle.bodyGreyColor,
                             ),
                           ],
@@ -444,7 +444,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                   // Show message that user must select an address first
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Please select an address first'),
+                      content: Text(context.appText.pleaseSelectAddressFirst),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -469,12 +469,12 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                     Icon(Icons.location_off, color: Colors.grey, size: 48),
                     10.height,
                     Text(
-                      'No addresses found',
+                      context.appText.noAddressFound,
                       style: AppTextStyle.h5,
                     ),
                     5.height,
                     Text(
-                      'Add your first billing address',
+                      context.appText.addYourFirstBillingAddress,
                       style: AppTextStyle.bodyGreyColor,
                     ),
                   ],

@@ -567,7 +567,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                 ),
                 child: ReferralAutoCompleteTextField(
                   controller: referralCodeController,
-                  labelText: 'Referral Code (Optional)',
+                  labelText: context.appText.referralCodeOptional,
                   onSelected: (value) {},
                 ),
               ),

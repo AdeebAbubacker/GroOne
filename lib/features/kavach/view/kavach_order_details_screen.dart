@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -138,7 +139,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
        25.height,
           Text(
             order.lineItems.length == 1 
-                ? "Product Detail" 
+                ? context.appText.productDetail
                 : context.appText.productDetails, 
             style: AppTextStyle.h5
           ),
@@ -171,8 +172,8 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              Image.asset(AppImage.png.kavachProduct, width: 70),
-              8.height,
+              p.product?.fileKey!=null? CachedNetworkImage(imageUrl: p.product!.fileKey,width: 70,height: 70,fit: BoxFit.cover,):Image.asset(AppImage.png.kavachProduct, width: 70),
+              8.width,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -242,7 +243,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Status', style: AppTextStyle.h4),
+          Text(context.appText.status, style: AppTextStyle.h4),
           20.height,
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
@@ -427,7 +428,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Gro Executive', style: AppTextStyle.h5),
+          Text(context.appText.groExecutive, style: AppTextStyle.h5),
           Text(order.orderReferencedBy, style: AppTextStyle.bodyGreyColor),
         ],
       ),
@@ -454,8 +455,8 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                 .add(DownloadInvoiceEvent(order.id));
           },
           title: state is InvoiceDownloading
-              ? "Downloading..."
-              : "Download Invoice",
+              ? context.appText.downloading
+              : context.appText.downloadInvoice,
         ).bottomNavigationPadding();
       },
     );
