@@ -151,32 +151,30 @@ class ProfileCubit extends BaseCubit<ProfileState> {
       _setLogoutUIState(UIState.error(result.type));
     }
   }
-  
- /// Set Delete Account UI State
 
-/// Delete Account API call
-/// Delete Account API call
-void _setDeleteAccountUIState(UIState<DeleteAccountModel>? uiState) {
-  emit(state.copyWith(deleteAccountUIState: uiState));
-}
+  /// Set Delete Account UI State
 
-Future<void> deleteAccount() async {
-  _setDeleteAccountUIState(UIState.loading());
-  final result = await _repo.deleteAccount();
-  final isSignOut = await _repo.signOut();
-
-  if (result is Success<DeleteAccountModel> && isSignOut is Success<bool>) {
-    _setDeleteAccountUIState(UIState.success(result.value));
-  } if (result is Error) {
-  final error = result as Error; // Cast
-  _setDeleteAccountUIState(UIState.error(error.type));
-}
-else {
-    _setDeleteAccountUIState(UIState.error(GenericError()));
+  /// Delete Account API call
+  /// Delete Account API call
+  void _setDeleteAccountUIState(UIState<DeleteAccountModel>? uiState) {
+    emit(state.copyWith(deleteAccountUIState: uiState));
   }
-}
 
+  Future<void> deleteAccount() async {
+    _setDeleteAccountUIState(UIState.loading());
+    final result = await _repo.deleteAccount();
+    final isSignOut = await _repo.signOut();
 
+    if (result is Success<DeleteAccountModel> && isSignOut is Success<bool>) {
+      _setDeleteAccountUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      final error = result as Error; // Cast
+      _setDeleteAccountUIState(UIState.error(error.type));
+    } else {
+      _setDeleteAccountUIState(UIState.error(GenericError()));
+    }
+  }
 
   // Fetch Document from api call
   void _setFetchDocumentUIState(UIState<KycDocumentResponse>? uiState) {
