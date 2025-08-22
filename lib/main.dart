@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:gro_one_app/core/app_initializer.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/helper/gps_session_manager.dart';
 import 'package:gro_one_app/l10n/l10n.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
@@ -13,7 +14,9 @@ import 'package:gro_one_app/service/pushNotification/notification_service.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
+import 'package:gro_one_app/utils/error_boundary.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/performance_monitor.dart';
 
 import 'core/localization_bloc/localization_bloc.dart';
 import 'core/localization_bloc/localization_event.dart';
@@ -35,12 +38,20 @@ void main() async {
   // Ensure Flutter binding is initialized
   WidgetsFlutterBinding.ensureInitialized();
 
+  // Start performance monitoring
+  PerformanceMonitor.startTimer('app_initialization');
+
   try {
-    // Initialize GPS session manager first
-    await GpsSessionManager.init();
+    // 🚀 PARALLEL INITIALIZATION - Run critical services concurrently
+
+    // Initialize GPS session manager (lightweight)
+    final gpsSessionFuture = GpsSessionManager.init();
 
     // Initialize the app (Firebase, etc.)
-    await initializeApp();
+    final appInitFuture = initializeApp();
+
+    // Wait for both to complete
+    await Future.wait([gpsSessionFuture, appInitFuture]);
 
     // Set up Firebase background message handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
@@ -60,6 +71,10 @@ void main() async {
 
     await NotificationService().init(navigatorKey, securedSharedPrefs);
 
+    // Stop performance monitoring and log results
+    PerformanceMonitor.stopTimer('app_initialization');
+    PerformanceMonitor.logPerformanceSummary();
+
     // Run the app
     runApp(
       BlocProvider(
@@ -68,6 +83,9 @@ void main() async {
       ),
     );
   } catch (e) {
+    // Stop performance monitoring on error
+    PerformanceMonitor.stopTimer('app_initialization');
+
     // Handle initialization errors gracefully
     debugPrint('❌ App initialization error: $e');
     // You might want to show an error widget or retry mechanism
@@ -109,13 +127,19 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     switch (state) {
       case AppLifecycleState.resumed:
         // App came to foreground - clear notification badges
+        AppLifecycleMonitor.endLifecycleEvent('app_background');
+        AppLifecycleMonitor.startLifecycleEvent('app_foreground');
         NotificationService().clearBadgeCount();
         break;
       case AppLifecycleState.paused:
         // App went to background
+        AppLifecycleMonitor.endLifecycleEvent('app_foreground');
+        AppLifecycleMonitor.startLifecycleEvent('app_background');
         break;
       case AppLifecycleState.detached:
         // App is being terminated
+        AppLifecycleMonitor.endLifecycleEvent('app_foreground');
+        AppLifecycleMonitor.endLifecycleEvent('app_background');
         break;
       case AppLifecycleState.inactive:
         // App is inactive
@@ -135,12 +159,29 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
       // Clear notification badges when app starts
       await NotificationService().clearBadgeCount();
 
+      // 🚀 LAZY INITIALIZATION - Initialize GPS services after app is loaded
+      _initializeGpsServicesLazily();
+
       // Any other initialization logic
       // await authRepo.signOut(); // Uncomment if needed
     } catch (e) {
       debugPrint('InitFun error: $e');
     }
   });
+
+  /// Initialize GPS services lazily after app is fully loaded
+  Future<void> _initializeGpsServicesLazily() async {
+    try {
+      // Add a small delay to ensure app is fully rendered
+      await Future.delayed(const Duration(milliseconds: 500));
+
+      // Initialize GPS services in background
+      await initializeGpsServices();
+      debugPrint('✅ GPS services initialized lazily');
+    } catch (e) {
+      debugPrint('⚠️ Lazy GPS initialization failed: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -155,30 +196,35 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Lock orientation to portrait
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-    return BlocBuilder<LocaleBloc, LocaleState>(
-      builder: (context, state) {
-        return MultiBlocWrapper(
-          child: MaterialApp.router(
-            // Localization settings
-            locale: state.locale,
-            localizationsDelegates: AppLocalizations.localizationsDelegates,
-            supportedLocales: L10n.all,
-
-            // App settings
-            title: "Gro One",
-            debugShowCheckedModeBanner: false, // Set to false for production
-            // Theme and routing
-            theme: AppThemeStyle.appTheme,
-            routerConfig: AppRoutes.router,
-
-            // Builder to handle global context if needed
-            builder: (context, child) {
-              // You can add global error handling or loading states here
-              return child ?? const SizedBox.shrink();
-            },
-          ),
-        );
+    return ErrorBoundary(
+      onError: () {
+        debugPrint('🚨 Error caught in main app');
       },
+      child: BlocBuilder<LocaleBloc, LocaleState>(
+        builder: (context, state) {
+          return MultiBlocWrapper(
+            child: MaterialApp.router(
+              // Localization settings
+              locale: state.locale,
+              localizationsDelegates: AppLocalizations.localizationsDelegates,
+              supportedLocales: L10n.all,
+
+              // App settings
+              title: "Gro One",
+              debugShowCheckedModeBanner: false, // Set to false for production
+              // Theme and routing
+              theme: AppThemeStyle.appTheme,
+              routerConfig: AppRoutes.router,
+
+              // Builder to handle global context if needed
+              builder: (context, child) {
+                // You can add global error handling or loading states here
+                return child ?? const SizedBox.shrink();
+              },
+            ),
+          );
+        },
+      ),
     );
   }
 }
