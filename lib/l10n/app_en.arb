@@ -1274,7 +1274,7 @@
   "panInfo": "• Enter your 10-character PAN number\n• Format: ABCDE1234F (5 letters + 4 digits + 1 letter)\n• Upload clear image of your PAN card\n• Ensure all details are clearly visible",
   "panDocumentInfo": "• Upload your PAN card document (Optional)\n• This document will be used for KYC requirements\n• Ensure all details are clearly visible\n• File size should be less than 5MB\n• Supported formats: PDF, JPG, PNG\n• You can skip this if you don't have a PAN document",
   "identityProofInfo": "• Upload both front and back sides of your identity document\n• Accepted documents: Aadhaar, PAN, Driving License, Passport\n• Ensure all details are clearly visible\n• File size should be less than 5MB",
-  "addressProofInfo": "• Upload both front and back sides of your address document\n• Accepted documents: Aadhaar, Utility Bill, Bank Statement\n• Document should not be older than 3 months\n• Ensure address is clearly visible"
+  "addressProofInfo": "• Upload both front and back sides of your address document\n• Accepted documents: Aadhaar, Utility Bill, Bank Statement\n• Document should not be older than 3 months\n• Ensure address is clearly visible",
   "fcExpiryDate": "FC Expiry Date",
   "detentionRequire":"Detention is required,Please add detention"
 
