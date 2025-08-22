@@ -62,6 +62,7 @@ class ApiUrls {
   static final String  getDeviceToken = "$_fetchUrl$_customer$_path$_v1$_customer/device-token";
   static final String  getDocumentType = "$_fetchUrl$_document$_path$_v1/document-type";
   static final String  checkAppUpdate = "$_fetchUrl$_customer$_path$_v1/app-update-config/check";
+  static final String deleteCustomer = "$_fetchUrl$_customer$_path$_v1$_customer";
 
 
   /// Onboarding

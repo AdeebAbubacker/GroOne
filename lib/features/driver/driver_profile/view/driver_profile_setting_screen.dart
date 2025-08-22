@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
 import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_switch_toggle.dart';
+import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_dialog_view/log_out_dialogue_ui.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/radio_button.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_text_style.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,7 +61,43 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
     final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
     _updateLanguage(savedLangCode ?? 'English');
   });
+  
+  void disposeFunction() => frameCallback(() {
+    profileCubit.deleteAccount();
+    profileCubit.resetLogoutUIState();
+  });
 
+    void deleteAccountDialogPopUp(BuildContext context) {
+    AppDialog.show(
+      context,
+      child: BlocBuilder<ProfileCubit, ProfileState>(
+        bloc: profileCubit,
+        builder: (context, state) {
+          final isLoading =
+              state.deleteAccountUIState?.status == Status.LOADING;
+          return CommonDialogView(
+            yesButtonText: context.appText.delete,
+            noButtonText: context.appText.cancel,
+            showYesNoButtonButtons: true,
+            hideCloseButton: true,
+            yesButtonTextStyle: OutlinedButton.styleFrom(
+              backgroundColor: Colors.red,
+    
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+             
+                        ),
+            onClickYesButton:
+                () => !isLoading ? profileCubit.deleteAccount() : () {},
+            yesButtonLoading: isLoading,
+            child: DeleteAccountDialogueUi(),
+          );
+        },
+      ),
+    );
+  }
+ 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -128,21 +173,74 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
                           ),
                         );
                       } else if (setting.type == 'link') {
-                        return linkTile(
-                          context,
-                          icon: setting.key == 'privacy_policy'
-                              ? AppIcons.svg.privacyLock
-                              : AppIcons.svg.tAndCDoc,
-                          text: setting.label,
-                          onTap: () {
-                            if (setting.key == 'privacy_policy') {
-                              Navigator.push(context, commonRoute(PrivacyPolicyScreen()));
-                            } else if (setting.key == 'terms_conditions') {
-                              Navigator.push(context, commonRoute(TermsAndConditionsScreen()));
-                            }
-                          },
-                        ).paddingSymmetric(vertical: 20);
-                      } else {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                linkTile(
+                                  context,
+                                  icon:
+                                      setting.key == 'privacy_policy'
+                                          ? AppIcons.svg.privacyLock
+                                          : AppIcons.svg.tAndCDoc,
+                                  text: setting.label,
+                                  onTap: () {
+                                    if (setting.key == 'privacy_policy') {
+                                      Navigator.push(
+                                        context,
+                                        commonRoute(PrivacyPolicyScreen()),
+                                      );
+                                    } else if (setting.key ==
+                                        'terms_conditions') {
+                                      Navigator.push(
+                                        context,
+                                        commonRoute(TermsAndConditionsScreen()),
+                                      );
+                                    }
+                                  },
+                                ).paddingSymmetric(vertical: 20),
+
+                                /// Delete Account not from api - appending from ui (Todo from api list)
+                                if (setting.key == 'privacy_policy')
+                                  BlocConsumer<ProfileCubit, ProfileState>(
+                                    listener: (context, state) {
+                                      final status =
+                                          state.deleteAccountUIState?.status;
+
+                                      if (status == Status.SUCCESS) {
+                                        LpBottomNavigation
+                                            .selectedIndexNotifier
+                                            .value = 0;
+                                        disposeFunction();
+                                        context.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
+                                      }
+
+                                      if (status == Status.ERROR) {
+                                        final error =
+                                            state.deleteAccountUIState?.errorType;
+                                        ToastMessages.error(
+                                          message: getErrorMsg(
+                                            errorType: error ?? GenericError(),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                    builder: (context, state) {
+                                      return linkTile(
+                                        context,
+                                        icon: AppIcons.svg.delete,
+                                        text: context.appText.deleteAccount,
+                                        onTap:
+                                            () => deleteAccountDialogPopUp(
+                                              context,
+                                            ),
+                                        iconSize: 18,
+                                        iconColor: Colors.red,
+                                      );
+                                    },
+                                  ).paddingSymmetric(vertical: 20),
+                              ],
+                            );
+                          }  else {
                         return const SizedBox();
                       }
                     }),
@@ -214,18 +312,36 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
     );
   }
 
-  Widget linkTile(BuildContext context, {required String icon, required String text, required VoidCallback onTap}) {
+
+  Widget linkTile(
+    BuildContext context, {
+    required String icon,
+    required String text,
+    required VoidCallback onTap,
+    double iconSize = 20,
+    Color? iconColor,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Row(
         children: [
-          SvgPicture.asset(icon, height: 20, width: 20),
-          20.width,
+          SvgPicture.asset(
+            icon,
+            height: iconSize,
+            width: iconSize,
+            color: iconColor,
+          ),
+          const SizedBox(width: 20),
           Text(text),
-          Spacer(),
-          Icon(Icons.arrow_forward_ios, size: 12),
+          const Spacer(),
+          Icon(
+            Icons.arrow_forward_ios,
+            size: 12,
+            color: iconColor ?? Colors.black,
+          ),
         ],
       ),
     );
   }
+
 }
