@@ -1834,55 +1834,98 @@ class DriverCustomer {
 }
 
 class Timeline {
-    Timeline({
-        required this.id,
-        required this.label,
-        required this.status,
-        required this.timestamp,
-        required this.commodity,
-        required this.truckType,
-        required this.loadProvider,
-    });
+  Timeline({
+    required this.id,
+    required this.label,
+    required this.status,
+    required this.statusBgColor,
+    required this.timestamp,
+    required this.commodity,
+    required this.truckType,
+    required this.loadProvider,
+    required this.latestTransitData,
+  });
 
-    final int id;
-    final String label;
-    final String status;
-    final DateTime? timestamp;
-    final TimelineCommodity? commodity;
-    final TimelineTruckType? truckType;
-    final LoadProvider? loadProvider;
+  final int id;
+  final String label;
+  final String status;
+  final String statusBgColor;
+  final DateTime? timestamp;
+  final TimelineCommodity? commodity;
+  final TimelineTruckType? truckType;
+  final LoadProvider? loadProvider;
+  final LatestTransitData? latestTransitData;
 
-    Timeline copyWith({
-        int? id,
-        String? label,
-        String? status,
-        DateTime? timestamp,
-        TimelineCommodity? commodity,
-        TimelineTruckType? truckType,
-        LoadProvider? loadProvider,
-    }) {
-        return Timeline(
-            id: id ?? this.id,
-            label: label ?? this.label,
-            status: status ?? this.status,
-            timestamp: timestamp ?? this.timestamp,
-            commodity: commodity ?? this.commodity,
-            truckType: truckType ?? this.truckType,
-            loadProvider: loadProvider ?? this.loadProvider,
-        );
-    }
+  Timeline copyWith({
+    int? id,
+    String? label,
+    String? status,
+    String? statusBgColor,
+    DateTime? timestamp,
+    TimelineCommodity? commodity,
+    TimelineTruckType? truckType,
+    LoadProvider? loadProvider,
+    LatestTransitData? latestTransitData,
+  }) {
+    return Timeline(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      status: status ?? this.status,
+      statusBgColor: statusBgColor ?? this.statusBgColor,
+      timestamp: timestamp ?? this.timestamp,
+      commodity: commodity ?? this.commodity,
+      truckType: truckType ?? this.truckType,
+      loadProvider: loadProvider ?? this.loadProvider,
+      latestTransitData: latestTransitData ?? this.latestTransitData,
+    );
+  }
 
-    factory Timeline.fromJson(Map<String, dynamic> json){ 
-        return Timeline(
-            id: json["id"] ?? 0,
-            label: json["label"] ?? "",
-            status: json["status"] ?? "",
-            timestamp: DateTime.tryParse(json["timestamp"] ?? ""),
-            commodity: json["commodity"] == null ? null : TimelineCommodity.fromJson(json["commodity"]),
-            truckType: json["truckType"] == null ? null : TimelineTruckType.fromJson(json["truckType"]),
-            loadProvider: json["loadProvider"] == null ? null : LoadProvider.fromJson(json["loadProvider"]),
-        );
-    }
+  factory Timeline.fromJson(Map<String, dynamic> json){
+    return Timeline(
+      id: json["id"] ?? 0,
+      label: json["label"] ?? "",
+      status: json["status"] ?? "",
+      statusBgColor: json["statusBgColor"] ?? "",
+      timestamp: DateTime.tryParse(json["timestamp"] ?? ""),
+      commodity: json["commodity"] == null ? null : TimelineCommodity.fromJson(json["commodity"]),
+      truckType: json["truckType"] == null ? null : TimelineTruckType.fromJson(json["truckType"]),
+      loadProvider: json["loadProvider"] == null ? null : LoadProvider.fromJson(json["loadProvider"]),
+      latestTransitData: json["latestTransitData"] == null ? null : LatestTransitData.fromJson(json["latestTransitData"]),
+    );
+  }
+
+}
+
+class LatestTransitData {
+  LatestTransitData({
+    required this.location,
+    required this.latestDate,
+  });
+
+  final String location;
+  final DateTime? latestDate;
+
+  LatestTransitData copyWith({
+    String? location,
+    DateTime? latestDate,
+  }) {
+    return LatestTransitData(
+      location: location ?? this.location,
+      latestDate: latestDate ?? this.latestDate,
+    );
+  }
+
+  factory LatestTransitData.fromJson(Map<String, dynamic> json){
+    return LatestTransitData(
+      location: json["location"] ?? "",
+      latestDate: DateTime.tryParse(json["latestDate"] ?? ""),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "location": location,
+    "latestDate": latestDate?.toIso8601String(),
+  };
 
 }
 

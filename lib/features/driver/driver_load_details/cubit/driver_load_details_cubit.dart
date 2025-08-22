@@ -667,7 +667,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
       (doc) =>
           doc.documentType == DocumentFileType.proofOfDelivery.documentType,
     );
-    if (podIndex != -1 && status != null && status > 6) {
+    if (podIndex != -1 && status != null && status >= 7) {
       final updatedDoc = currentList[podIndex].copyWith(visible: true);
       currentList[podIndex] = updatedDoc;
       emit(state.copyWith(tripDocumentList: currentList));
