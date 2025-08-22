@@ -66,6 +66,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
           iPodSkip: state.iPodSkip,
         ),
       );
+       getAllDamagesImages(getFromDetails: true);
       await _handleTrackingBasedOnStatus(result.value);
       setTripDocuments(result.value.data!.loadDocument);
     } else if (result is Error) {
@@ -94,18 +95,44 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   void _setDamageListUIState(UIState<GetDamageListModel>? uiState) {
     emit(state.copyWith(damageListUIState: uiState));
   }
-
+  
+  /// Fetch Damage list
   Future<void> fetchDamageList(String loadId) async {
     _setDamageListUIState(UIState.loading());
     Result result = await _repository.getDamageListData(loadId);
     if (result is Success<GetDamageListModel>) {
       _setDamageListUIState(UIState.success(result.value));
+      getAllDamagesImages();
     }
     if (result is Error) {
       _setDamageListUIState(UIState.error(result.type));
     }
   }
-
+  
+  /// Get All Damages Images
+  Future getAllDamagesImages({bool getFromDetails=false})async{
+    List<DamageReport> damageListData=  getFromDetails ? List.from(state.lpLoadById?.data?.data?.damageShortage??[]):List.from(state.damageListUIState?.data?.data??[]);
+   List<String> imageList=[];
+   for(int i=0;i<(damageListData.length);i++){
+     final getDamageData= damageListData[i];
+     if((getDamageData.image??[]).isEmpty){
+       return;
+     }
+     String typeId=getDamageData.image!.first;
+     await fetchDocumentById(typeId).then((value) {
+       imageList.add(value?.filePath??"");
+       },);}
+       emit(state.copyWith(
+     allDamageImageList: imageList
+    ));
+  }
+   
+  /// Fetch Document By Id 
+   Future<ViewDocumentResponse?> fetchDocumentById(String documentId) async {
+   return _loadDetailsRepository.viewDocument(
+      documentId: documentId,
+    ).then((result) => (result is Success<ViewDocumentResponse>) ? result.value:null);
+  }
   //  Update Load Status Api Call
   void _updateloadStatusUIState(UIState<VpLoadAcceptModel>? uiState) {
     emit(state.copyWith(loadStatusUIState: uiState));

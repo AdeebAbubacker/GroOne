@@ -443,6 +443,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                 children: [
                                                   20.height,
                                                   VpAddedDamageWidget(
+                                                    imageList: state.allDamageImageList,
                                                     damageReport:
                                                         loads!.data!.damageShortage,
                                                   ),
