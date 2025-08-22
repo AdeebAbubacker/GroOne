@@ -95,7 +95,8 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   void _setDamageListUIState(UIState<GetDamageListModel>? uiState) {
     emit(state.copyWith(damageListUIState: uiState));
   }
-
+  
+  /// Fetch Damage list
   Future<void> fetchDamageList(String loadId) async {
     _setDamageListUIState(UIState.loading());
     Result result = await _repository.getDamageListData(loadId);
@@ -107,7 +108,8 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
       _setDamageListUIState(UIState.error(result.type));
     }
   }
- 
+  
+  /// Get All Damages Images
   Future getAllDamagesImages({bool getFromDetails=false})async{
     List<DamageReport> damageListData=  getFromDetails ? List.from(state.lpLoadById?.data?.data?.damageShortage??[]):List.from(state.damageListUIState?.data?.data??[]);
    List<String> imageList=[];
@@ -125,6 +127,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     ));
   }
    
+  /// Fetch Document By Id 
    Future<ViewDocumentResponse?> fetchDocumentById(String documentId) async {
    return _loadDetailsRepository.viewDocument(
       documentId: documentId,
