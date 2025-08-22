@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
@@ -193,7 +195,7 @@ class _DriverPodDispatchScreenState extends State<DriverPodDispatchScreen> {
           TextButton(
             onPressed: () {
             driverLoadDetailsCubit.skipPodView(value: true);
-            Navigator.pop(context, true);
+            Navigator.pop(context);
             } ,
             child: Text(context.appText.skip),
           ).center(),

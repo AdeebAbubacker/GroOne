@@ -46,6 +46,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
   @override
   Widget build(BuildContext context) {
 
+
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "--";

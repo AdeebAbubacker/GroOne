@@ -72,10 +72,13 @@ class VpMyLoadUIHelper {
         );
       case "Assigned":
         return AppButton(
+          enable: enable,
+
           buttonHeight: commonButtonHeight2,
-          onPressed: isLoading ? () {} : onPressed,
+          onPressed:  (enable??false) ?  isLoading ? () {} : onPressed:null,
           isLoading: isLoading,
-          title: context.appText.startTrip,
+
+          title:  (enable??false) ?  context.appText.startTrip:context.appText.waitingForLpToConfirmed,
         );
       case "Loading":
         return SlideAction(
