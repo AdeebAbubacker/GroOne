@@ -17,7 +17,10 @@ class VpLoadService {
     required int type,
     String search = "",
     bool forceRefresh = false,
-    int? limit
+    int? limit,
+    int? commodityId,
+    int? truckTypeId,
+    int? laneId,
 
   }) async {
     try {
@@ -25,8 +28,10 @@ class VpLoadService {
         '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId&search=$search',
         queryParams: {
           "limit":limit??10,
-        if(type!=2) "type":type
-
+          if(type!=2) "type":type,
+          if(commodityId!=null) "commodityId":commodityId,
+          if(truckTypeId!=null) "truckTypeId":truckTypeId,
+          if(laneId!=null) "laneId":laneId,
         },
         forceRefresh: forceRefresh,
       );

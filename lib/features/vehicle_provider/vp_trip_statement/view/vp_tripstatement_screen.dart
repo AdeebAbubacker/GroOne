@@ -251,7 +251,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           buildDTripStatementWidget(
             label: context.appText.destination,
-            value: tripStatement?.data?.loadProvider?.destination??"",
+            value: (tripStatement?.data?.loadProvider?.destination??"").split(",").first,
           ),
           buildDTripStatementWidget(
             label: context.appText.unloadingDate,
@@ -304,7 +304,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
                value,
-              maxLines: 1,
+              maxLines: 2,
               textAlign: TextAlign.right,
                style: AppTextStyle.body2.copyWith(
                 fontSize: 15,

@@ -7,9 +7,21 @@ class FetchVpLoads extends VpLoadEvent {
   final String search;
   final bool forceRefresh;
 
-  FetchVpLoads({required this.type, this.search = "", this.forceRefresh = false});
-}
+  // filter parameter
 
+  final int? commodityId;
+  final int? truckTypeId;
+  final int? laneId;
+
+  FetchVpLoads({
+    required this.type,
+    this.search = "",
+    this.forceRefresh = false,
+    this.commodityId,
+    this.truckTypeId,
+    this.laneId,
+  });
+}
 
 class FetchLoadStatus extends VpLoadEvent {
   final bool forceRefresh;

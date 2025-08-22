@@ -70,5 +70,59 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState>{
     }
   }
 
+  /// set is filter applied
+  void setIsFilterApplied({required bool value}){
+    emit(state.copyWith(
+      isFilterApplied: value,
+    ));
+
+    if(value==false){
+      emit(state.copyWith(
+        selectedTruckType: {},
+        selectedCommodity: {},
+        selectedLaneType: {},
+      ));
+    }
+  }
+
+
+
+
+ /// set truckTypeId
+  void setCommodityData({int? commodityId,String? value}){
+    emit(state.copyWith(
+        selectedCommodity: {
+          "id":commodityId,
+          "value":value
+        }
+    ));
+
+  }
+
+  /// set lens data
+  void setLensData({int? leneId,String? value}){
+    emit(state.copyWith(
+        selectedLaneType: {
+          "id":leneId,
+          "value":value
+        }
+    ));
+
+  }
+
+
+  /// set truck data
+  void setTruckTypeData({int? truckTypeId,String? value}){
+    emit(state.copyWith(
+        selectedTruckType: {
+          "id":truckTypeId,
+          "value":value
+        }
+    ));
+    print("function calling");
+
+
+  }
+
 
 }

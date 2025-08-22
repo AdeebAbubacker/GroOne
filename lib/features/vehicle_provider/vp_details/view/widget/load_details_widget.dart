@@ -305,8 +305,7 @@ class LoadDetailsWidget extends StatelessWidget {
                               20.height,
                               _buildAdableSectionHeader(
                                 context: context,
-                                showAddButton:
-                                    state.loadStatus != LoadStatus.completed &&
+                                showAddButton:   state.loadStatus != LoadStatus.completed &&
                                     loadDetails?.loadSettlement == null,
                                 title: context.appText.settlement,
                                 onAdd: () async {

@@ -35,6 +35,9 @@ class SearchableDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
+    print("selectedItem is ${selectedItem}");
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -56,6 +59,7 @@ class SearchableDropdown extends StatelessWidget {
         if (labelText != null) 6.height,
         DropdownSearch<String>(
           selectedItem: selectedItem,
+
           items: (String filter, _) async {
             return items
                 .where((v) => v.toLowerCase().contains(filter.toLowerCase()))
