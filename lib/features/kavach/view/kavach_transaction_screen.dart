@@ -93,7 +93,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen> {
                       .toList();
 
                   if (filteredPayments.isEmpty) {
-                    return const Center(child: Text('No transactions found.'));
+                    return Center(child: Text(context.appText.noTransactionsFound));
                   }
 
                   return ListView.builder(

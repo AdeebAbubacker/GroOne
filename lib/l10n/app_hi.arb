@@ -1187,7 +1187,26 @@
   "updateRequired": "अपडेट आवश्यक",
   "updateAppText1": "आपको ऐप का उपयोग जारी रखने के लिए संस्करण ",
   "updateAppText2": " पर अपडेट करना होगा।",
-  "updateAvailableText": "अपडेट उपलब्ध है! कृपया बेहतर अनुभव के लिए अपडेट करें।"
-
-
+  "updateAvailableText": "अपडेट उपलब्ध है! कृपया बेहतर अनुभव के लिए अपडेट करें।",
+  "valueAddedServices": "मूल्य वर्धित सेवाएँ",
+  "vehicleDetail": "वाहन विवरण",
+  "productDetail": "उत्पाद विवरण",
+  "downloading": "डाउनलोड हो रहा है...",
+  "groExecutive": "ग्रो एग्जीक्यूटिव",
+  "failedToLoadAddresses": "पते लोड करने में विफल",
+  "noAvailableBillingAddresses": "कोई उपलब्ध बिलिंग पता नहीं",
+  "allAddressesAlreadySelectedForShipping": "सभी पते पहले से ही शिपिंग के लिए चुने गए हैं",
+  "addYourFirstBillingAddress": "अपना पहला बिलिंग पता जोड़ें",
+  "pleaseSelectAddressFirst": "कृपया पहले एक पता चुनें",
+  "noAddressesFound": "कोई पते नहीं मिले",
+  "invalidFeatureConfiguration": "अमान्य फ़ीचर कॉन्फ़िगरेशन",
+  "pleaseEnterVehicleNumber": "कृपया वाहन संख्या दर्ज करें",
+  "vehicleVerificationFailed": "वाहन सत्यापन विफल",
+  "noAvailableShippingAddresses": "कोई उपलब्ध शिपिंग पता नहीं",
+  "allAddressesAlreadySelectedForBilling": "सभी पते पहले से ही बिलिंग के लिए चुने गए हैं",
+  "addYourFirstShippingAddress": "अपना पहला शिपिंग पता जोड़ें",
+  "validationError": "सत्यापन त्रुटि",
+  "pleaseSelectMakeAndModel": "कृपया निर्माता और मॉडल चुनें",
+  "outOfStock": "स्टॉक खत्म",
+  "requestedOn": "अनुरोध दिनांक"
 }

@@ -420,7 +420,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           16.height,
                           //pincode feild
                            AppTextField(
-                            labelText: 'Pincode *',
+                            labelText: '${context.appText.pinCode} *',
                             hintText: 'Enter pincode',
                             controller: pincodeController,
                             keyboardType: TextInputType.number,

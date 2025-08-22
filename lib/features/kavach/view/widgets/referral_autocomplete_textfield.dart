@@ -3,6 +3,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -227,12 +228,12 @@ class _ReferralAutoCompleteTextFieldState
             SizedBox(height: 4),
             TextButton(
               onPressed: _loadUsers,
-              child: Text('Retry'),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               ),
+              child: Text(context.appText.retry),
             ),
           ],
         ],

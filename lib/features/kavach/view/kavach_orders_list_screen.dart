@@ -205,11 +205,11 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                   child: Row(
                     children: List.generate(5, (index) {
                       final tabLabels = [
-                        'All',
-                        'Order Placed',
-                        'Dispatched',
-                        'Delivered',
-                        'Installed',
+                        context.appText.all,
+                        context.appText.orderPlaced,
+                        context.appText.dispatched,
+                        context.appText.delivered,
+                        context.appText.installed,
                       ];
                       final isSelected = _tabController.index == index;
                       return Padding(
@@ -279,7 +279,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   }
   Widget buildGetYourTankLockButtonWidget() {
     return AppButton(
-      title: "Get your Tank Lock Now",
+      title: context.appText.getYourTankLockNow,
       onPressed: () {
         Navigator.of(
           context,
@@ -423,7 +423,7 @@ class _OrdersListViewState extends State<_OrdersListView> {
         } else if (state is KavachOrderListLoaded) {
           if (state.orders.isEmpty) {
             return Center(
-              child: Text('No orders found', style: AppTextStyle.h5),
+              child: Text(context.appText.noOrdersFound, style: AppTextStyle.h5),
             );
           }
           return ListView.builder(

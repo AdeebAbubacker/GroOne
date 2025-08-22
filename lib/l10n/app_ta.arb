@@ -1185,6 +1185,26 @@
   "updateRequired": "புதுப்பிப்பு அவசியம்",
   "updateAppText1": "பயன்பாட்டைப் தொடர்ந்து பயன்படுத்த நீங்கள் ",
   "updateAppText2": " பதிப்பிற்கு புதுப்பிக்க வேண்டும்.",
-  "updateAvailableText": "புதுப்பிப்பு கிடைக்கிறது! சிறந்த அனுபவத்திற்காக புதுப்பிக்கவும்."
-
+  "updateAvailableText": "புதுப்பிப்பு கிடைக்கிறது! சிறந்த அனுபவத்திற்காக புதுப்பிக்கவும்.",
+  "valueAddedServices": "மதிப்பு கூடிய சேவைகள்",
+  "vehicleDetail": "வாகன விவரம்",
+  "productDetail": "தயாரிப்பு விவரம்",
+  "downloading": "பதிவிறக்கம் நடைபெற்று வருகிறது...",
+  "groExecutive": "குரோ நிர்வாகி",
+  "failedToLoadAddresses": "முகவரிகளை ஏற்ற முடியவில்லை",
+  "noAvailableBillingAddresses": "பில்லிங் முகவரிகள் எதுவும் இல்லை",
+  "allAddressesAlreadySelectedForShipping": "அனைத்து முகவரிகளும் ஏற்கனவே கப்பலுக்கு தேர்ந்தெடுக்கப்பட்டுள்ளன",
+  "addYourFirstBillingAddress": "உங்கள் முதல் பில்லிங் முகவரியைச் சேர்க்கவும்",
+  "pleaseSelectAddressFirst": "முதலில் ஒரு முகவரியைத் தேர்ந்தெடுக்கவும்",
+  "noAddressesFound": "முகவரிகள் எதுவும் இல்லை",
+  "invalidFeatureConfiguration": "தவறான அம்ச கட்டமைப்பு",
+  "pleaseEnterVehicleNumber": "தயவுசெய்து வாகன எண்ணை உள்ளிடவும்",
+  "vehicleVerificationFailed": "வாகன சரிபார்ப்பு தோல்வியடைந்தது",
+  "noAvailableShippingAddresses": "ஷிப்பிங் முகவரிகள் எதுவும் இல்லை",
+  "allAddressesAlreadySelectedForBilling": "அனைத்து முகவரிகளும் ஏற்கனவே பில்லிங்கிற்கு தேர்ந்தெடுக்கப்பட்டுள்ளன",
+  "addYourFirstShippingAddress": "உங்கள் முதல் ஷிப்பிங் முகவரியைச் சேர்க்கவும்",
+  "validationError": "சரிபார்ப்பு பிழை",
+  "pleaseSelectMakeAndModel": "தயவுசெய்து உற்பத்தியாளர் மற்றும் மாதிரியைத் தேர்ந்தெடுக்கவும்",
+  "outOfStock": "கையிருப்பு இல்லை",
+  "requestedOn": "கோரிய தேதி"
 }

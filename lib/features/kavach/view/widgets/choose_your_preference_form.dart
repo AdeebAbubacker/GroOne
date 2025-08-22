@@ -115,7 +115,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
             if (widget.showTitle) ...[
               Center(
                 child: Text(
-                  "Choose your Preference",
+                  context.appText.chooseYourPreference,
                   style: AppTextStyle.h4,
                 ),
               ),
@@ -155,11 +155,11 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final makes = widget.vehicleFilters.keys.toList();
 
     return SearchableDropdown(
-      labelText: "Make",
+      labelText: context.appText.make,
       mandatoryStar: true,
       selectedItem: selectedMake,
       items: makes,
-      hintText: "Select",
+      hintText: context.appText.select,
       onChanged: (val) {
         setState(() {
           selectedMake = val;
@@ -181,11 +181,11 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final models = vehicleFilter?.models ?? [];
 
     return SearchableDropdown(
-      labelText: "Model",
+      labelText: context.appText.model,
       mandatoryStar: true,
       selectedItem: selectedModel,
       items: models,
-      hintText: "Select",
+      hintText: context.appText.select,
       onChanged: (val) {
         setState(() {
           selectedModel = val;
@@ -206,10 +206,10 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final engines = vehicleFilter?.engineType ?? [];
 
     return SearchableDropdown(
-      labelText: "Engine",
+      labelText: context.appText.engine,
       selectedItem: selectedEngine,
       items: engines,
-      hintText: "Select",
+      hintText: context.appText.select,
       onChanged: (val) {
         setState(() {
           selectedEngine = val;
@@ -229,10 +229,10 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final tankTypes = vehicleFilter?.tankType ?? [];
 
     return SearchableDropdown(
-      labelText: "Tank Type",
+      labelText: context.appText.tankType,
       selectedItem: selectedTankType,
       items: tankTypes,
-      hintText: "Select",
+      hintText: context.appText.select,
       onChanged: (val) {
         setState(() {
           selectedTankType = val;
@@ -251,10 +251,10 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final deviceTypes = vehicleFilter?.deviceType ?? [];
 
     return SearchableDropdown(
-      labelText: "Device Type",
+      labelText: context.appText.deviceType,
       selectedItem: selectedDeviceType,
       items: deviceTypes,
-      hintText: "Select",
+      hintText:context.appText.select,
       onChanged: (val) {
         setState(() {
           selectedDeviceType = val;
@@ -281,7 +281,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ).expand(),
         20.width,
         AppButton(
-          title: isBS4Selected ? 'Support' : context.appText.apply,
+          title: isBS4Selected ? context.appText.support : context.appText.apply,
           style: AppButtonStyle.primary,
           onPressed: () {
             if (isBS4Selected) {
@@ -291,9 +291,9 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
               AppDialog.show(
                 context,
                 child: CommonDialogView(
-                  heading: 'Validation Error',
-                  message: 'Please select Make and Model',
-                  onSingleButtonText: "OK",
+                  heading: context.appText.validationError,
+                  message: context.appText.pleaseSelectMakeAndModel,
+                  onSingleButtonText: context.appText.ok,
                   onTapSingleButton: () {
                     Navigator.of(context).pop();
                   },

@@ -1229,7 +1229,29 @@
   "updateRequired": "Update Required",
   "updateAppText1": "You must update to version ",
   "updateAppText2": " to continue using the app.",
-  "updateAvailableText": "Update available! Please update for the best experience."
+  "updateAvailableText": "Update available! Please update for the best experience.",
+  "valueAddedServices": "Value Added Services",
+  "vehicleDetail": "Vehicle Detail",
+  "productDetail": "Product Detail",
+  "downloading": "Downloading...",
+  "groExecutive": "Gro Executive",
+  "failedToLoadAddresses": "Failed to load addresses",
+  "noAvailableBillingAddresses": "No available billing addresses",
+  "allAddressesAlreadySelectedForShipping": "All addresses are already selected for shipping",
+  "addYourFirstBillingAddress": "Add your first billing address",
+  "pleaseSelectAddressFirst": "Please select an address first",
+  "noAddressesFound": "No addresses found",
+  "invalidFeatureConfiguration": "Invalid feature configuration",
+  "pleaseEnterVehicleNumber": "Please enter a vehicle number",
+  "vehicleVerificationFailed": "Vehicle verification failed",
+  "noAvailableShippingAddresses": "No available shipping addresses",
+  "allAddressesAlreadySelectedForBilling": "All addresses are already selected for billing",
+  "addYourFirstShippingAddress": "Add your first shipping address",
+  "validationError": "Validation Error",
+  "pleaseSelectMakeAndModel": "Please select Make and Model",
+  "outOfStock": "Out of stock",
+  "requestedOn": "Requested On"
+
 
 
 }

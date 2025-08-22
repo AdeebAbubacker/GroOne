@@ -285,7 +285,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Requested On: ${formatDateTimeKavach(lastUpdated)}',
+                  '${context.appText.requestedOn}: ${formatDateTimeKavach(lastUpdated)}',
                   style: AppTextStyle.body,
                 ),
                 10.height,
