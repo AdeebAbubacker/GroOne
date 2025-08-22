@@ -480,7 +480,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Gro Executive', style: AppTextStyle.h5),
+          Text(context.appText.groExecutive, style: AppTextStyle.h5),
           Text(order.orderReferencedBy, style: AppTextStyle.bodyGreyColor),
         ],
       ),

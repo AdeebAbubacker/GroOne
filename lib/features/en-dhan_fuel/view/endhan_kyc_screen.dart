@@ -420,7 +420,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                                         cubit.sendAadhaarOtp();
                                         _resetResendTimer();
                                         ToastMessages.success(
-                                          message: 'OTP resent successfully',
+                                          message: context.appText.otpHasBeenSentSuccessfully,
                                         );
                                       },
                               child: Text(
@@ -504,7 +504,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
               message: context.appText.aadhaarVerifiedSuccessfully,
             );
           } else {
-            ToastMessages.error(message: "Failed to upload Aadhaar PDF.");
+            ToastMessages.error(message: context.appText.failedToUploadAadhaarPdf);
           }
         }
       }
@@ -999,11 +999,11 @@ class _EndhanKycScreenContent extends StatelessWidget {
                 String message = '';
                 if (!isAadhaarVerified && !isPanVerified) {
                   message =
-                      'Please verify both PAN and Aadhaar before submitting.';
+                      context.appText.verifyPanAndAadhaarBeforeSubmit;
                 } else if (!isAadhaarVerified) {
-                  message = 'Please verify your Aadhaar before submitting.';
+                  message = context.appText.verifyAadhaarBeforeSubmit;
                 } else if (!isPanVerified) {
-                  message = 'Please verify your PAN before submitting.';
+                  message = context.appText.verifyPanBeforeSubmit;
                 }
 
                 showDialog(
@@ -1085,31 +1085,15 @@ class _EndhanKycScreenContent extends StatelessWidget {
   void _showInfoDialog(BuildContext context, String fieldName) {
     String message = '';
     if (fieldName == context.appText.aadhaarCard) {
-      message =
-          '• Enter your 12-digit Aadhaar number\n'
-          '• Aadhaar number should not start with 0 or 1\n'
-          '• All digits should not be the same\n'
-          '• You will receive OTP for verification';
+      message = context.appText.aadhaarInfo;
     } else if (fieldName == context.appText.pan) {
-      message =
-          '• Enter your 10-character PAN number\n'
-          '• Format: ABCDE1234F (5 letters + 4 digits + 1 letter)\n'
-          '• Upload clear image of your PAN card\n'
-          '• Ensure all details are clearly visible';
+      message = context.appText.panInfo;
     } else if (fieldName == context.appText.identityProof) {
-      message =
-          '• Upload both front and back sides of your identity document\n'
-          '• Accepted documents: Aadhaar, PAN, Driving License, Passport\n'
-          '• Ensure all details are clearly visible\n'
-          '• File size should be less than 5MB';
+      message = context.appText.identityProofInfo;
     } else if (fieldName == context.appText.addressProof) {
-      message =
-          '• Upload both front and back sides of your address document\n'
-          '• Accepted documents: Aadhaar, Utility Bill, Bank Statement\n'
-          '• Document should not be older than 3 months\n'
-          '• Ensure address is clearly visible';
+      message = context.appText.addressProofInfo;
     } else {
-      message = 'Please provide valid information for this field.';
+      message = context.appText.invalidFieldInfo;
     }
 
     showDialog(

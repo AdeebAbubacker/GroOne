@@ -421,7 +421,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           //pincode feild
                            AppTextField(
                             labelText: '${context.appText.pinCode} *',
-                            hintText: 'Enter pincode',
+                            hintText: context.appText.enterPinCode,
                             controller: pincodeController,
                             keyboardType: TextInputType.number,
                             maxLength: 6,
@@ -435,15 +435,15 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             },
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'Pincode is required';
+                                return context.appText.pincodeRequired;
                               }
                               // Pincode validation for India (6 digits, only numbers)
                               final pincodeRegex = indianPincodeRegex;
                               if (!pincodeRegex.hasMatch(value.trim())) {
-                                return 'Please enter a valid 6-digit pincode';
+                                return context.appText.valid6DigitPincode;
                               }
                               if (value.trim().length != 6) {
-                                return 'Pincode must be exactly 6 digits';
+                                return context.appText.pincodeMustBeExactly6Digits;
                               }
                               return null;
                             },
@@ -456,7 +456,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                              builder: (context) {
                                return EnhancedDropdownField(
                                  labelText: '${context.appText.zonalOffice} *',
-                                 hintText: 'Select zonal office',
+                                 hintText: context.appText.selectZonalOffice,
                                  value: state.selectedZonalOfficeId?.toString(),
                                  displayText: state.selectedZonalOfficeName,
                                  options: state.zonalOffices.map((office) => {
@@ -485,7 +485,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                              builder: (context) {
                                return EnhancedDropdownField(
                                  labelText: '${context.appText.regionalOffice} *',
-                                 hintText: 'Select regional office',
+                                 hintText: context.appText.selectRegionalOffice,
                                  value: state.selectedRegionalOfficeId?.toString(),
                                  options: state.regionalOffices.map((office) => {
                                    'id': office['id'],
@@ -507,7 +507,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           16.height,
                           AppTextField(
                             labelText: '${context.appText.addressLine1} *',
-                            hintText: 'Enter',
+                            hintText: context.appText.enter,
                             controller: address1Controller,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
@@ -519,7 +519,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           16.height,
                           AppTextField(
                             labelText: '${context.appText.addressLine2} *',
-                            hintText: 'Enter',
+                            hintText: context.appText.enter,
                             controller: address2Controller,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
@@ -535,7 +535,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                              builder: (context) {
                                return EnhancedDropdownField(
                                  labelText: '${context.appText.state} *',
-                                 hintText: 'Select state',
+                                 hintText: context.appText.selectState,
                                  value: state.selectedStateId?.toString(),
                                  displayText: state.selectedStateName,
                                  options: state.states.map((state) => {
@@ -567,7 +567,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                     : state.selectedDistrictId?.toString();
                                 return EnhancedDropdownField(
                                   labelText: '${context.appText.district} *',
-                                  hintText: 'Select district',
+                                  hintText: context.appText.selectDistrict,
                                   value: districtValue,
                                   options: state.districts.map((district) => {
                                     'id': district['id'],
@@ -579,7 +579,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                   isLoading: state.districtsState?.status == Status.LOADING,
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
-                                      return 'Please select a district';
+                                      return context.appText.pleaseSelectDistrict;
                                     }
                                     return null;
                                   },
@@ -589,8 +589,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
 
                           16.height,
                           AppTextField(
-                            labelText: 'City Name *',
-                            hintText: 'Enter city name',
+                            labelText: '${context.appText.cityName} *',
+                            hintText: context.appText.enterCityName,
                             controller: cityNameController,
                             maxLength: 50,
                             textCapitalization: TextCapitalization.words,
@@ -600,18 +600,18 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             ],
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
-                                return 'City name is required';
+                                return context.appText.cityNameRequired;
                               }
                               if (value.trim().length < 2) {
-                                return 'City name must be at least 2 characters';
+                                return context.appText.cityNameMustBeAtLeast2Characters;
                               }
                               if (value.trim().length > 50) {
-                                return 'City name cannot exceed 50 characters';
+                                return context.appText.cityNameCannotExceed50Characters;
                               }
                               // Check if contains only alphabets and spaces
                               final cityRegex = cityNameValidationRegex;
                               if (!cityRegex.hasMatch(value.trim())) {
-                                return 'City name can only contain alphabets and spaces';
+                                return context.appText.cityNameCanOnlyContainAlphabetsAndSpaces;
                               }
                               return null;
                             },
@@ -621,14 +621,14 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                       
                           EnDhanReferralAutoCompleteTextField(
                             controller: referralCodeController,
-                            labelText: 'Referral Code (Optional)',
+                            labelText: context.appText.referralCodeOptional,
                             onSelected: (value) {
                               cubit.setReferralCode(value);
                             },
                           ),
                           50.height,
                           AppButton(
-                            title: 'Next',
+                            title: context.appText.next,
                             style: AppButtonStyle.primary,
                             onPressed: () async {
                               // Force sync all controller values to cubit state before validation
@@ -640,7 +640,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        'Please select a zonal office',
+                                        context.appText.selectZonalOffice,
                                       ),
                                     ),
                                   );
@@ -650,7 +650,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
                                       content: Text(
-                                        'Please select a regional office',
+                                        context.appText.selectRegionalOffice,
                                       ),
                                     ),
                                   );
@@ -659,7 +659,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 if (state.selectedStateId == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Please select a state'),
+                                      content: Text(context.appText.selectState),
                                     ),
                                   );
                                   return;
@@ -667,7 +667,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 if (state.selectedDistrictId == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text('Please select a district'),
+                                      content: Text(context.appText.selectDistrict),
                                     ),
                                   );
                                   return;
@@ -937,7 +937,7 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
             controller: widget.controller,
             validator: widget.validator,
             decoration: commonInputDecoration(
-              hintText: 'Enter referral code',
+              hintText: context.appText.enterReferralCode,
             ),
           ),
         ],

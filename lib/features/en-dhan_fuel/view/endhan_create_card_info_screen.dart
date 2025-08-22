@@ -936,7 +936,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                         }
                                         
                                         if (isAlreadySelected) {
-                                          ToastMessages.alert(message: 'Vehicle already selected');
+                                          ToastMessages.alert(message: context.appText.vehicleAlreadySelected);
                                           return;
                                         }
                                         
@@ -1163,7 +1163,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                 ).showSnackBar(
                                                   SnackBar(
                                                     content: Text(
-                                                      'Document uploaded successfully!',
+                                                      context.appText.documentUploadedSuccessfully,
                                                     ),
                                                   ),
                                                 );

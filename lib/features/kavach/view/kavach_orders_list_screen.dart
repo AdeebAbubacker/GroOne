@@ -336,7 +336,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.benefitsOfKavach, style: AppTextStyle.body1),
+        Text(context.appText.benefitsOfKavach, style: AppTextStyle.h4),
         20.height,
         benefitItem(context.appText.kavachBenefit1Title, context.appText.kavachBenefit1Desc),
         benefitItem(context.appText.kavachBenefit2Title, context.appText.kavachBenefit2Desc),
