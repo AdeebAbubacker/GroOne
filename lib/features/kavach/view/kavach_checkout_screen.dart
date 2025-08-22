@@ -424,7 +424,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 ),
                 child: ReferralAutoCompleteTextField(
                   controller: referralCodeController,
-                  labelText: 'Referral Code (Optional)',
+                  labelText: context.appText.referralCodeOptional,
                   onSelected: (value) {
                     // Referral code selected
                   },
@@ -991,7 +991,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                     });
                     
                     if (isAlreadySelected) {
-                      ToastMessages.alert(message: 'Vehicle already selected');
+                      ToastMessages.alert(message: context.appText.vehicleAlreadySelected);
                       return;
                     }
                     

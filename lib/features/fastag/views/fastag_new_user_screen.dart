@@ -27,7 +27,7 @@ class FastagNewUserScreen extends StatelessWidget {
       bottomNavigationBar:  AppButton(
         title: context.appText.buyFastag,
         onPressed: () {
-          Navigator.push(context,commonRoute(BuyNewFastagScreen()));
+          Navigator.pushReplacement(context,commonRoute(BuyNewFastagScreen()));
         },
       ).bottomNavigationPadding(),
       appBar: CommonAppBar(
@@ -94,7 +94,7 @@ class FastagNewUserScreen extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.fastagBenefitsTitle, style: AppTextStyle.body1),
+        Text(context.appText.fastagBenefitsTitle, style: AppTextStyle.h4),
         20.height,
 
         benefitItem(

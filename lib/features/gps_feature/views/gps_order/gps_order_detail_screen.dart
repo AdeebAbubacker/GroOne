@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -17,6 +18,7 @@ import '../../../../utils/app_button_style.dart';
 import '../../../../utils/app_icon_button.dart';
 import '../../../../utils/app_icons.dart';
 
+import '../../../../utils/app_image.dart';
 import '../../../../utils/app_route.dart';
 
 import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
@@ -44,9 +46,9 @@ class GpsOrderDetailScreen extends StatelessWidget {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).pushReplacement(
-                commonRoute(GpsModelsScreen()),
-              );
+              Navigator.of(
+                context,
+              ).pushReplacement(commonRoute(GpsModelsScreen()));
             },
             icon: Icon(Icons.add, color: Colors.white),
             style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -72,7 +74,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
               12.height,
               _orderTimeline(context),
               12.height,
-               _addressSection(order.billingAddress, context),
+              _addressSection(order.billingAddress, context),
               _addressSection(order.shippingAddress, context),
 
               12.height,
@@ -96,21 +98,22 @@ class GpsOrderDetailScreen extends StatelessWidget {
           // Open the invoice in browser or PDF viewer
           launchUrl(Uri.parse(state.url), mode: LaunchMode.externalApplication);
         } else if (state is KavachOrderListError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
         return AppButton(
           onPressed: () {
-            context
-                .read<KavachOrderListBloc>()
-                .add(DownloadInvoiceEvent(order.id));
+            context.read<KavachOrderListBloc>().add(
+              DownloadInvoiceEvent(order.id),
+            );
           },
-          title: state is InvoiceDownloading
-              ? "Downloading..."
-              : "Download Invoice",
+          title:
+              state is InvoiceDownloading
+                  ? context.appText.downloading
+                  : context.appText.downloadInvoice,
         ).bottomNavigationPadding();
       },
     );
@@ -172,15 +175,13 @@ class GpsOrderDetailScreen extends StatelessWidget {
           25.height,
           Text(
             order.lineItems.length == 1
-                ? "Product Detail"
+                ? context.appText.productDetail
                 : context.appText.productDetails,
-            style: AppTextStyle.h5
+            style: AppTextStyle.h5,
           ),
           8.height,
           ...order.lineItems.map((p) => _productItem(p, context)),
-          const Divider(
-            color: AppColors.shadowColor,
-          ),
+          const Divider(color: AppColors.shadowColor),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -188,7 +189,10 @@ class GpsOrderDetailScreen extends StatelessWidget {
                 context.appText.totalAmountPaid,
                 style: AppTextStyle.h5GreyColor,
               ),
-              Text("₹${formatCurrency(order.totalPrice)}", style: AppTextStyle.h5),
+              Text(
+                "₹${formatCurrency(order.totalPrice)}",
+                style: AppTextStyle.h5,
+              ),
             ],
           ),
           10.height,
@@ -206,20 +210,14 @@ class GpsOrderDetailScreen extends StatelessWidget {
           Row(
             children: [
               // Use a GPS device icon or image
-              Container(
-                width: 70,
-                height: 70,
-                decoration: BoxDecoration(
-                  color: AppColors.greyContainerBackgroundColor,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(
-                  Icons.gps_fixed,
-                  color: AppColors.primaryColor,
-                  size: 30,
-                ),
-              ),
-              8.height,
+              CachedNetworkImage(
+                    imageUrl: p.product.fileKey,
+                    width: 70,
+                    height: 70,
+                    fit: BoxFit.cover,
+                errorWidget: (context, url, error) => Image.asset(AppImage.png.gpsNewProduct, width: 70),
+                  ),
+              8.width,
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -235,7 +233,10 @@ class GpsOrderDetailScreen extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('₹${formatCurrency(p.totalPrice)}', style: AppTextStyle.h5),
+                  Text(
+                    '₹${formatCurrency(p.totalPrice)}',
+                    style: AppTextStyle.h5,
+                  ),
                   Text(
                     '${context.appText.qty} - ${p.quantity}',
                     style: AppTextStyle.textGreyColor12w400,
@@ -247,7 +248,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
           // Vehicle information section
           if (p.vehicles.isNotEmpty) ...[
             8.height,
-          Row(
+            Row(
               children: [
                 Icon(
                   Icons.local_shipping_outlined,
@@ -289,22 +290,24 @@ class GpsOrderDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Status', style: AppTextStyle.h4),
+          Text(context.appText.status, style: AppTextStyle.h4),
           20.height,
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: ListView.builder(
               physics: NeverScrollableScrollPhysics(),
               shrinkWrap: true,
-              itemBuilder: (context, index) => _stage(
-                title: order.statusHistory[index].orderStatus.statusLabel,
-                date: order.statusHistory[index].createdAt,
-                subtitle: order.statusHistory[index].remarks,
-                isLast: (order.statusHistory.length - 1) == index,
-                installationPersonMobile: order.installationContactPersonNumber,
-                installationPersonName: order.installationContactPerson,
-                context: context,
-              ),
+              itemBuilder:
+                  (context, index) => _stage(
+                    title: order.statusHistory[index].orderStatus.statusLabel,
+                    date: order.statusHistory[index].createdAt,
+                    subtitle: order.statusHistory[index].remarks,
+                    isLast: (order.statusHistory.length - 1) == index,
+                    installationPersonMobile:
+                        order.installationContactPersonNumber,
+                    installationPersonName: order.installationContactPerson,
+                    context: context,
+                  ),
               itemCount: order.statusHistory.length,
             ),
           ),
@@ -397,7 +400,10 @@ class GpsOrderDetailScreen extends StatelessWidget {
   Widget _addressSection(GpsOrderAddress address, BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical: commonSafeAreaPadding),
+      padding: EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: commonSafeAreaPadding,
+      ),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -442,7 +448,10 @@ class GpsOrderDetailScreen extends StatelessWidget {
                 "${context.appText.price} (${getTotalQuantity()} ${getTotalQuantity() == 1 ? 'item' : context.appText.items})",
                 '₹${formatCurrency(order.price)}',
               ),
-              PriceRow(context.appText.gstKavach, '₹${formatCurrency(order.totalGst)}'),
+              PriceRow(
+                context.appText.gstKavach,
+                '₹${formatCurrency(order.totalGst)}',
+              ),
               5.height,
               DottedLine(
                 direction: Axis.horizontal,
@@ -452,7 +461,10 @@ class GpsOrderDetailScreen extends StatelessWidget {
                 dashColor: AppColors.greyIconColor,
               ),
               5.height,
-              PriceRow(context.appText.totalAmountPaid, '₹${formatCurrency(order.totalPrice)}'),
+              PriceRow(
+                context.appText.totalAmountPaid,
+                '₹${formatCurrency(order.totalPrice)}',
+              ),
             ],
           ),
         ),
@@ -468,7 +480,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Gro Executive', style: AppTextStyle.h5),
+          Text(context.appText.groExecutive, style: AppTextStyle.h5),
           Text(order.orderReferencedBy, style: AppTextStyle.bodyGreyColor),
         ],
       ),
@@ -499,7 +511,10 @@ class GpsOrderDetailScreen extends StatelessWidget {
 
   String formatCurrency(dynamic totalPrice) {
     final formatter = NumberFormat("#,##,###.##");
-    final num value = totalPrice is num ? totalPrice : double.tryParse(totalPrice.toString()) ?? 0;
+    final num value =
+        totalPrice is num
+            ? totalPrice
+            : double.tryParse(totalPrice.toString()) ?? 0;
     return formatter.format(value);
   }
 

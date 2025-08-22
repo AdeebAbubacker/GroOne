@@ -339,7 +339,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 children: [
                   Text(
                     widget.selectedVehicleNumbers.length == 1
-                        ? "Vehicle Detail"
+                        ? context.appText.vehicleDetail
                         : context.appText.vehicleDetails,
                     style: AppTextStyle.h5,
                   ),
@@ -385,9 +385,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.products.length == 1
-                  ? "Product Detail"
-                  : context.appText.paymentDetails,
+              context.appText.paymentDetails,
               style: AppTextStyle.h4,
             ),
             10.height,
@@ -405,9 +403,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.products.length == 1
-                  ? "Product Detail"
-                  : context.appText.paymentDetails,
+              context.appText.paymentDetails,
               style: AppTextStyle.h4,
             ),
             10.height,
@@ -427,9 +423,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.products.length == 1
-                ? "Product Detail"
-                : context.appText.paymentDetails,
+            context.appText.paymentDetails,
             style: AppTextStyle.h4,
           ),
           10.height,
@@ -573,7 +567,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             style: AppButtonStyle.primary,
           ).expand(),
         ],
-      ).paddingOnly(bottom: 30, right: 20, left: 20, top: 15),
+      ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15),
     );
   },
 );

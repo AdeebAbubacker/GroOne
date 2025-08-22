@@ -278,7 +278,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                       // Handle support button when BS6 is selected
                       commonSupportDialog(context);
                     },
-                  ),
+                  ).paddingBottom(30),
                 ),
               );
             }
@@ -309,7 +309,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                 ),
                 16.height,
                 Text(
-                  'No data available',
+                  context.appText.noData,
                   style: AppTextStyle.h5.copyWith(
                     color: AppColors.greyTextColor,
                   ),

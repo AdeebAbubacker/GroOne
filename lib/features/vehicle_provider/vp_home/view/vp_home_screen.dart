@@ -19,6 +19,8 @@ import 'package:gro_one_app/features/notification/view/notification_screen.dart'
 
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
+import 'package:gro_one_app/features/splash/splash_screen.dart';
+import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
@@ -75,6 +77,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    final loginBloc = locator<LoginBloc>();
    final securePrefs = locator<SecuredSharedPreferences>();
    final lpHomeCubit = locator<LPHomeCubit>();
+   final splashViewModel = locator<SplashViewModel>();
 
 
   final searchController = TextEditingController();
@@ -100,6 +103,18 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
   }
 
   void initFunction() => frameCallback(() async {
+    await splashViewModel.checkAppUpdate();
+
+    final updateState = splashViewModel.appUpdateUIState;
+    if (updateState != null && updateState.status == Status.SUCCESS) {
+      final updateType = parseUpdateType(updateState.data!);
+
+      if (updateType == AppUpdateType.force && mounted) {
+        ToastMessages.updateAvailable(
+          message: context.appText.updateAvailableText,
+        );
+      }
+    }
     lpHomeBloc.getUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_order_details_screen.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import '../../../../utils/app_colors.dart';
@@ -29,7 +30,7 @@ class KavachOrderCardWidget extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'Order ID: ${order.orderUniqueId}',
+                    '${context.appText.orderId}: ${order.orderUniqueId}',
                     style: AppTextStyle.h5PrimaryColor,
                   ),
                 ),
@@ -65,9 +66,9 @@ class KavachOrderCardWidget extends StatelessWidget {
                     onTap: () {
                       Navigator.of(context).push(commonRoute(KavachOrderDetailsScreen(order: order,)));
                     },
-                    child: Text("View Detail", style: AppTextStyle.primaryColor14w700)),
+                    child: Text(context.appText.viewDetails, style: AppTextStyle.primaryColor14w700)),
                 15.width,
-                Expanded(child: Text("Purchased on ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300,maxLines: 1,)),
+                Expanded(child: Text("${context.appText.purchasedOn} ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300,maxLines: 1,)),
               ],
             )
           ],

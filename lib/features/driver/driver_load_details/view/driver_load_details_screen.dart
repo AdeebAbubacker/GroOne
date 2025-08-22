@@ -83,6 +83,7 @@ class _DriverLoadsLocationDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: SafeArea(
         child: BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
@@ -176,7 +177,8 @@ class _DriverLoadsLocationDetailsScreenState
       ),
     );
   }
-
+  
+  /// Top Notch Details
   Widget buildTopLocationWidget(DriverLoadDetailsModel loadItem) {
     return Positioned(
       top: 15,
@@ -288,7 +290,7 @@ class _DriverLoadsLocationDetailsScreenState
     );
   }
 
-  /// Support
+  /// Support Section
   Widget buildFloatingWidget(status) {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomWidgetMaxHeight = screenHeight * 0.45;
@@ -335,7 +337,8 @@ class _DriverLoadsLocationDetailsScreenState
       ),
     );
   }
-
+  
+  /// Sim consent Details
   Widget buildSimConsentWidget(int driverConsent) {
     final screenHeight = MediaQuery.of(context).size.height;
     final bottomWidgetMaxHeight = screenHeight * 0.45;
