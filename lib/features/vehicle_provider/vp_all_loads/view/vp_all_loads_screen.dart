@@ -8,6 +8,7 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
@@ -60,6 +61,12 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
   final loadFilterCubit = locator<LoadFilterCubit>();
   late VpLoadBloc vpLoadBloc;
   Timer? _debounce;
+
+
+  /// filterContent
+  int? commodityID;
+  int? leneId;
+  int? truckTypeId;
 
   @override
   void initState() {
@@ -124,7 +131,11 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final type = _tabController.index + 1;
-      vpLoadBloc.add(FetchVpLoads(type: type, search: query));
+      vpLoadBloc.add(FetchVpLoads(
+          truckTypeId:truckTypeId ,
+          laneId: leneId,
+          commodityId:commodityID ,
+          type: type, search: query));
     });
   }
 
@@ -136,12 +147,18 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     setState(() {});
   }
 
-  Future<void> _onPullToRefresh({bool forceRefresh=false}) async{
+  Future<void> _onPullToRefresh({bool forceRefresh=false,}) async{
     final type = _tabController.index+1;
     final search = searchController.text;
-    vpLoadBloc.add(FetchVpLoads(type: type, search: search, forceRefresh: forceRefresh));
+    vpLoadBloc.add(FetchVpLoads(
+        truckTypeId:truckTypeId ,
+        laneId: leneId,
+        commodityId:commodityID ,
+        type: type, search: search, forceRefresh: forceRefresh));
     setState(() {});
   }
+
+
 
   Future<void> _getFilterDataEntity()async {
    await Future.wait([
@@ -224,6 +241,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
               child: tabLabels.isEmpty
             ? const SizedBox() 
             :   TabBarView(
+
                 controller: _tabController,
                 physics: const NeverScrollableScrollPhysics(),
                 children: [
@@ -274,22 +292,62 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
   }
 
   Widget buildSearchBarAndFilterWidget(BuildContext context) {
-    return Row(
-      spacing: 10,
+    return Column(
       children: [
-        AppSearchBar(
-          searchController: searchController,
-          onChanged: _onSearchChanged,
+        Row(
+          spacing: 10,
+          children: [
+            AppSearchBar(
+              searchController: searchController,
+              onChanged: _onSearchChanged,
 
-        ).expand(),
+            ).expand(),
 
-        // AppIconButton(
-        //   onPressed: (){
-        //     commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
-        //   },
-        //   style: AppButtonStyle.primaryIconButtonStyle,
-        //   icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
-        // )
+            AppIconButton(
+              onPressed: () async {
+             final data=  await commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
+
+             commodityID= data!=null ?  data['commodityId']:null;
+             leneId= data!=null ? data['lensType']:null;
+             truckTypeId= data!=null ?  data['truckTypeId']:null;
+             _onPullToRefresh();
+             },
+              style: AppButtonStyle.primaryIconButtonStyle,
+              icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
+            )
+          ],
+        ),
+
+        BlocBuilder<LoadFilterCubit,LoadFilterState>(
+          buildWhen: (previous, current) => previous.isFilterApplied!=current.isFilterApplied,
+          builder: (context, state) {
+          return Visibility(
+            visible: state.isFilterApplied??false,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text("Filter Applied"),
+                  GestureDetector(
+                    onTap: () {
+                       loadFilterCubit.setIsFilterApplied(value: false);
+                       commodityID=null;
+                       leneId=null;
+                       truckTypeId=null;
+                       _onPullToRefresh();
+                    },
+                    child: Icon(
+                      Icons.cancel_outlined),
+                  )
+                ],
+              ),
+            ),
+          );
+        },)
+
+
       ],
     ).paddingOnly(left: commonSafeAreaPadding,right: commonSafeAreaPadding, top: commonSafeAreaPadding);
   }
@@ -358,7 +416,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
               ),
               _onPullToRefresh,
           );
-
 
         } else if (state is VpLoadError) {
           return VpHelper.withSliverRefresh(_onPullToRefresh, child: Center(child: Text(state.message)));

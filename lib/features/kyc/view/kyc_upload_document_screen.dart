@@ -491,6 +491,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       if (!ok) {
         ToastMessages.alert(message: '${context.appText.pleaseUpload} $msg');
       }
+
+
       return ok;
     }
 
@@ -507,7 +509,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     bool gstValid() {
       final uploaded = gstDoc.isNotEmpty;
       final verified = kycCubit.state.verifiedGst ?? false;
-      return need(context.appText.gstDocument, uploaded) &
+      return need(context.appText.gstDocument, uploaded) &&
           checkId(gstDocId, "GST") &
           need(
             '${context.appText.gstDocument} ${context.appText.notVerified}',
@@ -518,7 +520,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     bool panValid() {
       final uploaded = panDoc.isNotEmpty;
       final verified = kycCubit.state.verifiedPan ?? false;
-      return need(context.appText.panDocument, uploaded) &
+      return need(context.appText.panDocument, uploaded) &&
           checkId(panDocId, "PAN") &
           need(
             '${context.appText.panDocument} ${context.appText.notVerified}',
@@ -529,7 +531,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     bool tanValid() {
       final uploaded = tanDoc.isNotEmpty;
       final verified = kycCubit.state.verifiedTan ?? false;
-      return need(context.appText.tanDocument, uploaded) &
+      return need(context.appText.tanDocument, uploaded) &&
           checkId(tanDocId, "TAN") &
           need(
             '${context.appText.tanDocument} ${context.appText.notVerified}',
@@ -541,20 +543,23 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     if (userRole != 1) {
       if (companyId == 2) {
         final chkOk =
-            need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &
-            checkId(cancelledChequeDocId, "Cancelled Cheque");
-        return need(context.appText.aadhaar, true) & chkOk;
+            need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) && checkId(cancelledChequeDocId, "Cancelled Cheque");
+        return need(context.appText.aadhaar, true) && chkOk;
       }
+
 
       final gstOk = gstValid();
       final panOk = panValid();
+
+
       final chkOk =
-          need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &
+          need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
           checkId(cancelledChequeDocId, "Cancelled Cheque");
       final tdsOk =
-          need(context.appText.tdsCertificate, tdsDocLink.isNotEmpty) &
-          checkId(tdsDocId, "TDS");
-      return gstOk & panOk & chkOk & tdsOk;
+          need(context.appText.tdsCertificate, tdsDocLink.isNotEmpty) && checkId(tdsDocId, "TDS");
+
+
+      return gstOk && panOk && chkOk && tdsOk;
     }
 
     // LP FLOW
@@ -566,13 +571,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       final gstOk = gstValid();
       final panOk = panValid();
       final tanOk = tanValid();
-      return gstOk & panOk & tanOk;
+      return gstOk && panOk && tanOk;
     }
 
     final gstOk = gstValid();
     final panOk = panValid();
     final tanOk = tanValid();
-    return gstOk & panOk & tanOk;
+    return gstOk && panOk && tanOk;
   }
 
   // bool validateDocs({

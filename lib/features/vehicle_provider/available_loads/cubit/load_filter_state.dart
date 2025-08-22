@@ -8,12 +8,26 @@ class LoadFilterState extends Equatable {
   final UIState<List<LoadCommodityListModel>>? commodityResponseUIState;
   final UIState<TruckPrefLaneModel>? truckTypeLaneUIState;
   final UIState<List<TruckTypeModel>>? truckTypeUIState;
+  final bool? isFilterApplied;
+
+
+  final Map<String,dynamic>? selectedTruckType;
+  final Map<String,dynamic>? selectedLaneType;
+  final Map<String,dynamic>? selectedCommodity;
+
+
+
+
 
   // Constructor
   const LoadFilterState({
     this.commodityResponseUIState,
     this.truckTypeLaneUIState,
     this.truckTypeUIState,
+    this.isFilterApplied,
+    this.selectedTruckType,
+    this.selectedLaneType,
+    this.selectedCommodity,
   });
 
   // copyWith
@@ -21,11 +35,19 @@ class LoadFilterState extends Equatable {
     UIState<List<LoadCommodityListModel>>? commodityResponseUIState,
     UIState<TruckPrefLaneModel>? truckTypeLaneUIState,
     UIState<List<TruckTypeModel>>? truckTypeUIState,
+     Map<String,dynamic>? selectedTruckType,
+     Map<String,dynamic>? selectedLaneType,
+     Map<String,dynamic>? selectedCommodity,
+    bool? isFilterApplied
   }) {
     return LoadFilterState(
       commodityResponseUIState: commodityResponseUIState ?? this.commodityResponseUIState,
       truckTypeLaneUIState: truckTypeLaneUIState ?? this.truckTypeLaneUIState,
       truckTypeUIState: truckTypeUIState ?? this.truckTypeUIState,
+      isFilterApplied: isFilterApplied ?? this.isFilterApplied,
+      selectedCommodity: selectedCommodity??this.selectedCommodity,
+      selectedLaneType: selectedLaneType??this.selectedLaneType,
+      selectedTruckType: selectedTruckType ?? this.selectedTruckType
     );
   }
 
@@ -34,5 +56,11 @@ class LoadFilterState extends Equatable {
     commodityResponseUIState,
     truckTypeLaneUIState,
     truckTypeUIState,
+
+    isFilterApplied,
+    selectedCommodity,
+    selectedLaneType,
+    selectedTruckType
+
   ];
 }

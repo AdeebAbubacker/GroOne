@@ -1,4 +1,6 @@
 
+
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -11,6 +13,7 @@ class AppCountSelector extends StatelessWidget {
   final TextEditingController controller;
   final int minValue;
   final int maxValue;
+  final Function(String? val)? onChanged;
 
   const AppCountSelector({
     super.key,
@@ -19,12 +22,17 @@ class AppCountSelector extends StatelessWidget {
     this.isMandatory = false,
     this.minValue = 0,
     this.maxValue = 9999,
+    this.onChanged,
   });
 
   void _increment() {
+    print("tap increment");
     final current = int.tryParse(controller.text) ?? 0;
     if (current < maxValue) {
       controller.text = (current + 1).toString();
+      if(onChanged!=null){
+        onChanged!(controller.text);
+      }
     }
   }
 
@@ -32,6 +40,9 @@ class AppCountSelector extends StatelessWidget {
     final current = int.tryParse(controller.text) ?? 0;
     if (current > minValue) {
       controller.text = (current - 1).toString();
+      if(onChanged!=null){
+        onChanged!(controller.text);
+      }
     }
   }
 
@@ -67,10 +78,18 @@ class AppCountSelector extends StatelessWidget {
                   controller: controller,
                   textAlign: TextAlign.center,
                   keyboardType: TextInputType.number,
+                  onChanged: (p0) {
+                    print("working");
+                    if(onChanged!=null){
+                      print("changed number");
+                      onChanged!(p0);
+                    }
+                  },
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
                     LengthLimitingTextInputFormatter(4),
                   ],
+
                   decoration: const InputDecoration(
                     border: InputBorder.none,
                     isDense: true,

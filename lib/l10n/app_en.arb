@@ -1225,7 +1225,8 @@
   "insuranceValidityDate": "Insurance Validity Date",
   "pucExpiryDate": "PUC Expiry Date",
   "registrationDate": "Registration Date",
-  "fcExpiryDate": "FC Expiry Date"
+  "fcExpiryDate": "FC Expiry Date",
+  "detentionRequire":"Detention is required,Please add detention"
   
 
 }
