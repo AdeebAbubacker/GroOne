@@ -600,7 +600,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         bloc: driverLoadBloc,
         listener: (context, state) {
           if (state is DriverLoadStatusChanged) {
-            ToastMessages.success(message: "Load status updated successfully");
+            ToastMessages.success(message: state.result.message);
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           } else if (state is DriverLoadStatusChangeFailed) {
             ToastMessages.error(message: "Failed to update load status");
