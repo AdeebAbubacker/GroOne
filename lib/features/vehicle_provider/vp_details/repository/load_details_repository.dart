@@ -33,7 +33,6 @@ class LoadDetailsRepository {
       return await _vpDetailsService.fetchLoadDetails(loadId);
     } catch (e) {
       CustomLog.error(this, "Failed to get upload loadData ", e);
-
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

@@ -35,7 +35,7 @@ class ChatCubit extends Cubit<ChatState> {
     } else if (errorString.contains('timeout')) {
       return 'Request timed out. Please try again.';
     } else if (errorString.contains('genericerror') || errorString.contains('generic error')) {
-      return 'Something went wrong. Please try again later.';
+      return 'We encountered a problem processing your request.Our team has been notified and is investigating.';
     } else if (errorString.contains('unauthorized') || errorString.contains('403') || errorString.contains('401')) {
       return 'Access denied. Please check your credentials.';
     } else if (errorString.contains('server') || errorString.contains('500')) {
@@ -98,7 +98,6 @@ class ChatCubit extends Cubit<ChatState> {
         }
       }
     } catch (e) {
-
       emit(state.copyWith(
         isLoading: false,
         error: _getUserFriendlyErrorMessage(e),

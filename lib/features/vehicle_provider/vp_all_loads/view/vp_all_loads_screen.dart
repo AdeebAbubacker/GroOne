@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
@@ -56,6 +57,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
   final searchController = TextEditingController();
   ProfileDetailModel? profileResponse;
   final lpHomeBloc = locator<LpHomeBloc>();
+  final loadFilterCubit = locator<LoadFilterCubit>();
   late VpLoadBloc vpLoadBloc;
   Timer? _debounce;
 
@@ -107,6 +109,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
        // or .animateTo(...) for animation
     });
     _loadDataByTab(index: widget.initialTabIndex); // load initial tab
+    _getFilterDataEntity();
   }
 
   @override
@@ -139,6 +142,16 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     vpLoadBloc.add(FetchVpLoads(type: type, search: search, forceRefresh: forceRefresh));
     setState(() {});
   }
+
+  Future<void> _getFilterDataEntity()async {
+   await Future.wait([
+   loadFilterCubit.getAllCommodityState(),
+   loadFilterCubit.getAllVehicleType(),
+   loadFilterCubit.getPreferLens()
+   ]);
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +291,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
         //   icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
         // )
       ],
-    ).paddingAll(commonSafeAreaPadding);
+    ).paddingOnly(left: commonSafeAreaPadding,right: commonSafeAreaPadding, top: commonSafeAreaPadding);
   }
 
 

@@ -1669,38 +1669,7 @@ class VpLog {
 }
 
 
-final dummyLogs={
-  "vpLogs": [
-    {
-      "id": "5d295e8a-c10b-46bd-90e5-a5ce40b2c397",
-      "seriesNo": 168,
-      "loadId": "2a6ea368-224c-451d-9a4a-2f56ec75925d",
-      "customerId": "3",
-      "orderId": "2248515111",
-      "amount": "18000.00",
-      "transactionId": "bs3899411bebb0",
-      "paymentMethod": 1,
-      "type": "success",
-      "customerRoleId": 1,
-      "action": "balance",
-      "createdAt": "2025-08-11T07:40:38.590Z"
-    },
-    {
-      "id": "5d295e8a-c10b-46bd-90e5-a5ce40b2c397",
-      "seriesNo": 168,
-      "loadId": "2a6ea368-224c-451d-9a4a-2f56ec75925d",
-      "customerId": "3",
-      "orderId": "2248515111",
-      "amount": "18000.00",
-      "transactionId": "bs3899411bebb0",
-      "paymentMethod": 1,
-      "type": "success",
-      "customerRoleId": 1,
-      "action": "advanced",
-      "createdAt": "2025-08-11T07:40:38.590Z"
-    }
-  ],
-};
+
 
 
 

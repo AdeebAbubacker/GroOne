@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -8,26 +8,25 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_product
 import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_event.dart'
     as events;
 import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_state.dart';
-import 'package:gro_one_app/features/kavach/view/kavach_checkout_screen.dart';
-import 'package:gro_one_app/features/kavach/view/widgets/kavach_models_list_body.dart';
-import 'package:gro_one_app/features/kavach/view/widgets/choose_your_preference_form.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_checkout_screen.dart';
+import 'package:gro_one_app/features/kavach/view/widgets/choose_your_preference_form.dart';
+import 'package:gro_one_app/features/kavach/view/widgets/kavach_models_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/common_functions.dart';
@@ -37,7 +36,6 @@ import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_a
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import 'kavach_support_screen.dart';
 import 'kavach_transaction_screen.dart';
-import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
 
 class KavachModelsScreen extends StatelessWidget {
   final KavachChoosePreferenceModel? initialPreferences;
@@ -168,14 +166,20 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
             offset: Offset(20, 50),
             onSelected: (value) {
               if (value == context.appText.transactions) {
-                Navigator.push(context, commonRoute(KavachTransactionsScreen()));
+                Navigator.push(
+                  context,
+                  commonRoute(KavachTransactionsScreen()),
+                );
               }
             },
             itemBuilder: (BuildContext context) {
               return [
                 PopupMenuItem(
                   value: context.appText.transactions,
-                  child: Text(context.appText.transactions,style: AppTextStyle.h6,),
+                  child: Text(
+                    context.appText.transactions,
+                    style: AppTextStyle.h6,
+                  ),
                 ),
               ];
             },
@@ -274,7 +278,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                       // Handle support button when BS6 is selected
                       commonSupportDialog(context);
                     },
-                  ),
+                  ).paddingBottom(30),
                 ),
               );
             }
@@ -305,7 +309,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                 ),
                 16.height,
                 Text(
-                  'No data available',
+                  context.appText.noData,
                   style: AppTextStyle.h5.copyWith(
                     color: AppColors.greyTextColor,
                   ),
@@ -315,38 +319,24 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
           );
         }
         // Separate in-stock and out-of-stock products
-        final inStockProducts = state.products.where((p) => (state.availableStocks[p.id] ?? 0) > 0).toList();
-        final outOfStockProducts = state.products.where((p) => (state.availableStocks[p.id] ?? 0) == 0).toList();
+        final inStockProducts =
+            state.products
+                .where((p) => (state.availableStocks[p.id] ?? 0) > 0)
+                .toList();
+        final outOfStockProducts =
+            state.products
+                .where((p) => (state.availableStocks[p.id] ?? 0) == 0)
+                .toList();
 
-// Combine them with in-stock first
+        // Combine them with in-stock first
         final sortedProducts = [...inStockProducts, ...outOfStockProducts];
-
 
         return ListView.separated(
           controller: _scrollController,
-          // itemCount: state.products.length + (state.loading ? 1 : 0),
-          // separatorBuilder: (_, __) => 20.height,
-          // itemBuilder: (context, index) {
-          //   if (index == state.products.length) {
-          //     return const Center(
-          //       child: Padding(
-          //         padding: EdgeInsets.all(8.0),
-          //         child: CircularProgressIndicator(),
-          //       ),
-          //     );
-          //   }
-          //   final product = state.products[index];
-          //   final qty = state.quantities[product.id] ?? 0;
-          //   final availableStock = state.availableStocks[product.id] ?? 0;
-          //
-          //   return KavachModelsListBody(
-          //     product: product,
-          //     quantity: qty,
-          //     availableStock: availableStock,
-          //   );
-          // },
-          separatorBuilder: (_, __) => 20.height,
+          separatorBuilder: (_, __) => const SizedBox(height: 20),
           itemCount: sortedProducts.length + (state.loading ? 1 : 0),
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
           itemBuilder: (context, index) {
             if (index == sortedProducts.length) {
               return const Center(
@@ -360,13 +350,14 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
             final qty = state.quantities[product.id] ?? 0;
             final availableStock = state.availableStocks[product.id] ?? 0;
 
-            return KavachModelsListBody(
-              product: product,
-              quantity: qty,
-              availableStock: availableStock,
+            return RepaintBoundary(
+              child: KavachModelsListBody(
+                product: product,
+                quantity: qty,
+                availableStock: availableStock,
+              ),
             );
           },
-
         );
       },
     );
@@ -413,21 +404,24 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                   title: context.appText.checkout.capitalize,
                   onPressed: () async {
                     final bloc = context.read<KavachProductsListBloc>();
-                    
+
                     // Clear address blocs if no previous addresses are stored
                     // This ensures fresh start for new orders
-                    if (selectedBillingAddress == null && selectedShippingAddress == null) {
+                    if (selectedBillingAddress == null &&
+                        selectedShippingAddress == null) {
                       try {
-                        final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+                        final billingBloc =
+                            locator<KavachCheckoutBillingAddressBloc>();
                         billingBloc.add(ClearKavachBillingAddress());
-                        
-                        final shippingBloc = locator<KavachCheckoutShippingAddressBloc>();
+
+                        final shippingBloc =
+                            locator<KavachCheckoutShippingAddressBloc>();
                         shippingBloc.add(ClearKavachShippingAddress());
                       } catch (e) {
                         // Handle any errors if blocs are not available
                       }
                     }
-                    
+
                     final result = await Navigator.of(context).push(
                       commonRoute(
                         KavachCheckoutScreen(
@@ -441,9 +435,12 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                           quantities: Map.from(bloc.state.quantities),
                           previousVehicleSelection: selectedVehicles,
                           previousReferralCode: previousReferralCode,
-                          previousShippingPersonInCharge: previousShippingPersonInCharge,
-                          previousShippingPersonContactNo: previousShippingPersonContactNo,
-                          previousShippingSameAsBilling: previousShippingSameAsBilling,
+                          previousShippingPersonInCharge:
+                              previousShippingPersonInCharge,
+                          previousShippingPersonContactNo:
+                              previousShippingPersonContactNo,
+                          previousShippingSameAsBilling:
+                              previousShippingSameAsBilling,
                           selectedBillingAddress: selectedBillingAddress,
                           selectedShippingAddress: selectedShippingAddress,
                           billingAddresses: billingAddresses,
@@ -454,8 +451,9 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
 
                     if (result != null) {
                       // Check if search should be cleared
-                      final shouldClearSearch = result['clearSearch'] as bool? ?? false;
-                      
+                      final shouldClearSearch =
+                          result['clearSearch'] as bool? ?? false;
+
                       if (shouldClearSearch) {
                         // Clear search and fetch all products
                         searchController.clear();
@@ -467,7 +465,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                           ),
                         );
                       }
-                      
+
                       // Update quantities
                       bloc.add(
                         events.UpdateKavachQuantities(result['quantities']),
@@ -483,26 +481,38 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                             ),
                           ),
                         );
-                        
+
                         // Store form data
-                        previousReferralCode = result['referralCode'] as String?;
-                        previousShippingPersonInCharge = result['shippingPersonInCharge'] as String?;
-                        previousShippingPersonContactNo = result['shippingPersonContactNo'] as String?;
-                        previousShippingSameAsBilling = result['shippingSameAsBilling'] as bool?;
-                      
-                      // Store address data if available
-                      if (result.containsKey('selectedBillingAddress')) {
-                        selectedBillingAddress = result['selectedBillingAddress'] as KavachAddressModel?;
-                      }
-                      if (result.containsKey('selectedShippingAddress')) {
-                        selectedShippingAddress = result['selectedShippingAddress'] as KavachAddressModel?;
-                      }
-                      if (result.containsKey('billingAddresses')) {
-                        billingAddresses = (result['billingAddresses'] as List?)?.cast<KavachAddressModel>();
-                      }
-                      if (result.containsKey('shippingAddresses')) {
-                        shippingAddresses = (result['shippingAddresses'] as List?)?.cast<KavachAddressModel>();
-                      }
+                        previousReferralCode =
+                            result['referralCode'] as String?;
+                        previousShippingPersonInCharge =
+                            result['shippingPersonInCharge'] as String?;
+                        previousShippingPersonContactNo =
+                            result['shippingPersonContactNo'] as String?;
+                        previousShippingSameAsBilling =
+                            result['shippingSameAsBilling'] as bool?;
+
+                        // Store address data if available
+                        if (result.containsKey('selectedBillingAddress')) {
+                          selectedBillingAddress =
+                              result['selectedBillingAddress']
+                                  as KavachAddressModel?;
+                        }
+                        if (result.containsKey('selectedShippingAddress')) {
+                          selectedShippingAddress =
+                              result['selectedShippingAddress']
+                                  as KavachAddressModel?;
+                        }
+                        if (result.containsKey('billingAddresses')) {
+                          billingAddresses =
+                              (result['billingAddresses'] as List?)
+                                  ?.cast<KavachAddressModel>();
+                        }
+                        if (result.containsKey('shippingAddresses')) {
+                          shippingAddresses =
+                              (result['shippingAddresses'] as List?)
+                                  ?.cast<KavachAddressModel>();
+                        }
                       });
                     } else {
                       // Clear quantities and vehicle selections if back without any selection

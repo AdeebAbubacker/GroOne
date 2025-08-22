@@ -16,103 +16,114 @@ import 'package:slide_to_act/slide_to_act.dart';
 
 class DriverLoadHelper {
   DriverLoadHelper._();
+  
+  /// Load Status Details
+  static LoadStatus getLoadStatus(int? status) {
+    return switch (status) {
+      3 => LoadStatus.accepted,
+      4 => LoadStatus.assigned,
+      5 => LoadStatus.loading,
+      6 => LoadStatus.inTransit,
+      7 => LoadStatus.unloading,
+      8 => LoadStatus.podDispatched,
+      9 => LoadStatus.completed,
+      null || int() => LoadStatus.matching,
+    };
+  }
+  
+  /// Eliptical load Status
+  static Widget loadStatusWidget(
+    String status,
+    BuildContext context, {
+    String? statusBgColor,
+    String? statusTxtColor,
+    bool loadOnHold = false,
+  }) {
+    Color backgroundColor =
+        loadOnHold
+            ? AppColors.iconRed
+            : DriverLoadHelper.getColor(statusBgColor ?? '');
 
-  static Widget loadStatusWidget(String status, BuildContext context, {String? statusBgColor, String? statusTxtColor, bool loadOnHold = false}) {
-  Color backgroundColor = loadOnHold
-      ? AppColors.iconRed
-      : DriverLoadHelper.getColor(statusBgColor ?? '');
+    Color textColor =
+        loadOnHold
+            ? Colors.white
+            : DriverLoadHelper.getColor(statusTxtColor ?? '');
 
-  Color textColor = loadOnHold
-      ? Colors.white
-      : DriverLoadHelper.getColor(statusTxtColor ?? '');
-
-
-  return Container(
-    decoration: commonContainerDecoration(
-      color: backgroundColor,
-      borderRadius: BorderRadius.circular(100),
-    ),
-    child: FittedBox(
-      child: Text(
-        status.capitalize,
-        style: AppTextStyle.body.copyWith(color: textColor),
-      ).paddingSymmetric(horizontal: 10, vertical: 3),
-    ),
-  );
-}
+    return Container(
+      decoration: commonContainerDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: FittedBox(
+        child: Text(
+          status.capitalize,
+          style: AppTextStyle.body.copyWith(color: textColor),
+        ).paddingSymmetric(horizontal: 10, vertical: 3),
+      ),
+    );
+  }
+  
+  /// Get color from load Status 
   static Color getColor(String colorString) {
-   if (colorString.startsWith('#')) {
-     final hex = colorString.replaceFirst('#', '');
-     final fullHex = hex.length == 6 ? 'FF$hex' : hex;
-     return Color(int.parse(fullHex, radix: 16));
-   } else if (colorString.startsWith('rgba')) {
-     final regex = RegExp(r'rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([.\d]*)\)');
-     final match = regex.firstMatch(colorString);
-     if (match != null) {
-       final r = int.parse(match.group(1)!);
-       final g = int.parse(match.group(2)!);
-       final b = int.parse(match.group(3)!);
-       final a = match.group(4)?.isNotEmpty == true
-           ? (double.parse(match.group(4)!) * 255).round()
-           : 255;
-       return Color.fromARGB(a, r, g, b);
-     }
-   }
-
-   // Fallback color (e.g. transparent or default)
-   return Colors.transparent;
- }
-    // switch (status) {
-    //   case "Confirmed":
-    //     return ui(text : context.appText.confirmed, textColor: Color(0xff9C27B0), backgroundColor: Color(0xffe1bfe6));
-    //   case "Assigned":
-    //     return ui(text: context.appText.assigned, textColor: Color(0xff018800), backgroundColor: Color(0xffe6f3e5));
-    //   case "Loading":
-    //     return ui(text: context.appText.loading, textColor: Color(0xffFF9800), backgroundColor: Color(0xffffeacc));
-    //   case "Unloading":
-    //     return ui(text: context.appText.unloading,textColor: Color(0xff009688), backgroundColor: Color(0xffcceae7));
-    //   case "In Transit":
-    //     return ui(text: context.appText.inTransit ,textColor: Color(0xffFF5722), backgroundColor: Color(0xffffddd3));
-    //   case "POD Dispatch":
-    //     return ui(text: context.appText.podDispatch, textColor: Colors.white, backgroundColor: Color(0xff42A5F5));
-    //   case "Completed":
-    //     return ui(text: context.appText.completed, textColor: Colors.white, backgroundColor: Color(0xff018800));
-    //   case "loadOnHold":
-    //     return ui(text: context.appText.unloadingHeld, textColor: Colors.white, backgroundColor: AppColors.iconRed);
-    //   default:
-    //     return Container();
-    // }
-
-  // }
-
-
-    static  String getBottomButtonTitle(int statusId,PodDispatchModel? podDispatched,bool isLpAgreed){
-      BuildContext context=navigatorKey.currentState!.context;
-      switch(statusId){
-       
-        case 4:
-          return isLpAgreed ?  context.appText.swipeToStart : context.appText.waitingForLpToAcceptLoad; 
-          case 5:
-          
-        return context.appText.swipeToCompleteLoading;
-          
-          case 6:
-          return  context.appText.swipeToStartUnLoading;
-          case 7:
-          return context.appText.swipeToCompleteUnLoading;
-          case 8:
-      return podDispatched == null ?  context.appText.podDispatchedDetails : context.appText.swipeToCompleteTrip;
-        default:
-          return context.appText.swipeToStart;
+    if (colorString.startsWith('#')) {
+      final hex = colorString.replaceFirst('#', '');
+      final fullHex = hex.length == 6 ? 'FF$hex' : hex;
+      return Color(int.parse(fullHex, radix: 16));
+    } else if (colorString.startsWith('rgba')) {
+      final regex = RegExp(r'rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([.\d]*)\)');
+      final match = regex.firstMatch(colorString);
+      if (match != null) {
+        final r = int.parse(match.group(1)!);
+        final g = int.parse(match.group(2)!);
+        final b = int.parse(match.group(3)!);
+        final a =
+            match.group(4)?.isNotEmpty == true
+                ? (double.parse(match.group(4)!) * 255).round()
+                : 255;
+        return Color.fromARGB(a, r, g, b);
       }
     }
-   
+
+    // Fallback color (e.g. transparent or default)
+    return Colors.transparent;
+  }
+  
+  ///  Get Current Status TExt
+  static String getBottomButtonTitle(
+    int statusId,
+    PodDispatchModel? podDispatched,
+    bool isLpAgreed,
+    bool isPodSkipped,
+  ) {
+    BuildContext context = navigatorKey.currentState!.context;
+    switch (statusId) {
+        case 4:
+        return isLpAgreed
+            ? context.appText.swipeToStart
+            : context.appText.waitingForLpToAcceptLoad;
+      case 5:
+          return context.appText.swipeToCompleteLoading;
+
+      case 6:
+        return context.appText.swipeToStartUnLoading;
+      case 7:
+        return context.appText.swipeToCompleteUnLoading;
+      case 8:
+        return (podDispatched != null || isPodSkipped == true)
+            ? context.appText.swipeToCompleteTrip
+            : context.appText.podDispatchedDetails;
+
+      default:
+        return context.appText.swipeToStart;
+    }
+  }
 
   static Widget loadStatusButtonWidget({
     required int statusId,
     bool isLoading = false,
     required VoidCallback onPressed,
-    bool? enable=true
+    bool? enable = true,
+    required BuildContext context,
   }) {
     switch (statusId) {
       case 4:
@@ -120,211 +131,265 @@ class DriverLoadHelper {
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "Start Trip",
-        );
-     
-
-     case 5:
-        return 
-        
-        SlideAction(
-          enabled: enable??true,
-          borderRadius: commonButtonRadius,
-          elevation: 0,
-          height: commonButtonHeight2,
-          innerColor: Colors.transparent,
-                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
-
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
-
-          sliderRotate: false,
-          sliderButtonYOffset: -30,
-           text: "Swipe to Complete Loading",
-          textStyle: AppTextStyle.button.copyWith(
-         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
-         onSubmit: isLoading
-    ? () async {}
-    : () async {
-        onPressed();
-      },
-
+          title: context.appText.startTrip,
         );
 
-        case 6:
+      case 5:
         return SlideAction(
-          enabled: enable??true,
+          enabled: enable ?? true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+          outerColor:
+              (enable ?? false)
+                  ? AppColors.lightPrimaryColor3
+                  : Color(0xffE9E9E9),
 
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderButtonIcon: SvgPicture.asset(
+            AppIcons.svg.swipeButtonIcon,
+            color: (enable ?? false) ? null : Color(0xff6C6C6C),
+          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text:  "Swipe to unload",
+          text: context.appText.swipeToCompleteLoading,
           textStyle: AppTextStyle.button.copyWith(
-         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
-         onSubmit: isLoading
-    ? () async {}
-    : () async {
-        onPressed();
-      },
+            color:
+                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+          ),
+          onSubmit:
+              isLoading
+                  ? () async {}
+                  : () async {
+                    onPressed();
+                  },
+        );
 
+      case 6:
+        return SlideAction(
+          enabled: enable ?? true,
+          borderRadius: commonButtonRadius,
+          elevation: 0,
+          height: commonButtonHeight2,
+          innerColor: Colors.transparent,
+          outerColor:
+              (enable ?? false)
+                  ? AppColors.lightPrimaryColor3
+                  : Color(0xffE9E9E9),
+
+          sliderButtonIcon: SvgPicture.asset(
+            AppIcons.svg.swipeButtonIcon,
+            color: (enable ?? false) ? null : Color(0xff6C6C6C),
+          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+
+          sliderRotate: false,
+          sliderButtonYOffset: -30,
+          text: context.appText.swipeToUnLoad,
+          textStyle: AppTextStyle.button.copyWith(
+            color:
+                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+          ),
+          onSubmit:
+              isLoading
+                  ? () async {}
+                  : () async {
+                    onPressed();
+                  },
         );
       case 7:
         return SlideAction(
-          enabled: enable??true,
+          enabled: enable ?? true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+          outerColor:
+              (enable ?? false)
+                  ? AppColors.lightPrimaryColor3
+                  : Color(0xffE9E9E9),
 
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderButtonIcon: SvgPicture.asset(
+            AppIcons.svg.swipeButtonIcon,
+            color: (enable ?? false) ? null : Color(0xff6C6C6C),
+          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to complete trip",
+          text: context.appText.swipeToCompleteTrip,
           textStyle: AppTextStyle.button.copyWith(
-         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
-         onSubmit: isLoading
-    ? () async {}
-    : () async {
-        onPressed();
-      },
-
+            color:
+                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+          ),
+          onSubmit:
+              isLoading
+                  ? () async {}
+                  : () async {
+                    onPressed();
+                  },
         );
       case 8:
         return AppButton(
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "View Detail",
+          title: context.appText.viewDetails,
         );
       default:
         return Container();
     }
   }
-
-    static Widget homeloadStatusButtonWidget({
+  
+  /// Load Status button home
+  static Widget homeloadStatusButtonWidget({
     required BuildContext context,
     required int statusId,
     bool isLoading = false,
     required VoidCallback onPressed,
-    bool? enable=true,
+    bool? enable = true,
     bool isMemoSigned = false,
   }) {
     switch (statusId) {
       case 4:
-      if (!isMemoSigned) {
-        // 🟡 Memo not signed → Show View Detail button
-        return AppButton(
-          buttonHeight: commonButtonHeight2,
-          onPressed: isLoading ? () {} : onPressed,
-          isLoading: isLoading,
-          title: "Start Trip",
-        );
-      } else{
-            
-      return SlideAction(
-          enabled: true,
-          borderRadius: commonButtonRadius,
-          elevation: 0,
-          height: commonButtonHeight2,
-          innerColor: Colors.transparent,
-                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+        if (!isMemoSigned) {
+          // 🟡 Memo not signed → Show View Detail button
+          return AppButton(
+            buttonHeight: commonButtonHeight2,
+            onPressed: isLoading ? () {} : onPressed,
+            isLoading: isLoading,
+            title: context.appText.startTrip,
+          );
+        } else {
+          return SlideAction(
+            enabled: true,
+            borderRadius: commonButtonRadius,
+            elevation: 0,
+            height: commonButtonHeight2,
+            innerColor: Colors.transparent,
+            outerColor:
+                (enable ?? false)
+                    ? AppColors.lightPrimaryColor3
+                    : Color(0xffE9E9E9),
 
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+            sliderButtonIcon: SvgPicture.asset(
+              AppIcons.svg.swipeButtonIcon,
+              color: (enable ?? false) ? null : Color(0xff6C6C6C),
+            ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
-          sliderRotate: false,
-          sliderButtonYOffset: -30,
-           text: "Swipe to Start Trip",
-          textStyle: AppTextStyle.button.copyWith(
-         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
-         onSubmit: isLoading
-    ? () async {}
-    : () async {
-        onPressed();
-      },
+            sliderRotate: false,
+            sliderButtonYOffset: -30,
+            text: context.appText.swipeToStart,
+            textStyle: AppTextStyle.button.copyWith(
+              color:
+                  (enable ?? false)
+                      ? AppColors.primaryColor
+                      : Color(0xff6C6C6C),
+            ),
+            onSubmit:
+                isLoading
+                    ? () async {}
+                    : () async {
+                      onPressed();
+                    },
+          );
+        }
 
-        );
-  }
-     
-
-     case 5:
+      case 5:
         return SlideAction(
-          enabled: enable??true,
+          enabled: enable ?? true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+          outerColor:
+              (enable ?? false)
+                  ? AppColors.lightPrimaryColor3
+                  : Color(0xffE9E9E9),
 
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderButtonIcon: SvgPicture.asset(
+            AppIcons.svg.swipeButtonIcon,
+            color: (enable ?? false) ? null : Color(0xff6C6C6C),
+          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-           text: "Swipe to Complete Loading",
+          text: context.appText.swipeToCompleteLoading,
           textStyle: AppTextStyle.button.copyWith(
-         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
-         onSubmit: isLoading
-    ? () async {}
-    : () async {
-        onPressed();
-      },
-
+            color:
+                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+          ),
+          onSubmit:
+              isLoading
+                  ? () async {}
+                  : () async {
+                    onPressed();
+                  },
         );
 
-        case 6:
+      case 6:
         return SlideAction(
-          enabled: enable??true,
+          enabled: enable ?? true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+          outerColor:
+              (enable ?? false)
+                  ? AppColors.lightPrimaryColor3
+                  : Color(0xffE9E9E9),
 
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderButtonIcon: SvgPicture.asset(
+            AppIcons.svg.swipeButtonIcon,
+            color: (enable ?? false) ? null : Color(0xff6C6C6C),
+          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text:  "Swipe to Unload",
+          text: context.appText.swipeToUnLoad,
           textStyle: AppTextStyle.button.copyWith(
-         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
-         onSubmit: isLoading
-    ? () async {}
-    : () async {
-        onPressed();
-      },
-
+            color:
+                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+          ),
+          onSubmit:
+              isLoading
+                  ? () async {}
+                  : () async {
+                    onPressed();
+                  },
         );
       case 7:
         return SlideAction(
-          enabled: enable??true,
+          enabled: enable ?? true,
           borderRadius: commonButtonRadius,
           elevation: 0,
           height: commonButtonHeight2,
           innerColor: Colors.transparent,
-                  outerColor:  (enable??false) ?  AppColors.lightPrimaryColor3:Color(0xffE9E9E9) ,
+          outerColor:
+              (enable ?? false)
+                  ? AppColors.lightPrimaryColor3
+                  : Color(0xffE9E9E9),
 
-          sliderButtonIcon: SvgPicture.asset(AppIcons.svg.swipeButtonIcon,color: (enable??false) ? null:Color(0xff6C6C6C),).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+          sliderButtonIcon: SvgPicture.asset(
+            AppIcons.svg.swipeButtonIcon,
+            color: (enable ?? false) ? null : Color(0xff6C6C6C),
+          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
-          text: "Swipe to complete unloading",
+          text: context.appText.swipeToCompleteUnLoading,
           textStyle: AppTextStyle.button.copyWith(
-         color:(enable??false) ?  AppColors.primaryColor :Color(0xff6C6C6C)),
-         onSubmit: isLoading
-    ? () async {}
-    : () async {
-        onPressed();
-      },
+            color:
+                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+          ),
+          onSubmit:
+              isLoading
+                  ? () async {}
+                  : () async {
+                    onPressed();
+                  },
         );
-        case 8:
+      case 8:
         return AppButton(
-
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
@@ -335,15 +400,15 @@ class DriverLoadHelper {
           buttonHeight: commonButtonHeight2,
           onPressed: isLoading ? () {} : onPressed,
           isLoading: isLoading,
-          title: "View Detail",
+          title: context.appText.viewDetails,
         );
       default:
         return Container();
     }
   }
-
-
-   static Widget driverStatusWidget(String? status) {
+  
+  /// Eliptical load Status Details
+  static Widget driverStatusWidget(String? status) {
     Widget buildUI({
       required String text,
       required Color textColor,
@@ -397,7 +462,7 @@ class DriverLoadHelper {
           text: "Completed",
           textColor: Colors.green,
           backgroundColor: Colors.green.shade100,
-        );  
+        );
       default:
         return buildUI(
           text: "Unknown",
@@ -406,22 +471,25 @@ class DriverLoadHelper {
         );
     }
   }
-
 }
 
-
-String getSwipeDriverButtonTitle(LoadStatus status,PodDispatchModel? podDispatched){
-
-  BuildContext context=navigatorKey.currentState!.context;
-  switch(status){
+/// Get Current Status Details
+String getSwipeDriverButtonTitle(
+  LoadStatus status,
+  PodDispatchModel? podDispatched,
+) {
+  BuildContext context = navigatorKey.currentState!.context;
+  switch (status) {
     case LoadStatus.loading:
       return context.appText.swipeToCompleteLoading;
-      case LoadStatus.inTransit:
+    case LoadStatus.inTransit:
       return context.appText.swipeToStartUnLoading;
-      case LoadStatus.unloading:
+    case LoadStatus.unloading:
       return context.appText.swipeToCompleteUnLoading;
     case LoadStatus.podDispatched:
-      return  podDispatched==null ?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
+      return podDispatched == null
+          ? context.appText.podDispatchedDetails
+          : context.appText.swipeToCompleteTrip;
     default:
       return context.appText.swipeToStart;
   }

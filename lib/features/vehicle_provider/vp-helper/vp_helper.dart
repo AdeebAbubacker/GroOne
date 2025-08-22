@@ -84,7 +84,7 @@ enum LoadStatus {
 
 
 
-String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? isMemoGenerated}){
+String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? isMemoGenerated,required bool isPodSkip}){
 
   BuildContext context=navigatorKey.currentState!.context;
   switch(status){
@@ -95,7 +95,7 @@ String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? i
       case LoadStatus.unloading:
       return context.appText.swipeToCompleteUnLoading;
     case LoadStatus.podDispatched:
-      return  podDispatched==null ?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
+      return  podDispatched==null  && isPodSkip==false?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
     default:
       return (isMemoGenerated??false) ?  context.appText.swipeToStart:context.appText.waitingForLpToConfirmed;
   }
@@ -127,6 +127,28 @@ LoadStatus getLoadStatus(int? status){
     9 => LoadStatus.completed,
     null || int() => LoadStatus.matching
   };
+}
+
+ LoadStatus? getVPLoadStatusFromString(String? loadType) {
+switch (loadType) {
+  case 'Confirmed':
+return LoadStatus.accepted;
+case 'Assigned':
+return LoadStatus.assigned;
+case 'Loading':
+return LoadStatus.loading;
+case 'In Transit':
+return LoadStatus.inTransit;
+case 'Unloading':
+return LoadStatus.unloading;
+
+case 'POD Dispatch':
+return LoadStatus.podDispatched;
+case 'Completed':
+return LoadStatus.completed;
+default:
+return null;
+}
 }
 
 

@@ -21,7 +21,7 @@ class VpAddedDamageWidget extends StatelessWidget {
         (index) {
           DamageReport? damageReportModel = damageReport?[index];
           return Padding(
-            padding: const EdgeInsets.only(bottom: 15),
+            padding: const EdgeInsets.only(bottom: 10),
             child: addedDamageView(
               context: context,
               onEdit: () {},
@@ -49,27 +49,33 @@ class VpAddedDamageWidget extends StatelessWidget {
     required VoidCallback onDelete,
   }) {
     return Container(
+      height: 100,
       decoration: BoxDecoration(
-        color: AppColors.extraLightBackgroundColor,
+        color: AppColors.docViewCardBgColor,
         borderRadius: BorderRadius.circular(12),
       ),
-      padding: const EdgeInsets.all(8),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       child: Row(
         children: [
           // Left-side Image with only left corners rounded
-          ClipRRect(
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(12),
-              bottomLeft: Radius.circular(12),
-            ),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(
-              maxWidth: 110,
-            ),
-              child: commonCacheNetworkImage(
-                path: imageUrl,
-                errorImage: Icons.image_not_supported,
-                radius: 0,
+          SizedBox(
+            height: 68,
+            width: 68,
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(12),
+                bottomLeft: Radius.circular(12),
+
+              ),
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                maxWidth: 110,
+              ),
+                child: commonCacheNetworkImage(
+                  path: imageUrl,
+                  errorImage: Icons.image_not_supported,
+                  radius: 0,
+                ),
               ),
             ),
           ),
@@ -79,7 +85,7 @@ class VpAddedDamageWidget extends StatelessWidget {
           // Text content
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              padding: const EdgeInsets.symmetric(vertical: 0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -92,8 +98,6 @@ class VpAddedDamageWidget extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
 
-                  5.height,
-
                   // Quantity
                   Text(
                     "${context.appText.quantity}: $quantity",
@@ -101,13 +105,12 @@ class VpAddedDamageWidget extends StatelessWidget {
                   ),
 
                   // Description with expandable "Read More"
-                  ExpandableText(
-                    text: description,
-                    maxLines: 2,
+                  Text(
+                    description,
                     style: AppTextStyle.body4GreyColor,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
-
-                  5.height,
 
                   InkWell(
                     onTap: () {

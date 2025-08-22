@@ -238,7 +238,7 @@ class _OurValueAddedServicesWidgetState
       //   },
       // ),
       _buildServicesWidget(
-        title: "Fuel Card",
+        title: context.appText.fuelCardEn,
         imageString: AppImage.png.enDhan,
         onClick: () {
           //context.push(AppRouteName.enDhanCard);
@@ -246,7 +246,7 @@ class _OurValueAddedServicesWidgetState
         },
       ),
       _buildServicesWidget(
-        title: "Fast tag",
+        title: context.appText.fastag,
         imageString: AppImage.png.buyFastTag,
         onClick: () {
           // context.push(AppRouteName.buyFastag);
@@ -254,7 +254,7 @@ class _OurValueAddedServicesWidgetState
         },
       ),
       _buildServicesWidget(
-        title: "Tank Lock",
+        title: context.appText.fuelSecurityDevice,
         imageString: AppImage.png.kavach,
         onClick: () {
           Navigator.push(
@@ -298,7 +298,7 @@ class _OurValueAddedServicesWidgetState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text("Value Added Services", style: AppTextStyle.body1),
+                child: Text(context.appText.valueAddedServices, style: AppTextStyle.body1),
               ),
             ],
           ).paddingSymmetric(horizontal: commonSafeAreaPadding),

@@ -126,6 +126,7 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
 
             if (driver.driverId != null && driver.driverId!.isNotEmpty)
               Text("${driver.companyDetails?.companyName.capitalize}", style: AppTextStyle.body).isAnimate(),
+              Text("${driver.mobile}", style: AppTextStyle.body).isAnimate(),  
           ],
         );
       },

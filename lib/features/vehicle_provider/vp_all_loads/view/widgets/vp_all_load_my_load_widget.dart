@@ -57,6 +57,8 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
 
   @override
   Widget build(BuildContext context) {
+
+
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
@@ -94,6 +96,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               5.width,
               if(widget.data.loadStatus>2 && widget.data.loadStatusDetails != null)
                 VpMyLoadUIHelper.loadStatusWidget(
+
                     statusBgColor: widget.data.loadStatusDetails!.statusBgColor,
                     statusTxtColor: widget.data.loadStatusDetails!.statusTxtColor,
                     (widget.data.loadUnHold??false) ? context.appText.loadOnHold:
@@ -209,12 +212,14 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   ///TODO:
                   ///Add document list once it get from api
                   VpMyLoadUIHelper.loadStatusButtonWidget(
-                    status: widget.data.loadStatusDetails!.loadStatus,
-                    isIntoRangePrice: isPriceIntoRange,
-                    // isPodAdded:  widget.data.po,
-                    enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
-                      loadStatus: widget.data.loadStatusValues ,
-                      documentList: widget.data.loadDocument??[]
+
+                          status: widget.data.loadStatusDetails!.loadStatus,
+                          isIntoRangePrice: isPriceIntoRange,
+                          isPodAdded: widget.data.podDispatch!=null,
+                          enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
+                          loadStatus: widget.data.loadStatusValues ,
+                          isAgreed: widget.data.isAgreed,
+                          documentList: widget.data.loadDocument??[]
                     ),
                       context: context,
                     onPressed: () async {

@@ -25,6 +25,7 @@ class VpRecentLoadResponse {
   }
 
   factory VpRecentLoadResponse.fromJson(Map<String, dynamic> json){
+
     return VpRecentLoadResponse(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
@@ -79,6 +80,9 @@ class VpRecentLoadData {
     required this.loadStatusValues,
     required this.driverConsent,
     required this.loadUnHold,
+    required this.podDispatch,
+    required this.memoDetails,
+    required this.isAgreed,
 
   });
 
@@ -133,6 +137,10 @@ class VpRecentLoadData {
 
   final LoadStatusDetailsResponse? loadStatusDetails;
 
+  final PodDispatch? podDispatch;
+  final MemoDetails? memoDetails;
+  final int? isAgreed;
+
   VpRecentLoadData copyWith({
     String? id,
     String? loadId,
@@ -176,10 +184,16 @@ class VpRecentLoadData {
     LoadStatus? loadStatusValues,
     bool? loadUnHold,
     List<LoadDocument>? loadDocument,
+    PodDispatch? podDispatch,
+    MemoDetails? memoDetails,
+    int? isAgreed,
 
 
   }) {
     return VpRecentLoadData(
+      isAgreed: isAgreed ?? this.isAgreed,
+      memoDetails: memoDetails ?? this.memoDetails,
+      podDispatch: podDispatch??this.podDispatch,
       loadDocument: loadDocument??this.loadDocument,
       loadUnHold: loadUnHold ?? this.loadUnHold,
       driverConsent:  driverConsent??this.driverConsent,
@@ -227,10 +241,15 @@ class VpRecentLoadData {
   }
 
   factory VpRecentLoadData.fromJson(Map<String, dynamic> json){
+
+
+
     /// TODO:
     /// change get loadStatusValues dynamically once ui work has been done
     ///
     return VpRecentLoadData(
+       isAgreed: json['isAgreed'],
+        memoDetails:json['loadMemo']!=null ?MemoDetails.fromJson(json['loadMemo']) :null,
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
       loadUnHold: json['loadOnhold'],
       driverConsent: json['driverConsent'],
@@ -274,6 +293,7 @@ class VpRecentLoadData {
       truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       customerDetail: json["customerDetail"] == null ? null : CustomerDetail.fromJson(json["customerDetail"]),
+      podDispatch: json['podDispatch']!=null && ( json['podDispatch'] as Map).isNotEmpty ? PodDispatch.fromJson(json['podDispatch']):null
     );
   }
 

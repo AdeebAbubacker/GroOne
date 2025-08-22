@@ -4,6 +4,7 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_state.dart';
 import 'package:gro_one_app/features/document/model/document_type_response.dart';
 import 'package:gro_one_app/features/document/repository/document_repository.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -12,7 +13,9 @@ import 'package:gro_one_app/utils/app_global_variables.dart';
 class DocumentTypeCubit extends BaseCubit<DocumentTypeState> {
   final DocumentRepository _documentRepository;
   final LoadDetailsCubit _loadDetailsCubit;
-  DocumentTypeCubit(this._documentRepository,this._loadDetailsCubit) : super(DocumentTypeState());
+  final DriverLoadDetailsCubit _driverLoadDetailsCubit;
+
+  DocumentTypeCubit(this._documentRepository,this._loadDetailsCubit,this._driverLoadDetailsCubit) : super(DocumentTypeState());
 
   Future<void> getDocumentTypeList() async {
     emit(state.copyWith(documentTypeState: UIState.loading()));
@@ -46,5 +49,6 @@ class DocumentTypeCubit extends BaseCubit<DocumentTypeState> {
     DocumentDataModel.setDocumentEntityList();
     DocumentDataModel.setDamageDocumentEntity();
     Future.delayed(Duration(seconds: 1),() => _loadDetailsCubit.setDocumentState(),);
+    Future.delayed(Duration(seconds: 1),() => _driverLoadDetailsCubit.setDocumentState(),);
   }
 }

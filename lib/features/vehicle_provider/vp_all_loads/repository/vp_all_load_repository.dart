@@ -1,3 +1,4 @@
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
@@ -48,6 +49,16 @@ class VpLoadRepository {
       return await service.fetchTruckPrefLaneData(location,currentPage: page);
     } catch (e) {
       CustomLog.error(this, "Failed to request get preferred truck lane data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+
+  /// Get Load Commodity data Repo
+  Future<Result<List<LoadCommodityListModel>>> getLoadCommodityData() async {
+    try {
+      return await service.fetchLoadCommodityData();
+    } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

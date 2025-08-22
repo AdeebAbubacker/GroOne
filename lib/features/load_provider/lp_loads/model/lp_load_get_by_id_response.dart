@@ -1523,6 +1523,7 @@ class Timeline {
     required this.id,
     required this.label,
     required this.status,
+    required this.statusBgColor,
     required this.timestamp,
     required this.commodity,
     required this.truckType,
@@ -1533,6 +1534,7 @@ class Timeline {
   final int id;
   final String label;
   final String status;
+  final String statusBgColor;
   final DateTime? timestamp;
   final TimelineCommodity? commodity;
   final TimelineTruckType? truckType;
@@ -1543,6 +1545,7 @@ class Timeline {
     int? id,
     String? label,
     String? status,
+    String? statusBgColor,
     DateTime? timestamp,
     TimelineCommodity? commodity,
     TimelineTruckType? truckType,
@@ -1553,6 +1556,7 @@ class Timeline {
       id: id ?? this.id,
       label: label ?? this.label,
       status: status ?? this.status,
+      statusBgColor: statusBgColor ?? this.statusBgColor,
       timestamp: timestamp ?? this.timestamp,
       commodity: commodity ?? this.commodity,
       truckType: truckType ?? this.truckType,
@@ -1566,6 +1570,7 @@ class Timeline {
       id: json["id"] ?? 0,
       label: json["label"] ?? "",
       status: json["status"] ?? "",
+      statusBgColor: json["statusBgColor"] ?? "",
       timestamp: DateTime.tryParse(json["timestamp"] ?? ""),
       commodity: json["commodity"] == null ? null : TimelineCommodity.fromJson(json["commodity"]),
       truckType: json["truckType"] == null ? null : TimelineTruckType.fromJson(json["truckType"]),
@@ -1923,11 +1928,11 @@ class Consignee {
 
 }
 
-
 class LpPaymentDetails {
   LpPaymentDetails({
     required this.id,
     required this.seriesNo,
+    required this.loadSeriesId,
     required this.loadId,
     required this.lpId,
     required this.vpId,
@@ -1959,10 +1964,17 @@ class LpPaymentDetails {
     required this.payableBalancePaidDate,
     required this.payableAdvanceErpReqFlg,
     required this.payableBalanceErpReqFlg,
+    required this.balanceToBeReceivable,
+    required this.balanceToBePayable,
+    required this.platformFee,
+    required this.lpLogs,
+    required this.vpLogs,
+    required this.loadPayout,
   });
 
   final String id;
   final int seriesNo;
+  final String loadSeriesId;
   final String loadId;
   final String lpId;
   final String vpId;
@@ -1986,18 +1998,25 @@ class LpPaymentDetails {
   final String payableAgreedPrice;
   final bool receivableAdvancePaidFlg;
   final bool receivableBalancePaidFlg;
-  final DateTime? receivableAdvancePaidDate;
-  final DateTime? receivableBalancePaidDate;
+  final dynamic receivableAdvancePaidDate;
+  final dynamic receivableBalancePaidDate;
   final bool payableAdvancePaidFlg;
   final bool payableBalancePaidFlg;
   final dynamic payableAdvancePaidDate;
-  final dynamic payableBalancePaidDate;
+  final DateTime? payableBalancePaidDate;
   final bool payableAdvanceErpReqFlg;
   final bool payableBalanceErpReqFlg;
+  final String balanceToBeReceivable;
+  final String balanceToBePayable;
+  final String platformFee;
+  final List<VpLog> lpLogs;
+  final List<VpLog> vpLogs;
+  final List<LoadPayout> loadPayout;
 
   LpPaymentDetails copyWith({
     String? id,
     int? seriesNo,
+    String? loadSeriesId,
     String? loadId,
     String? lpId,
     String? vpId,
@@ -2017,22 +2036,29 @@ class LpPaymentDetails {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic deletedAt,
+    dynamic? deletedAt,
     String? payableAgreedPrice,
     bool? receivableAdvancePaidFlg,
     bool? receivableBalancePaidFlg,
-    DateTime? receivableAdvancePaidDate,
-    DateTime? receivableBalancePaidDate,
+    dynamic? receivableAdvancePaidDate,
+    dynamic? receivableBalancePaidDate,
     bool? payableAdvancePaidFlg,
     bool? payableBalancePaidFlg,
-    dynamic payableAdvancePaidDate,
-    dynamic payableBalancePaidDate,
+    dynamic? payableAdvancePaidDate,
+    DateTime? payableBalancePaidDate,
     bool? payableAdvanceErpReqFlg,
     bool? payableBalanceErpReqFlg,
+    String? balanceToBeReceivable,
+    String? balanceToBePayable,
+    String? platformFee,
+    List<VpLog>? lpLogs,
+    List<VpLog>? vpLogs,
+    List<LoadPayout>? loadPayout,
   }) {
     return LpPaymentDetails(
       id: id ?? this.id,
       seriesNo: seriesNo ?? this.seriesNo,
+      loadSeriesId: loadSeriesId ?? this.loadSeriesId,
       loadId: loadId ?? this.loadId,
       lpId: lpId ?? this.lpId,
       vpId: vpId ?? this.vpId,
@@ -2064,6 +2090,12 @@ class LpPaymentDetails {
       payableBalancePaidDate: payableBalancePaidDate ?? this.payableBalancePaidDate,
       payableAdvanceErpReqFlg: payableAdvanceErpReqFlg ?? this.payableAdvanceErpReqFlg,
       payableBalanceErpReqFlg: payableBalanceErpReqFlg ?? this.payableBalanceErpReqFlg,
+      balanceToBeReceivable: balanceToBeReceivable ?? this.balanceToBeReceivable,
+      balanceToBePayable: balanceToBePayable ?? this.balanceToBePayable,
+      platformFee: platformFee ?? this.platformFee,
+      lpLogs: lpLogs ?? this.lpLogs,
+      vpLogs: vpLogs ?? this.vpLogs,
+      loadPayout: loadPayout ?? this.loadPayout,
     );
   }
 
@@ -2071,6 +2103,7 @@ class LpPaymentDetails {
     return LpPaymentDetails(
       id: json["id"] ?? "",
       seriesNo: json["seriesNo"] ?? 0,
+      loadSeriesId: json["loadSeriesId"] ?? "",
       loadId: json["loadId"] ?? "",
       lpId: json["lpId"] ?? "",
       vpId: json["vpId"] ?? "",
@@ -2094,51 +2127,90 @@ class LpPaymentDetails {
       payableAgreedPrice: json["payableAgreedPrice"] ?? "",
       receivableAdvancePaidFlg: json["receivableAdvancePaidFlg"] ?? false,
       receivableBalancePaidFlg: json["receivableBalancePaidFlg"] ?? false,
-      receivableAdvancePaidDate: DateTime.tryParse(json["receivableAdvancePaidDate"] ?? ""),
-      receivableBalancePaidDate: DateTime.tryParse(json["receivableBalancePaidDate"] ?? ""),
+      receivableAdvancePaidDate: json["receivableAdvancePaidDate"],
+      receivableBalancePaidDate: json["receivableBalancePaidDate"],
       payableAdvancePaidFlg: json["payableAdvancePaidFlg"] ?? false,
       payableBalancePaidFlg: json["payableBalancePaidFlg"] ?? false,
       payableAdvancePaidDate: json["payableAdvancePaidDate"],
-      payableBalancePaidDate: json["payableBalancePaidDate"],
+      payableBalancePaidDate: DateTime.tryParse(json["payableBalancePaidDate"] ?? ""),
       payableAdvanceErpReqFlg: json["payableAdvanceErpReqFlg"] ?? false,
       payableBalanceErpReqFlg: json["payableBalanceErpReqFlg"] ?? false,
+      balanceToBeReceivable: json["balanceToBeReceivable"] ?? "",
+      balanceToBePayable: json["balanceToBePayable"] ?? "",
+      platformFee: json["platformFee"] ?? "",
+      lpLogs: json['lpLogs']!=null &&  (json['lpLogs'] as List).isNotEmpty ? List<VpLog>.from(json['lpLogs']!.map((x)=>VpLog.fromJson(x))).toList():[],
+      vpLogs: json['vpLogs']!=null &&  (json['vpLogs'] as List).isNotEmpty ? List<VpLog>.from(json['vpLogs']!.map((x)=>VpLog.fromJson(x))).toList():[],
+      loadPayout: json["loadPayout"] == null ? [] : List<LoadPayout>.from(json["loadPayout"]!.map((x) => LoadPayout.fromJson(x))),
+    );
+  }
+
+}
+
+class LoadPayout {
+  LoadPayout({
+    required this.id,
+    required this.loadId,
+    required this.voucherCode,
+    required this.error,
+    required this.createdBy,
+    required this.type,
+    required this.amount,
+    required this.createdAt,
+  });
+
+  final String id;
+  final String loadId;
+  final String voucherCode;
+  final dynamic error;
+  final String createdBy;
+  final String type;
+  final String amount;
+  final DateTime? createdAt;
+
+  LoadPayout copyWith({
+    String? id,
+    String? loadId,
+    String? voucherCode,
+    dynamic? error,
+    String? createdBy,
+    String? type,
+    String? amount,
+    DateTime? createdAt,
+  }) {
+    return LoadPayout(
+      id: id ?? this.id,
+      loadId: loadId ?? this.loadId,
+      voucherCode: voucherCode ?? this.voucherCode,
+      error: error ?? this.error,
+      createdBy: createdBy ?? this.createdBy,
+      type: type ?? this.type,
+      amount: amount ?? this.amount,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  factory LoadPayout.fromJson(Map<String, dynamic> json){
+    return LoadPayout(
+      id: json["id"] ?? "",
+      loadId: json["loadId"] ?? "",
+      voucherCode: json["voucherCode"] ?? "",
+      error: json["error"],
+      createdBy: json["createdBy"] ?? "",
+      type: json["type"] ?? "",
+      amount: json["amount"] ?? "",
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
     );
   }
 
   Map<String, dynamic> toJson() => {
     "id": id,
-    "seriesNo": seriesNo,
     "loadId": loadId,
-    "lpId": lpId,
-    "vpId": vpId,
-    "agreedPrice": agreedPrice,
-    "receivableAdvance": receivableAdvance,
-    "receivableBalance": receivableBalance,
-    "receivableAdvancePercentage": receivableAdvancePercentage,
-    "receivableBalancePercentage": receivableBalancePercentage,
-    "receivableAdvancePaid": receivableAdvancePaid,
-    "receivableBalancePaid": receivableBalancePaid,
-    "payableAdvance": payableAdvance,
-    "payableBalance": payableBalance,
-    "payableAdvancePercentage": payableAdvancePercentage,
-    "payableBalancePercentage": payableBalancePercentage,
-    "payableAdvancePaid": payableAdvancePaid,
-    "payableBalancePaid": payableBalancePaid,
-    "status": status,
+    "voucherCode": voucherCode,
+    "error": error,
+    "createdBy": createdBy,
+    "type": type,
+    "amount": amount,
     "createdAt": createdAt?.toIso8601String(),
-    "updatedAt": updatedAt?.toIso8601String(),
-    "deletedAt": deletedAt,
-    "payableAgreedPrice": payableAgreedPrice,
-    "receivableAdvancePaidFlg": receivableAdvancePaidFlg,
-    "receivableBalancePaidFlg": receivableBalancePaidFlg,
-    "receivableAdvancePaidDate": receivableAdvancePaidDate?.toIso8601String(),
-    "receivableBalancePaidDate": receivableBalancePaidDate?.toIso8601String(),
-    "payableAdvancePaidFlg": payableAdvancePaidFlg,
-    "payableBalancePaidFlg": payableBalancePaidFlg,
-    "payableAdvancePaidDate": payableAdvancePaidDate,
-    "payableBalancePaidDate": payableBalancePaidDate,
-    "payableAdvanceErpReqFlg": payableAdvanceErpReqFlg,
-    "payableBalanceErpReqFlg": payableBalanceErpReqFlg,
   };
 
 }

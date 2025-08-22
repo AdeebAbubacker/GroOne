@@ -21,13 +21,16 @@ class EnDhanKycApiRequest {
     this.fromFleet = true,
   });
 
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({bool includeFromFleet = true}) {
     final Map<String, dynamic> json = {
       'aadhar': aadhar,
       'isAadhar': isAadhar,
       'aadhar_doc_link': aadharDocLink,
-      'fromFleet': fromFleet,
     };
+
+    if (includeFromFleet) {
+      json['fromFleet'] = fromFleet;
+    }
 
     // Only include PAN fields if PAN is provided
     if (pan != null && pan!.isNotEmpty) {

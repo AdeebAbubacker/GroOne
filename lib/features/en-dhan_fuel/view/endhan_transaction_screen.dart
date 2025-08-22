@@ -76,6 +76,10 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
       dismissible: true,
       child: CommonDialogView(
         hideCloseButton: true,
+        onTapSingleButton: () {
+          Navigator.of(context).pop();
+        },
+        onSingleButtonText: context.appText.ok,
         child: Column(
           children: [
             // Orange circular icon with warning triangle
@@ -102,7 +106,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
             20.height,
             // Main heading
             Text(
-              'Date Range Too Large',
+              context.appText.dateRangeTooLarge,
               style: AppTextStyle.h4.copyWith(
                 color: const Color(0xFFE67E22),
                 fontWeight: FontWeight.bold,
@@ -112,7 +116,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
             12.height,
             // Supporting message
             Text(
-              'The selected date range exceeds the maximum limit of 7 days. Please select a smaller date range.',
+              context.appText.dateRangeExceedsLimit,
               style: AppTextStyle.body3.copyWith(
                 color: AppColors.greyTextColor,
               ),
@@ -120,10 +124,6 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
             ),
           ],
         ),
-        onTapSingleButton: () {
-          Navigator.of(context).pop();
-        },
-        onSingleButtonText: 'OK',
       ),
     );
   }
@@ -280,7 +280,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                       ),
                       5.width,
                       Text(
-                        'Maximum date range: 7 days',
+                        context.appText.setToLast7Days,
                         style: AppTextStyle.textGreyColor14w300.copyWith(
                           fontSize: 12,
                           color: Colors.grey[600],
@@ -307,14 +307,14 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                           Icon(Icons.error, color: Colors.red, size: 48),
                           10.height,
                            Text(
-                             'No transactions found',
+                             context.appText.noTransactionsFound,
                              style: AppTextStyle.h5,
                            ),
                           10.height,
                          Padding(
                           padding: EdgeInsets.symmetric(horizontal: 40),
                           child: AppButton(onPressed: _fetchTransactions, 
-                          title: 'Retry', 
+                          title: context.appText.retry,
                           style: AppButtonStyle.outline,),),
                         ],
                       ),
@@ -327,7 +327,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                           Icon(Icons.calendar_today, color: Colors.orange, size: 48),
                           10.height,
                           Text(
-                            'Date Range Too Large',
+                            context.appText.dateRangeTooLarge,
                             style: AppTextStyle.h5,
                           ),
                           5.height,
@@ -352,7 +352,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                 });
                                 _fetchTransactions();
                               },
-                              title: 'Set to Last 7 Days',
+                              title: context.appText.setToLast7Days,
                               style: AppButtonStyle.primary,
                             ),
                           ),
@@ -367,12 +367,12 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                           Icon(Icons.receipt_long, color: Colors.grey, size: 48),
                           10.height,
                           Text(
-                            'No transactions found',
+                            context.appText.noTransactionsFound,
                             style: AppTextStyle.h5,
                           ),
                           5.height,
                           Text(
-                            'Try adjusting your date range',
+                            context.appText.adjustDateRange,
                             style: AppTextStyle.bodyGreyColor,
                           ),
                         ],

@@ -7,6 +7,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
@@ -18,6 +19,8 @@ import 'package:gro_one_app/features/notification/view/notification_screen.dart'
 
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
+import 'package:gro_one_app/features/splash/splash_screen.dart';
+import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
@@ -35,6 +38,7 @@ import 'package:gro_one_app/service/pushNotification/notification_session_manage
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -73,6 +77,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    final loginBloc = locator<LoginBloc>();
    final securePrefs = locator<SecuredSharedPreferences>();
    final lpHomeCubit = locator<LPHomeCubit>();
+   final splashViewModel = locator<SplashViewModel>();
 
 
   final searchController = TextEditingController();
@@ -98,6 +103,18 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
   }
 
   void initFunction() => frameCallback(() async {
+    await splashViewModel.checkAppUpdate();
+
+    final updateState = splashViewModel.appUpdateUIState;
+    if (updateState != null && updateState.status == Status.SUCCESS) {
+      final updateType = parseUpdateType(updateState.data!);
+
+      if (updateType == AppUpdateType.force && mounted) {
+        ToastMessages.updateAvailable(
+          message: context.appText.updateAvailableText,
+        );
+      }
+    }
     lpHomeBloc.getUserId();
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
@@ -125,6 +142,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    void blueMembershipDialog(BuildContext context, String blueId, parameters)=> frameCallback(() {
      AppDialog.show(
        context,
+       dismissible: true,
        child: CommonDialogView(
          hideCloseButton: true,
          child: BlueMembershipDialogView(
@@ -170,12 +188,24 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
       leading: Image.asset(AppIcons.png.appIcon).paddingLeft(commonSafeAreaPadding),
 
       actions: [
-        // Notification
-        IconButton(
-          onPressed: () {
-            Navigator.push(context, commonRoute(NotificationScreen()));
+
+        // Language
+        AppIconButton(
+          onPressed: (){
+            Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true)));
           },
-          icon: SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+          icon: AppIcons.svg.translation,
+        ),
+
+        // Notification
+        Visibility(
+visible: false,
+          child: IconButton(
+            onPressed: () {
+              Navigator.push(context, commonRoute(NotificationScreen()));
+            },
+            icon: SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+          ),
         ),
 
         // KYC Blinking
@@ -259,8 +289,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                       height: 40,
                       width: 40,
                       alignment: Alignment.center,
-                      decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
-                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
+                      decoration: commonContainerDecoration(borderWidth : 2, borderRadius: BorderRadius.circular(100), color: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : AppColors.extraLightBackgroundGray),
+                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName), style: AppTextStyle.h6.copyWith(color: blueId != null && blueId.isNotEmpty ? AppColors.white : AppColors.black)),
                     ).onClick((){
                       Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
                         profileCubit.fetchProfileDetail(instance: this);
@@ -555,7 +585,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
                 ),
               ],
             ),
-            20.height,
+            5.height,
             BlocBuilder<VpRecentLoadListBloc, VpRecentLoadListState>(
               bloc: vpRecentLoadListBloc,
               builder: (context, state) {
