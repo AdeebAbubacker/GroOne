@@ -298,7 +298,7 @@ class _OurValueAddedServicesWidgetState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text("Value Added Services", style: AppTextStyle.body1),
+                child: Text(context.appText.valueAddedServices, style: AppTextStyle.body1),
               ),
             ],
           ).paddingSymmetric(horizontal: commonSafeAreaPadding),

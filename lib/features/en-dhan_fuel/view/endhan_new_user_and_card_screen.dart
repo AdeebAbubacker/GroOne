@@ -388,14 +388,14 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                           // ✅ Check loading or error state first
                           if (serverStatus?.status == Status.LOADING) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Checking Endhan server...")),
+                               SnackBar(content: Text(context.appText.checkingEndhanServer)),
                             );
                             return;
                           }
 
                           if (serverStatus?.status == Status.ERROR) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Could not check Endhan server status")),
+                               SnackBar(content: Text(context.appText.couldNotCheckEndhanServerStatus)),
                             );
                             return;
                           }
@@ -411,7 +411,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                                 onTapSingleButton: () => Navigator.of(context).pop(),
                                 onSingleButtonText: context.appText.ok,
                                 child: Text(
-                                  serverStatus?.data?["message"] ?? "Endhan server not working",
+                                  serverStatus?.data?["message"] ?? context.appText.endhanServerNotWorking,
                                   style: AppTextStyle.h5.copyWith(color: Colors.red),
                                 ),
                               ),
@@ -607,12 +607,12 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               ),
               16.height,
               Text(
-                'No cards found',
+                context.appText.noCardsFound,
                 style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
               ),
               8.height,
               Text(
-                'No cards found for "$_searchText"',
+                '${context.appText.noCardsFound} "$_searchText"',
                 style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
               ),
             ],
@@ -678,13 +678,13 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   final serverStatus = context.read<EnDhanCubit>().state.endhanServerStatusState;
                   if (serverStatus?.status == Status.LOADING) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Checking Endhan server...")),
+                       SnackBar(content: Text(context.appText.checkingEndhanServer)),
                     );
                     return;
                   }
                   if (serverStatus?.status == Status.ERROR) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Could not check Endhan server status")),
+                       SnackBar(content: Text(context.appText.couldNotCheckEndhanServerStatus)),
                     );
                     return;
                   }
@@ -697,7 +697,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                         onTapSingleButton: () => Navigator.of(context).pop(),
                         onSingleButtonText: context.appText.ok,
                         child: Text(
-                          serverStatus?.data?["message"] ?? "Endhan server not working",
+                          serverStatus?.data?["message"] ?? context.appText.endhanServerNotWorking,
                           style: AppTextStyle.h5.copyWith(color: Colors.red),
                         ),
                       ),
@@ -767,7 +767,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.benefitsOfFuelCard, style: AppTextStyle.body1),
+        Text(context.appText.benefitsOfFuelCard, style: AppTextStyle.h4),
         20.height,
 
         benefitItem(

@@ -530,7 +530,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.gpsBenefitsHeading, style: AppTextStyle.body1),
+        Text(context.appText.gpsBenefitsHeading, style: AppTextStyle.h4),
         20.height,
         benefitItem(
           context.appText.realTimeTrackingTitle,

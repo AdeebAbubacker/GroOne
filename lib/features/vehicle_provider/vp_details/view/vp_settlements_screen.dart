@@ -63,11 +63,23 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
 
   void createAndSubmitSettlements(){
+
+    int numberOfDays=int.tryParse(noOfDays.text)??0;
+   int amountPerDays= int.tryParse(detentionAmount.text)??0;
+
+   if(numberOfDays>0){
+     if(amountPerDays==0 && loadingAmount.text.isEmpty){
+       ToastMessages.error(message: context.appText.detentionRequire);
+       return;
+     }
+   }
+
+
     vpDetailsCubit.submitSettlement(SettlementApiRequest(
       loadId: widget.loadId??"",
-      amountPerDay:int.tryParse(detentionAmount.text)??0,
+      amountPerDay:amountPerDays,
       loadingCharge: int.tryParse(loadingAmount.text)??0,
-      noOfDays:int.tryParse(noOfDays.text)??0,
+      noOfDays:numberOfDays,
       unloadingCharge: int.tryParse(unloadingAmount.text)??0,
       vehicleId: widget.vehicleID??"",
     ));
@@ -101,21 +113,32 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
             spacing: 20,
             children: [
               headingText(text: context.appText.detentions),
+              StatefulBuilder(builder: (context, refresh) {
+                return Column(
+                  children: [
+                    AppCountSelector(
+                      onChanged: (val) {
+                        refresh((){
 
-
-              AppCountSelector(label: context.appText.noOfDays, controller: noOfDays, isMandatory: false),
-
-              // Amount
-              AppTextField(
-                controller: detentionAmount,
-                labelText: context.appText.amount,
-                hintText: "Ex: 2000",
-                keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
-                  LengthLimitingTextInputFormatter(8),
-                ],
-              ),
+                        });
+                       },
+                        label: context.appText.noOfDays, controller: noOfDays, isMandatory: false),
+                    Visibility(
+                      visible:(int.tryParse(noOfDays.text??"0")??0)>0 ,
+                      child: AppTextField(
+                        controller: detentionAmount,
+                        labelText: context.appText.amount,
+                        hintText: "Ex: 2000",
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                          LengthLimitingTextInputFormatter(8),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },),
               2.height,
               headingText(text: context.appText.loadingCharges),
 

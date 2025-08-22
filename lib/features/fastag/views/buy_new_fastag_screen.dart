@@ -153,7 +153,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
         children: [
           Row(
             children: [
-              Text('Vehicle ${index + 1}', style: AppTextStyle.h4),
+              Text('${context.appText.vehicle} ${index + 1}', style: AppTextStyle.h4),
               const Spacer(),
               if (_vehicleControllers.length > 1)
                 GestureDetector(

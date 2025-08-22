@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -16,9 +17,9 @@ class GpsModelWidget extends StatelessWidget {
   final int availableStock;
   final Function(int)? onQuantityChanged;
   const GpsModelWidget({
-    super.key, 
-    required this.product, 
-    required this.quantity, 
+    super.key,
+    required this.product,
+    required this.quantity,
     required this.availableStock,
     this.onQuantityChanged,
   });
@@ -33,7 +34,15 @@ class GpsModelWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Image.asset(AppImage.png.gpsNewProduct, width: 100),
+          CachedNetworkImage(
+            imageUrl: product.fileKey,
+            width: 100,
+            height: 100,
+            fit: BoxFit.cover,
+            errorWidget: (context, url, error) {
+              return Image.asset(AppImage.png.gpsNewProduct, width: 100);
+            },
+          ),
 
           10.width,
 
@@ -49,15 +58,20 @@ class GpsModelWidget extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("$indianCurrencySymbol ${product.price.toStringAsFixed(2)}", style: AppTextStyle.h4PrimaryColor),
-                      Text(context.appText.excludingGST, style: AppTextStyle.body4GreyColor),
+                      Text(
+                        "$indianCurrencySymbol ${product.price.toStringAsFixed(2)}",
+                        style: AppTextStyle.h4PrimaryColor,
+                      ),
+                      Text(
+                        context.appText.excludingGST,
+                        style: AppTextStyle.body4GreyColor,
+                      ),
                     ],
                   ).expand(),
                   // Conditional rendering based on availableStock
                   if (availableStock == 0)
-                    Text(
-                      'out of stock', // Assuming you have 'outOfStock' in your appText
-                      style: AppTextStyle.h5, // Example style for out of stock text
+                    Text(context.appText.outOfStock,
+                      style: AppTextStyle.h5,
                     )
                   else
                     ProductCounter(

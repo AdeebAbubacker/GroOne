@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/product_counter.dart';
@@ -37,13 +38,20 @@ class KavachModelsListBody extends StatelessWidget {
         borderColor: AppColors.borderColor,
         shadow: false,
         borderRadius: BorderRadius.circular(8),
-        ),
+      ),
       child: Row(
         children: [
-          Image.asset(AppImage.png.kavachNewProduct1, width: 100),
-
+          CachedNetworkImage(
+            imageUrl: product.fileKey,
+            width: 100,
+            height: 100,
+            fit: BoxFit.cover,
+            errorWidget: (context, url, error) {
+              return Image.asset(AppImage.png.kavachNewProduct1, width: 100);
+            },
+          ),
           10.width,
-          
+
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -56,21 +64,34 @@ class KavachModelsListBody extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text("₹ ${NumberFormat("#,##,###").format(product.price)}", style: AppTextStyle.h4PrimaryColor),
-                      Text(context.appText.excludingGST, style: AppTextStyle.body4GreyColor),
+                      Text(
+                        "₹ ${NumberFormat("#,##,###").format(product.price)}",
+                        style: AppTextStyle.h4PrimaryColor,
+                      ),
+                      Text(
+                        context.appText.excludingGST,
+                        style: AppTextStyle.body4GreyColor,
+                      ),
                     ],
                   ).expand(),
                   // Conditional rendering based on availableStock
                   if (availableStock == 0)
                     Text(
-                      'out of stock', // Assuming you have 'outOfStock' in your appText
-                      style: AppTextStyle.h5, // Example style for out of stock text
+                      context.appText.outOfStock,
+                      // Assuming you have 'outOfStock' in your appText
+                      style:
+                          AppTextStyle
+                              .h5, // Example style for out of stock text
                     )
                   else
                     ProductCounter(
                       count: quantity,
-                      onIncrement: () => bloc.add(TryIncrementQuantity(productId: product.id)),
-                      onDecrement: () => bloc.add(DecrementQuantity(product.id)),
+                      onIncrement:
+                          () => bloc.add(
+                            TryIncrementQuantity(productId: product.id),
+                          ),
+                      onDecrement:
+                          () => bloc.add(DecrementQuantity(product.id)),
                     ),
                 ],
               ),
@@ -81,60 +102,3 @@ class KavachModelsListBody extends StatelessWidget {
     );
   }
 }
-// class KavachModelsListBody extends StatelessWidget {
-//   final KavachProduct product;
-//   final int quantity;
-//
-//   const KavachModelsListBody({
-//     super.key,
-//     required this.product,
-//     required this.quantity,
-//   });
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     final bloc = context.read<KavachProductsListBloc>();
-//
-//     return Container(
-//       padding: EdgeInsets.all(10),
-//       decoration: commonContainerDecoration(borderColor: AppColors.borderColor),
-//       child: Row(
-//         children: [
-//           Image.asset(AppImage.png.kavachProduct, width: 80),
-//           10.width,
-//           Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               Row(
-//                 children: [
-//                   Text(product.name, style: AppTextStyle.h5),
-//                   5.width,
-//                   SvgPicture.asset(AppIcons.svg.infOutline, width: 15),
-//                 ],
-//               ),
-//               Text(product.part, style: AppTextStyle.bodyGreyColor),
-//               5.height,
-//               Row(
-//                 children: [
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text("$indianCurrencySymbol ${product.price.toStringAsFixed(2)}", style: AppTextStyle.h4PrimaryColor),
-//                       Text(context.appText.excludingGST, style: AppTextStyle.body4GreyColor),
-//                     ],
-//                   ).expand(),
-//
-//                   ProductCounter(
-//                     count: quantity,
-//                     onIncrement: () => bloc.add(TryIncrementQuantity(productId: product.id)),
-//                     onDecrement: () => bloc.add(DecrementQuantity(product.id)),
-//                   ),
-//                 ],
-//               ),
-//             ],
-//           ).expand(),
-//         ],
-//       ).paddingSymmetric(horizontal: 10),
-//     );
-//   }
-// }

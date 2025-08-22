@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
@@ -32,19 +33,21 @@ class _AvailableLoadsFilterScreenState
   final formKey = GlobalKey<FormState>();
 
   String? vehicleTypeDownValue;
-  String? laneDownValue;
-  String? roadTypeDownValue;
+  String? laneDropDownValue;
+  String? loadTypeDropDownValue;
+
+  final filterCubit=locator<LoadFilterCubit>();
 
 
   /// Selected Data
 
-  String? commodityId;
-  String? laneId;
-  String? loadTypeId;
+  int? truckTypeId;
+  int? laneId;
+  int? commodityId;
 
   @override
   void initState() {
-    initFunction();
+    _setInitialFilterData();
     super.initState();
   }
 
@@ -54,20 +57,17 @@ class _AvailableLoadsFilterScreenState
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() {
-
-  });
 
   void disposeFunction() => frameCallback(() {});
 
 
-  void _getCommodityID(List<TruckTypeModel> truckTypeList,String? selectedCommodity){
-    TruckTypeModel? commodityModel=truckTypeList.firstWhere((element) {
+  void _getTruckType(List<TruckTypeModel> truckTypeList,String? selectedTruckType){
+    TruckTypeModel? truckTypeModel=truckTypeList.firstWhere((element) {
         String commodity=  "${element.type} ${element.subType}";
-        return commodity==selectedCommodity;
+        return commodity==selectedTruckType;
     });
-    commodityId=commodityModel.id?.toString();
-    
+    truckTypeId=truckTypeModel.id;
+    filterCubit.setTruckTypeData(truckTypeId: truckTypeModel.id, value:selectedTruckType);
   }
 
   void _getLaneId(List<Item> preferLanesModel ,String? selectedLens){
@@ -75,15 +75,34 @@ class _AvailableLoadsFilterScreenState
       String lane=  '${element.fromLocation?.name ?? ""} - ${element.toLocation?.name ?? ""}';
       return lane==selectedLens;
     });
-    laneId=selectedObject.masterLaneId.toString();
+    laneId=selectedObject.masterLaneId;
+    filterCubit.setLensData(leneId: selectedObject.masterLaneId, value:selectedLens);
   }
 
-  void _getLoadType(List<LoadCommodityListModel> loadTypeList,String? value){
+  void _getCommodity(List<LoadCommodityListModel> loadTypeList,String? value){
     LoadCommodityListModel? loadType=loadTypeList.firstWhere((element) {
       String loadType=  element.name;
       return loadType==value;
     });
-    loadTypeId=loadType.id.toString();
+    commodityId=loadType.id;
+    filterCubit.setCommodityData(commodityId: loadType.id, value:value);
+  }
+
+
+  void _setInitialFilterData(){
+    if(filterCubit.state.isFilterApplied==false){
+      return;
+    }
+
+    vehicleTypeDownValue=filterCubit.state.selectedTruckType?['value'];
+    truckTypeId=filterCubit.state.selectedTruckType?['id'];
+
+
+    laneDropDownValue=filterCubit.state.selectedLaneType?['value'];
+    laneId=filterCubit.state.selectedLaneType?['id'];
+
+    loadTypeDropDownValue=filterCubit.state.selectedCommodity?['value'];
+    commodityId=filterCubit.state.selectedCommodity?['id'];
   }
 
   @override
@@ -105,6 +124,8 @@ class _AvailableLoadsFilterScreenState
        List<LoadCommodityListModel> loadTypeList=state.commodityResponseUIState?.data??[];
 
 
+
+
        return Form(
           key: formKey,
           child: Column(
@@ -116,7 +137,7 @@ class _AvailableLoadsFilterScreenState
                 labelText: context.appText.vehicleType,
                 selectedItem: vehicleTypeDownValue,
                 onChanged: (value) {
-                  _getCommodityID(truckTypeList,value);
+                  _getTruckType(truckTypeList,value);
                   },
               ),
               20.height,
@@ -126,7 +147,7 @@ class _AvailableLoadsFilterScreenState
                 hintText:  context.appText.selectLaneType,
                 items: preferLanesModel.map((e) => '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',).toList(),
                 labelText: context.appText.lane,
-                selectedItem: vehicleTypeDownValue,
+                selectedItem: laneDropDownValue,
                 onChanged: (value) {
                   _getLaneId(preferLanesModel,value );
                 },
@@ -139,9 +160,9 @@ class _AvailableLoadsFilterScreenState
                 hintText:  context.appText.selectRoadType,
                 items: loadTypeList.map((e) => e.name).toList(),
                 labelText: context.appText.loadType,
-                selectedItem: roadTypeDownValue,
+                selectedItem: loadTypeDropDownValue,
                 onChanged: (value) {
-                  _getLoadType(loadTypeList,value );
+                  _getCommodity(loadTypeList,value );
                 },
               ),
               50.height,
@@ -149,7 +170,10 @@ class _AvailableLoadsFilterScreenState
                 children: [
                   // Cancel
                   AppButton(
-                    onPressed: () => context.pop(),
+                    onPressed: () {
+                      filterCubit.setIsFilterApplied(value: false);
+                      context.pop();
+                    },
                     title: context.appText.cancel,
                     style: AppButtonStyle.outline,
                   ).expand(),
@@ -160,10 +184,11 @@ class _AvailableLoadsFilterScreenState
                   AppButton(
                     onPressed: () {
                       Navigator.pop(context,{
-                        "loadTypeId":loadTypeId,
-                        "truckTypeId":commodityId,
-                        "lensType":loadTypeId
+                        "commodityId":commodityId,
+                        "truckTypeId":truckTypeId,
+                        "lensType":laneId
                       });
+                      filterCubit.setIsFilterApplied(value: true);
                     },
                     title: context.appText.apply,
                     style: AppButtonStyle.primary,
