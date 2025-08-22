@@ -1229,7 +1229,8 @@
   "updateRequired": "Update Required",
   "updateAppText1": "You must update to version ",
   "updateAppText2": " to continue using the app.",
-  "updateAvailableText": "Update available! Please update for the best experience."
+  "updateAvailableText": "Update available! Please update for the best experience.",
+  "vitualAccNo" : "Virtual Acc No" 
 
 
 }
