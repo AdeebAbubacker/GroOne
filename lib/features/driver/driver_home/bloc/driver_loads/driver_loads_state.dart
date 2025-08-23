@@ -1,6 +1,5 @@
 part of 'driver_loads_bloc.dart';
 
-
 abstract class DriverLoadsState {}
 
 class DriverLoadsInitial extends DriverLoadsState {}
@@ -13,10 +12,9 @@ class DriverLoadsLoaded extends DriverLoadsState {
 }
 
 class DriverLoadsError extends DriverLoadsState {
-  final String message;
-  DriverLoadsError(this.message);
+  final String errorType;
+  DriverLoadsError(this.errorType);
 }
-
 
 class DriverLoadStatusChanging extends DriverLoadsState {}
 
@@ -27,7 +25,6 @@ class DriverLoadStatusChanged extends DriverLoadsState {
 }
 
 class DriverLoadStatusChangeFailed extends DriverLoadsState {
-  final String message;
-
-  DriverLoadStatusChangeFailed(this.message);
+  final ErrorType errorType;
+  DriverLoadStatusChangeFailed(this.errorType);
 }

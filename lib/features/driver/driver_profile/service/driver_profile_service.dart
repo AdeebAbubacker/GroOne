@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/driver/driver_profile/model/driver_logout_m
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -98,4 +99,38 @@ class DriverProfileService {
       return Error(DeserializationError());
     }
   }
+
+  /// Delete Driver Account
+  Future<Result<DeleteAccountModel>> deleteAccount() async {
+  try {
+    final customerId = await _userInformationRepository.getUserID() ?? "";
+    final url = "${ApiUrls.deleteDriver}$customerId";
+
+    final result = await _apiService.delete(url);
+
+    if (result is Success) {
+      final deleteAccountModel = DeleteAccountModel.fromJson(result.value);
+      return Success(deleteAccountModel);
+    } else if (result is Error) {
+      // Log error type for debugging
+      CustomLog.error(
+        this,
+        "Delete account failed with API error type: ${result.type}",
+        null,
+      );
+      return Error(result.type);
+    } else {
+      CustomLog.error(this, "Delete account failed with unknown result", null);
+      return Error(GenericError());
+    }
+  } catch (e, stackTrace) {
+    // Catch any exception and log stack trace
+    CustomLog.error(
+      this,
+      "Exception occurred while deleting account: $e",
+      stackTrace,
+    );
+    return Error(DeserializationError());
+  }
+}
 }

@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
+import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
@@ -148,6 +149,27 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
     if (result is Error) {
       _setLogoutUIState(UIState.error(result.type));
+    }
+  }
+
+  /// Set Delete Account UI State
+  void _setDeleteAccountUIState(UIState<DeleteAccountModel>? uiState) {
+    emit(state.copyWith(deleteAccountUIState: uiState));
+  }
+
+  Future<void> deleteAccount() async {
+    _setDeleteAccountUIState(UIState.loading());
+    final result = await _repo.deleteAccount();
+    final isSignOut = await _repo.signOut();
+
+    if (result is Success<DeleteAccountModel> && isSignOut is Success<bool>) {
+      _setDeleteAccountUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      final error = result as Error; // Cast
+      _setDeleteAccountUIState(UIState.error(error.type));
+    } else {
+      _setDeleteAccountUIState(UIState.error(GenericError()));
     }
   }
 

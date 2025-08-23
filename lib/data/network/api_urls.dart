@@ -62,6 +62,7 @@ class ApiUrls {
   static final String  getDeviceToken = "$_fetchUrl$_customer$_path$_v1$_customer/device-token";
   static final String  getDocumentType = "$_fetchUrl$_document$_path$_v1/document-type";
   static final String  checkAppUpdate = "$_fetchUrl$_customer$_path$_v1/app-update-config/check";
+  static final String deleteCustomer = "$_fetchUrl$_customer$_path$_v1$_customer";
 
 
   /// Onboarding
@@ -234,6 +235,7 @@ class ApiUrls {
   static final String driverLoadById = "$_baseUrl$_loadDiscovery$_path$_v1/load/driver/";
   static final String getBloodGroup =  "$_fetchUrl$_customer$_path$_v1/blood-group";
   static final String getLicenseCategory = "$_fetchUrl$_customer$_path$_v1/license-category";
+  static final String deleteDriver = "$_baseUrl$_customer$_path$_v1/drivers/";
  
 
 
