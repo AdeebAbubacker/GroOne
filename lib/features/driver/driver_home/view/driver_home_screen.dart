@@ -604,7 +604,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             ToastMessages.success(message: state.result.message);
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           } else if (state is DriverLoadStatusChangeFailed) {
-            ToastMessages.error(message: state.message);
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           }
         },
@@ -664,7 +664,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           } else if (state is DriverLoadsError) {
             return VpHelper.withSliverRefresh(
               _onPullToRefresh,
-              child: Center(child: Text(state.message)),
+              child: Center(child: Text(state.errorType)),
             );
           }
           return const SizedBox();
