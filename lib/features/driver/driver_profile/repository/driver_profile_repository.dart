@@ -7,6 +7,7 @@ import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_update_request.dart';
 import 'package:gro_one_app/features/profile/api_request/profile_upload_request.dart';
+import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
@@ -38,6 +39,16 @@ class DriverProfileRepository {
   Future<Result<DriverlogoutModel>> getLogOutData() async {
     try {
       return await _profileService.fetchLogOutData();
+    } catch (e) {
+      CustomLog.error(this, "Failed to request logout data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+  
+    /// Deleet Account
+  Future<Result<DeleteAccountModel>> deleteAccount() async {
+    try {
+      return await _profileService.deleteAccount();
     } catch (e) {
       CustomLog.error(this, "Failed to request logout data", e);
       return Error(ErrorWithMessage(message: e.toString()));

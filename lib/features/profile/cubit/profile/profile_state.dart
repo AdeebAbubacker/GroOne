@@ -30,6 +30,7 @@ class ProfileState extends Equatable {
   final UIState<VehcileUpdatedStatusModel>? vehicleUpdateUIState;
   final UIState<List<BloodGroupResponseModel>>? bloodGroupResponseUIState;
   final UIState<List<LicenseCategoryResponseModel>>? licneseCategoryResponseUIState;
+  final UIState<DeleteAccountModel>? deleteAccountUIState;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -60,6 +61,7 @@ class ProfileState extends Equatable {
     this.vehicleUpdateUIState,
     this.bloodGroupResponseUIState,
     this.licneseCategoryResponseUIState,
+    this.deleteAccountUIState,
   });
 
   ProfileState copyWith({
@@ -91,6 +93,7 @@ class ProfileState extends Equatable {
     UIState<VehcileUpdatedStatusModel>? vehicleStatusUpdate,
     UIState<List<BloodGroupResponseModel>>? bloodGroupResponseUIState,
     UIState<List<LicenseCategoryResponseModel>>? licneseCategoryResponseUIState,
+    UIState<DeleteAccountModel>? deleteAccountUIState,
     bool? showSuccessKyc,
     String? blueId,
 
@@ -125,6 +128,7 @@ class ProfileState extends Equatable {
       vehicleUpdateUIState: vehicleStatusUpdate ?? this.vehicleUpdateUIState,
       bloodGroupResponseUIState : bloodGroupResponseUIState ?? this.bloodGroupResponseUIState,
       licneseCategoryResponseUIState : licneseCategoryResponseUIState ?? this.licneseCategoryResponseUIState,
+      deleteAccountUIState: deleteAccountUIState ?? this.deleteAccountUIState,
     );
   }
 
@@ -159,5 +163,6 @@ class ProfileState extends Equatable {
     vehicleUpdateUIState,
     bloodGroupResponseUIState,
     licneseCategoryResponseUIState,
+    deleteAccountUIState,
   ];
 }

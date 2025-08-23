@@ -23,6 +23,7 @@ import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
@@ -328,6 +329,16 @@ Future<Result<bool>> deleteVehicle({
   Future<Result<LogOutModel>> getLogOutData() async {
     try {
       return await _profileService.fetchLogOutData();
+    } catch (e) {
+      CustomLog.error(this, "Failed to request logout data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Deleet Account
+  Future<Result<DeleteAccountModel>> deleteAccount() async {
+    try {
+      return await _profileService.deleteAccount();
     } catch (e) {
       CustomLog.error(this, "Failed to request logout data", e);
       return Error(ErrorWithMessage(message: e.toString()));

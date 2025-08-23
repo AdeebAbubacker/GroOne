@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_home/driver_home_bloc.dart';
@@ -600,10 +601,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         bloc: driverLoadBloc,
         listener: (context, state) {
           if (state is DriverLoadStatusChanged) {
-            ToastMessages.success(message: "Load status updated successfully");
+            ToastMessages.success(message: state.result.message);
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           } else if (state is DriverLoadStatusChangeFailed) {
-            ToastMessages.error(message: "Failed to update load status");
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           }
         },
@@ -663,7 +664,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           } else if (state is DriverLoadsError) {
             return VpHelper.withSliverRefresh(
               _onPullToRefresh,
-              child: Center(child: Text(state.message)),
+              child: Center(child: Text(state.errorType)),
             );
           }
           return const SizedBox();
@@ -672,3 +673,5 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 }
+
+

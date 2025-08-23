@@ -19,25 +19,6 @@ class DriverLoadsBloc extends Bloc<DriverLoadsEvent, DriverLoadsState> {
   bool _isLoadingMore = false;
 
   DriverLoadsBloc(this.repo) : super(DriverLoadsInitial()) {
-    // on<FetchDriverLoads>((event, emit) async {
-    //   emit(DriverLoadsLoading());
-    //   final result = await repo.fetchDriverLoads(
-    //     loadStatus: event.loadStatus,
-    //     search: event.search,
-    //     laneId: event.laneId,
-    //     truckTypeId: event.truckTypeId, 
-    //     commodityTypeId: event.commodityTypeId,  
-    //     limit: event.limit,
-    //     page: event.page,
-    //     forceRefresh: event.forceRefresh,
-        
-    //     );
-    //   if (result is Success<DriverListDataDetails>) {
-    //     emit(DriverLoadsLoaded(result.value));
-    //   } else {
-    //     emit(DriverLoadsError("Failed to load data"));
-    //   }
-    // });
    on<FetchDriverLoads>((event, emit) async {
   if (_isLoadingMore && event.loadMore == true) return;
   
@@ -104,10 +85,10 @@ class DriverLoadsBloc extends Bloc<DriverLoadsEvent, DriverLoadsState> {
 
       if (result is Success<VpLoadAcceptModel>) {
         emit(DriverLoadStatusChanged(result.value));
-      } else if (result is Error) {
-        emit(DriverLoadStatusChangeFailed("Failed to change status"));
+      } else if (result is Error<VpLoadAcceptModel>) {
+        emit(DriverLoadStatusChangeFailed(result.type));
       } else {
-        emit(DriverLoadStatusChangeFailed("Unknown error occurred"));
+       emit(DriverLoadsError("Something went wrong"));
       }
     });
   }
