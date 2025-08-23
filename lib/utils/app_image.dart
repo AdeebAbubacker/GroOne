@@ -118,6 +118,7 @@ class SvgImages {
   final String blueTick = "${_svgImageBasePath}blue_tick.svg";
   final String switchLp = "${_svgImageBasePath}switch_lp.svg";
   final String switchVp= "${_svgImageBasePath}switch_vp.svg";
+  final String hindujaLogo= "${_svgImageBasePath}hinduja_logo.svg";
 }
 
 class JpgImage {
