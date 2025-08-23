@@ -153,9 +153,6 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   /// Set Delete Account UI State
-
-  /// Delete Account API call
-  /// Delete Account API call
   void _setDeleteAccountUIState(UIState<DeleteAccountModel>? uiState) {
     emit(state.copyWith(deleteAccountUIState: uiState));
   }

@@ -994,28 +994,6 @@ class ProfileService {
     }
   }
 
-   /// Delete Account
-//   Future<Result<DeleteAccountModel>> deleteAccount() async {
-//   try {
-//     final customerId = await _userInformationRepository.getUserID() ?? "";
-//     final url = "${ApiUrls.deleteCustomer}/$customerId/3";
-
-//     final result = await _apiService.delete(
-//       url,
-//     );
-
-//     if (result is Success) {
-//       final logOutModel = DeleteAccountModel.fromJson(result.value);
-//       return Success(logOutModel);
-//     } else if (result is Error) {
-//       return Error(result.type);
-//     } else {
-//       return Error(GenericError());
-//     }
-//   } catch (e) {
-//     return Error(DeserializationError());
-//   }
-// }
  
  Future<Result<DeleteAccountModel>> deleteAccount() async {
   try {

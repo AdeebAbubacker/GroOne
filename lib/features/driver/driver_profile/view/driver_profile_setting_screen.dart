@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
 import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
@@ -37,16 +38,18 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-
 class DriverProfileSettingScreen extends StatefulWidget {
   const DriverProfileSettingScreen({super.key});
 
   @override
-  State<DriverProfileSettingScreen> createState() => _DriverProfileSettingScreenState();
+  State<DriverProfileSettingScreen> createState() =>
+      _DriverProfileSettingScreenState();
 }
 
-class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen> {
+class _DriverProfileSettingScreenState
+    extends State<DriverProfileSettingScreen> {
   final profileCubit = locator<ProfileCubit>();
+  final driverProfileCubit = locator<DriverProfileCubit>();
   final prefs = locator<SecuredSharedPreferences>();
 
   @override
@@ -55,23 +58,24 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
     initFunction();
   }
 
-  void initFunction() => frameCallback(()  async{
+  void initFunction() => frameCallback(() async {
     await profileCubit.fetchSettings();
     await profileCubit.fetchCustomerSettings();
-    final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
+    final savedLangCode = await prefs.get(
+      AppString.sessionKey.selectedLanguage,
+    );
     _updateLanguage(savedLangCode ?? 'English');
   });
-  
+
   void disposeFunction() => frameCallback(() {
-    profileCubit.deleteAccount();
     profileCubit.resetLogoutUIState();
   });
 
-    void deleteAccountDialogPopUp(BuildContext context) {
+  void deleteAccountDialogPopUp(BuildContext context) {
     AppDialog.show(
       context,
-      child: BlocBuilder<ProfileCubit, ProfileState>(
-        bloc: profileCubit,
+      child: BlocBuilder<DriverProfileCubit, DriverProfileState>(
+        bloc: driverProfileCubit,
         builder: (context, state) {
           final isLoading =
               state.deleteAccountUIState?.status == Status.LOADING;
@@ -82,14 +86,13 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
             hideCloseButton: true,
             yesButtonTextStyle: OutlinedButton.styleFrom(
               backgroundColor: Colors.red,
-    
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-             
-                        ),
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             onClickYesButton:
-                () => !isLoading ? profileCubit.deleteAccount() : () {},
+                () => !isLoading ? driverProfileCubit.deleteAccount() : () {},
             yesButtonLoading: isLoading,
             child: DeleteAccountDialogueUi(),
           );
@@ -97,7 +100,7 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
       ),
     );
   }
- 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,17 +113,21 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
           final settingState = state.settingsState;
           final customerState = state.customerSettingsState;
 
-          if (settingState?.status == Status.LOADING || customerState?.status == Status.LOADING) {
+          if (settingState?.status == Status.LOADING ||
+              customerState?.status == Status.LOADING) {
             return const Center(child: CircularProgressIndicator());
           }
 
           if (settingState?.status == Status.ERROR) {
-            return genericErrorWidget(error: settingState?.errorType ?? customerState?.errorType);
+            return genericErrorWidget(
+              error: settingState?.errorType ?? customerState?.errorType,
+            );
           }
 
-          final settingsList = (settingState?.data ?? [])
-              .where((element) => element.section != "Security")
-              .toList();
+          final settingsList =
+              (settingState?.data ?? [])
+                  .where((element) => element.section != "Security")
+                  .toList();
 
           final customerData = customerState?.data;
 
@@ -133,46 +140,58 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
             child: ListView(
-              children: groupedSettings.entries.map((entry) {
-                final section = entry.key;
-                final settings = entry.value;
+              children:
+                  groupedSettings.entries.map((entry) {
+                    final section = entry.key;
+                    final settings = entry.value;
 
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    headingText(section),
-                    ...settings.map((setting) {
-                      final key = setting.key;
-                      final value = DriverCustomerSettingsMapper.getValue(key, customerData, setting.defaultValue);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        headingText(section),
+                        ...settings.map((setting) {
+                          final key = setting.key;
+                          final value = DriverCustomerSettingsMapper.getValue(
+                            key,
+                            customerData,
+                            setting.defaultValue,
+                          );
 
-
-                      if (setting.type == 'toggle') {
-                        if (setting.key == 'offers_promotions' || setting.key == 'payment_alerts') {
-                          return const SizedBox.shrink();
-                        }
-                        return toggleRow(
-                          setting.label,
-                          value == 'true',
-                              (bool newVal) {
-                                final request = DriverCustomerSettingsMapper.buildRequest(key, newVal.toString());
-
-                            if (request != null) {
-                              profileCubit.updateCustomerSettings(request: request);
+                          if (setting.type == 'toggle') {
+                            if (setting.key == 'offers_promotions' ||
+                                setting.key == 'payment_alerts') {
+                              return const SizedBox.shrink();
                             }
-                          },
-                        );
-                      } else if (setting.type == 'radio') {
-                        final options = setting.options.split(',');
-                        return Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 10),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              ...options.map((opt) => languageRadio(opt, value == opt))
-                            ],
-                          ),
-                        );
-                      } else if (setting.type == 'link') {
+                            return toggleRow(setting.label, value == 'true', (
+                              bool newVal,
+                            ) {
+                              final request =
+                                  DriverCustomerSettingsMapper.buildRequest(
+                                    key,
+                                    newVal.toString(),
+                                  );
+
+                              if (request != null) {
+                                profileCubit.updateCustomerSettings(
+                                  request: request,
+                                );
+                              }
+                            });
+                          } else if (setting.type == 'radio') {
+                            final options = setting.options.split(',');
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ...options.map(
+                                    (opt) => languageRadio(opt, value == opt),
+                                  ),
+                                ],
+                              ),
+                            );
+                          } else if (setting.type == 'link') {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -201,7 +220,10 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
 
                                 /// Delete Account not from api - appending from ui (Todo from api list)
                                 if (setting.key == 'privacy_policy')
-                                  BlocConsumer<ProfileCubit, ProfileState>(
+                                  BlocConsumer<
+                                    DriverProfileCubit,
+                                    DriverProfileState
+                                  >(
                                     listener: (context, state) {
                                       final status =
                                           state.deleteAccountUIState?.status;
@@ -211,12 +233,17 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
                                             .selectedIndexNotifier
                                             .value = 0;
                                         disposeFunction();
-                                        context.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
+                                        context.pushReplacement(
+                                          AppRouteName.login,
+                                          extra: {"showBackButton": false},
+                                        );
                                       }
 
                                       if (status == Status.ERROR) {
                                         final error =
-                                            state.deleteAccountUIState?.errorType;
+                                            state
+                                                .deleteAccountUIState
+                                                ?.errorType;
                                         ToastMessages.error(
                                           message: getErrorMsg(
                                             errorType: error ?? GenericError(),
@@ -240,15 +267,15 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
                                   ).paddingSymmetric(vertical: 20),
                               ],
                             );
-                          }  else {
-                        return const SizedBox();
-                      }
-                    }),
-                    dividerWidget(),
-                    10.height,
-                  ],
-                );
-              }).toList(),
+                          } else {
+                            return const SizedBox();
+                          }
+                        }),
+                        dividerWidget(),
+                        10.height,
+                      ],
+                    );
+                  }).toList(),
             ),
           );
         },
@@ -259,7 +286,10 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
   Widget toggleRow(String text, bool selected, Function(bool) onChanged) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [Text(text, style: AppTextStyle.body3), AppSwitchToggle(switchBool: selected, onChanged: onChanged)],
+      children: [
+        Text(text, style: AppTextStyle.body3),
+        AppSwitchToggle(switchBool: selected, onChanged: onChanged),
+      ],
     ).paddingSymmetric(vertical: 15);
   }
 
@@ -270,14 +300,18 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
       },
       child: Row(
         children: [
-          RadioButton(radioBool: selected, onChanged: () {
-            _updateLanguage(text);
-          }),
+          RadioButton(
+            radioBool: selected,
+            onChanged: () {
+              _updateLanguage(text);
+            },
+          ),
           Text(text, style: AppTextStyle.blackColor14w400),
         ],
       ),
     );
   }
+
   void _updateLanguage(String languageCode) async {
     final locale = Locale(languageCode.toLowerCase().substring(0, 2));
     final localeBloc = context.read<LocaleBloc>();
@@ -290,8 +324,10 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
     localeBloc.add(ChangeLocale(locale));
   }
 
-  Widget headingText(String text) =>
-      Text(text, style: AppTextStyle.body2.copyWith(color: AppColors.textBlackDetailColor));
+  Widget headingText(String text) => Text(
+    text,
+    style: AppTextStyle.body2.copyWith(color: AppColors.textBlackDetailColor),
+  );
 
   Widget buildLinks(BuildContext context) {
     return Column(
@@ -300,18 +336,22 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
           context,
           icon: AppIcons.svg.tAndCDoc,
           text: context.appText.termsAndConditions.capitalizeFirst,
-          onTap: () => Navigator.push(context, commonRoute(TermsAndConditionsScreen())),
+          onTap:
+              () => Navigator.push(
+                context,
+                commonRoute(TermsAndConditionsScreen()),
+              ),
         ).paddingSymmetric(vertical: 20),
         linkTile(
           context,
           icon: AppIcons.svg.privacyLock,
           text: context.appText.privacyPolicy,
-          onTap: () => Navigator.push(context, commonRoute(PrivacyPolicyScreen())),
+          onTap:
+              () => Navigator.push(context, commonRoute(PrivacyPolicyScreen())),
         ),
       ],
     );
   }
-
 
   Widget linkTile(
     BuildContext context, {
@@ -343,5 +383,4 @@ class _DriverProfileSettingScreenState extends State<DriverProfileSettingScreen>
       ),
     );
   }
-
 }

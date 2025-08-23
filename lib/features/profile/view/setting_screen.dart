@@ -64,7 +64,6 @@ class _LpSettingState extends State<LpSetting> {
   });
 
   void disposeFunction() => frameCallback(() {
-    profileCubit.deleteAccount();
     profileCubit.resetLogoutUIState();
   });
   void deleteAccountDialogPopUp(BuildContext context) {
@@ -82,12 +81,11 @@ class _LpSettingState extends State<LpSetting> {
             hideCloseButton: true,
             yesButtonTextStyle: OutlinedButton.styleFrom(
               backgroundColor: Colors.red,
-    
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-             
-                        ),
+
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
             onClickYesButton:
                 () => !isLoading ? profileCubit.deleteAccount() : () {},
             yesButtonLoading: isLoading,
@@ -226,12 +224,17 @@ class _LpSettingState extends State<LpSetting> {
                                             .selectedIndexNotifier
                                             .value = 0;
                                         disposeFunction();
-                                        context.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
+                                        context.pushReplacement(
+                                          AppRouteName.login,
+                                          extra: {"showBackButton": false},
+                                        );
                                       }
 
                                       if (status == Status.ERROR) {
                                         final error =
-                                            state.deleteAccountUIState?.errorType;
+                                            state
+                                                .deleteAccountUIState
+                                                ?.errorType;
                                         ToastMessages.error(
                                           message: getErrorMsg(
                                             errorType: error ?? GenericError(),
@@ -372,5 +375,3 @@ class _LpSettingState extends State<LpSetting> {
     );
   }
 }
-
-//9188420784
