@@ -563,10 +563,12 @@ class _GpsHomeContent extends StatelessWidget {
   Widget _buildBottomBannerImageWidget() {
     return Container(
       alignment: Alignment.bottomCenter,
-      child: Image.asset(
-        AppImage.png.signUpBanner,
+      child: SvgPicture.asset(
+        alignment: Alignment.bottomCenter,
+        AppImage.svg.hindujaLogo,
         width: double.infinity,
         fit: BoxFit.fitWidth,
+        height: 50,
       ),
     );
   }
