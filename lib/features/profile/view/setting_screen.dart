@@ -174,7 +174,7 @@ class _LpSettingState extends State<LpSetting> {
                           } else if (setting.type == 'radio') {
                             final options = setting.options.split(',');
                             return Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 10),
+                              padding: const EdgeInsets.symmetric(vertical: 15),
                               child: Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,

@@ -90,7 +90,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   /// Body
   Widget buildBodyWidget() {
     return SafeArea(
-      bottom: false,
+      // bottom: false,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
