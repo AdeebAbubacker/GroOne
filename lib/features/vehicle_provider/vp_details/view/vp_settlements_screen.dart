@@ -57,9 +57,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() async { noOfDays.addListener(() {
-    setState(() {}); 
-  });});
+  void initFunction() => frameCallback(() async { });
 
   void disposeFunction() => frameCallback(() {});
 
@@ -146,6 +144,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
+                enabled: (int.tryParse(noOfDays.text) ?? 0) > 0,
                 controller: loadingAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
@@ -161,6 +160,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
+                enabled: (int.tryParse(noOfDays.text) ?? 0) > 0,
                 controller: unloadingAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
@@ -191,10 +191,8 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                 },
                 builder: (context, state) {
                   final isLoading = state.settlementUIState?.status == Status.LOADING;
-                  final isButtonEnabled = (int.tryParse(noOfDays.text) ?? 0) > 0;
                   
                   return AppButton(
-                      enable: isButtonEnabled && !isLoading,
                       title: context.appText.submit,
                       isLoading: isLoading,
                       style: AppButtonStyle.primary,

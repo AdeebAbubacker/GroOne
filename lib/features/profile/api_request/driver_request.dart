@@ -8,6 +8,7 @@ class DriverRequest {
     required this.licenseExpiryDate,
     required this.dateOfBirth,
     this.licenseCategory,
+    this.licenseDocLink,
     this.bloodGroup,
     required this.driverStatus,
   });
@@ -19,6 +20,7 @@ class DriverRequest {
   final String licenseNumber;
   final String licenseExpiryDate; 
   final String dateOfBirth; 
+  final String? licenseDocLink;
   final int? licenseCategory; 
   final int? bloodGroup; 
   final int driverStatus;
@@ -47,6 +49,7 @@ class DriverRequest {
       licenseCategory: licenseCategory ?? this.licenseCategory,
       bloodGroup: bloodGroup ?? this.bloodGroup,
       driverStatus: driverStatus ?? this.driverStatus,
+      licenseDocLink : licenseDocLink ?? this.licenseDocLink,
     );
   }
 
@@ -61,6 +64,7 @@ class DriverRequest {
       dateOfBirth: json["dateOfBirth"] ?? "",
       bloodGroup: json["bloodGroup"], 
       licenseCategory: json["licenseCategory"],
+      licenseDocLink: json["licenseDocLink"],
       driverStatus: json["driverStatus"] ?? 1,
     );
   }
@@ -76,6 +80,7 @@ class DriverRequest {
     if (licenseExpiryDate.isNotEmpty) {
       data["licenseExpiryDate"] = licenseExpiryDate;
     }
+    if (licenseDocLink!= null) data["licenseDocLink"] = licenseDocLink;
     if (dateOfBirth.isNotEmpty) data["dateOfBirth"] = dateOfBirth;
     if (licenseCategory != null) data["licenseCategory"] = licenseCategory;
     if (bloodGroup != null) data["bloodGroup"] = bloodGroup;

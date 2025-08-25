@@ -1278,7 +1278,8 @@
   "fcExpiryDate": "FC Expiry Date",
   "detentionRequire":"Detention is required,Please add detention",
   "deleteAccountSubHeading": "Are you sure you want to delete your account ? This action cannot be undone.",
-  "deleteAccount": "Delete Account"
+  "deleteAccount": "Delete Account",
+  "uploadLicesneDocument" : "Upload License Document"
 
 
 

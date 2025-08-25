@@ -59,9 +59,7 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() async { noOfDays.addListener(() {
-    setState(() {}); 
-  });});
+  void initFunction() => frameCallback(() async { });
 
   void disposeFunction() => frameCallback(() {});
 
