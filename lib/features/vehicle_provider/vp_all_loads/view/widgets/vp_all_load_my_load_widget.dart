@@ -249,15 +249,20 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
     ).expand();
   }
 
-  Widget _buildLocationInfoWidget(String? location){
-    String locationText=location?.split(",").first??"";
-    return Text(
+  Widget _buildLocationInfoWidget(String? location) {
+  String locationText = location?.split(",").first ?? "";
+
+  return Tooltip(
+    message: locationText,
+    child: Text(
       locationText,
       style: AppTextStyle.blackColor15w500,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
-    );
-  }
+    ),
+  );
+}
+
 
   _handleOnTap(LoadStatusDetailsResponse? loadStatus,LoadStatus? loadStatusValues,String? id,int? loadStatusId) async {
      String? userId = await vpHomeBloc.getUserId();

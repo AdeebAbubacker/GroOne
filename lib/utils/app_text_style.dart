@@ -241,6 +241,7 @@ class AppTextStyle {
   static TextStyle buttonBlackTextColor = button.copyWith(color: AppColors.primaryTextColor,  inherit: false);
   static TextStyle buttonPrimaryColorTextColor = button.copyWith(color: AppColors.primaryColor,  inherit: false);
   static TextStyle buttonDisableColorTextColor = button.copyWith(color: AppColors.greyTextColor,  inherit: false);
+   static TextStyle buttonRedColorTextColor = button.copyWith(color: AppColors.red,  inherit: false);
 
   // Secondary
   static TextStyle secondaryButton = button.copyWith(color: AppColors.primaryTextColor);

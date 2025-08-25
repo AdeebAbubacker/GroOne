@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -10,13 +11,17 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/dam
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/update_damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_count_selector.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
@@ -33,10 +38,10 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/textFieldInputFormatter/alpha_only_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
+
 
 
 class DriverDamagesAndShortagesScreen extends StatefulWidget {
@@ -48,11 +53,11 @@ class DriverDamagesAndShortagesScreen extends StatefulWidget {
   State<DriverDamagesAndShortagesScreen> createState() => _DriverDamagesAndShortagesScreenState();
 }
 
-class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShortagesScreen> {
-
-  final cubit = locator<LoadDetailsCubit>();
+class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndShortagesScreen> {
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  final cubit = locator<LoadDetailsCubit>();
 
   final String selectedFileName = "";
 
@@ -60,14 +65,18 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
   List<String> uploadedDamageFileList = [];
   List<String> updateDamageFileList = [];
 
+  Set<String> damageDocumentIds={};
+  Set<String> updateDamageDocumentIds={};
+  bool isDamageAdded=false;
+
  final TextEditingController itemNameTextController = TextEditingController();
- final TextEditingController quantityTextController = TextEditingController();
+ final TextEditingController quantityTextController = TextEditingController(text: '0');
  final TextEditingController descriptionTextController = TextEditingController();
+
 
 
   @override
   void initState() {
-    // TODO: implement initState
     initFunction();
     super.initState();
   }
@@ -80,7 +89,8 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
   }
 
   void initFunction() => frameCallback(() async {
-    cubit.fetchDamageList(widget.loadId ?? "");
+    await cubit.fetchDamageList(widget.loadId ?? "");
+
   });
 
   void disposeFunction() => frameCallback(() {
@@ -90,6 +100,8 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
     itemNameTextController.clear();
     quantityTextController.clear();
     descriptionTextController.clear();
+    updateDamageDocumentIds.clear();
+    damageDocumentIds.clear();
     cubit.resetState();
   });
 
@@ -101,6 +113,8 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
     itemNameTextController.clear();
     quantityTextController.clear();
     descriptionTextController.clear();
+    updateDamageDocumentIds.clear();
+    damageDocumentIds.clear();
     cubit.resetUploadDamageFileUIState();
     cubit.resetSubmitDamageUIState();
     cubit.resetUpdateDamageUIState();
@@ -110,16 +124,16 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
   // Create Damage Api call
   void createDamageAndShortageApiCall() {
     if (widget.vehicleId == null && widget.loadId == null && widget.loadId!.isEmpty && widget.vehicleId!.isEmpty) {
-      ToastMessages.error(message: "Something went wrong - ${widget.vehicleId} - ${widget.loadId}");
+      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${widget.vehicleId} - ${widget.loadId}");
       return;
     }
     if (formKey.currentState!.validate()) {
       if (uploadedDamageFileList.isEmpty) {
-        ToastMessages.alert(message: "Please upload Product Photo");
+        ToastMessages.alert(message: context.appText.uploadProductPhoto);
         return;
       }
       if(int.parse(quantityTextController.text) == 0){
-        ToastMessages.alert(message: "You can't add 0 quantity");
+        ToastMessages.alert(message: context.appText.emptyQuantityValidation);
         return;
       }
 
@@ -129,10 +143,11 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
           itemName: itemNameTextController.text,
           quantity: int.parse(quantityTextController.text),
           description: descriptionTextController.text,
-          image: uploadedDamageFileList
-
+          image: damageDocumentIds.toList()
       );
+
       cubit.createDamage(request);
+      isDamageAdded=true;
     }
   }
 
@@ -140,16 +155,16 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
   // Update Api call
   Future<void> updateDamageAndShortageApiCall(String damageId) async {
     if (widget.vehicleId == null && widget.loadId == null && widget.loadId!.isEmpty && widget.vehicleId!.isEmpty) {
-      ToastMessages.error(message: "Something went wrong - ${widget.vehicleId} - ${widget.loadId}");
+      ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${widget.vehicleId} - ${widget.loadId}");
       return;
     }
     if (formKey.currentState!.validate()) {
       if (updateDamageFileList.isEmpty) {
-        ToastMessages.alert(message: "Please upload Product Photo");
+        ToastMessages.alert(message: context.appText.uploadProductPhoto);
         return;
       }
       if(int.parse(quantityTextController.text) == 0){
-        ToastMessages.alert(message: "You can't add 0 quantity");
+        ToastMessages.alert(message: context.appText.emptyQuantityValidation);
         return;
       }
 
@@ -157,21 +172,32 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
         itemName: itemNameTextController.text,
         quantity: int.parse(quantityTextController.text),
         description: descriptionTextController.text,
-        image: updateDamageFileList,
+        image: updateDamageDocumentIds.toList(),
       );
       await cubit.updateDamage(apiRequest, damageId);
     }
   }
 
+  Future<void> callCreateDocument(UploadDamageFileModel damageFileData)async{
+    final damageEntity=damageDocumentEntity;
+   final createDocumentResponse= await cubit.createDocument(damageEntity.title??"", damageEntity.documentTypeId??0, damageFileData);
+   if(createDocumentResponse!=null){
+     damageDocumentIds.add(createDocumentResponse.documentId??"");
+     updateDamageDocumentIds.add(createDocumentResponse.documentId??"");
+   }
+  }
 
+
+  // Success Damages Create Dialog
   void showSuccessDialog(BuildContext context) => frameCallback(() {
     AppDialog.show(
       context,
       child: SuccessDialogView(
-        heading: "Your damage has been recorded.",
-        message: "We have notified the concerned team.",
+        heading: context.appText.damageRecordedSuccessfully,
+        message: context.appText.notifiedTheConcernTeam,
         onContinue: (){
           Navigator.of(context).pop(true);
+          analyticsHelper.logEvent(AnalyticEventName.CREATE_DAMAGES_SUCCESSFULLY);
           cubit.fetchDamageList(widget.loadId ?? "");
         },
       ),
@@ -180,6 +206,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
 
 
 
+  // Confirm Delete Damage Dialog
   void confirmDeleteDamageDialog(BuildContext context, String damageId) => frameCallback(() {
     AppDialog.show(
       context,
@@ -190,16 +217,16 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
           final status = state.deleteDamageUIState?.status;
 
           return CommonDialogView(
-            message: "Are you sure you want to delete this damage?",
+            message: context.appText.sureToDeleteDamage,
             messageTextStyle: AppTextStyle.body2,
             hideCloseButton: true,
             showYesNoButtonButtons: true,
             yesButtonLoading: isLoading,
             onClickYesButton: () async {
               await cubit.deleteDamage(damageId);
-
               if (status == Status.SUCCESS) {
                 cubit.resetDeleteDamageUIState();
+                analyticsHelper.logEvent(AnalyticEventName.DELETE_DAMAGES);
               }
               if (status == Status.ERROR) {
                 final error = state.deleteDamageUIState?.errorType;
@@ -209,12 +236,10 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
                   ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
                 }
               }
-              debugPrint("Status-- : ${status}");
               if(!context.mounted) return;
               frameCallback((){
                 Navigator.of(context).pop();
               });
-
             },
           );
         },
@@ -227,6 +252,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(
+        onLeadingTap: () => Navigator.pop(context,isDamageAdded),
           title: context.appText.damagesAndShortages,
           actions: [
             BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
@@ -238,14 +264,13 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
                         cubit.setIsUpdateDamage(false);
                         clearValues();
                         },
-                      child: Text("Cancel Edit"),
+                      child: Text(context.appText.cancelEdit),
                     );
                   } else {
                     return Container();
                   }
                 }
             ),
-
           ],
       ),
       body: _buildBodyWidget(context),
@@ -282,28 +307,20 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
 
           // Item Name
           AppTextField(
+            mandatoryStar: true,
             validator: (value)=> Validator.fieldRequired(value),
             controller: itemNameTextController,
             labelText: context.appText.itemName,
             hintText: "LED TV 42”",
-             inputFormatters: [
-             AlphaOnlyTextFormatter(),
+            inputFormatters: [
+              LengthLimitingTextInputFormatter(50),
             ],
           ),
-          20.height,
+          10.height,
 
           // Quantity
-          AppTextField(
-            validator: (value)=> Validator.fieldRequired(value),
-            controller: quantityTextController,
-            labelText: context.appText.quantity,
-            hintText: "2",
-            keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
-            inputFormatters: [
-              FilteringTextInputFormatter.digitsOnly
-            ],
-          ),
-          20.height,
+          AppCountSelector(label: context.appText.quantity, controller: quantityTextController, isMandatory: true),
+          10.height,
 
           // Upload Product Photo
           _buildUploadProductPhotoWidget(),
@@ -312,14 +329,15 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
 
           // Description
           AppTextField(
+            mandatoryStar: true,
             validator: (value)=> Validator.fieldRequired(value),
             controller: descriptionTextController,
             labelText: context.appText.description,
             hintText: context.appText.tvCrackedScreenNote,
             maxLines: 2,
             inputFormatters: [
-            LengthLimitingTextInputFormatter(500), 
-          ],
+              LengthLimitingTextInputFormatter(240),
+            ],
           ),
           30.height,
 
@@ -379,7 +397,8 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
           cubit.setIsUpdateDamage(false);
           clearValues();
           initFunction();
-          ToastMessages.success(message: "Damage Updated Successfully");
+          ToastMessages.success(message: context.appText.damageUpdatesSuccessfully);
+          analyticsHelper.logEvent(AnalyticEventName.UPDATE_DAMAGES);
         }
         if (status == Status.ERROR) {
           final error = state.updateDamageUIState?.errorType;
@@ -429,6 +448,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
                         AppIconButton(
                             onPressed: (){
                               updateDamageFileList.removeAt(index);
+                              updateDamageDocumentIds.toList().removeAt(index);
                               setState(() {});
                             },
                             style: AppButtonStyle.circularIconButtonStyle,
@@ -463,6 +483,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
             uploadedDamageFileList.add(state.uploadDamageUIState!.data!.url);
             updateDamageFileList.add(state.uploadDamageUIState!.data!.url);
             CustomLog.debug(this, "File List : ${uploadedDamageFileList.length}");
+            callCreateDocument(state.uploadDamageUIState!.data!);
             cubit.resetUploadDamageFileUIState();
           }
         }
@@ -472,15 +493,12 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
           multiFilesList.clear();
           ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
         }
-
-      },
+        },
       builder: (context, state) {
         final isLoading = state.uploadDamageUIState?.status == Status.LOADING;
-        debugPrint("Multi File List : ${multiFilesList.length}");
-        debugPrint("Upload Damage File List : ${uploadedDamageFileList.length}");
         return UploadAttachmentFiles(
           isdocSupportWithoutPdf: false,
-          title: "Product Photo",
+          title: context.appText.productPhoto,
           multiFilesList: multiFilesList,
           isMultipleSelectionFile: false,
           isSingleFile: false,
@@ -490,10 +508,12 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
               cubit.uploadDamageFile(File(multiFilesList.length > 1 ? multiFilesList.last['path'] : multiFilesList.first['path']));
             } else {
               uploadedDamageFileList.clear();
+              damageDocumentIds.clear();
             }
           },
           onDelete: (index) {
             uploadedDamageFileList.removeAt(index);
+            damageDocumentIds.toList().removeAt(index);
           }
         );
       },
@@ -504,7 +524,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
   Widget _buildDamageRecordListWidget(BuildContext context){
     return BlocConsumer<LoadDetailsCubit, LoadDetailsState>(
       bloc: cubit,
-      listenWhen: (previous, current) =>  previous.damageListUIState?.status != current.damageListUIState?.status,
+      listenWhen: (previous, current) =>  previous.damageListUIState?.status != current.damageListUIState?.status || previous.allDamageImageList?.length!=current.allDamageImageList?.length,
       listener: (context, state) {
         final status = state.damageListUIState?.status;
 
@@ -516,6 +536,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
       },
       builder: (context, state) {
         if(state.damageListUIState?.data != null && state.damageListUIState!.data!.data.isNotEmpty) {
+          final imageList=state.allDamageImageList;
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -529,7 +550,8 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
                   final data = state.damageListUIState!.data!.data[index];
                   return damageRecordCard(
                     context: context,
-                    imageUrl: data.image??[],
+                    imageIds: data.image,
+                    imageUrl: (imageList != null && imageList.length > index) ? imageList[index] : "",
                     itemName: data.itemName??"",
                     quantity:  data.quantity.toString(),
                     description:  data.description??"",
@@ -538,7 +560,7 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
                       final status = state.deleteDamageUIState?.status;
                       if (status == Status.SUCCESS) {
                         cubit.resetDeleteDamageUIState();
-                        ToastMessages.success(message: "Damage deleted successfully");
+                        ToastMessages.success(message:context.appText.damageDeletedSuccessfully);
                       }
                       if (status == Status.ERROR) {
                         final error = state.deleteDamageUIState?.errorType;
@@ -581,79 +603,77 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
     );
   }
 
-
+// Damages record card
   Widget damageRecordCard({
-  required BuildContext context,
-  required List<String> imageUrl,
-  required String itemName,
-  required String quantity,
-  required String description,
-  required VoidCallback onEdit,
-  required VoidCallback onDelete,
-}) {
-  return Container(
-    width: double.infinity,
-    decoration: BoxDecoration(
-      color: AppColors.extraLightBackgroundColor,
-      borderRadius: BorderRadius.circular(12),
-    ),
-    child: Row(
-      crossAxisAlignment: CrossAxisAlignment.start, 
-      children: [
-        ClipRRect(
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(12),
-            bottomLeft: Radius.circular(12),
-          ),
-          child: SizedBox(
-            width: 110,
-            height: 110, 
-            child: commonCacheNetworkImage(
-              path: imageUrl.isNotEmpty ? imageUrl.first : "",
-              errorImage: Icons.image_not_supported,
-              radius: 0,
+    required BuildContext context,
+    required String imageUrl,
+    required String itemName,
+    required String quantity,
+    required String description,
+     List<String>? imageIds,
+    required VoidCallback onEdit,
+    required VoidCallback onDelete,
+  }) {
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: AppColors.extraLightBackgroundColor,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      height: 110,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start, 
+        children: [
+          // Left-side Image with only left corners rounded
+          ClipRRect(
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(12),
+              bottomLeft: Radius.circular(12),
+            ),
+            child: SizedBox(
+              width: 110,
+              height: double.infinity,
+              child: commonCacheNetworkImage(
+                  path: imageUrl,
+                  errorImage: Icons.image_not_supported,
+                  radius: 0
+              ),
             ),
           ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(itemName, style: AppTextStyle.body2),
-                5.height,
-                Text("${context.appText.quantity}: $quantity",
-                    style: AppTextStyle.body4GreyColor),
-                 ExpandableText(
+
+          const SizedBox(width: 12),
+
+          // Text content
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(itemName, style: AppTextStyle.body2),
+                  5.height,
+                  Text("${context.appText.quantity}: $quantity", style: AppTextStyle.body4GreyColor),
+                   ExpandableText(
                     text: description,
                     style: AppTextStyle.body4GreyColor,
                   ),
-                5.height,
-                InkWell(
-                  onTap: () {
-                    Navigator.of(context)
-                        .push(createRoute(ViewFileWidget(image: imageUrl)));
-                  },
-                  child:
-                      Text("View Files", style: AppTextStyle.body3PrimaryColor),
-                ),
-              ],
+                  5.height,
+                  InkWell(
+                    onTap: (){
+                      Navigator.of(context).push(createRoute(ViewFileWidget(image: imageIds??[])));
+                    },
+                    child: Text(context.appText.viewFiles, style: AppTextStyle.body3PrimaryColor),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        SizedBox(
-          width: 48, // fixed width for buttons so text knows limits
-          child: Column(
+
+          // Delete button
+          Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              AppIconButton(
-                onPressed: onEdit,
-                icon: AppIcons.svg.edit,
-                iconColor: AppColors.primaryColor,
-              ),
               AppIconButton(
                 onPressed: onDelete,
                 icon: AppIcons.svg.delete,
@@ -661,13 +681,10 @@ class _DriverDamagesAndShortagesScreenState extends State<DriverDamagesAndShorta
               ),
             ],
           ),
-        ),
-      ],
-    ),
-  );
-}
- 
-
+        ],
+      ),
+    );
+  }
 }
 
 
