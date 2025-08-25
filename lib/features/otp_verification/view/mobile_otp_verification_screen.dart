@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
@@ -140,13 +141,13 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
   });
 
   // Login Success Popup
-  void loginSuccessDialog(BuildContext context, String routeName) {
+  void loginSuccessDialog(BuildContext context, String routeName,{String? message}) {
     AppDialog.show(
       dismissible: false,
       context,
       child: SuccessDialogView(
         heading: context.appText.loginSuccessfully,
-        message: context.appText.nowYouCanExploreRates,
+        message: message ?? context.appText.nowYouCanExploreRates,
         afterDismiss: () => context.go(routeName),
       ),
     );
@@ -169,188 +170,191 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonOnboardingAppbar(),
-      body: BlocConsumer(
-        bloc: otpBloc,
-        listenWhen: (previous, current) => previous != current,
-        listener: (context, state) async {
-          if (state is OtpResendSuccess) {
-            otpString = "";
-            ToastMessages.success(message: context.appText.otpHasBeenSentSuccessfully);
-          }
-
-          if (state is OtpSuccess) {
-            final data = state.otpResponse;
-            final tempFlag = data.tempFlg ?? false;
-
-            //  1. Check if it's a driver
-            if (data.driver == true) {
-            loginSuccessDialog(context, AppRouteName.driverHome);
-            return;
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: CommonOnboardingAppbar(),
+        body: BlocConsumer(
+          bloc: otpBloc,
+          listenWhen: (previous, current) => previous != current,
+          listener: (context, state) async {
+            if (state is OtpResendSuccess) {
+              otpString = "";
+              ToastMessages.success(message: context.appText.otpHasBeenSentSuccessfully);
             }
-          
-            if (tempFlag) {
-              context.push(
-                AppRouteName.chooseRoleScreen,
-                extra: {
-                  "userId": data.customerId,
-                  "mobileNumber": widget.mobileNumber,
-                },
-              );
-            } else {
-              loginBloc.add(SaveDeviceToken(data.customerId));
-              final role = data.roleId;
-              if (role == 1 || role == 4) {
-                loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
-                return;
-              } else if (role == 2) {
-                loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
-                return;
-              } else if (role == 3) {
-                // both VP + LP, handle as per your app logic
-                loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
-                return;
+
+            if (state is OtpSuccess) {
+              final data = state.otpResponse;
+              final tempFlag = data.tempFlg ?? false;
+
+              //  1. Check if it's a driver
+              if (data.driver == true) {
+              loginSuccessDialog(context, AppRouteName.driverHome, message: context.appText.driverLoginSuccess);
+              return;
               }
+
+              if (tempFlag) {
+                context.push(
+                  AppRouteName.chooseRoleScreen,
+                  extra: {
+                    "userId": data.customerId,
+                    "mobileNumber": widget.mobileNumber,
+                  },
+                );
+              } else {
+                loginBloc.add(SaveDeviceToken(data.customerId));
+                final role = data.roleId;
+                if (role == 1 || role == 4) {
+                  loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
+                  return;
+                } else if (role == 2) {
+                  loginSuccessDialog(context, AppRouteName.vpBottomNavigationBar);
+                  return;
+                } else if (role == 3) {
+                  // both VP + LP, handle as per your app logic
+                  loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
+                  return;
+                }
+              }
+
+              if (state.otpResponse.tempFlg) {
+                homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.tempFlg);
+              } else {
+                if (!context.mounted) return;
+                homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.tempFlg);
+              }
+              analytics.logEvent(AnalyticEventName.ONBOARD_OTP_VERIFIED, {"otp" : otpString});
             }
-
-            if (state.otpResponse.tempFlg) {
-              homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.tempFlg);
-            } else {
-              if (!context.mounted) return;
-              homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.tempFlg);
+            if (state is OtpError) {
+              otpTextController.clear();
+              otpString = "";
+              analytics.logEvent(AnalyticEventName.ONBOARD_OTP_FAILED, {"message" : getErrorMsg(errorType: state.errorType)});
+              ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
-            analytics.logEvent(AnalyticEventName.ONBOARD_OTP_VERIFIED, {"otp" : otpString});
-          }
-          if (state is OtpError) {
-            otpTextController.clear();
-            otpString = "";
-            analytics.logEvent(AnalyticEventName.ONBOARD_OTP_FAILED, {"message" : getErrorMsg(errorType: state.errorType)});
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
-          }
-        },
-        builder: (context, state) {
-          final isLoading = state is OtpLoading;
-          final isLoadingResend = state is OtpResendLoading;
-          return Column(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  30.height,
-                  Text(context.appText.mobileOtpVerification, style: AppTextStyle.h2W600),
-                  20.height,
-                  Wrap(
-                    children: [
-                      Text(
-                        textAlign: TextAlign.start,
-                        context.appText.enterOtpSendNumber,
-                        style: AppTextStyle.textBlackColor18w400,
-                      ),
+          },
+          builder: (context, state) {
+            final isLoading = state is OtpLoading;
+            final isLoadingResend = state is OtpResendLoading;
+            return Column(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    30.height,
+                    Text(context.appText.mobileOtpVerification, style: AppTextStyle.h2W600),
+                    20.height,
+                    Wrap(
+                      children: [
+                        Text(
+                          textAlign: TextAlign.start,
+                          context.appText.enterOtpSendNumber,
+                          style: AppTextStyle.textBlackColor18w400,
+                        ),
 
-                      Text(
-                        maskPhoneNumber(widget.mobileNumber),
-                        style: AppTextStyle.primaryColor18w400UnderLine
-                            .copyWith(decoration: TextDecoration.none),
-                      ),
-                    ],
-                  ),
-                  20.height,
+                        Text(
+                          maskPhoneNumber(widget.mobileNumber),
+                          style: AppTextStyle.primaryColor18w400UnderLine
+                              .copyWith(decoration: TextDecoration.none),
+                        ),
+                      ],
+                    ),
+                    20.height,
 
-                  // Otp Text Field
-                  Pinput(
-                    defaultPinTheme: defaultPinTheme,
-                    focusedPinTheme: focusedPinTheme,
-                    submittedPinTheme: submittedPinTheme,
-                    controller: otpTextController,
-                    autofocus: true,
-                    length: 4,
-                    keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
-                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                    cursor: Text("|", style: TextStyle(fontSize: 20)),
-                    onChanged: (pin) {
-                      otpString = pin;
-                      setState(() {});
-                    },
-                    onCompleted: (pin) {
-                      otpString = pin;
-                      validateOtp();
-                      setState(() {});
-                    },
-                  ).center(),
-                  30.height,
+                    // Otp Text Field
+                    Pinput(
+                      defaultPinTheme: defaultPinTheme,
+                      focusedPinTheme: focusedPinTheme,
+                      submittedPinTheme: submittedPinTheme,
+                      controller: otpTextController,
+                      autofocus: true,
+                      length: 4,
+                      keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      cursor: Text("|", style: TextStyle(fontSize: 20)),
+                      onChanged: (pin) {
+                        otpString = pin;
+                        setState(() {});
+                      },
+                      onCompleted: (pin) {
+                        otpString = pin;
+                        validateOtp();
+                        setState(() {});
+                      },
+                    ).center(),
+                    30.height,
 
-                  // Verify Button
-                  AppButton(
-                    title: context.appText.verifyCode,
-                    isLoading: isLoading,
-                    style: otpString.length == 4 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
-                    onPressed: validateOtp,
-                  ),
-                  20.height,
+                    // Verify Button
+                    AppButton(
+                      title: context.appText.verifyCode,
+                      isLoading: isLoading,
+                      style: otpString.length == 4 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
+                      onPressed: validateOtp,
+                    ),
+                    20.height,
 
-                  // Resend OTP Button
-                  AppButton(
-                    style: _isButtonEnabled ? AppButtonStyle.outline : AppButtonStyle.disableOutline,
-                    isLoading: isLoadingResend,
-                    richTextWidget:
-                        _isButtonEnabled
-                            ? Text(
-                              context.appText.resend,
-                              style: AppTextStyle.buttonPrimaryColorTextColor,
-                            )
-                            : RichText(
-                              text: TextSpan(
-                                style: TextStyle(fontSize: 16.0),
-                                children: [
-                                  TextSpan(
-                                    text: context.appText.resend,
-                                    style:
-                                        _isButtonEnabled
-                                            ? AppTextStyle
-                                                .buttonPrimaryColorTextColor
-                                            : AppTextStyle
-                                                .buttonDisableColorTextColor,
-                                  ),
-                                  TextSpan(
-                                    text: context.appText.inText,
-                                    style: AppTextStyle.buttonDisableColorTextColor,
-                                  ),
-                                  TextSpan(
-                                    text: '$_start ',
-                                    style: AppTextStyle.button.copyWith(
-                                      color: AppColors.activeGreenColor,
+                    // Resend OTP Button
+                    AppButton(
+                      style: _isButtonEnabled ? AppButtonStyle.outline : AppButtonStyle.disableOutline,
+                      isLoading: isLoadingResend,
+                      richTextWidget:
+                          _isButtonEnabled
+                              ? Text(
+                                context.appText.resend,
+                                style: AppTextStyle.buttonPrimaryColorTextColor,
+                              )
+                              : RichText(
+                                text: TextSpan(
+                                  style: TextStyle(fontSize: 16.0),
+                                  children: [
+                                    TextSpan(
+                                      text: context.appText.resend,
+                                      style:
+                                          _isButtonEnabled
+                                              ? AppTextStyle
+                                                  .buttonPrimaryColorTextColor
+                                              : AppTextStyle
+                                                  .buttonDisableColorTextColor,
                                     ),
-                                  ),
-                                  TextSpan(
-                                    text: context.appText.second,
-                                    style:
-                                        AppTextStyle
-                                            .buttonDisableColorTextColor,
-                                  ),
-                                ],
+                                    TextSpan(
+                                      text: context.appText.inText,
+                                      style: AppTextStyle.buttonDisableColorTextColor,
+                                    ),
+                                    TextSpan(
+                                      text: '$_start ',
+                                      style: AppTextStyle.button.copyWith(
+                                        color: AppColors.activeGreenColor,
+                                      ),
+                                    ),
+                                    TextSpan(
+                                      text: context.appText.second,
+                                      style:
+                                          AppTextStyle
+                                              .buttonDisableColorTextColor,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                    onPressed: () {
-                      if (_isButtonEnabled) {
-                        final apiRequest = LoginApiRequest(
-                          mobile: int.parse(widget.mobileNumber),
-                          type: 1,
-                        );
-                        otpBloc.add(OtpResendRequested(apiRequest: apiRequest));
-                        startTimer();
-                        otpTextController.clear();
-                      }
-                    },
-                  ),
-                ],
-              ).paddingSymmetric(horizontal: commonSafeAreaPadding),
+                      onPressed: () {
+                        if (_isButtonEnabled) {
+                          final apiRequest = LoginApiRequest(
+                            mobile: int.parse(widget.mobileNumber),
+                            type: 1,
+                          );
+                          otpBloc.add(OtpResendRequested(apiRequest: apiRequest));
+                          startTimer();
+                          otpTextController.clear();
+                        }
+                      },
+                    ),
+                  ],
+                ).paddingSymmetric(horizontal: commonSafeAreaPadding),
 
-              // Bottom Banner Gro Image
-              buildBottomBannerImageWidget(),
-            ],
-          );
-        },
+                // Bottom Banner Gro Image
+                buildBottomBannerImageWidget(),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -359,10 +363,12 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
   Widget buildBottomBannerImageWidget() {
     return Container(
       alignment: Alignment.bottomCenter,
-      child: Image.asset(
-        AppImage.png.signUpBanner,
+      child: SvgPicture.asset(
+        alignment: Alignment.bottomCenter,
+        AppImage.svg.hindujaLogo,
         width: double.infinity,
         fit: BoxFit.fitWidth,
+        height: 50,
       ),
     ).expand();
   }

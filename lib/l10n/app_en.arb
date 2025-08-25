@@ -426,7 +426,7 @@
   "back": "Back",
   "lowCreditBalance": "Low credit balance",
   "lowCreditBalanceAlertMsg": "You cannot post this load due to your low credit balance",
-  "memoGenerated": "MEMO Generated",
+  "memoGenerated": "Loading Memo Generated",
   "failedToLoadMemo": "Failed to load memo details.",
   "noMemoFound": "No Memo Found.",
   "eSignMemo": "E-Sign Memo",
@@ -1279,7 +1279,8 @@
   "detentionRequire":"Detention is required,Please add detention",
   "deleteAccountSubHeading": "Are you sure you want to delete your account ? This action cannot be undone.",
   "deleteAccount": "Delete Account",
-  "uploadLicesneDocument" : "Upload License Document"
+  "uploadLicesneDocument" : "Upload License Document",
+  "driverLoginSuccess": "Thank you for login in on GroOne app"
 
 
 
