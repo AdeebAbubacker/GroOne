@@ -399,6 +399,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         state is KavachPaymentInitiating ||
         state is KavachPaymentStatusChecking;
     return Container(
+      padding: EdgeInsets.only(top: 10),
       decoration: BoxDecoration(
         color: Colors.white,
         boxShadow: [
@@ -453,7 +454,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
             style: AppButtonStyle.primary,
           ).expand(),
         ],
-      ).paddingOnly(bottom: 30, right: 20, left: 20, top: 15),
+      ).bottomNavigationPadding(),
     );
   },
 );
