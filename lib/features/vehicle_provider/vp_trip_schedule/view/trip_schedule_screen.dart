@@ -81,9 +81,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   Future<void> addVehicleAndDriver(int index) async {
     await Navigator.of(
       context,
-    ).push(commonRoute(MasterScreen(
-      initialIndex:index ,
-    ), isForward: true));
+    ).push(commonRoute(MasterScreen(initialIndex: index), isForward: true));
     onRefresh();
   }
 
@@ -148,15 +146,13 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                           setState(() {
                             truckType = truckId;
                           });
-                         }, vehicleDetail),
+                        }, vehicleDetail),
 
                         GestureDetector(
-                          onTap: () => addVehicleAndDriver(
-                            1
-                          ),
+                          onTap: () => addVehicleAndDriver(1),
                           child: Row(
                             children: [
-                              Icon(Icons.add_circle_outline,size: 15,),
+                              Icon(Icons.add_circle_outline, size: 15),
                               5.width,
                               Text(context.appText.addVehicle),
                             ],
@@ -178,7 +174,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                           onTap: () => addVehicleAndDriver(2),
                           child: Row(
                             children: [
-                              Icon(Icons.add_circle_outline,size: 15,),
+                              Icon(Icons.add_circle_outline, size: 15),
                               5.width,
                               Text(context.appText.addDriver),
                             ],
@@ -210,12 +206,12 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       onTap: () async {
                         final String? date = await commonDatePicker(
                           context,
-                          firstDate:  loadDetails?.pickUpDateTime?.add(Duration(
-                            days: 1
-                          )),
-                          initialDate: loadDetails?.pickUpDateTime?.add(Duration(
-                              days: 1
-                          )),
+                          firstDate: loadDetails?.pickUpDateTime?.add(
+                            Duration(days: 1),
+                          ),
+                          initialDate: loadDetails?.pickUpDateTime?.add(
+                            Duration(days: 1),
+                          ),
                         );
                         if (!context.mounted) return;
                         final String? time = await commonTimePicker(context);
@@ -336,61 +332,67 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   }
 
   static Widget truckNoSearchableDropdown(
-  BuildContext context,
-  String? selectedTruckId,
-  ValueChanged<String?> onTruckChanged,
-  List<VehicleDetail> vehicleList,
-) {
-  // Build display string with truck type info
-  final truckNumbers = vehicleList.map((e) {
-    final type = e.truckType?.type ?? "";
-    final subType = e.truckType?.subType ?? "";
-    final typeInfo = (type.isNotEmpty || subType.isNotEmpty)
-        ? " ($type ${subType.isNotEmpty ? subType : ""})"
-        : "";
-    return "${e.truckNumber}$typeInfo".trim();
-  }).toList();
+    BuildContext context,
+    String? selectedTruckId,
+    ValueChanged<String?> onTruckChanged,
+    List<VehicleDetail> vehicleList,
+  ) {
+    // Build display string with truck type info
+    final truckNumbers =
+        vehicleList.map((e) {
+          final type = e.truckType?.type ?? "";
+          final subType = e.truckType?.subType ?? "";
+          final typeInfo =
+              (type.isNotEmpty || subType.isNotEmpty)
+                  ? " ($type ${subType.isNotEmpty ? subType : ""})"
+                  : "";
+          return "${e.truckNumber}$typeInfo".trim();
+        }).toList();
 
-  return SearchableDropdown(
-    labelText: context.appText.truckNumber,
-    mandatoryStar: true,
-    selectedItem: selectedTruckId != null
-        ? (() {
-            final selectedVehicle =
-                vehicleList.firstWhere((v) => v.id == selectedTruckId);
-            final type = selectedVehicle.truckType?.type ?? "";
-            final subType = selectedVehicle.truckType?.subType ?? "";
-            final typeInfo = (type.isNotEmpty || subType.isNotEmpty)
-                ? " ($type ${subType.isNotEmpty ? subType : ""})"
-                : "";
-            return "${selectedVehicle.truckNumber}$typeInfo".trim();
-          })()
-        : null,
-    items: truckNumbers,
-    hintText: context.appText.select,
-    onChanged: (String? newTruckDisplay) {
-      if (newTruckDisplay != null) {
-        final selectedVehicle = vehicleList.firstWhere((v) {
-          final type = v.truckType?.type ?? "";
-          final subType = v.truckType?.subType ?? "";
-          final typeInfo = (type.isNotEmpty || subType.isNotEmpty)
-              ? " ($type ${subType.isNotEmpty ? subType : ""})"
-              : "";
-          return "${v.truckNumber}$typeInfo".trim() == newTruckDisplay;
-        });
-        onTruckChanged(selectedVehicle.id);
-      }
-    },
-    dropdownBuilder: (context, selectedItem) {
-      if (selectedItem == null || selectedItem.isEmpty) {
-        return const SizedBox.shrink();
-      }
-      return Row(children: [Text(selectedItem)]);
-    },
-    emptyBuilder: (context, _) =>
-        const Center(child: Text("No trucks found")),
-  );
-}
+    return SearchableDropdown(
+      labelText: context.appText.truckNumber,
+      mandatoryStar: true,
+      selectedItem:
+          selectedTruckId != null
+              ? (() {
+                final selectedVehicle = vehicleList.firstWhere(
+                  (v) => v.id == selectedTruckId,
+                );
+                final type = selectedVehicle.truckType?.type ?? "";
+                final subType = selectedVehicle.truckType?.subType ?? "";
+                final typeInfo =
+                    (type.isNotEmpty || subType.isNotEmpty)
+                        ? " ($type ${subType.isNotEmpty ? subType : ""})"
+                        : "";
+                return "${selectedVehicle.truckNumber}$typeInfo".trim();
+              })()
+              : null,
+      items: truckNumbers,
+      hintText: context.appText.select,
+      onChanged: (String? newTruckDisplay) {
+        if (newTruckDisplay != null) {
+          final selectedVehicle = vehicleList.firstWhere((v) {
+            final type = v.truckType?.type ?? "";
+            final subType = v.truckType?.subType ?? "";
+            final typeInfo =
+                (type.isNotEmpty || subType.isNotEmpty)
+                    ? " ($type ${subType.isNotEmpty ? subType : ""})"
+                    : "";
+            return "${v.truckNumber}$typeInfo".trim() == newTruckDisplay;
+          });
+          onTruckChanged(selectedVehicle.id);
+        }
+      },
+      dropdownBuilder: (context, selectedItem) {
+        if (selectedItem == null || selectedItem.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Row(children: [Text(selectedItem)]);
+      },
+      emptyBuilder:
+          (context, _) => const Center(child: Text("No trucks found")),
+    );
+  }
 
   static Widget driverDropdown(
     BuildContext context,
@@ -398,8 +400,13 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     ValueChanged<String?> onDriverChanged,
     List<DriverDetails> driverList,
   ) {
-    // Create a list of truck numbers for dropdown items
-    final truckNumbers = driverList.map((e) => e.name).toList();
+    // Create a list of driver names with status label
+    final driverNames =
+        driverList.map((driver) {
+          final status = driver.activeStatus?.trim().toLowerCase() ?? "";
+          final statusLabel = status == "inactive" ? " (On Another Trip)" : "";
+          return "${driver.name}$statusLabel";
+        }).toList();
 
     return SearchableDropdown(
       labelText: context.appText.driverNameAndNumber,
@@ -408,23 +415,26 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           selectedDriverId != null
               ? driverList.firstWhere((v) => v.id == selectedDriverId).name
               : null,
-      items: truckNumbers,
+      items: driverNames,
       hintText: context.appText.select,
       onChanged: (String? newDriver) {
         if (newDriver != null) {
+          final actualName = newDriver.replaceAll(" (On Another Trip)", "");
           final selectedDriver = driverList.firstWhere(
-            (v) => v.name == newDriver,
+            (v) => v.name == actualName,
           );
           if (selectedDriver.id != null && selectedDriver.id!.isNotEmpty) {
             onDriverChanged(selectedDriver.id);
           } else {
             onDriverChanged(null);
           }
+        } else {
+          onDriverChanged(null);
         }
       },
       dropdownBuilder: (context, selectedItem) {
         if (selectedItem == null || selectedItem.isEmpty) {
-          return SizedBox.shrink();
+          return const SizedBox.shrink();
         }
         return Row(children: [Text(selectedItem)]);
       },

@@ -35,6 +35,7 @@ class DriverDetails {
     required this.status,
     required this.createdAt,
     required this.deletedAt,
+    required this.activeStatus,
     required this.licenseExpiryDate,
   });
 
@@ -45,6 +46,7 @@ class DriverDetails {
   final String email;
   final String licenseNumber;
   final String licenseDocLink;
+  final String activeStatus;
   final num status;
   final DateTime? createdAt;
   final dynamic deletedAt;
@@ -59,6 +61,7 @@ class DriverDetails {
       email: json["email"] ?? "",
       licenseNumber: json["licenseNumber"] ?? "",
       licenseDocLink: json["licenseDocLink"] ?? "",
+      activeStatus: json["activeStatus"] ?? "",
       status: json["driverStatus"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
@@ -74,6 +77,7 @@ class DriverDetails {
     "email": email,
     "licenseNumber": licenseNumber,
     "licenseDocLink": licenseDocLink,
+    "activeStatus": activeStatus,
     "status": status,
     "createdAt": createdAt?.toIso8601String(),
     "deletedAt": deletedAt,
