@@ -709,12 +709,12 @@ class _buildDriverTabState extends State<buildDriverTab> {
                 ToastMessages.alert(message: validation);
                 return;
               }
-              // if (!isLicenseVerified) {
-              //   ToastMessages.alert(
-              //     message: "Please verify the License before proceeding",
-              //   );
-              //   return;
-              // }
+              if (!isLicenseVerified) {
+                ToastMessages.alert(
+                  message: "Please verify the License before proceeding",
+                );
+                return;
+              }
               if (formKey.currentState!.validate()) {
                 if (licenseNumberController.text.trim().isEmpty) {
                   ToastMessages.alert(message: "Please enter License Number");
