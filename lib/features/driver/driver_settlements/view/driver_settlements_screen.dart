@@ -59,7 +59,7 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() async {});
+  void initFunction() => frameCallback(() async { });
 
   void disposeFunction() => frameCallback(() {});
 
@@ -183,7 +183,9 @@ class _DriverSettlementsScreenState extends State<DriverSettlementsScreen> {
                 },
                 builder: (context, state) {
                   final isLoading = state.settlementUIState?.status == Status.LOADING;
+                  final isButtonEnabled = (int.tryParse(noOfDays.text) ?? 0) > 0;
                   return AppButton(
+                      enable: isButtonEnabled && !isLoading,
                       title: context.appText.submit,
                       isLoading: isLoading,
                       style: AppButtonStyle.primary,

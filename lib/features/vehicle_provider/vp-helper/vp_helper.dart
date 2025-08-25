@@ -165,7 +165,9 @@ enum DocumentFileType {
   tanDocument('tan_document',documentType: 'Tan Document'),
   gstinDocument('gst_document',documentType: 'GST Document'),
   tdsDocument('tds',documentType: 'TDS'),
-  chequeDocument('cancelled_cheque',documentType: 'Cancelled Cheque');
+  chequeDocument('cancelled_cheque',documentType: 'Cancelled Cheque'),
+  licenseDocument('driving_licence', documentType: 'Driving Licence');
+ 
 
 
 

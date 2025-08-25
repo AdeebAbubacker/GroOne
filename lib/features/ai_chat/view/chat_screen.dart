@@ -1050,49 +1050,44 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// Build floating language options (horizontal layout)
   Widget _buildFloatingLanguageOptions() {
-    return Positioned(
-      bottom: 120, // Position higher above the input area
-      left: 16,
-      right: 16,
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.95),
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            // English option
-            _buildFloatingLanguageButton(
-              ChatLanguage.english,
-              'English',
-              Icons.language,
-              Colors.blue[600]!,
-            ),
-            // Hindi option
-            _buildFloatingLanguageButton(
-              ChatLanguage.hindi,
-              'हिंदी',
-              Icons.language,
-              Colors.orange[600]!,
-            ),
-            // Tamil option
-            _buildFloatingLanguageButton(
-              ChatLanguage.tamil,
-              'தமிழ்',
-              Icons.language,
-              Colors.green[600]!,
-            ),
-          ],
-        ),
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.95),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          // English option
+          _buildFloatingLanguageButton(
+            ChatLanguage.english,
+            'English',
+            Icons.language,
+            Colors.blue[600]!,
+          ),
+          // Hindi option
+          _buildFloatingLanguageButton(
+            ChatLanguage.hindi,
+            'हिंदी',
+            Icons.language,
+            Colors.orange[600]!,
+          ),
+          // Tamil option
+          _buildFloatingLanguageButton(
+            ChatLanguage.tamil,
+            'தமிழ்',
+            Icons.language,
+            Colors.green[600]!,
+          ),
+        ],
       ),
     );
   }
