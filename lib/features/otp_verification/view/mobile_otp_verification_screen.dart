@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
@@ -359,10 +360,12 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
   Widget buildBottomBannerImageWidget() {
     return Container(
       alignment: Alignment.bottomCenter,
-      child: Image.asset(
-        AppImage.png.signUpBanner,
+      child: SvgPicture.asset(
+        alignment: Alignment.bottomCenter,
+        AppImage.svg.hindujaLogo,
         width: double.infinity,
         fit: BoxFit.fitWidth,
+        height: 50,
       ),
     ).expand();
   }

@@ -113,7 +113,7 @@ class SvgImages {
   final String location = "${_svgImageBasePath}location.svg";
   final String logOutImage = "${_svgImageBasePath}log_out.svg";
   final String customerSupport = "${_svgImageBasePath}customer_support.svg";
-  final String hindujaLogo = "${_svgImageBasePath}hinduja logo.svg";
+
 
 
   final String blueTick = "${_svgImageBasePath}blue_tick.svg";

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -234,7 +235,13 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget buildBottomBannerImageWidget(){
     return Container(
       alignment: Alignment.bottomCenter,
-      child: Image.asset(AppImage.png.signUpBanner, width: double.infinity,  fit: BoxFit.fitWidth),
+      child:SvgPicture.asset(
+        alignment: Alignment.bottomCenter,
+        AppImage.svg.hindujaLogo,
+        width: double.infinity,
+        fit: BoxFit.fitWidth,
+        height: 50,
+      ),
     ).expand();
   }
 

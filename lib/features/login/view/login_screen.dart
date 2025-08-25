@@ -257,7 +257,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
         AppImage.svg.hindujaLogo,
         width: double.infinity,
         fit: BoxFit.fitWidth,
-  height: 50,
+         height: 50,
       ),
     ).expand();
   }
