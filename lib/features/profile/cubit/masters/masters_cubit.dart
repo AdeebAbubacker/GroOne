@@ -1,6 +1,13 @@
+import 'dart:io';
+
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
+import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_license_document_model.dart';
+import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 part 'masters_state.dart';
@@ -9,7 +16,8 @@ part 'masters_state.dart';
 
 class MastersCubit extends BaseCubit<MastersState> {
   final ProfileRepository _repository;
-  MastersCubit(this._repository) : super(MastersState.initial());
+  final KycRepository _kycrepo;
+  MastersCubit(this._repository,this._kycrepo) : super(MastersState.initial());
 
 
 
@@ -21,6 +29,7 @@ class MastersCubit extends BaseCubit<MastersState> {
 
     void resetLicenseVerification() {
     emit(state.copyWith(
+       uploadlicenseDocUIState: resetUIState<UploadLicenseDocumentModel>(state.uploadlicenseDocUIState),
       licenseVerification: UIState.initial(),
     ));
   }
@@ -53,4 +62,53 @@ class MastersCubit extends BaseCubit<MastersState> {
       return Error(GenericError());
     }
   }
+
+    // // Upload GST File
+  void _setLicenseDocUIState(UIState<UploadLicenseDocumentModel>? uiState){
+    emit(state.copyWith(uploadlicenseDocUIState: uiState));
+  }
+
+  Future<void> uploadLicenseDoc(File file) async {
+    _setLicenseDocUIState(UIState.loading());
+    Result result = await _repository.postUploadLicenseData(file);
+    if (result is Success<UploadLicenseDocumentModel>) {
+      _setLicenseDocUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setLicenseDocUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Create Document
+  void _setCreateDocumentUIState(UIState<CreateDocumentModel>? uiState){
+    emit(state.copyWith(createDocumentUIState: uiState));
+  }
+  Future<void> createDocument(CreateDocumentApiRequest request) async {
+    _setCreateDocumentUIState(UIState.loading());
+    Result result = await _kycrepo.getCreateDocumentData(request);
+    if (result is Success<CreateDocumentModel>) {
+      _setCreateDocumentUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setCreateDocumentUIState(UIState.error(result.type));
+    }
+  }
+
+
+  // Delete Document
+  void _setDeleteDocumentUIState(UIState<DeleteDocumentModel>? uiState){
+    emit(state.copyWith(deleteDocumentUIState: uiState));
+  }
+  Future<void> deleteDocument(String documentId) async {
+    _setDeleteDocumentUIState(UIState.loading());
+    Result result = await _kycrepo.getDeleteDocumentData(documentId);
+    if (result is Success<DeleteDocumentModel>) {
+      _setDeleteDocumentUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setDeleteDocumentUIState(UIState.error(result.type));
+    }
+  }
+
 }

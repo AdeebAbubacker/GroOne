@@ -1279,6 +1279,7 @@
   "detentionRequire":"Detention is required,Please add detention",
   "deleteAccountSubHeading": "Are you sure you want to delete your account ? This action cannot be undone.",
   "deleteAccount": "Delete Account",
+  "uploadLicesneDocument" : "Upload License Document",
   "driverLoginSuccess": "Thank you for login in on GroOne app"
 
 

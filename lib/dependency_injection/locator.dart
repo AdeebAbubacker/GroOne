@@ -636,7 +636,7 @@ void _registerBasicBlocs() {
   );
   locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
   locator.registerLazySingleton(
-    () => MastersCubit(locator<ProfileRepository>()),
+    () => MastersCubit(locator<ProfileRepository>(),locator<KycRepository>()),
   );
 
   // AI Chat dependencies

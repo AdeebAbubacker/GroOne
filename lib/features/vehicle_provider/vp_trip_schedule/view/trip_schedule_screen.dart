@@ -336,47 +336,61 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   }
 
   static Widget truckNoSearchableDropdown(
-    BuildContext context,
-    String? selectedTruckId,
-    ValueChanged<String?> onTruckChanged,
-    List<VehicleDetail> vehicleList,
-  ) {
-    // Create a list of truck numbers for dropdown items
-    final truckNumbers = vehicleList.map((e) => e.truckNumber).toList();
+  BuildContext context,
+  String? selectedTruckId,
+  ValueChanged<String?> onTruckChanged,
+  List<VehicleDetail> vehicleList,
+) {
+  // Build display string with truck type info
+  final truckNumbers = vehicleList.map((e) {
+    final type = e.truckType?.type ?? "";
+    final subType = e.truckType?.subType ?? "";
+    final typeInfo = (type.isNotEmpty || subType.isNotEmpty)
+        ? " ($type ${subType.isNotEmpty ? subType : ""})"
+        : "";
+    return "${e.truckNumber}$typeInfo".trim();
+  }).toList();
 
-    return SearchableDropdown(
-      labelText: context.appText.truckNumber,
-      mandatoryStar: true,
-      selectedItem:
-          selectedTruckId != null
-              ? vehicleList
-                  .firstWhere((v) => v.id == selectedTruckId)
-                  .truckNumber
-              : null,
-      items: truckNumbers,
-      hintText: context.appText.select,
-      onChanged: (String? newTruckNumber) {
-        if (newTruckNumber != null) {
-          final selectedVehicle = vehicleList.firstWhere(
-            (v) => v.truckNumber == newTruckNumber,
-          );
-          if (selectedVehicle.id != null && selectedVehicle.id!.isNotEmpty) {
-            onTruckChanged(selectedVehicle.id);
-          } else {
-            onTruckChanged(null);
-          }
-        }
-      },
-      dropdownBuilder: (context, selectedItem) {
-        if (selectedItem == null || selectedItem.isEmpty) {
-          return SizedBox.shrink();
-        }
-        return Row(children: [Text(selectedItem)]);
-      },
-      emptyBuilder:
-          (context, _) => const Center(child: Text("No trucks found")),
-    );
-  }
+  return SearchableDropdown(
+    labelText: context.appText.truckNumber,
+    mandatoryStar: true,
+    selectedItem: selectedTruckId != null
+        ? (() {
+            final selectedVehicle =
+                vehicleList.firstWhere((v) => v.id == selectedTruckId);
+            final type = selectedVehicle.truckType?.type ?? "";
+            final subType = selectedVehicle.truckType?.subType ?? "";
+            final typeInfo = (type.isNotEmpty || subType.isNotEmpty)
+                ? " ($type ${subType.isNotEmpty ? subType : ""})"
+                : "";
+            return "${selectedVehicle.truckNumber}$typeInfo".trim();
+          })()
+        : null,
+    items: truckNumbers,
+    hintText: context.appText.select,
+    onChanged: (String? newTruckDisplay) {
+      if (newTruckDisplay != null) {
+        final selectedVehicle = vehicleList.firstWhere((v) {
+          final type = v.truckType?.type ?? "";
+          final subType = v.truckType?.subType ?? "";
+          final typeInfo = (type.isNotEmpty || subType.isNotEmpty)
+              ? " ($type ${subType.isNotEmpty ? subType : ""})"
+              : "";
+          return "${v.truckNumber}$typeInfo".trim() == newTruckDisplay;
+        });
+        onTruckChanged(selectedVehicle.id);
+      }
+    },
+    dropdownBuilder: (context, selectedItem) {
+      if (selectedItem == null || selectedItem.isEmpty) {
+        return const SizedBox.shrink();
+      }
+      return Row(children: [Text(selectedItem)]);
+    },
+    emptyBuilder: (context, _) =>
+        const Center(child: Text("No trucks found")),
+  );
+}
 
   static Widget driverDropdown(
     BuildContext context,

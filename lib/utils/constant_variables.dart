@@ -42,6 +42,7 @@ const String CUSTOMER_DOCUMENT = "customer_document";
 const String AADHAAR_CARD = "aadhaar_card";
 const String DAMAGES_AND_SHORTAGES = "damages_and_shortages";
 const String SUPPORT_TICKET = "support_ticket";
+const String LICENSE_DOCUMENT = "driving_licence";
 
 
 const String indianCurrencySymbol = "₹";
