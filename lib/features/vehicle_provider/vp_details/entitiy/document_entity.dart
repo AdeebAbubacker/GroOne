@@ -1,3 +1,5 @@
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
@@ -52,51 +54,84 @@ class DocumentEntity {
   }
 }
 
-List<DocumentEntity> documentTypeList=[
-  DocumentEntity(
-    documentTypeId: 5,
-    fileType: DocumentFileType.lorryReceipt.name,
-    title:navigatorKey.currentState?.context.appText.uploadLorryReceipt,
-    visible: true,
-    isLoading: false,
-    documentType: navigatorKey.currentState?.context.appText.lorryReceipt,
-  ),
-  DocumentEntity(
-    documentTypeId: 6,
-    fileType: DocumentFileType.ewayBill.name,
-    title: navigatorKey.currentState?.context.appText.uploadEwayBill,
+
+
+class DocumentDataModel {
+  static List<DocumentEntity> documentTypeList=[];
+  static DocumentEntity? damageDocumentEntity;
+
+
+  static void setDocumentEntityList(){
+    documentTypeList=[
+      DocumentEntity(
+        documentTypeId: null,
+        fileType: DocumentFileType.lorryReceipt.name,
+        title:navigatorKey.currentState?.context.appText.uploadLorryReceipt,
+        visible: true,
+        isLoading: false,
+        documentType:DocumentFileType.lorryReceipt.documentType,
+      )..loadDocumentTypeId(DocumentFileType.lorryReceipt.documentType),
+      DocumentEntity(
+        documentTypeId: null,
+        fileType: DocumentFileType.ewayBill.name,
+        title: navigatorKey.currentState?.context.appText.uploadEwayBill,
+        visible: true,
+        documentType: DocumentFileType.ewayBill.documentType,
+      )..loadDocumentTypeId(DocumentFileType.ewayBill.documentType),
+      DocumentEntity(
+        documentTypeId: null,
+        fileType: DocumentFileType.materialInvoice.name,
+        title:navigatorKey.currentState?.context.appText.uploadMaterialInvoice,
+        visible: true,
+        documentType: DocumentFileType.materialInvoice.documentType,
+      )..loadDocumentTypeId(DocumentFileType.materialInvoice.documentType),
+      DocumentEntity(
+        documentTypeId: null,
+        fileType: DocumentFileType.proofOfDelivery.name,
+        title:navigatorKey.currentState?.context.appText.uploadPOD,
+        visible: false,
+        documentType: DocumentFileType.proofOfDelivery.documentType,
+      )..loadDocumentTypeId( DocumentFileType.proofOfDelivery.documentType),
+
+      DocumentEntity(
+        documentTypeId: null,
+        fileType: DocumentFileType.uploadOtherDocument.value,
+        title:navigatorKey.currentState?.context.appText.othersDocument,
+        visible: true,
+        documentType: DocumentFileType.uploadOtherDocument.documentType,
+      )..loadDocumentTypeId(DocumentFileType.uploadOtherDocument.documentType),
+    ];
+  }
+
+  static void setDamageDocumentEntity(){
+    damageDocumentEntity=  DocumentEntity(
+      documentTypeId:null,
+      fileType: DocumentFileType.damageAndShortage.name,
+      title:navigatorKey.currentState?.context.appText.damageAndShortage,
       visible: true,
-    documentType: navigatorKey.currentState?.context.appText.ewayBill,
-  ),
-  DocumentEntity(
-    documentTypeId: 7,
-    fileType: DocumentFileType.materialInvoice.name,
-    title:navigatorKey.currentState?.context.appText.uploadMaterialInvoice,
-    visible: true,
-    documentType: navigatorKey.currentState?.context.appText.materialInvoice,
-  ),
-  DocumentEntity(
-    documentTypeId: 331,
-    fileType: DocumentFileType.proofOfDelivery.name,
-    title:navigatorKey.currentState?.context.appText.uploadPOD,
-    visible: false,
-    documentType: navigatorKey.currentState?.context.appText.proofOfDelivery,
-  ),
+      documentType: DocumentFileType.damageAndShortage.documentType
+    )..loadDocumentTypeId( DocumentFileType.damageAndShortage.documentType);
+  }
 
-  DocumentEntity(
-    documentTypeId: 309,
-    fileType: DocumentFileType.uploadOtherDocument.value,
-    title:navigatorKey.currentState?.context.appText.othersDocument,
-    visible: true,
-    documentType: DocumentFileType.uploadOtherDocument.documentType,
-  ),
-];
+}
+
+Future<int> getDocumentTypeId(String name) async {
+  final cubit=locator<DocumentTypeCubit>();
+  int documentTypeID= await cubit.getDocumentTypeId(name);
+  return documentTypeID;
+}
+
+extension on DocumentEntity {
+  void loadDocumentTypeId(String? name) async {
+    documentTypeId = await getDocumentTypeId(name ?? '');
+  }
 
 
-final damageDocumentEntity=  DocumentEntity(
-  documentTypeId: 9,
-  fileType: DocumentFileType.damageAndShortage.name,
-  title:navigatorKey.currentState?.context.appText.damageAndShortage,
-  visible: true,
-  documentType: navigatorKey.currentState?.context.appText.damagesAndShortageDocument,
-);
+}
+
+
+
+
+
+
+

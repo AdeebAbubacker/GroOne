@@ -27,6 +27,7 @@ import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
+import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_updated_response.dart';
@@ -992,4 +993,40 @@ class ProfileService {
       return Error(DeserializationError());
     }
   }
+
+ 
+ Future<Result<DeleteAccountModel>> deleteAccount() async {
+  try {
+    final customerId = await _userInformationRepository.getUserID() ?? "";
+    final url = "${ApiUrls.deleteCustomer}/$customerId/3";
+
+    final result = await _apiService.delete(url);
+
+    if (result is Success) {
+      final deleteAccountModel = DeleteAccountModel.fromJson(result.value);
+      return Success(deleteAccountModel);
+    } else if (result is Error) {
+      // Log error type for debugging
+      CustomLog.error(
+        this,
+        "Delete account failed with API error type: ${result.type}",
+        null,
+      );
+      return Error(result.type);
+    } else {
+      CustomLog.error(this, "Delete account failed with unknown result", null);
+      return Error(GenericError());
+    }
+  } catch (e, stackTrace) {
+    // Catch any exception and log stack trace
+    CustomLog.error(
+      this,
+      "Exception occurred while deleting account: $e",
+      stackTrace,
+    );
+    return Error(DeserializationError());
+  }
+}
+
+
 }

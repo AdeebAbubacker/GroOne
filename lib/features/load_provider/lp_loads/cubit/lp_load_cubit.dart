@@ -524,6 +524,12 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   void _isFieldUpdabled(bool isFieldUpdable){
     emit(state.copyWith(isFieldUpdatble: isFieldUpdable));
   }
+
+  ///Feeback Edit
+  void _isFeedBackEditabel(bool isFeedBackUpdatble){
+    emit(state.copyWith(isFeedBackUpdatble: isFeedBackUpdatble));
+  }
+  
   // Updates Excisting consignee to a load
   Future<void> updateConsignee({required UpdateConsigneeApiRequest updateConsigneeReq,required String consigneeId}) async {
     _updateConsigneeState(UIState.loading());

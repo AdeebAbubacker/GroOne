@@ -388,14 +388,14 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                           // ✅ Check loading or error state first
                           if (serverStatus?.status == Status.LOADING) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Checking Endhan server...")),
+                               SnackBar(content: Text(context.appText.checkingEndhanServer)),
                             );
                             return;
                           }
 
                           if (serverStatus?.status == Status.ERROR) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text("Could not check Endhan server status")),
+                               SnackBar(content: Text(context.appText.couldNotCheckEndhanServerStatus)),
                             );
                             return;
                           }
@@ -411,7 +411,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                                 onTapSingleButton: () => Navigator.of(context).pop(),
                                 onSingleButtonText: context.appText.ok,
                                 child: Text(
-                                  serverStatus?.data?["message"] ?? "Endhan server not working",
+                                  serverStatus?.data?["message"] ?? context.appText.endhanServerNotWorking,
                                   style: AppTextStyle.h5.copyWith(color: Colors.red),
                                 ),
                               ),
@@ -607,12 +607,12 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               ),
               16.height,
               Text(
-                'No cards found',
+                context.appText.noCardsFound,
                 style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
               ),
               8.height,
               Text(
-                'No cards found for "$_searchText"',
+                '${context.appText.noCardsFound} "$_searchText"',
                 style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
               ),
             ],
@@ -678,13 +678,13 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   final serverStatus = context.read<EnDhanCubit>().state.endhanServerStatusState;
                   if (serverStatus?.status == Status.LOADING) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Checking Endhan server...")),
+                       SnackBar(content: Text(context.appText.checkingEndhanServer)),
                     );
                     return;
                   }
                   if (serverStatus?.status == Status.ERROR) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Could not check Endhan server status")),
+                       SnackBar(content: Text(context.appText.couldNotCheckEndhanServerStatus)),
                     );
                     return;
                   }
@@ -697,7 +697,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                         onTapSingleButton: () => Navigator.of(context).pop(),
                         onSingleButtonText: context.appText.ok,
                         child: Text(
-                          serverStatus?.data?["message"] ?? "Endhan server not working",
+                          serverStatus?.data?["message"] ?? context.appText.endhanServerNotWorking,
                           style: AppTextStyle.h5.copyWith(color: Colors.red),
                         ),
                       ),
@@ -746,45 +746,58 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     );
   }
 
-  Widget buildenDhanBenefitsDetailsWidget(BuildContext context){
-    Widget innerUIWidget({required String icon,required String title, required String subTitle}){
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Icon
-          Container(
-            decoration: commonContainerDecoration(
-                color: AppColors.lightPrimaryColor,
-                borderRadius: BorderRadius.circular(100),
-                borderColor: AppColors.primaryColor
+  Widget buildenDhanBenefitsDetailsWidget(BuildContext context) {
+    Widget benefitItem(String title, String subtitle) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyle.h5),
+            5.height,
+            Text(
+              subtitle,
+              style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
             ),
-            child: Image.asset(icon, width: 25).paddingAll(15),
-          ),
-          15.width,
-
-          // Heading or SubHeading
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTextStyle.h5),
-              5.height,
-              Text(subTitle, style: AppTextStyle.body3)
-            ],
-          ).expand()
-        ],
+          ],
+        ),
       );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.benefitsOfFuelCard, style: AppTextStyle.body1),
+        Text(context.appText.benefitsOfFuelCard, style: AppTextStyle.h4),
         20.height,
-        innerUIWidget(icon: AppIcons.png.cardPayment, title: context.appText.benefitsOfFuelCardHeading1, subTitle: context.appText.benefitsOfFuelCardSubHeading1),
-        20.height,
-        innerUIWidget(icon: AppIcons.png.tracking, title: context.appText.benefitsOfFuelCardHeading2, subTitle: context.appText.benefitsOfFuelCardSubHeading2),
-        20.height,
-        innerUIWidget(icon: AppIcons.png.reconcilation, title: context.appText.benefitsOfFuelCardHeading3, subTitle: context.appText.benefitsOfFuelCardSubHeading3),
+
+        benefitItem(
+          context.appText.cashlessFuelTollTitle,
+          context.appText.cashlessFuelTollDesc,
+        ),
+        benefitItem(
+          context.appText.acceptedPumpsTitle,
+          context.appText.acceptedPumpsDesc,
+        ),
+        benefitItem(
+          context.appText.spendingLimitTitle,
+          context.appText.spendingLimitDesc,
+        ),
+        benefitItem(
+          context.appText.centralizedFinanceTitle,
+          context.appText.centralizedFinanceDesc,
+        ),
+        benefitItem(
+          context.appText.cashbackTitle,
+          context.appText.cashbackDesc,
+        ),
+        benefitItem(
+          context.appText.insuranceTitle,
+          context.appText.insuranceDesc,
+        ),
+        benefitItem(
+          context.appText.breakdownSupportTitle,
+          context.appText.breakdownSupportDesc,
+        ),
       ],
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);
   }

@@ -29,10 +29,12 @@ import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
+import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
+import '../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/extra_utils.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
@@ -150,23 +152,6 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
     return BlocListener<KavachOrderBloc, KavachOrderState>(
       bloc: kavachOrderBloc,
       listener: (context, state) async {
-        if (state is KavachOrderSubmitting || state is KavachPaymentInitiating || state is KavachPaymentStatusChecking) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
-        }
-        if (state is KavachOrderSuccess ||
-            state is KavachOrderFailure ||
-            state is KavachPaymentSuccess ||
-            state is KavachPaymentFailure ||
-            state is KavachPaymentStatusSuccess ||
-            state is KavachPaymentStatusFailure) {
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop(); // close loader
-          }
-        }
         if (state is KavachPaymentSuccess) {
           final result = await Navigator.of(context).push(
             commonRoute(
@@ -176,6 +161,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               ),
             ),
           );
+          await Future.delayed(Duration(seconds: 1));
           if (result == true) {
             final paymentRequestId = kavachOrderBloc.paymentRequestId;
             if (paymentRequestId != null) {
@@ -192,43 +178,46 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           ToastMessages.error(message: context.appText.paymentFailed);
         }
         if (state is KavachOrderSuccess) {
-          showSuccessDialog(
+          await Future.delayed(Duration(milliseconds: 500));
+          ///new
+          AppDialog.show(
             context,
-            text: 'Order placed successfully',
-            subheading: '',
-          );
-          Future.delayed(Duration(seconds: 3), () {
-            if (context.mounted) {
-              // Clear address blocs before navigating back
-              try {
-                // Clear billing address bloc
-                final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
-                billingBloc.add(ClearKavachBillingAddress());
+            child: SuccessDialogView(
+              message: context.appText.orderPlacedSuccessfully,
+              onContinue: () {
+                if (context.mounted) {
+                  // Clear address blocs before navigating back
+                  try {
+                    // Clear billing address bloc
+                    final billingBloc = locator<KavachCheckoutBillingAddressBloc>();
+                    billingBloc.add(ClearKavachBillingAddress());
 
-                // Clear shipping address bloc
-                final shippingBloc =
+                    // Clear shipping address bloc
+                    final shippingBloc =
                     locator<KavachCheckoutShippingAddressBloc>();
-                shippingBloc.add(ClearKavachShippingAddress());
-              } catch (e) {
-                // Handle any errors if blocs are not available
-              }
-
-              Navigator.of(context).popUntil((route) {
-                if (route.settings.name == 'KavachOrderListScreen') {
-                  if (route.navigator != null &&
-                      route.navigator!.context.mounted) {
-                    BlocProvider.of<KavachOrderListBloc>(
-                      route.navigator!.context,
-                    ).add(
-                      FetchKavachOrderList(forceRefresh: true, isRefresh: true),
-                    );
+                    shippingBloc.add(ClearKavachShippingAddress());
+                  } catch (e) {
+                    // Handle any errors if blocs are not available
                   }
-                  return true; // Pop until this route
+
+                  Navigator.of(context).popUntil((route) {
+                    if (route.settings.name == 'KavachOrderListScreen') {
+                      if (route.navigator != null &&
+                          route.navigator!.context.mounted) {
+                        BlocProvider.of<KavachOrderListBloc>(
+                          route.navigator!.context,
+                        ).add(
+                          FetchKavachOrderList(forceRefresh: true, isRefresh: true),
+                        );
+                      }
+                      return true; // Pop until this route
+                    }
+                    return false;
+                  });
                 }
-                return false;
-              });
-            }
-          });
+              },
+            ),
+          );
         }
         if (state is KavachOrderFailure) {
           ToastMessages.error(message: state.message);
@@ -271,7 +260,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 children: [
                   Text(
                     widget.selectedVehicleNumbers.length == 1
-                        ? "Vehicle Detail"
+                        ? context.appText.vehicleDetail
                         : context.appText.vehicleDetails,
                     style: AppTextStyle.h5,
                   ),
@@ -317,9 +306,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.products.length == 1
-                ? "Product Detail"
-                : context.appText.paymentDetails,
+            context.appText.paymentDetails,
             style: AppTextStyle.h4,
           ),
           10.height,
@@ -360,26 +347,26 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                   ],
                 ),
                 5.height,
-                _buildDetailRow("HSN Code", product.hsnSacCode ?? '-'),
-                _buildDetailRow("Qty", qty.toString().padLeft(2, '0')),
+                _buildDetailRow(context.appText.hsnCode, product.hsnSacCode ?? '-'),
+                _buildDetailRow(context.appText.qty, qty.toString().padLeft(2, '0')),
                 _buildDetailRow(
-                  "Rate /Unit ₹",
+                  context.appText.ratePerUnit,
                   "₹${KavachHelper.formatCurrency(product.price.toStringAsFixed(2))}",
                 ),
                 _buildDetailRow(
-                  "IGST",
+                  context.appText.igst,
                   "₹${KavachHelper.formatCurrency(igst.toStringAsFixed(2))}",
                 ),
                 _buildDetailRow(
-                  "CGST",
+                  context.appText.cgst,
                   "₹${KavachHelper.formatCurrency(cgst.toStringAsFixed(2))}",
                 ),
                 _buildDetailRow(
-                  "SGST",
+                  context.appText.sgst,
                   "₹${KavachHelper.formatCurrency(sgst.toStringAsFixed(2))}",
                 ),
                 _buildDetailRow(
-                  "Total GST",
+                  context.appText.totalGst,
                   "₹${KavachHelper.formatCurrency(gstAmount.toStringAsFixed(2))}",
                 ),
                 5.height,
@@ -392,7 +379,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                 ),
                 5.height,
                 _buildDetailRow(
-                  "Total Amount",
+                  context.appText.totalAmount,
                   "₹${totalWithGst.toStringAsFixed(2)}",
                 ),
                 15.height,
@@ -405,6 +392,12 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   }
 
   Widget _buildProceedToPayButton(BuildContext context) {
+    return BlocBuilder<KavachOrderBloc, KavachOrderState>(
+      bloc: kavachOrderBloc,
+  builder: (context, state) {
+    final isLoading = state is KavachOrderSubmitting ||
+        state is KavachPaymentInitiating ||
+        state is KavachPaymentStatusChecking;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -431,6 +424,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           ),
           15.width,
           AppButton(
+            isLoading: isLoading,
             onPressed: () async {
               final customerInfo = await getCustomerInfo();
               final customerId =
@@ -461,6 +455,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         ],
       ).paddingOnly(bottom: 30, right: 20, left: 20, top: 15),
     );
+  },
+);
   }
 
   Widget _buildAddressCard(KavachAddressModel address) {

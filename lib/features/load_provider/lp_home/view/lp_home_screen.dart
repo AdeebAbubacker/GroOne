@@ -7,6 +7,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_inProgress_dialogue.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
@@ -38,13 +39,15 @@ import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
+import 'package:gro_one_app/features/splash/splash_screen.dart';
+import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
-import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -64,6 +67,8 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -84,6 +89,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   final lpLoadLocator = locator<LpLoadCubit>();
   final loginBloc = locator<LoginBloc>();
   final securePrefs = locator<SecuredSharedPreferences>();
+  final splashViewModel = locator<SplashViewModel>();
+
 
   final dateTimeTextController = TextEditingController();
   final weightTextController = TextEditingController();
@@ -134,6 +141,19 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   void initFunction() => frameCallback(() async {
+    await splashViewModel.checkAppUpdate();
+
+    final updateState = splashViewModel.appUpdateUIState;
+    if (updateState != null && updateState.status == Status.SUCCESS) {
+      final updateType = parseUpdateType(updateState.data!);
+
+      if (updateType == AppUpdateType.force && mounted) {
+        ToastMessages.updateAvailable(
+          message: context.appText.updateAvailableText,
+        );
+      }
+    }
+
     profileCubit.fetchProfileDetail();
 
     await profileCubit.fetchUserRole().then((val) {
@@ -321,6 +341,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   // Blue Membership Dialog
   void blueMembershipDialog(BuildContext context, String blueId, parameters)=> frameCallback(() {
     AppDialog.show(
+      dismissible: true,
       context,
       child: CommonDialogView(
         hideCloseButton: true,
@@ -372,14 +393,15 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   @override
   Widget build(BuildContext context) {
+    int? role = profileCubit.userRole;
     return Scaffold(
-      appBar: buildAppBarWidget(context),
-      body: buildBodyWidget(context),
+      appBar: buildAppBarWidget(context, role),
+      body: buildBodyWidget(context, role),
     );
   }
 
   // Appbar
-  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
+  PreferredSizeWidget buildAppBarWidget(BuildContext context, int? role) {
     return CommonAppBar(
       elevation: 1.0,
       isLeading: false,
@@ -387,68 +409,77 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
       actions: [
 
+        // Language
+        AppIconButton(
+          onPressed: (){
+            Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true)));
+          },
+          icon: AppIcons.svg.translation,
+        ),
+
         // Notification
-        IconButton(
-          onPressed: () {
-            //Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: "000000000000")));
-          },
-          icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
-        ),
+        // IconButton(
+        //   onPressed: () {
+        //     //Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(aadhaarNumber: "000000000000")));
+        //   },
+        //   icon:  SvgPicture.asset(AppIcons.svg.notification, width: 30 ,colorFilter: AppColors.svg( AppColors.black)),
+        // ),
 
-        // KYC Blinking
-        BlocConsumer<ProfileCubit, ProfileState>(
-          bloc: profileCubit,
-          listener: (context, state) {},
-          builder: (context, state) {
-            final profileState = state.profileDetailUIState;
+        if(role != 4)
+          // KYC Blinking
+          BlocConsumer<ProfileCubit, ProfileState>(
+            bloc: profileCubit,
+            listener: (context, state) {},
+            builder: (context, state) {
+              final profileState = state.profileDetailUIState;
 
-            if (profileState == null || profileState.status != Status.SUCCESS ||
-                profileState.data == null || profileState.data?.customer == null) {
-              return const SizedBox.shrink();
-            }
+              if (profileState == null || profileState.status != Status.SUCCESS ||
+                  profileState.data == null || profileState.data?.customer == null) {
+                return const SizedBox.shrink();
+              }
 
-            final customer = profileState.data!.customer!;
-            final int kycFlag = customer.isKyc.toInt(); // 1 / 2 / 3
-            final companyId = profileState.data!.customer?.companyTypeId;
+              final customer = profileState.data!.customer!;
+              final int kycFlag = customer.isKyc.toInt(); // 1 / 2 / 3
+              final companyId = profileState.data!.customer?.companyTypeId;
 
 
-            if (kycFlag == 3 || kycFlag == 2) {
-              return const SizedBox.shrink();
-            }
+              if (kycFlag == 3 || kycFlag == 2) {
+                return const SizedBox.shrink();
+              }
 
-            if (kycFlag == 1) {
-              
-              return kycWidget(
-                onTap: () async{
-                  bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
-                    bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
+              if (kycFlag == 1) {
 
-                    String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
-                    String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+                return kycWidget(
+                  onTap: () async{
+                    bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
+                      bool isAadhaarVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
 
-                  if (companyId != null && (companyId == 2 || companyId == 1)) {
-                    if (isKycCompleted || isAadharVerified) {
+                      String? aadhaarNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+                      String? aadhaarPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
+                    if (companyId != null && (companyId == 2 || companyId == 1)) {
+                      if (isKycCompleted || isAadhaarVerified) {
+                        Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                          aadhaarNumber: aadhaarNumber,
+                          pdfPath: aadhaarPDF,
+                        )));
+                        } else{
+                          commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                        }
+                    } else {
                       Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                        aadhaarNumber: aadharNumber,
-                        pdfPath: aadharPDF,
+                        aadhaarNumber: aadhaarNumber,
+                        pdfPath: aadhaarPDF,
                       )));
-                      } else{
-                        commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
-                      }
-                  } else {
-                    Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                      aadhaarNumber: aadharNumber,
-                      pdfPath: aadharPDF,
-                    )));
-                  }
-                },
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
+                    }
+                  },
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
 
-          },
-        ),
+            },
+          ),
 
 
         // Profile
@@ -475,8 +506,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                       height: 40,
                       width: 40,
                       alignment: Alignment.center,
-                      decoration: commonContainerDecoration(borderColor: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : Colors.transparent, borderWidth : 2, borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
-                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName)),
+                      decoration: commonContainerDecoration(borderWidth : 2, borderRadius: BorderRadius.circular(100), color: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : AppColors.extraLightBackgroundGray),
+                      child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName), style: AppTextStyle.h6.copyWith(color: blueId != null && blueId.isNotEmpty ? AppColors.white : AppColors.black)),
                     ).onClick((){
                       Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
                         // frameCallback(() =>  profileCubit.fetchProfileDetail());
@@ -503,7 +534,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   }
 
   // Body
-  Widget buildBodyWidget(BuildContext context) {
+  Widget buildBodyWidget(BuildContext context, int? role) {
     return RefreshIndicator(
       onRefresh: () async {
         initFunction();
@@ -527,7 +558,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  buildKycLabelWidget(),
+                  if(role != 4)
+                    buildKycLabelWidget(),
                   10.height,
                   OurValueAddedServicesWidget(isGridLayout: profileCubit.userRole == 4),
                   10.height,
@@ -620,7 +652,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Title
-          Text(context.appText.bookShipment, style: AppTextStyle.body1),
+          Text(context.appText.postLoad, style: AppTextStyle.body1),
           15.height,
 
           // Location Picker
@@ -666,7 +698,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                             if (uiState != null) {
                               switch (uiState.status) {
                                 case Status.SUCCESS:
-                                  if (uiState.data != null && uiState.data!.data.isNotEmpty && pickupLocation == null) {
+                                  if (uiState.data != null && uiState.data!.data.data.isNotEmpty && pickupLocation == null) {
                                     navigateToRecentRouteScreen();
                                   } else {
                                     ToastMessages.alert(message: context.appText.noRecentRouteFound);
@@ -899,7 +931,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
               if(isFormValid()){
                 return Container(
                   padding: EdgeInsets.all(10),
-                  decoration: commonContainerDecoration(color: AppColors.lightPrimaryColor2, borderColor: AppColors.borderColor),
+                  decoration: commonContainerDecoration(color: Color(0xffE9F3FA)),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -908,7 +940,9 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(context.appText.suggestedPrice, style: AppTextStyle.bodyGreyColor),
+                          5.height,
+                          Text(context.appText.indicativePrice, style: AppTextStyle.body.copyWith(color: AppColors.textDarkGreyColor)),
+                          5.height,
 
                           BlocConsumer<LPHomeCubit, LPHomeState>(
                             bloc: lpHomeCubit,
@@ -968,6 +1002,11 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
                           // Need Customer Support Button
                           AppButton(
+                            icon: SvgPicture.asset(
+                              AppIcons.svg.support,
+                              width: 20,
+                              colorFilter: AppColors.svg(AppColors.primaryColor),
+                            ),
                             title: context.appText.support,
                             style: AppButtonStyle.outline,
                             onPressed: (){
@@ -997,7 +1036,10 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                           ).expand()
 
                         ],
-                      )
+                      ),
+
+                      20.height,
+                      Text(context.appText.postLoadNote, style: AppTextStyle.h6.copyWith(color: AppColors.lightBlackColor))
 
                     ],
                   ),
@@ -1046,7 +1088,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                             Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(context.appText.upComingShipment, style: AppTextStyle.body1).expand(),
+                                Text(context.appText.myLoads, style: AppTextStyle.body1).expand(),
 
                                 // See More
                                 if(state.lpGetLoadUIState!.data!.data.isNotEmpty)

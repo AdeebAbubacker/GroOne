@@ -209,12 +209,13 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                   ///TODO:
                   ///Add document list once it get from api
                   VpMyLoadUIHelper.loadStatusButtonWidget(
-                    status: widget.data.loadStatusDetails!.loadStatus,
-                    isIntoRangePrice: isPriceIntoRange,
-                    // isPodAdded:  widget.data.po,
-                    enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
-                      loadStatus: widget.data.loadStatusValues ,
-                      documentList: widget.data.loadDocument??[]
+                      status: widget.data.loadStatusDetails!.loadStatus,
+                          isIntoRangePrice: isPriceIntoRange,
+                          isPodAdded: widget.data.podDispatch!=null,
+                          enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
+                          loadStatus: widget.data.loadStatusValues ,
+                          isAgreed: widget.data.isAgreed,
+                          documentList: widget.data.loadDocument??[]
                     ),
                       context: context,
                     onPressed: () async {

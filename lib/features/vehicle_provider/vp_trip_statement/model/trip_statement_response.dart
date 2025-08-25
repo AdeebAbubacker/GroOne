@@ -42,6 +42,7 @@ class TripStatementData {
   final String? advanceReceived;
   final String? balanceToBeReceived;
   final LoadProvider? loadProvider;
+  final String? tripStatementUrl;
 
   TripStatementData({
     this.loadId,
@@ -65,6 +66,7 @@ class TripStatementData {
     this.advanceReceived,
     this.balanceToBeReceived,
     this.loadProvider,
+    this.tripStatementUrl,
   });
 
   factory TripStatementData.fromJson(Map<String, dynamic> json) {
@@ -80,7 +82,7 @@ class TripStatementData {
       damages: json['damages'] as String?,
       shortages: json['shortages'] as String?,
       penalties: json['penalties'] as String?,
-      platformFee: json['platformFee'] as String?,
+      platformFee: json['platformFee'].toString(),
       platformFeeGstPercentage: json['platformFeeGstPercentage'] as int?,
       platformFeeWithGst: json['platformFeeWithGst'] as String?,
       loading: json['loading'] as String?,
@@ -89,6 +91,7 @@ class TripStatementData {
 
       advanceReceived: json['advanceReceived'] as String?,
       balanceToBeReceived: json['balanceToBeReceived'] as String?,
+      tripStatementUrl: json['tripStatementUrl'] as String?,
       loadProvider: json['loadProvider'] != null
           ? LoadProvider.fromJson(json['loadProvider'])
           : null,

@@ -1,11 +1,18 @@
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/splash/model/app_update_response.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class SplashService {
   final SecuredSharedPreferences _securedSharedPref;
-  SplashService(this._securedSharedPref);
+  final ApiService _apiService;
+
+  SplashService(this._securedSharedPref, this._apiService);
 
   // Check User session with token validation
   Future<Result<bool>> checkIsUserLogin() async {
@@ -63,6 +70,30 @@ class SplashService {
     } catch (e) {
       CustomLog.error(this, "Check User Type Error", e);
       return Error(GenericError());
+    }
+  }
+
+  Future<Result<AppUpdateResponse>> checkAppUpdate() async {
+    String appVersion = await appVersionInfo();
+    String appType = isAndroid ? "ANDROID" : "IOS";
+    try {
+      final result = await _apiService.post(
+        ApiUrls.checkAppUpdate,
+        body: {
+          "appType": appType,
+          "currentVersion": appVersion
+        },
+      );
+      if (result is Success) {
+        final data = AppUpdateResponse.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
     }
   }
 

@@ -1,10 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dropdown.dart';
+import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -25,43 +33,77 @@ class _AvailableLoadsFilterScreenState
   final formKey = GlobalKey<FormState>();
 
   String? vehicleTypeDownValue;
-  String? laneDownValue;
-  String? roadTypeDownValue;
+  String? laneDropDownValue;
+  String? loadTypeDropDownValue;
 
-  final List<String> vehicleTypes = [
-    'Car',
-    'Bike',
-    'Scooter',
-    'Auto Rickshaw',
-    'Van',
-    'Truck',
-    'Bus',
-    'Tractor',
-    'SUV',
-    'Pickup',
-    'Electric Scooter',
-    'Electric Car',
-  ];
+  final filterCubit=locator<LoadFilterCubit>();
+
+
+  /// Selected Data
+
+  int? truckTypeId;
+  int? laneId;
+  int? commodityId;
 
   @override
   void initState() {
-    // TODO: implement initState
-    initFunction();
+    _setInitialFilterData();
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     disposeFunction();
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() {
-    //  Call your init methods
-  });
 
   void disposeFunction() => frameCallback(() {});
+
+
+  void _getTruckType(List<TruckTypeModel> truckTypeList,String? selectedTruckType){
+    TruckTypeModel? truckTypeModel=truckTypeList.firstWhere((element) {
+        String commodity=  "${element.type} ${element.subType}";
+        return commodity==selectedTruckType;
+    });
+    truckTypeId=truckTypeModel.id;
+    filterCubit.setTruckTypeData(truckTypeId: truckTypeModel.id, value:selectedTruckType);
+  }
+
+  void _getLaneId(List<Item> preferLanesModel ,String? selectedLens){
+    Item? selectedObject=preferLanesModel.firstWhere((element) {
+      String lane=  '${element.fromLocation?.name ?? ""} - ${element.toLocation?.name ?? ""}';
+      return lane==selectedLens;
+    });
+    laneId=selectedObject.masterLaneId;
+    filterCubit.setLensData(leneId: selectedObject.masterLaneId, value:selectedLens);
+  }
+
+  void _getCommodity(List<LoadCommodityListModel> loadTypeList,String? value){
+    LoadCommodityListModel? loadType=loadTypeList.firstWhere((element) {
+      String loadType=  element.name;
+      return loadType==value;
+    });
+    commodityId=loadType.id;
+    filterCubit.setCommodityData(commodityId: loadType.id, value:value);
+  }
+
+
+  void _setInitialFilterData(){
+    if(filterCubit.state.isFilterApplied==false){
+      return;
+    }
+
+    vehicleTypeDownValue=filterCubit.state.selectedTruckType?['value'];
+    truckTypeId=filterCubit.state.selectedTruckType?['id'];
+
+
+    laneDropDownValue=filterCubit.state.selectedLaneType?['value'];
+    laneId=filterCubit.state.selectedLaneType?['id'];
+
+    loadTypeDropDownValue=filterCubit.state.selectedCommodity?['value'];
+    commodityId=filterCubit.state.selectedCommodity?['id'];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,96 +113,92 @@ class _AvailableLoadsFilterScreenState
     );
   }
 
+
+
   Widget _buildBody({required BuildContext context}) {
-    return Form(
-      key: formKey,
-      child: Column(
-        children: [
-          // Vehicle Type
-          AppDropdown(
-            validator:  (value) => Validator.fieldRequired(  value, fieldName: context.appText.thisFieldIsRequired,
-                ),
-            labelText: context.appText.vehicleType,
-            hintText: context.appText.selectVehicleType,
-            dropdownValue: vehicleTypeDownValue,
-            decoration: commonInputDecoration(),
-            dropDownList:   vehicleTypes  .map(   (e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(e, style: AppTextStyle.body),
-                      ),
-                    )
-                    .toList(),
-            onChanged: (onChangeValue) {
-              vehicleTypeDownValue = onChangeValue;
-            },
-          ),
-          20.height,
+    return BlocBuilder<LoadFilterCubit,LoadFilterState>(
+     builder: (context, state) {
 
-          // Lane Type
-          AppDropdown(
-            validator:  (value) => Validator.fieldRequired(    value,   fieldName: context.appText.thisFieldIsRequired,
-                ),
-            labelText: context.appText.lane,
-            hintText: context.appText.selectLaneType,
-            dropdownValue: laneDownValue,
-            decoration: commonInputDecoration(),
-            dropDownList:  vehicleTypes    .map(    (e) => DropdownMenuItem(    value: e,   child: Text(e, style: AppTextStyle.body),
-                      ),
-                    )
-                    .toList(),
-            onChanged: (onChangeValue) {
-              laneDownValue = onChangeValue;
-            },
-          ),
-          20.height,
+       List<TruckTypeModel> truckTypeList=state.truckTypeUIState?.data??[];
+       List<Item> preferLanesModel=state.truckTypeLaneUIState?.data?.data?.items??[];
+       List<LoadCommodityListModel> loadTypeList=state.commodityResponseUIState?.data??[];
 
-          // Road Type
-          AppDropdown(
-            validator:
-                (value) => Validator.fieldRequired(
-                  value,
-                  fieldName: context.appText.thisFieldIsRequired,
-                ),
-            labelText: context.appText.loadType,
-            hintText: context.appText.selectRoadType,
-            dropdownValue: roadTypeDownValue,
-            decoration: commonInputDecoration(),
-            dropDownList:
-                vehicleTypes
-                    .map(
-                      (e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(e, style: AppTextStyle.body),
-                      ),
-                    )
-                    .toList(),
-            onChanged: (onChangeValue) {
-              roadTypeDownValue = onChangeValue;
-            },
-          ),
-          50.height,
 
-          Row(
+
+
+       return Form(
+          key: formKey,
+          child: Column(
             children: [
-              // Cancel
-              AppButton(
-                onPressed: () => context.pop(),
-                title: context.appText.cancel,
-                style: AppButtonStyle.outline,
-              ).expand(),
+              // Vehicle Type
+              SearchableDropdown(
+                hintText: context.appText.selectVehicleType,
+                items: truckTypeList.map((e) =>"${e.type} ${e.subType}").toList(),
+                labelText: context.appText.vehicleType,
+                selectedItem: vehicleTypeDownValue,
+                onChanged: (value) {
+                  _getTruckType(truckTypeList,value);
+                  },
+              ),
+              20.height,
 
-              20.width,
+              // Lane Type
+              SearchableDropdown(
+                hintText:  context.appText.selectLaneType,
+                items: preferLanesModel.map((e) => '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',).toList(),
+                labelText: context.appText.lane,
+                selectedItem: laneDropDownValue,
+                onChanged: (value) {
+                  _getLaneId(preferLanesModel,value );
+                },
+              ),
 
-              // Apply
-              AppButton(
-                onPressed: () {},
-                title: context.appText.apply,
-                style: AppButtonStyle.primary,
-              ).expand(),
+              20.height,
+
+              // Road Type
+              SearchableDropdown(
+                hintText:  context.appText.selectRoadType,
+                items: loadTypeList.map((e) => e.name).toList(),
+                labelText: context.appText.loadType,
+                selectedItem: loadTypeDropDownValue,
+                onChanged: (value) {
+                  _getCommodity(loadTypeList,value );
+                },
+              ),
+              50.height,
+              Row(
+                children: [
+                  // Cancel
+                  AppButton(
+                    onPressed: () {
+                      filterCubit.setIsFilterApplied(value: false);
+                      context.pop();
+                    },
+                    title: context.appText.cancel,
+                    style: AppButtonStyle.outline,
+                  ).expand(),
+
+                  20.width,
+
+                  // Apply
+                  AppButton(
+                    onPressed: () {
+                      Navigator.pop(context,{
+                        "commodityId":commodityId,
+                        "truckTypeId":truckTypeId,
+                        "lensType":laneId
+                      });
+                      filterCubit.setIsFilterApplied(value: true);
+                    },
+                    title: context.appText.apply,
+                    style: AppButtonStyle.primary,
+                  ).expand(),
+                ],
+              ),
             ],
           ),
-        ],
-      ),
+        );
+      }
     );
   }
 }

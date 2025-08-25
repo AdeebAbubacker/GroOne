@@ -5,6 +5,7 @@ import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_logout_model.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_profile/repository/driver_profile_repository.dart';
+import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
@@ -41,6 +42,28 @@ class DriverProfileCubit extends BaseCubit<DriverProfileState> {
     }
     if (result is Error) {
       _setProfileDetailUIState(UIState.error(result.type));
+    }
+  }
+  
+
+  /// Set Delete Account UI State
+  void _setDeleteAccountUIState(UIState<DeleteAccountModel>? uiState) {
+    emit(state.copyWith(deleteAccountUIState: uiState));
+  }
+
+  Future<void> deleteAccount() async {
+    _setDeleteAccountUIState(UIState.loading());
+    final result = await _repo.deleteAccount();
+    final isSignOut = await _repo.signOut();
+
+    if (result is Success<DeleteAccountModel> && isSignOut is Success<bool>) {
+      _setDeleteAccountUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      final error = result as Error;
+      _setDeleteAccountUIState(UIState.error(error.type));
+    } else {
+      _setDeleteAccountUIState(UIState.error(GenericError()));
     }
   }
 

@@ -179,8 +179,8 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
   }
 
   Future<void> callCreateDocument(UploadDamageFileModel damageFileData)async{
-    final damageEntity=damageDocumentEntity;
-   final createDocumentResponse= await cubit.createDocument(damageEntity.title??"", damageEntity.documentTypeId??0, damageFileData);
+    final damageEntity=DocumentDataModel.damageDocumentEntity;
+   final createDocumentResponse= await cubit.createDocument(damageEntity?.title??"", damageEntity?.documentTypeId??0, damageFileData);
    if(createDocumentResponse!=null){
      damageDocumentIds.add(createDocumentResponse.documentId??"");
      updateDamageDocumentIds.add(createDocumentResponse.documentId??"");

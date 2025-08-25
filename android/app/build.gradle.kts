@@ -58,16 +58,15 @@ android {
 
     buildTypes {
         getByName("release") {
-            signingConfig = signingConfigs.getByName("release") // Temporarily disabled
-            isMinifyEnabled = false // Temporarily disabled
-            isShrinkResources = false // Temporarily disabled
+            signingConfig = signingConfigs.getByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                    getDefaultProguardFile("proguard-android-optimize.txt"),
+                    "proguard-rules.pro"
             )
         }
     }
-
     dependencies {
         implementation("com.google.firebase:firebase-messaging:23.4.1")
         implementation(platform("com.google.firebase:firebase-bom:33.15.0"))

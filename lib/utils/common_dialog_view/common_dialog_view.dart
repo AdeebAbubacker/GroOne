@@ -12,6 +12,7 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class CommonDialogView extends StatefulWidget {
+  final Widget? messageWidget;
   final String? message;
   final String? heading;
   final Color? headingColor;
@@ -38,6 +39,7 @@ class CommonDialogView extends StatefulWidget {
     this.showYesNoButtonButtons = false,
     this.yesButtonText,
     this.noButtonText,
+    this.messageWidget,
     this.message,
     this.heading,
     this.onTapSingleButton,
@@ -105,7 +107,12 @@ class _CommonDialogViewState extends State<CommonDialogView> {
           10.height,
         ],
 
-        if(widget.message != null)...[
+        if (widget.messageWidget != null) ...[
+          widget.messageWidget ?? Container(),
+          20.height,
+        ] else
+
+          if(widget.message != null)...[
           Text(widget.message!, textAlign: TextAlign.center, style:  widget.messageTextStyle ??  AppTextStyle.bodyGreyColor),
           20.height,
         ],
@@ -173,6 +180,7 @@ class MasterCommonDialogView extends StatefulWidget {
   final GestureTapCallback? onClickYesButton;
   final GestureTapCallback? onClickNoButton;
   final CrossAxisAlignment? crossAxisAlignment;
+  final bool isAddress;
 
   const MasterCommonDialogView({
     super.key,
@@ -194,6 +202,7 @@ class MasterCommonDialogView extends StatefulWidget {
     this.headingTextStyle,
     this.messageTextStyle,
     this.yesButtonTextStyle,
+    this.isAddress = false,
   });
 
   @override
@@ -212,7 +221,7 @@ class _MasterCommonDialogViewState extends State<MasterCommonDialogView> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.85,
+      height: widget.isAddress ? MediaQuery.of(context).size.height * 0.65 : MediaQuery.of(context).size.height * 0.85,
       child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: widget.crossAxisAlignment ?? CrossAxisAlignment.center,

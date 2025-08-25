@@ -352,7 +352,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                 isFormValid
                     ? AppButtonStyle.primary
                     : AppButtonStyle.disableButton,
-          ).paddingAll(20);
+          ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15);
         },
       ),
     );
@@ -392,27 +392,13 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
   void _showInfoDialog(BuildContext context, String fieldName) {
     String message = '';
     if (fieldName == context.appText.aadhaarCard) {
-      message =
-          '• Enter your 12-digit Aadhaar number\n'
-          '• Aadhaar number should not start with 0 or 1\n'
-          '• All digits should not be the same\n'
-          '• You will receive OTP for verification';
-    } else if (fieldName == context.appText.pan) {
-      message =
-          '• Enter your 10-character PAN number\n'
-          '• Format: ABCDE1234F (5 letters + 4 digits + 1 letter)\n'
-          '• Upload clear image of your PAN card\n'
-          '• Ensure all details are clearly visible';
+      message = context.appText.aadhaarInfo;
+    } else if (fieldName == "${context.appText.pan} (Optional)") {
+      message = context.appText.panInfo;
     } else if (fieldName == 'PAN Document') {
-      message =
-          '• Upload your PAN card document (Optional)\n'
-          '• This document will be used for KYC requirements\n'
-          '• Ensure all details are clearly visible\n'
-          '• File size should be less than 5MB\n'
-          '• Supported formats: PDF, JPG, PNG\n'
-          '• You can skip this if you don\'t have a PAN document';
+      message = context.appText.panDocumentInfo;
     } else {
-      message = 'Please provide valid information for this field.';
+      message = context.appText.invalidFieldInfo;
     }
 
     showDialog(
@@ -662,7 +648,7 @@ class _GpsOtpVerificationBottomSheetState
                                           widget.cubit.sendAadhaarOtp();
                                           _resetResendTimer();
                                           ToastMessages.success(
-                                            message: 'OTP resent successfully',
+                                            message: context.appText.otpResentSuccessfully,
                                           );
                                         } : null,
                                         child: Text(
@@ -704,7 +690,7 @@ class _GpsOtpVerificationBottomSheetState
     Future.delayed(Duration(seconds: 10), () {
       if (context.mounted && Navigator.canPop(context)) {
         Navigator.of(context).pop();
-        ToastMessages.error(message: 'Verification timeout. Please try again.');
+        ToastMessages.error(message: context.appText.verificationTimeout);
       }
     });
   }

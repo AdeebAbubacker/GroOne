@@ -5,6 +5,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../../../../data/model/result.dart';
 import '../../../../utils/custom_log.dart';
+import '../../../../utils/safe_api_caller.dart';
 import '../../../load_provider/lp_home/model/auto_complete_model.dart';
 import '../../../load_provider/lp_home/model/verify_location.dart';
 import '../../models/gps_geofence_model.dart';
@@ -62,7 +63,14 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
       }
 
       debugPrint("🌐 Fetching geofences from API...");
-      final result = await _repository.fetchGeofences();
+
+      // Use safe API caller with retry mechanism
+      final result = await SafeApiCaller.callWithRetryAndTimeout(
+        () => _repository.fetchGeofences(),
+        operationName: 'fetch_geofences',
+        maxRetries: 2,
+        timeout: const Duration(seconds: 15),
+      );
 
       if (_isClosed) return;
 
@@ -93,7 +101,13 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
     if (_isClosed) return;
 
     try {
-      final result = await _repository.fetchGeofencesForVehicle(deviceId);
+      // Use safe API caller for vehicle geofences
+      final result = await SafeApiCaller.callWithRetryAndTimeout(
+        () => _repository.fetchGeofencesForVehicle(deviceId),
+        operationName: 'fetch_vehicle_geofences',
+        maxRetries: 2,
+        timeout: const Duration(seconds: 15),
+      );
 
       if (_isClosed) return;
 
@@ -129,19 +143,32 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
       emit(GpsGeofenceLoading());
     }
 
-    final result = await _repository.addOrUpdateGeofence(model);
+    try {
+      // Use safe API caller with retry for geofence submission
+      final result = await SafeApiCaller.callWithRetryAndTimeout(
+        () => _repository.addOrUpdateGeofence(model),
+        operationName: 'submit_geofence',
+        maxRetries: 3, // More retries for submission
+        timeout: const Duration(seconds: 20),
+      );
 
-    if (_isClosed) return;
+      if (_isClosed) return;
 
-    if (result is Success<void>) {
-      if (!_isClosed) {
-        emit(GpsGeofenceSubmitSuccess()); // ✅ Emit submit success
+      if (result is Success<void>) {
+        if (!_isClosed) {
+          emit(GpsGeofenceSubmitSuccess()); // ✅ Emit submit success
+        }
+        _hasLoadedData = false; // Reset flag to allow refresh
+        await loadGeofences(forceRefresh: true); // ✅ Refresh list
+      } else if (result is Error<void>) {
+        if (!_isClosed) {
+          emit(GpsGeofenceError(result.type.toString()));
+        }
       }
-      _hasLoadedData = false; // Reset flag to allow refresh
-      await loadGeofences(forceRefresh: true); // ✅ Refresh list
-    } else if (result is Error<void>) {
+    } catch (e) {
+      debugPrint("❌ Error in submitGeofence: $e");
       if (!_isClosed) {
-        emit(GpsGeofenceError(result.type.toString()));
+        emit(GpsGeofenceError("Failed to submit geofence: ${e.toString()}"));
       }
     }
   }
@@ -152,39 +179,51 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
     required String geofenceId,
     required bool enable,
   }) async {
-    final result = await _repository.linkUnlinkGeofenceDevice(
-      deviceId,
-      geofenceId,
-      enable,
-    );
+    try {
+      // Use safe API caller for device linking
+      final result = await SafeApiCaller.callWithRetryAndTimeout(
+        () =>
+            _repository.linkUnlinkGeofenceDevice(deviceId, geofenceId, enable),
+        operationName: 'toggle_geofence_device',
+        maxRetries: 2,
+        timeout: const Duration(seconds: 15),
+      );
 
-    if (result is Success<void>) {
-      if (state is GpsGeofenceLoaded) {
-        final currentState = state as GpsGeofenceLoaded;
-        final updatedMap = Map<String, Set<String>>.from(
-          currentState.vehicleGeofenceMap,
-        );
+      if (_isClosed) return;
 
-        final updatedGeofenceIds = Set<String>.from(
-          updatedMap[vehicleId] ?? {},
-        );
+      if (result is Success<void>) {
+        if (state is GpsGeofenceLoaded) {
+          final currentState = state as GpsGeofenceLoaded;
+          final updatedMap = Map<String, Set<String>>.from(
+            currentState.vehicleGeofenceMap,
+          );
 
-        if (enable) {
-          updatedGeofenceIds.add(geofenceId);
-        } else {
-          updatedGeofenceIds.remove(geofenceId);
+          final updatedGeofenceIds = Set<String>.from(
+            updatedMap[vehicleId] ?? {},
+          );
+
+          if (enable) {
+            updatedGeofenceIds.add(geofenceId);
+          } else {
+            updatedGeofenceIds.remove(geofenceId);
+          }
+
+          updatedMap[vehicleId] = updatedGeofenceIds;
+
+          // ✅ Emit loaded state again with updated map
+          if (!_isClosed) {
+            emit(currentState.copyWith(vehicleGeofenceMap: updatedMap));
+          }
         }
-
-        updatedMap[vehicleId] = updatedGeofenceIds;
-
-        // ✅ Emit loaded state again with updated map
+      } else if (result is Error) {
         if (!_isClosed) {
-          emit(currentState.copyWith(vehicleGeofenceMap: updatedMap));
+          emit(GpsGeofenceError(result.type.toString()));
         }
       }
-    } else if (result is Error) {
+    } catch (e) {
+      debugPrint("❌ Error in toggleGeofenceForVehicle: $e");
       if (!_isClosed) {
-        emit(GpsGeofenceError(result.type.toString()));
+        emit(GpsGeofenceError("Failed to toggle geofence: ${e.toString()}"));
       }
     }
   }
@@ -201,25 +240,39 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
 
     emit(GpsGeofenceLoading());
 
-    final result = await _repository.getAutoCompleteData(input);
-
-    if (_isClosed) return;
-    if (result is Success<AutoCompleteModel>) {
-      final predictions = result.value.predictions;
-      if (predictions.isNotEmpty) {
-        emit(GpsGeofenceAutoCompleteLoaded(result.value));
-      } else {
-        emit(GpsGeofenceError("No suggestions found."));
-      }
-    } else if (result is Error<AutoCompleteModel>) {
-      final errorType = result.type;
-      emit(
-        GpsGeofenceError(
-          errorType is ErrorWithMessage
-              ? errorType.message
-              : "Autocomplete failed",
-        ),
+    try {
+      // Use safe API caller for autocomplete
+      final result = await SafeApiCaller.callWithRetryAndTimeout(
+        () => _repository.getAutoCompleteData(input),
+        operationName: 'fetch_autocomplete',
+        maxRetries: 2,
+        timeout: const Duration(seconds: 10),
       );
+
+      if (_isClosed) return;
+
+      if (result is Success<AutoCompleteModel>) {
+        final predictions = result.value.predictions;
+        if (predictions.isNotEmpty) {
+          emit(GpsGeofenceAutoCompleteLoaded(result.value));
+        } else {
+          emit(GpsGeofenceError("No suggestions found."));
+        }
+      } else if (result is Error<AutoCompleteModel>) {
+        final errorType = result.type;
+        emit(
+          GpsGeofenceError(
+            errorType is ErrorWithMessage
+                ? errorType.message
+                : "Autocomplete failed",
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint("❌ Error in fetchAutoComplete: $e");
+      if (!_isClosed) {
+        emit(GpsGeofenceError("Autocomplete failed: ${e.toString()}"));
+      }
     }
   }
 
@@ -228,17 +281,32 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
 
     emit(GpsGeofenceLoading());
 
-    final result = await _repository.fetchLatLngFromPlaceId(placeId);
-
-    if (result is Success<LatLng>) {
-      emit(GpsGeofenceLatLngLoaded(result.value));
-    } else if (result is Error<LatLng>) {
-      final err = result.type;
-      emit(
-        GpsGeofenceError(
-          err is ErrorWithMessage ? err.message : "Failed to get location.",
-        ),
+    try {
+      // Use safe API caller for place lookup
+      final result = await SafeApiCaller.callWithRetryAndTimeout(
+        () => _repository.fetchLatLngFromPlaceId(placeId),
+        operationName: 'fetch_latlng_from_place',
+        maxRetries: 2,
+        timeout: const Duration(seconds: 15),
       );
+
+      if (_isClosed) return;
+
+      if (result is Success<LatLng>) {
+        emit(GpsGeofenceLatLngLoaded(result.value));
+      } else if (result is Error<LatLng>) {
+        final err = result.type;
+        emit(
+          GpsGeofenceError(
+            err is ErrorWithMessage ? err.message : "Failed to get location.",
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint("❌ Error in fetchLatLngForPlace: $e");
+      if (!_isClosed) {
+        emit(GpsGeofenceError("Failed to get location: ${e.toString()}"));
+      }
     }
   }
 

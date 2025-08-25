@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
+import 'package:gro_one_app/features/driver/driver_home/bloc/driver_home/driver_home_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
@@ -77,6 +80,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   late VpLoadBloc vpLoadBloc;
   List<LoadStatusResponse> tabLabels = [];
   late TabController _tabController;
+  final documentTypeCubit=locator<DocumentTypeCubit>();
+
 
   @override
   void initState() {
@@ -145,6 +150,13 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
     _loadDataByTab(index: widget.initialTabIndex);
     initFunction();
+    _callDocumentListingAPi();
+  }
+
+
+
+  _callDocumentListingAPi(){
+    documentTypeCubit.getDocumentTypeList();
   }
 
   @override
@@ -169,7 +181,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
       driverLoadBloc.add(
         FetchDriverLoads(
           loadStatus: loadStatus,
-          search: parsedNumber == null ? query : "",
+          search: query,
           laneId: parsedNumber,
         ),
       );
@@ -226,7 +238,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 );
 
                 return SearchableDropdown(
-                  hintText: 'Truck Type',
+                  hintText: context.appText.selectTruckType,
                   items: truckTypeLabels,
                   selectedItem: truckTypeDropDownValue,
                   onChanged: (value) {
@@ -245,8 +257,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 final routeList = uiState?.data?.data?.routeList ?? [];
 
                 return RouteSearchableDropdown(
-                  labelText: 'Route',
-                  hintText: 'Route',
+                  labelText: context.appText.routes,
+                  hintText: '${context.appText.select} ${context.appText.route}',
                   routeList: routeList,
                   selectedRouteStatus: routeDropDownValue,
                   onRouteChanged: (RouteList? value) {
@@ -289,7 +301,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                           setState(() {});
                         },
 
-                        hintText: context.appText.commodity,
+                        hintText: '${context.appText.select} ${context.appText.commodity}' ,
                       ),
                     ],
                   );
@@ -574,14 +586,14 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 if (_tabController!.index == index) {}
               }
             },
-            child: buildDriverLoadTab(index),
+            child: buildDriverLoadTab(index,tabLabels[index].id, searchController.text),
           );
         }),
       ),
     );
   }
 
-  Widget buildDriverLoadTab(int tabIndex) {
+  Widget buildDriverLoadTab(int tabIndex,int loadStatus, String search) {
     return RefreshIndicator(
       onRefresh:
           () async => _loadDataByTab(index: tabIndex, forceRefresh: true),
@@ -589,10 +601,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         bloc: driverLoadBloc,
         listener: (context, state) {
           if (state is DriverLoadStatusChanged) {
-            ToastMessages.success(message: "Load status updated successfully");
+            ToastMessages.success(message: state.result.message);
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           } else if (state is DriverLoadStatusChangeFailed) {
-            ToastMessages.error(message: "Failed to update load status");
+            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           }
         },
@@ -601,43 +613,58 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             return const Center(child: CircularProgressIndicator());
           }
           if (state is DriverLoadsLoaded) {
-            if (state.loads.isEmpty) {
+            if (state.loads.data.isEmpty) {
               _onPullToRefresh;
               return genericErrorWidget(error: NoLoadsFoundError());
             }
-            return ListView.builder(
-              padding: EdgeInsets.all(commonSafeAreaPadding),
-              itemCount: state.loads.length,
-              itemBuilder: (context, index) {
-                final load = state.loads[index];
-                return DriverLoadWidget(
-                  driverLoadDetails: load,
-                  onClickAssignDriver: () {
-                    final currentStatus = load.loadStatusId;
-                    if (currentStatus == 8) {
-                      Navigator.push(
-                        context,
-                        commonRoute(
-                          DriverLoadsLocationDetailsScreen(loadId: load.loadId),
-                        ),
-                      );
-                    } else if (currentStatus <= 7) {
-                      context.read<DriverLoadsBloc>().add(
-                        ChangeDriverLoadStatus(
-                          loadId: load.loadId,
-                          loadStatus: currentStatus + 1,
-                          customerId: load.vpCustomer?.customerId ?? '',
-                        ),
-                      );
+            return NotificationListener<ScrollNotification>(
+              onNotification: (scrollInfo) {
+                    if (scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent) {
+                    driverLoadBloc.add(
+                  FetchDriverLoads(
+                    loadMore: true,
+                    loadStatus: loadStatus,
+                    search: search
+                  ),
+                );
                     }
+                    return false;
                   },
-                ).paddingSymmetric(vertical: 7);
-              },
+              child: ListView.builder(
+                padding: EdgeInsets.all(commonSafeAreaPadding),
+                itemCount: state.loads.data.length,
+                itemBuilder: (context, index) {
+                  final load = state.loads.data[index];
+                  return DriverLoadWidget(
+                    driverLoadDetails: load,
+                    onClickAssignDriver: () {
+                      final currentStatus = load.loadStatusId;
+                      if (currentStatus == 8) {
+                        Navigator.push(
+                          context,
+                          commonRoute(
+                            DriverLoadsLocationDetailsScreen(loadId: load.loadId),
+                          ),
+                        );
+                      } else if (currentStatus <= 7) {
+                        context.read<DriverLoadsBloc>().add(
+                          ChangeDriverLoadStatus(
+                            loadId: load.loadId,
+                            loadStatus: currentStatus + 1,
+                            customerId: load.vpCustomer?.customerId ?? '',
+                          ),
+                        );
+                      }
+                    },
+                  ).paddingSymmetric(vertical: 7);
+                },
+              ),
             );
           } else if (state is DriverLoadsError) {
             return VpHelper.withSliverRefresh(
               _onPullToRefresh,
-              child: Center(child: Text(state.message)),
+              child: Center(child: Text(state.errorType)),
             );
           }
           return const SizedBox();
@@ -646,3 +673,5 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 }
+
+

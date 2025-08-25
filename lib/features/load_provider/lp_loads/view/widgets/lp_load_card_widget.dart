@@ -195,6 +195,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
   /// Load ID Details
   Widget buildLoadIdDetailsWidget(LoadStatus? loadStatus) {
     var statusData = widget.loadItem.loadOnhold ? context.appText.unloadingHeld :widget.loadItem.loadStatusDetails?.loadStatus ?? '';
+    var payment = widget.loadItem.lpPaymentsData;
     return Row(
       children: [
         if(loadStatus!.index <= LoadStatus.assigned.index)
@@ -206,7 +207,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
           ),
         if(loadStatus.index >= LoadStatus.loading.index)
-         Image.asset(AppImage.png.truck, width: 57, height: 42),
+          Image.asset(AppImage.png.truck, width: 57, height: 42),
 
         15.width,
         Column(
@@ -232,7 +233,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
               ],
 
             Text(
-             widget.loadItem.createdAt != null ? DateTimeHelper.formatCustomDateTimeIST(widget.loadItem.createdAt!) : "--",
+              widget.loadItem.createdAt != null ? DateTimeHelper.formatCustomDateTimeIST(widget.loadItem.createdAt!) : "--",
               style: AppTextStyle.body4.copyWith(
                 color: AppColors.primaryColor,
               ),
@@ -245,7 +246,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             children: [
               Container(
                 decoration: commonContainerDecoration(
-                  color: widget.loadItem.loadOnhold ? AppColors.red : LpHomeHelper.getColor(widget.loadItem.loadStatusDetails?.statusBgColor ?? '')
+                    color: widget.loadItem.loadOnhold ? AppColors.red : LpHomeHelper.getColor(widget.loadItem.loadStatusDetails?.statusBgColor ?? '')
                 ),
                 child: Text(
                   statusData,
@@ -255,7 +256,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
               ),
               5.height,
               if(loadStatus == LoadStatus.kycPending || loadStatus == LoadStatus.matching)
-               Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)).paddingRight(5),
+                Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)).paddingRight(5),
               if(loadStatus.index >= LoadStatus.loading.index)
                 Text(
                   'ETA: ${DateTimeHelper.formatCustomDateTimeIST(widget.loadItem.expectedDeliveryDateTime)}',
@@ -264,7 +265,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                   ),
                   textAlign: TextAlign.right,
                 ),
-              if((loadStatus.index >= LoadStatus.inTransit.index && (widget.loadItem.lpPaymentsData == null)))
+              if((loadStatus.index >= LoadStatus.inTransit.index && (payment?.receivableAdvancePaidFlg == false)))
                 Row(
                   children: [
                     const Icon(Icons.error, size: 16, color: AppColors.iconRed),
@@ -275,7 +276,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                     ).flexible(),
                   ],
                 ),
-              if((loadStatus == LoadStatus.completed && (widget.loadItem.lpPaymentsData?.receivableBalancePaidFlg == false)))
+              if((loadStatus == LoadStatus.completed && (payment?.receivableBalancePaidFlg == false && payment?.receivableAdvancePaidFlg == true && payment?.receivableBalance != '0.00')))
                 Row(
                   children: [
                     const Icon(Icons.error, size: 16, color: AppColors.iconRed),

@@ -34,13 +34,14 @@ class LoadDetailsState extends Equatable {
   final UIState<TrackingDistanceResponse>? trackingDistance;
   final int? loadStatusId;
   final List<String>? allDamageImageList;
+  final bool? iPodSkip;
 
   const LoadDetailsState({
     this.trackingDistance,
     this.directionApiResponse,
     this.scheduleTripResponse,
     this.locationDistance,
-    
+    this.iPodSkip,
     this.loadStatus = LoadStatus.matching,
     this.loadDetailsUIState,
     this.createDamageUIState,
@@ -78,9 +79,11 @@ class LoadDetailsState extends Equatable {
     bool? isUpdateDamage,
     String? damageId,
     List<DocumentEntity>? tripDocumentList,
-    List<String>? allDamageImageList
+    List<String>? allDamageImageList,
+    bool? iPodSkip
   }) {
     return LoadDetailsState(
+      iPodSkip: iPodSkip?? this.iPodSkip,
       trackingDistance: trackingDistance ?? this.trackingDistance,
         allDamageImageList: allDamageImageList ?? this.allDamageImageList,
       tripDocumentList:tripDocumentList?? this.tripDocumentList ,
@@ -123,7 +126,8 @@ class LoadDetailsState extends Equatable {
     damageId,
     tripDocumentList,
     trackingDistance,
-    allDamageImageList
+    allDamageImageList,
+    iPodSkip
   ];
 
 }

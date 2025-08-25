@@ -126,6 +126,9 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
       ToastMessages.error(message: "${context.appText.somethingWentWrong} - ${widget.vehicleId} - ${widget.loadId}");
       return;
     }
+
+
+
     if (formKey.currentState!.validate()) {
       if (uploadedDamageFileList.isEmpty) {
         ToastMessages.alert(message: context.appText.uploadProductPhoto);
@@ -178,8 +181,8 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
   }
 
   Future<void> callCreateDocument(UploadDamageFileModel damageFileData)async{
-    final damageEntity=damageDocumentEntity;
-   final createDocumentResponse= await cubit.createDocument(damageEntity.title??"", damageEntity.documentTypeId??0, damageFileData);
+    final damageEntity=DocumentDataModel.damageDocumentEntity;
+   final createDocumentResponse= await cubit.createDocument(damageEntity?.title??"", damageEntity?.documentTypeId??0, damageFileData);
    if(createDocumentResponse!=null){
      damageDocumentIds.add(createDocumentResponse.documentId??"");
      updateDamageDocumentIds.add(createDocumentResponse.documentId??"");
@@ -447,7 +450,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
                         AppIconButton(
                             onPressed: (){
                               updateDamageFileList.removeAt(index);
-                              updateDamageDocumentIds.toList().removeAt(index);
+                              updateDamageDocumentIds.remove(updateDamageDocumentIds.elementAt(index));
                               setState(() {});
                             },
                             style: AppButtonStyle.circularIconButtonStyle,
@@ -512,7 +515,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
           },
           onDelete: (index) {
             uploadedDamageFileList.removeAt(index);
-            damageDocumentIds.toList().removeAt(index);
+            damageDocumentIds.remove(damageDocumentIds.elementAt(index));
           }
         );
       },

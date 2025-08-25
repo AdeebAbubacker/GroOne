@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/download_handler.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -83,7 +84,7 @@ enum LoadStatus {
 
 
 
-String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? isMemoGenerated}){
+String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? isMemoGenerated,required bool isPodSkip}){
 
   BuildContext context=navigatorKey.currentState!.context;
   switch(status){
@@ -94,7 +95,7 @@ String getSwipeButtonTitle(LoadStatus status,PodDispatch? podDispatched,{bool? i
       case LoadStatus.unloading:
       return context.appText.swipeToCompleteUnLoading;
     case LoadStatus.podDispatched:
-      return  podDispatched==null ?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
+      return  podDispatched==null  && isPodSkip==false?  context.appText.podDispatchedDetails:context.appText.swipeToCompleteTrip;
     default:
       return (isMemoGenerated??false) ?  context.appText.swipeToStart:context.appText.waitingForLpToConfirmed;
   }
@@ -105,10 +106,10 @@ Future<void> downloadAndOpenFile(String url,{String? originalFileName}) async {
     final fileName = path.basename(url);
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, originalFileName);
-
     final dio = Dio();
-    await dio.download(url, filePath);
+    await dio.download(url,filePath);
 
+    print("filePath gettign :: ${filePath} and original file name ${originalFileName}");
     await OpenFilex.open(filePath);
   } catch (e) {
     debugPrint("Error downloading/opening file: $e");
@@ -128,15 +129,45 @@ LoadStatus getLoadStatus(int? status){
   };
 }
 
+ LoadStatus? getVPLoadStatusFromString(String? loadType) {
+switch (loadType) {
+  case 'Confirmed':
+return LoadStatus.accepted;
+case 'Assigned':
+return LoadStatus.assigned;
+case 'Loading':
+return LoadStatus.loading;
+case 'In Transit':
+return LoadStatus.inTransit;
+case 'Unloading':
+return LoadStatus.unloading;
+
+case 'POD Dispatch':
+return LoadStatus.podDispatched;
+case 'Completed':
+return LoadStatus.completed;
+default:
+return null;
+}
+}
+
 
 enum DocumentFileType {
 
-  lorryReceipt('lorry_receipt'),
-  ewayBill('eway_bill'),
-  materialInvoice('material_invoice'),
-  proofOfDelivery('proof_of_delivery'),
-  uploadOtherDocument('other_documents',documentType: "Upload Other documents"),
-  damageAndShortage('damages_and_shortages');
+  lorryReceipt('lorry_receipt',documentType: "Lorry Receipt"),
+  ewayBill('eway_bill',documentType: "Eway Bill"),
+  materialInvoice('material_invoice',documentType: "Material Invoice"),
+  proofOfDelivery('proof_of_delivery',documentType: "Proof of Delivery"),
+  uploadOtherDocument('other_documents',documentType: "Other Documents",),
+  damageAndShortage('damages_and_shortages',documentType: "Damages and Shortages"),
+  aadharDocument('aadhaar_card',documentType: 'Aadhaar Card'),
+  panDocument('aadhaar_card',documentType: 'PAN Card'),
+  tanDocument('tan_document',documentType: 'Tan Document'),
+  gstinDocument('gst_document',documentType: 'GST Document'),
+  tdsDocument('tds',documentType: 'TDS'),
+  chequeDocument('cancelled_cheque',documentType: 'Cancelled Cheque');
+
+
 
 
   final String value;

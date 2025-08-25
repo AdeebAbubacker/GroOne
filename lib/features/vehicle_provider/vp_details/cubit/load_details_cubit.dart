@@ -47,9 +47,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LpLoadRepository _lpLoadsrepository;
 
   LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadRepository,this._lpLoadsrepository)
-      : super(LoadDetailsState(
-      tripDocumentList: documentTypeList
-  ));
+      : super(LoadDetailsState(tripDocumentList:[]));
 
 
   void setIsUpdateDamage(bool value){
@@ -61,18 +59,23 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     CustomLog.debug(this, "Damage Id Set : ${state.damageId}");
   }
 
+  void skipPodView({bool? value}){
+    emit(state.copyWith(iPodSkip: value??false));
+  }
+
   acceptLoad(int? status) {
     LoadStatus? loadStatus;
     loadStatus = getLoadStatus(status);
     loadStatus = getLoadStatus(status);
+
     emit(state.copyWith(
         loadStatusId: status,
         loadStatus: loadStatus));
 
     if(status==7){
       final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-      final podDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==331,);
-      final uploadOtherDocumentIndex = currentList.indexWhere((element) => element.documentTypeId==309,);
+      final podDocumentIndex = currentList.indexWhere((element) => element.documentType==DocumentFileType.proofOfDelivery.documentType,);
+      final uploadOtherDocumentIndex = currentList.indexWhere((element) => element.documentType==DocumentFileType.uploadOtherDocument.documentType,);
 
       final updatedDocument = currentList[podDocumentIndex].copyWith(
         visible: true
@@ -86,15 +89,23 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
+  setDocumentState(){
+    emit(state.copyWith(
+      tripDocumentList: DocumentDataModel.documentTypeList
+    ));
+  }
+
 
   void resetTripDocumentState(){
     emit(state.copyWith(
-        tripDocumentList: documentTypeList));
+       iPodSkip: false,
+        tripDocumentList: DocumentDataModel.documentTypeList));
   }
 
 
   Future<void> getLoadDetails(String loadId) async {
     emit(state.copyWith(
+
         loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
@@ -143,18 +154,16 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   Future<void> _handleTrackingBasedOnStatus(LoadDetailModelData? data) async {
-    final status = lpHelper.LpHomeHelper.getLoadStatusFromString(data?.loadStatusDetails?.loadStatus);
+    final status = getVPLoadStatusFromString(data?.loadStatusDetails?.loadStatus);
     final route = data?.loadRoute;
     final tracking = data?.trackingDetails;
 
     if (status != null && route != null ) {
       late final TrackingDistanceApiRequest request;
-
       if (status.index <= LoadStatus.assigned.index) {
         // Use pickup & drop coordinates
         final pickup = route.pickUpLatlon.split(',');
         final drop = route.dropLatlon.split(',');
-
         request = TrackingDistanceApiRequest(
           originLat: double.tryParse(pickup.first) ?? 0.0,
           originLong: double.tryParse(pickup.last) ?? 0.0,
@@ -164,6 +173,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           destLong: double.tryParse(drop.last) ?? 0.0,
         );
       } else {
+
         request = TrackingDistanceApiRequest(
           originLat: tracking?.originLat??0,
           originLong: tracking?.originLong??0,
@@ -353,7 +363,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   deleteOtherDocumentFromLocal(int index){
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
-    int currentDocumentIndex = currentList.indexWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments);
+    int currentDocumentIndex = currentList.indexWhere((element) => element.documentType==DocumentFileType.uploadOtherDocument.documentType);
     List<LoadDocument> loadDocument =  List.from(currentList[currentDocumentIndex].loadDocument??[]);
 
     loadDocument.removeAt(index);
@@ -408,7 +418,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   // Lp load tracking distance
   Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
     _setTrackingDistanceState(UIState.loading(),);
-    emit(state.copyWith(locationDistance: null));
+    emit(state.copyWith(locationDistance: ""));
     Result result = await _lpLoadsrepository.getTrackingDistance(request: request);
 
     if (result is Success<TrackingDistanceResponse>) {
@@ -422,6 +432,9 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
 
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
+    if(index==-1){
+      return;
+    }
     List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
 
@@ -511,8 +524,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         documentId: documentId,
       ).then((result) {
         if (result is Success<ViewDocumentResponse>) {
+
           downloadAndOpenFile(result.value.filePath ?? "",
               originalFileName: result.value.originalFilename);
+
           uploadLoadingStatus(index, null);
         }
         if (result is Error) {
@@ -612,10 +627,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   bool checkIsDocumentUploaded(List<DocumentEntity> documentEntity) {
     try {
       DocumentEntity? document = documentEntity.firstWhere((element) {
-
-      return (element.loadDocument??[]).isEmpty && element.visible==true;
+        return (element.loadDocument??[]).isEmpty && element.visible==true;
       });
-      return document == null || document.fileType==DocumentFileType.uploadOtherDocument.name;
+      print("document.fileType is ${document.fileType}");
+      return document == null || document.fileType==DocumentFileType.uploadOtherDocument.value;
     } catch (e) {
       return true;
     }
@@ -635,14 +650,17 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     }
   }
 
-  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  dynamic memo, LoadStatus? loadStatus}) {
+  bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  MemoDetails? memo , LoadStatus? loadStatus,int? isAgreed}) {
     switch(loadStatus){
-
       case LoadStatus.loading:
       return  checkLoadingDocumentAddedOrNot(documentList,true);
 
       case LoadStatus.unloading:
         return checkLoadingDocumentAddedOrNot(documentList,false);
+
+      case LoadStatus.assigned:
+        return memo!=null && isAgreed==1;
+
       default:
         return true;
     }
@@ -651,12 +669,11 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
   bool checkLoadingDocumentAddedOrNot(List<LoadDocument> loadDocumentList,bool? checkPod){
     List<String> requiredDocument= (checkPod??false)   ?  [
-      navigatorKey.currentState?.context.appText.lorryReceipt??"",
-      navigatorKey.currentState?.context.appText.ewayBill??"",
-      navigatorKey.currentState?.context.appText.materialInvoice??"",
-
+      DocumentFileType.lorryReceipt.documentType??"",
+      DocumentFileType.ewayBill.documentType??"",
+      DocumentFileType.materialInvoice.documentType??"",
     ]:[
-      navigatorKey.currentState?.context.appText.pod??""
+      DocumentFileType.proofOfDelivery.documentType??""
     ];
 
     bool isAdded=false;
@@ -675,7 +692,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
  List<LoadDocument> filterLoadDocumentById(List<LoadDocument>? loadDocument,DocumentEntity item){
     try {
-      if(item.documentType!=navigatorKey.currentState?.context.appText.uploadOtherDocuments){
+      if(item.documentType!=DocumentFileType.uploadOtherDocument.documentType){
         LoadDocument? foundedDocument = loadDocument!.firstWhere(
               (element) =>
           element.documentDetails?.documentType == item.documentType,
@@ -695,18 +712,10 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   bool isVisibleAddMoreDocument(){
     try{
-      DocumentEntity? tripDocumentList= state.tripDocumentList?.firstWhere((element) => element.documentType==navigatorKey.currentState?.context.appText.uploadOtherDocuments,);
+      DocumentEntity? tripDocumentList= state.tripDocumentList?.firstWhere((element) => element.documentType==DocumentFileType.uploadOtherDocument.documentType,);
       return (tripDocumentList?.loadDocument?.length??0)<5;
     }catch(e){
       return false;
     }
   }
-
-
-
-
-
-
-
-
 }

@@ -59,6 +59,10 @@ class ApiUrls {
   static final String  createDocument = "$_fetchUrl$_document$_path$_v1/documents";
   static final String  deleteDocument = "$_fetchUrl$_document$_path$_v1/documents/";
   static final String  saveDeviceToken = "$_fetchUrl$_customer$_path$_v1$_customer/device-token";
+  static final String  getDeviceToken = "$_fetchUrl$_customer$_path$_v1$_customer/device-token";
+  static final String  getDocumentType = "$_fetchUrl$_document$_path$_v1/document-type";
+  static final String  checkAppUpdate = "$_fetchUrl$_customer$_path$_v1/app-update-config/check";
+  static final String deleteCustomer = "$_fetchUrl$_customer$_path$_v1$_customer";
 
 
   /// Onboarding
@@ -176,6 +180,7 @@ class ApiUrls {
   static final String  fleetPaymentStatus = "$_paymentBrokerBase/payment/fleetPaymentStatus";
 
   /// En-Dhan
+  static final String  endhanSubmitKyc = "$_baseUrl$_customer$_path$_v1/kyc/endhan/";
   static final String enDhanKycUpload = "$_fetchUrl$_vendor$_path$_v1/dtplus/customerDocument";
   static String enDhanKycCheck(String customerId) => "$_fetchUrl$_vendor$_path$_v1/dtplus/customerDocument/$customerId";
 
@@ -230,6 +235,7 @@ class ApiUrls {
   static final String driverLoadById = "$_baseUrl$_loadDiscovery$_path$_v1/load/driver/";
   static final String getBloodGroup =  "$_fetchUrl$_customer$_path$_v1/blood-group";
   static final String getLicenseCategory = "$_fetchUrl$_customer$_path$_v1/license-category";
+  static final String deleteDriver = "$_baseUrl$_customer$_path$_v1/drivers/";
  
 
 

@@ -384,7 +384,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         }
 
         if (lpHomeCubit.state.laneId == null && widget.title != context.appText.pickupPoint) {
-          ToastMessages.error(message:"Something went wrong. [lane id : ${lpHomeCubit.state.laneId}]");
+          ToastMessages.error(message:context.appText.errorMessage);
           return;
         }
 

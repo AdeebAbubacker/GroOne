@@ -118,6 +118,8 @@ class PerformanceUtils {
       shrinkWrap: shrinkWrap,
       padding: padding,
       itemCount: items.length,
+      addAutomaticKeepAlives: false,
+      addRepaintBoundaries: true,
       separatorBuilder:
           (context, index) => separator ?? const SizedBox.shrink(),
       itemBuilder:
@@ -305,11 +307,104 @@ class _OptimizedListViewState<T> extends State<OptimizedListView<T>> {
       shrinkWrap: widget.shrinkWrap,
       padding: widget.padding,
       itemCount: widget.items.length,
+      addAutomaticKeepAlives: false,
+      addRepaintBoundaries: true,
       separatorBuilder:
           (context, index) => widget.separator ?? const SizedBox.shrink(),
       itemBuilder: (context, index) {
         final item = widget.items[index];
-        return widget.itemBuilder(context, item, index);
+        return RepaintBoundary(child: widget.itemBuilder(context, item, index));
+      },
+    );
+  }
+}
+
+/// Optimized grid view for better performance
+class OptimizedGridView<T> extends StatelessWidget {
+  final List<T> items;
+  final Widget Function(BuildContext, T, int) itemBuilder;
+  final int crossAxisCount;
+  final double crossAxisSpacing;
+  final double mainAxisSpacing;
+  final ScrollController? controller;
+  final bool shrinkWrap;
+  final EdgeInsetsGeometry? padding;
+
+  const OptimizedGridView({
+    super.key,
+    required this.items,
+    required this.itemBuilder,
+    this.crossAxisCount = 2,
+    this.crossAxisSpacing = 0.0,
+    this.mainAxisSpacing = 0.0,
+    this.controller,
+    this.shrinkWrap = false,
+    this.padding,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      controller: controller,
+      shrinkWrap: shrinkWrap,
+      padding: padding,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: crossAxisCount,
+        crossAxisSpacing: crossAxisSpacing,
+        mainAxisSpacing: mainAxisSpacing,
+      ),
+      itemCount: items.length,
+      addAutomaticKeepAlives: false,
+      addRepaintBoundaries: true,
+      itemBuilder: (context, index) {
+        final item = items[index];
+        return RepaintBoundary(child: itemBuilder(context, item, index));
+      },
+    );
+  }
+}
+
+/// Memory-efficient image widget with caching
+class OptimizedImage extends StatelessWidget {
+  final String imageUrl;
+  final double? width;
+  final double? height;
+  final BoxFit fit;
+  final Widget? placeholder;
+  final Widget? errorWidget;
+
+  const OptimizedImage({
+    super.key,
+    required this.imageUrl,
+    this.width,
+    this.height,
+    this.fit = BoxFit.cover,
+    this.placeholder,
+    this.errorWidget,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Image.network(
+      imageUrl,
+      width: width,
+      height: height,
+      fit: fit,
+      loadingBuilder: (context, child, loadingProgress) {
+        if (loadingProgress == null) return child;
+        return placeholder ?? const CircularProgressIndicator();
+      },
+      errorBuilder: (context, error, stackTrace) {
+        return errorWidget ?? const Icon(Icons.error);
+      },
+      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+        if (wasSynchronouslyLoaded) return child;
+        return AnimatedOpacity(
+          opacity: frame == null ? 0 : 1,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          child: child,
+        );
       },
     );
   }

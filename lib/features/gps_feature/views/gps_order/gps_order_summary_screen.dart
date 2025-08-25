@@ -201,26 +201,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     return BlocListener<GpsOrderCubit, GpsOrderState>(
       bloc: gpsOrderCubit,
       listener: (context, state) async {
-        // --- Show loader ---
-        if (state is GpsOrderLoading || state is GpsPaymentInitiating) {
-          showDialog(
-            context: context,
-            barrierDismissible: false,
-            builder: (_) => const Center(child: CircularProgressIndicator()),
-          );
-        }
-
-        // --- Hide loader when done ---
-        if (state is GpsOrderSuccess ||
-            state is GpsOrderError ||
-            state is GpsPaymentSuccess ||
-            state is GpsPaymentFailure ||
-            state is GpsPaymentStatusSuccess ||
-            state is GpsPaymentStatusFailure) {
-          if (Navigator.canPop(context)) {
-            Navigator.of(context).pop(); // close loader
-          }
-        }
         if (state is GpsPaymentSuccess) {
           // Initiate payment → open payment screen
           final result = await Navigator.of(context).push(
@@ -231,7 +211,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               ),
             ),
           );
-
+          await Future.delayed(Duration(seconds: 1));
           if (result == true) {
             // final cubit = context.read<GpsOrderCubit>();
             final requestId = gpsOrderCubit.paymentRequestId;
@@ -252,9 +232,51 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         }
 
         if (state is GpsOrderSuccess) {
-          _showSuccessDialogAndNavigate(
+          await Future.delayed(Duration(milliseconds: 500));
+          AppDialog.show(
             context,
-            context.appText.orderPlacedSuccessfully,
+            child: SuccessDialogView(
+              message: context.appText.orderPlacedSuccessfully,
+              onContinue: () {
+                WidgetsBinding.instance.addPostFrameCallback((_) async {
+                  if (context.mounted) {
+                    try {
+                      // Try multiple navigation approaches
+                      GoRouter.of(context).go(AppRouteName.gps);
+                    } catch (e) {
+                      try {
+                        context.go(AppRouteName.gps);
+                      } catch (fallbackError) {
+                        try {
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            AppRouteName.gps,
+                                (route) => false,
+                          );
+                        } catch (navigatorError) {
+                          try {
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (context) => GpsHomeScreen(),
+                              ),
+                                  (route) => false,
+                            );
+                          } catch (pushError) {
+                            // Last resort: Try to navigate to a different route
+                            try {
+                              context.go(AppRouteName.lpBottomNavigationBar);
+                            } catch (lastResortError) {
+                              ToastMessages.error(
+                                message: 'Navigation failed. Please try again.',
+                              );
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                });
+              },
+            ),
           );
         }
 
@@ -317,7 +339,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 children: [
                   Text(
                     widget.selectedVehicleNumbers.length == 1
-                        ? "Vehicle Detail"
+                        ? context.appText.vehicleDetail
                         : context.appText.vehicleDetails,
                     style: AppTextStyle.h5,
                   ),
@@ -363,9 +385,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.products.length == 1
-                  ? "Product Detail"
-                  : context.appText.paymentDetails,
+              context.appText.paymentDetails,
               style: AppTextStyle.h4,
             ),
             10.height,
@@ -383,9 +403,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              widget.products.length == 1
-                  ? "Product Detail"
-                  : context.appText.paymentDetails,
+              context.appText.paymentDetails,
               style: AppTextStyle.h4,
             ),
             10.height,
@@ -405,9 +423,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            widget.products.length == 1
-                ? "Product Detail"
-                : context.appText.paymentDetails,
+            context.appText.paymentDetails,
             style: AppTextStyle.h4,
           ),
           10.height,
@@ -491,6 +507,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
   Widget _buildProceedToPayButton(BuildContext context) {
     final totalAmount = orderSummary?.data.grandTotal ?? _fallbackTotalAmount;
 
+    return BlocBuilder<GpsOrderCubit, GpsOrderState>(
+      bloc: gpsOrderCubit,
+  builder: (context, state) {
+    final isLoading = state is GpsOrderLoading || state is GpsPaymentInitiating;
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -517,6 +537,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           ),
           15.width,
           AppButton(
+            isLoading: isLoading,
             onPressed: () async {
               // Get customer information
               final customerInfo = await getCustomerInfo();
@@ -546,8 +567,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             style: AppButtonStyle.primary,
           ).expand(),
         ],
-      ).paddingOnly(bottom: 30, right: 20, left: 20, top: 15),
+      ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15),
     );
+  },
+);
   }
 
   // Helper function to parse address and extract city, state, postal code
@@ -757,13 +780,13 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       child: SuccessDialogView(
         message: message,
         onContinue: () {
-          // Close the dialog first
-          Navigator.of(currentContext).pop();
+          // // Close the dialog first
+          // Navigator.of(currentContext).pop();
 
           // Use a post-frame callback to ensure dialog is fully closed
           WidgetsBinding.instance.addPostFrameCallback((_) async {
             // Add a small delay to ensure dialog is fully closed
-            await Future.delayed(Duration(milliseconds: 100));
+            // await Future.delayed(Duration(milliseconds: 100));
 
             if (currentContext.mounted) {
               try {

@@ -147,7 +147,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
                     context,
                   ).pop(vehicle.vehicleNumber);
         } else {
-          ToastMessages.alert(message: 'Vehicle is currently inactive');
+          ToastMessages.alert(message: context.appText.vehicleIsCurrentlyInactive);
         }
       },
       child: Container(

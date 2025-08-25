@@ -102,12 +102,17 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             buildMainDetailWidget(context: context,tripStatement: tripStatement),
             buildLoadProviderWidget(context: context,tripStatement: tripStatement),
             10.height,
-            AppButton(
-              title: context.appText.downloadInvoice,
-              onPressed: () {
-              },
-            ),
-            40.height,
+            if((tripStatement?.data?.tripStatementUrl??"").isNotEmpty)
+            ...[
+              AppButton(
+                title: context.appText.downloadTripStatement,
+                onPressed: () {
+                  loadDetailsCubit.downloadDocument(tripStatement?.data?.tripStatementUrl??"",-1);
+                },
+              ),
+              10.height,
+            ]
+
           ],
         ),
       ),
@@ -246,7 +251,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           buildDTripStatementWidget(
             label: context.appText.destination,
-            value: tripStatement?.data?.loadProvider?.destination??"",
+            value: (tripStatement?.data?.loadProvider?.destination??"").split(",").first,
           ),
           buildDTripStatementWidget(
             label: context.appText.unloadingDate,
@@ -299,7 +304,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             alignment: Alignment.centerLeft,
             child: Text(
                value,
-              maxLines: 1,
+              maxLines: 2,
               textAlign: TextAlign.right,
                style: AppTextStyle.body2.copyWith(
                 fontSize: 15,

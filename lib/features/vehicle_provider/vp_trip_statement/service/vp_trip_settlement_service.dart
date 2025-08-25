@@ -25,7 +25,8 @@ class VpTripStatementService {
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
+    } catch (e,stacktress) {
+      print("stacktress $stacktress");
       CustomLog.error(this, AppString.error.deserializationError, e);
       return Error(DeserializationError());
     }

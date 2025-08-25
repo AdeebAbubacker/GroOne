@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -23,9 +24,9 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/enhanced_dispose.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -39,8 +40,8 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends BaseState<LoginScreen> {
-
+class _LoginScreenState extends BaseState<LoginScreen>
+    with EnhancedDisposeMixin {
   final loginBloc = locator<LoginBloc>();
   final formKey = GlobalKey<FormState>();
 
@@ -50,11 +51,15 @@ class _LoginScreenState extends BaseState<LoginScreen> {
 
   @override
   void initState() {
+    // Add focus node to dispose list
+    addNotifier(focusNode);
+    addNotifier(phoneNumber);
+
     initFun();
     super.initState();
   }
 
-  initFun() => frameCallback(() async {
+  initFun() => safePostFrameCallback(() async {
     await HasInternetConnection().checkConnectivity();
   });
 
@@ -63,24 +68,24 @@ class _LoginScreenState extends BaseState<LoginScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: true,
       // appBar: CommonOnboardingAppbar(),
-      appBar: CommonOnboardingAppbar(
-        showBackButton: widget.showBackButton,
-      ),
+      appBar: CommonOnboardingAppbar(showBackButton: widget.showBackButton),
       body: BlocConsumer<LoginBloc, LoginState>(
         bloc: loginBloc,
         listener: (context, state) async {
-           if (state is LogInSuccess) {
-            ToastMessages.success(message: context.appText.otpHasBeenSentSuccessfully);
+          if (state is LogInSuccess) {
+            ToastMessages.success(
+              message: context.appText.otpHasBeenSentSuccessfully,
+            );
             await Future.delayed(Duration(seconds: 1));
             final extra = {
               "mobileNumber": state.loginApiResponseModel.mobile.toString(),
               "otp": state.loginApiResponseModel.otp.toString(),
-              "driver" : state.loginApiResponseModel.driver,
+              "driver": state.loginApiResponseModel.driver,
             };
-            if(context.mounted) {
+            if (context.mounted) {
               context.push(AppRouteName.otpVerificationScreen, extra: extra);
             }
-            analyticsHelper.logEvent(AnalyticEventName.ONBOARD_OTP_SENT, );
+            analyticsHelper.logEvent(AnalyticEventName.ONBOARD_OTP_SENT);
           }
 
           if (state is LogInError) {
@@ -225,7 +230,7 @@ class _LoginScreenState extends BaseState<LoginScreen> {
                         text: context.appText.iAgree,
                         onTap: () {
                           checkBoxBool = !checkBoxBool;
-                          setState(() {});
+                          safeSetState(() {}); // ✅ Safe setState
                         },
                         selected: checkBoxBool,
                       ),
@@ -247,12 +252,13 @@ class _LoginScreenState extends BaseState<LoginScreen> {
   Widget buildBottomBannerImageWidget() {
     return Container(
       alignment: Alignment.bottomCenter,
-      child: Image.asset(
-        AppImage.png.signUpBanner,
+      child: SvgPicture.asset(
+        alignment: Alignment.bottomCenter,
+        AppImage.svg.hindujaLogo,
         width: double.infinity,
         fit: BoxFit.fitWidth,
+         height: 50,
       ),
     ).expand();
   }
 }
-   

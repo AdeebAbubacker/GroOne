@@ -46,6 +46,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
   @override
   Widget build(BuildContext context) {
 
+
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "--";
@@ -230,7 +231,6 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                           bloc.add(VpAcceptLoad(loadId: widget.data.id.toString()));
                         } else {
 
-
                           commonBottomSheetWithBGBlur(
                             context: context,
                             screen: KycPendingDialogue(
@@ -250,9 +250,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
                         }
                       },
                       isLoading: state.loadingLoadIds?.contains(widget.data.id.toString()),
-                      title:  isPriceIntoRange ? context.appText.adminContact:
-
-                      context.appText.acceptLoad,
+                      title:  isPriceIntoRange ? context.appText.adminContact: context.appText.acceptLoad,
                     ).expand(),
                   ],
                 );

@@ -10,6 +10,7 @@ class LpLoadMemoResponse {
     required this.netFreight,
     required this.advanceAmount,
     required this.balanceAmount,
+    this.virtualAccountId,
     required this.advancePercentage,
     required this.balancePercentage,
     required this.bankDetails,
@@ -28,6 +29,7 @@ class LpLoadMemoResponse {
   final String balanceAmount;
   final String advancePercentage;
   final String balancePercentage;
+  final String? virtualAccountId;
   final BankDetails? bankDetails;
   final TruckSupplier? truckSupplier;
 
@@ -44,6 +46,7 @@ class LpLoadMemoResponse {
     String? balanceAmount,
     String? advancePercentage,
     String? balancePercentage,
+    String? virtualAccountId,
     BankDetails? bankDetails,
     TruckSupplier? truckSupplier,
   }) {
@@ -62,6 +65,7 @@ class LpLoadMemoResponse {
       balancePercentage: balancePercentage ?? this.balancePercentage,
       bankDetails: bankDetails ?? this.bankDetails,
       truckSupplier: truckSupplier ?? this.truckSupplier,
+      virtualAccountId: virtualAccountId ?? this.virtualAccountId,
     );
   }
 
@@ -79,6 +83,7 @@ class LpLoadMemoResponse {
       balanceAmount: json["balanceAmount"] ?? "",
       advancePercentage: json["advancePercentage"] ?? "",
       balancePercentage: json["balancePercentage"] ?? "",
+      virtualAccountId: json["virtualAccountId"] ?? "",
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
       truckSupplier: json["truckSupplier"] == null ? null : TruckSupplier.fromJson(json["truckSupplier"]),
     );

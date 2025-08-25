@@ -63,20 +63,26 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
 
   void createAndSubmitSettlements(){
-    if(formKey.currentState!.validate()){
-      if(noOfDays.text == '0') {
-        ToastMessages.error(message: context.appText.noOfDaysMustBeAtLeastOne);
-        return;
-      }
-      vpDetailsCubit.submitSettlement(SettlementApiRequest(
-        loadId: widget.loadId??"",
-        amountPerDay:int.tryParse(detentionAmount.text)??0,
-        loadingCharge: int.tryParse(loadingAmount.text)??0,
-        noOfDays:int.tryParse(noOfDays.text)??0,
-        unloadingCharge: int.tryParse(unloadingAmount.text)??0,
-        vehicleId: widget.vehicleID??"",
-      ));
-    }
+
+    int numberOfDays=int.tryParse(noOfDays.text)??0;
+   int amountPerDays= int.tryParse(detentionAmount.text)??0;
+
+   if(numberOfDays>0){
+     if(amountPerDays==0 && loadingAmount.text.isEmpty){
+       ToastMessages.error(message: context.appText.detentionRequire);
+       return;
+     }
+   }
+
+
+    vpDetailsCubit.submitSettlement(SettlementApiRequest(
+      loadId: widget.loadId??"",
+      amountPerDay:amountPerDays,
+      loadingCharge: int.tryParse(loadingAmount.text)??0,
+      noOfDays:numberOfDays,
+      unloadingCharge: int.tryParse(unloadingAmount.text)??0,
+      vehicleId: widget.vehicleID??"",
+    ));
   }
 
   void clearValues()=> frameCallback((){
@@ -107,30 +113,32 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
             spacing: 20,
             children: [
               headingText(text: context.appText.detentions),
+              StatefulBuilder(builder: (context, refresh) {
+                return Column(
+                  children: [
+                    AppCountSelector(
+                      onChanged: (val) {
+                        refresh((){
 
-
-              AppCountSelector(label: context.appText.noOfDays, controller: noOfDays, isMandatory: true),
-
-              // Amount
-              AppTextField(
-                mandatoryStar: int.tryParse(noOfDays.text) != null && int.tryParse(noOfDays.text)! > 0,
-                controller: detentionAmount,
-                labelText: context.appText.amount,
-                hintText: "Ex: 2000",
-                keyboardType: TextInputType.number,
-
-                validator: (value) {
-                if (int.tryParse(noOfDays.text) != null && int.tryParse(noOfDays.text)! > 0) {
-                  return Validator.fieldRequired(value, fieldName: context.appText.amount);
-                }
-                return null;
-              },
-
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
-                  LengthLimitingTextInputFormatter(8),
-                ],
-              ),
+                        });
+                       },
+                        label: context.appText.noOfDays, controller: noOfDays, isMandatory: false),
+                    Visibility(
+                      visible:(int.tryParse(noOfDays.text??"0")??0)>0 ,
+                      child: AppTextField(
+                        controller: detentionAmount,
+                        labelText: context.appText.amount,
+                        hintText: "Ex: 2000",
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
+                          LengthLimitingTextInputFormatter(8),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },),
               2.height,
               headingText(text: context.appText.loadingCharges),
 

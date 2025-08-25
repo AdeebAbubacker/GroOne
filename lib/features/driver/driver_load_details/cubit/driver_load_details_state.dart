@@ -15,6 +15,8 @@ class DriverLoadDetailsState extends Equatable {
   final UIState<TrackingDistanceResponse>? trackingDistance;
   final String? locationDistance;
   final int? loadStatusId;
+  final List<String>? allDamageImageList;
+  final bool iPodSkip;
 
   const DriverLoadDetailsState({
     this.trackingDistance,
@@ -31,6 +33,8 @@ class DriverLoadDetailsState extends Equatable {
     this.locationDistance,
     this.loadStatusId,
     this.loadStatus = LoadStatus.assigned,
+    this.allDamageImageList,
+    this.iPodSkip = false,
   });
 
   DriverLoadDetailsState copyWith({
@@ -48,6 +52,8 @@ class DriverLoadDetailsState extends Equatable {
     String? locationDistance,
     int? loadStatusId,
     LoadStatus? loadStatus,
+    List<String>? allDamageImageList,
+    bool iPodSkip = false,
   }) {
     return DriverLoadDetailsState(
       trackingDistance: trackingDistance ?? this.trackingDistance,
@@ -63,7 +69,9 @@ class DriverLoadDetailsState extends Equatable {
       updateDamageUIState: updateDamageUIState ?? this.updateDamageUIState,
       locationDistance: locationDistance ?? this.locationDistance,
       loadStatusId: loadStatusId ?? this.loadStatusId,
+      allDamageImageList: allDamageImageList ?? this.allDamageImageList,
       loadStatus: loadStatus ?? this.loadStatus,
+      iPodSkip: iPodSkip?? this.iPodSkip,
     );
   }
 
@@ -84,5 +92,7 @@ class DriverLoadDetailsState extends Equatable {
     locationDistance,
     loadStatusId,
     loadStatusUIState,
+    allDamageImageList,
+    iPodSkip
   ];
 }

@@ -584,7 +584,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
             if(widget.loadStatus == LoadStatus.completed)
               AppButton(onPressed: () {
                 Navigator.push(context, commonRoute(LpLoadSummaryScreen(loadId: widget.loadItem.loadId, loadItem: widget.loadItem)));
-              }, title: context.appText.tripSettlement).paddingSymmetric(horizontal: 10, vertical: 10)
+              }, title: context.appText.viewTripStatement).paddingSymmetric(horizontal: 10, vertical: 10)
           ],
         ),
       ),

@@ -510,59 +510,55 @@ class _GpsOrderBenefitsAndOrderListScreenState
   }
 
   Widget buildGpsBenefitsDetailsWidget(BuildContext context) {
-    Widget innerUIWidget({
-      required String icon,
-      required String title,
-      required String subTitle,
-    }) {
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // Icon
-          Container(
-            decoration: commonContainerDecoration(
-              color: AppColors.lightPrimaryColor,
-              borderRadius: BorderRadius.circular(100),
-              borderColor: AppColors.primaryColor,
+    Widget benefitItem(String title, String subtitle) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppTextStyle.h5),
+            5.height,
+            Text(
+              subtitle,
+              style: AppTextStyle.body3.copyWith(color: AppColors.textGreyColor),
             ),
-            child: Image.asset(icon, width: 25).paddingAll(15),
-          ),
-          15.width,
-
-          // Heading or SubHeading
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: AppTextStyle.h5),
-              5.height,
-              Text(subTitle, style: AppTextStyle.body3),
-            ],
-          ).expand(),
-        ],
+          ],
+        ),
       );
     }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(context.appText.gpsBenefitsGps, style: AppTextStyle.body1),
+        Text(context.appText.gpsBenefitsHeading, style: AppTextStyle.h4),
         20.height,
-        innerUIWidget(
-          icon: AppIcons.png.cardPayment,
-          title: context.appText.benefitsOfGpsCardHeading1,
-          subTitle: context.appText.benefitsOfGpsCardSubHeading1,
+        benefitItem(
+          context.appText.realTimeTrackingTitle,
+          context.appText.realTimeTrackingDesc,
         ),
-        20.height,
-        innerUIWidget(
-          icon: AppIcons.png.tracking,
-          title: context.appText.benefitsOfGpsCardHeading2,
-          subTitle: context.appText.benefitsOfGpsCardSubHeading2,
+        benefitItem(
+          context.appText.fleetSafetyTitle,
+          context.appText.fleetSafetyDesc,
         ),
-        20.height,
-        innerUIWidget(
-          icon: AppIcons.png.reconcilation,
-          title: context.appText.benefitsOfGpsCardHeading3,
-          subTitle: context.appText.benefitsOfGpsCardSubHeading3,
+        benefitItem(
+          context.appText.geofencingTitle,
+          context.appText.geofencingDesc,
+        ),
+        benefitItem(
+          context.appText.driverBehaviourTitle,
+          context.appText.driverBehaviourDesc,
+        ),
+        benefitItem(
+          context.appText.tripReportsTitle,
+          context.appText.tripReportsDesc,
+        ),
+        benefitItem(
+          context.appText.maintenanceTitle,
+          context.appText.maintenanceDesc,
+        ),
+        benefitItem(
+          context.appText.fasterAllocationTitle,
+          context.appText.fasterAllocationDesc,
         ),
       ],
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);

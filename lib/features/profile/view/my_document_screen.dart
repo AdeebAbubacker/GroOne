@@ -90,11 +90,11 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
 
             return Stack(
               children: [
-                if(lpLoadCubit.state.lpDocumentById?.status == Status.LOADING) CircularProgressIndicator().center(),
                 ListView(
                   padding: const EdgeInsets.all(20),
                   children: tiles,
                 ),
+                if(lpLoadCubit.state.lpDocumentById?.status == Status.LOADING) CircularProgressIndicator().center(),
               ],
             );
             },
