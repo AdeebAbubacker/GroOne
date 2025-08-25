@@ -58,7 +58,7 @@ android {
 
     buildTypes {
         getByName("release") {
-            // signingConfig = signingConfigs.getByName("release") // Temporarily disabled
+            signingConfig = signingConfigs.getByName("release") // Temporarily disabled
             isMinifyEnabled = false // Temporarily disabled
             isShrinkResources = false // Temporarily disabled
             proguardFiles(
