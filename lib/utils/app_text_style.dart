@@ -173,6 +173,7 @@ class AppTextStyle {
   static TextStyle h3w500 = GoogleFonts.ubuntu(fontWeight: FontWeight.w500, color: AppColors.primaryTextColor, fontSize: 22);
   static TextStyle h3GreyColor = h3.copyWith(color: AppColors.greyTextColor);
   static TextStyle h3PrimaryColor = h3.copyWith(color: AppColors.primaryColor);
+  static TextStyle h3RedLight14 = GoogleFonts.ubuntu(fontWeight: FontWeight.w500,fontSize: 14,color: AppColors.red);
 
   // H4
   static TextStyle h4 = GoogleFonts.ubuntu(fontWeight: FontWeight.w700, color: AppColors.primaryTextColor, fontSize: 18);
