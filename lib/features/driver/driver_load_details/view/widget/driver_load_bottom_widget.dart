@@ -408,7 +408,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                   state.loadStatus !=
                                                       LoadStatus.completed &&
                                                   state.loadStatus !=
-                                                      LoadStatus.podDispatched,
+                                                      LoadStatus.podDispatched
+                                                     &&
+                                                  !(loads.data?.loadApproval?.damageAndShortagesApproved == true ||
+                                                    loads.data?.loadApproval?.damageAndShortagesApproved == false),
                                               context: context,
                                               title:
                                                   context.appText.damageAndShortage,
