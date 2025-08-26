@@ -179,10 +179,15 @@ class ChooseRoleScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              subtitle:
-                  text2.isNotEmpty
-                      ? Text(text2, style: AppTextStyle.body3GreyColor)
-                      : null,
+             subtitle: text2.isNotEmpty
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    8.height,
+                    Text(text2, style: AppTextStyle.body3GreyColor),
+                  ],
+                )
+              : null,
               title: Row(
                 children: [
                   60.width,
@@ -210,6 +215,7 @@ class ChooseRoleScreen extends StatelessWidget {
             child: Image.asset(imageString),
           ),
         ),
+     
       ],
     );
   }
