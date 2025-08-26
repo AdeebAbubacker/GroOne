@@ -47,7 +47,8 @@ import 'package:gro_one_app/utils/validator.dart';
 class DriverDamagesAndShortagesScreen extends StatefulWidget {
   final String? vehicleId;
   final String? loadId;
-  const DriverDamagesAndShortagesScreen({super.key, required this.vehicleId, required this.loadId});
+  final dynamic isDamageApprovedOrReject;
+  const DriverDamagesAndShortagesScreen({super.key, required this.vehicleId, required this.loadId,required this.isDamageApprovedOrReject,});
 
   @override
   State<DriverDamagesAndShortagesScreen> createState() => _DriverDamagesAndShortagesScreenState();
@@ -379,7 +380,16 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
         return AppButton(
           title: context.appText.submit,
           isLoading: isLoading,
-          onPressed: isLoading ? (){} : () => createDamageAndShortageApiCall(),
+          onPressed: isLoading ? (){} : 
+          () {
+              if (widget.isDamageApprovedOrReject == true) {
+                ToastMessages.alert(message: context.appText.damageAndShortagesAlreadyApproved);
+              } else if (widget.isDamageApprovedOrReject == false) {
+                ToastMessages.alert(message: context.appText.damageAndShortagesAlreadyRejected);
+              } else {
+                createDamageAndShortageApiCall();
+              }
+            },
         );
       },
     );

@@ -33,8 +33,8 @@
   "gps": "जीपीएस",
   "instantLoan": "तत्काल ऋण",
   "kavach": "कवच",
-  "tankLock": "टैंक लॉक",
-  "benefitsofTankLock": "टैंक लॉक के लाभ",
+  "tankLock": "ईंधन सुरक्षा युक्ति",
+  "benefitsofTankLock": "ईंधन सुरक्षा युक्ति के लाभ",
   "insurance": "बीमा",
   "loginSuccessful": "लॉगिन सफल",
   "loginSuccessfulSubHeading": "अब आप रेट्स देख सकते हैं\nऔर लोड पोस्ट कर सकते हैं",
@@ -216,8 +216,8 @@
   "engine": "इंजन",
   "tankType": "टैंक प्रकार",
   "deviceType": "डिवाइस प्रकार",
-  "getYourTankLockNow": "अभी अपना टैंक लॉक प्राप्त करें",
-  "buyNewTankLock": "नया टैंक लॉक खरीदें",
+  "getYourTankLockNow": "अभी अपना ईंधन सुरक्षा युक्ति प्राप्त करें",
+  "buyNewTankLock": "नया ईंधन सुरक्षा युक्ति खरीदें",
   "addressName": "पता नाम",
   "referralCode": "रेफरल कोड",
   "sameAsBillingAddress": "बिलिंग पते के समान",
@@ -382,7 +382,7 @@
   "loadID": "लोड आईडी",
   "transporter": "परिवहनकर्ता",
   "vehicleNumber": "वाहन नंबर",
-  "totalFreight": "कुल मालभाड़ा",
+  "totalFreight": "कुल भाड़ा शुल्क",
   "handlingCharges": "हैंडलिंग शुल्क",
   "netFreight": "शुद्ध मालभाड़ा",
   "advance": "अग्रिम",
@@ -1102,7 +1102,7 @@
   "continueButton": "जारी रखें",
   "waitingForLpToAcceptLoad": "एलपी द्वारा लोड स्वीकार करने की प्रतीक्षा",
   "confirmAdvance": "एडवांस की पुष्टि करें",
-  "loadingMemo": "लोडिंग मेमो",
+  "performaInvoice": "प्रोफार्मा चालान",
   "loadDetails": "लोड विवरण",
   "trip": "यात्रा",
   "totalFreightCost": "कुल भाड़ा लागत",
@@ -1236,6 +1236,11 @@
   "deleteAccountSubHeading": "क्या आप अपना खाता हटाना चाहते हैं ? यह क्रिया अपरिवर्तनीय है।",
   "deleteAccount": "खाता हटाएं",
   "uploadLicesneDocument" : "लाइसेंस दस्तावेज़ अपलोड करें",
-  "driverLoginSuccess": "GroOne ऐप में लॉगिन करने के लिए धन्यवाद"
+  "driverLoginSuccess": "GroOne ऐप में लॉगिन करने के लिए धन्यवाद",
+  "damageAndShortagesAlreadyApproved": "दोष और कमी पहले से स्वीकृत हैं",
+  "damageAndShortagesAlreadyRejected": "दोष और कमी पहले से अस्वीकृत हैं",
+  "settlementsAlreadyApproved": "निपटान पहले ही स्वीकृत किया जा चुका है",
+  "settlementsAlreadyRejected": "निपटान पहले ही अस्वीकृत किया जा चुका है"
+
 
 }
