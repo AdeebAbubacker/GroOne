@@ -1280,7 +1280,11 @@
   "deleteAccountSubHeading": "Are you sure you want to delete your account ? This action cannot be undone.",
   "deleteAccount": "Delete Account",
   "uploadLicesneDocument" : "Upload License Document",
-  "driverLoginSuccess": "Thank you for login in on GroOne app"
+  "driverLoginSuccess": "Thank you for login in on GroOne app",
+  "damageAndShortagesAlreadyApproved": "Damage and Shortages already Approved",
+  "damageAndShortagesAlreadyRejected": "Damage and Shortages already Rejected",
+  "settlementsAlreadyApproved": "Settlements already Approved",
+  "settlementsAlreadyRejected": "Settlements already Rejected"
 
 
 

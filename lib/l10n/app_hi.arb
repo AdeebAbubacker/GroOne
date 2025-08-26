@@ -1236,6 +1236,11 @@
   "deleteAccountSubHeading": "क्या आप अपना खाता हटाना चाहते हैं ? यह क्रिया अपरिवर्तनीय है।",
   "deleteAccount": "खाता हटाएं",
   "uploadLicesneDocument" : "लाइसेंस दस्तावेज़ अपलोड करें",
-  "driverLoginSuccess": "GroOne ऐप में लॉगिन करने के लिए धन्यवाद"
+  "driverLoginSuccess": "GroOne ऐप में लॉगिन करने के लिए धन्यवाद",
+  "damageAndShortagesAlreadyApproved": "दोष और कमी पहले से स्वीकृत हैं",
+  "damageAndShortagesAlreadyRejected": "दोष और कमी पहले से अस्वीकृत हैं",
+  "settlementsAlreadyApproved": "निपटान पहले ही स्वीकृत किया जा चुका है",
+  "settlementsAlreadyRejected": "निपटान पहले ही अस्वीकृत किया जा चुका है"
+
 
 }
