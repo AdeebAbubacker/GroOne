@@ -515,7 +515,7 @@ void _registerBasicBlocs() {
   locator.registerLazySingleton(
     () => KavachOrderListBloc(locator<KavachRepository>()),
   );
-  locator.registerLazySingleton(() => VpLoadBloc(locator<VpLoadRepository>()));
+  locator.registerLazySingleton(() => VpLoadCubit(locator<VpLoadRepository>()));
   locator.registerLazySingleton(
     () => TermsAndConditionsBloc(locator<TAndCRepository>()),
   );

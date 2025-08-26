@@ -31,6 +31,7 @@ class ProfileState extends Equatable {
   final UIState<List<BloodGroupResponseModel>>? bloodGroupResponseUIState;
   final UIState<List<LicenseCategoryResponseModel>>? licneseCategoryResponseUIState;
   final UIState<DeleteAccountModel>? deleteAccountUIState;
+  final int? currentPage;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -62,6 +63,7 @@ class ProfileState extends Equatable {
     this.bloodGroupResponseUIState,
     this.licneseCategoryResponseUIState,
     this.deleteAccountUIState,
+    this.currentPage,
   });
 
   ProfileState copyWith({
@@ -96,9 +98,11 @@ class ProfileState extends Equatable {
     UIState<DeleteAccountModel>? deleteAccountUIState,
     bool? showSuccessKyc,
     String? blueId,
+    int? currentPage,
 
   }) {
     return ProfileState(
+      currentPage: currentPage ?? this.currentPage,
       profileDetailUIState: profileDetailUIState ?? this.profileDetailUIState,
       logoutUIState: logoutUIState ?? this.logoutUIState,
       showSuccessKyc: showSuccessKyc ?? this.showSuccessKyc,
@@ -164,5 +168,6 @@ class ProfileState extends Equatable {
     bloodGroupResponseUIState,
     licneseCategoryResponseUIState,
     deleteAccountUIState,
+    currentPage
   ];
 }

@@ -77,7 +77,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int? selectedCommodityId;
   final ScrollController _tabScrollController = ScrollController();
   int selectedTabIndex = 0;
-  late VpLoadBloc vpLoadBloc;
+  late VpLoadCubit vpLoadBloc;
   List<LoadStatusResponse> tabLabels = [];
   late TabController _tabController;
   final documentTypeCubit=locator<DocumentTypeCubit>();
@@ -86,8 +86,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   @override
   void initState() {
     super.initState();
-    vpLoadBloc = locator<VpLoadBloc>();
-    vpLoadBloc.add(FetchLoadStatus());
+    vpLoadBloc = locator<VpLoadCubit>();
+    vpLoadBloc.fetchLoadStatus();
     _tabController = TabController(
       length: 0,
       vsync: this,
@@ -96,11 +96,16 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     // Listen for load status loaded to update tabs
     vpLoadBloc.stream.listen((state) {
       if (!mounted) return;
-      if (state is VPLoadStatusLoaded) {
+      final loadStatusState=  state.statuses;
+      Status? status=  loadStatusState?.status;
+      if (status == Status.SUCCESS) {
+        List<LoadStatusResponse> loadStatusResponse= loadStatusState?.data??[];
+
+
         // Filter statuses to exclude 2nd and 3rd items (Available and Confirmed)
         final filteredStatuses =
-            state.statuses.where((status) {
-              final index = state.statuses.indexOf(status);
+        loadStatusResponse.where((status) {
+              final index = loadStatusResponse.indexOf(status);
               return index != 1 && index != 2;
             }).toList();
         _tabController = TabController(
@@ -134,7 +139,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
       if (_tabController.index != selectedTabIndex &&
           !_tabController.indexIsChanging) {
         setState(() {
-          selectedTabIndex = _tabController!.index;
+          selectedTabIndex = _tabController.index;
           clearAllFilterValues();
           _loadDataByTab(index: selectedTabIndex);
           lpLoadLocator.getLpLoadsByType(

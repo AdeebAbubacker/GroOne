@@ -7,8 +7,7 @@ import 'package:gro_one_app/features/document/repository/document_repository.dar
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_global_variables.dart';
+
 
 class DocumentTypeCubit extends BaseCubit<DocumentTypeState> {
   final DocumentRepository _documentRepository;

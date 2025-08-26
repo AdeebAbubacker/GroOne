@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
@@ -13,6 +15,7 @@ import 'package:gro_one_app/features/vehicle_provider/available_loads/view/avail
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -52,6 +55,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
   late TabController _tabController;
   final ScrollController _tabScrollController = ScrollController();
+  final ScrollController _loadListScrollController = ScrollController();
+
   List<LoadStatusResponse> tabLabels = [];
 
   String profileImage = "";
@@ -59,64 +64,38 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
   ProfileDetailModel? profileResponse;
   final lpHomeBloc = locator<LpHomeBloc>();
   final loadFilterCubit = locator<LoadFilterCubit>();
-  late VpLoadBloc vpLoadBloc;
+  late VpLoadCubit vpLoadBloc;
   Timer? _debounce;
+  StreamSubscription? _vpLoadSub;
+
 
 
   /// filterContent
   int? commodityID;
   int? leneId;
+
+
   int? truckTypeId;
 
   @override
   void initState() {
     super.initState();
-    vpLoadBloc = locator<VpLoadBloc>();
-     vpLoadBloc.add(FetchLoadStatus());
-    _tabController = TabController(
+    vpLoadBloc = locator<VpLoadCubit>();
+     vpLoadBloc.fetchLoadStatus();
+     _tabController = TabController(
       length: 0,
       vsync: this,
       initialIndex: widget.initialTabIndex,
     );
-    // Listen for load status loaded to update tabs
-    vpLoadBloc.stream.listen((state) {
-      if (!mounted) return;
-      if (state is VPLoadStatusLoaded) {
-        final newLength = state.statuses.length;
-        _tabController.dispose();
-        _tabController = TabController(
-          length: newLength,
-          vsync: this,
-          initialIndex: widget.initialTabIndex,
-        );
-
-        _tabController.addListener(() {
-          if (_tabController.indexIsChanging) {
-            _loadDataByTab(index: _tabController.index);
-          }
-        });
-
-        // Load data for the initial tab after load status list received
-        _loadDataByTab(index: widget.initialTabIndex);
-
-        setState(() {
-          tabLabels = state.statuses;
-        });
-      }
-    });
+    _vpLoadSub=vpLoadBloc.stream.listen(_onStatusChanged);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         _loadDataByTab(index: _tabController.index);
       }
     });
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(_tabScrollController.positions.isNotEmpty){
-        _tabScrollController.jumpTo(50);
-      }
-       // or .animateTo(...) for animation
-    });
     _loadDataByTab(index: widget.initialTabIndex); // load initial tab
     _getFilterDataEntity();
+    _fetchMoreLoads();
   }
 
   @override
@@ -124,18 +103,64 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     _debounce?.cancel();
     searchController.dispose();
     _tabController.dispose();
+    _vpLoadSub!.cancel();
     super.dispose();
+  }
+
+
+
+  void _onStatusChanged(state) {
+    if (!mounted) return;
+
+    final loadStatusState = state.statuses;
+    final status = loadStatusState?.status;
+
+    if (status == Status.SUCCESS) {
+      final newLength = loadStatusState?.data?.length ?? 0;
+      if (_tabController.length != newLength) {
+        _tabController.dispose();
+        _tabController = TabController(
+          length: newLength,
+          vsync: this,
+          initialIndex: widget.initialTabIndex,
+        );
+        _tabController.addListener(() {
+          if (_tabController.indexIsChanging) {
+            _loadDataByTab(index: _tabController.index);
+          }
+        });
+      }
+
+      if (tabLabels.isEmpty) {
+        _loadDataByTab(index: widget.initialTabIndex);
+      }
+
+      final newTabs = loadStatusState?.data ?? [];
+      if (!listEquals(tabLabels, newTabs)) {
+        setState(() {
+          tabLabels = newTabs;
+        });
+      }
+
+      // Scroll adjustment
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (_tabScrollController.positions.isNotEmpty) {
+          _tabScrollController.jumpTo(50);
+        }
+      });
+    }
   }
 
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
       final type = _tabController.index + 1;
-      vpLoadBloc.add(FetchVpLoads(
+      vpLoadBloc.fetchVpLoads(
           truckTypeId:truckTypeId ,
-          laneId: leneId,
+          landId: leneId,
+          isInit: true,
           commodityId:commodityID ,
-          type: type, search: query));
+          type: type, search: query);
     });
   }
 
@@ -143,19 +168,39 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
   void _loadDataByTab({required int index,bool forceRefresh = false}) {
     final type = index + 1;
     final search = searchController.text;
-    vpLoadBloc.add(FetchVpLoads(type: type, search: search, forceRefresh: forceRefresh));
+    vpLoadBloc.fetchVpLoads(
+        isInit: true,
+        type: type, search: search, forceRefresh: forceRefresh);
     setState(() {});
   }
 
-  Future<void> _onPullToRefresh({bool forceRefresh=false,}) async{
+
+
+  Future<void> _onPullToRefresh({bool forceRefresh=false,bool isInit=true}) async{
     final type = _tabController.index+1;
     final search = searchController.text;
-    vpLoadBloc.add(FetchVpLoads(
+    vpLoadBloc.fetchVpLoads(
         truckTypeId:truckTypeId ,
-        laneId: leneId,
+        landId: leneId,
         commodityId:commodityID ,
-        type: type, search: search, forceRefresh: forceRefresh));
+        isInit: isInit,
+        type: type, search: search, forceRefresh: forceRefresh);
     setState(() {});
+  }
+
+
+ /// Pagination
+  void _fetchMoreLoads(){
+
+    _loadListScrollController.addListener(() {
+      if (_loadListScrollController.position.pixels >=
+          _loadListScrollController.position.maxScrollExtent){
+
+        _onPullToRefresh(
+          isInit: false
+        );
+      }
+    },);
   }
 
 
@@ -354,38 +399,41 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
 
   Widget buildTab() {
-    return BlocBuilder<VpLoadBloc, VpLoadState>(
+    return BlocBuilder<VpLoadCubit, VpLoadState>(
       bloc: vpLoadBloc,
       builder: (context, state) {
-        if (state is VpLoadLoading) {
+        Status? status=state.loads?.status;
+        if (status==Status.LOADING) {
           return const Center(child: CircularProgressIndicator());
-        } else if (state is VpLoadLoaded) {
-          if (state.loads.isEmpty) {
+        } else if (status==Status.SUCCESS) {
+          List<VpRecentLoadData>? recentLoads=state.loads?.data;
+          if (recentLoads ==null || (recentLoads).isEmpty) {
             _onPullToRefresh;
             return genericErrorWidget(error: NoLoadsFoundError());
           }
           return VpHelper.withRefreshIndicator(
               child: ListView.builder(
+                controller: _loadListScrollController,
                 padding: EdgeInsets.all(commonSafeAreaPadding),
                 shrinkWrap: true,
-                itemCount: state.loads.length,
+                itemCount: recentLoads.length,
                 itemBuilder: (context, index) {
                   if (_tabController.index == 0) {
-                    return VpAllLoadAvailableLoadWidget(onBack: () =>  _onPullToRefresh(), data: state.loads[index]).paddingSymmetric(vertical: 7);
+                    return VpAllLoadAvailableLoadWidget(onBack: () =>  _onPullToRefresh(), data: recentLoads[index]).paddingSymmetric(vertical: 7);
                   } else if (_tabController.index == 1) {
                     return GestureDetector(
                       onTap: () async {
-                      await  context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":state.loads[index].id}).then((value) {
+                      await  context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
                         _onPullToRefresh();
                       });
                       },
                       child: VpAllLoadMyLoadWidget(
-                        data: state.loads[index],
+                        data: recentLoads![index],
                         onBack: () {
                           _onPullToRefresh();
                         },
                         onClickAssignDriver: () async {
-                         await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":state.loads[index].id}).then((value) {
+                         await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
                            _onPullToRefresh();
                           });
                         },
@@ -394,18 +442,18 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                   } else {
                     return GestureDetector(
                       onTap: () async {
-                        await context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":state.loads[index].id}).then((value) {
+                        await context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":recentLoads[index].id}).then((value) {
                           _onPullToRefresh();
                         });
                       },
                       child: VpAllLoadMyLoadWidget(
-                        data: state.loads[index],
+                        data: recentLoads![index],
                         showButton: _tabController.index!=3,
                         onBack: () {
                           _onPullToRefresh();
                         },
                         onClickAssignDriver: () async {
-                         await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":state.loads[index].id}).then((value) {
+                         await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
                            _onPullToRefresh();
                          });
                         },
@@ -417,8 +465,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
               _onPullToRefresh,
           );
 
-        } else if (state is VpLoadError) {
-          return VpHelper.withSliverRefresh(_onPullToRefresh, child: Center(child: Text(state.message)));
+        } else if (status==Status.ERROR) {
+          return VpHelper.withSliverRefresh(_onPullToRefresh, child: Center(child: Text(getErrorMsg(errorType: state.loads?.errorType??GenericError()))));
         } else {
           return const SizedBox.shrink();
         }

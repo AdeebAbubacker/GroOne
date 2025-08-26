@@ -182,7 +182,10 @@ class _MasterScreenState extends State<MasterScreen>
 
   /// Load initial data after authentication check
   void _loadInitialData() {
-    profileCubit.fetchAddress();
+    profileCubit.fetchAddress(
+      isInit: true,
+      isLoading: true
+    );
     profileCubit.fetchVehicle();
     profileCubit.fetchDriver();
     profileCubit.fetchUserRole();

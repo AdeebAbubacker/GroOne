@@ -6,6 +6,7 @@ class ApiUrls {
   /// Env
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
 
+
   /// Map Key
   static String get fetchedMapKEY => EnvironmentVariables.fetchMapKey;
 
@@ -118,7 +119,7 @@ class ApiUrls {
   static final String  resendOtp = "$_baseUrlWithAuth/customer-login";
   static final String  getProfile = "$_customerBaseUrl/";
   static final String  getMaster = "$_fetchUrl$_customer$_path$_v1/lp-master/";
-  static final String  lpLoadList= "$_baseUrl$_loadDiscovery$_path$_v1$_load/list";
+  static final String  lpLoadList= "$_baseUrl$_loadDiscovery$_path$_v1$_load/list/v2";
   static final String  lpLoadMemo="$_baseUrl$_loadExecution$_path$_v1$_load";
   static final String  lpLoadById="$_baseUrl$_loadDiscovery$_path$_v1$_load";
   static final String  lpLoadSendOtp="$_baseUrl$_loadExecution$_path$_v1$_load/Esignmemo";

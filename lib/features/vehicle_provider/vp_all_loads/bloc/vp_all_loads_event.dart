@@ -12,6 +12,7 @@ class FetchVpLoads extends VpLoadEvent {
   final int? commodityId;
   final int? truckTypeId;
   final int? laneId;
+  final bool? isInit;
 
   FetchVpLoads({
     required this.type,
@@ -20,10 +21,12 @@ class FetchVpLoads extends VpLoadEvent {
     this.commodityId,
     this.truckTypeId,
     this.laneId,
+    this.isInit=false,
   });
 }
 
 class FetchLoadStatus extends VpLoadEvent {
   final bool forceRefresh;
+
   FetchLoadStatus({this.forceRefresh = false});
 }

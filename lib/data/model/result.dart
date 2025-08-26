@@ -116,7 +116,7 @@ class NotFoundError extends ErrorType {
     if (message != null) {
       return message!;
     }
-    return context.appText.notFound.capitalize ?? '';
+    return context.appText.notFound.capitalize;
   }
 
   factory NotFoundError.fromApiResponse(Map<String, dynamic> response) {
@@ -133,7 +133,7 @@ class NoLoadsFoundError extends ErrorType {
     if (message != null) {
       return message!;
     }
-    return context.appText.noLoadsFound.capitalize ?? '';
+    return context.appText.noLoadsFound.capitalize;
   }
 
   factory NoLoadsFoundError.fromApiResponse(Map<String, dynamic> response) {

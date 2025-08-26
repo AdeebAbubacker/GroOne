@@ -90,7 +90,7 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<VpAcceptLoadBloc>(
           create: (_) => locator<VpAcceptLoadBloc>(),
         ),
-        BlocProvider<VpLoadBloc>(create: (_) => locator<VpLoadBloc>()),
+        BlocProvider<VpLoadCubit>(create: (_) => locator<VpLoadCubit>()),
         BlocProvider<VpCreateAccountCubit>(
           create: (_) => locator<VpCreateAccountCubit>(),
         ),

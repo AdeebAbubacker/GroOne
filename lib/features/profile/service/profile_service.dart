@@ -252,6 +252,7 @@ class ProfileService {
   Future<Result<PaginatedAddressList>> fetchAddress({
     required String userId,
     String? search,
+    int? currentPage,
   }) async {
     try {
       final baseUrl = ApiUrls.getAddress + userId;
@@ -259,7 +260,10 @@ class ProfileService {
           (search != null && search.trim().isNotEmpty)
               ? '$baseUrl?search=$search'
               : baseUrl;
-      final response = await _apiService.get(url);
+      final response = await _apiService.get(url,queryParams: {
+        "limit":10,
+        "page":currentPage
+      });
       if (response is Success) {
         final loads = PaginatedAddressList.fromJson(response.value);
         return Success(loads);
