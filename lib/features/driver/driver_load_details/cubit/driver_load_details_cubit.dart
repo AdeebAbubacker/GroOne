@@ -638,25 +638,6 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     }
   }
   
-  /// Is button Enabled
-  bool isNextProcessButtonEnabled({
-    required List<DocumentEntity> documentEntity,
-    required int driverConsent,
-    dynamic memo,
-    int? loadStatus,
-  }) {
-    switch (loadStatus) {
-      case LoadStatus.assigned:
-        return memo != null;
-      case LoadStatus.loading:
-        return driverConsent == 1 && checkIsDocumentUploaded(documentEntity);
-      case LoadStatus.unloading:
-        return checkIsDocumentUploaded(documentEntity);
-      default:
-        return true;
-    }
-  }
-
   // POD Doc File upload field
   void updatePODVisibilityBasedOnStatus(int? status) {
   final currentList = state.tripDocumentList ?? [];
