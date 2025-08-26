@@ -46,7 +46,7 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
       backgroundColor: AppColors.blackishWhite,
       appBar: CommonAppBar(
         centreTile: false,
-        title: context.appText.tankLock,
+        title: context.appText.fuelSecurityDevice,
         actions: [
           AppIconButton(
             onPressed: () {
