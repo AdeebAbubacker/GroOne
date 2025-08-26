@@ -382,7 +382,7 @@
   "loadID": "சுமை ஐடி",
   "transporter": "போக்குவரத்து நிறுவனம்",
   "vehicleNumber": "வாகன எண்",
-  "totalFreight": "மொத்த சரக்கு கட்டணம்",
+  "totalFreight": "மொத்த சரக்கு கட்டணங்கள்",
   "handlingCharges": "கையாளுதல் கட்டணங்கள்",
   "netFreight": "நிகர சரக்கு கட்டணம்",
   "advance": "முன்பணம்",
@@ -1102,7 +1102,7 @@
   "continueButton": "தொடரவும்",
   "waitingForLpToAcceptLoad": "எல்.பி சரக்கை ஏற்க காத்திருக்கிறது",
   "confirmAdvance": "முன்கூட்டிய தொகையை உறுதிப்படுத்தவும்",
-  "loadingMemo": "சுமை நினைவுப்பத்திரம்",
+  "performaInvoice": "முன்விலைப்பட்டியல்",
   "loadDetails": "சுமை விவரங்கள்",
   "trip": "பயணம்",
   "totalFreightCost": "மொத்த சரக்கு செலவு",
@@ -1235,5 +1235,10 @@
   "deleteAccount": "கணக்கை நீக்கு",
   "gpsBenefitsHeading": "ஜி.பி.எஸ்ஸின் நன்மைகள்",
   "uploadLicesneDocument" : "உரிமம் ஆவணத்தை பதிவேற்றவும்",
-  "driverLoginSuccess": "GroOne செயலியில் உள்நுழைந்ததற்கு நன்றி"
+  "driverLoginSuccess": "GroOne செயலியில் உள்நுழைந்ததற்கு நன்றி",
+  "damageAndShortagesAlreadyApproved": "த-db­ஷம் மற்றும் குறைவு ஏற்கப்பட்டுவிட்டது",
+  "damageAndShortagesAlreadyRejected": "த-db­ஷம் மற்றும் குறைவு நிராகரிக்கப்பட்டுவிட்டது",
+  "settlementsAlreadyApproved": "கணக்குசார்ந்த தீர்வுகள் ஏற்கப்பட்டுவிட்டன",
+  "settlementsAlreadyRejected": "கணக்குசார்ந்த தீர்வுகள் நிராகரிக்கப்பட்டுவிட்டன"
+
 }

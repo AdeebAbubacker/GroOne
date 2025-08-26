@@ -424,6 +424,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                               ?.scheduleTripDetails
                                                               ?.vehicleId,
                                                       loadId: loads!.data!.loadId,
+                                                      isDamageApprovedOrReject: loads.data?.loadApproval?.damageAndShortagesApproved ?? "",
                                                     ),
                                                     isForward: true,
                                                   ),

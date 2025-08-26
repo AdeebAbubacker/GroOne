@@ -57,11 +57,32 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() async { });
+  void initFunction() => frameCallback(() async { 
+  noOfDays.addListener(_refresh);
+  detentionAmount.addListener(_refresh);
+  loadingAmount.addListener(_refresh);
+  unloadingAmount.addListener(_refresh);
+  });
 
-  void disposeFunction() => frameCallback(() {});
+  void disposeFunction() => frameCallback(() {
+  noOfDays.removeListener(_refresh);
+  detentionAmount.removeListener(_refresh);
+  loadingAmount.removeListener(_refresh);
+  unloadingAmount.removeListener(_refresh);
+  });
 
+  bool get canSubmit {
+  final numberOfDays = int.tryParse(noOfDays.text) ?? 0;
+  final amountPerDays = int.tryParse(detentionAmount.text) ?? 0;
+  final loadingChargeVal = int.tryParse(loadingAmount.text) ?? 0;
+  final unloadingChargeVal = int.tryParse(unloadingAmount.text) ?? 0;
 
+  final detentionValid = numberOfDays > 0 && amountPerDays > 0;
+  final chargesValid = loadingChargeVal > 0 || unloadingChargeVal > 0;
+
+  return detentionValid || chargesValid;
+}
+ void _refresh() => setState(() {});
   void createAndSubmitSettlements(){
 
     int numberOfDays=int.tryParse(noOfDays.text)??0;
@@ -144,7 +165,6 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
-                enabled: (int.tryParse(noOfDays.text) ?? 0) > 0,
                 controller: loadingAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
@@ -160,7 +180,6 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
               // Amount
               AppTextField(
-                enabled: (int.tryParse(noOfDays.text) ?? 0) > 0,
                 controller: unloadingAmount,
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
@@ -193,10 +212,11 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                   final isLoading = state.settlementUIState?.status == Status.LOADING;
                   
                   return AppButton(
+                     enable: canSubmit && !isLoading,
                       title: context.appText.submit,
                       isLoading: isLoading,
                       style: AppButtonStyle.primary,
-                      onPressed: isLoading ? (){} : ()=> createAndSubmitSettlements()
+                       onPressed: (!canSubmit || isLoading) ? null : () => createAndSubmitSettlements(),
                   );
                 },
               ),
