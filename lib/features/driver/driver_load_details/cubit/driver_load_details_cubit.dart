@@ -279,36 +279,34 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   }
 
   void uploadLoadingStatus(int index, LoadDocument? loadDocument) {
-    List<DocumentEntity> currentList = List<DocumentEntity>.from(
-      state.tripDocumentList ?? [],
-    );
+    if(index==-1){
+      return;
+    }
+    List<DocumentEntity> currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
 
-    // Build a new list of documents by adding the new one if passed
-    final updatedLoadDocuments =
-        loadDocument != null
-            ? [
-              ...?currentDocument.loadDocument, // existing documents (nullable)
-              loadDocument,
-            ]
-            : currentDocument.loadDocument;
-
     final updatedDocument = currentDocument.copyWith(
-      loadDocument: updatedLoadDocuments,
+      loadDocument: [
+        ...currentDocument.loadDocument??[],
+        if(loadDocument!=null) ...[loadDocument]
+      ],
       isLoading: !(currentDocument.isLoading ?? false),
     );
-
     currentList[index] = updatedDocument;
+
+    /// TODO:
+    /// This is for multiple documents
 
     emit(state.copyWith(tripDocumentList: currentList));
   }
 
-  void uploadDeleteLoaderStatus(int index, {bool isDelete = false}) {
+
+  void uploadDeleteLoaderStatus(int index,{bool isDelete=false}) {
     final currentList = List<DocumentEntity>.from(state.tripDocumentList ?? []);
     final currentDocument = currentList[index];
     final updatedDocument = currentDocument.copyWith(
       clearLoadData: isDelete,
-      loadDocument: isDelete ? null : currentDocument.loadDocument,
+      loadDocument: isDelete ? null: currentDocument.loadDocument,
       deleteLoading: !(currentDocument.deleteLoading ?? false),
     );
     currentList[index] = updatedDocument;
@@ -640,39 +638,17 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     }
   }
   
-  /// Is button Enabled
-  bool isNextProcessButtonEnabled({
-    required List<DocumentEntity> documentEntity,
-    required int driverConsent,
-    dynamic memo,
-    int? loadStatus,
-  }) {
-    switch (loadStatus) {
-      case LoadStatus.assigned:
-        return memo != null;
-      case LoadStatus.loading:
-        return driverConsent == 1 && checkIsDocumentUploaded(documentEntity);
-      case LoadStatus.unloading:
-        return checkIsDocumentUploaded(documentEntity);
-      default:
-        return true;
-    }
-  }
-
   // POD Doc File upload field
   void updatePODVisibilityBasedOnStatus(int? status) {
-    final currentList = state.tripDocumentList ?? [];
-
-    final podIndex = currentList.indexWhere(
-      (doc) =>
-          doc.documentType == DocumentFileType.proofOfDelivery.documentType,
-    );
-    if (podIndex != -1 && status != null && status >= 7) {
-      final updatedDoc = currentList[podIndex].copyWith(visible: true);
-      currentList[podIndex] = updatedDoc;
-      emit(state.copyWith(tripDocumentList: currentList));
-    }
+  final currentList = state.tripDocumentList ?? [];
+  final podIndex = currentList.indexWhere((doc) => doc.documentType == DocumentFileType.proofOfDelivery.documentType);
+  if (podIndex != -1) {
+    final updatedDoc = currentList[podIndex].copyWith(visible: status != null && status >= 7);
+    currentList[podIndex] = updatedDoc;
+    emit(state.copyWith(tripDocumentList: currentList));
   }
+}
+
 
   final Map<LoadStatus, List<DocumentFileType>> requiredDocsByStatus = {
     LoadStatus.loading: [

@@ -2474,59 +2474,31 @@ class DriverLoadApproval {
     });
 
     final String id;
-    static const String idKey = "id";
-    
     final String loadId;
-    static const String loadIdKey = "loadId";
-    
     final dynamic rejectionReason;
-    static const String rejectionReasonKey = "rejectionReason";
-    
-    final dynamic documentApproved;
-    static const String documentApprovedKey = "documentApproved";
-    
-    final dynamic damageAndShortagesApproved;
-    static const String damageAndShortagesApprovedKey = "damageAndShortagesApproved";
-    
-    final dynamic damageAndShortagesRejectionReason;
-    static const String damageAndShortagesRejectionReasonKey = "damageAndShortagesRejectionReason";
-    
-    final bool settlementApproved;
-    static const String settlementApprovedKey = "settlementApproved";
-    
+    final bool documentApproved;
+    final bool damageAndShortagesApproved;
+    final String damageAndShortagesRejectionReason;
+    final dynamic settlementApproved;
     final dynamic settlementRejectionReason;
-    static const String settlementRejectionReasonKey = "settlementRejectionReason";
-    
     final dynamic paymentApproved;
-    static const String paymentApprovedKey = "paymentApproved";
-    
-    final dynamic podApproved;
-    static const String podApprovedKey = "podApproved";
-    
+    final bool podApproved;
     final String approvedBy;
-    static const String approvedByKey = "approvedBy";
-    
     final DateTime? createdAt;
-    static const String createdAtKey = "createdAt";
-    
     final DateTime? updatedAt;
-    static const String updatedAtKey = "updatedAt";
-    
     final dynamic deletedAt;
-    static const String deletedAtKey = "deletedAt";
-    
 
     DriverLoadApproval copyWith({
         String? id,
         String? loadId,
         dynamic? rejectionReason,
-        dynamic? documentApproved,
-        dynamic? damageAndShortagesApproved,
-        dynamic? damageAndShortagesRejectionReason,
-        bool? settlementApproved,
+        bool? documentApproved,
+        bool? damageAndShortagesApproved,
+        String? damageAndShortagesRejectionReason,
+        dynamic? settlementApproved,
         dynamic? settlementRejectionReason,
         dynamic? paymentApproved,
-        dynamic? podApproved,
+        bool? podApproved,
         String? approvedBy,
         DateTime? createdAt,
         DateTime? updatedAt,
@@ -2555,13 +2527,13 @@ class DriverLoadApproval {
             id: json["id"] ?? "",
             loadId: json["loadId"] ?? "",
             rejectionReason: json["rejectionReason"],
-            documentApproved: json["documentApproved"],
-            damageAndShortagesApproved: json["damageAndShortagesApproved"],
-            damageAndShortagesRejectionReason: json["damageAndShortagesRejectionReason"],
-            settlementApproved: json["settlementApproved"] ?? false,
+            documentApproved: json["documentApproved"] ?? false,
+            damageAndShortagesApproved: json["damageAndShortagesApproved"] ?? false,
+            damageAndShortagesRejectionReason: json["damageAndShortagesRejectionReason"] ?? "",
+            settlementApproved: json["settlementApproved"],
             settlementRejectionReason: json["settlementRejectionReason"],
             paymentApproved: json["paymentApproved"],
-            podApproved: json["podApproved"],
+            podApproved: json["podApproved"] ?? false,
             approvedBy: json["approvedBy"] ?? "",
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
@@ -2569,28 +2541,4 @@ class DriverLoadApproval {
         );
     }
 
-    Map<String, dynamic> toJson() => {
-        "id": id,
-        "loadId": loadId,
-        "rejectionReason": rejectionReason,
-        "documentApproved": documentApproved,
-        "damageAndShortagesApproved": damageAndShortagesApproved,
-        "damageAndShortagesRejectionReason": damageAndShortagesRejectionReason,
-        "settlementApproved": settlementApproved,
-        "settlementRejectionReason": settlementRejectionReason,
-        "paymentApproved": paymentApproved,
-        "podApproved": podApproved,
-        "approvedBy": approvedBy,
-        "createdAt": createdAt?.toIso8601String(),
-        "updatedAt": updatedAt?.toIso8601String(),
-        "deletedAt": deletedAt,
-    };
-
-    @override
-    String toString(){
-        return "$id, $loadId, $rejectionReason, $documentApproved, $damageAndShortagesApproved, $damageAndShortagesRejectionReason, $settlementApproved, $settlementRejectionReason, $paymentApproved, $podApproved, $approvedBy, $createdAt, $updatedAt, $deletedAt, ";
-    }
 }
-
-
-

@@ -408,7 +408,10 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                   state.loadStatus !=
                                                       LoadStatus.completed &&
                                                   state.loadStatus !=
-                                                      LoadStatus.podDispatched,
+                                                      LoadStatus.podDispatched
+                                                     &&
+                                                  !(loads.data?.loadApproval?.damageAndShortagesApproved == true ||
+                                                    loads.data?.loadApproval?.damageAndShortagesApproved == false),
                                               context: context,
                                               title:
                                                   context.appText.damageAndShortage,
@@ -441,7 +444,50 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                           [])
                                                       .isNotEmpty,
                                               child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
                                                 children: [
+                                                    4.height,
+                                                    Visibility(
+                                                    visible: loadDetails?.data?.loadApproval?.damageAndShortagesApproved == true ||
+                                                        loadDetails?.data?.loadApproval?.damageAndShortagesApproved == false,
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        Container(
+                                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                                          decoration: BoxDecoration(
+                                                            color: loadDetails?.data?.loadApproval?.damageAndShortagesApproved == true
+                                                                ? AppColors.greenColor.withOpacity(0.2) 
+                                                                : AppColors.red.withOpacity(0.2),  
+                                                            borderRadius: BorderRadius.circular(8),
+                                                          ),
+                                                          child: Text(
+                                                            loadDetails?.data?.loadApproval?.damageAndShortagesApproved == true
+                                                                ? "Approved"
+                                                                : "Rejected",
+                                                            style: AppTextStyle.h3RedLight14.copyWith( 
+                                                                color: loadDetails?.data?.loadApproval?.damageAndShortagesApproved == true
+                                                                  ? AppColors.greenColor
+                                                                  : AppColors.red,
+                                                                  fontWeight: FontWeight.w900,
+                                                                  fontSize: 12
+                                                                  ),        
+                                                            ),
+                                                          ),
+                                                        Visibility(
+                                                          visible: loadDetails?.data?.loadApproval?.damageAndShortagesRejectionReason != null &&
+                                                          (loadDetails?.data?.loadApproval?.damageAndShortagesRejectionReason ?? "").isNotEmpty,
+                                                          child: Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              8.height,
+                                                              Text("(${loadDetails?.data?.loadApproval?.damageAndShortagesRejectionReason ?? ""})" ?? "",
+                                                              style:AppTextStyle.h3RedLight14,),
+                                                            ],
+                                                          ))
+                                                      ],
+                                                    ),
+                                                    ),
                                                   20.height,
                                                   VpAddedDamageWidget(
                                                     imageList: state.allDamageImageList,
