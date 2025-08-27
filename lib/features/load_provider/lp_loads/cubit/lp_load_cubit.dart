@@ -65,6 +65,9 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setLoadUIState(UIState.loading());
     }
 
+
+    print("calling this here");
+
     Result result = await _repository.fetchLoads(request: loadListApiRequest);
 
     if (result is Success<LpLoadResponse>) {

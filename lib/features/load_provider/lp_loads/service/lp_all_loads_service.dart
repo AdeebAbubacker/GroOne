@@ -50,7 +50,8 @@ class LpLoadService {
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
+    } catch (e,stacktress) {
+      print("stacktress is ${stacktress} and $e");
       return Error(DeserializationError());
     }
   }

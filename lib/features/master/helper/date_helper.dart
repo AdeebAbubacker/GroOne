@@ -187,9 +187,8 @@ class DriverLicenseHelper {
 
 
  // Get Document Type Id
- static Future<int?> getDocumentTypeId(DriverDocType type,DocumentTypeCubit documentTypeCubit) async {
+ static Future<int?>  getDocumentTypeId(DriverDocType type,DocumentTypeCubit documentTypeCubit) async {
    switch (type) {
-   
      case DriverDocType.licenseDoc:
        return await documentTypeCubit.getDocumentTypeId(DocumentFileType.licenseDocument.documentType??"");
    }

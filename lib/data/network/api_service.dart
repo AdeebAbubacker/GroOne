@@ -66,7 +66,7 @@ class ApiService {
       if (hasToken) {
         CustomLog.debug(
           this,
-          "🔐 Token value: '${token!.substring(0, 10)}...'",
+          "🔐 Token value: '${token.substring(0, 10)}...'",
         );
       }
       return hasToken;

@@ -14,16 +14,20 @@ class VpLoadRepository {
 
   VpLoadRepository(this.service, this.userRepo);
 
-  Future<Result<List<VpRecentLoadData>>> fetchLoads({
+  Future<Result<RecentLoadResponse>> fetchLoads({
     required int type,
     String search = "",
     bool forceRefresh = false,
     int? commodityId,
     int? truckTypeId,
     int? laneId,
+    int? page,
   }) async {
     final customerId = await userRepo.getUserID() ?? '';
-    return service.fetchLoads(customerId: customerId, type: type, search: search,forceRefresh: forceRefresh,commodityId:commodityId,truckTypeId:truckTypeId,laneId:laneId   );
+    return service.fetchLoads(
+        limit: 10,
+        page: page,
+        customerId: customerId, type: type, search: search,forceRefresh: forceRefresh,commodityId:commodityId,truckTypeId:truckTypeId,laneId:laneId   );
   }
 
   Future<Result<List<LoadStatusResponse>>> fetchLoadStatus() async {

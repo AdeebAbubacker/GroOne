@@ -117,9 +117,9 @@ class ProfileRepository {
   }
 
   /// Get Address
-  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search,int? currentPage}) async {
     try {
-      return await _profileService.fetchAddress(userId: userId,search: search);
+      return await _profileService.fetchAddress(userId: userId,search: search,currentPage: currentPage);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

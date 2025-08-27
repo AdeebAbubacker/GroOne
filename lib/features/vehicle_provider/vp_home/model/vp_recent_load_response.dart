@@ -35,6 +35,17 @@ class VpRecentLoadResponse {
 
 }
 
+class RecentLoadResponse {
+  int? totalItem;
+  List<VpRecentLoadData>? recentLoadData;
+
+  RecentLoadResponse.fromJson(Map<String,dynamic> json){
+    totalItem=json['total'];
+    final data = json['data'] as List;
+    recentLoadData = data.map((e) => VpRecentLoadData.fromJson(e)).toList();
+  }
+}
+
 class VpRecentLoadData {
   VpRecentLoadData({
     required this.id,
