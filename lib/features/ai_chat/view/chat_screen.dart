@@ -1709,136 +1709,138 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
         padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                Expanded(
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'What went wrong?',
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: Color(0xFF1F1F1F),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Your feedback helps make Gro AI Saathi better for everyone.',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    icon: const Icon(Icons.close, size: 24),
+                    style: IconButton.styleFrom(
+                      backgroundColor: Colors.grey[100],
+                      shape: const CircleBorder(),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+          
+              // Feedback Options
+              ...(_feedbackOptions.map((option) => _buildFeedbackOption(option))),
+          
+              // Additional feedback input for "Other" option
+              if (_selectedFeedbackType == 'Other') ...[
+                const SizedBox(height: 16),
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text(
-                        'What went wrong?',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.w600,
-                          color: Color(0xFF1F1F1F),
-                        ),
-                      ),
-                      const SizedBox(height: 4),
                       Text(
-                        'Your feedback helps make Gro AI Saathi better for everyone.',
+                        'Please specify what went wrong:',
                         style: TextStyle(
                           fontSize: 14,
-                          color: Colors.grey[600],
-                          height: 1.3,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[700],
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      TextField(
+                        controller: _additionalFeedbackController,
+                        maxLines: 3,
+                        decoration: InputDecoration(
+                          hintText: 'Enter your feedback here...',
+                          hintStyle: TextStyle(color: Colors.grey[500]),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: Colors.grey[300]!),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide(color: AppColors.primaryColor),
+                          ),
+                          filled: true,
+                          fillColor: Colors.white,
                         ),
                       ),
                     ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: const Icon(Icons.close, size: 24),
-                  style: IconButton.styleFrom(
-                    backgroundColor: Colors.grey[100],
-                    shape: const CircleBorder(),
-                  ),
-                ),
               ],
-            ),
-            const SizedBox(height: 24),
-
-            // Feedback Options
-            ...(_feedbackOptions.map((option) => _buildFeedbackOption(option))),
-
-            // Additional feedback input for "Other" option
-            if (_selectedFeedbackType == 'Other') ...[
-              const SizedBox(height: 16),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[50],
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Please specify what went wrong:',
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.grey[700],
-                      ),
+          
+              const SizedBox(height: 24),
+          
+              // Submit Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _selectedFeedbackType != null
+                      ? () {
+                          String feedbackType = _selectedFeedbackType!;
+                          
+                          // If "Other" is selected, combine with additional feedback if available
+                          if (feedbackType == 'Other') {
+                            final additionalText = _additionalFeedbackController.text.trim();
+                            feedbackType = additionalText.isNotEmpty ? 'other-$additionalText' : 'other';
+                          }
+                          
+                          widget.onReport(feedbackType);
+                          Navigator.of(context).pop();
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    const SizedBox(height: 8),
-                    TextField(
-                      controller: _additionalFeedbackController,
-                      maxLines: 3,
-                      decoration: InputDecoration(
-                        hintText: 'Enter your feedback here...',
-                        hintStyle: TextStyle(color: Colors.grey[500]),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide(color: AppColors.primaryColor),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                      ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Submit',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
-                  ],
+                  ),
                 ),
               ),
             ],
-
-            const SizedBox(height: 24),
-
-            // Submit Button
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _selectedFeedbackType != null
-                    ? () {
-                        String feedbackType = _selectedFeedbackType!;
-                        
-                        // If "Other" is selected, combine with additional feedback if available
-                        if (feedbackType == 'Other') {
-                          final additionalText = _additionalFeedbackController.text.trim();
-                          feedbackType = additionalText.isNotEmpty ? 'other-$additionalText' : 'other';
-                        }
-                        
-                        widget.onReport(feedbackType);
-                        Navigator.of(context).pop();
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  foregroundColor: Colors.white,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  elevation: 0,
-                ),
-                child: const Text(
-                  'Submit',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
