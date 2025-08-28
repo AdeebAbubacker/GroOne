@@ -70,7 +70,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int? selectedRoute;
   String? selectedCommodity;
   int? selectedCommodityId;
-  final ScrollController _tabScrollController = ScrollController();
   int selectedTabIndex = 0;
   late VpLoadCubit vpLoadBloc;
   List<LoadStatusResponse> tabLabels = [];
@@ -377,7 +376,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               ),
               padding: EdgeInsets.only(top: 2, bottom: 0, right: 6, left: 6),
               child:
-                  (_tabController == null || tabLabels.isEmpty)
+                  (tabLabels.isEmpty)
                       ? const SizedBox(height: 48)
                       : TabBar(
                         controller: _tabController,
@@ -571,9 +570,6 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
   /// Load List
   Widget buildLoadListWidget() {
-    if (_tabController == null) {
-      return const SizedBox();
-    }
     return Expanded(
       child: TabBarView(
         physics: NeverScrollableScrollPhysics(),
@@ -583,7 +579,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             bloc: driverLoadBloc,
             listener: (context, state) {
               if (state is DriverLoadsLoaded) {
-                if (_tabController!.index == index) {}
+                if (_tabController.index == index) {}
               }
             },
             child: buildDriverLoadTab(index,tabLabels[index].id, searchController.text),

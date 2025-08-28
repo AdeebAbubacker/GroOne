@@ -724,8 +724,7 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
                 );
                 return;
               }
-              if (owenerNameController.text == null ||
-                  owenerNameController!.text.isEmpty) {
+              if (owenerNameController.text.isEmpty) {
                 ToastMessages.alert(message:  context.appText.ownerNameRequired,);
                 return;
               }
@@ -748,8 +747,7 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
                 );
                 return;
               }
-              if (insurancePolicyNumber.text == null ||
-                  insurancePolicyNumber!.text.isEmpty) {
+              if (insurancePolicyNumber.text.isEmpty) {
                 ToastMessages.alert(
                   message: context.appText.insurancePolicyNumberRequired,
                 );
@@ -763,13 +761,13 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
                   ownerName: owenerNameController.text,
-                  fcExpiryDate: convertToYMD(fcExpiryDate.toString()) ?? '',
+                  fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                   insurancePolicyNumber: insurancePolicyNumber.text,
-                  pucExpiryDate: convertToYMD(pucExpiryDate.toString()) ?? '',
+                  pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
                   registrationDate:
-                      convertToYMD(registrationDate.toString()) ?? '',
+                      convertToYMD(registrationDate.toString()),
                   insuranceValidityDate:
-                      convertToYMD(insuranceValidityDate.toString()) ?? '',
+                      convertToYMD(insuranceValidityDate.toString()),
                 );
 
                 if (isEdit) {
@@ -780,13 +778,13 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
                       truckNo: cleanVehicleNumber(truckNumberController.text.trim()),
                       tonnage: selectedWeightDropDownValue,
                       truckTypeId: selectedTruckType?.id ?? 1,
-                      fcExpiryDate: convertToYMD(fcExpiryDate.toString()) ?? '',
+                      fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                       insuranceValidityDate:
-                          convertToYMD(insuranceValidityDate.toString()) ?? '',
+                          convertToYMD(insuranceValidityDate.toString()),
                       pucExpiryDate:
-                          convertToYMD(pucExpiryDate.toString()) ?? '',
+                          convertToYMD(pucExpiryDate.toString()),
                       registrationDate:
-                          convertToYMD(registrationDate.toString()) ?? '',
+                          convertToYMD(registrationDate.toString()),
                       insurancePolicyNumber: insurancePolicyNumber.text,
                       ownerName: owenerNameController.text,
                       modelNumber: truckMakeModelController.text,
@@ -1048,7 +1046,7 @@ class AddVehicleDialog {
                                 vehicleData['vehicle_gross_weight'] ??
                                 vehicleData['tonnage'];
                             if (capacity != null) {
-                              final numberOnly = RegExp(
+                              RegExp(
                                 r'\d+',
                               ).stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
@@ -1387,8 +1385,7 @@ class AddVehicleDialog {
                 );
                 return;
               }
-              if (owenerNameController.text == null ||
-                  owenerNameController!.text.isEmpty) {
+              if (owenerNameController.text.isEmpty) {
                 ToastMessages.alert(message: context.appText.ownerNameRequired);
                 return;
               }
@@ -1411,8 +1408,7 @@ class AddVehicleDialog {
                 );
                 return;
               }
-              if (insurancePolicyNumber.text == null ||
-                  insurancePolicyNumber!.text.isEmpty) {
+              if (insurancePolicyNumber.text.isEmpty) {
                 ToastMessages.alert(
                   message: context.appText.insurancePolicyNumberRequired,
                 );

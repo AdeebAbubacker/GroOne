@@ -11,7 +11,6 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
-import 'package:gro_one_app/features/login/view/login_screen.dart';
 import 'package:gro_one_app/features/master/helper/date_helper.dart';
 import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/master/widget/master_driver_widget.dart';
@@ -71,7 +70,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
   final lpHomeCubit = locator<LPHomeCubit>();
   final documentCubit = locator<DocumentTypeCubit>();
   List<String> selectedCommodities = [];
-  late TabController _tabController;
   final vehicleSearchController = TextEditingController();
   final addressSearchController = TextEditingController();
   final driverSearchController = TextEditingController();
@@ -768,8 +766,8 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                   email: emailController.text,
                   licenseNumber: licenseNumberController.text,
                   licenseExpiryDate:
-                      convertToYMD(licenseExpiryIso.toString()) ?? '',
-                  dateOfBirth: convertToYMD(dateOfBirthIso.toString()) ?? '',
+                      convertToYMD(licenseExpiryIso.toString()),
+                  dateOfBirth: convertToYMD(dateOfBirthIso.toString()),
                   licenseCategory: selectedLicneseId,
                   bloodGroup: selectedBloodId,
                   driverStatus: isActive ? 1 : 2,

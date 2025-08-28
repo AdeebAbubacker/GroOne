@@ -322,7 +322,7 @@ class DriverLoadDetails {
       loadStatusDetails: loadStatusDetails ?? this.loadStatusDetails,
       loadPrice: loadPrice ?? this.loadPrice,
       scheduleTripDetails: scheduleTripDetails ?? this.scheduleTripDetails,
-      loadMemoDetails: loadMemoDetails ?? this.loadMemoDetails,
+      loadMemoDetails: loadMemoDetails ?? loadMemoDetails,
       consigneeDetails: consigneeDetails ?? this.consigneeDetails,
       loadDocument: loadDocument ?? this.loadDocument,
       trackingDetails: trackingDetails ?? this.trackingDetails,

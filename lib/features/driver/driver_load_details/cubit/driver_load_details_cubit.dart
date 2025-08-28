@@ -662,8 +662,9 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     List<DocumentEntity> tripDocumentList,
     LoadStatus? status,
   ) {
-    if (status == null || !requiredDocsByStatus.containsKey(status))
+    if (status == null || !requiredDocsByStatus.containsKey(status)) {
       return true;
+    }
 
     final requiredDocs = requiredDocsByStatus[status]!;
 
