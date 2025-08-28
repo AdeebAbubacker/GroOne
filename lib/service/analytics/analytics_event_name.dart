@@ -50,7 +50,10 @@ class AnalyticEventName {
   static const String KYC_PENDING = "kyc_pending";
   static const String KYC_IN_PROGRESS = "kyc_in_progress";
   static const String KYC_COMPLETED = "kyc_completed";
-
+ 
+ // Master
+ static const String ADD_DRIVER = "add_driver";
+ static const String ADD_VEHICLE = "add_vehicle";
 
 
 }

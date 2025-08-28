@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -24,6 +25,7 @@ import 'package:gro_one_app/features/profile/view/widgets/master_dialogue_widget
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -55,7 +57,7 @@ class buildVehicleTab extends StatefulWidget {
   State<buildVehicleTab> createState() => _buildVehicleTabState();
 }
 
-class _buildVehicleTabState extends State<buildVehicleTab> {
+class _buildVehicleTabState extends BaseState<buildVehicleTab> {
   final profileCubit = locator<ProfileCubit>();
   final mastersCubit = locator<MastersCubit>();
   final vpCreationCubit = locator<VpCreateAccountCubit>();
@@ -804,6 +806,7 @@ class _buildVehicleTabState extends State<buildVehicleTab> {
                             ? context.appText.vehicleUpdatedSuccessfully
                             : context.appText.vehicleAddedSuccessfully,
                   );
+                  analyticsHelper.logEvent(AnalyticEventName.ADD_VEHICLE,request.toJson()); 
                 } else {
                   ToastMessages.error(
                     message: getErrorMsg(
