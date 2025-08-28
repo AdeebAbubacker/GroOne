@@ -29,12 +29,15 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
+import '../../../../service/analytics/analytics_event_name.dart';
+import '../../../../service/analytics/analytics_service.dart';
 import '../../../../utils/app_dialog.dart' show AppDialog;
 import '../../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../payments/view/payments_screen.dart';
+import '../../../profile/view/support_screen.dart';
 import '../../models/gps_document_models.dart';
 import '../gps_home_screen.dart';
 
@@ -72,6 +75,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
   late final GpsOrderCubit gpsOrderCubit;
   final profileCubit = locator<ProfileCubit>();
   final userInfoRepo = locator<UserInformationRepository>();
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
   GpsOrderSummaryResponse? orderSummary;
   bool isLoadingSummary = true;
 
@@ -308,7 +312,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           actions: [
             AppIconButton(
               onPressed: () {
-                Navigator.push(context, commonRoute(KavachSupportScreen()));
+                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
               },
               icon: AppIcons.svg.filledSupport,
               iconColor: AppColors.primaryButtonColor,
@@ -751,6 +755,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         orders: orders,
       );
 
+      analyticsHelper.logEvent(AnalyticEventName.FLEET_ORDER_CREATION, request.toJson(),);
       // Create the order
       await gpsOrderCubit.createOrder(request);
     } catch (e) {

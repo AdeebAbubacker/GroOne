@@ -19,11 +19,11 @@ import '../../../utils/app_icons.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
+import '../../profile/view/support_screen.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
 import 'kavach_choose_your_preference_screen.dart';
-import 'kavach_support_screen.dart';
 
 class KavachOrderDetailsScreen extends StatelessWidget {
   final KavachOrderListOrderItem order;
@@ -52,7 +52,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           ),
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

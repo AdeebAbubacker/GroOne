@@ -26,7 +26,6 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
-import '../../kavach/view/kavach_support_screen.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 
@@ -35,7 +34,7 @@ import '../../kyc/cubit/kyc_cubit.dart';
 import '../../kyc/helper/kyc_helper.dart';
 import '../../kyc/model/aadhar_status_response.dart';
 import '../../kyc/view/kyc_verification_webview.dart';
-import '../model/document_upload_response.dart';
+import '../../profile/view/support_screen.dart';
 
 class EndhanKycScreen extends StatefulWidget {
   final String? aadhaarPrefill;
@@ -517,7 +516,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

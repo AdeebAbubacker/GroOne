@@ -6,10 +6,8 @@ import 'package:gro_one_app/data/model/result.dart' show GenericError;
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_customer_info_screen.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_info_screen.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_card_item.dart';
-import 'package:gro_one_app/features/kavach/view/kavach_transaction_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
@@ -18,10 +16,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
 import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
-import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:go_router/go_router.dart';
-
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
@@ -30,12 +25,11 @@ import '../../../utils/app_icons.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
-import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
 import '../../../utils/app_dialog.dart';
 import '../../../utils/common_dialog_view/common_dialog_view.dart';
-import 'package:go_router/go_router.dart';
 import '../../kavach/view/kavach_support_screen.dart';
+import '../../profile/view/support_screen.dart';
 import 'endhan_kyc_screen.dart';
 import 'endhan_transaction_screen.dart';
 
@@ -266,7 +260,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.push(context,commonRoute(KavachSupportScreen()));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -297,7 +291,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.push(context,commonRoute(KavachSupportScreen()));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -326,7 +320,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.push(context,commonRoute(KavachSupportScreen()));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -351,7 +345,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.push(context,commonRoute(KavachSupportScreen()));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -427,7 +421,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     ),
                     AppIconButton(
                       onPressed: () {
-                        Navigator.push(context,commonRoute(KavachSupportScreen()));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryColor,

@@ -14,10 +14,11 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_res
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
-
 import '../../../data/network/api_service.dart';
 import '../../../dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import '../../../service/analytics/analytics_event_name.dart';
+import '../../../service/analytics/analytics_service.dart';
 
 part 'en_dhan_state.dart';
 
@@ -27,6 +28,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
   bool _isClosed = false;
 
   EnDhanCubit(this._repository, this._userInformationRepository) : super(EnDhanState.initial());
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   @override
   Future<void> close() {
@@ -819,6 +821,8 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
       referralCode: state.referralCode.isNotEmpty ? state.referralCode : null, // Added referral code
       objCardDetailsAl: cardDetails,
     );
+
+    analyticsHelper.logEvent(AnalyticEventName.FLEET_ORDER_CREATION, request.toJson(),);
 
     Result result = await _repository.createCustomer(request);
 
