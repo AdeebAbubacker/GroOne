@@ -126,6 +126,7 @@ class ChatCubit extends Cubit<ChatState> {
       timestamp: DateTime.now(),
       language: state.selectedLanguage.code,
       messageType: MessageType.text,
+      reported: false, // User messages are not reported
     );
 
     final updatedMessages = List<ChatMessage>.from(state.messages)
@@ -434,6 +435,43 @@ class ChatCubit extends Cubit<ChatState> {
     emit(state.copyWith(error: null));
   }
 
+  /// Report a message
+  /// Updates the message's reported status if successful
+  Future<void> reportMessage(String messageId, {String? feedbackType, String? additionalFeedback}) async {
+    try {
+      // Find the message to report
+      final messageIndex = state.messages.indexWhere((msg) => msg.id == messageId);
+      if (messageIndex == -1) {
+        emit(state.copyWith(error: 'Message not found'));
+        return;
+      }
+
+      // Call the repository to report the message with feedback
+      final success = await _repository.reportMessage(
+        messageId: messageId,
+        feedbackType: feedbackType ?? 'inappropriate_content',
+        additionalFeedback: additionalFeedback,
+      );
+      
+      if (success) {
+        // Update the message's reported status
+        final updatedMessages = List<ChatMessage>.from(state.messages);
+        updatedMessages[messageIndex] = updatedMessages[messageIndex].copyWith(
+          reported: true,
+        );
+        
+        emit(state.copyWith(
+          messages: updatedMessages,
+          clearError: true,
+        ));
+      } else {
+        emit(state.copyWith(error: 'Failed to report message'));
+      }
+    } catch (e) {
+      emit(state.copyWith(error: _getUserFriendlyErrorMessage(e)));
+    }
+  }
+
   /// Load more chat history (pagination)
   Future<void> loadMoreChatHistory() async {
     if (_isLoadingHistory || !_hasMoreMessages) return;
@@ -511,6 +549,7 @@ class ChatCubit extends Cubit<ChatState> {
         : DateTime.now();
     final language = messageData['language'] ?? 'en';
     final messageType = MessageType.text; // Default to text for now
+    final reported = messageData['reported'] ?? false; // Parse reported field
 
     return ChatMessage(
       id: id,
@@ -519,6 +558,7 @@ class ChatCubit extends Cubit<ChatState> {
       timestamp: timestamp,
       language: language,
       messageType: messageType,
+      reported: reported, // Include reported field
     );
   }
 

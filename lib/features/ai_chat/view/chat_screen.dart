@@ -148,7 +148,7 @@ class _ChatScreenState extends State<ChatScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(state.error!),
-                  backgroundColor: Colors.red,
+                  backgroundColor: const Color(0xFFE31B25), // Red background
                 ),
               );
               context.read<ChatCubit>().clearError();
@@ -217,6 +217,33 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
 
+  Widget _buildDisclaimerBanner() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
+        children: [
+           Icon(
+            Icons.info_outline,
+            color: AppColors.grayColor,
+            size: 18,
+          ),
+          const SizedBox(width: 2),
+          Expanded(
+            child: Text(
+              'Gro AI Saathi can make mistakes, so double-check it',
+              style: TextStyle(
+                fontSize: 13,
+                color: AppColors.grayColor,
+                fontWeight: FontWeight.w500,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildMessagesList(List<ChatMessage> messages) {
     return BlocBuilder<ChatCubit, ChatState>(
       builder: (context, state) {
@@ -236,6 +263,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     timestamp: DateTime.now(),
                     language: 'en',
                     messageType: MessageType.text,
+                    reported: false, // Default greeting is not reported
                   ),
                 ]
                 : messages;
@@ -393,10 +421,44 @@ class _ChatScreenState extends State<ChatScreen> {
                             size: 16,
                             color:
                                 message.isPlaying
-                                    ? AppColors.red
+                                    ? const Color(0xFFE31B25) // Use const red color
                                     : AppColors.grayColor,
                           ),
                         ),
+                        const SizedBox(width: 8),
+                        // Report icon for AI text responses
+                        if (!message.reported)
+                          GestureDetector(
+                            onTap: () {
+                              // Show confirmation dialog before reporting
+                              _showReportConfirmationDialog(message.id);
+                            },
+                            child: Icon(
+                              Icons.report_problem,
+                              size: 16,
+                              color: AppColors.grayColor,
+                            ),
+                          )
+                        else
+                          // Show "Reported" label when message is already reported
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE31B25).withValues(alpha: 0.1), // Use const red color
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Text(
+                              'Reported',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: const Color(0xFFE31B25), // Use const red color
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
                       ],
                     ],
                   ),
@@ -625,9 +687,9 @@ class _ChatScreenState extends State<ChatScreen> {
       margin: const EdgeInsets.all(16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.red[50],
+        color: const Color(0xFFFFEBEE), // Light red background
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.red[200]!),
+        border: Border.all(color: const Color(0xFFEF5350)), // Red border
       ),
       child: Row(
         children: [
@@ -637,7 +699,7 @@ class _ChatScreenState extends State<ChatScreen> {
             width: 12,
             height: 12,
             decoration: BoxDecoration(
-              color: Colors.red,
+              color: const Color(0xFFE31B25), // Red circle
               shape: BoxShape.circle,
             ),
           ),
@@ -649,7 +711,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 const Text(
                   'Recording...',
                   style: TextStyle(
-                    color: Colors.red,
+                    color: Color(0xFFE31B25), // Red text
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -659,8 +721,8 @@ class _ChatScreenState extends State<ChatScreen> {
                   style: TextStyle(
                     color:
                         state.recordingDuration >= 12
-                            ? Colors.red[900]
-                            : Colors.red[700],
+                            ? const Color(0xFFB71C1C) // Dark red
+                            : const Color(0xFFD32F2F), // Medium red
                     fontSize: 12,
                     fontWeight:
                         state.recordingDuration >= 12
@@ -671,11 +733,11 @@ class _ChatScreenState extends State<ChatScreen> {
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
                   value: state.recordingDuration / 15.0,
-                  backgroundColor: Colors.red[100],
+                  backgroundColor: const Color(0xFFFFCDD2), // Light red background
                   valueColor: AlwaysStoppedAnimation<Color>(
                     state.recordingDuration >= 12
-                        ? Colors.red[900]!
-                        : Colors.red,
+                        ? const Color(0xFFB71C1C) // Dark red
+                        : const Color(0xFFE31B25), // Red
                   ),
                 ),
               ],
@@ -828,9 +890,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   _textController.clear();
                   setState(() {}); // Force UI refresh
                 },
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete, color: Color(0xFFE31B25)), // Red delete icon
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.red[100],
+                  backgroundColor: const Color(0xFFFFCDD2), // Light red background
                   shape: const CircleBorder(),
                 ),
               ),
@@ -887,162 +949,168 @@ class _ChatScreenState extends State<ChatScreen> {
         color: Colors.white,
         border: Border(top: BorderSide(color: Color(0xFFE0E0E0))),
       ),
-      child: Row(
+      child: Column(
         children: [
-          // Floating language options (positioned at screen level)
-          _showLanguageOptions
-              ? Expanded(child: _buildFloatingLanguageOptions())
-              : Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: BlocBuilder<ChatCubit, ChatState>(
-                    builder: (context, chatState) {
-                      final isWaitingForResponse =
-                          chatState.isTyping || chatState.isLoading;
-                      final isDisabled =
-                          state.isRecording ||
-                          state.recordedAudioPath != null ||
-                          isWaitingForResponse;
-                      return TextField(
-                        controller: _textController,
-                        enabled: !isDisabled,
-                        // Disable when recording, preview, or waiting for response
-                        decoration: InputDecoration(
-                          hintText:
-                              state.isRecording
-                                  ? 'Recording...'
-                                  : state.recordedAudioPath != null
-                                  ? 'Audio recorded'
-                                  : isWaitingForResponse
-                                  ? (state.isProcessingVoice
-                                      ? 'Transcribing...'
-                                      : 'AI is responding...')
-                                  : 'Type here',
-                          hintStyle: TextStyle(
-                            color: isDisabled ? Colors.grey[400] : Colors.grey,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                        ),
-                        onChanged: (text) {
-                          setState(() {}); // Update send button state
+          Row(
+            children: [
+              // Floating language options (positioned at screen level)
+              _showLanguageOptions
+                  ? Expanded(child: _buildFloatingLanguageOptions())
+                  : Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: BlocBuilder<ChatCubit, ChatState>(
+                        builder: (context, chatState) {
+                          final isWaitingForResponse =
+                              chatState.isTyping || chatState.isLoading;
+                          final isDisabled =
+                              state.isRecording ||
+                              state.recordedAudioPath != null ||
+                              isWaitingForResponse;
+                          return TextField(
+                            controller: _textController,
+                            enabled: !isDisabled,
+                            // Disable when recording, preview, or waiting for response
+                            decoration: InputDecoration(
+                              hintText:
+                                  state.isRecording
+                                      ? 'Recording...'
+                                      : state.recordedAudioPath != null
+                                      ? 'Audio recorded'
+                                      : isWaitingForResponse
+                                      ? (state.isProcessingVoice
+                                          ? 'Transcribing...'
+                                          : 'AI is responding...')
+                                      : 'Type here',
+                              hintStyle: TextStyle(
+                                color: isDisabled ? Colors.grey[400] : Colors.grey,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                            ),
+                            onChanged: (text) {
+                              setState(() {}); // Update send button state
+                            },
+                          );
                         },
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
+
+              const SizedBox(width: 8),
+
+              // Voice Button
+              BlocBuilder<ChatCubit, ChatState>(
+                builder: (context, chatState) {
+                  final isWaitingForResponse =
+                      chatState.isTyping || chatState.isLoading;
+                  final canRecord =
+                      !isWaitingForResponse &&
+                      state.recordedAudioPath == null &&
+                      !state.isProcessingVoice;
+
+                  return GestureDetector(
+                    onTap:
+                        canRecord
+                            ? () {
+                              if (state.isRecording) {
+                                context.read<ChatCubit>().stopRecording();
+                              } else if (_showLanguageOptions) {
+                                // Hide language options (cancel)
+                                setState(() {
+                                  _showLanguageOptions = false;
+                                });
+                              } else {
+                                // Show floating language options
+
+                                setState(() {
+                                  _showLanguageOptions = true;
+                                });
+                              }
+                            }
+                            : null,
+                    // Disable when waiting for response or when audio is recorded
+                    child: Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color:
+                            state.isRecording
+                                ? const Color(0xFFE31B25) // Red when recording
+                                : state.recordedAudioPath != null
+                                ? Colors.blue[300]
+                                : canRecord
+                                ? Colors.grey[400]
+                                : Colors.grey[300], // Lighter grey when disabled
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        state.isRecording
+                            ? Icons.stop
+                            : _showLanguageOptions
+                            ? Icons.close
+                            : Icons.mic,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                    ),
+                  );
+                },
               ),
 
-          const SizedBox(width: 8),
+              const SizedBox(width: 8),
 
-          // Voice Button
-          BlocBuilder<ChatCubit, ChatState>(
-            builder: (context, chatState) {
-              final isWaitingForResponse =
-                  chatState.isTyping || chatState.isLoading;
-              final canRecord =
-                  !isWaitingForResponse &&
-                  state.recordedAudioPath == null &&
-                  !state.isProcessingVoice;
+              // Send Button (only show for text, not for voice)
+              if (_textController.text.trim().isNotEmpty &&
+                  state.recordedAudioPath == null)
+                BlocBuilder<ChatCubit, ChatState>(
+                  builder: (context, chatState) {
+                    final isWaitingForResponse =
+                        chatState.isTyping || chatState.isLoading;
+                    final canSend = !isWaitingForResponse;
 
-              return GestureDetector(
-                onTap:
-                    canRecord
-                        ? () {
-                          if (state.isRecording) {
-                            context.read<ChatCubit>().stopRecording();
-                          } else if (_showLanguageOptions) {
-                            // Hide language options (cancel)
-                            setState(() {
-                              _showLanguageOptions = false;
-                            });
-                          } else {
-                            // Show floating language options
-
-                            setState(() {
-                              _showLanguageOptions = true;
-                            });
-                          }
-                        }
-                        : null,
-                // Disable when waiting for response or when audio is recorded
-                child: Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color:
-                        state.isRecording
-                            ? Colors.red
-                            : state.recordedAudioPath != null
-                            ? Colors.blue[300]
-                            : canRecord
-                            ? Colors.grey[400]
-                            : Colors.grey[300], // Lighter grey when disabled
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(
-                    state.isRecording
-                        ? Icons.stop
-                        : _showLanguageOptions
-                        ? Icons.close
-                        : Icons.mic,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              );
-            },
-          ),
-
-          const SizedBox(width: 8),
-
-          // Send Button (only show for text, not for voice)
-          if (_textController.text.trim().isNotEmpty &&
-              state.recordedAudioPath == null)
-            BlocBuilder<ChatCubit, ChatState>(
-              builder: (context, chatState) {
-                final isWaitingForResponse =
-                    chatState.isTyping || chatState.isLoading;
-                final canSend = !isWaitingForResponse;
-
-                return GestureDetector(
-                  onTap:
-                      canSend
-                          ? () {
-                            final text = _textController.text.trim();
-                            if (text.isNotEmpty) {
-                              context.read<ChatCubit>().sendTextMessage(text);
-                              _textController.clear();
-                              setState(() {}); // Update UI
-                            }
-                          }
-                          : null, // Disable when waiting for response
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color:
+                    return GestureDetector(
+                      onTap:
                           canSend
-                              ? AppColors.primaryColor
-                              : Colors.grey[400], // Grey when disabled
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      isWaitingForResponse ? Icons.hourglass_empty : Icons.send,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                );
-              },
-            ),
+                              ? () {
+                                final text = _textController.text.trim();
+                                if (text.isNotEmpty) {
+                                  context.read<ChatCubit>().sendTextMessage(text);
+                                  _textController.clear();
+                                  setState(() {}); // Update UI
+                                }
+                              }
+                              : null, // Disable when waiting for response
+                      child: Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color:
+                              canSend
+                                  ? AppColors.primaryColor
+                                  : Colors.grey[400], // Grey when disabled
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          isWaitingForResponse ? Icons.hourglass_empty : Icons.send,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+            ],
+          ),
+          // Disclaimer Banner
+          _buildDisclaimerBanner(),
         ],
       ),
     );
@@ -1481,7 +1549,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to play text-to-speech: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: const Color(0xFFE31B25), // Red background
           ),
         );
         // Reset playing state
@@ -1520,7 +1588,7 @@ class _ChatScreenState extends State<ChatScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to play audio: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: const Color(0xFFE31B25), // Red background
           ),
         );
       }
@@ -1538,10 +1606,255 @@ class _ChatScreenState extends State<ChatScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Failed to pause audio: $e'),
-            backgroundColor: Colors.red,
+            backgroundColor: const Color(0xFFE31B25), // Red background
           ),
         );
       }
     }
+  }
+
+  /// Show confirmation dialog before reporting a message
+  void _showReportConfirmationDialog(String messageId) {
+    // Capture the ChatCubit instance before showing the dialog
+    final chatCubit = context.read<ChatCubit>();
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return _ReportFeedbackDialog(
+          messageId: messageId,
+          onReport: (feedbackType, additionalFeedback) {
+            // Call the cubit to report the message with feedback
+            chatCubit.reportMessage(messageId, feedbackType: feedbackType, additionalFeedback: additionalFeedback);
+          },
+        );
+      },
+    );
+  }
+}
+
+class _ReportFeedbackDialog extends StatefulWidget {
+  final String messageId;
+  final Function(String feedbackType, String? additionalFeedback) onReport;
+
+  const _ReportFeedbackDialog({
+    required this.messageId,
+    required this.onReport,
+  });
+
+  @override
+  State<_ReportFeedbackDialog> createState() => _ReportFeedbackDialogState();
+}
+
+class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
+  String? _selectedFeedbackType;
+  final TextEditingController _additionalFeedbackController = TextEditingController();
+  bool _showAdditionalFeedback = false;
+
+  final List<String> _feedbackOptions = [
+    'Not factually correct',
+    'Didn\'t follow instructions',
+    'Offensive/Unsafe',
+    'Wrong language',
+    'Poorly formatted',
+    'Generic/Bland',
+    'Other',
+  ];
+
+  @override
+  void dispose() {
+    _additionalFeedbackController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Dialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 400),
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'What went wrong?',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Color(0xFF1F1F1F),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Your feedback helps make Gro AI Saathi better for everyone.',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                IconButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  icon: const Icon(Icons.close, size: 24),
+                  style: IconButton.styleFrom(
+                    backgroundColor: Colors.grey[100],
+                    shape: const CircleBorder(),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 24),
+
+            // Feedback Options
+            ...(_feedbackOptions.map((option) => _buildFeedbackOption(option))),
+
+            // Additional Feedback Input (shown when "Other" is selected)
+            if (_showAdditionalFeedback) ...[
+              const SizedBox(height: 16),
+              AnimatedContainer(
+                duration: const Duration(milliseconds: 300),
+                curve: Curves.easeInOut,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey[300]!),
+                  ),
+                  child: TextField(
+                    controller: _additionalFeedbackController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: 'Provide additional feedback',
+                      hintStyle: TextStyle(color: Colors.grey[500]),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+
+            const SizedBox(height: 24),
+
+            // Submit Button
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _selectedFeedbackType != null
+                    ? () {
+                        String feedbackType = _selectedFeedbackType!;
+                        String? additionalFeedback = null;
+                        
+                        if (_showAdditionalFeedback && _additionalFeedbackController.text.trim().isNotEmpty) {
+                          // If "Other" is selected and there's text, combine them
+                          feedbackType = 'other-${_additionalFeedbackController.text.trim()}';
+                        }
+                        
+                        widget.onReport(feedbackType, additionalFeedback);
+                        Navigator.of(context).pop();
+                      }
+                    : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                ),
+                child: const Text(
+                  'Submit',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFeedbackOption(String option) {
+    final isSelected = _selectedFeedbackType == option;
+    final isOther = option == 'Other';
+
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      margin: const EdgeInsets.only(bottom: 8),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _selectedFeedbackType = option;
+            if (isOther) {
+              _showAdditionalFeedback = true;
+            } else {
+              _showAdditionalFeedback = false;
+              _additionalFeedbackController.clear();
+            }
+          });
+        },
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColors.primaryColor.withValues(alpha: 0.1) : Colors.grey[100],
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(
+              color: isSelected ? AppColors.primaryColor : Colors.grey[300]!,
+              width: isSelected ? 2 : 1,
+            ),
+            boxShadow: isSelected ? [
+              BoxShadow(
+                color: AppColors.primaryColor.withValues(alpha: 0.2),
+                blurRadius: 4,
+                offset: const Offset(0, 2),
+              ),
+            ] : null,
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  option,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? AppColors.primaryColor : const Color(0xFF1F1F1F),
+                  ),
+                ),
+              ),
+              if (isSelected)
+                AnimatedScale(
+                  scale: 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Icon(
+                    Icons.check,
+                    color: AppColors.primaryColor,
+                    size: 20,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -49,6 +49,7 @@ class ChatRepository {
         timestamp: DateTime.now(),
         language: response['language'] ?? language, // Use detected language
         messageType: MessageType.text,
+        reported: false, // New messages are not reported
       );
     } catch (e) {
 
@@ -61,6 +62,7 @@ class ChatRepository {
         timestamp: DateTime.now(),
         language: language,
         messageType: MessageType.text,
+        reported: false, // Error messages are not reported
       );
     }
   }
@@ -89,6 +91,7 @@ class ChatRepository {
         timestamp: DateTime.now(),
         language: detectedLanguage,
         messageType: MessageType.text, // Changed from voice to text
+        reported: false, // User messages are not reported
       );
 
       // Create AI response message
@@ -99,6 +102,7 @@ class ChatRepository {
         timestamp: DateTime.now(),
         language: detectedLanguage,
         messageType: MessageType.text,
+        reported: false, // New AI messages are not reported
       );
 
       return {
@@ -116,6 +120,7 @@ class ChatRepository {
         timestamp: DateTime.now(),
         language: language,
         messageType: MessageType.text,
+        reported: false, // Error user messages are not reported
       );
 
       final aiMessage = ChatMessage(
@@ -125,6 +130,7 @@ class ChatRepository {
         timestamp: DateTime.now(),
         language: language,
         messageType: MessageType.text,
+        reported: false, // Error AI messages are not reported
       );
 
       return {
@@ -176,6 +182,30 @@ class ChatRepository {
       return audioBytes;
     } catch (e) {
 
+      rethrow;
+    }
+  }
+
+  /// Report a message
+  /// Returns true if report was successful
+  Future<bool> reportMessage({
+    required String messageId,
+    String? feedbackType = 'inappropriate_content',
+    String? additionalFeedback,
+  }) async {
+    try {
+      // Get user ID from secure storage
+      final userId = await _apiService.getUserId();
+      
+      final success = await _apiService.reportMessage(
+        messageId: messageId,
+        userId: userId,
+        reason: feedbackType,
+        additionalFeedback: additionalFeedback,
+      );
+      
+      return success;
+    } catch (e) {
       rethrow;
     }
   }

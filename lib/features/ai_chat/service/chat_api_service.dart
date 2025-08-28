@@ -11,6 +11,11 @@ class ChatApiService {
 
   ChatApiService(this._apiService, this._securePrefs);
 
+  /// Get user ID from secure storage
+  Future<String> getUserId() async {
+    return await _securePrefs.get(AppString.sessionKey.userId) ?? '';
+  }
+
   /// Convert technical errors to user-friendly messages for API layer
   Never _getUserFriendlyApiError(dynamic error) {
     final errorString = error.toString().toLowerCase();
@@ -361,5 +366,73 @@ class ChatApiService {
 
       _getUserFriendlyApiError(e);
     }
+  }
+
+  /// Report a message to the API
+  /// Returns true if report was successful
+  Future<bool> reportMessage({
+    required String messageId,
+    required String userId,
+    String? reason = 'inappropriate_content',
+    String? additionalFeedback,
+  }) async {
+    // TODO: Remove hardcoded response when actual API is ready
+    // For testing purposes, always return true
+    return true;
+    
+    // Original API implementation (commented out for testing)
+    /*
+    try {
+      // Get xApiKey from secure storage
+      final xApiKey = ApiUrls.fetchedChatBotXApiKEY;
+      
+      // Real API endpoint for reporting messages
+      const String endpoint = 'https://groone-bot-api.letsgro.co/report-message';
+      
+      // Add custom headers with X-API-Key
+      final customHeaders = {
+        'X-API-Key': xApiKey,
+        'Content-Type': 'application/json',
+      };
+      
+      // Request body
+      final requestBody = {
+        'message_id': messageId,
+        'user_id': userId,
+        'catalog_id': 'groone',
+        'feedback_type': reason,
+        if (additionalFeedback != null && additionalFeedback.isNotEmpty)
+          'additional_feedback': additionalFeedback,
+      };
+      
+      final result = await _apiService.post(
+        endpoint,
+        body: requestBody,
+        customHeaders: customHeaders,
+      );
+
+      // Handle Result<dynamic> return type
+      if (result is Success) {
+        final data = result.value;
+        if (data is Map<String, dynamic>) {
+          final status = data['status'] as String?;
+          final message = data['message'] as String?;
+          
+          if (status == 'success') {
+            return true; // Report was successful
+          } else {
+            throw Exception(message ?? 'Report failed');
+          }
+        }
+        throw Exception('Invalid response format from API');
+      } else if (result is Error) {
+        throw Exception(result.type.toString());
+      } else {
+        throw Exception('Unknown response type');
+      }
+    } catch (e) {
+      _getUserFriendlyApiError(e);
+    }
+    */
   }
 }
