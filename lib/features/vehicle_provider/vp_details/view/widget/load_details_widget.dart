@@ -262,9 +262,7 @@ class LoadDetailsWidget extends StatelessWidget {
                                 showAddButton:
                                     state.loadStatus != LoadStatus.completed &&
                                     state.loadStatus !=
-                                        LoadStatus.podDispatched &&
-                              !(loadDetails?.loadApproval?.damageAndShortagesApproved == true ||
-                                loadDetails?.loadApproval?.damageAndShortagesApproved == false),
+                                        LoadStatus.podDispatched,
                                 context: context,
                                 title: context.appText.damageAndShortage,
                                 onAdd: () async {
