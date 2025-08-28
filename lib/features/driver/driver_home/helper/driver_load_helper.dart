@@ -46,7 +46,7 @@ class DriverLoadHelper {
 
     Color textColor =
         loadOnHold
-            ? Colors.white
+            ? AppColors.white
             : DriverLoadHelper.getColor(statusTxtColor ?? '');
 
     return Container(

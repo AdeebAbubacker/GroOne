@@ -218,7 +218,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
       context: context,
       builder:
           (_) => Container(
-        color: Colors.white,
+        color: AppColors.white,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

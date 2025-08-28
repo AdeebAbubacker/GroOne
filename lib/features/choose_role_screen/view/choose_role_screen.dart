@@ -145,7 +145,7 @@ class ChooseRoleScreen extends StatelessWidget {
           margin: EdgeInsets.only(top: 28),
           // height: 70.h,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.white,
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               width: 1.5,
@@ -203,7 +203,7 @@ class ChooseRoleScreen extends StatelessWidget {
           child: Container(
             padding: EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: AppColors.white,
               borderRadius: BorderRadius.circular(50),
               border: Border.all(
                 width: 1.5,

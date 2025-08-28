@@ -1,5 +1,4 @@
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_logout_model.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_profile/service/driver_profile_service.dart';
