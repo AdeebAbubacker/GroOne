@@ -2109,7 +2109,7 @@ class LpPaymentDetails {
       vpId: json["vpId"] ?? "",
       agreedPrice: json["agreedPrice"] ?? "",
       receivableAdvance: json["receivableAdvance"] ?? "",
-      receivableBalance: json["receivableBalance"] ?? "",
+      receivableBalance: json["balanceToBeReceivable"] ?? "",
       receivableAdvancePercentage: json["receivableAdvancePercentage"] ?? "",
       receivableBalancePercentage: json["receivableBalancePercentage"] ?? "",
       receivableAdvancePaid: json["receivableAdvancePaid"] ?? "",
