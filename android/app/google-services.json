@@ -1,13 +1,32 @@
 {
   "project_info": {
-    "project_number": "117981526124",
-    "project_id": "gro-one",
-    "storage_bucket": "gro-one.firebasestorage.app"
+    "project_number": "311939151127",
+    "project_id": "gro-fleet-c146a",
+    "storage_bucket": "gro-fleet-c146a.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:117981526124:android:a0a0aca4e75be3f0ecc049",
+        "mobilesdk_app_id": "1:311939151127:android:ac0c05e9e1b39f97a37352",
+        "android_client_info": {
+          "package_name": "app.gro.fleet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBItdmf8CUHEXuuuXUZfpt3aaUn9Kz4yH8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:311939151127:android:65af003fa57613e7a37352",
         "android_client_info": {
           "package_name": "com.gro.oneapp"
         }
@@ -15,7 +34,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyCTohHhmG8icFhCffVmSQXxz1RheyMi0Jg"
+          "current_key": "AIzaSyBItdmf8CUHEXuuuXUZfpt3aaUn9Kz4yH8"
         }
       ],
       "services": {

@@ -50,17 +50,17 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCTohHhmG8icFhCffVmSQXxz1RheyMi0Jg',
-    appId: '1:117981526124:android:a0a0aca4e75be3f0ecc049',
-    messagingSenderId: '117981526124',
-    projectId: 'gro-one',
+    apiKey: 'AIzaSyBItdmf8CUHEXuuuXUZfpt3aaUn9Kz4yH8',
+    appId: '1:311939151127:android:65af003fa57613e7a37352',
+    messagingSenderId: '311939151127',
+    projectId: 'gro-fleet-c146a',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBN5_xzLu7XGH37XIPofED38ZYjsVZ7iBM',
-    appId: '1:117981526124:ios:4e5358b258d7462eecc049',
-    messagingSenderId: '117981526124',
-    projectId: 'gro-one',
+    apiKey: 'AIzaSyAEH-qYlp-OwoBnrWbVeJiRATT5AAZvFZU',
+    appId: '1:311939151127:ios:9e7ceb52007f442da37352',
+    messagingSenderId: '311939151127',
+    projectId: 'gro-fleet-c146a',
     iosBundleId: 'com.gro.oneapp',
   );
 }
