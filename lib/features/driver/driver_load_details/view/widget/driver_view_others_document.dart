@@ -60,7 +60,7 @@ class DriverViewOthersDocument extends StatelessWidget {
                       },
                       isLoading: false,
                       documentEntity: documentEntity!,
-                      loadDocument: loadDocumentObj!).paddingSymmetric(horizontal: 15,vertical: 8);
+                      loadDocument: loadDocumentObj).paddingSymmetric(horizontal: 15,vertical: 8);
                 },).expand();
             }
           ),

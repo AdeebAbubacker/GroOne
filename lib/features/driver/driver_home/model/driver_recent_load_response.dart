@@ -129,7 +129,7 @@ class DriverRecentLoadData {
     DateTime? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
     int? handlingCharges,
-    dynamic? acceptedBy,
+    dynamic acceptedBy,
     int? agreedPrice,
     int? acceptedVehicleId,
     DateTime? createdAt,
@@ -233,7 +233,7 @@ class Commodity {
   Commodity copyWith({
     int? id,
     String? name,
-    dynamic? iconUrl,
+    dynamic iconUrl,
   }) {
     return Commodity(
       id: id ?? this.id,

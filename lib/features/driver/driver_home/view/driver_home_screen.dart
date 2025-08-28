@@ -279,9 +279,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 if (state is LoadCommoditySuccess) {
                   final commodities = state.commodityListModel;
                   final commodityNames =
-                      commodities.map((e) => e.name ?? '').toList();
+                      commodities.map((e) => e.name).toList();
                   final commodityNameIdMap = {
-                    for (var e in commodities) e.name ?? '': e.id,
+                    for (var e in commodities) e.name: e.id,
                   };
 
                   return Column(
@@ -345,7 +345,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   void disposeFunction() => frameCallback(() {
     searchController.dispose();
     _debounce?.cancel();
-    _tabController?.dispose();
+    _tabController.dispose();
   });
 
   void _loadDataByTab({required int index, bool forceRefresh = false}) {

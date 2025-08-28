@@ -305,8 +305,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                           decoration: BoxDecoration(
                                             color: loadDetails?.loadApproval?.damageAndShortagesApproved == true
-                                                ? AppColors.greenColor.withOpacity(0.2) 
-                                                : AppColors.red.withOpacity(0.2),  
+                                                ? AppColors.greenColor.withValues(alpha: 0.2) 
+                                                : AppColors.red.withValues(alpha : 0.2),  
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Text(
