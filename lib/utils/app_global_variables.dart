@@ -10,3 +10,6 @@ var isIOS = Platform.isIOS;
 var fadeAnimation = [FadeEffect(duration: 400.ms)];
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+var playStoreUrl = 'https://play.google.com/store/apps/details?id=com.example';
+var appStoreUrl = 'https://apps.apple.com/us/app/gro-one/id6747885927';

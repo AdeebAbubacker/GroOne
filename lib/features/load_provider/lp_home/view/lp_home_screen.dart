@@ -45,6 +45,7 @@ import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
@@ -90,6 +91,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   final loginBloc = locator<LoginBloc>();
   final securePrefs = locator<SecuredSharedPreferences>();
   final splashViewModel = locator<SplashViewModel>();
+  final analytics = locator<AnalyticsService>();
 
 
   final dateTimeTextController = TextEditingController();
@@ -142,12 +144,13 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   void initFunction() => frameCallback(() async {
     await splashViewModel.checkAppUpdate();
+    analytics.logEvent(AnalyticEventName.LP_HOME);
 
     final updateState = splashViewModel.appUpdateUIState;
     if (updateState != null && updateState.status == Status.SUCCESS) {
       final updateType = parseUpdateType(updateState.data!);
 
-      if (updateType == AppUpdateType.force && mounted) {
+      if (updateType == AppUpdateType.soft && mounted) {
         ToastMessages.updateAvailable(
           message: context.appText.updateAvailableText,
         );
