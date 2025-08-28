@@ -33,27 +33,24 @@ class ChatRepository {
     required String language,
   }) async {
     try {
-
-      
       final response = await _apiService.sendTextMessage(
         message: message,
         language: language,
       );
       
-
+      // Ensure response is properly typed
+      final Map<String, dynamic> responseMap = response as Map<String, dynamic>;
 
       return ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: response['message'] ?? 'No response received',
+        id: responseMap['assistant_message_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        message: responseMap['message'] ?? 'No response received',
         isUser: false,
         timestamp: DateTime.now(),
-        language: response['language'] ?? language, // Use detected language
+        language: responseMap['language'] ?? language, // Use detected language
         messageType: MessageType.text,
         reported: false, // New messages are not reported
       );
     } catch (e) {
-
-      
       // Return user-friendly error message as AI response
       return ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
@@ -78,31 +75,28 @@ class ChatRepository {
         audioFilePath: audioFilePath,
         language: language,
       );
+      
+      // Ensure response is properly typed
+      final Map<String, dynamic> responseMap = response as Map<String, dynamic>;
 
-      final transcript = response['transcript'] ?? 'Audio transcribed';
-      final aiResponse = response['message'] ?? 'No response received';
-      final detectedLanguage = response['language'] ?? language;
-
-      // Create user message with transcript text (not audio)
       final userMessage = ChatMessage(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        message: transcript,
+        id: responseMap['userMessage']?['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+        message: responseMap['userMessage']?['message'] ?? 'Voice message',
         isUser: true,
         timestamp: DateTime.now(),
-        language: detectedLanguage,
-        messageType: MessageType.text, // Changed from voice to text
+        language: responseMap['userMessage']?['language'] ?? language,
+        messageType: MessageType.voice,
         reported: false, // User messages are not reported
       );
 
-      // Create AI response message
       final aiMessage = ChatMessage(
-        id: (DateTime.now().millisecondsSinceEpoch + 1).toString(),
-        message: aiResponse,
+        id: responseMap['aiMessage']?['assistant_message_id'] ?? (DateTime.now().millisecondsSinceEpoch + 1).toString(),
+        message: responseMap['aiMessage']?['message'] ?? 'No response received',
         isUser: false,
         timestamp: DateTime.now(),
-        language: detectedLanguage,
+        language: responseMap['aiMessage']?['language'] ?? language,
         messageType: MessageType.text,
-        reported: false, // New AI messages are not reported
+        reported: false, // New messages are not reported
       );
 
       return {

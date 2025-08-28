@@ -42,8 +42,8 @@ class ChatApiService {
   }
 
   /// Send text message to AI chat API
-  /// Returns a Map with 'message' and 'language' keys
-  Future<Map<String, String>> sendTextMessage({
+  /// Returns a Map with 'message', 'language', 'assistant_message_id', 'cached', and 'rate_limit' keys
+  Future<Map<String, dynamic>> sendTextMessage({
     required String message,
     required String language,
   }) async {
@@ -87,9 +87,16 @@ class ChatApiService {
             if (data != null) {
               final llmResponse = data['llm_response'] as String?;
               final detectedLanguage = data['detected_language'] as String?;
+              final assistantMessageId = data['assistant_message_id'] as String?;
+              final cached = data['cached'] as bool? ?? false;
+              final rateLimit = data['rate_limit'] as Map<String, dynamic>?;
+              
               return {
                 'message': llmResponse ?? 'No response received from AI',
                 'language': detectedLanguage ?? language, // fallback to request language
+                'assistant_message_id': assistantMessageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                'cached': cached.toString(),
+                'rate_limit': rateLimit ?? <String, dynamic>{},
               };
             }
           }
@@ -124,8 +131,8 @@ class ChatApiService {
   }
 
   /// Send voice message to AI chat API
-  /// Returns a Map with 'transcript', 'message' and 'language' keys
-  Future<Map<String, String>> sendVoiceMessage({
+  /// Returns a Map with 'userMessage' and 'aiMessage' keys, each containing id, message, and language
+  Future<Map<String, dynamic>> sendVoiceMessage({
     required String audioFilePath,
     required String language,
   }) async {
@@ -184,27 +191,63 @@ class ChatApiService {
                 
                 if (lowerTranscription.contains('no speech recognized')) {
                   return {
-                    'transcript': 'No speech recognized',
-                    'message': 'No speech recognized. Please try again with a clearer voice message.',
-                    'language': language, // fallback to request language
+                    'userMessage': {
+                      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'message': 'No speech recognized',
+                      'language': language,
+                    },
+                    'aiMessage': {
+                      'assistant_message_id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'message': 'No speech recognized. Please try again with a clearer voice message.',
+                      'language': language,
+                      'cached': false,
+                      'rate_limit': <String, dynamic>{},
+                    },
                   };
                 } else if (lowerTranscription.contains('unclear') || lowerTranscription.contains('unintelligible')) {
                   return {
-                    'transcript': transcription,
-                    'message': 'Speech was unclear. Please try again with clearer pronunciation.',
-                    'language': language, // fallback to request language
+                    'userMessage': {
+                      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'message': transcription,
+                      'language': language,
+                    },
+                    'aiMessage': {
+                      'assistant_message_id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'message': 'Speech was unclear. Please try again with clearer pronunciation.',
+                      'language': language,
+                      'cached': false,
+                      'rate_limit': <String, dynamic>{},
+                    },
                   };
                 } else if (lowerTranscription.contains('too quiet') || lowerTranscription.contains('low volume')) {
                   return {
-                    'transcript': transcription,
-                    'message': 'Voice was too quiet. Please speak louder and try again.',
-                    'language': language, // fallback to request language
+                    'userMessage': {
+                      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'message': transcription,
+                      'language': language,
+                    },
+                    'aiMessage': {
+                      'assistant_message_id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'message': 'Voice was too quiet. Please speak louder and try again.',
+                      'language': language,
+                      'cached': false,
+                      'rate_limit': <String, dynamic>{},
+                    },
                   };
                 } else if (lowerTranscription.contains('background noise') || lowerTranscription.contains('noise')) {
                   return {
-                    'transcript': transcription,
-                    'message': 'Too much background noise. Please record in a quieter environment.',
-                    'language': language, // fallback to request language
+                    'userMessage': {
+                      'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'message': transcription,
+                      'language': language,
+                    },
+                    'aiMessage': {
+                      'assistant_message_id': DateTime.now().millisecondsSinceEpoch.toString(),
+                      'message': 'Too much background noise. Please record in a quieter environment.',
+                      'language': language,
+                      'cached': false,
+                      'rate_limit': <String, dynamic>{},
+                    },
                   };
                 }
               }
@@ -212,21 +255,48 @@ class ChatApiService {
               // Return transcript and AI response
               if (llmResponse != null && llmResponse.isNotEmpty) {
                 return {
-                  'transcript': transcription ?? 'Audio transcribed',
-                  'message': llmResponse,
-                  'language': detectedLanguage ?? language, // use detected language or fallback
+                  'userMessage': {
+                    'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                    'message': transcription ?? 'Audio transcribed',
+                    'language': detectedLanguage ?? language,
+                  },
+                  'aiMessage': {
+                    'assistant_message_id': data['assistant_message_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                    'message': llmResponse,
+                    'language': detectedLanguage ?? language,
+                    'cached': data['cached'] ?? false,
+                    'rate_limit': data['rate_limit'] ?? <String, dynamic>{},
+                  },
                 };
               } else if (transcription != null && transcription.isNotEmpty) {
                 return {
-                  'transcript': transcription,
-                  'message': 'Transcription: $transcription',
-                  'language': detectedLanguage ?? language, // use detected language or fallback
+                  'userMessage': {
+                    'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                    'message': transcription,
+                    'language': detectedLanguage ?? language,
+                  },
+                  'aiMessage': {
+                    'assistant_message_id': data['assistant_message_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                    'message': 'Transcription: $transcription',
+                    'language': detectedLanguage ?? language,
+                    'cached': data['cached'] ?? false,
+                    'rate_limit': data['rate_limit'] ?? <String, dynamic>{},
+                  },
                 };
               } else {
                 return {
-                  'transcript': 'Audio received',
-                  'message': 'Voice message received but no response generated',
-                  'language': language, // fallback to request language
+                  'userMessage': {
+                    'id': DateTime.now().millisecondsSinceEpoch.toString(),
+                    'message': 'Audio received',
+                    'language': language,
+                  },
+                  'aiMessage': {
+                    'assistant_message_id': data['assistant_message_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+                    'message': 'Voice message received but no response generated',
+                    'language': language,
+                    'cached': data['cached'] ?? false,
+                    'rate_limit': data['rate_limit'] ?? <String, dynamic>{},
+                  },
                 };
               }
             }

@@ -69,8 +69,11 @@ class ChatCubit extends Cubit<ChatState> {
               // Convert API message format to ChatMessage
               final message = _convertApiMessageToChatMessage(messageData);
               chatMessages.add(message);
+              
+              // Debug individual message parsing
+              print('   📝 Message: ${message.isUser ? 'USER' : 'AI'} - ID: ${message.id} - Reported: ${message.reported}');
             } catch (e) {
-
+              print('   ❌ Error parsing message: $e');
               continue;
             }
           }
@@ -493,6 +496,15 @@ class ChatCubit extends Cubit<ChatState> {
         final messages = data['messages'] as List<dynamic>?;
         final hasMore = data['has_more'] as bool? ?? false;
         final currentPage = data['page'] as int? ?? 1;
+        final totalCount = data['total_count'] as int? ?? 0;
+        final pageSize = data['page_size'] as int? ?? _pageSize;
+
+        print('📱 Chat History API Response:');
+        print('   - Total messages: $totalCount');
+        print('   - Current page: $currentPage');
+        print('   - Page size: $pageSize');
+        print('   - Has more: $hasMore');
+        print('   - Messages count: ${messages?.length ?? 0}');
 
         if (messages != null) {
           final List<ChatMessage> chatMessages = [];
@@ -521,7 +533,7 @@ class ChatCubit extends Cubit<ChatState> {
             messages: updatedMessages,
             hasMoreMessages: _hasMoreMessages,
             isLoading: false,
-            pageNo: _currentPage,
+            pageNo: currentPage,
           ));
           _currentPage = currentPage + 1;
 
@@ -540,8 +552,8 @@ class ChatCubit extends Cubit<ChatState> {
 
   /// Convert API message format to ChatMessage
   ChatMessage _convertApiMessageToChatMessage(Map<String, dynamic> messageData) {
-    // Based on actual API response structure
-    final id = DateTime.now().millisecondsSinceEpoch.toString(); // Generate unique ID
+    // Based on new chat history API response structure
+    final id = messageData['id'] ?? DateTime.now().millisecondsSinceEpoch.toString();
     final message = messageData['content'] ?? '';
     final isUser = messageData['role'] == 'user';
     final timestamp = messageData['timestamp'] != null
@@ -549,7 +561,7 @@ class ChatCubit extends Cubit<ChatState> {
         : DateTime.now();
     final language = messageData['language'] ?? 'en';
     final messageType = MessageType.text; // Default to text for now
-    final reported = messageData['reported'] ?? false; // Parse reported field
+    final reported = messageData['is_reported'] ?? false; // Parse new is_reported field
 
     return ChatMessage(
       id: id,
