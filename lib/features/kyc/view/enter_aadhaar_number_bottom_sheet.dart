@@ -121,6 +121,7 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
          path= await KycHelper.saveBase64PdfToFile(aadharVerificationData?.dataPdf??"");
        }
        setAadharDocumentToLocal(path,aadhaarNumberTextController.text);
+       analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_SUCCESS);
 
        Navigator.of(navigatorKey.currentState!.context).pushReplacement(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text,pdfPath: path,))).then((v) {
          if(v != null && v == true){
@@ -130,7 +131,9 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
          }
        });
        return;
-     }
+     }else{
+      analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_FAILED);
+    }
    }
 
 

@@ -62,6 +62,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   });
 
   void onItemTapped(int index) {
+
     if(index == 3) {
       AppDialog.show(context, child: CommonDialogView(
         showYesNoButtonButtons: true,
@@ -83,6 +84,11 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       ));
     } else {
       changeTab(index, allLoadsSubTabIndex: 0);
+    }
+    if(index==0){
+      analyticsHelper.logEvent(AnalyticEventName.VP_HOME);
+     }else if(index==1){
+      analyticsHelper.logEvent(AnalyticEventName.VP_MY_LOAD);
     }
   }
 

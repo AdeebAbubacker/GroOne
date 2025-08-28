@@ -46,10 +46,26 @@ class AnalyticEventName {
   // Kyc
   static const String AADHAAR_VERIFICATION_SUCCESS = "aadhaar_verification_success";
   static const String AADHAAR_VERIFICATION_FAILED = "aadhaar_verification_failed";
+
   static const String KYC_FORM_SUBMITTED = "kyc_form_submitted";
   static const String KYC_PENDING = "kyc_pending";
   static const String KYC_IN_PROGRESS = "kyc_in_progress";
   static const String KYC_COMPLETED = "kyc_completed";
+
+
+  // Load Document
+  static const String LORRY_RECEIPT_UPLOADED = "kyc_receipt_uploaded";
+  static const String E_WAY_BILLED_UPLOADED = "e_way_bill_uploaded";
+  static const String MATERIAL_INVOICE_UPLOADED= "material_invoice_uploaded";
+  static const String OTHERS_DOCUMENT_UPLOADED= "others_document_uploaded";
+  static const String POD_DOCUMENT_UPLOADED= "pod_document_uploaded";
+
+  // Pod details
+  static const String POD_DETAILS_ADDED= "pod_details_added";
+
+  // Damage And Shortage
+  static const String DAMAGE_SHORTAGE_ADDED= "damage_shortage_added";
+  static const String SETTLEMENT_ADDED= "settlement_added";
 
 
 

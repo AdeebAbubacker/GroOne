@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -104,6 +106,8 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
   final courierCompanyTextController = TextEditingController();
   final awbNumberTextController = TextEditingController();
+
+  static final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   String? podCenterIdDropDownValue;
   bool isPodCenterDropDownEnabled = false;
@@ -242,6 +246,10 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
             final status = state.submitPodUIState?.status;
             if (status == Status.SUCCESS) {
               Navigator.of(context).pop(true);
+              analyticsHelper.logEvent(AnalyticEventName.POD_DETAILS_ADDED,{
+                "courierCompany":courierCompanyTextController.text,
+                "awbNumber":awbNumberTextController.text
+              });
             }
             if (status == Status.ERROR) {
               final error = state.submitPodUIState?.errorType;

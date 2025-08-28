@@ -199,7 +199,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
         // Notification
         Visibility(
-visible: false,
+          visible: false,
           child: IconButton(
             onPressed: () {
               Navigator.push(context, commonRoute(NotificationScreen()));
