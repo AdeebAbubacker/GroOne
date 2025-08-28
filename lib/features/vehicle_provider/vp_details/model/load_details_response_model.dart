@@ -75,6 +75,7 @@ class LoadDetailModelData {
     required this.loadOnHold,
     required this.loadStatusValue,
     required this.loadSettlement,
+    this.loadApproval,
     required this.podDispatch,
 
   });
@@ -122,6 +123,7 @@ class LoadDetailModelData {
   final bool? loadOnHold;
   final LoadStatus? loadStatusValue;
   final LoadSettlement? loadSettlement;
+  final VpLoadApproval? loadApproval;
   final PodDispatch? podDispatch;
 
   LoadDetailModelData copyWith({
@@ -168,6 +170,7 @@ class LoadDetailModelData {
     TrackingDetails? trackingDetails,
     LoadStatus? loadStatusValue,
     LoadSettlement? loadSettlement,
+    VpLoadApproval? loadApproval,
     PodDispatch? podDispatch,
     MemoDetails? loadMemo
   }) {
@@ -213,6 +216,7 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
       consignee: consignee ?? this.consignee,
       loadDocument: loadDocument ?? this.loadDocument,
       damageShortage: damageShortage ?? this.damageShortage,
+      loadApproval : loadApproval ?? this.loadApproval,
       timeline: timeline ?? this.timeline,
       customer: customer ?? this.customer,
       vpCustomer: vpCustomer ?? this.vpCustomer,
@@ -269,7 +273,7 @@ loadStatusValue: loadStatusValue??this.loadStatusValue,
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
       damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
       timeline: timeLine,
-
+      loadApproval : json["loadApproval"] == null ? null : VpLoadApproval.fromJson(json["loadApproval"]),
       customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
       vpCustomer: json["vpCustomer"] == null ? null : Customer.fromJson(json["vpCustomer"]),
       weight: json["weight"] == null ? null : Weight.fromJson(json["weight"]),
@@ -1669,16 +1673,90 @@ class VpLog {
 }
 
 
+class VpLoadApproval {
+    VpLoadApproval({
+        required this.id,
+        required this.loadId,
+        required this.rejectionReason,
+        required this.documentApproved,
+        required this.damageAndShortagesApproved,
+        required this.damageAndShortagesRejectionReason,
+        required this.settlementApproved,
+        required this.settlementRejectionReason,
+        required this.paymentApproved,
+        required this.podApproved,
+        required this.approvedBy,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.deletedAt,
+    });
 
+    final String id;
+    final String loadId;
+    final dynamic rejectionReason;
+    final bool documentApproved;
+    final bool damageAndShortagesApproved;
+    final String damageAndShortagesRejectionReason;
+    final dynamic settlementApproved;
+    final dynamic settlementRejectionReason;
+    final dynamic paymentApproved;
+    final bool podApproved;
+    final String approvedBy;
+    final DateTime? createdAt;
+    final DateTime? updatedAt;
+    final dynamic deletedAt;
 
+    VpLoadApproval copyWith({
+        String? id,
+        String? loadId,
+        dynamic? rejectionReason,
+        bool? documentApproved,
+        bool? damageAndShortagesApproved,
+        String? damageAndShortagesRejectionReason,
+        dynamic? settlementApproved,
+        dynamic? settlementRejectionReason,
+        dynamic? paymentApproved,
+        bool? podApproved,
+        String? approvedBy,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        dynamic? deletedAt,
+    }) {
+        return VpLoadApproval(
+            id: id ?? this.id,
+            loadId: loadId ?? this.loadId,
+            rejectionReason: rejectionReason ?? this.rejectionReason,
+            documentApproved: documentApproved ?? this.documentApproved,
+            damageAndShortagesApproved: damageAndShortagesApproved ?? this.damageAndShortagesApproved,
+            damageAndShortagesRejectionReason: damageAndShortagesRejectionReason ?? this.damageAndShortagesRejectionReason,
+            settlementApproved: settlementApproved ?? this.settlementApproved,
+            settlementRejectionReason: settlementRejectionReason ?? this.settlementRejectionReason,
+            paymentApproved: paymentApproved ?? this.paymentApproved,
+            podApproved: podApproved ?? this.podApproved,
+            approvedBy: approvedBy ?? this.approvedBy,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
 
+    factory VpLoadApproval.fromJson(Map<String, dynamic> json){ 
+        return VpLoadApproval(
+            id: json["id"] ?? "",
+            loadId: json["loadId"] ?? "",
+            rejectionReason: json["rejectionReason"],
+            documentApproved: json["documentApproved"] ?? false,
+            damageAndShortagesApproved: json["damageAndShortagesApproved"] ?? false,
+            damageAndShortagesRejectionReason: json["damageAndShortagesRejectionReason"] ?? "",
+            settlementApproved: json["settlementApproved"],
+            settlementRejectionReason: json["settlementRejectionReason"],
+            paymentApproved: json["paymentApproved"],
+            podApproved: json["podApproved"] ?? false,
+            approvedBy: json["approvedBy"] ?? "",
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+        );
+    }
 
-
-
-
-
-
-
-
-
-
+}

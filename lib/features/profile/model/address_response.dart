@@ -16,7 +16,9 @@ class PaginatedAddressList {
           : List<CustomerAddress>.from(
           json["data"].map((x) => CustomerAddress.fromJson(x))),
       total: json["total"] ?? 0,
-      pageMeta: json["pageMeta"] == null ? null : PaginationInfo.fromJson(json["pageMeta"]),
+      pageMeta: json["pageMeta"] == null
+          ? null
+          : PaginationInfo.fromJson(json["pageMeta"]),
     );
   }
 
@@ -25,6 +27,19 @@ class PaginatedAddressList {
     "total": total,
     "pageMeta": pageMeta?.toJson(),
   };
+
+
+  PaginatedAddressList copyWith({
+    List<CustomerAddress>? addresses,
+    int? total,
+    PaginationInfo? pageMeta,
+  }) {
+    return PaginatedAddressList(
+      addresses: addresses ?? this.addresses,
+      total: total ?? this.total,
+      pageMeta: pageMeta ?? this.pageMeta,
+    );
+  }
 }
 
 class CustomerAddress {

@@ -752,7 +752,7 @@ class LoadRoute {
 class ScheduleTripDetails {
   ScheduleTripDetails({
     required this.scheduleTripId,
-    required this.vehicleId,
+    // required this.vehicleId,
     required this.driverId,
     required this.acceptedBy,
     required this.etaForPickUp,
@@ -767,7 +767,7 @@ class ScheduleTripDetails {
   });
 
   final String scheduleTripId;
-  final String vehicleId;
+  // final String vehicleId;
   final String driverId;
   final String acceptedBy;
   final DateTime? etaForPickUp;
@@ -782,7 +782,7 @@ class ScheduleTripDetails {
 
   ScheduleTripDetails copyWith({
     String? scheduleTripId,
-    String? vehicleId,
+    // String? vehicleId,
     String? driverId,
     String? acceptedBy,
     DateTime? etaForPickUp,
@@ -797,7 +797,7 @@ class ScheduleTripDetails {
   }) {
     return ScheduleTripDetails(
       scheduleTripId: scheduleTripId ?? this.scheduleTripId,
-      vehicleId: vehicleId ?? this.vehicleId,
+      // vehicleId: vehicleId ?? this.vehicleId,
       driverId: driverId ?? this.driverId,
       acceptedBy: acceptedBy ?? this.acceptedBy,
       etaForPickUp: etaForPickUp ?? this.etaForPickUp,
@@ -815,7 +815,7 @@ class ScheduleTripDetails {
   factory ScheduleTripDetails.fromJson(Map<String, dynamic> json){
     return ScheduleTripDetails(
       scheduleTripId: json["scheduleTripId"] ?? "",
-      vehicleId: json["vehicleId"] ?? "",
+      // vehicleId: json["vehicleId"]['vehicleId'] ?? "",
       driverId: json["driverId"] ?? "",
       acceptedBy: json["acceptedBy"] ?? "",
       etaForPickUp: DateTime.tryParse(json["etaForPickUp"] ?? ""),
@@ -2109,7 +2109,7 @@ class LpPaymentDetails {
       vpId: json["vpId"] ?? "",
       agreedPrice: json["agreedPrice"] ?? "",
       receivableAdvance: json["receivableAdvance"] ?? "",
-      receivableBalance: json["receivableBalance"] ?? "",
+      receivableBalance: json["balanceToBeReceivable"] ?? "",
       receivableAdvancePercentage: json["receivableAdvancePercentage"] ?? "",
       receivableBalancePercentage: json["receivableBalancePercentage"] ?? "",
       receivableAdvancePaid: json["receivableAdvancePaid"] ?? "",

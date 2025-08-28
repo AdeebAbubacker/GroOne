@@ -182,7 +182,7 @@ class DriverLoadDetailsModelData {
     final List<LoadDocument> loadDocument;
     final DriverloadSettlement? loadSettlement;
     final PodDispatchModel? podDispatch;
-    final dynamic loadApproval;
+    final DriverLoadApproval? loadApproval;
      final List<DamageReport>? damageShortage;
     final TrackingDetails? trackingDetails;
     final Customer? customer;
@@ -226,7 +226,7 @@ class DriverLoadDetailsModelData {
         List<LoadDocument>? loadDocument,
         DriverloadSettlement? loadSettlement,
         PodDispatchModel? podDispatch,
-        dynamic? loadApproval,
+        DriverLoadApproval? loadApproval,
         List<DamageReport>? damageShortage,
         TrackingDetails? trackingDetails,
         Customer? customer,
@@ -318,7 +318,7 @@ class DriverLoadDetailsModelData {
             loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) => LoadDocument.fromJson(x))),
             loadSettlement: json["loadSettlement"] == null ? null : DriverloadSettlement.fromJson(json["loadSettlement"]),
             podDispatch: json["podDispatch"] == null ? null : PodDispatchModel.fromJson(json["podDispatch"]),
-            loadApproval: json["loadApproval"],
+            loadApproval: json["loadApproval"]  == null ? null : DriverLoadApproval.fromJson(json["loadApproval"]),
              damageShortage: json["damageShortage"] == null ? [] : List<DamageReport>.from(json["damageShortage"]!.map((x) => DamageReport.fromJson(x))),
             trackingDetails: (json["trackingDetails"] is Map<String, dynamic>)
             ? TrackingDetails.fromJson(json["trackingDetails"])
@@ -2452,4 +2452,93 @@ int parseInt(dynamic value) {
     return double.tryParse(value)?.toInt() ?? 0; 
   }
   return 0; 
+}
+
+
+class DriverLoadApproval {
+    DriverLoadApproval({
+        required this.id,
+        required this.loadId,
+        required this.rejectionReason,
+        required this.documentApproved,
+        required this.damageAndShortagesApproved,
+        required this.damageAndShortagesRejectionReason,
+        required this.settlementApproved,
+        required this.settlementRejectionReason,
+        required this.paymentApproved,
+        required this.podApproved,
+        required this.approvedBy,
+        required this.createdAt,
+        required this.updatedAt,
+        required this.deletedAt,
+    });
+
+    final String id;
+    final String loadId;
+    final dynamic rejectionReason;
+    final bool documentApproved;
+    final bool damageAndShortagesApproved;
+    final String damageAndShortagesRejectionReason;
+    final dynamic settlementApproved;
+    final dynamic settlementRejectionReason;
+    final dynamic paymentApproved;
+    final bool podApproved;
+    final String approvedBy;
+    final DateTime? createdAt;
+    final DateTime? updatedAt;
+    final dynamic deletedAt;
+
+    DriverLoadApproval copyWith({
+        String? id,
+        String? loadId,
+        dynamic? rejectionReason,
+        bool? documentApproved,
+        bool? damageAndShortagesApproved,
+        String? damageAndShortagesRejectionReason,
+        dynamic? settlementApproved,
+        dynamic? settlementRejectionReason,
+        dynamic? paymentApproved,
+        bool? podApproved,
+        String? approvedBy,
+        DateTime? createdAt,
+        DateTime? updatedAt,
+        dynamic? deletedAt,
+    }) {
+        return DriverLoadApproval(
+            id: id ?? this.id,
+            loadId: loadId ?? this.loadId,
+            rejectionReason: rejectionReason ?? this.rejectionReason,
+            documentApproved: documentApproved ?? this.documentApproved,
+            damageAndShortagesApproved: damageAndShortagesApproved ?? this.damageAndShortagesApproved,
+            damageAndShortagesRejectionReason: damageAndShortagesRejectionReason ?? this.damageAndShortagesRejectionReason,
+            settlementApproved: settlementApproved ?? this.settlementApproved,
+            settlementRejectionReason: settlementRejectionReason ?? this.settlementRejectionReason,
+            paymentApproved: paymentApproved ?? this.paymentApproved,
+            podApproved: podApproved ?? this.podApproved,
+            approvedBy: approvedBy ?? this.approvedBy,
+            createdAt: createdAt ?? this.createdAt,
+            updatedAt: updatedAt ?? this.updatedAt,
+            deletedAt: deletedAt ?? this.deletedAt,
+        );
+    }
+
+    factory DriverLoadApproval.fromJson(Map<String, dynamic> json){ 
+        return DriverLoadApproval(
+            id: json["id"] ?? "",
+            loadId: json["loadId"] ?? "",
+            rejectionReason: json["rejectionReason"],
+            documentApproved: json["documentApproved"] ?? false,
+            damageAndShortagesApproved: json["damageAndShortagesApproved"] ?? false,
+            damageAndShortagesRejectionReason: json["damageAndShortagesRejectionReason"] ?? "",
+            settlementApproved: json["settlementApproved"],
+            settlementRejectionReason: json["settlementRejectionReason"],
+            paymentApproved: json["paymentApproved"],
+            podApproved: json["podApproved"] ?? false,
+            approvedBy: json["approvedBy"] ?? "",
+            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
+            deletedAt: json["deletedAt"],
+        );
+    }
+
 }

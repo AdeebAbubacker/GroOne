@@ -57,7 +57,7 @@ class _LpLoadValidateMemoState extends State<LpLoadValidateMemo> {
     return Scaffold(
       backgroundColor: AppColors.backgroundColor,
       appBar: AppBar(
-        title: Text(context.appText.loadingMemo),
+        title: Text(context.appText.performaInvoice),
         titleTextStyle: AppTextStyle.h4,
         centerTitle: true,
       ),

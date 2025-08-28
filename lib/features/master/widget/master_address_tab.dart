@@ -55,6 +55,26 @@ class _buildAddressTabState extends State<buildAddressTab> {
   String? pucExpiryDate;
   String? registrationDate;
   Timer? addressSearchDebounce;
+  final _addressScrollController=ScrollController();
+
+
+  // fetch more address
+  void _fetchMoreAddress(){
+    _addressScrollController.addListener(() {
+      if (_addressScrollController.position.pixels >=
+          _addressScrollController.position.maxScrollExtent){
+        print("calling again");
+        profileCubit.fetchAddress(isLoading: false,isInit: false);
+      }
+    },);
+  }
+
+  @override
+  void initState() {
+    _fetchMoreAddress();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -95,6 +115,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                     context.read<ProfileCubit>().fetchAddress(isLoading: true);
                   },
                   child: ListView(
+
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
@@ -121,9 +142,11 @@ class _buildAddressTabState extends State<buildAddressTab> {
                 }, 
                   child: isSearching ? Text(context.appText.noSearchResults).center() :
                   ListView(
+
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
+
                         height: MediaQuery.of(context).size.height * 0.5,
                         child: Center(
                           child: Column(
@@ -166,6 +189,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                   context.read<ProfileCubit>().fetchAddress(isLoading: true);
                 },
                 child: ListView.builder(
+                  controller: _addressScrollController,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 20,

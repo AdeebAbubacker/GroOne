@@ -28,6 +28,7 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -116,28 +117,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
-      appBar: CommonAppBar(
-        backgroundColor: AppColors.white,
-        actions: [
-          translateWiget(
-            onTap: () {
-              Navigator.push(
-                context,
-                commonRoute(ChooseLanguageScreen(isCloseButton: true)),
-              );
-            },
-          ),
-          20.width,
-          customerSupportWidget(
-            onTap: () {
-             commonSupportDialog(context);
-            },
-          ),
-          20.width,
-          Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
-          30.width,
-        ],
-      ),
+      appBar: CommonOnboardingAppbar(),
       body: SafeArea(
         bottom: false,
         child: SingleChildScrollView(

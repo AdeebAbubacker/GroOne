@@ -5,6 +5,7 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_license_document_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
@@ -116,9 +117,9 @@ class ProfileRepository {
   }
 
   /// Get Address
-  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search}) async {
+  Future<Result<PaginatedAddressList>> fetchAddress({required String userId,String? search,int? currentPage}) async {
     try {
-      return await _profileService.fetchAddress(userId: userId,search: search);
+      return await _profileService.fetchAddress(userId: userId,search: search,currentPage: currentPage);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -458,4 +459,20 @@ Future<Result<bool>> deleteVehicle({
       return Error(GenericError());
     }
   }
+
+    /// Upload License Repo
+  Future<Result<UploadLicenseDocumentModel>> postUploadLicenseData(File file) async {
+    try {
+      return await _profileService.fetchUploadLicesneData(
+          file : file,
+          userId: await _userInformationRepository.getUserID() ?? "",
+          fileType: LICENSE_DOCUMENT,
+          documentType: await _userInformationRepository.getUserRole() == 2 ? VP_DOCUMENT : LP_DOCUMENT
+      );
+    } catch (e) {
+      CustomLog.error(this, "Failed to get upload gst document data", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
 }

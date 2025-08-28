@@ -37,6 +37,7 @@ class VehicleDetail {
     required this.status,
     required this.createdAt,
     required this.deletedAt,
+    this.truckType,
   });
 
   final String? id;
@@ -47,6 +48,7 @@ class VehicleDetail {
   final String rcDocLink;
   final String capacity;
   final num status;
+  final TruckType? truckType;
   final DateTime? createdAt;
   final dynamic deletedAt;
 
@@ -60,6 +62,9 @@ class VehicleDetail {
       rcDocLink: json["rcDocLink"] ?? "",
       capacity: json["capacity"] ?? "",
       status: json["status"] ?? 0,
+      truckType: json["truckType"] != null
+          ? TruckType.fromJson(json["truckType"])
+          : null,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: json["deletedAt"],
     );
@@ -74,8 +79,31 @@ class VehicleDetail {
     "rcDocLink": rcDocLink,
     "capacity": capacity,
     "status": status,
+    "truckType": truckType?.toJson(),
     "createdAt": createdAt?.toIso8601String(),
     "deletedAt": deletedAt,
   };
 
+}
+
+class TruckType {
+  TruckType({
+    required this.type,
+    required this.subType,
+  });
+
+  final String? type;
+  final String? subType;
+
+  factory TruckType.fromJson(Map<String, dynamic> json) {
+    return TruckType(
+      type: json["type"] ?? "",
+      subType: json["subType"] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+        "type": type,
+        "subType": subType,
+      };
 }

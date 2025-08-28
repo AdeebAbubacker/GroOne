@@ -12,7 +12,7 @@ class VpLoadService {
   final ApiService _apiService;
   VpLoadService(this._apiService);
 
-  Future<Result<List<VpRecentLoadData>>> fetchLoads({
+  Future<Result<RecentLoadResponse>> fetchLoads({
     required String customerId,
     required int type,
     String search = "",
@@ -21,6 +21,7 @@ class VpLoadService {
     int? commodityId,
     int? truckTypeId,
     int? laneId,
+    int? page,
 
   }) async {
     try {
@@ -32,14 +33,14 @@ class VpLoadService {
           if(commodityId!=null) "commodityId":commodityId,
           if(truckTypeId!=null) "truckTypeId":truckTypeId,
           if(laneId!=null) "laneId":laneId,
+          "page":page
         },
         forceRefresh: forceRefresh,
       );
 
       if (response is Success) {
-        final data = response.value['data']['data'] as List;
-        final loads = data.map((e) => VpRecentLoadData.fromJson(e)).toList();
-        return Success(loads);
+        RecentLoadResponse recentLoadResponse=RecentLoadResponse.fromJson(response.value['data']);
+        return Success(recentLoadResponse);
       } else if (response is Error) {
         return Error(response.type);
       } else {

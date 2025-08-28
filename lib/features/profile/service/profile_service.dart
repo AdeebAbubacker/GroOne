@@ -9,6 +9,7 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
+import 'package:gro_one_app/features/kyc/model/upload_license_document_model.dart';
 import 'package:gro_one_app/features/login/repository/auth_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
@@ -251,6 +252,7 @@ class ProfileService {
   Future<Result<PaginatedAddressList>> fetchAddress({
     required String userId,
     String? search,
+    int? currentPage,
   }) async {
     try {
       final baseUrl = ApiUrls.getAddress + userId;
@@ -258,7 +260,10 @@ class ProfileService {
           (search != null && search.trim().isNotEmpty)
               ? '$baseUrl?search=$search'
               : baseUrl;
-      final response = await _apiService.get(url);
+      final response = await _apiService.get(url,queryParams: {
+        "limit":10,
+        "page":currentPage
+      });
       if (response is Success) {
         final loads = PaginatedAddressList.fromJson(response.value);
         return Success(loads);
@@ -1028,5 +1033,31 @@ class ProfileService {
   }
 }
 
+/// Upload License File Repo Service
+  Future<Result<UploadLicenseDocumentModel>> fetchUploadLicesneData({required File file, required String fileType,required String userId, required String documentType}) async {
+    try {
+      final url = ApiUrls.upload;
+      final result = await _apiService.multipart(
+        url,
+        file,
+        pathName: "file",
+        fields: {
+          "userId" : userId,
+          "fileType" : fileType,
+          "documentType" : documentType,
+        },
+      );
+      if (result is Success) {
+        final data = UploadLicenseDocumentModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  } 
 
 }

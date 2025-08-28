@@ -63,7 +63,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           return Scaffold(
             appBar: CommonAppBar(
               centreTile: false,
-              title: context.appText.tankLock,
+              title: context.appText.fuelSecurityDevice,
               actions: [
                 AppIconButton(
                   onPressed: () {
@@ -108,7 +108,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           return Scaffold(
             backgroundColor: AppColors.blackishWhite,
             appBar: CommonAppBar(
-              title: context.appText.tankLock,
+              title: context.appText.fuelSecurityDevice,
               centreTile: false,
               actions: [
                 AppIconButton(
@@ -156,7 +156,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
             backgroundColor: AppColors.blackishWhite,
             appBar: CommonAppBar(
               //elevation: 1.0,
-              title: context.appText.tankLock,
+              title: context.appText.fuelSecurityDevice,
               centreTile: false,
               actions: [
                 AppIconButton(

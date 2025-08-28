@@ -275,6 +275,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                                 ?.scheduleTripDetails
                                                 ?.vehicleId,
                                         loadId: loadDetails?.loadId,
+                                       isDamageApprovedOrReject: 
+                                       loadDetails?.loadApproval?.damageAndShortagesApproved?.toString() ?? "",
                                       ),
                                     ),
                                   ).then((value) {
@@ -284,13 +286,56 @@ class LoadDetailsWidget extends StatelessWidget {
                                   });
                                 },
                               ),
-
+                
                               Visibility(
                                 visible:
                                     (loadDetails?.damageShortage ?? [])
                                         .isNotEmpty,
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    4.height,
+                                    Visibility(
+                                    visible: loadDetails?.loadApproval?.damageAndShortagesApproved == true ||
+                                        loadDetails?.loadApproval?.damageAndShortagesApproved == false,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: loadDetails?.loadApproval?.damageAndShortagesApproved == true
+                                                ? AppColors.greenColor.withOpacity(0.2) 
+                                                : AppColors.red.withOpacity(0.2),  
+                                            borderRadius: BorderRadius.circular(8),
+                                          ),
+                                          child: Text(
+                                            loadDetails?.loadApproval?.damageAndShortagesApproved == true
+                                                ? "Approved"
+                                                : "Rejected",
+                                             style: AppTextStyle.h3RedLight14.copyWith( 
+                                                color: loadDetails?.loadApproval?.damageAndShortagesApproved == true
+                                                  ? AppColors.greenColor
+                                                  : AppColors.red,
+                                                  fontWeight: FontWeight.w900,
+                                                  fontSize: 12
+                                                  ),        
+                                            ),
+                                          ),
+                                        Visibility(
+                                          visible: loadDetails?.loadApproval?.damageAndShortagesRejectionReason != null &&
+                                          (loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? "").isNotEmpty,
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              8.height,
+                                              Text("(${loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? ""})" ?? "",
+                                              style:AppTextStyle.h3RedLight14,),
+                                            ],
+                                          ))
+                                      ],
+                                    ),
+                                    ),
                                     20.height,
                                     VpAddedDamageWidget(
                                       imageList: state.allDamageImageList,
