@@ -127,14 +127,16 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
           !widget.cubit.areRequiredDocsUploaded(
             tripDocumentList,
             DriverLoadHelper.getLoadStatus(widget.loadItem.data?.loadStatusId),
-          ))
+          )) {
         return false;
+      }
     }
 
     if (loadStatus == 7) {
       if (tripDocumentList == null ||
-          !widget.cubit.isPODUploaded(tripDocumentList))
+          !widget.cubit.isPODUploaded(tripDocumentList)) {
         return false;
+      }
     }
 
     return true;
@@ -242,7 +244,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        if (loads!.data!.loadStatusId <
+                                        if (loads.data!.loadStatusId <
                                             LoadStatus.assigned.index) ...[
                                           Text(
                                             context.appText.requested,
@@ -252,7 +254,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                           ),
                                           4.height,
                                           Text(
-                                            '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
+                                            '${loads.data!.truckType?.type ?? ''} - ${loads.data!.truckType?.subType ?? ''}',
                                             style: AppTextStyle.body1.copyWith(
                                               fontSize: 14,
                                               color: AppColors.black,
@@ -674,6 +676,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   loadId: loadId,
                                 );
                               }
+                              return null;
                             },
                           ),
                         ),
@@ -856,7 +859,7 @@ Widget _buildLoadEntityWidget({
           ),
 
           Text(
-            "${weight} Ton",
+            "$weight Ton",
             style: AppTextStyle.bodyGreyColorW500.copyWith(
               color: AppColors.veryLightGreyColor,
               fontSize: 12,
@@ -877,7 +880,7 @@ Widget _buildLoadEntityWidget({
           ),
 
           Text(
-            "${locationDistance ?? ''}",
+            locationDistance ?? '',
             style: AppTextStyle.bodyGreyColorW500.copyWith(
               color: AppColors.veryLightGreyColor,
               fontSize: 12,

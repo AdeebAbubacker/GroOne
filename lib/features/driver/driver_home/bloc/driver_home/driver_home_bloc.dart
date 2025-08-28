@@ -9,7 +9,7 @@ part 'driver_home_state.dart';
 
 class DriverHomeBloc extends Bloc<DriverHomeEvent, DriverHomeState> {
   final UserInformationRepository _userInformationRepository;
-  DriverHomeBloc(this._userInformationRepository) : super(HomeInitial()) {}
+  DriverHomeBloc(this._userInformationRepository) : super(HomeInitial());
 
   String? _userId;
   String? get userId => _userId;
