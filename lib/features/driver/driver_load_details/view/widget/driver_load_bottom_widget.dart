@@ -613,7 +613,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                         driverLoadDetailsCubit.state.iPodSkip,
                                       ),
                                       onSubmit: () {
-                                         print("-----------------------------");
                                         // Check for sim consent and trip doc
                                         if (loads.data?.loadStatusId == 5) {
                                           final tripDocumentList =

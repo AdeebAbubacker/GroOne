@@ -4,27 +4,19 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
-import 'package:gro_one_app/features/driver/driver_pod/view/driver_pod_dispatch_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-
-import '../../../../../utils/app_button.dart';
-import '../../../../../utils/app_button_style.dart';
 import '../../../../../utils/app_colors.dart';
 import '../../../../../utils/app_icons.dart';
 import '../../../../../utils/app_image.dart';
 import '../../../../../utils/app_text_style.dart';
 import '../../../../../utils/common_functions.dart';
 import '../../../../../utils/common_widgets.dart';
-import '../../../../../utils/constant_variables.dart';
+
 
 class DriverLoadWidget extends StatefulWidget {
   final void Function()? onClickAssignDriver;

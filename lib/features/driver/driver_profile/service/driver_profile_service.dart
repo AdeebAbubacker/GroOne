@@ -12,10 +12,9 @@ import 'package:gro_one_app/utils/custom_log.dart';
 
 class DriverProfileService {
   final ApiService _apiService;
-  final SecuredSharedPreferences _securedSharedPref;
   final UserInformationRepository _userInformationRepository;
   final AuthRepository _authRepository;
-  DriverProfileService(this._apiService, this._securedSharedPref, this._userInformationRepository, this._authRepository);
+  DriverProfileService(this._apiService, this._userInformationRepository, this._authRepository);
   Future<Result<DriverProfileDetailsModel>> getDriverProfileDetails() async {
     try {
     final userId = await _userInformationRepository.getUserID();
