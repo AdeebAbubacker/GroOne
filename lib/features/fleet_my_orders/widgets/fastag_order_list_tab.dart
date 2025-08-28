@@ -67,11 +67,6 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
                 itemCount: filtered.length,
                 itemBuilder: (context, index) {
                   final item = filtered[index];
-                  // return ListTile(
-                  //   title: Text(item.vehicleNo),
-                  //   subtitle: Text("ID - ${item.id}"),
-                  //   trailing: Text("₹${item.balance}"),
-                  // );
                   return _buildFastagCard(
                     id: item.id.toString(),
                     vehicleNumber: item.vehicleNo,
