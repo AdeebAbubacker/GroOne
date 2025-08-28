@@ -5,7 +5,6 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/get_damage_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
@@ -36,24 +35,14 @@ class DriverLoadDetailsService {
         final loads = DriverLoadDetailsModel.fromJson(data);
         return Success(loads);
       } else if (response is Error) {
-        print('${response.type}');
         return Error(response.type);
       } else {
-        print('error');
         return Error(GenericError());
       }
     } 
-    // catch (e) {
-    //   print('${e.toString()}');
-    //   return Error(DeserializationError());
-    // }
-    catch (e, stackTrace) {
-    // Capture the stack trace here
-    print('Exception: $e');
-    print('Stack trace: $stackTrace');
-
-    return Error(DeserializationError());
-  }
+    catch (e) {
+      return Error(DeserializationError());
+    }
   }
 
   /// Upload File Service
@@ -110,7 +99,6 @@ class DriverLoadDetailsService {
   required String loadId,
   required int? loadStatus,
 }) async {
-  print('update stus api called ');
   try {
  final statusUpdateUrl=ApiUrls.updateLoadStatus;
       final result = await _apiService.put(

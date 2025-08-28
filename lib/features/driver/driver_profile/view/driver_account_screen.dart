@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
-import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
-import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';

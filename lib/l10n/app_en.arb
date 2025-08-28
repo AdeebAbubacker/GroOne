@@ -1284,7 +1284,21 @@
   "damageAndShortagesAlreadyApproved": "Damage and Shortages already Approved",
   "damageAndShortagesAlreadyRejected": "Damage and Shortages already Rejected",
   "settlementsAlreadyApproved": "Settlements already Approved",
-  "settlementsAlreadyRejected": "Settlements already Rejected"
+  "settlementsAlreadyRejected": "Settlements already Rejected",
+  "pleaseUploadPodDoc": "Please upload POD document",
+  "pleaseUploadDocs": "Please upload Lorry Receipt, E-Way Bill, and Material Invoice",
+  "pleaseSelectDob": "Please select Date of Birth",
+  "pleaseEnterDriverName": "Please enter Driver Name",
+  "licenseVerifiedSuccess": "License verified successfully.",
+  "licenseVerificationFailed": "License verification failed",
+  "pleaseVerifyLicense": "Please verify the License before proceeding",
+  "pleaseEnterLicenseNumber": "Please enter License Number",
+  "pleaseSelectDob": "Please select Date of Birth",
+  "pleaseEnterDriverName": "Please enter Driver Name",
+  "pleaseSelectLicenseExpiryDate": "Please select License Expiry Date",
+  "pleaseEnterMobileNumber": "Please enter Mobile Number",
+  "vehicleVerifiedSuccess": "Vehicle verified successfully",
+  "vehicleVerificationFailed": "Vehicle verification failed"
 
 
 

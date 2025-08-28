@@ -1240,7 +1240,21 @@
   "damageAndShortagesAlreadyApproved": "दोष और कमी पहले से स्वीकृत हैं",
   "damageAndShortagesAlreadyRejected": "दोष और कमी पहले से अस्वीकृत हैं",
   "settlementsAlreadyApproved": "निपटान पहले ही स्वीकृत किया जा चुका है",
-  "settlementsAlreadyRejected": "निपटान पहले ही अस्वीकृत किया जा चुका है"
+  "settlementsAlreadyRejected": "निपटान पहले ही अस्वीकृत किया जा चुका है",
+  "pleaseUploadPodDoc": "कृपया POD दस्तावेज़ अपलोड करें",
+  "pleaseUploadDocs": "कृपया लोरी रसीद, ई-वे बिल और सामग्री चालान अपलोड करें",
+  "pleaseSelectDob": "कृपया जन्म तिथि चुनें",
+  "pleaseEnterDriverName": "कृपया ड्राइवर का नाम दर्ज करें",
+  "licenseVerifiedSuccess": "लाइसेंस सफलतापूर्वक सत्यापित किया गया।",
+  "licenseVerificationFailed": "लाइसेंस सत्यापन विफल रहा",
+  "pleaseVerifyLicense": "कृपया आगे बढ़ने से पहले लाइसेंस सत्यापित करें",
+  "pleaseEnterLicenseNumber": "कृपया लाइसेंस नंबर दर्ज करें",
+  "pleaseSelectDob": "कृपया जन्म तिथि चुनें",
+  "pleaseEnterDriverName": "कृपया ड्राइवर का नाम दर्ज करें",
+  "pleaseSelectLicenseExpiryDate": "कृपया लाइसेंस की समाप्ति तिथि चुनें",
+  "pleaseEnterMobileNumber": "कृपया मोबाइल नंबर दर्ज करें",
+  "vehicleVerifiedSuccess": "वाहन सफलतापूर्वक सत्यापित किया गया",
+  "vehicleVerificationFailed": "वाहन सत्यापन विफल रहा"
 
 
 }

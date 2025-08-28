@@ -69,7 +69,7 @@ class Data {
         String? mobile,
         String? email,
         String? licenseNumber,
-        dynamic? licenseDocLink,
+        dynamic licenseDocLink,
         DateTime? licenseExpiryDate,
         String? customerId,
         DateTime? dateOfBirth,

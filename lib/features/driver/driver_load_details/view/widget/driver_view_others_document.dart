@@ -2,14 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-
-import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/preview_document_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
-import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 
@@ -63,7 +60,7 @@ class DriverViewOthersDocument extends StatelessWidget {
                       },
                       isLoading: false,
                       documentEntity: documentEntity!,
-                      loadDocument: loadDocumentObj!).paddingSymmetric(horizontal: 15,vertical: 8);
+                      loadDocument: loadDocumentObj).paddingSymmetric(horizontal: 15,vertical: 8);
                 },).expand();
             }
           ),
