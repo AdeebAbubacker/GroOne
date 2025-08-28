@@ -12,6 +12,7 @@ class ChatState extends Equatable {
   final String? recordedAudioPath;
   final int recordingDuration;
   final String? error;
+  final String? successMessage; // Success message for toasts
   final int pageNo;
 
   const ChatState({
@@ -26,6 +27,7 @@ class ChatState extends Equatable {
     this.recordingDuration = 0,
     this.pageNo =1,
     this.error,
+    this.successMessage,
   });
 
   ChatState copyWith({
@@ -42,6 +44,8 @@ class ChatState extends Equatable {
     int? pageNo = 1,
     String? error,
     bool clearError = false,
+    String? successMessage,
+    bool clearSuccessMessage = false,
   }) {
     return ChatState(
       messages: messages ?? this.messages,
@@ -55,6 +59,7 @@ class ChatState extends Equatable {
       recordedAudioPath: clearRecordedAudioPath ? null : (recordedAudioPath ?? this.recordedAudioPath),
       recordingDuration: recordingDuration ?? this.recordingDuration,
       error: clearError ? null : (error ?? this.error),
+      successMessage: clearSuccessMessage ? null : (successMessage ?? this.successMessage),
     );
   }
 
@@ -70,5 +75,6 @@ class ChatState extends Equatable {
         recordedAudioPath,
         recordingDuration,
         error,
+        successMessage,
       ];
 }

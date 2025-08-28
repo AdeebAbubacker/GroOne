@@ -181,24 +181,22 @@ class ChatRepository {
   }
 
   /// Report a message
-  /// Returns true if report was successful
-  Future<bool> reportMessage({
+  /// Returns a Map with report status and updated message information
+  Future<Map<String, dynamic>> reportMessage({
     required String messageId,
     String? feedbackType = 'inappropriate_content',
-    String? additionalFeedback,
   }) async {
     try {
       // Get user ID from secure storage
       final userId = await _apiService.getUserId();
       
-      final success = await _apiService.reportMessage(
+      final response = await _apiService.reportMessage(
         messageId: messageId,
         userId: userId,
         reason: feedbackType,
-        additionalFeedback: additionalFeedback,
       );
       
-      return success;
+      return response;
     } catch (e) {
       rethrow;
     }

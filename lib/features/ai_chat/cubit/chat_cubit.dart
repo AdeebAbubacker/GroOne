@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
@@ -81,11 +82,45 @@ class ChatCubit extends Cubit<ChatState> {
           // Sort messages by timestamp to ensure chronological order (oldest first)
           chatMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
-          // For initial load: replace all messages
-          // For pagination: add older messages to the beginning
-          final updatedMessages = state.messages.isEmpty
-              ? chatMessages  // Initial load - set messages directly
+          // Merge with existing messages, preserving reported status
+          final Map<String, ChatMessage> existingMessagesMap = {};
+          for (final msg in state.messages) {
+            existingMessagesMap[msg.id] = msg;
+          }
+
+          // Update reported status from existing messages if available
+          for (final newMessage in chatMessages) {
+            final existingMessage = existingMessagesMap[newMessage.id];
+            if (existingMessage != null && existingMessage.reported) {
+              // Preserve the reported status from existing message
+              chatMessages[chatMessages.indexOf(newMessage)] = newMessage.copyWith(
+                reported: true,
+              );
+              print('🔄 Preserved reported status for message: ${newMessage.id}');
+            }
+          }
+
+          print('📊 Message status after merging:');
+          for (final msg in chatMessages) {
+            if (!msg.isUser) {
+              print('   - AI Message ${msg.id}: reported = ${msg.reported}');
+            }
+          }
+
+          // Determine if this is initial load or pagination
+          final isInitialLoad = state.messages.isEmpty;
+          final updatedMessages = isInitialLoad 
+              ? chatMessages  // Initial load - use messages as-is
               : [...chatMessages, ...state.messages]; // Pagination - add older messages at top
+          
+          print('📱 Load type: ${isInitialLoad ? "Initial" : "Pagination"}');
+          print('📱 Messages count: ${updatedMessages.length}');
+          print('📱 AI Messages with reported status:');
+          for (final msg in updatedMessages) {
+            if (!msg.isUser) {
+              print('   - ${msg.id}: reported = ${msg.reported}');
+            }
+          }
 
           _hasMoreMessages = hasMore;
 
@@ -438,39 +473,68 @@ class ChatCubit extends Cubit<ChatState> {
     emit(state.copyWith(error: null));
   }
 
+  /// Clear success message
+  void clearSuccessMessage() {
+    emit(state.copyWith(clearSuccessMessage: true));
+  }
+
   /// Report a message
   /// Updates the message's reported status if successful
-  Future<void> reportMessage(String messageId, {String? feedbackType, String? additionalFeedback}) async {
+  Future<void> reportMessage(String messageId, {String? feedbackType}) async {
+    print('🎯 [CUBIT] Report message called...');
+    print('🎯 [CUBIT] Message ID: $messageId');
+    print('🎯 [CUBIT] Feedback Type: $feedbackType');
+    
     try {
       // Find the message to report
       final messageIndex = state.messages.indexWhere((msg) => msg.id == messageId);
       if (messageIndex == -1) {
+        print('🎯 [CUBIT] Message not found: $messageId');
         emit(state.copyWith(error: 'Message not found'));
         return;
       }
 
+      print('🎯 [CUBIT] Found message at index: $messageIndex');
+      print('🎯 [CUBIT] Current reported status: ${state.messages[messageIndex].reported}');
+
       // Call the repository to report the message with feedback
-      final success = await _repository.reportMessage(
+      print('🎯 [CUBIT] Calling repository...');
+      final response = await _repository.reportMessage(
         messageId: messageId,
         feedbackType: feedbackType ?? 'inappropriate_content',
-        additionalFeedback: additionalFeedback,
       );
       
+      // Check if report was successful
+      final success = response['success'] as bool? ?? false;
+      
+      print('🎯 [CUBIT] Repository response: $response');
+      print('🎯 [CUBIT] Report success: $success');
+      
       if (success) {
-        // Update the message's reported status
+        // Update the message's reported status based on API response
         final updatedMessages = List<ChatMessage>.from(state.messages);
+        final oldReportedStatus = updatedMessages[messageIndex].reported;
+        final newReportedStatus = response['is_reported'] as bool? ?? true;
+        
         updatedMessages[messageIndex] = updatedMessages[messageIndex].copyWith(
-          reported: true,
+          reported: newReportedStatus,
         );
+        
+        print('🎯 [CUBIT] Updated message ${messageId}: reported = $oldReportedStatus -> $newReportedStatus');
         
         emit(state.copyWith(
           messages: updatedMessages,
           clearError: true,
+          successMessage: 'Thanks you for helping improve Gro AI Saathi',
         ));
+        
+        print('🎯 [CUBIT] State updated successfully');
       } else {
+        print('🎯 [CUBIT] Report failed');
         emit(state.copyWith(error: 'Failed to report message'));
       }
     } catch (e) {
+      print('🎯 [CUBIT] Error occurred: $e');
       emit(state.copyWith(error: _getUserFriendlyErrorMessage(e)));
     }
   }

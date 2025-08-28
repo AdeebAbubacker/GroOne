@@ -154,6 +154,29 @@ class _ChatScreenState extends State<ChatScreen> {
               context.read<ChatCubit>().clearError();
             }
 
+            // Show success message toast
+            if (state.successMessage != null) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    state.successMessage!,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  backgroundColor: Colors.green,
+                  duration: const Duration(seconds: 3),
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+              );
+              context.read<ChatCubit>().clearSuccessMessage();
+            }
+
             // Auto scroll to bottom when new message added (but not during pagination)
             if (!_isLoadingHistory && state.pageNo == 1) {
               WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -192,7 +215,7 @@ class _ChatScreenState extends State<ChatScreen> {
         onPressed: () => Navigator.pop(context),
       ),
       title: const Text(
-        'AI Chatbot',
+        'Gro AI Saathi',
         style: TextStyle(
           color: Colors.black,
           fontSize: 18,
@@ -1628,9 +1651,9 @@ class _ChatScreenState extends State<ChatScreen> {
       builder: (BuildContext context) {
         return _ReportFeedbackDialog(
           messageId: messageId,
-          onReport: (feedbackType, additionalFeedback) {
+          onReport: (feedbackType) {
             // Call the cubit to report the message with feedback
-            chatCubit.reportMessage(messageId, feedbackType: feedbackType, additionalFeedback: additionalFeedback);
+            chatCubit.reportMessage(messageId, feedbackType: feedbackType);
           },
         );
       },
@@ -1640,7 +1663,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
 class _ReportFeedbackDialog extends StatefulWidget {
   final String messageId;
-  final Function(String feedbackType, String? additionalFeedback) onReport;
+  final Function(String feedbackType) onReport;
 
   const _ReportFeedbackDialog({
     required this.messageId,
@@ -1653,8 +1676,6 @@ class _ReportFeedbackDialog extends StatefulWidget {
 
 class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
   String? _selectedFeedbackType;
-  final TextEditingController _additionalFeedbackController = TextEditingController();
-  bool _showAdditionalFeedback = false;
 
   final List<String> _feedbackOptions = [
     'Not factually correct',
@@ -1668,7 +1689,6 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
 
   @override
   void dispose() {
-    _additionalFeedbackController.dispose();
     super.dispose();
   }
 
@@ -1727,32 +1747,6 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
             // Feedback Options
             ...(_feedbackOptions.map((option) => _buildFeedbackOption(option))),
 
-            // Additional Feedback Input (shown when "Other" is selected)
-            if (_showAdditionalFeedback) ...[
-              const SizedBox(height: 16),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                curve: Curves.easeInOut,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: TextField(
-                    controller: _additionalFeedbackController,
-                    maxLines: 3,
-                    decoration: InputDecoration(
-                      hintText: 'Provide additional feedback',
-                      hintStyle: TextStyle(color: Colors.grey[500]),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.all(16),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-
             const SizedBox(height: 24),
 
             // Submit Button
@@ -1762,14 +1756,8 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
                 onPressed: _selectedFeedbackType != null
                     ? () {
                         String feedbackType = _selectedFeedbackType!;
-                        String? additionalFeedback = null;
                         
-                        if (_showAdditionalFeedback && _additionalFeedbackController.text.trim().isNotEmpty) {
-                          // If "Other" is selected and there's text, combine them
-                          feedbackType = 'other-${_additionalFeedbackController.text.trim()}';
-                        }
-                        
-                        widget.onReport(feedbackType, additionalFeedback);
+                        widget.onReport(feedbackType);
                         Navigator.of(context).pop();
                       }
                     : null,
@@ -1799,7 +1787,6 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
 
   Widget _buildFeedbackOption(String option) {
     final isSelected = _selectedFeedbackType == option;
-    final isOther = option == 'Other';
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 200),
@@ -1808,12 +1795,6 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
         onTap: () {
           setState(() {
             _selectedFeedbackType = option;
-            if (isOther) {
-              _showAdditionalFeedback = true;
-            } else {
-              _showAdditionalFeedback = false;
-              _additionalFeedbackController.clear();
-            }
           });
         },
         borderRadius: BorderRadius.circular(8),

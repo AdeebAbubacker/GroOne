@@ -439,42 +439,30 @@ class ChatApiService {
   }
 
   /// Report a message to the API
-  /// Returns true if report was successful
-  Future<bool> reportMessage({
+  /// Returns a Map with report status and updated message information
+  Future<Map<String, dynamic>> reportMessage({
     required String messageId,
     required String userId,
     String? reason = 'inappropriate_content',
-    String? additionalFeedback,
   }) async {
-    // TODO: Remove hardcoded response when actual API is ready
-    // For testing purposes, always return true
-    return true;
-    
-    // Original API implementation (commented out for testing)
-    /*
     try {
       // Get xApiKey from secure storage
       final xApiKey = ApiUrls.fetchedChatBotXApiKEY;
-      
-      // Real API endpoint for reporting messages
-      const String endpoint = 'https://groone-bot-api.letsgro.co/report-message';
-      
+      // New API endpoint for reporting messages
+      const String endpoint = 'https://groone-bot-api.letsgro.co/messages/report-message';
       // Add custom headers with X-API-Key
       final customHeaders = {
         'X-API-Key': xApiKey,
         'Content-Type': 'application/json',
       };
-      
-      // Request body
+      // Request body with new structure
       final requestBody = {
-        'message_id': messageId,
         'user_id': userId,
         'catalog_id': 'groone',
-        'feedback_type': reason,
-        if (additionalFeedback != null && additionalFeedback.isNotEmpty)
-          'additional_feedback': additionalFeedback,
+        'message_id': messageId,
+        'report_reason': reason,
+        'is_reported': true,
       };
-      
       final result = await _apiService.post(
         endpoint,
         body: requestBody,
@@ -487,9 +475,30 @@ class ChatApiService {
         if (data is Map<String, dynamic>) {
           final status = data['status'] as String?;
           final message = data['message'] as String?;
-          
           if (status == 'success') {
-            return true; // Report was successful
+            // Parse the response data to get updated message status
+            final responseData = data['data'] as Map<String, dynamic>?;
+            if (responseData != null) {
+              final isReported = responseData['is_reported'] as bool? ?? false;
+              final reportReason = responseData['report_reason'] as String?;
+              final responseMessageId = responseData['message_id'] as String?;
+              // Return detailed response information
+              final response = {
+                'success': true,
+                'is_reported': isReported,
+                'report_reason': reportReason,
+                'message_id': responseMessageId,
+              };
+              return response;
+            }
+            
+            final fallbackResponse = {
+              'success': true,
+              'is_reported': true,
+              'report_reason': reason,
+              'message_id': messageId,
+            };
+            return fallbackResponse;
           } else {
             throw Exception(message ?? 'Report failed');
           }
@@ -503,6 +512,5 @@ class ChatApiService {
     } catch (e) {
       _getUserFriendlyApiError(e);
     }
-    */
   }
 }
