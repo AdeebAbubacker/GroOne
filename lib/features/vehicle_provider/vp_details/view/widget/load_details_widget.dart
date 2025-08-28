@@ -276,7 +276,7 @@ class LoadDetailsWidget extends StatelessWidget {
                                                 ?.vehicleId,
                                         loadId: loadDetails?.loadId,
                                        isDamageApprovedOrReject: 
-                                       loadDetails?.loadApproval?.damageAndShortagesApproved?.toString() ?? "",
+                                       loadDetails?.loadApproval?.damageAndShortagesApproved ?? "",
                                       ),
                                     ),
                                   ).then((value) {
