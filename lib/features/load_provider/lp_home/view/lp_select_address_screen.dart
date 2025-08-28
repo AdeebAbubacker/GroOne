@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -64,10 +65,10 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
         if (fromAddress != null) {
           _updateMapToLocation(fromAddress);
         } else {
-          await _handleCurrentLocation();
+          await _askLocationAccess();
         }
       } else {
-        await _handleCurrentLocation();
+        await _askLocationAccess();
       }
 
       searchTextController.text = widget.location ?? '';
@@ -82,9 +83,59 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
     super.dispose();
   }
 
+  Future<void> _askLocationAccess() async {
+    final permission = await Geolocator.checkPermission();
+
+    // If already granted → directly fetch location
+    if (permission == LocationPermission.always || permission == LocationPermission.whileInUse) {
+      await _handleCurrentLocation();
+      return;
+    }
+    if(mounted) {
+      AppDialog.show(
+        context,
+        child: CommonDialogView(
+          hideCloseButton: true,
+          heading: context.appText.allowLocationAccess,
+          message: context.appText.weNeedAccessToYourLocation,
+          showYesNoButtonButtons: true,
+          yesButtonText: context.appText.allow,
+          noButtonText: context.appText.deny,
+          onClickYesButton: () async {
+            Navigator.pop(context);
+            await _handleCurrentLocation();
+          },
+          onClickNoButton: () async {
+            Navigator.pop(context);
+          },
+        ),
+      );
+    }
+  }
 
 
   Future<void> _handleCurrentLocation() async {
+    LocationPermission permission = await Geolocator.checkPermission();
+
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied && mounted) {
+        _showLocationDialog(
+          context.appText.locationPermissionNeeded,
+          context.appText.pleaseAllowLocationAccess,
+        );
+        return;
+      }
+    }
+
+     if (permission == LocationPermission.deniedForever && mounted) {
+      _showLocationDialog(
+        context.appText.locationBlocked,
+        context.appText.locationBlockedPermanentlyEnableFromSetting,
+        openSettings: true,
+      );
+      return;
+    }
     try {
       // Use cached last known location first if available
       final cachedPos = await MapHelper.getLastKnownLocation();
@@ -101,6 +152,44 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
       CustomLog.error(this, "", e);
     }
   }
+
+  void _showLocationDialog(String title, String message, {bool openSettings = false}) {
+    final buttonText = openSettings ? context.appText.openSettings : context.appText.okay;
+    setState(() {});
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        heading: title,
+        message: message,
+        onSingleButtonText: buttonText,
+        hideCloseButton: true,
+        onTapSingleButton: () async {
+          Navigator.pop(context);
+          if (openSettings) {
+            await Geolocator.openAppSettings();
+
+            // Wait a little, then check again when user is back
+            Future.delayed(const Duration(seconds: 1), () async {
+              bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+              if (serviceEnabled) {
+                _handleCurrentLocation();
+              } else {
+                if(mounted) {
+                  _showLocationDialog(
+                    context.appText.locationDisabled,
+                    context.appText.pleaseEnableLocationServicesToContinue,
+                    openSettings: true,
+                  );
+                }
+              }
+            });
+          }
+        },
+      ),
+    );
+  }
+
+
 
 // Helper method to update map camera and marker
   void _updateMapToLocation(LatLng pos) {
@@ -428,7 +517,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
           8.height,
           _floatingButton(Icons.remove, () => MapHelper.zoomOut(_mapController!)),
           8.height,
-          _floatingButton(Icons.my_location, _handleCurrentLocation),
+          _floatingButton(Icons.my_location, _askLocationAccess),
         ],
       ),
     );

@@ -204,6 +204,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
               } else {
                 loginBloc.add(SaveDeviceToken(data.customerId));
                 final role = data.roleId;
+                analytics.logEvent(AnalyticEventName.ONBOARD_OTP_VERIFIED, {"otp" : otpString});
                 if (role == 1 || role == 4) {
                   loginSuccessDialog(context, AppRouteName.lpBottomNavigationBar);
                   return;
@@ -223,7 +224,6 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
                 if (!context.mounted) return;
                 homeRedirection(state.otpResponse, context, tempFlag: state.otpResponse.tempFlg);
               }
-              analytics.logEvent(AnalyticEventName.ONBOARD_OTP_VERIFIED, {"otp" : otpString});
             }
             if (state is OtpError) {
               otpTextController.clear();

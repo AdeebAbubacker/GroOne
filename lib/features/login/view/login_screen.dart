@@ -87,6 +87,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
               if (context.mounted) {
                 context.push(AppRouteName.otpVerificationScreen, extra: extra);
               }
+              analyticsHelper.logEvent(AnalyticEventName.ONBOARD_MOBILE_ENTERED, { "mobileNumber": state.loginApiResponseModel.mobile});
               analyticsHelper.logEvent(AnalyticEventName.ONBOARD_OTP_SENT);
             }
       
