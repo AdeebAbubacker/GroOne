@@ -4,28 +4,24 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_button_style.dart';
 import '../../../../utils/app_icon_button.dart';
 import '../../../../utils/app_icons.dart';
-
 import '../../../../utils/app_image.dart';
 import '../../../../utils/app_route.dart';
-
 import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
+import '../../../profile/view/support_screen.dart';
 import 'gps_models_screen.dart';
-import '../../../kavach/view/kavach_support_screen.dart';
 import 'package:intl/intl.dart';
 
 class GpsOrderDetailScreen extends StatelessWidget {
@@ -55,7 +51,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
           ),
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

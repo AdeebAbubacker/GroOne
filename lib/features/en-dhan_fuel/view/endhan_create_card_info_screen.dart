@@ -26,9 +26,9 @@ import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/common_widgets.dart';
-import '../../kavach/view/kavach_support_screen.dart';
 import 'package:go_router/go_router.dart';
 import '../../kavach/view/widgets/vehicle_selection_field.dart';
+import '../../profile/view/support_screen.dart';
 
 class EndhanCreateCardInfoScreen extends StatefulWidget {
   const EndhanCreateCardInfoScreen({super.key});
@@ -830,7 +830,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                         actions: [
                           AppIconButton(
                             onPressed: () {
-                              Navigator.push(context,commonRoute(KavachSupportScreen()));
+                              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                             },
                             icon: AppIcons.svg.filledSupport,
                             iconColor: AppColors.primaryColor,
