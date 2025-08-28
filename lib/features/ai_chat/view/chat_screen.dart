@@ -183,19 +183,25 @@ class _ChatScreenState extends State<ChatScreen> {
                 _scrollToBottom();
               });
             }
+
+            // Auto scroll to bottom when initial chat history loading is complete
+            if (state.isInitialLoadingComplete && state.messages.isNotEmpty && !_isLoadingHistory) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                _scrollToBottom();
+              });
+            }
           },
           builder: (context, state) {
             return Column(
               children: [
                 // Messages List
-                Expanded(child: _buildMessagesList(state.messages)),
-
+                Expanded(
+                  child: _buildMessagesList(state.messages),
+                ),
                 // Recording Indicator or Audio Preview
                 if (state.isRecording) _buildRecordingIndicator(state),
                 if (state.recordedAudioPath != null) _buildAudioPreview(state),
-
-                // Input Area (hide when audio is recorded or processing voice)
-                // if (state.recordedAudioPath == null && !state.isProcessingVoice) _buildInputArea(state),
+                // Input area (text input or audio preview)
                 if (state.recordedAudioPath == null) _buildInputArea(state),
               ],
             );
@@ -381,7 +387,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (isVoice)
+                  if (isVoice && !isUser)
                     _buildVoiceMessage(message.message)
                   else
                     Text(
@@ -1676,6 +1682,7 @@ class _ReportFeedbackDialog extends StatefulWidget {
 
 class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
   String? _selectedFeedbackType;
+  final TextEditingController _additionalFeedbackController = TextEditingController();
 
   final List<String> _feedbackOptions = [
     'Not factually correct',
@@ -1689,6 +1696,7 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
 
   @override
   void dispose() {
+    _additionalFeedbackController.dispose();
     super.dispose();
   }
 
@@ -1747,6 +1755,51 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
             // Feedback Options
             ...(_feedbackOptions.map((option) => _buildFeedbackOption(option))),
 
+            // Additional feedback input for "Other" option
+            if (_selectedFeedbackType == 'Other') ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.grey[300]!),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Please specify what went wrong:',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    TextField(
+                      controller: _additionalFeedbackController,
+                      maxLines: 3,
+                      decoration: InputDecoration(
+                        hintText: 'Enter your feedback here...',
+                        hintStyle: TextStyle(color: Colors.grey[500]),
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: Colors.grey[300]!),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide(color: AppColors.primaryColor),
+                        ),
+                        filled: true,
+                        fillColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+
             const SizedBox(height: 24),
 
             // Submit Button
@@ -1756,6 +1809,12 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
                 onPressed: _selectedFeedbackType != null
                     ? () {
                         String feedbackType = _selectedFeedbackType!;
+                        
+                        // If "Other" is selected, combine with additional feedback if available
+                        if (feedbackType == 'Other') {
+                          final additionalText = _additionalFeedbackController.text.trim();
+                          feedbackType = additionalText.isNotEmpty ? 'other-$additionalText' : 'other';
+                        }
                         
                         widget.onReport(feedbackType);
                         Navigator.of(context).pop();

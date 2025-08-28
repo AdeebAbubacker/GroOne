@@ -9,6 +9,7 @@ class ChatState extends Equatable {
   final bool isTyping; // AI is typing response
   final bool isProcessingVoice; // Voice message is being transcribed
   final bool hasMoreMessages; // Whether there are more messages to load
+  final bool isInitialLoadingComplete; // Whether initial chat history loading is complete
   final String? recordedAudioPath;
   final int recordingDuration;
   final String? error;
@@ -23,6 +24,7 @@ class ChatState extends Equatable {
     this.isTyping = false,
     this.isProcessingVoice = false,
     this.hasMoreMessages = true,
+    this.isInitialLoadingComplete = false,
     this.recordedAudioPath,
     this.recordingDuration = 0,
     this.pageNo =1,
@@ -38,6 +40,7 @@ class ChatState extends Equatable {
     bool? isTyping,
     bool? isProcessingVoice,
     bool? hasMoreMessages,
+    bool? isInitialLoadingComplete,
     String? recordedAudioPath,
     bool clearRecordedAudioPath = false,
     int? recordingDuration,
@@ -54,6 +57,7 @@ class ChatState extends Equatable {
       isRecording: isRecording ?? this.isRecording,
       isTyping: isTyping ?? this.isTyping,
       isProcessingVoice: isProcessingVoice ?? this.isProcessingVoice,
+      isInitialLoadingComplete: isInitialLoadingComplete ?? this.isInitialLoadingComplete,
       pageNo: pageNo ?? this.pageNo,
       hasMoreMessages: hasMoreMessages ?? this.hasMoreMessages,
       recordedAudioPath: clearRecordedAudioPath ? null : (recordedAudioPath ?? this.recordedAudioPath),
@@ -72,6 +76,7 @@ class ChatState extends Equatable {
         isTyping,
         isProcessingVoice,
         hasMoreMessages,
+        isInitialLoadingComplete,
         recordedAudioPath,
         recordingDuration,
         error,

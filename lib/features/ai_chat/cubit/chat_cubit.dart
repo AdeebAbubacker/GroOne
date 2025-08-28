@@ -129,6 +129,7 @@ class ChatCubit extends Cubit<ChatState> {
             isLoading: false,
             hasMoreMessages: _hasMoreMessages,
             pageNo: _currentPage,
+            isInitialLoadingComplete: isInitialLoad, // Set to true for initial load
           ));
           _currentPage = currentPage + 1;
 
@@ -642,6 +643,7 @@ class ChatCubit extends Cubit<ChatState> {
     emit(state.copyWith(
       messages: [],
       hasMoreMessages: true,
+      isInitialLoadingComplete: false, // Reset initial loading flag
     ));
     _currentPage = 1;
     _hasMoreMessages = true;
