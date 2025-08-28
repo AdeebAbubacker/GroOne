@@ -1254,7 +1254,20 @@
   "pleaseSelectLicenseExpiryDate": "कृपया लाइसेंस की समाप्ति तिथि चुनें",
   "pleaseEnterMobileNumber": "कृपया मोबाइल नंबर दर्ज करें",
   "vehicleVerifiedSuccess": "वाहन सफलतापूर्वक सत्यापित किया गया",
-  "vehicleVerificationFailed": "वाहन सत्यापन विफल रहा"
+  "vehicleVerificationFailed": "वाहन सत्यापन विफल रहा",
+  "updateNow": "अभी अपडेट करें",
+  "allowLocationAccess": "लोकेशन एक्सेस की अनुमति दें",
+  "weNeedAccessToYourLocation": "हमें आपकी लोकेशन की आवश्यकता है ताकि हम आपका वर्तमान स्थान प्राप्त कर सकें।",
+  "allow": "अनुमति दें",
+  "deny": "अस्वीकार करें",
+  "locationBlocked": "लोकेशन ब्लॉक कर दी गई",
+  "locationBlockedPermanentlyEnableFromSetting": "आपने लोकेशन एक्सेस को स्थायी रूप से अस्वीकार कर दिया है। कृपया इसे सेटिंग्स से सक्षम करें।",
+  "locationPermissionNeeded": "लोकेशन की अनुमति आवश्यक है",
+  "pleaseAllowLocationAccess": "कृपया लोकेशन एक्सेस की अनुमति दें ताकि हम आपका वर्तमान स्थान प्राप्त कर सकें।",
+  "locationDisabled": "लोकेशन बंद है",
+  "pleaseEnableLocationServicesToContinue": "जारी रखने के लिए कृपया लोकेशन सेवाएँ चालू करें।",
+  "openSettings": "सेटिंग्स खोलें",
+  "okay": "ठीक है"
 
 
 }

@@ -36,8 +36,6 @@ class DriverLoadsLocationDetailsScreen extends StatefulWidget {
 class _DriverLoadsLocationDetailsScreenState
     extends State<DriverLoadsLocationDetailsScreen> {
   Timer? _ticker;
-  String _countDown = "--:--:--";
-  bool _simConsentCalled = false;
   bool _trackingApiCalled = false;
   final driverLoadDetailsCubit = locator<DriverLoadDetailsCubit>();
   @override

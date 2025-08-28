@@ -12,6 +12,7 @@ class AnalyticEventName {
 
   /// Fleet Events
   static const String FLEET_PRODUCT_CATALOG_CREATED = "fleet_product_catalog_created";
+  static const String FLEET_ORDER_CREATION = "fleet_order_creation";
 
 
   /// Marketplace Events

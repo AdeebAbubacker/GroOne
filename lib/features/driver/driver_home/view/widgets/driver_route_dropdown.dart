@@ -44,12 +44,8 @@ class DriverRouteSearchDropdown extends StatelessWidget {
           final selectedCompanyType = companyTypeList.firstWhere(
             (e) => e.fromLocation.toString() == newCompanyTypeName,
           );
-          if (selectedCompanyType.masterLaneId != null) {
-            onCompanyTypeChanged(selectedCompanyType.masterLaneId.toString());
-          } else {
-            onCompanyTypeChanged(null);
-          }
-        }
+          onCompanyTypeChanged(selectedCompanyType.masterLaneId.toString());
+                }
       },
       dropdownBuilder: (context, selectedItem) {
         if (selectedItem == null || selectedItem.isEmpty) {

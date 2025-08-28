@@ -4,7 +4,6 @@ import 'package:gro_one_app/features/kavach/cubit/choose_preference_cubit.dart';
 import 'package:gro_one_app/features/kavach/cubit/choose_preference_state.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_models_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/choose_your_preference_form.dart';
-import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
@@ -18,7 +17,7 @@ import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/common_functions.dart';
-import 'kavach_support_screen.dart';
+import '../../profile/view/support_screen.dart';
 
 
 class KavachChooseYourPreferenceScreen extends StatefulWidget {
@@ -50,7 +49,7 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

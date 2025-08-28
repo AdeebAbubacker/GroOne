@@ -1253,7 +1253,18 @@
   "pleaseSelectLicenseExpiryDate": "உரிமத்தின் காலாவதி தேதியைத் தேர்ந்தெடுக்கவும்",
   "pleaseEnterMobileNumber": "மொபைல் எண்ணை உள்ளிடவும்",
   "vehicleVerifiedSuccess": "வாகனம் வெற்றிகரமாக சரிபார்க்கப்பட்டது",
-  "vehicleVerificationFailed": "வாகன சரிபார்ப்பு தோல்வியடைந்தது"
-  
-
+  "vehicleVerificationFailed": "வாகன சரிபார்ப்பு தோல்வியடைந்தது",
+  "updateNow": "இப்போது புதுப்பிக்கவும்",
+  "allowLocationAccess": "இடம் அணுக அனுமதிக்கவும்",
+  "weNeedAccessToYourLocation": "உங்கள் தற்போதைய இடத்தை பெற நாங்கள் உங்கள் இடத்தை அணுக வேண்டும்.",
+  "allow": "அனுமதிக்கவும்",
+  "deny": "நிராகரிக்கவும்",
+  "locationBlocked": "இடம் தடைசெய்யப்பட்டது",
+  "locationBlockedPermanentlyEnableFromSetting": "நீங்கள் இடம் அணுகலை நிரந்தரமாக நிராகரித்துள்ளீர்கள். தயவுசெய்து அதை அமைப்புகளில் இயக்கவும்.",
+  "locationPermissionNeeded": "இடம் அனுமதி தேவை",
+  "pleaseAllowLocationAccess": "உங்கள் தற்போதைய இடத்தை பெற இடம் அணுகலை அனுமதிக்கவும்.",
+  "locationDisabled": "இடம் முடக்கப்பட்டுள்ளது",
+  "pleaseEnableLocationServicesToContinue": "தொடர இடம் சேவைகளை இயக்கவும்.",
+  "openSettings": "அமைப்புகளைத் திறக்கவும்",
+  "okay": "சரி"
 }

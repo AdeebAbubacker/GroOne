@@ -44,12 +44,8 @@ class CommodityTypeDropdown extends StatelessWidget {
           final selectedCompanyType = companyTypeList.firstWhere(
             (e) => e.name.toString() == newCompanyTypeName,
           );
-          if (selectedCompanyType.id != null) {
-            onCompanyTypeChanged(selectedCompanyType.id.toString());
-          } else {
-            onCompanyTypeChanged(null);
-          }
-        }
+          onCompanyTypeChanged(selectedCompanyType.id.toString());
+                }
       },
       dropdownBuilder: (context, selectedItem) {
         if (selectedItem == null || selectedItem.isEmpty) {

@@ -19,6 +19,9 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../data/model/result.dart';
+import '../../../dependency_injection/locator.dart';
+import '../../../service/analytics/analytics_event_name.dart';
+import '../../../service/analytics/analytics_service.dart';
 import '../../../utils/app_dialog.dart';
 import '../../../utils/validator.dart';
 import '../../en-dhan_fuel/widgets/endhan_document_upload_widget.dart';
@@ -41,6 +44,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     TextEditingController(),
   ];
   final List<bool> _vehicleVerifiedList = [false];
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   @override
   void dispose() {
@@ -356,6 +360,18 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                   : "",
         },
     ];
+
+    final request = {
+      "referralCode": _referralCodeController.text.trim(),
+      "addressName": addressName,
+      "address": address,
+      "city": city,
+      "stateName": state,
+      "pincode": pincode,
+      "contactNo": contactNo,
+      "vehicles": vehiclesData.map((v) => v['vehicleNo']).join(","),
+    };
+    analyticsHelper.logEvent(AnalyticEventName.FLEET_ORDER_CREATION, request,);
 
     final result = await cubit.placeFastagOrder(
       referralCode: _referralCodeController.text.trim(),

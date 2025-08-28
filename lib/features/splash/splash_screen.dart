@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
@@ -15,10 +16,14 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../utils/app_global_variables.dart';
+import '../../utils/app_image.dart';
 
 enum AppUpdateType { none, soft, force }
 
@@ -89,28 +94,7 @@ class _SplashScreenState extends State<SplashScreen> {
       final update = updateState.data!;
       if (update.updateRequired && update.isForce) {
         if (!context.mounted) return;
-        AppDialog.show(context,dismissible: true, child: CommonDialogView(
-          heading: context.appText.updateRequired,
-          hideCloseButton: true,
-            messageWidget: Text.rich(
-              TextSpan(
-                text: context.appText.updateAppText1,
-                style: AppTextStyle.h5,
-                children: [
-                  TextSpan(
-                    text: update.version,
-                    style: AppTextStyle.h4,
-                  ),
-                  TextSpan(text: context.appText.updateAppText2, style: AppTextStyle.h5),
-                ],
-              ),
-              textAlign: TextAlign.center,
-            ),
-          onTapSingleButton: () {
-            launchUrl(Uri.parse("https://play.google.com/store/apps/details?id=com.example"));
-          },
-          onSingleButtonText: context.appText.update,
-        ));
+         showUpdatePopUp(update);
         return;
       }
     }
@@ -142,6 +126,45 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
     }
+  }
+
+
+  showUpdatePopUp(update) {
+    AppDialog.show(
+      context,
+      child: CommonDialogView(
+        hideCloseButton: true,
+        onSingleButtonText: context.appText.updateNow,
+        onTapSingleButton: () {
+          launchUrl(Uri.parse(isAndroid ? playStoreUrl : appStoreUrl));
+        },
+        child: Column(
+          children: [
+            SvgPicture.asset(AppImage.svg.customerSupport, width: 200),
+            Text(
+              context.appText.updateRequired,
+              style: AppTextStyle.h4,
+            ),
+            10.height,
+            Text.rich(
+              TextSpan(
+                text: context.appText.updateAppText1,
+                style: AppTextStyle.h5,
+                children: [
+                  TextSpan(
+                    text: update.version,
+                    style: AppTextStyle.h4,
+                  ),
+                  TextSpan(text: context.appText.updateAppText2,
+                      style: AppTextStyle.h5),
+                ],
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
 

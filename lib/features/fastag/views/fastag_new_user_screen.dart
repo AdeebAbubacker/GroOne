@@ -2,19 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
-import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
-import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
-import '../../kavach/view/kavach_support_screen.dart' show KavachSupportScreen;
+import '../../profile/view/support_screen.dart';
 import 'buy_new_fastag_screen.dart';
 
 class FastagNewUserScreen extends StatelessWidget {
@@ -36,7 +33,7 @@ class FastagNewUserScreen extends StatelessWidget {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

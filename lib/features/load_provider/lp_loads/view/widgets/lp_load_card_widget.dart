@@ -196,9 +196,10 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
   Widget buildLoadIdDetailsWidget(LoadStatus? loadStatus) {
     var statusData = widget.loadItem.loadOnhold ? context.appText.unloadingHeld :widget.loadItem.loadStatusDetails?.loadStatus ?? '';
     var payment = widget.loadItem.lpPaymentsData;
+    var status = loadStatus?.index ?? 0;
     return Row(
       children: [
-        if(loadStatus!.index <= LoadStatus.assigned.index)
+        if(status <= LoadStatus.assigned.index)
           Container(
             decoration: commonContainerDecoration(
               color: Color(0xffDFE6FF),
@@ -206,7 +207,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             ),
             child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
           ),
-        if(loadStatus.index >= LoadStatus.loading.index)
+        if(status >= LoadStatus.loading.index)
           Image.asset(AppImage.png.truck, width: 57, height: 42),
 
         15.width,
@@ -223,7 +224,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
               ],
             ),
             4.height,
-            if(loadStatus.index >= LoadStatus.loading.index)
+            if(status >= LoadStatus.loading.index)
               ...[
                 Text(
                   widget.loadItem.scheduleTripDetails?.vehicle?.truckNo ?? '',
@@ -257,7 +258,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
               5.height,
               if(loadStatus == LoadStatus.kycPending || loadStatus == LoadStatus.matching)
                 Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)).paddingRight(5),
-              if(loadStatus.index >= LoadStatus.loading.index)
+              if(status >= LoadStatus.loading.index)
                 Text(
                   'ETA: ${DateTimeHelper.formatCustomDateTimeIST(widget.loadItem.expectedDeliveryDateTime)}',
                   style: AppTextStyle.body4.copyWith(
@@ -265,7 +266,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                   ),
                   textAlign: TextAlign.right,
                 ),
-              if((loadStatus.index >= LoadStatus.inTransit.index && (payment?.receivableAdvancePaidFlg == false)))
+              if((status >= LoadStatus.inTransit.index && (payment?.receivableAdvancePaidFlg == false)))
                 Row(
                   children: [
                     const Icon(Icons.error, size: 16, color: AppColors.iconRed),
