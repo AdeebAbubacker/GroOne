@@ -707,36 +707,36 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
               }
               if (!isLicenseVerified) {
                 ToastMessages.alert(
-                  message: "Please verify the License before proceeding",
+                  message: context.appText.pleaseVerifyLicense,
                 );
                 return;
               }
               if (formKey.currentState!.validate()) {
                 if (licenseNumberController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: "Please enter License Number");
+                  ToastMessages.alert(message: context.appText.pleaseEnterLicenseNumber,);
                   return;
                 }
 
                 if (selectedDoB == null || selectedDoB!.isEmpty) {
-                  ToastMessages.alert(message: "Please select Date of Birth");
+                  ToastMessages.alert(message: context.appText.pleaseSelectDob);
                   return;
                 }
 
                 if (nameController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: "Please enter Driver Name");
+                  ToastMessages.alert(message: context.appText.pleaseEnterDriverName);
                   return;
                 }
 
                 if (selectedlicenseExpiryDate == null ||
                     selectedlicenseExpiryDate!.isEmpty) {
                   ToastMessages.alert(
-                    message: "Please select License Expiry Date",
+                    message: context.appText.pleaseSelectLicenseExpiryDate,
                   );
                   return;
                 }
 
                 if (mobileController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: "Please enter Mobile Number");
+                  ToastMessages.alert(message: context.appText.pleaseEnterMobileNumber);
                   return;
                 }
                 if (!formKey.currentState!.validate()) {
@@ -1064,13 +1064,13 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                               }
                               if (selectedDoB.isEmpty) {
                                 ToastMessages.alert(
-                                  message: "Please select Date of Birth",
+                                  message: context.appText.pleaseSelectDob,
                                 );
                                 return;
                               }
                               if (nameController.text.trim().isEmpty) {
                                 ToastMessages.alert(
-                                  message: "Please enter Driver Name",
+                                  message: context.appText.pleaseEnterDriverName,
                                 );
                                 return;
                               }
@@ -1088,12 +1088,12 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                               if (result is Success<Map<String, dynamic>>) {
                                 ToastMessages.success(
                                   message:
-                                      "License verified & data autofilled.",
+                                     context.appText.licenseVerifiedSuccess
                                 );
                                 onVerificationResult(true, result.value);
                               } else {
                                 ToastMessages.alert(
-                                  message: "License verification failed",
+                                  message:context.appText.licenseVerificationFailed
                                 );
                                 onVerificationResult(false, null);
                               }

@@ -399,7 +399,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                         });
                         ToastMessages.error(
                           message:
-                              'Please upload Lorry Receipt, E-Way Bill, and Material Invoice',
+                              context.appText.pleaseUploadDocs,
                         );
                         return;
                       }
@@ -434,7 +434,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                           _isButtonEnabled = true;
                         });
                         ToastMessages.error(
-                          message: 'Please upload POD document',
+                          message: context.appText.pleaseUploadPodDoc,
                         );
                         return;
                       }

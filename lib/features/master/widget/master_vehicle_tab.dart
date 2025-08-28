@@ -944,7 +944,7 @@ Widget buildVehicleVerificationFieldWidget({
 
                       if (result is Success<Map<String, dynamic>>) {
                         ToastMessages.success(
-                          message: "Vehicle verified & data autofilled.",
+                          message: context.appText.vehicleVerifiedSuccess,
                         );
                         onVerificationResult(
                           true,
@@ -952,7 +952,7 @@ Widget buildVehicleVerificationFieldWidget({
                         ); // Pass data back
                       } else {
                         ToastMessages.alert(
-                          message: "Vehicle verification failed",
+                          message: context.appText.vehicleVerificationFailed,
                         );
                         onVerificationResult(false, null);
                       }
