@@ -6,6 +6,7 @@ class ChatMessage {
   final String language;
   final MessageType messageType;
   bool isPlaying;
+  bool reported; // New field for tracking reported messages
 
   ChatMessage({
     required this.id,
@@ -15,6 +16,7 @@ class ChatMessage {
     required this.language,
     this.messageType = MessageType.text,
     this.isPlaying = false,
+    this.reported = false, // Default to false
   });
 
   ChatMessage copyWith({
@@ -24,6 +26,8 @@ class ChatMessage {
     DateTime? timestamp,
     String? language,
     MessageType? messageType,
+    bool? isPlaying,
+    bool? reported, // Add reported to copyWith
   }) {
     return ChatMessage(
       id: id ?? this.id,
@@ -32,6 +36,8 @@ class ChatMessage {
       timestamp: timestamp ?? this.timestamp,
       language: language ?? this.language,
       messageType: messageType ?? this.messageType,
+      isPlaying: isPlaying ?? this.isPlaying, // Include isPlaying field
+      reported: reported ?? this.reported, // Copy reported field
     );
   }
 
@@ -43,6 +49,8 @@ class ChatMessage {
       'timestamp': timestamp.toIso8601String(),
       'language': language,
       'messageType': messageType.toString(),
+      'isPlaying': isPlaying, // Include isPlaying field
+      'reported': reported, // Include reported field
     };
   }
 
@@ -57,6 +65,8 @@ class ChatMessage {
         (type) => type.toString() == json['messageType'],
         orElse: () => MessageType.text,
       ),
+      isPlaying: json['isPlaying'] ?? false, // Parse isPlaying field with default
+      reported: json['reported'] ?? false, // Parse reported field with default
     );
   }
 }
