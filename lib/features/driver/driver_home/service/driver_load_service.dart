@@ -1,7 +1,6 @@
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -52,14 +51,9 @@ class DriverLoadService {
         return Error(GenericError());
       }
     } 
-    // catch (e) {
-    //   return Error(DeserializationError());
-    // }
-    catch (e, stackTrace) {
-        print("Trip Path Parsing Error: $e");
-        print("Stack trace: $stackTrace");
-        throw Exception("Failed to fetch trip path data: $e");
-      }
+    catch (e) {
+      return Error(DeserializationError());
+    }
   }
 
   Future<Result<VpLoadAcceptModel>> changeLoadStatus({

@@ -50,7 +50,7 @@ class PageMeta {
     PageMeta copyWith({
         int? page,
         int? pageCount,
-        dynamic? nextPage,
+        dynamic nextPage,
         int? pageSize,
         int? total,
     }) {
@@ -116,16 +116,16 @@ class LoadApproval {
     LoadApproval copyWith({
         String? id,
         String? loadId,
-        dynamic? rejectionReason,
+        dynamic rejectionReason,
         bool? documentApproved,
-        dynamic? damageAndShortagesApproved,
-        dynamic? settlementApproved,
-        dynamic? paymentApproved,
-        dynamic? podApproved,
+        dynamic damageAndShortagesApproved,
+        dynamic settlementApproved,
+        dynamic paymentApproved,
+        dynamic podApproved,
         String? approvedBy,
         DateTime? createdAt,
         DateTime? updatedAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
     }) {
         return LoadApproval(
             id: id ?? this.id,
@@ -273,7 +273,7 @@ class DriverLoadDetails {
     DateTime? matchingStartDate,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     bool? loadOnhold,
     DataCommodity? commodity,
     DataTruckType? truckType,
@@ -333,7 +333,7 @@ class DriverLoadDetails {
       vpCustomer: vpCustomer ?? this.vpCustomer,
       weight: weight ?? this.weight,
       lpPaymentsData: lpPaymentsData ?? this.lpPaymentsData,
-      consignees: consignees ?? this.consignees,
+      consignees: consignees,
     );
   }
 
@@ -409,11 +409,11 @@ class DataCommodity {
   DataCommodity copyWith({
     int? id,
     String? name,
-    dynamic? description,
-    dynamic? iconUrl,
+    dynamic description,
+    dynamic iconUrl,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return DataCommodity(
       id: id ?? this.id,
@@ -464,7 +464,7 @@ class Type {
     String? companyType,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     String? kycType,
   }) {
     return Type(
@@ -525,7 +525,7 @@ class VehicleElement {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return VehicleElement(
       vpVehiclesId: vpVehiclesId ?? this.vpVehiclesId,
@@ -596,7 +596,7 @@ class LoadPrice {
     int? status,
     DateTime? createAt,
     DateTime? updateAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadPrice(
       loadPriceId: loadPriceId ?? this.loadPriceId,
@@ -678,7 +678,7 @@ class LoadRoute {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return LoadRoute(
       loadRouteId: loadRouteId ?? this.loadRouteId,
@@ -818,7 +818,7 @@ class ScheduleTripDetails {
     DateTime? possibleDeliveryDate,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     String? loadId,
     Driver? driver,
     ScheduleTripDetailsVehicle? vehicle,
@@ -928,7 +928,7 @@ class LoadDocumentData {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     DocumentDetails? documentDetails,
     String? documentError,
   }) {
@@ -1015,9 +1015,9 @@ class TrackingDetails {
     String? tripId,
     String? trackMode,
     String? tripStatus,
-    dynamic? currentLat,
-    dynamic? currentLong,
-    dynamic? currentAddress,
+    dynamic currentLat,
+    dynamic currentLong,
+    dynamic currentAddress,
     double? originLat,
     double? originLong,
     double? destinationLat,
@@ -1028,7 +1028,7 @@ class TrackingDetails {
     String? truckNumber,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? lastTrackDt,
+    dynamic lastTrackDt,
     bool? flaggedTrip,
   }) {
     return TrackingDetails(
@@ -1199,7 +1199,7 @@ class Driver {
     String? mobile,
     String? email,
     String? licenseNumber,
-    dynamic? licenseDocLink,
+    dynamic licenseDocLink,
     DateTime? licenseExpiryDate,
     String? customerId,
     DateTime? dateOfBirth,
@@ -1303,8 +1303,8 @@ class ScheduleTripDetailsVehicle {
     DateTime? pucExpiryDate,
     int? status,
     DateTime? createdAt,
-    dynamic? updatedAt,
-    dynamic? deletedAt,
+    dynamic updatedAt,
+    dynamic deletedAt,
   }) {
     return ScheduleTripDetailsVehicle(
       vehicleId: vehicleId ?? this.vehicleId,
@@ -1416,7 +1416,7 @@ class TimelineCommodity {
   TimelineCommodity copyWith({
     int? id,
     String? name,
-    dynamic? description,
+    dynamic description,
   }) {
     return TimelineCommodity(
       id: id ?? this.id,
@@ -1514,10 +1514,10 @@ class DataTruckType {
     int? id,
     String? type,
     String? subType,
-    dynamic? iconUrl,
+    dynamic iconUrl,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return DataTruckType(
       id: id ?? this.id,
@@ -1567,10 +1567,10 @@ class Weight {
     int? weightageId,
     int? measurementUnitId,
     int? value,
-    dynamic? description,
+    dynamic description,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return Weight(
       weightageId: weightageId ?? this.weightageId,
@@ -1956,14 +1956,14 @@ class Customer {
         int? companyTypeId,
         String? emailId,
         String? blueId,
-        dynamic? kycRejectReason,
-        dynamic? password,
+        dynamic kycRejectReason,
+        dynamic password,
         String? companyName,
         String? otp,
-        dynamic? ememoOtp,
+        dynamic ememoOtp,
         String? otpAttempt,
         int? isKyc,
-        dynamic? preferredLanes,
+        dynamic preferredLanes,
         int? roleId,
         bool? tempFlg,
         int? status,
@@ -1971,7 +1971,7 @@ class Customer {
         DateTime? kycPendingDate,
         DateTime? kycVerificationDate,
         DateTime? createdAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
         KycType? kycType,
         CompanyType? companyType,
         CustomerAddress? customerAddress,
@@ -2058,7 +2058,7 @@ class CompanyType{
         String? companyType,
         int? status,
         DateTime? createdAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
     }) {
         return CompanyType(
             id: id ?? this.id,
@@ -2100,8 +2100,8 @@ class KycType {
         int? id,
         String? kycType,
         int? status,
-        dynamic? createdAt,
-        dynamic? deletedAt,
+        dynamic createdAt,
+        dynamic deletedAt,
     }) {
         return KycType(
             id: id ?? this.id,
@@ -2160,10 +2160,10 @@ class CustomerAddress {
         String? city,
         String? state,
         String? pincode,
-        dynamic? status,
+        dynamic status,
         DateTime? createdAt,
         DateTime? updatedAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
     }) {
         return CustomerAddress(
             customersAddressId: customersAddressId ?? this.customersAddressId,
@@ -2236,7 +2236,7 @@ class LoadMemoDetails {
         String? balancePercentage,
         int? status,
         DateTime? createAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
     }) {
         return LoadMemoDetails(
             id: id ?? this.id,

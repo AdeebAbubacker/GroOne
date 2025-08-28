@@ -4,27 +4,19 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
-import 'package:gro_one_app/features/driver/driver_pod/view/driver_pod_dispatch_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-
-import '../../../../../utils/app_button.dart';
-import '../../../../../utils/app_button_style.dart';
 import '../../../../../utils/app_colors.dart';
 import '../../../../../utils/app_icons.dart';
 import '../../../../../utils/app_image.dart';
 import '../../../../../utils/app_text_style.dart';
 import '../../../../../utils/common_functions.dart';
 import '../../../../../utils/common_widgets.dart';
-import '../../../../../utils/constant_variables.dart';
+
 
 class DriverLoadWidget extends StatefulWidget {
   final void Function()? onClickAssignDriver;
@@ -112,13 +104,13 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
     // final documents = nestedDocuments.expand((list) => list).toList();
 
     final currentStatus = widget.driverLoadDetails.loadStatusId ?? 0;
-    final documents = widget.driverLoadDetails.loadDocument ?? [];
 
-    // ✅ Status 4: Check if Memo document is uploaded
+
+    // Status 4: Check if Lp Agreed
     if (currentStatus == 4) {
-      final memoUploaded = widget.driverLoadDetails.loadMemoDetails != null;
+      final isLpAgreed = widget.driverLoadDetails.isAgreed == 1;
       setState(() {
-        _isButtonEnabled = memoUploaded;
+        _isButtonEnabled = isLpAgreed;
       });
       return;
     }
@@ -259,12 +251,12 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",
                 ),
               ),
-              Spacer(flex: 1), // pushes arrow away from pickup
+              Spacer(flex: 1), 
               Icon(
                 Icons.arrow_right_alt_outlined,
                 color: AppColors.primaryColor,
               ),
-              Spacer(flex: 1), // pushes arrow away from drop
+              Spacer(flex: 1),
               Expanded(
                 child: _buildLocationInfoWidget(
                 widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",
@@ -359,9 +351,10 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                 DriverLoadHelper.homeloadStatusButtonWidget(
                   context: context,
                   enable: _isButtonEnabled,
+                  isLpagreed:  widget.driverLoadDetails.isAgreed == 1 ?? true,
                   statusId: widget.driverLoadDetails.loadStatusId,
                   onPressed: () {
-                    if (widget.driverLoadDetails.loadStatusId == 4 || widget.driverLoadDetails.loadStatusId == 9  &&
+                    if ((widget.driverLoadDetails.loadStatusId == 4 && widget.driverLoadDetails.isAgreed == 0) || widget.driverLoadDetails.loadStatusId == 9  &&
                         widget.driverLoadDetails.loadMemoDetails == null) {
                       Navigator.push(
                         context,
@@ -406,7 +399,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                         });
                         ToastMessages.error(
                           message:
-                              'Please upload Lorry Receipt, E-Way Bill, and Material Invoice',
+                              context.appText.pleaseUploadDocs,
                         );
                         return;
                       }
@@ -441,7 +434,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                           _isButtonEnabled = true;
                         });
                         ToastMessages.error(
-                          message: 'Please upload POD document',
+                          message: context.appText.pleaseUploadPodDoc,
                         );
                         return;
                       }

@@ -71,7 +71,7 @@ class DriverLoadDetailsState extends Equatable {
       loadStatusId: loadStatusId ?? this.loadStatusId,
       allDamageImageList: allDamageImageList ?? this.allDamageImageList,
       loadStatus: loadStatus ?? this.loadStatus,
-      iPodSkip: iPodSkip?? this.iPodSkip,
+      iPodSkip: iPodSkip,
     );
   }
 

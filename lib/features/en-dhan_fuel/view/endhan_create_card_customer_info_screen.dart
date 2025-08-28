@@ -869,7 +869,7 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
             child: Container(
               constraints: const BoxConstraints(maxHeight: 200),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(4),
               ),

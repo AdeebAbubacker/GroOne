@@ -85,7 +85,7 @@ class _DriverProfileSettingScreenState
             showYesNoButtonButtons: true,
             hideCloseButton: true,
             yesButtonTextStyle: OutlinedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AppColors.red,
 
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -261,7 +261,7 @@ class _DriverProfileSettingScreenState
                                               context,
                                             ),
                                         iconSize: 18,
-                                        iconColor: Colors.red,
+                                        iconColor: AppColors.activeRedColor,
                                       );
                                     },
                                   ).paddingSymmetric(vertical: 20),
@@ -377,7 +377,7 @@ class _DriverProfileSettingScreenState
           Icon(
             Icons.arrow_forward_ios,
             size: 12,
-            color: iconColor ?? Colors.black,
+            color: iconColor ?? AppColors.black,
           ),
         ],
       ),

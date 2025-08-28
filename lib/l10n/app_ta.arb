@@ -1239,6 +1239,21 @@
   "damageAndShortagesAlreadyApproved": "த-db­ஷம் மற்றும் குறைவு ஏற்கப்பட்டுவிட்டது",
   "damageAndShortagesAlreadyRejected": "த-db­ஷம் மற்றும் குறைவு நிராகரிக்கப்பட்டுவிட்டது",
   "settlementsAlreadyApproved": "கணக்குசார்ந்த தீர்வுகள் ஏற்கப்பட்டுவிட்டன",
-  "settlementsAlreadyRejected": "கணக்குசார்ந்த தீர்வுகள் நிராகரிக்கப்பட்டுவிட்டன"
+  "settlementsAlreadyRejected": "கணக்குசார்ந்த தீர்வுகள் நிராகரிக்கப்பட்டுவிட்டன",
+  "pleaseUploadPodDoc": "POD ஆவணத்தை பதிவேற்றவும்",
+  "pleaseUploadDocs": "லாரி ரசீது, இ-வே பில் மற்றும் பொருள் விலைப்பட்டியல் பதிவேற்றவும்",
+  "pleaseSelectDob": "பிறந்த தேதியைத் தேர்ந்தெடுக்கவும்",
+  "pleaseEnterDriverName": "டிரைவர் பெயரை உள்ளிடவும்",
+  "licenseVerifiedSuccess": "உரிமம் வெற்றிகரமாக சரிபார்க்கப்பட்டது.",
+  "licenseVerificationFailed": "உரிமம் சரிபார்ப்பு தோல்வியடைந்தது",
+  "pleaseVerifyLicense": "தொடருவதற்கு முன் உரிமத்தை சரிபார்க்கவும்",
+  "pleaseEnterLicenseNumber": "உரிம எணை உள்ளிடவும்",
+  "pleaseSelectDob": "பிறந்த தேதியைத் தேர்ந்தெடுக்கவும்",
+  "pleaseEnterDriverName": "டிரைவர் பெயரை உள்ளிடவும்",
+  "pleaseSelectLicenseExpiryDate": "உரிமத்தின் காலாவதி தேதியைத் தேர்ந்தெடுக்கவும்",
+  "pleaseEnterMobileNumber": "மொபைல் எண்ணை உள்ளிடவும்",
+  "vehicleVerifiedSuccess": "வாகனம் வெற்றிகரமாக சரிபார்க்கப்பட்டது",
+  "vehicleVerificationFailed": "வாகன சரிபார்ப்பு தோல்வியடைந்தது"
+  
 
 }

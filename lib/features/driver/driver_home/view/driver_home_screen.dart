@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'package:dropdown_search/dropdown_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
-import 'package:gro_one_app/features/driver/driver_home/bloc/driver_home/driver_home_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
@@ -22,8 +19,6 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_event.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_state.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -284,9 +279,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 if (state is LoadCommoditySuccess) {
                   final commodities = state.commodityListModel;
                   final commodityNames =
-                      commodities.map((e) => e.name ?? '').toList();
+                      commodities.map((e) => e.name).toList();
                   final commodityNameIdMap = {
-                    for (var e in commodities) e.name ?? '': e.id,
+                    for (var e in commodities) e.name: e.id,
                   };
 
                   return Column(
@@ -350,7 +345,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   void disposeFunction() => frameCallback(() {
     searchController.dispose();
     _debounce?.cancel();
-    _tabController?.dispose();
+    _tabController.dispose();
   });
 
   void _loadDataByTab({required int index, bool forceRefresh = false}) {

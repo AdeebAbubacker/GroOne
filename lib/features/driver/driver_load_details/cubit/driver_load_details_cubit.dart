@@ -1,6 +1,6 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:io';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart'
-    as lpHelper;
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
@@ -203,10 +203,8 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
     if (result is Success<DeleteLoadDocumentResponse>) {
       /// delete from local
       if (otherDocument) {
-        print('local deleete called');
         deleteOtherDocumentFromLocal(index);
       } else {
-        print('not ------------deleetd from local');
         uploadDeleteLoaderStatus(index, isDelete: true);
       }
     }
