@@ -434,7 +434,7 @@ class _ChatScreenState extends State<ChatScreen> {
                               _showReportConfirmationDialog(message.id);
                             },
                             child: Icon(
-                              Icons.report_problem,
+                              Icons.thumb_down_off_alt_outlined,
                               size: 16,
                               color: AppColors.grayColor,
                             ),
@@ -450,14 +450,19 @@ class _ChatScreenState extends State<ChatScreen> {
                               color: const Color(0xFFE31B25).withValues(alpha: 0.1), // Use const red color
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Text(
-                              'Reported',
-                              style: TextStyle(
-                                fontSize: 10,
-                                color: const Color(0xFFE31B25), // Use const red color
-                                fontWeight: FontWeight.w500,
-                              ),
+                            child: Icon(
+                              Icons.thumb_down_off_alt_outlined,
+                              size: 16,
+                              color: AppColors.red,
                             ),
+                            // child: Text(
+                            //   'Reported',
+                            //   style: TextStyle(
+                            //     fontSize: 10,
+                            //     color: const Color(0xFFE31B25), // Use const red color
+                            //     fontWeight: FontWeight.w500,
+                            //   ),
+                            // ),
                           ),
                       ],
                     ],
