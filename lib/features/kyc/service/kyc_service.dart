@@ -2,7 +2,6 @@ import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/addhar_verify_otp_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
@@ -11,7 +10,6 @@ import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_pan_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
-import 'package:gro_one_app/features/kyc/mock_response.dart';
 import 'package:gro_one_app/features/kyc/model/aadhar_status_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_otp_response.dart';
 import 'package:gro_one_app/features/kyc/model/addhar_verify_otp_response.dart';
@@ -21,7 +19,6 @@ import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/doc_verification_model.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
-import 'package:gro_one_app/features/kyc/model/state_response_mode.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
@@ -29,8 +26,6 @@ import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart'
 import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
-import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 
 
 class KycService {
@@ -39,7 +34,7 @@ class KycService {
 
 
   /// Sent Kyc Otp Service
-  Future<Result<AadhaarOtpModel>> kycSendOtp(AddharOtpApiRequest request) async {
+  Future<Result<AadhaarOtpModel>> kycSendOtp(AadhaarOtpApiRequest request) async {
     try {
       final result = await _apiService.post(ApiUrls.aadhaarSendOtp, body: request);
       if (result is Success) {
@@ -56,7 +51,7 @@ class KycService {
 
 
   /// Verify Otp Service
-  Future<Result<AadhaarVerifyOtpModel>> kycVerifyOtp(AddharVerifyOtpApiRequest request) async {
+  Future<Result<AadhaarVerifyOtpModel>> kycVerifyOtp(AadhaarVerifyOtpApiRequest request) async {
     try {
       final result = await _apiService.post(ApiUrls.aadhaarVerifyOtp, body: request);
       if (result is Success) {
@@ -84,7 +79,6 @@ class KycService {
         },
       );
       if (result is Success) {
-        print("result of verified gst ${result.value}");
         return Success(true);
       } else if (result is Error) {
         return Error(result.type);

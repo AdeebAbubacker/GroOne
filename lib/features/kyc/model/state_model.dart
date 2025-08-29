@@ -31,7 +31,7 @@ class StateModel {
   }
 
   Map<String, dynamic> toJson() => {
-    "data": data.map((x) => x?.toJson()).toList(),
+    "data": data.map((x) => x.toJson()).toList(),
     "total": total,
     "pageMeta": pageMeta?.toJson(),
   };
@@ -58,7 +58,7 @@ class StateModelList {
     String? name,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return StateModelList(
       id: id ?? this.id,
@@ -107,7 +107,7 @@ class PageMeta {
   PageMeta copyWith({
     int? page,
     int? pageCount,
-    dynamic? nextPage,
+    dynamic nextPage,
     int? pageSize,
     int? total,
   }) {

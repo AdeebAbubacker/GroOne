@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -217,7 +216,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
                   }
                   setState(() {});
                 },
-              child: buildReadOnlyField(context.appText.expectedDeliveryDateAndTime , dateAndTime ?? context.appText.pleaseSelectSDateAndTime, fillColor: Colors.white, mandatoryStar: true)
+              child: buildReadOnlyField(context.appText.expectedDeliveryDateAndTime , dateAndTime ?? context.appText.pleaseSelectSDateAndTime, fillColor: AppColors.white, mandatoryStar: true)
             ),
 
             AppTextField(
@@ -280,7 +279,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
           children: [
             Text(label, style: AppTextStyle.textFiled),
             if(mandatoryStar)
-            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            Text(" *", style: AppTextStyle.textFiled.copyWith(color: AppColors.red)),
           ],
         ),
         6.height,

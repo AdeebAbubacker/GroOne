@@ -597,12 +597,20 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
       context.appText.installed,
     ];
 
+    final statusKeys = [
+      "ALL", // pseudo key
+      "Order Placed",
+      "Dispatched",
+      "Delivered",
+      "Installed",
+    ];
+
     // Filter orders based on selected tab
     List<GpsOrderItem> filteredOrders =
         selectedTab == 0
             ? widget.orders
             : widget.orders
-                .where((order) => order.currentStatus == tabLabels[selectedTab])
+                .where((order) => order.currentStatus == statusKeys[selectedTab])
                 .toList();
 
     return Column(

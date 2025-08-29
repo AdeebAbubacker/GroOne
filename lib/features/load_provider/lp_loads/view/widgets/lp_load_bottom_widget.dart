@@ -685,7 +685,6 @@ Widget _buildConsigneeDetail({
                       isFieldUpdatble: !cubit.state.isFieldUpdatble,
                     ),
                   );
-                  print("isfield upabled ${isEditable}");
                 },
               icon: SvgPicture.asset(
                 AppIcons.svg.edit,

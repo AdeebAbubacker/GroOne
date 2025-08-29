@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 
 class LpHomeHelper {
 
@@ -111,36 +110,6 @@ class LpHomeHelper {
 
 
 
- // Get Load Status Color
- static Color getLoadStatusColor(String loadType) {
-   switch (loadType.toLowerCase()) {
-     case "kyc pending":
-       return const Color(0xFFFFE6E0); // Light peach
-     case "matching":
-       return const Color(0xFFe7dbff); // Light purple
-     case "confirmed":
-       return const Color(0xFFd4f3f7); // Light green
-     case "agree":
-       return const Color(0xFFFFF9C4); // Light yellow
-     case "assigned":
-       return const Color(0xFFD5F4E6); // Light yellow
-     case "loading":
-       return AppColors.brownColor; // Light yellow
-     case "in transit":
-       return AppColors.lightRedColor; // Light yellow
-     case "unloading":
-       return AppColors.lightGreenBox; // Light yellow
-     case "unloading held":
-       return AppColors.red; // Light yellow
-     case "pod dispatch":
-       return Color(0xff42A5F5); // Light yellow
-     case "completed":
-       return AppColors.greenColor; // Light yellow
-     default:
-       return Colors.grey.shade200;
-   }
- }
-
  // Get Load Status State
  static int getPaymentState(LoadStatus loadStatus) {
   switch (loadStatus) {
@@ -158,37 +127,6 @@ class LpHomeHelper {
       return 0; // Not eligible or unknown
   }
 }
-
-
-
-
- // Get Load Status Text Color
-static Color getLoadStatusTextColor(String loadType) {
-   switch (loadType.toLowerCase()) {
-     case "kyc pending":
-       return const Color(0xFFE05A33); // Red-orange
-     case "matching":
-       return const Color(0xFF864DFF); // Purple
-     case "confirmed":
-       return const Color(0xFF00bcd4); // Dark green
-     case "agree":
-       return const Color(0xFF9A7B00); // Dark yellow
-     case "assigned":
-       return const Color(0xFF2E7D32); // Dark green
-     case "loading":
-       return AppColors.lightBrownTextColor; // Dark green
-     case "in transit":
-       return AppColors.redTextColor; // Dark green
-     case "unloading":
-       return AppColors.greenColor; // Dark green
-     case "unloading held":
-       return AppColors.white; // Dark green
-     case "completed":
-       return AppColors.white; // Dark green
-     default:
-       return Colors.white;
-   }
- }
 
 
  // Get Calculate Percentage

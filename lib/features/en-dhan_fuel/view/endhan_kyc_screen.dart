@@ -598,6 +598,10 @@ class _EndhanKycScreenContent extends StatelessWidget {
                               cubit,
                             );
                           }
+                          if (state.kycInitResponse?.status == Status.ERROR) {
+                            ToastMessages.error(message: context.appText.errorMessage);
+                          }
+
                         },
                         child: Column(
                           children: [

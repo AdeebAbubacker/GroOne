@@ -190,6 +190,9 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         if (verifyState?.status == Status.SUCCESS) {
                           await _checkKycVerification(verifyState?.data?.data);
                         }
+                        if (initState?.status == Status.ERROR) {
+                          ToastMessages.error(message: context.appText.errorMessage);
+                        }
                       },
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,

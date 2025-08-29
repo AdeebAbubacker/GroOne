@@ -2,8 +2,6 @@ import 'package:bloc/bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/create_load_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:meta/meta.dart';

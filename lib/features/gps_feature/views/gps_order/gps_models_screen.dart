@@ -325,6 +325,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
               children: [
                 // Search bar
                 AppSearchBar(
+                  hintText: context.appText.search,
                   searchController: searchController,
                   onChanged: (text) {
                     _gpsProductsCubit.searchProducts(text);

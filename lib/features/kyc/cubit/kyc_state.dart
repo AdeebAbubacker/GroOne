@@ -84,8 +84,8 @@ class KycState extends Equatable {
 
   }) {
     return KycState(
-      uploadAadharDocumentModel: uploadAadharDocUIState??this.uploadAadharDocumentModel,
-      aadharVerificationState: aadharVerificationResponse ?? this.aadharVerificationState,
+      uploadAadharDocumentModel: uploadAadharDocUIState??uploadAadharDocumentModel,
+      aadharVerificationState: aadharVerificationResponse ?? aadharVerificationState,
       docVerificationState: docVerificationState??this.docVerificationState,
       kycInitResponse: kycInitResponse??this.kycInitResponse,
       uploadStates: uploadStates ?? this.uploadStates,

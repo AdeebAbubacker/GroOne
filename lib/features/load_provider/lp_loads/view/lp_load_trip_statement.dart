@@ -106,7 +106,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
                                 lpEmailId: widget.loadItem.customer?.emailId ?? '',
                                 lpMobile: widget.loadItem.customer?.mobileNumber ?? '',
                                 vpId: widget.loadItem.vpCustomer?.customerSeriesNo.toString() ?? '',
-                                loadSeriesId: widget.loadItem.loadSeriesId ?? '',
+                                loadSeriesId: widget.loadItem.loadSeriesId,
                                 netFreight: widget.loadItem.loadMemoDetails?.netFreight ?? '',
                                 advance: widget.loadItem.loadMemoDetails?.advance ?? '',
                                 advancePercentage: widget.loadItem.loadMemoDetails?.advancePercentage ?? '',
@@ -237,7 +237,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
           ),
           buildDetailRow(
             label: context.appText.advance,
-            value: PriceHelper.formatINR(details.advancePaid ?? ''),
+            value: PriceHelper.formatINR(details.advancePaid),
           ),
           buildDetailRow(
             label: context.appText.balanceToBePaid,

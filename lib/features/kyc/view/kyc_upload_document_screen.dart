@@ -11,8 +11,6 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/widgets/district_autocomplete_textfield.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/widgets/state_autocomplete_textfield.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/verify_gst_request.dart';
@@ -21,13 +19,10 @@ import 'package:gro_one_app/features/kyc/api_request/verify_tan_request.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
-import 'package:gro_one_app/features/kyc/model/city_model.dart';
-import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
-import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -45,7 +40,6 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/bank_account_number_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/gst_input_formatter.dart';
@@ -629,11 +623,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // Verify KYC Api Call
   Future verifyKycApiCall() async {
-    debugPrint("cancelledChequeDocId : $cancelledChequeDocId");
-    debugPrint("tdsDocId : $tdsDocId");
-    debugPrint("gstDocId : $gstDocId");
-    debugPrint("panDocId : $panDocId");
-    debugPrint("tanDocId : $tanDocId");
     if (_formKey.currentState!.validate()) {
       final ok = validateDocs(
         userRole: kycCubit.userRole ?? 0,
@@ -921,8 +910,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                     // VP = mandatory
                                     final requiredError =
                                         Validator.fieldRequired(value);
-                                    if (requiredError != null)
+                                    if (requiredError != null) {
                                       return requiredError;
+                                    }
 
                                     final ifscError =
                                         Validator.bankAccountNumber(value);
@@ -998,8 +988,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                     // VP = mandatory
                                     final requiredError =
                                         Validator.fieldRequired(value);
-                                    if (requiredError != null)
+                                    if (requiredError != null) {
                                       return requiredError;
+                                    }
 
                                     final ifscError = Validator.ifsc(value);
                                     if (ifscError != null) return ifscError;
@@ -1044,7 +1035,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   ) {
     final stateUI = context.watch<KycCubit>().state.stateUIState;
 
-    final stateList = stateUI?.data?.map((e) => e.name ?? '').toList() ?? [];
+    final stateList = stateUI?.data?.map((e) => e.name).toList() ?? [];
 
     return SearchableDropdown(
       labelText: context.appText.state,
@@ -1079,7 +1070,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     ValueChanged<String?> onCityChanged,
   ) {
     final cityUI = context.watch<KycCubit>().state.cityUIState;
-    final cityList = cityUI?.data?.map((e) => e.city ?? '').toList() ?? [];
+    final cityList = cityUI?.data?.map((e) => e.city).toList() ?? [];
 
     return AbsorbPointer(
       absorbing: !isStateSelected,
@@ -1172,10 +1163,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               thenUploadFileToSever: () async {
                 final Result result = await uploadGSTDocumentApiCall(gstDoc);
                 if (result is Success) {
-                  print("calling 1");
                   final gstData = kycCubit.state.uploadGSTDocUIState?.data;
                   if (gstData != null && gstDoc.isNotEmpty) {
-                    print("calling 2 ${gstDoc}");
                     final apiRequest = CreateDocumentApiRequest(
                       documentTypeId:await KycHelper.getDocumentTypeId(
                         KycDocType.gstin,
@@ -1192,7 +1181,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       ),
                       fileExtension: gstDoc.first['extension'],
                     );
-                    print("calling 3");
                     await createDocumentApiCall(apiRequest);
                     if (kycCubit.state.createDocumentUIState?.status ==
                         Status.SUCCESS) {
@@ -1213,7 +1201,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                         );
                       }
                     }
-                    debugPrint("gstDocId : $gstDocId");
                   }
                 }
               },
@@ -1227,7 +1214,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 await kycCubit.deleteDocument(gstDocId ?? "").then((onValue) {
                   gstDoc.clear();
                   gstDocId = null;
-                  debugPrint("gstDocId : $gstDocId");
                 });
               },
             ),
@@ -1333,7 +1319,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                           );
                         }
                       }
-                      debugPrint("tanDocId : $tanDocId");
                     }
                   }
                 }
@@ -1348,7 +1333,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 await kycCubit.deleteDocument(tanDocId ?? "").then((onValue) {
                   tanDoc.clear();
                   tanDocId = null;
-                  debugPrint("tanDocId : $tanDocId");
                 });
               },
             ),
@@ -1458,7 +1442,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                           );
                         }
                       }
-                      debugPrint("panDocId : $panDocId");
                     }
                   }
                 }
@@ -1473,7 +1456,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 await kycCubit.deleteDocument(panDocId ?? "").then((onValue) {
                   panDoc.clear();
                   panDocId = null;
-                  debugPrint("panDocId : $panDocId");
                 });
               },
             ),
@@ -1537,7 +1519,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 .documentId;
                       }
                     }
-                    debugPrint("cancelledChequeDocId : $cancelledChequeDocId");
                   }
                 }
               }
@@ -1554,7 +1535,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               ) {
                 checkDocLink.clear();
                 cancelledChequeDocId = null;
-                debugPrint("cancelledChequeDocId : $cancelledChequeDocId");
               });
             },
           );
@@ -1616,7 +1596,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 .documentId;
                       }
                     }
-                    debugPrint("tdsDocId : $tdsDocId");
                   }
                 }
               }
@@ -1631,7 +1610,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               await kycCubit.deleteDocument(tdsDocId ?? "").then((onValue) {
                 tdsDocLink.clear();
                 tdsDocId = null;
-                debugPrint("tdsDocId : $tdsDocId");
               });
             },
           );
@@ -1656,7 +1634,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           await securePrefs.deleteKey(AppString.sessionKey.iskycAdarWebview);
           clearAllFormValues();
           profileCubit.fetchProfileDetail();
-          navigateToHomeScreen(context);
+          if(context.mounted) {
+            navigateToHomeScreen(context);
+          }
         }
         if (status == Status.ERROR) {
           final error = state.submitKycState?.errorType;
@@ -1732,7 +1712,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 if (isMandatory ?? true)
                   Text(
                     "*",
-                    style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+                    style: AppTextStyle.textFiled.copyWith(color: AppColors.red),
                   ),
               ],
             ),
