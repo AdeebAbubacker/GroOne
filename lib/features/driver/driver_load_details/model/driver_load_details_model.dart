@@ -2477,7 +2477,7 @@ class DriverLoadApproval {
     final String loadId;
     final dynamic rejectionReason;
     final bool documentApproved;
-    final bool damageAndShortagesApproved;
+    final dynamic damageAndShortagesApproved;
     final String damageAndShortagesRejectionReason;
     final dynamic settlementApproved;
     final dynamic settlementRejectionReason;
@@ -2493,7 +2493,7 @@ class DriverLoadApproval {
         String? loadId,
         dynamic rejectionReason,
         bool? documentApproved,
-        bool? damageAndShortagesApproved,
+        dynamic damageAndShortagesApproved,
         String? damageAndShortagesRejectionReason,
         dynamic settlementApproved,
         dynamic settlementRejectionReason,
@@ -2528,7 +2528,11 @@ class DriverLoadApproval {
             loadId: json["loadId"] ?? "",
             rejectionReason: json["rejectionReason"],
             documentApproved: json["documentApproved"] ?? false,
-            damageAndShortagesApproved: json["damageAndShortagesApproved"] ?? false,
+            damageAndShortagesApproved: (json["damageAndShortagesApproved"] == null ||
+                            (json["damageAndShortagesApproved"] is Map && json["damageAndShortagesApproved"].isEmpty))
+                    ? ""
+                    : json["damageAndShortagesApproved"],
+
             damageAndShortagesRejectionReason: json["damageAndShortagesRejectionReason"] ?? "",
             settlementApproved: json["settlementApproved"],
             settlementRejectionReason: json["settlementRejectionReason"],
@@ -2542,3 +2546,5 @@ class DriverLoadApproval {
     }
 
 }
+
+
