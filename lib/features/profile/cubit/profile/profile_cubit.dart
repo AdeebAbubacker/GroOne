@@ -20,11 +20,9 @@ import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
-import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
-import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
@@ -41,7 +39,6 @@ import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/repository/vp_creation_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 part 'profile_state.dart';
 
@@ -49,12 +46,10 @@ enum TicketStatus { pending, completed }
 
 class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _repo;
-  final VpCreationRepository _vprepository;
   final LpHomeRepository _lpHomeRepository;
   final KavachRepository kavachRepository;
   ProfileCubit(
     this._repo,
-    this._vprepository,
     this._lpHomeRepository,
     this.kavachRepository,
   ) : super(ProfileState());
@@ -275,7 +270,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   Future<void> setPrimaryAddress({required String addressId}) async {
-    dynamic result = await _repo.setPrimaryAddress(addressId: addressId ?? '');
+    dynamic result = await _repo.setPrimaryAddress(addressId: addressId);
     if (result is Success<SetPrimaryAddressResponse>) {
       _setPrimaryAddressUIState(UIState.success(result.value));
     }

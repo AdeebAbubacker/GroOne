@@ -134,7 +134,7 @@ class PaginationInfo {
   PaginationInfo copyWith({
     int? page,
     int? pageCount,
-    dynamic? nextPage,
+    dynamic nextPage,
     int? pageSize,
     int? total,
   }) {

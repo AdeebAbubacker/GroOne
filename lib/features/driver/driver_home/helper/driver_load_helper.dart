@@ -117,128 +117,6 @@ class DriverLoadHelper {
         return context.appText.swipeToStart;
     }
   }
-
-  static Widget loadStatusButtonWidget({
-    required int statusId,
-    bool isLoading = false,
-    required VoidCallback onPressed,
-    bool? enable = true,
-    required BuildContext context,
-  }) {
-    switch (statusId) {
-      case 4:
-        return AppButton(
-          buttonHeight: commonButtonHeight2,
-          onPressed: isLoading ? () {} : onPressed,
-          isLoading: isLoading,
-          title: context.appText.startTrip,
-        );
-
-      case 5:
-        return SlideAction(
-          enabled: enable ?? true,
-          borderRadius: commonButtonRadius,
-          elevation: 0,
-          height: commonButtonHeight2,
-          innerColor: Colors.transparent,
-          outerColor:
-              (enable ?? false)
-                  ? AppColors.lightPrimaryColor3
-                  : Color(0xffE9E9E9),
-
-          sliderButtonIcon: SvgPicture.asset(
-            AppIcons.svg.swipeButtonIcon,
-            color: (enable ?? false) ? null : Color(0xff6C6C6C),
-          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
-
-          sliderRotate: false,
-          sliderButtonYOffset: -30,
-          text: context.appText.swipeToCompleteLoading,
-          textStyle: AppTextStyle.button.copyWith(
-            color:
-                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
-          ),
-          onSubmit:
-              isLoading
-                  ? () async {}
-                  : () async {
-                    onPressed();
-                  },
-        );
-
-      case 6:
-        return SlideAction(
-          enabled: enable ?? true,
-          borderRadius: commonButtonRadius,
-          elevation: 0,
-          height: commonButtonHeight2,
-          innerColor: Colors.transparent,
-          outerColor:
-              (enable ?? false)
-                  ? AppColors.lightPrimaryColor3
-                  : Color(0xffE9E9E9),
-
-          sliderButtonIcon: SvgPicture.asset(
-            AppIcons.svg.swipeButtonIcon,
-            color: (enable ?? false) ? null : Color(0xff6C6C6C),
-          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
-
-          sliderRotate: false,
-          sliderButtonYOffset: -30,
-          text: context.appText.swipeToUnLoad,
-          textStyle: AppTextStyle.button.copyWith(
-            color:
-                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
-          ),
-          onSubmit:
-              isLoading
-                  ? () async {}
-                  : () async {
-                    onPressed();
-                  },
-        );
-      case 7:
-        return SlideAction(
-          enabled: enable ?? true,
-          borderRadius: commonButtonRadius,
-          elevation: 0,
-          height: commonButtonHeight2,
-          innerColor: Colors.transparent,
-          outerColor:
-              (enable ?? false)
-                  ? AppColors.lightPrimaryColor3
-                  : Color(0xffE9E9E9),
-
-          sliderButtonIcon: SvgPicture.asset(
-            AppIcons.svg.swipeButtonIcon,
-            color: (enable ?? false) ? null : Color(0xff6C6C6C),
-          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
-
-          sliderRotate: false,
-          sliderButtonYOffset: -30,
-          text: context.appText.swipeToCompleteTrip,
-          textStyle: AppTextStyle.button.copyWith(
-            color:
-                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
-          ),
-          onSubmit:
-              isLoading
-                  ? () async {}
-                  : () async {
-                    onPressed();
-                  },
-        );
-      case 8:
-        return AppButton(
-          buttonHeight: commonButtonHeight2,
-          onPressed: isLoading ? () {} : onPressed,
-          isLoading: isLoading,
-          title: context.appText.viewDetails,
-        );
-      default:
-        return Container();
-    }
-  }
   
   /// Load Status button home
   static Widget homeloadStatusButtonWidget({
@@ -270,11 +148,13 @@ class DriverLoadHelper {
             outerColor:
                 (enable ?? false)
                     ? AppColors.lightPrimaryColor3
-                    : Color(0xffE9E9E9),
+                    : AppColors.lightGreyE9,
 
             sliderButtonIcon: SvgPicture.asset(
               AppIcons.svg.swipeButtonIcon,
-              color: (enable ?? false) ? null : Color(0xff6C6C6C),
+              colorFilter: (enable ?? false)
+              ? null
+              : AppColors.svg(AppColors.mediumDarkGrey)
             ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
             sliderRotate: false,
@@ -284,7 +164,7 @@ class DriverLoadHelper {
               color:
                   (enable ?? false)
                       ? AppColors.primaryColor
-                      : Color(0xff6C6C6C),
+                      : AppColors.mediumDarkGrey,
             ),
             onSubmit:
                 isLoading
@@ -305,19 +185,21 @@ class DriverLoadHelper {
           outerColor:
               (enable ?? false)
                   ? AppColors.lightPrimaryColor3
-                  : Color(0xffE9E9E9),
+                  : AppColors.lightGreyE9,
 
           sliderButtonIcon: SvgPicture.asset(
-            AppIcons.svg.swipeButtonIcon,
-            color: (enable ?? false) ? null : Color(0xff6C6C6C),
-          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+              AppIcons.svg.swipeButtonIcon,
+              colorFilter: (enable ?? false)
+              ? null
+              : AppColors.svg(AppColors.mediumDarkGrey)
+            ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
           text: context.appText.swipeToCompleteLoading,
           textStyle: AppTextStyle.button.copyWith(
             color:
-                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+                (enable ?? false) ? AppColors.primaryColor : AppColors.mediumDarkGrey,
           ),
           onSubmit:
               isLoading
@@ -337,19 +219,21 @@ class DriverLoadHelper {
           outerColor:
               (enable ?? false)
                   ? AppColors.lightPrimaryColor3
-                  : Color(0xffE9E9E9),
+                  : AppColors.lightGreyE9,
 
           sliderButtonIcon: SvgPicture.asset(
-            AppIcons.svg.swipeButtonIcon,
-            color: (enable ?? false) ? null : Color(0xff6C6C6C),
-          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+              AppIcons.svg.swipeButtonIcon,
+              colorFilter: (enable ?? false)
+              ? null
+              : AppColors.svg(AppColors.mediumDarkGrey)
+            ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
           text: context.appText.swipeToUnLoad,
           textStyle: AppTextStyle.button.copyWith(
             color:
-                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+                (enable ?? false) ? AppColors.primaryColor : AppColors.mediumDarkGrey,
           ),
           onSubmit:
               isLoading
@@ -368,19 +252,21 @@ class DriverLoadHelper {
           outerColor:
               (enable ?? false)
                   ? AppColors.lightPrimaryColor3
-                  : Color(0xffE9E9E9),
+                  : AppColors.lightGreyE9,
 
           sliderButtonIcon: SvgPicture.asset(
-            AppIcons.svg.swipeButtonIcon,
-            color: (enable ?? false) ? null : Color(0xff6C6C6C),
-          ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
+              AppIcons.svg.swipeButtonIcon,
+              colorFilter: (enable ?? false)
+              ? null
+              : AppColors.svg(AppColors.mediumDarkGrey)
+            ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
 
           sliderRotate: false,
           sliderButtonYOffset: -30,
           text: context.appText.swipeToCompleteUnLoading,
           textStyle: AppTextStyle.button.copyWith(
             color:
-                (enable ?? false) ? AppColors.primaryColor : Color(0xff6C6C6C),
+                (enable ?? false) ? AppColors.primaryColor : AppColors.mediumDarkGrey,
           ),
           onSubmit:
               isLoading
@@ -405,71 +291,6 @@ class DriverLoadHelper {
         );
       default:
         return Container();
-    }
-  }
-  
-  /// Eliptical load Status Details
-  static Widget driverStatusWidget(String? status) {
-    Widget buildUI({
-      required String text,
-      required Color textColor,
-      required Color backgroundColor,
-    }) {
-      return Container(
-        decoration: commonContainerDecoration(
-          color: backgroundColor,
-          borderRadius: BorderRadius.circular(100),
-        ),
-        child: Text(
-          text,
-          style: AppTextStyle.body.copyWith(color: textColor),
-        ).paddingSymmetric(horizontal: 10, vertical: 3),
-      );
-    }
-
-    switch (status) {
-      case "4":
-        return buildUI(
-          text: "Assigned",
-          textColor: Colors.blue.shade900,
-          backgroundColor: Colors.blue.shade100,
-        );
-      case "5":
-        return buildUI(
-          text: "Loading",
-          textColor: Colors.orange.shade800,
-          backgroundColor: Colors.orange.shade100,
-        );
-      case "6":
-        return buildUI(
-          text: "In Transit",
-          textColor: Colors.deepPurple,
-          backgroundColor: Colors.deepPurple.shade100,
-        );
-      case "7":
-        return buildUI(
-          text: "Unloading",
-          textColor: Colors.teal,
-          backgroundColor: Colors.teal.shade100,
-        );
-      case "8":
-        return buildUI(
-          text: "pod Dispatch",
-          textColor: Colors.white,
-          backgroundColor: Color(0xff42A5F5),
-        );
-      case "9":
-        return buildUI(
-          text: "Completed",
-          textColor: Colors.green,
-          backgroundColor: Colors.green.shade100,
-        );
-      default:
-        return buildUI(
-          text: "Unknown",
-          textColor: Colors.black54,
-          backgroundColor: Colors.grey.shade300,
-        );
     }
   }
 }

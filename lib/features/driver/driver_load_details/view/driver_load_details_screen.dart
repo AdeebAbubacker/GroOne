@@ -81,7 +81,6 @@ class _DriverLoadsLocationDetailsScreenState
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       body: SafeArea(
         child: BlocConsumer<DriverLoadDetailsCubit, DriverLoadDetailsState>(
@@ -175,7 +174,7 @@ class _DriverLoadsLocationDetailsScreenState
       ),
     );
   }
-  
+
   /// Top Notch Details
   Widget buildTopLocationWidget(DriverLoadDetailsModel loadItem) {
     return Positioned(
@@ -273,8 +272,10 @@ class _DriverLoadsLocationDetailsScreenState
                 if (loadItem.data!.loadStatusId >= 4 &&
                     loadItem.data?.loadStatusId != null)
                   DriverLoadHelper.loadStatusWidget(
-                    statusBgColor: loadItem.data?.loadStatusDetails?.statusBgColor,
-                    statusTxtColor: loadItem.data?.loadStatusDetails?.statusTxtColor,
+                    statusBgColor:
+                        loadItem.data?.loadStatusDetails?.statusBgColor,
+                    statusTxtColor:
+                        loadItem.data?.loadStatusDetails?.statusTxtColor,
                     (loadItem.data?.loadOnhold ?? false)
                         ? context.appText.loadOnHold
                         : loadItem.data!.loadStatusDetails!.loadStatus,
@@ -335,7 +336,7 @@ class _DriverLoadsLocationDetailsScreenState
       ),
     );
   }
-  
+
   /// Sim consent Details
   Widget buildSimConsentWidget(int driverConsent) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -347,7 +348,7 @@ class _DriverLoadsLocationDetailsScreenState
       bottom: bottomWidgetMaxHeight + 10,
       child: IconButton(
         onPressed: () {
-         // commonSupportDialog(context);
+          // commonSupportDialog(context);
         },
         icon: Container(
           decoration: commonContainerDecoration(

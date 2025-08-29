@@ -32,8 +32,8 @@ class VehicleNewModel {
         String? modelNumber,
         int? status,
         DateTime? createdAt,
-        dynamic? updatedAt,
-        dynamic? deletedAt,
+        dynamic updatedAt,
+        dynamic deletedAt,
     }) {
         return VehicleNewModel(
             vehicleId: vehicleId ?? this.vehicleId,

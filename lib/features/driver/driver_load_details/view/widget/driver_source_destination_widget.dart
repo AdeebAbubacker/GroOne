@@ -10,15 +10,19 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class DriverSourceDestinationWidget extends StatelessWidget {
   final String? pickUpLocation;
   final String? dropLocation;
-  const DriverSourceDestinationWidget({super.key,this.pickUpLocation,this.dropLocation});
+  const DriverSourceDestinationWidget({
+    super.key,
+    this.pickUpLocation,
+    this.dropLocation,
+  });
 
   @override
   Widget build(BuildContext context) {
     return _buildSourceDestinationView(context);
   }
 
-  Widget _buildSourceDestinationView(BuildContext context){
-    return  Container(
+  Widget _buildSourceDestinationView(BuildContext context) {
+    return Container(
       padding: EdgeInsets.all(10),
       decoration: commonContainerDecoration(
         color: AppColors.lightPrimaryColor2,
@@ -38,9 +42,13 @@ class DriverSourceDestinationWidget extends StatelessWidget {
                   dashLength: 4.0,
                   dashColor: Colors.grey,
                   dashGapLength: 3.0,
-                ).paddingOnly(top: 5,bottom: 5),
+                ).paddingOnly(top: 5, bottom: 5),
               ),
-              Icon(Icons.location_on_outlined, color: AppColors.activeRedColor, size: 20),
+              Icon(
+                Icons.location_on_outlined,
+                color: AppColors.activeRedColor,
+                size: 20,
+              ),
             ],
           ),
           10.width,
@@ -51,32 +59,51 @@ class DriverSourceDestinationWidget extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                  Text(
+                    context.appText.source,
+                    style: AppTextStyle.body3.copyWith(
+                      fontSize: 14,
+                      color: AppColors.textBlackColor,
+                    ),
+                  ),
                   6.height,
-                  Text(pickUpLocation??"", style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                  Text(
+                    pickUpLocation ?? "",
+                    style: AppTextStyle.body3.copyWith(
+                      fontSize: 12,
+                      color: AppColors.textBlackColor,
+                    ),
+                  ),
                 ],
               ),
 
               commonDivider(),
 
-
               // Destination
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                  Text(
+                    context.appText.destination,
+                    style: AppTextStyle.body3.copyWith(
+                      fontSize: 14,
+                      color: AppColors.textBlackColor,
+                    ),
+                  ),
                   6.height,
-                  Text(dropLocation??"", style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                  Text(
+                    dropLocation ?? "",
+                    style: AppTextStyle.body3.copyWith(
+                      fontSize: 12,
+                      color: AppColors.textBlackColor,
+                    ),
+                  ),
                 ],
               ),
-
-
             ],
-          ).expand()
+          ).expand(),
         ],
       ),
     );
   }
-
-
 }

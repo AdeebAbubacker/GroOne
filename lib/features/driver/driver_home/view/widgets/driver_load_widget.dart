@@ -458,7 +458,7 @@ Widget progressBarWidget({required double progressValue}) {
         child: LinearProgressIndicator(
           value: progressValue,
           minHeight: 6,
-          backgroundColor: Colors.grey[300],
+          backgroundColor: AppColors.lightGrey300,
           valueColor: const AlwaysStoppedAnimation<Color>(
             AppColors.primaryColor,
           ),

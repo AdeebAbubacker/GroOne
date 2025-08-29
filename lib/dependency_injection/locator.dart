@@ -573,7 +573,6 @@ void _registerBasicBlocs() {
   locator.registerLazySingleton(
     () => ProfileCubit(
       locator<ProfileRepository>(),
-      locator<VpCreationRepository>(),
       locator<LpHomeRepository>(),
       locator<KavachRepository>(),
     ),
