@@ -9,63 +9,76 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-
-
 class DriverViewOthersDocument extends StatelessWidget {
   final List<LoadDocument>? loadDocument;
   final DriverLoadDetailsCubit? cubit;
   final DocumentEntity? documentEntity;
-  const DriverViewOthersDocument({super.key,required this.loadDocument,this.cubit,this.documentEntity});
+  const DriverViewOthersDocument({
+    super.key,
+    required this.loadDocument,
+    this.cubit,
+    this.documentEntity,
+  });
 
-
-  List<LoadDocument> getOthersDocument(DriverLoadDetailsState state){
-    try{
-      return state.tripDocumentList?.firstWhere((element) => element.documentType==DocumentFileType.uploadOtherDocument.documentType,).loadDocument??[];
-    }catch(e){
+  List<LoadDocument> getOthersDocument(DriverLoadDetailsState state) {
+    try {
+      return state.tripDocumentList
+              ?.firstWhere(
+                (element) =>
+                    element.documentType ==
+                    DocumentFileType.uploadOtherDocument.documentType,
+              )
+              .loadDocument ??
+          [];
+    } catch (e) {
       return [];
     }
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     appBar:CommonAppBar(title: context.appText.othersDocument),
-      body:Column(
+      appBar: CommonAppBar(title: context.appText.othersDocument),
+      body: Column(
         children: [
-          BlocBuilder<DriverLoadDetailsCubit,DriverLoadDetailsState>(
-            builder: (context, state)  {
-              final otherDocument=getOthersDocument(state);
+          BlocBuilder<DriverLoadDetailsCubit, DriverLoadDetailsState>(
+            builder: (context, state) {
+              final otherDocument = getOthersDocument(state);
               return ListView.builder(
-                itemCount:otherDocument.length ,
+                itemCount: otherDocument.length,
                 itemBuilder: (context, index) {
-                  final loadDocumentObj=otherDocument[index];
+                  final loadDocumentObj = otherDocument[index];
                   return PreviewDocumentWidget(
                     showViewMoreButton: false,
-                      onClickViewMoreIcon: () {
-
-                      },
-                      showAddMoreButton:false ,
-                      showDeleteIcon:cubit?.state.loadStatus==LoadStatus.loading ,
-                      showDeleteLoader: false,
-                      onClickDeleteIcon: () {
-                        cubit?.deleteLoadDocument(loadDocumentObj.loadDocumentId??"",index,otherDocument: true);
-                      },
-                      onClickDownload: ()  {
-                        cubit?.downloadDocument(loadDocumentObj.documentId??"", index);
-                      },
-                      onClickAddMoreButton: () {
-
-                      },
-                      isLoading: false,
-                      documentEntity: documentEntity!,
-                      loadDocument: loadDocumentObj).paddingSymmetric(horizontal: 15,vertical: 8);
-                },).expand();
-            }
+                    onClickViewMoreIcon: () {},
+                    showAddMoreButton: false,
+                    showDeleteIcon:
+                        cubit?.state.loadStatus == LoadStatus.loading,
+                    showDeleteLoader: false,
+                    onClickDeleteIcon: () {
+                      cubit?.deleteLoadDocument(
+                        loadDocumentObj.loadDocumentId ?? "",
+                        index,
+                        otherDocument: true,
+                      );
+                    },
+                    onClickDownload: () {
+                      cubit?.downloadDocument(
+                        loadDocumentObj.documentId ?? "",
+                        index,
+                      );
+                    },
+                    onClickAddMoreButton: () {},
+                    isLoading: false,
+                    documentEntity: documentEntity!,
+                    loadDocument: loadDocumentObj,
+                  ).paddingSymmetric(horizontal: 15, vertical: 8);
+                },
+              ).expand();
+            },
           ),
         ],
-      )
+      ),
     );
   }
 }

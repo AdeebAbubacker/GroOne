@@ -63,7 +63,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
     _addressScrollController.addListener(() {
       if (_addressScrollController.position.pixels >=
           _addressScrollController.position.maxScrollExtent){
-        print("calling again");
         profileCubit.fetchAddress(isLoading: false,isInit: false);
       }
     },);
@@ -326,7 +325,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                         setState(() {
                           selectedState = value;
                           selectedCity = null;
-                          print("selected state is $selectedCity");
                         });
                       },
                     ),

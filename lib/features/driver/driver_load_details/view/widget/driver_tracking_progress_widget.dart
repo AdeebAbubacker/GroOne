@@ -34,7 +34,7 @@ class DriverTrackingProgressWidget extends StatelessWidget {
                 value: progressPercentage / 100,
                 strokeWidth: 4,
                 backgroundColor: Colors.grey.shade200,
-                valueColor: const AlwaysStoppedAnimation<Color>(Colors.green),
+                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.greenColor),
               ),
             ),
             Text(
