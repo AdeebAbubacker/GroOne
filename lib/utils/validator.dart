@@ -41,7 +41,6 @@ class Validator {
   }
 
   static String? phone(String? value) {
-    const int requiredLength = 10;
 
     if (value == null || value.isEmpty) {
       return appContext.appText.pleaseEnterMobileNumber;

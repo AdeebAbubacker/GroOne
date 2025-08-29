@@ -107,8 +107,8 @@ Widget masterVehicleInfoWidget({
                         fontSize: 12,
                         color:
                             driverStatus == 1
-                                ? Color(0XFF0E6027)
-                                : Color(0XFFE31B25),
+                                ? AppColors.greenColor
+                                : AppColors.red,
                       ),
                     ),
                   ),
