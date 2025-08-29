@@ -1,12 +1,9 @@
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
-import 'package:gro_one_app/features/login/model/login_model.dart';
 import 'package:gro_one_app/features/otp_verification/model/mobile_otp_resend_model.dart';
 
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
 import '../../../data/network/api_urls.dart';
-import '../../../utils/app_string.dart';
-import '../../../utils/custom_log.dart';
 import '../api_request/mobile_otp_verification_api_request.dart';
 import '../model/mobile_otp_verification_model.dart';
 

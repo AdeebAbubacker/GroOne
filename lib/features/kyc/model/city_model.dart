@@ -30,7 +30,7 @@ class CityModel {
   }
 
   Map<String, dynamic> toJson() => {
-    "data": data.map((x) => x?.toJson()).toList(),
+    "data": data.map((x) => x.toJson()).toList(),
     "total": total,
     "pageMeta": pageMeta?.toJson(),
   };
@@ -66,7 +66,7 @@ class CityModelList {
     String? stateCode,
     String? city,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return CityModelList(
       id: id ?? this.id,

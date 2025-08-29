@@ -1,23 +1,23 @@
 // To parse this JSON data, do
 //
-//     final addharOtpRequest = addharOtpRequestFromJson(jsonString);
+//     final aadhaarOtpRequest = aadhaarOtpRequestFromJson(jsonString);
 
 import 'dart:convert';
 
-AddharOtpApiRequest addharOtpRequestFromJson(String str) => AddharOtpApiRequest.fromJson(json.decode(str));
+AadhaarOtpApiRequest aadhaarOtpRequestFromJson(String str) => AadhaarOtpApiRequest.fromJson(json.decode(str));
 
-String addharOtpRequestToJson(AddharOtpApiRequest data) => json.encode(data.toJson());
+String aadhaarOtpRequestToJson(AadhaarOtpApiRequest data) => json.encode(data.toJson());
 
-class AddharOtpApiRequest {
+class AadhaarOtpApiRequest {
   String aadhaar;
   bool force;
 
-  AddharOtpApiRequest({
+  AadhaarOtpApiRequest({
     required this.aadhaar,
     required this.force,
   });
 
-  factory AddharOtpApiRequest.fromJson(Map<String, dynamic> json) => AddharOtpApiRequest(
+  factory AadhaarOtpApiRequest.fromJson(Map<String, dynamic> json) => AadhaarOtpApiRequest(
     aadhaar: json["aadhaar"],
     force: json["force"],
   );

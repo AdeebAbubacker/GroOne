@@ -9,7 +9,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
-import 'package:gro_one_app/features/kyc/view/kyc_inProgress_dialogue.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_in_progress_dialogue.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
@@ -68,8 +68,6 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -461,19 +459,23 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                       String? aadhaarPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
 
                     if (companyId != null && (companyId == 2 || companyId == 1)) {
-                      if (isKycCompleted || isAadhaarVerified) {
+                      if ((isKycCompleted || isAadhaarVerified) && context.mounted) {
                         Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                           aadhaarNumber: aadhaarNumber,
                           pdfPath: aadhaarPDF,
                         )));
                         } else{
+                        if (context.mounted) {
                           commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                         }
+                        }
                     } else {
-                      Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                        aadhaarNumber: aadhaarNumber,
-                        pdfPath: aadhaarPDF,
-                      )));
+                      if(context.mounted) {
+                        Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                          aadhaarNumber: aadhaarNumber,
+                          pdfPath: aadhaarPDF,
+                        )));
+                      }
                     }
                   },
                 );
@@ -979,7 +981,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
                                 String formattedPrice;
                                 if (data?.minPrice == null) {
-                                  formattedPrice = context.appText.contactCustomerSupport;
+                                  formattedPrice = context.appText.postLoadPriceContent;
                                 } else if (data?.maxPrice == null || data?.maxPrice == 0) {
                                   formattedPrice = PriceHelper.formatINR(data!.minPrice);
                                 } else {

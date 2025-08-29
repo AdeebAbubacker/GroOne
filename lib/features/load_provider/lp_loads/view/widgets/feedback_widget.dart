@@ -55,7 +55,6 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
   Widget build(BuildContext context) {
     return BlocBuilder<LpLoadCubit, LpLoadState>(
       builder: (context, state) {
-        final isEditable = state.isFeedBackUpdatble;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

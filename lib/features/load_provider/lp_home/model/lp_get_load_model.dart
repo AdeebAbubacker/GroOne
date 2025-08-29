@@ -1,4 +1,3 @@
-import '../../lp_loads/model/lp_load_get_by_id_response.dart';
 import '../../lp_loads/model/lp_load_response.dart';
 
 class LpGetLoadModel {

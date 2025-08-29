@@ -107,7 +107,7 @@ class KycCubit extends BaseCubit<KycState> {
 
 
   // Send Aadhaar Otp
-  Future<void> sendAadhaarOtp(AddharOtpApiRequest request) async {
+  Future<void> sendAadhaarOtp(AadhaarOtpApiRequest request) async {
     emit(state.copyWith(aadhaarOtpState: UIState.loading()));
     Result result = await _repo.kycSendOtp(request);
     if (result is Success<AadhaarOtpModel>) {
@@ -146,7 +146,7 @@ class KycCubit extends BaseCubit<KycState> {
   }
 
   // Verify Aadhaar Otp
-  Future<void> verifyAadhaarOtp(AddharVerifyOtpApiRequest request) async {
+  Future<void> verifyAadhaarOtp(AadhaarVerifyOtpApiRequest request) async {
     emit(state.copyWith(aadhaarVerifyOtpState: UIState.loading()));
     Result result = await _repo.verifyAadhaarOtp(request);
     if (result is Success<AadhaarVerifyOtpModel>) {
