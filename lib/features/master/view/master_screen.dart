@@ -13,7 +13,6 @@ import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/master/widget/master_address_tab.dart';
-import 'package:gro_one_app/features/master/widget/master_driver_tab.dart';
 import 'package:gro_one_app/features/master/widget/master_vehicle_tab.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
@@ -306,9 +305,9 @@ class _MasterScreenState extends State<MasterScreen>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  buildAddressTab(),
-                  buildVehicleTab(),
-                  buildDriverTab(),
+                  BuildAddressTab(),
+                  BuildVehicleTab(),
+                  BuildAddressTab(),
                 ],
               ),
             ),
@@ -376,10 +375,6 @@ class _MasterScreenState extends State<MasterScreen>
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
-          List<Map<String, dynamic>> localRcDocList = List.from(vehicleDocList);
-          final rcDocUpload =
-              context.watch<ProfileCubit>().state.vehicleDocUpload;
-          final isUploading = rcDocUpload?.status == Status.LOADING;
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -431,7 +426,7 @@ class _MasterScreenState extends State<MasterScreen>
                                 vehicleData['vehicle_gross_weight'] ??
                                 vehicleData['tonnage'];
                             if (capacity != null) {
-                              final numberOnly = RegExp(
+                              RegExp(
                                 r'\d+',
                               ).stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
@@ -580,9 +575,6 @@ class _MasterScreenState extends State<MasterScreen>
                         final weights = uiState?.data ?? [];
                         final weightLabels =
                             weights.map((e) => '${e.value} Ton').toList();
-                        final weightLabelIdMap = Map.fromEntries(
-                          weights.map((e) => MapEntry('${e.value} Ton', e.id)),
-                        );
 
                         return SearchableDropdown(
                           hintText: context.appText.capacity,
@@ -745,10 +737,6 @@ class _MasterScreenState extends State<MasterScreen>
                 return;
               }
               if (formKey.currentState!.validate()) {
-                final rcDocLink =
-                    vehicleDocList.isNotEmpty
-                        ? vehicleDocList.first['path']
-                        : '';
                 final request = VehicleRequest(
                   customerId: profileCubit.userId ?? "",
                   truckNo: truckNumberController.text.trim(),
@@ -882,7 +870,7 @@ class StateDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stateUI = context.watch<KycCubit>().state.stateUIState;
-    final stateList = stateUI?.data?.map((e) => e.name ?? '').toList() ?? [];
+    final stateList = stateUI?.data?.map((e) => e.name).toList() ?? [];
 
     return SearchableDropdown(
       labelText: context.appText.state,
@@ -927,7 +915,7 @@ class CityDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cityUI = context.watch<KycCubit>().state.cityUIState;
-    final cityList = cityUI?.data?.map((e) => e.city ?? '').toList() ?? [];
+    final cityList = cityUI?.data?.map((e) => e.city).toList() ?? [];
 
     return AbsorbPointer(
       absorbing: !isStateSelected,

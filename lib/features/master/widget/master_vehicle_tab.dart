@@ -47,23 +47,21 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
-
 import '../../../utils/app_image.dart';
 
-class buildVehicleTab extends StatefulWidget {
-  const buildVehicleTab({super.key});
+class BuildVehicleTab extends StatefulWidget {
+  const BuildVehicleTab({super.key});
 
   @override
-  State<buildVehicleTab> createState() => _buildVehicleTabState();
+  State<BuildVehicleTab> createState() => _BuildVehicleTabState();
 }
 
-class _buildVehicleTabState extends BaseState<buildVehicleTab> {
+class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
   final profileCubit = locator<ProfileCubit>();
   final mastersCubit = locator<MastersCubit>();
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
   List<String> selectedCommodities = [];
-  late TabController _tabController;
   final vehicleSearchController = TextEditingController();
   final addressSearchController = TextEditingController();
   final driverSearchController = TextEditingController();
@@ -206,7 +204,7 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
                       final vehicleDetailsData = filteredVehicleList[index];
                       return masterVehicleInfoWidget(
                         name: vehicleDetailsData.truckNo,
-                        phone: vehicleDetailsData.companyName ?? '',
+                        phone: vehicleDetailsData.companyName,
                         driverStatus: vehicleDetailsData.status,
                         // onEdit: () async {
                         //   mastersCubit.resetVehicleVerification();
@@ -317,10 +315,6 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
-          List<Map<String, dynamic>> localRcDocList = List.from(vehicleDocList);
-          final rcDocUpload =
-              context.watch<ProfileCubit>().state.vehicleDocUpload;
-          final isUploading = rcDocUpload?.status == Status.LOADING;
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -375,7 +369,7 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
                                 vehicleData['vehicle_gross_weight'] ??
                                 vehicleData['tonnage'];
                             if (capacity != null) {
-                              final numberOnly = RegExp(
+                              RegExp(
                                 r'\d+',
                               ).stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
@@ -533,9 +527,6 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
                         final weights = uiState?.data ?? [];
                         final weightLabels =
                             weights.map((e) => '${e.value} Ton').toList();
-                        final weightLabelIdMap = Map.fromEntries(
-                          weights.map((e) => MapEntry('${e.value} Ton', e.id)),
-                        );
 
                         return SearchableDropdown(
                           hintText: '${context.appText.select} ${context.appText.capacity}',
@@ -1199,9 +1190,6 @@ class AddVehicleDialog {
                         final weights = uiState?.data ?? [];
                         final weightLabels =
                             weights.map((e) => '${e.value} Ton').toList();
-                        final weightLabelIdMap = Map.fromEntries(
-                          weights.map((e) => MapEntry('${e.value} Ton', e.id)),
-                        );
 
                         return SearchableDropdown(
                           hintText: context.appText.capacity,
@@ -1416,13 +1404,13 @@ class AddVehicleDialog {
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
                   ownerName: owenerNameController.text,
-                  fcExpiryDate: convertToYMD(fcExpiryDate.toString()) ?? '',
+                  fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                   insurancePolicyNumber: insurancePolicyNumber.text,
-                  pucExpiryDate: convertToYMD(pucExpiryDate.toString()) ?? '',
+                  pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
                   registrationDate:
-                      convertToYMD(registrationDate.toString()) ?? '',
+                      convertToYMD(registrationDate.toString()),
                   insuranceValidityDate:
-                      convertToYMD(insuranceValidityDate.toString()) ?? '',
+                      convertToYMD(insuranceValidityDate.toString()),
                 );
                 await context.read<ProfileCubit>().createVehicle(
                   request: request,

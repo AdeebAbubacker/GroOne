@@ -55,14 +55,14 @@ import 'package:lottie/lottie.dart';
 import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
 import 'package:gro_one_app/core/base_state.dart';
 
-class buildDriverTab extends StatefulWidget {
-  const buildDriverTab({super.key});
+class BuildDriverTab extends StatefulWidget {
+  const BuildDriverTab({super.key});
 
   @override
-  State<buildDriverTab> createState() => _buildDriverTabState();
+  State<BuildDriverTab> createState() => _BuildDriverTabState();
 }
 
-class _buildDriverTabState extends BaseState<buildDriverTab>
+class _BuildDriverTabState extends BaseState<BuildDriverTab>
     with EnhancedDisposeMixin {
   final profileCubit = locator<ProfileCubit>();
   final mastersCubit = locator<MastersCubit>();
@@ -326,7 +326,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
     int? selectedLicneseId = driver?.licenseCategory;
     int? selectedBloodId = driver?.bloodGroup;
     final emailController = TextEditingController(text: driver?.email ?? "");
-    bool isInitialized = false;
     String previousLicenseNo = licenseNumberController.text.trim();
     bool isActive = driver != null ? (driver.driverStatus == 1) : true;
     bool listenerAdded = false;
@@ -353,7 +352,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                 previousLicenseNo = currentText;
                 mastersCubit.resetLicenseVerification();
                 setState(() {
-                  isInitialized = false;
                   isLicenseVerified = false;
                 });
               }
@@ -361,9 +359,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
             listenerAdded = true;
           }
 
-          final licenseDocUpload =
-              context.watch<ProfileCubit>().state.licenseDocUpload;
-          final isUploading = licenseDocUpload?.status == Status.LOADING;
 
           return MasterCommonDialogView(
             hideCloseButton: true,

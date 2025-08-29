@@ -32,14 +32,14 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:lottie/lottie.dart';
 
-class buildAddressTab extends StatefulWidget {
-  const buildAddressTab({super.key});
+class BuildAddressTab extends StatefulWidget {
+  const BuildAddressTab({super.key});
 
   @override
-  State<buildAddressTab> createState() => _buildAddressTabState();
+  State<BuildAddressTab> createState() => _BuildAddressTabState();
 }
 
-class _buildAddressTabState extends State<buildAddressTab> {
+class _BuildAddressTabState extends State<BuildAddressTab> {
   List<String> selectedCommodities = [];
   final profileCubit = locator<ProfileCubit>();
   final vehicleSearchController = TextEditingController();

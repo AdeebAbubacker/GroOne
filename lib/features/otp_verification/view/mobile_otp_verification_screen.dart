@@ -182,7 +182,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
 
             if (state is OtpSuccess) {
               final data = state.otpResponse;
-              final tempFlag = data.tempFlg ?? false;
+              final tempFlag = data.tempFlg;
 
               //  1. Check if it's a driver
               if (data.driver == true) {

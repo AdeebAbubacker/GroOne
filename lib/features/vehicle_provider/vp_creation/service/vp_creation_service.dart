@@ -8,8 +8,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pr
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
-import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
+
 
 class VpCreationService {
   final ApiService _apiService;

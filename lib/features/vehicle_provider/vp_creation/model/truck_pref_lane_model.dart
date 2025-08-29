@@ -89,7 +89,7 @@ class Item {
         int? toLocationId,
         int? status,
         DateTime? createdAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
         Location? fromLocation,
         Location? toLocation,
         bool? isSelected
@@ -149,7 +149,7 @@ class Location {
         String? latLong,
         int? status,
         DateTime? createdAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
     }) {
         return Location(
             id: id ?? this.id,

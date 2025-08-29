@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
@@ -535,7 +533,7 @@ class ProfileService {
       } else {
         return Error(GenericError());
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       return Error(DeserializationError());
     }
   }
