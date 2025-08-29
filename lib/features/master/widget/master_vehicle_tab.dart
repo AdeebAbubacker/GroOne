@@ -784,7 +784,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
 
                 final state = profileCubit.state.createVehicleState;
                 if (state?.status == Status.SUCCESS) {
-                  if (context.mounted) Navigator.pop(context);
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
                   profileCubit.fetchVehicle(isLoading: false);
                   ToastMessages.success(
                     message:
@@ -929,6 +930,7 @@ Widget buildVehicleVerificationFieldWidget({
                           .fetchAndVerifyVehicle(cleanVehicleNumber(vehicleNumber),);
 
                       if (result is Success<Map<String, dynamic>>) {
+                        if (!context.mounted) return;
                         ToastMessages.success(
                           message: context.appText.vehicleVerifiedSuccess,
                         );
@@ -937,6 +939,7 @@ Widget buildVehicleVerificationFieldWidget({
                           result.value,
                         ); // Pass data back
                       } else {
+                       if (!context.mounted) return; 
                         ToastMessages.alert(
                           message: context.appText.vehicleVerificationFailed,
                         );
@@ -1418,7 +1421,8 @@ class AddVehicleDialog {
                 final state =
                     context.read<ProfileCubit>().state.createVehicleState;
                 if (state?.status == Status.SUCCESS) {
-                  if (context.mounted) Navigator.pop(context);
+                  if (!context.mounted) return;
+                  Navigator.pop(context);
                   context.read<ProfileCubit>().fetchVehicle(isLoading: false);
                   kavachCheckoutVehicleBloc.add(FetchKavachVehicles());
                   ToastMessages.success(

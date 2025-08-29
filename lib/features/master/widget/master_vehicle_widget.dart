@@ -24,7 +24,7 @@ Widget masterVehicleInfoWidget({
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
         BoxShadow(
-          color: AppColors.grey.withOpacity(0.1),
+          color: AppColors.grey.withValues(alpha: 0.1),
           spreadRadius: 1,
           blurRadius: 5,
         ),
@@ -40,7 +40,7 @@ Widget masterVehicleInfoWidget({
             // Profile Icon
             CircleAvatar(
               radius: 20,
-              backgroundColor: Colors.blue.shade50,
+              backgroundColor: AppColors.blue50,
               child:  SvgPicture.asset(
                           AppIcons.svg.truck,
                           colorFilter: ColorFilter.mode(
@@ -79,7 +79,7 @@ Widget masterVehicleInfoWidget({
                   4.height,
                   Text(
                     phone,
-                    style: const TextStyle(color: Colors.black87, fontSize: 14),
+                    style: const TextStyle(color: AppColors.black87, fontSize: 14),
                   ),
                 ],
               ),
@@ -97,8 +97,8 @@ Widget masterVehicleInfoWidget({
                     decoration: BoxDecoration(
                       color:
                           driverStatus == 1
-                              ? Colors.green.shade100
-                              : Colors.red.shade100,
+                              ? AppColors.green100
+                              : AppColors.red100,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(

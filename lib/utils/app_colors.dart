@@ -128,6 +128,10 @@ static const Color mediumGreyColor = Color(0xFF626262);
   static const Color mediumDarkGrey = Color(0xFF6C6C6C);
   static const Color lightGreyE9 = Color(0xFFE9E9E9);
   static const Color grey = Colors.grey;
+  static const Color blue50 = Color(0xFFE3F2FD);
+  static const Color green100 = Color(0xFFC8E6C9);
+  static const Color red100 = Color(0xFFFFCDD2);
+  static const Color black87 = Color(0xDD000000);
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }

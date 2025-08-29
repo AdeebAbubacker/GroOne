@@ -600,7 +600,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     child: buildReadOnlyField(
                       context.appText.licenseExpiryDate,
                       selectedlicenseExpiryDate ?? 'Select date',
-                      fillColor: Colors.white,
+                      fillColor: AppColors.white,
                       mandatoryStar: true,
                       textStyle:
                           (selectedlicenseExpiryDate ?? "").isEmpty
@@ -964,7 +964,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                         : isVerified
-                        ? const Icon(Icons.verified, color: Colors.green)
+                        ? const Icon(Icons.verified, color: AppColors.greenColor)
                         : SizedBox.shrink(),
               ),
             ),
@@ -997,7 +997,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
               child: buildReadOnlyField(
                 "Date of Birth",
                 selectedDoB.isEmpty ? 'DOB' : selectedDoB,
-                fillColor: Colors.white,
+                fillColor: AppColors.white,
                 mandatoryStar: true,
                 textStyle:
                     selectedDoB.isEmpty
