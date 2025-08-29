@@ -129,7 +129,7 @@ class ProfileState extends Equatable {
       createDocumentUIState: createDocumentUIState ?? this.createDocumentUIState,
       selectedTicketStatus: selectedTicketStatus ?? this.selectedTicketStatus,
       tempSelectedTicketStatus: tempSelectedTicketStatus ?? this.tempSelectedTicketStatus,
-      vehicleUpdateUIState: vehicleStatusUpdate ?? this.vehicleUpdateUIState,
+      vehicleUpdateUIState: vehicleStatusUpdate ?? vehicleUpdateUIState,
       bloodGroupResponseUIState : bloodGroupResponseUIState ?? this.bloodGroupResponseUIState,
       licneseCategoryResponseUIState : licneseCategoryResponseUIState ?? this.licneseCategoryResponseUIState,
       deleteAccountUIState: deleteAccountUIState ?? this.deleteAccountUIState,

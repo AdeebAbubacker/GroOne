@@ -326,7 +326,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                         setState(() {
                           selectedState = value;
                           selectedCity = null;
-                          print("selected state is ${selectedCity}");
+                          print("selected state is $selectedCity");
                         });
                       },
                     ),

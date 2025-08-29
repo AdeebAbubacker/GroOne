@@ -14,7 +14,7 @@ class VehicleNumberInputFormatter extends TextInputFormatter {
 
     // State code (2 letters)
     if (length >= 2) {
-      formatted += cleaned.substring(0, 2) + ' ';
+      formatted += '${cleaned.substring(0, 2)} ';
       i = 2;
     } else {
       formatted = cleaned;
@@ -23,7 +23,7 @@ class VehicleNumberInputFormatter extends TextInputFormatter {
 
     // District code (2 digits)
     if (length >= i + 2) {
-      formatted += cleaned.substring(i, i + 2) + ' ';
+      formatted += '${cleaned.substring(i, i + 2)} ';
       i += 2;
     } else if (i < length) {
       formatted += cleaned.substring(i);

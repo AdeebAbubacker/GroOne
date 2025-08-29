@@ -126,7 +126,7 @@ class Validator {
     final regex = RegExp(r'^[A-Z]{2}-\d{13}$');
 
     if (!regex.hasMatch(value.trim().toUpperCase())) {
-      return '$fieldName';
+      return fieldName;
     }
 
     return null;

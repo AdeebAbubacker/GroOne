@@ -515,7 +515,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                                     .uploadlicenseDocUIState
                                     ?.data;
                             if (licenseData != null && licenseDoc.isNotEmpty) {
-                              print("calling 2 ${licenseDoc}");
+                              print("calling 2 $licenseDoc");
                               final apiRequest = CreateDocumentApiRequest(
                                 documentTypeId:
                                     await DriverLicenseHelper.getDocumentTypeId(
@@ -650,7 +650,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                       setState(() {
                         selectedLicense = category?.categoryName;
                         selectedLicneseId = category?.id;
-                        print("selected licesne id ${selectedLicneseId}");
+                        print("selected licesne id $selectedLicneseId");
                       });
                     },
                   ),
@@ -661,7 +661,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                       setState(() {
                         selectedBloodGroup = category?.groupName;
                         selectedBloodId = category?.id;
-                        print("selected blood id ${selectedLicneseId}");
+                        print("selected blood id $selectedLicneseId");
                       });
                     },
                   ),
@@ -867,7 +867,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
 
   String formatMobileNumber(String number) {
     if (!number.startsWith("+91") && number.length == 10) {
-      return "$number";
+      return number;
     }
     return number;
   }
@@ -882,7 +882,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
 
   String removeformatMobileNumber(String number) {
     if (!number.startsWith("+91") && number.length == 10) {
-      return "$number";
+      return number;
     }
     return number;
   }

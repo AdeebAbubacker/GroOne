@@ -32,7 +32,7 @@ class TicketResponse {
   }
 
   Map<String, dynamic> toJson() => {
-    "data": data.map((x) => x?.toJson()).toList(),
+    "data": data.map((x) => x.toJson()).toList(),
     "total": total,
     "pageMeta": pageMeta?.toJson(),
   };
@@ -81,7 +81,7 @@ class Ticket {
     int? ticketStatus,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     String? ticketSeriesId,
     String? ticketStatusKey,
   }) {

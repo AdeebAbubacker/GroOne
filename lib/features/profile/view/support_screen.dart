@@ -464,7 +464,7 @@ class _LpSupportState extends State<LpSupport> {
   }
 
   Widget _buildRobotIcon() {
-    return Container(
+    return SizedBox(
       width: 36,
       height: 36,
       child: Stack(
