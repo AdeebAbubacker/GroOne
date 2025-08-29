@@ -135,7 +135,7 @@ class PaymentWidget extends StatelessWidget {
                                   lpEmailId: loadItem.customer?.emailId ?? '',
                                   lpMobile: loadItem.customer?.mobileNumber ?? '',
                                   vpId: loadItem.vpCustomer?.customerSeriesNo.toString() ?? '',
-                                  loadSeriesId: loadItem.loadSeriesId ?? '',
+                                  loadSeriesId: loadItem.loadSeriesId,
                                   netFreight: loadItem.loadMemoDetails?.netFreight ?? '',
                                   advance: loadItem.loadMemoDetails?.advance ?? '',
                                   advancePercentage: loadItem.loadMemoDetails?.advancePercentage ?? '',

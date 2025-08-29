@@ -1267,7 +1267,10 @@
   "locationDisabled": "लोकेशन बंद है",
   "pleaseEnableLocationServicesToContinue": "जारी रखने के लिए कृपया लोकेशन सेवाएँ चालू करें।",
   "openSettings": "सेटिंग्स खोलें",
-  "okay": "ठीक है"
+  "okay": "ठीक है",
+  "postLoadPriceContent": "आराम से बैठिए, हम 30 मिनट में आपसे संपर्क करेंगे।",
+  "youCanPostOnlyOneLoad": "आप अपना KYC प्रगति पर होने के दौरान केवल एक ही लोड पोस्ट कर सकते हैं। कृपया आगे की सहायता के लिए एडमिन से संपर्क करें।",
+  "kycInProgressText": "KYC प्रगति पर"
 
 
 }

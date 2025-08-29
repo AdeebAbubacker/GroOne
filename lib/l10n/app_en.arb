@@ -1311,7 +1311,10 @@
   "locationDisabled": "Location Disabled",
   "pleaseEnableLocationServicesToContinue": "Please enable location services to continue.",
   "openSettings": "Open Settings",
-  "okay": "ok"
+  "okay": "ok",
+  "postLoadPriceContent": "Sit back and relax, we will reach out in 30 min.",
+  "youCanPostOnlyOneLoad": "You can post only one load while your KYC is in progress. Please contact admin for further assistance.",
+  "kycInProgressText": "KYC InProgress"
 
 
 }

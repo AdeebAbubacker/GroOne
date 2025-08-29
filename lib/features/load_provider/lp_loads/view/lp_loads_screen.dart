@@ -265,8 +265,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             loadListApiRequest: LoadListApiRequest(
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
               laneId: selectedRoute,
-              truckTypeId: selectedTruckTypeId.toString(),
-              loadPostDate: loadPostedDateController.text,
+              truckTypeId: selectedTruckTypeId?.toString(),
+              loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
             ),
           );
         },
