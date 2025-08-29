@@ -27,10 +27,9 @@ class DriverProfileService {
         return Error(InvalidInputError());
       }
 
-      print("user id is  ${_userInformationRepository.getUserID()}");
+
       final result = await _apiService.get(url);
       if (result is Success) {
-        print(result.value.toString());
         dynamic data = DriverProfileDetailsModel.fromJson(result.value);
         // Save Blue Id
         if (data is DriverProfileDetailsModel) {

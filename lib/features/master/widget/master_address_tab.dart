@@ -234,7 +234,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                                     .primaryAddressUpdatedSuccessfully,
                           ); // optional toast
                           profileCubit.fetchAddress(
-                            isLoading: false,
+                            isLoading: true,
                           ); // silent refresh
                         } else {
                           final error = primaryState?.errorType;
@@ -308,6 +308,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                     _buildTextField(
                       context,
                       addressNameController,
+
                       context.appText.addressName,
                       alphanumericWithSpaceRegex,
                     ),
@@ -342,6 +343,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                     ),
                     16.height,
                     AppTextField(
+                      mandatoryStar: true,
                       validator: Validator.pincode,
                       controller: pinCodeController,
                       labelText: context.appText.pincode,
@@ -381,8 +383,8 @@ class _buildAddressTabState extends State<buildAddressTab> {
 
                 final state = profileCubit.state.createAddressState;
                 if (state?.status == Status.SUCCESS) {
+                  profileCubit.fetchAddress(isLoading: true);
                   if (context.mounted) Navigator.pop(context);
-                  profileCubit.fetchAddress(isLoading: false);
                   ToastMessages.success(
                     message:
                         isEdit
@@ -434,7 +436,8 @@ class _buildAddressTabState extends State<buildAddressTab> {
           final result = await onDelete();
 
           if (result is Success) {
-            if (context.mounted) {
+            profileCubit.fetchAddress(isLoading: true);
+            if (context.mounted) {       
               Navigator.of(context).pop();
               ToastMessages.success(message: successMessage);
             }
@@ -453,6 +456,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
     RegExp pattern,
   ) {
     return AppTextField(
+      mandatoryStar: true,
       validator: (value) => Validator.fieldRequired(value, fieldName: label),
       controller: controller,
       labelText: label,
