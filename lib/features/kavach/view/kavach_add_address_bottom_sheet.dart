@@ -171,16 +171,26 @@ class _KavachAddAddressBottomSheetState
                   Navigator.of(context).pop();
                   ToastMessages.success(message: context.appText.addressAddedSuccess);
 
-                  // Refresh both billing and shipping address lists after successful addition
-                  Future.delayed(Duration(milliseconds: 300), () {
-                    if (context.mounted) {
-                      // Refresh billing addresses
-                      context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
-                      // Refresh shipping addresses
-                      context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachShippingAddresses());
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (!context.mounted) return;
+
+                    // ✅ Always refresh both lists
+                    context.read<KavachCheckoutBillingAddressBloc>()
+                        .add(FetchKavachBillingAddresses());
+                    context.read<KavachCheckoutShippingAddressBloc>()
+                        .add(FetchKavachShippingAddresses());
+
+                    // ✅ Auto-select only in the list where the address was added
+                    if (widget.addrType == 2) {
+                      context.read<KavachCheckoutBillingAddressBloc>()
+                          .add(SelectKavachBillingAddress(state.address));
+                    } else if (widget.addrType == 1) {
+                      context.read<KavachCheckoutShippingAddressBloc>()
+                          .add(SelectKavachShippingAddress(state.address));
                     }
                   });
-                } else if (state is KavachCheckoutAddressError) {
+                }
+                else if (state is KavachCheckoutAddressError) {
                   ToastMessages.error(message: state.error);
                 }
               },
