@@ -382,7 +382,8 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                 final state = profileCubit.state.createAddressState;
                 if (state?.status == Status.SUCCESS) {
                   profileCubit.fetchAddress(isLoading: true);
-                  if (context.mounted) Navigator.pop(context);
+                  if (!context.mounted) return;
+                   Navigator.pop(context);
                   ToastMessages.success(
                     message:
                         isEdit

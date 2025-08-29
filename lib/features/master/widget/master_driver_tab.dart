@@ -773,6 +773,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                 if (state?.status == Status.SUCCESS) {
                   if (context.mounted) Navigator.pop(context);
                   profileCubit.fetchDriver(isLoading: false);
+                  if (!context.mounted) return;
                   ToastMessages.success(
                     message:
                         isEdit
@@ -1072,12 +1073,14 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                                   );
 
                               if (result is Success<Map<String, dynamic>>) {
+                                if (!context.mounted) return;
                                 ToastMessages.success(
                                   message:
                                      context.appText.licenseVerifiedSuccess
                                 );
                                 onVerificationResult(true, result.value);
                               } else {
+                                if (!context.mounted) return;
                                 ToastMessages.alert(
                                   message:context.appText.licenseVerificationFailed
                                 );

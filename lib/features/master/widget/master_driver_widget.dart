@@ -23,7 +23,7 @@ Widget masterDriverInfoWidget({
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
         BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
+          color: AppColors.grey.withValues(alpha: 0.1),
           spreadRadius: 1,
           blurRadius: 5,
         ),
@@ -107,21 +107,15 @@ Widget masterDriverInfoWidget({
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      // IconButton(
-                      //   onPressed: onEdit,
-                      //   icon: SvgPicture.asset(
-                      //     AppIcons.svg.edit,
-                      //     color: AppColors.primaryColor,
-                      //   ),
-                      //   splashRadius: 20,
-                      // ),
-                      
+                    children: [                      
                       IconButton(
                         onPressed: onDelete,
                         icon: SvgPicture.asset(
                           AppIcons.svg.delete,
-                          color: AppColors.iconRed,
+                          colorFilter: ColorFilter.mode(
+                         AppColors.iconRed,
+                          BlendMode.srcIn,
+                        ),
                         ),
                         splashRadius: 20,
                       ),

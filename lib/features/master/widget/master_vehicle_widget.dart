@@ -20,11 +20,11 @@ Widget masterVehicleInfoWidget({
     padding: const EdgeInsets.all(16),
     margin: const EdgeInsets.only(bottom: 12),
     decoration: BoxDecoration(
-      color: Colors.white,
+      color: AppColors.white,
       borderRadius: BorderRadius.circular(12),
       boxShadow: [
         BoxShadow(
-          color: Colors.grey.withOpacity(0.1),
+          color: AppColors.grey.withOpacity(0.1),
           spreadRadius: 1,
           blurRadius: 5,
         ),
@@ -41,10 +41,13 @@ Widget masterVehicleInfoWidget({
             CircleAvatar(
               radius: 20,
               backgroundColor: Colors.blue.shade50,
-              child: SvgPicture.asset(
-                AppIcons.svg.truck,
-                color: AppColors.primaryColor,
-              ),
+              child:  SvgPicture.asset(
+                          AppIcons.svg.truck,
+                          colorFilter: ColorFilter.mode(
+                         AppColors.primaryColor,
+                          BlendMode.srcIn,
+                        ),
+                        )
             ),
             10.width,
 
@@ -115,19 +118,14 @@ Widget masterVehicleInfoWidget({
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      // IconButton(
-                      //   onPressed: onEdit,
-                      //   icon: SvgPicture.asset(
-                      //     AppIcons.svg.edit,
-                      //     color: AppColors.primaryColor,
-                      //   ),
-                      //   splashRadius: 20,
-                      // ),
                       IconButton(
                         onPressed: onDelete,
-                        icon: SvgPicture.asset(
+                        icon:  SvgPicture.asset(
                           AppIcons.svg.delete,
-                          color: AppColors.iconRed,
+                          colorFilter: ColorFilter.mode(
+                         AppColors.iconRed,
+                          BlendMode.srcIn,
+                        ),
                         ),
                         splashRadius: 20,
                       ),
