@@ -135,7 +135,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
     return Container(
       height: 70,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
           width: 1,

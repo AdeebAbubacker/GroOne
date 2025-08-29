@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_choose_your_preference_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_order_card_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -19,11 +18,11 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
+import '../../profile/view/support_screen.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
 import '../repository/kavach_repository.dart';
-import 'kavach_support_screen.dart';
 import 'kavach_transaction_screen.dart';
 
 class KavachOrdersListScreen extends StatefulWidget {
@@ -76,7 +75,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.push(context, commonRoute(KavachSupportScreen()));
+                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
@@ -122,7 +121,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.push(context, commonRoute(KavachSupportScreen()));
+                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
@@ -170,7 +169,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.push(context, commonRoute(KavachSupportScreen()));
+                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,

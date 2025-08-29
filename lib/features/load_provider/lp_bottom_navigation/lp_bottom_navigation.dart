@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
+import 'package:gro_one_app/features/fleet_my_orders/views/fleet_my_orders_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_screen.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
@@ -23,7 +24,6 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class LpBottomNavigation extends StatefulWidget {
   static final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
@@ -113,7 +113,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
         final List<Widget> pages = [
           HomeScreenLoadProvider(),
           if (role == 4)
-           Container(child: Text(context.appText.myOrders).center())
+           FleetMyOrdersScreen()
           else
            LpLoadsScreen(),
           LpSupport(showBackButton: false),
@@ -142,7 +142,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
                   bottomNavigationBar: BottomNavigationBar(
                     backgroundColor: AppColors.primaryColor,
                     type: BottomNavigationBarType.fixed,
-                    selectedItemColor: Colors.white,
+                    selectedItemColor: AppColors.white,
                     unselectedItemColor: Colors.white54,
                     currentIndex: safeIndex,
                     onTap: onItemTapped,

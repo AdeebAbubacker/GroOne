@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -28,13 +27,12 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
-
 import '../../../utils/common_functions.dart';
+import '../../profile/view/support_screen.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
-import 'kavach_support_screen.dart';
 import 'kavach_transaction_screen.dart';
 
 class KavachModelsScreen extends StatelessWidget {
@@ -148,18 +146,12 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
           ),
 
-          //  AppIconButton(
-          //   onPressed: () {
-          //   },
-          //   icon: Image.asset(AppIcons.png.moreVertical),
-          //   iconColor: AppColors.primaryColor,
-          // ),
           PopupMenuButton<String>(
             color: Colors.white,
             icon: Image.asset(AppIcons.png.moreVertical),

@@ -4,13 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_account_screen.dart';
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_setting_screen.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
-import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
-import 'package:gro_one_app/features/master/view/master_screen.dart';
-import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
-import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
-import 'package:gro_one_app/features/profile/view/setting_screen.dart';
 import 'package:gro_one_app/features/profile/view/support_screen.dart';
-import 'package:gro_one_app/features/profile/view/transaction_screen.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -29,7 +23,6 @@ import 'package:gro_one_app/utils/common_dialog_view/log_out_dialogue_ui.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/constant_variables.dart' ;
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -124,9 +117,9 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
             if (driver.name.isNotEmpty)
               Text(driver.name.capitalize, style: AppTextStyle.h5).isAnimate(),
 
-            if (driver.driverId != null && driver.driverId!.isNotEmpty)
+            if (driver.driverId.isNotEmpty)
               Text("${driver.companyDetails?.companyName.capitalize}", style: AppTextStyle.body).isAnimate(),
-              Text("${driver.mobile}", style: AppTextStyle.body).isAnimate(),  
+              Text(driver.mobile, style: AppTextStyle.body).isAnimate(),  
           ],
         );
       },

@@ -27,8 +27,8 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/device_activation_dialog_manager.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-
 import '../../../features/login/repository/user_information_repository.dart';
+import '../../profile/view/support_screen.dart';
 import '../constants/app_constants.dart';
 import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
 import '../repository/gps_repository.dart';
@@ -271,7 +271,7 @@ class _GpsHomeContent extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  // TODO: Implement customer care bottom sheet
+                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                 },
                 child: Image.asset(
                   AppImage.png.customerSupport,
@@ -279,7 +279,7 @@ class _GpsHomeContent extends StatelessWidget {
                   width: 32,
                 ),
               ),
-              const SizedBox(width: 10),
+              20.width,
             ],
           ),
           body: BlocBuilder<GpsLoginCubit, GpsLoginState>(

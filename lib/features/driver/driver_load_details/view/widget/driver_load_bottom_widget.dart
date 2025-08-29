@@ -103,7 +103,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
         )
         .then((value) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            widget.cubit.getDriverLoadsById(loadId: loadId ?? "0");
+            widget.cubit.getDriverLoadsById(loadId: loadId);
             widget.cubit.updatePODVisibilityBasedOnStatus(loadStatus);
           });
         });
@@ -127,14 +127,16 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
           !widget.cubit.areRequiredDocsUploaded(
             tripDocumentList,
             DriverLoadHelper.getLoadStatus(widget.loadItem.data?.loadStatusId),
-          ))
+          )) {
         return false;
+      }
     }
 
     if (loadStatus == 7) {
       if (tripDocumentList == null ||
-          !widget.cubit.isPODUploaded(tripDocumentList))
+          !widget.cubit.isPODUploaded(tripDocumentList)) {
         return false;
+      }
     }
 
     return true;
@@ -220,7 +222,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                               children: [
                                 10.height,
                                 if (loads!.data!.driverConsent == 0 &&
-                                    loads!.data!.loadStatusId > 4)
+                                    loads.data!.loadStatusId > 4)
                                   Center(
                                     child: Text(
                                       context.appText.noSimTrackingConsentFromDriver,
@@ -242,7 +244,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        if (loads!.data!.loadStatusId <
+                                        if (loads.data!.loadStatusId <
                                             LoadStatus.assigned.index) ...[
                                           Text(
                                             context.appText.requested,
@@ -252,7 +254,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                           ),
                                           4.height,
                                           Text(
-                                            '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
+                                            '${loads.data!.truckType?.type ?? ''} - ${loads.data!.truckType?.subType ?? ''}',
                                             style: AppTextStyle.body1.copyWith(
                                               fontSize: 14,
                                               color: AppColors.black,
@@ -289,7 +291,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                               ),
                                               8.width,
                                               Text(
-                                                '${loads!.data!.truckType?.type ?? ''} - ${loads!.data!.truckType?.subType ?? ''}',
+                                                '${loads.data!.truckType?.type ?? ''} - ${loads.data!.truckType?.subType ?? ''}',
                                                 style: AppTextStyle.body3.copyWith(
                                                   color: AppColors.greyIconColor,
                                                 ),
@@ -318,9 +320,9 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                         progressPercentage:
                                             trackingData.coverPercentage ?? 0,
                                         coveredDistance:
-                                            trackingData.covereddistance ?? '--',
+                                            trackingData.covereddistance,
                                         totalDistance:
-                                            trackingData.overalldistance ?? '--',
+                                            trackingData.overalldistance,
                                         eta: trackingData.durationValue,
                                       ).paddingSymmetric(horizontal: 15);
                                     },
@@ -329,24 +331,23 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 ],
                                 DriverSourceDestinationWidget(
                                   pickUpLocation:
-                                      loads!.data!.loadRoute?.pickUpLocation,
+                                      loads.data!.loadRoute?.pickUpLocation,
                                   dropLocation:
-                                      loads!.data!.loadRoute?.dropLocation,
+                                      loads.data!.loadRoute?.dropLocation,
                                 ).paddingSymmetric(horizontal: 15),
                                 20.height,
                                 15.height,
                                 _buildLoadEntityWidget(
                                   commodities:
-                                      loads?.data?.commodity?.name?.toString() ??
+                                      loads.data?.commodity?.name.toString() ??
                                       '',
                                   weight:
-                                      loads?.data?.weight?.value?.toString() ?? '',
+                                      loads.data?.weight?.value.toString() ?? '',
                                   locationDistance: state.locationDistance,
                                   context: context,
                                 ),
     
-                                if (loads!.data!.consignees != null &&
-                                    widget.loadItem.data!.consignees.isNotEmpty)
+                                if (widget.loadItem.data!.consignees.isNotEmpty)
                                   _buildConsigneeDetail(
                                     context: context,
                                     email:
@@ -375,7 +376,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                         '',
                                   ),
                                 20.height,
-                                if ((loads!.data!.loadStatusId ?? 0) > 4)
+                                if ((loads.data!.loadStatusId) > 4)
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -390,7 +391,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
     
                                         buildAttachmentView(
                                           context,
-                                          widget.loadItem?.data?.loadId,
+                                          widget.loadItem.data?.loadId,
                                           state,
                                           widget.cubit,
                                         ),
@@ -408,10 +409,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                   state.loadStatus !=
                                                       LoadStatus.completed &&
                                                   state.loadStatus !=
-                                                      LoadStatus.podDispatched
-                                                     &&
-                                                  !(loads.data?.loadApproval?.damageAndShortagesApproved == true ||
-                                                    loads.data?.loadApproval?.damageAndShortagesApproved == false),
+                                                      LoadStatus.podDispatched,
                                               context: context,
                                               title:
                                                   context.appText.damageAndShortage,
@@ -426,7 +424,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                               .data
                                                               ?.scheduleTripDetails
                                                               ?.vehicleId,
-                                                      loadId: loads!.data!.loadId,
+                                                      loadId: loads.data!.loadId,
                                                       isDamageApprovedOrReject: loads.data?.loadApproval?.damageAndShortagesApproved ?? "",
                                                     ),
                                                     isForward: true,
@@ -440,7 +438,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                             ),
                                             Visibility(
                                               visible:
-                                                  (loads!.data!.damageShortage ??
+                                                  (loads.data!.damageShortage ??
                                                           [])
                                                       .isNotEmpty,
                                               child: Column(
@@ -457,8 +455,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                                           decoration: BoxDecoration(
                                                             color: loadDetails?.data?.loadApproval?.damageAndShortagesApproved == true
-                                                                ? AppColors.greenColor.withOpacity(0.2) 
-                                                                : AppColors.red.withOpacity(0.2),  
+                                                                ? AppColors.greenColor.withValues(alpha: 0.2)
+                                                                : AppColors.red.withValues(alpha: 0.2),
                                                             borderRadius: BorderRadius.circular(8),
                                                           ),
                                                           child: Text(
@@ -481,7 +479,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                             crossAxisAlignment: CrossAxisAlignment.start,
                                                             children: [
                                                               8.height,
-                                                              Text("(${loadDetails?.data?.loadApproval?.damageAndShortagesRejectionReason ?? ""})" ?? "",
+                                                              Text("(${loadDetails?.data?.loadApproval?.damageAndShortagesRejectionReason ?? ""})",
                                                               style:AppTextStyle.h3RedLight14,),
                                                             ],
                                                           ))
@@ -492,7 +490,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                   VpAddedDamageWidget(
                                                     imageList: state.allDamageImageList,
                                                     damageReport:
-                                                        loads!.data!.damageShortage,
+                                                        loads.data!.damageShortage,
                                                   ),
                                                 ],
                                               ).paddingSymmetric(horizontal: 20),
@@ -503,7 +501,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                               showAddButton:
                                                   state.loadStatus !=
                                                       LoadStatus.completed &&
-                                                  loads?.data?.loadSettlement ==
+                                                  loads.data?.loadSettlement ==
                                                       null,
                                               title: context.appText.settlements,
                                               onAdd: () {
@@ -512,11 +510,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                   commonRoute(
                                                     DriverSettlementsScreen(
                                                       vehicleID:
-                                                          loads!
+                                                          loads
                                                               .data!
-                                                              ?.scheduleTripDetails
+                                                              .scheduleTripDetails
                                                               ?.vehicleId,
-                                                      loadId: loads!.data!.loadId,
+                                                      loadId: loads.data!.loadId,
                                                     ),
                                                     isForward: true,
                                                   ),
@@ -536,7 +534,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                       20.height,
                                     ],
                                   ),
-                                if ((loads!.data!.loadStatusId ?? 0) > 7)
+                                if ((loads.data!.loadStatusId) > 7)
                                   Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
@@ -554,7 +552,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 ).paddingSymmetric(horizontal: 15),
                                 20.height,
                                 DriverLoadTimelineWidget(
-                                  timelineList: loads!.data!.timeline ?? [],
+                                  timelineList: loads.data!.timeline,
                                 ).paddingSymmetric(horizontal: 15),
                               ],
                             ),
@@ -562,7 +560,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                         ),
                       ),
                       if (showButton(
-                        loads!.data!.loadStatusId,
+                        loads.data!.loadStatusId,
                         loads.data?.loadOnhold ?? false,
                       ))
                         BlocListener<
@@ -578,7 +576,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 message: "Load status updated successfully",
                               );
                               widget.cubit.getDriverLoadsById(
-                                loadId: loads!.data!.loadId ?? '',
+                                loadId: loads.data!.loadId,
                               );
                             }
                             if (loadStatusState is Error) {
@@ -586,7 +584,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                 message: "Failed to update load status",
                               );
                               widget.cubit.getDriverLoadsById(
-                                loadId: loads!.data!.loadId ?? '',
+                                loadId: loads.data!.loadId,
                               );
                             }
                           },
@@ -613,7 +611,6 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                         driverLoadDetailsCubit.state.iPodSkip,
                                       ),
                                       onSubmit: () {
-                                         print("-----------------------------");
                                         // Check for sim consent and trip doc
                                         if (loads.data?.loadStatusId == 5) {
                                           final tripDocumentList =
@@ -655,22 +652,22 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   MaterialPageRoute(
                                     builder:
                                         (context) => DriverPodDispatchScreen(
-                                          loadId: loads.data!.loadId ?? '',
+                                          loadId: loads.data!.loadId,
                                         ),
                                   ),
                                 ).then((value) {
                                   if (value == true) {
                                     widget.cubit.getDriverLoadsById(
-                                      loadId: loads.data!.loadId ?? '',
+                                      loadId: loads.data!.loadId,
                                     );
                                   }
                                 });
                                 return;
                               }
 
-                              final loadId = loads!.data!.loadId ?? '';
+                              final loadId = loads.data!.loadId;
                               final currentStatus =
-                                  loads!.data!.loadStatusId ?? 4;
+                                  loads.data!.loadStatusId;
 
                               if (currentStatus <= 8) {
                                 changeLoadStatus(
@@ -679,6 +676,7 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   loadId: loadId,
                                 );
                               }
+                              return null;
                             },
                           ),
                         ),
@@ -732,11 +730,6 @@ Widget _buildConsigneeDetail({
   String? name,
   String? phoneNo,
   String? email,
-  bool isTextField = false,
-  bool isUpdatable = false,
-  TextEditingController? nameController,
-  TextEditingController? phoneController,
-  TextEditingController? emailController,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -866,7 +859,7 @@ Widget _buildLoadEntityWidget({
           ),
 
           Text(
-            "${weight} Ton",
+            "$weight Ton",
             style: AppTextStyle.bodyGreyColorW500.copyWith(
               color: AppColors.veryLightGreyColor,
               fontSize: 12,
@@ -887,7 +880,7 @@ Widget _buildLoadEntityWidget({
           ),
 
           Text(
-            "${locationDistance ?? ''}",
+            locationDistance ?? '',
             style: AppTextStyle.bodyGreyColorW500.copyWith(
               color: AppColors.veryLightGreyColor,
               fontSize: 12,
@@ -908,8 +901,8 @@ Widget _submittedSettlementInfoWidget(
   if (loadSettlement == null) {
     return SizedBox.shrink();
   }
-  final numberOfDays = loadSettlement.noOfDays ?? 1;
-  final amount = loadSettlement.amountPerDay ?? 1;
+  final numberOfDays = loadSettlement.noOfDays;
+  final amount = loadSettlement.amountPerDay;
   final detentionsAmount = PriceHelper.formatINR(
     (amount * numberOfDays).toString(),
   );
@@ -921,7 +914,7 @@ Widget _submittedSettlementInfoWidget(
       children: [
         InformationView(
           title:
-              "${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays ?? 1} ${context.appText.days})",
+              "${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays} ${context.appText.days})",
           amount: detentionsAmount,
         ),
 
@@ -949,8 +942,8 @@ Widget _submittedPodInfoWidget(
   if (loadSettlement == null) {
     return SizedBox.shrink();
   }
-  final courierCompany = loadSettlement.courierCompany ?? "1";
-  final awbNumber = loadSettlement.awbNumber ?? "1";
+  final courierCompany = loadSettlement.courierCompany;
+  final awbNumber = loadSettlement.awbNumber;
 
   return Padding(
     padding: EdgeInsets.only(top: 15),

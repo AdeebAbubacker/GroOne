@@ -51,7 +51,7 @@ class StateResponseData {
         String? name,
         DateTime? createdAt,
         DateTime? updatedAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
     }) {
         return StateResponseData(
             id: id ?? this.id,
@@ -92,7 +92,7 @@ class StatePageMeta {
     StatePageMeta copyWith({
         int? page,
         int? pageCount,
-        dynamic? nextPage,
+        dynamic nextPage,
         int? pageSize,
         int? total,
     }) {

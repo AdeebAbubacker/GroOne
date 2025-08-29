@@ -2,27 +2,23 @@ import 'dart:async';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -196,9 +192,10 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
   Widget buildLoadIdDetailsWidget(LoadStatus? loadStatus) {
     var statusData = widget.loadItem.loadOnhold ? context.appText.unloadingHeld :widget.loadItem.loadStatusDetails?.loadStatus ?? '';
     var payment = widget.loadItem.lpPaymentsData;
+    var status = loadStatus?.index ?? 0;
     return Row(
       children: [
-        if(loadStatus!.index <= LoadStatus.assigned.index)
+        if(status <= LoadStatus.assigned.index)
           Container(
             decoration: commonContainerDecoration(
               color: Color(0xffDFE6FF),
@@ -206,7 +203,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             ),
             child: SvgPicture.asset(AppIcons.svg.orderBox).paddingAll(10),
           ),
-        if(loadStatus.index >= LoadStatus.loading.index)
+        if(status >= LoadStatus.loading.index)
           Image.asset(AppImage.png.truck, width: 57, height: 42),
 
         15.width,
@@ -223,10 +220,10 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
               ],
             ),
             4.height,
-            if(loadStatus.index >= LoadStatus.loading.index)
+            if(status >= LoadStatus.loading.index)
               ...[
                 Text(
-                  widget.loadItem.scheduleTripDetails?.vehicle?.vehicle?.truckNo ?? '',
+                  widget.loadItem.scheduleTripDetails?.vehicle?.truckNo ?? '',
                   style: AppTextStyle.body3.copyWith(color: AppColors.textBlackDetailColor),
                 ),
                 4.height,
@@ -257,7 +254,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
               5.height,
               if(loadStatus == LoadStatus.kycPending || loadStatus == LoadStatus.matching)
                 Text(_countDown, style: AppTextStyle.body4.copyWith(color: AppColors.greenColor)).paddingRight(5),
-              if(loadStatus.index >= LoadStatus.loading.index)
+              if(status >= LoadStatus.loading.index)
                 Text(
                   'ETA: ${DateTimeHelper.formatCustomDateTimeIST(widget.loadItem.expectedDeliveryDateTime)}',
                   style: AppTextStyle.body4.copyWith(
@@ -265,7 +262,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
                   ),
                   textAlign: TextAlign.right,
                 ),
-              if((loadStatus.index >= LoadStatus.inTransit.index && (payment?.receivableAdvancePaidFlg == false)))
+              if((status >= LoadStatus.inTransit.index && (payment?.receivableAdvancePaidFlg == false)))
                 Row(
                   children: [
                     const Icon(Icons.error, size: 16, color: AppColors.iconRed),

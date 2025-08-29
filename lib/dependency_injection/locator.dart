@@ -273,7 +273,6 @@ void _registerAuthServices() {
   locator.registerLazySingleton(
     () => DriverProfileService(
       locator<ApiService>(),
-      locator<SecuredSharedPreferences>(),
       locator<UserInformationRepository>(),
       locator<AuthRepository>(),
     ),
@@ -423,7 +422,6 @@ void _registerBasicRepositories() {
     () => DriverProfileRepository(
       locator<DriverProfileService>(),
       locator<AuthRepository>(),
-      locator<SecuredSharedPreferences>(),
       locator<UserInformationRepository>(),
     ),
   );

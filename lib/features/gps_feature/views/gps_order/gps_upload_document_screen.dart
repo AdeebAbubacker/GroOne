@@ -22,13 +22,11 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_route.dart';
 import '../../../../utils/app_text_field.dart';
 import '../../../../utils/app_text_style.dart';
 import '../../../../utils/upload_attachment_files.dart';
-import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../kyc/api_request/init_kyc_request.dart';
 import '../../../kyc/cubit/kyc_cubit.dart';
 import '../../../kyc/helper/kyc_helper.dart';
@@ -36,6 +34,7 @@ import '../../../kyc/model/aadhar_status_response.dart';
 import '../../../kyc/model/kyc_init_response.dart';
 import '../../../kyc/view/kyc_verification_webview.dart';
 import '../../../profile/cubit/profile/profile_cubit.dart';
+import '../../../profile/view/support_screen.dart';
 import '../../cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
 import '../../cubit/gps_order_cubit_folder/gps_upload_document_state.dart';
 import '../../gps_order_repo/gps_order_api_repository.dart';
@@ -152,7 +151,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -190,6 +189,9 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         final verifyState = state.aadharVerificationState;
                         if (verifyState?.status == Status.SUCCESS) {
                           await _checkKycVerification(verifyState?.data?.data);
+                        }
+                        if (initState?.status == Status.ERROR) {
+                          ToastMessages.error(message: context.appText.errorMessage);
                         }
                       },
                       child: Column(

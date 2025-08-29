@@ -262,9 +262,7 @@ class LoadDetailsWidget extends StatelessWidget {
                                 showAddButton:
                                     state.loadStatus != LoadStatus.completed &&
                                     state.loadStatus !=
-                                        LoadStatus.podDispatched &&
-                              !(loadDetails?.loadApproval?.damageAndShortagesApproved == true ||
-                                loadDetails?.loadApproval?.damageAndShortagesApproved == false),
+                                        LoadStatus.podDispatched,
                                 context: context,
                                 title: context.appText.damageAndShortage,
                                 onAdd: () async {
@@ -278,7 +276,7 @@ class LoadDetailsWidget extends StatelessWidget {
                                                 ?.vehicleId,
                                         loadId: loadDetails?.loadId,
                                        isDamageApprovedOrReject: 
-                                       loadDetails?.loadApproval?.damageAndShortagesApproved?.toString() ?? "",
+                                       loadDetails?.loadApproval?.damageAndShortagesApproved ?? "",
                                       ),
                                     ),
                                   ).then((value) {
@@ -307,8 +305,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                                           decoration: BoxDecoration(
                                             color: loadDetails?.loadApproval?.damageAndShortagesApproved == true
-                                                ? AppColors.greenColor.withOpacity(0.2) 
-                                                : AppColors.red.withOpacity(0.2),  
+                                                ? AppColors.greenColor.withValues(alpha: 0.2) 
+                                                : AppColors.red.withValues(alpha : 0.2),  
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Text(

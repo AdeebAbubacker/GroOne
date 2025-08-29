@@ -4,27 +4,19 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
-import 'package:gro_one_app/features/driver/driver_pod/view/driver_pod_dispatch_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-
-import '../../../../../utils/app_button.dart';
-import '../../../../../utils/app_button_style.dart';
 import '../../../../../utils/app_colors.dart';
 import '../../../../../utils/app_icons.dart';
 import '../../../../../utils/app_image.dart';
 import '../../../../../utils/app_text_style.dart';
 import '../../../../../utils/common_functions.dart';
 import '../../../../../utils/common_widgets.dart';
-import '../../../../../utils/constant_variables.dart';
+
 
 class DriverLoadWidget extends StatefulWidget {
   final void Function()? onClickAssignDriver;
@@ -48,77 +40,20 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
 
   bool _isButtonEnabled = true;
 
-  // Button Status
-  bool _shouldEnableButton(DriverLoadDetails? load) {
-    if (load == null) return false;
-
-    final currentStatus = load.loadStatusId ?? 0;
-    final documents = load.loadDocument ?? [];
-
-    // ✅ Status 4: Check if Memo document is uploaded
-    if (currentStatus == 4) {
-      final memoUploaded = load.loadMemoDetails != null;
-      return memoUploaded;
-    }
-
-    if (currentStatus == 5) {
-      // final isConsentGiven = load.driverConsent == 1;
-
-      final nestedDocuments = load.loadDocument ?? [];
-      //final documents = nestedDocuments.expand((list) => list).toList();
-
-      // normalized lower-case required docs exactly matching API string values
-      const requiredDocs = ['lorry receipt', 'eway bill', 'material invoice'];
-
-      final uploadedTypes =
-          nestedDocuments
-              .where((doc) => doc.status == 1)
-              .map(
-                (doc) =>
-                    doc.documentDetails?.documentType?.toLowerCase().trim() ??
-                    '',
-              )
-              .toSet();
-
-      final allRequiredDocsUploaded = requiredDocs.every(
-        uploadedTypes.contains,
-      );
-
-      return allRequiredDocsUploaded;
-    }
-
-    if (currentStatus == 7) {
-      final nestedDocuments = load.loadDocument ?? [];
-      //final documents = nestedDocuments.expand((list) => list).toList();
-
-      const podDocTypes = ['proof of document'];
-
-      final podDocExists = nestedDocuments.any((doc) {
-        final docType = doc.documentDetails?.documentType?.toLowerCase() ?? '';
-        final title = doc.documentDetails?.title?.toLowerCase() ?? '';
-        return (podDocTypes.contains(docType) || title.contains('pod')) &&
-            doc.status == 1;
-      });
-
-      return podDocExists;
-    }
-    return true;
-  }
-
   void _validateButtonStateOnInit() {
     final statusId = widget.driverLoadDetails.loadStatusId;
 
-    final nestedDocuments = widget.driverLoadDetails.loadDocument ?? [];
+    final nestedDocuments = widget.driverLoadDetails.loadDocument;
     // final documents = nestedDocuments.expand((list) => list).toList();
 
-    final currentStatus = widget.driverLoadDetails.loadStatusId ?? 0;
-    final documents = widget.driverLoadDetails.loadDocument ?? [];
+    final currentStatus = widget.driverLoadDetails.loadStatusId;
 
-    // ✅ Status 4: Check if Memo document is uploaded
+
+    // Status 4: Check if Lp Agreed
     if (currentStatus == 4) {
-      final memoUploaded = widget.driverLoadDetails.loadMemoDetails != null;
+      final isLpAgreed = widget.driverLoadDetails.isAgreed == 1;
       setState(() {
-        _isButtonEnabled = memoUploaded;
+        _isButtonEnabled = isLpAgreed;
       });
       return;
     }
@@ -228,20 +163,19 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   ],
                 ).expand(),
                 5.width,
-                if (widget.driverLoadDetails.loadStatusId >= 4 &&
-                    widget.driverLoadDetails.loadStatusId != null)
+                if (widget.driverLoadDetails.loadStatusId >= 4)
                   DriverLoadHelper.loadStatusWidget(
                     statusBgColor:
                         widget
                             .driverLoadDetails
-                            ?.loadStatusDetails
+                            .loadStatusDetails
                             ?.statusBgColor,
                     statusTxtColor:
                         widget
                             .driverLoadDetails
-                            ?.loadStatusDetails
+                            .loadStatusDetails
                             ?.statusTxtColor,
-                    (widget.driverLoadDetails.loadOnhold ?? false)
+                    (widget.driverLoadDetails.loadOnhold)
                         ? context.appText.loadOnHold
                         : widget
                             .driverLoadDetails
@@ -259,12 +193,12 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   widget.driverLoadDetails.loadRoute?.pickUpWholeAddr ?? "",
                 ),
               ),
-              Spacer(flex: 1), // pushes arrow away from pickup
+              Spacer(flex: 1), 
               Icon(
                 Icons.arrow_right_alt_outlined,
                 color: AppColors.primaryColor,
               ),
-              Spacer(flex: 1), // pushes arrow away from drop
+              Spacer(flex: 1),
               Expanded(
                 child: _buildLocationInfoWidget(
                 widget.driverLoadDetails.loadRoute?.dropWholeAddr ?? "",
@@ -359,9 +293,10 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                 DriverLoadHelper.homeloadStatusButtonWidget(
                   context: context,
                   enable: _isButtonEnabled,
+                  isLpagreed:  widget.driverLoadDetails.isAgreed == 1,
                   statusId: widget.driverLoadDetails.loadStatusId,
                   onPressed: () {
-                    if (widget.driverLoadDetails.loadStatusId == 4 || widget.driverLoadDetails.loadStatusId == 9  &&
+                    if ((widget.driverLoadDetails.loadStatusId == 4 && widget.driverLoadDetails.isAgreed == 0) || widget.driverLoadDetails.loadStatusId == 9  &&
                         widget.driverLoadDetails.loadMemoDetails == null) {
                       Navigator.push(
                         context,
@@ -378,7 +313,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                     if (widget.driverLoadDetails.loadStatusId == 5) {
                       //final isConsentGiven = widget.driverLoadDetails.driverConsent == 1;
                       final nestedDocuments =
-                          widget.driverLoadDetails.loadDocument ?? [];
+                          widget.driverLoadDetails.loadDocument;
                       //  final documents = nestedDocuments.expand((list) => list).toList();
                       const requiredDocs = [
                         'lorry receipt',
@@ -391,7 +326,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                               .map(
                                 (doc) =>
                                     doc.documentDetails?.documentType
-                                        ?.toLowerCase() ??
+                                        .toLowerCase() ??
                                     '',
                               )
                               .toSet();
@@ -406,7 +341,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                         });
                         ToastMessages.error(
                           message:
-                              'Please upload Lorry Receipt, E-Way Bill, and Material Invoice',
+                              context.appText.pleaseUploadDocs,
                         );
                         return;
                       }
@@ -420,17 +355,17 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                     }
 
                     // Check for Pod Doc
-                    if (widget.driverLoadDetails?.loadStatusId == 7) {
+                    if (widget.driverLoadDetails.loadStatusId == 7) {
                       final nestedDocuments =
-                          widget.driverLoadDetails?.loadDocument ?? [];
+                          widget.driverLoadDetails.loadDocument;
                       //  final documents = nestedDocuments.expand((list) => list).toList();
 
                       final podDocExists = nestedDocuments.any(
                         (doc) =>
-                            (doc.documentDetails?.documentType?.toLowerCase() ==
+                            (doc.documentDetails?.documentType.toLowerCase() ==
                                     'proof of document' ||
                                 doc.documentDetails?.title
-                                        ?.toLowerCase()
+                                        .toLowerCase()
                                         .contains('pod') ==
                                     true) &&
                             doc.status == 1,
@@ -441,7 +376,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                           _isButtonEnabled = true;
                         });
                         ToastMessages.error(
-                          message: 'Please upload POD document',
+                          message: context.appText.pleaseUploadPodDoc,
                         );
                         return;
                       }

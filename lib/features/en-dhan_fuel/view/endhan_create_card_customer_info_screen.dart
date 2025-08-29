@@ -19,21 +19,15 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
-import '../../kavach/view/kavach_support_screen.dart';
-import '../widgets/zonal_office_autocomplete_textfield.dart';
-import '../widgets/regional_office_autocomplete_textfield.dart';
-import '../widgets/state_autocomplete_textfield.dart';
-import '../widgets/district_autocomplete_textfield.dart';
+import '../../profile/view/support_screen.dart';
 import '../widgets/enhanced_dropdown_field.dart';
 
 class EndhanCreateCardCustomerInfoScreen extends StatefulWidget {
@@ -244,7 +238,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             actions: [
                               AppIconButton(
                                 onPressed: () {
-                                  Navigator.push(context,commonRoute(KavachSupportScreen()));
+                                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                                 },
                                 icon: AppIcons.svg.filledSupport,
                                 iconColor: AppColors.primaryColor,
@@ -869,7 +863,7 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
             child: Container(
               constraints: const BoxConstraints(maxHeight: 200),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: AppColors.white,
                 border: Border.all(color: Colors.grey.shade300),
                 borderRadius: BorderRadius.circular(4),
               ),

@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:io';
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -12,8 +10,6 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
-import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
-import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/master/helper/date_helper.dart';
 import 'package:gro_one_app/features/master/view/master_screen.dart';
@@ -31,6 +27,7 @@ import 'package:gro_one_app/features/profile/view/widgets/license_category_dropd
 import 'package:gro_one_app/features/profile/view/widgets/master_dialogue_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -38,15 +35,14 @@ import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
-import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/enhanced_dispose.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/indian_licesne_fromatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
@@ -57,6 +53,7 @@ import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
+import 'package:gro_one_app/core/base_state.dart';
 
 class buildDriverTab extends StatefulWidget {
   const buildDriverTab({super.key});
@@ -65,14 +62,14 @@ class buildDriverTab extends StatefulWidget {
   State<buildDriverTab> createState() => _buildDriverTabState();
 }
 
-class _buildDriverTabState extends State<buildDriverTab> {
+class _buildDriverTabState extends BaseState<buildDriverTab>
+    with EnhancedDisposeMixin {
   final profileCubit = locator<ProfileCubit>();
   final mastersCubit = locator<MastersCubit>();
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
   final documentCubit = locator<DocumentTypeCubit>();
   List<String> selectedCommodities = [];
-  late TabController _tabController;
   final vehicleSearchController = TextEditingController();
   final addressSearchController = TextEditingController();
   final driverSearchController = TextEditingController();
@@ -400,9 +397,6 @@ class _buildDriverTabState extends State<buildDriverTab> {
                       setState(() {
                         isLicenseVerified = isVerified || driver != null;
                         if (licenseData != null) {
-                          print(
-                            '--------------------${licenseData['expiry_date']}',
-                          );
                           // Name
                           final nameRaw =
                               licenseData['name'] ??
@@ -711,36 +705,36 @@ class _buildDriverTabState extends State<buildDriverTab> {
               }
               if (!isLicenseVerified) {
                 ToastMessages.alert(
-                  message: "Please verify the License before proceeding",
+                  message: context.appText.pleaseVerifyLicense,
                 );
                 return;
               }
               if (formKey.currentState!.validate()) {
                 if (licenseNumberController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: "Please enter License Number");
+                  ToastMessages.alert(message: context.appText.pleaseEnterLicenseNumber,);
                   return;
                 }
 
                 if (selectedDoB == null || selectedDoB!.isEmpty) {
-                  ToastMessages.alert(message: "Please select Date of Birth");
+                  ToastMessages.alert(message: context.appText.pleaseSelectDob);
                   return;
                 }
 
                 if (nameController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: "Please enter Driver Name");
+                  ToastMessages.alert(message: context.appText.pleaseEnterDriverName);
                   return;
                 }
 
                 if (selectedlicenseExpiryDate == null ||
                     selectedlicenseExpiryDate!.isEmpty) {
                   ToastMessages.alert(
-                    message: "Please select License Expiry Date",
+                    message: context.appText.pleaseSelectLicenseExpiryDate,
                   );
                   return;
                 }
 
                 if (mobileController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: "Please enter Mobile Number");
+                  ToastMessages.alert(message: context.appText.pleaseEnterMobileNumber);
                   return;
                 }
                 if (!formKey.currentState!.validate()) {
@@ -772,8 +766,8 @@ class _buildDriverTabState extends State<buildDriverTab> {
                   email: emailController.text,
                   licenseNumber: licenseNumberController.text,
                   licenseExpiryDate:
-                      convertToYMD(licenseExpiryIso.toString()) ?? '',
-                  dateOfBirth: convertToYMD(dateOfBirthIso.toString()) ?? '',
+                      convertToYMD(licenseExpiryIso.toString()),
+                  dateOfBirth: convertToYMD(dateOfBirthIso.toString()),
                   licenseCategory: selectedLicneseId,
                   bloodGroup: selectedBloodId,
                   driverStatus: isActive ? 1 : 2,
@@ -797,6 +791,7 @@ class _buildDriverTabState extends State<buildDriverTab> {
                             ? context.appText.driverUpdatedSuccessfully
                             : context.appText.driverAddedSuccess,
                   );
+                  analyticsHelper.logEvent(AnalyticEventName.ADD_DRIVER,request.toJson()); 
                 } else {
                   ToastMessages.error(
                     message: getErrorMsg(
@@ -1067,13 +1062,13 @@ class _buildDriverTabState extends State<buildDriverTab> {
                               }
                               if (selectedDoB.isEmpty) {
                                 ToastMessages.alert(
-                                  message: "Please select Date of Birth",
+                                  message: context.appText.pleaseSelectDob,
                                 );
                                 return;
                               }
                               if (nameController.text.trim().isEmpty) {
                                 ToastMessages.alert(
-                                  message: "Please enter Driver Name",
+                                  message: context.appText.pleaseEnterDriverName,
                                 );
                                 return;
                               }
@@ -1091,12 +1086,12 @@ class _buildDriverTabState extends State<buildDriverTab> {
                               if (result is Success<Map<String, dynamic>>) {
                                 ToastMessages.success(
                                   message:
-                                      "License verified & data autofilled.",
+                                     context.appText.licenseVerifiedSuccess
                                 );
                                 onVerificationResult(true, result.value);
                               } else {
                                 ToastMessages.alert(
-                                  message: "License verification failed",
+                                  message:context.appText.licenseVerificationFailed
                                 );
                                 onVerificationResult(false, null);
                               }

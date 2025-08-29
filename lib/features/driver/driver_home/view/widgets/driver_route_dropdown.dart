@@ -1,7 +1,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -45,12 +44,8 @@ class DriverRouteSearchDropdown extends StatelessWidget {
           final selectedCompanyType = companyTypeList.firstWhere(
             (e) => e.fromLocation.toString() == newCompanyTypeName,
           );
-          if (selectedCompanyType.masterLaneId != null) {
-            onCompanyTypeChanged(selectedCompanyType.masterLaneId.toString());
-          } else {
-            onCompanyTypeChanged(null);
-          }
-        }
+          onCompanyTypeChanged(selectedCompanyType.masterLaneId.toString());
+                }
       },
       dropdownBuilder: (context, selectedItem) {
         if (selectedItem == null || selectedItem.isEmpty) {

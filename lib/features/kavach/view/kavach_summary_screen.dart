@@ -1,7 +1,4 @@
-import 'dart:convert';
-import 'dart:developer';
 import 'package:dotted_line/dotted_line.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
@@ -25,6 +22,8 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../dependency_injection/locator.dart';
+import '../../../service/analytics/analytics_event_name.dart';
+import '../../../service/analytics/analytics_service.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
@@ -36,10 +35,9 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../../../utils/common_widgets.dart';
-import '../../../utils/extra_utils.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import '../../login/repository/user_information_repository.dart';
-import 'kavach_support_screen.dart';
+import '../../profile/view/support_screen.dart';
 
 class KavachSummaryScreen extends StatefulWidget {
   final List<KavachProduct> products;
@@ -79,6 +77,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   final kavachOrderBloc = locator<KavachOrderBloc>();
   final profileCubit = locator<ProfileCubit>();
   final userInfoRepo = locator<UserInformationRepository>();
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   double get totalPrice {
     double total = 0.0;
@@ -172,6 +171,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
         if (state is KavachPaymentStatusSuccess) {
           KavachOrderRequest request = widget.kavachOrderRequest;
           request.paymentRequestId = kavachOrderBloc.paymentRequestId;
+          analyticsHelper.logEvent(AnalyticEventName.FLEET_ORDER_CREATION, request.toJson(),);
           kavachOrderBloc.add(KavachSubmitOrder(request));
         }
         if (state is KavachPaymentStatusFailure) {
@@ -229,7 +229,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           actions: [
             AppIconButton(
               onPressed: () {
-                Navigator.push(context, commonRoute(KavachSupportScreen()));
+                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
               },
               icon: AppIcons.svg.filledSupport,
               iconColor: AppColors.primaryButtonColor,

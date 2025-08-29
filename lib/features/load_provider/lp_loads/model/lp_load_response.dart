@@ -1,36 +1,60 @@
 import 'lp_load_get_by_id_response.dart';
-
 class LpLoadResponse {
   LpLoadResponse({
     required this.data,
     required this.total,
     required this.pageMeta,
+    this.message,
   });
 
   final List<LpLoadItem> data;
   final int total;
   final PageMeta? pageMeta;
+  final String? message;
 
   LpLoadResponse copyWith({
     List<LpLoadItem>? data,
     int? total,
     PageMeta? pageMeta,
+    String? message,
   }) {
     return LpLoadResponse(
       data: data ?? this.data,
       total: total ?? this.total,
       pageMeta: pageMeta ?? this.pageMeta,
+      message: message ?? this.message,
     );
   }
 
-  factory LpLoadResponse.fromJson(Map<String, dynamic> json){
-    return LpLoadResponse(
-      data: json["data"] == null ? [] : List<LpLoadItem>.from(json["data"]!.map((x) => LpLoadItem.fromJson(x))),
-      total: json["total"] ?? 0,
-      pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
-    );
-  }
+  factory LpLoadResponse.fromJson(Map<String, dynamic> json) {
+    // Case 1: data is an object containing another "data" array
+    if (json["data"] is Map<String, dynamic>) {
+      final inner = json["data"];
+      return LpLoadResponse(
+        data: inner["data"] == null
+            ? []
+            : List<LpLoadItem>.from(inner["data"].map((x) => LpLoadItem.fromJson(x))),
+        total: inner["total"] ?? 0,
+        pageMeta: inner["pageMeta"] == null ? null : PageMeta.fromJson(inner["pageMeta"]),
+        message: json["message"],
+      );
+    }
 
+    // Case 2: data is already a list
+    else if (json["data"] is List) {
+      return LpLoadResponse(
+        data: json["data"] == null
+            ? []
+            : List<LpLoadItem>.from(json["data"].map((x) => LpLoadItem.fromJson(x))),
+        total: json["total"] ?? 0,
+        pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+        message: json["message"],
+      );
+    }
+
+    // Fallback
+    return LpLoadResponse(data: [], total: 0, pageMeta: null, message: json["message"]);
+  }
 }
 
 class LpLoadItem {
@@ -538,6 +562,202 @@ class LoadStatusDetails {
   }
 
 }
+
+class ScheduleTripDetails {
+  ScheduleTripDetails({
+    required this.scheduleTripId,
+    required this.vehicleId,
+    required this.driverId,
+    required this.acceptedBy,
+    required this.etaForPickUp,
+    required this.expectedDeliveryDate,
+    required this.possibleDeliveryDate,
+    required this.status,
+    required this.createdAt,
+    required this.deletedAt,
+    required this.loadId,
+    required this.driver,
+    required this.vehicle,
+  });
+
+  final String scheduleTripId;
+  final String vehicleId;
+  final String driverId;
+  final String acceptedBy;
+  final DateTime? etaForPickUp;
+  final DateTime? expectedDeliveryDate;
+  final DateTime? possibleDeliveryDate;
+  final int status;
+  final DateTime? createdAt;
+  final dynamic deletedAt;
+  final String loadId;
+  final Driver? driver;
+  final Vehicle? vehicle;
+
+  ScheduleTripDetails copyWith({
+    String? scheduleTripId,
+    String? vehicleId,
+    String? driverId,
+    String? acceptedBy,
+    DateTime? etaForPickUp,
+    DateTime? expectedDeliveryDate,
+    DateTime? possibleDeliveryDate,
+    int? status,
+    DateTime? createdAt,
+    dynamic deletedAt,
+    String? loadId,
+    Driver? driver,
+    Vehicle? vehicle,
+  }) {
+    return ScheduleTripDetails(
+      scheduleTripId: scheduleTripId ?? this.scheduleTripId,
+      vehicleId: vehicleId ?? this.vehicleId,
+      driverId: driverId ?? this.driverId,
+      acceptedBy: acceptedBy ?? this.acceptedBy,
+      etaForPickUp: etaForPickUp ?? this.etaForPickUp,
+      expectedDeliveryDate: expectedDeliveryDate ?? this.expectedDeliveryDate,
+      possibleDeliveryDate: possibleDeliveryDate ?? this.possibleDeliveryDate,
+      status: status ?? this.status,
+      createdAt: createdAt ?? this.createdAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      loadId: loadId ?? this.loadId,
+      driver: driver ?? this.driver,
+      vehicle: vehicle ?? this.vehicle,
+    );
+  }
+
+  factory ScheduleTripDetails.fromJson(Map<String, dynamic> json){
+    return ScheduleTripDetails(
+      scheduleTripId: json["scheduleTripId"] ?? "",
+      vehicleId: json["vehicleId"] ?? "",
+      driverId: json["driverId"] ?? "",
+      acceptedBy: json["acceptedBy"] ?? "",
+      etaForPickUp: DateTime.tryParse(json["etaForPickUp"] ?? ""),
+      expectedDeliveryDate: DateTime.tryParse(json["expectedDeliveryDate"] ?? ""),
+      possibleDeliveryDate: DateTime.tryParse(json["possibleDeliveryDate"] ?? ""),
+      status: json["status"] ?? 0,
+      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      deletedAt: json["deletedAt"],
+      loadId: json["loadId"] ?? "",
+      driver: json["driver"] == null ? null : Driver.fromJson(json["driver"]),
+      vehicle: json["vehicle"] == null ? null : Vehicle.fromJson(json["vehicle"]),
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "scheduleTripId": scheduleTripId,
+    "vehicleId": vehicleId,
+    "driverId": driverId,
+    "acceptedBy": acceptedBy,
+    "etaForPickUp": etaForPickUp?.toIso8601String(),
+    "expectedDeliveryDate": expectedDeliveryDate?.toIso8601String(),
+    "possibleDeliveryDate": possibleDeliveryDate?.toIso8601String(),
+    "status": status,
+    "createdAt": createdAt?.toIso8601String(),
+    "deletedAt": deletedAt,
+    "loadId": loadId,
+    "driver": driver?.toJson(),
+    "vehicle": vehicle?.toJson(),
+  };
+
+}
+
+class Driver {
+  Driver({
+    required this.id,
+    required this.name,
+    required this.mobile,
+    required this.email,
+    required this.customerId,
+  });
+
+  final String id;
+  final String name;
+  final String mobile;
+  final String email;
+  final String customerId;
+
+  Driver copyWith({
+    String? id,
+    String? name,
+    String? mobile,
+    String? email,
+    String? customerId,
+  }) {
+    return Driver(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      mobile: mobile ?? this.mobile,
+      email: email ?? this.email,
+      customerId: customerId ?? this.customerId,
+    );
+  }
+
+  factory Driver.fromJson(Map<String, dynamic> json){
+    return Driver(
+      id: json["id"] ?? "",
+      name: json["name"] ?? "",
+      mobile: json["mobile"] ?? "",
+      email: json["email"] ?? "",
+      customerId: json["customerId"] ?? "",
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "id": id,
+    "name": name,
+    "mobile": mobile,
+    "email": email,
+    "customerId": customerId,
+  };
+
+}
+
+class Vehicle {
+  Vehicle({
+    required this.truckNo,
+    required this.customerId,
+    required this.vehicleId,
+    required this.truckTypeId,
+  });
+
+  final String truckNo;
+  final String customerId;
+  final String vehicleId;
+  final int truckTypeId;
+
+  Vehicle copyWith({
+    String? truckNo,
+    String? customerId,
+    String? vehicleId,
+    int? truckTypeId,
+  }) {
+    return Vehicle(
+      truckNo: truckNo ?? this.truckNo,
+      customerId: customerId ?? this.customerId,
+      vehicleId: vehicleId ?? this.vehicleId,
+      truckTypeId: truckTypeId ?? this.truckTypeId,
+    );
+  }
+
+  factory Vehicle.fromJson(Map<String, dynamic> json){
+    return Vehicle(
+      truckNo: json["truckNo"] ?? "",
+      customerId: json["customerId"] ?? "",
+      vehicleId: json["vehicleId"] ?? "",
+      truckTypeId: json["truckTypeId"] ?? 0,
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    "truckNo": truckNo,
+    "customerId": customerId,
+    "vehicleId": vehicleId,
+    "truckTypeId": truckTypeId,
+  };
+
+}
+
 
 class PageMeta {
   PageMeta({

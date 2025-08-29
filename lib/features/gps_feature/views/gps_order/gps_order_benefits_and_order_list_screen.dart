@@ -8,7 +8,6 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gp
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
-import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_models_screen.dart';
 import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -18,7 +17,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
 import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
-
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_button_style.dart';
@@ -34,6 +32,7 @@ import '../../../../utils/constant_variables.dart';
 import '../../../kavach/view/kavach_order_details_screen.dart';
 import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../kavach/view/kavach_transaction_screen.dart';
+import '../../../profile/view/support_screen.dart';
 import 'gps_order_detail_screen.dart';
 import 'gps_transaction_screen.dart';
 import 'gps_upload_document_screen.dart';
@@ -253,7 +252,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -352,7 +351,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.push(context, commonRoute(KavachSupportScreen()));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -382,7 +381,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                     4.width,
                     AppIconButton(
                       onPressed: () {
-                        Navigator.push(context, commonRoute(KavachSupportScreen()));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -598,12 +597,20 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
       context.appText.installed,
     ];
 
+    final statusKeys = [
+      "ALL", // pseudo key
+      "Order Placed",
+      "Dispatched",
+      "Delivered",
+      "Installed",
+    ];
+
     // Filter orders based on selected tab
     List<GpsOrderItem> filteredOrders =
         selectedTab == 0
             ? widget.orders
             : widget.orders
-                .where((order) => order.currentStatus == tabLabels[selectedTab])
+                .where((order) => order.currentStatus == statusKeys[selectedTab])
                 .toList();
 
     return Column(

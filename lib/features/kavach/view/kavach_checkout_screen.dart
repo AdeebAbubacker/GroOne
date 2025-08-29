@@ -28,6 +28,7 @@ import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
 import '../../../utils/validator.dart';
+import '../../profile/view/support_screen.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_state.dart';
@@ -38,7 +39,6 @@ import '../helper/kavach_helper.dart';
 import '../model/kavach_product_model.dart';
 import '../model/kavach_address_model.dart';
 import '../repository/kavach_repository.dart';
-import 'kavach_support_screen.dart';
 import 'widgets/product_counter.dart';
 import 'widgets/vehicle_selection_field.dart';
 
@@ -379,7 +379,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

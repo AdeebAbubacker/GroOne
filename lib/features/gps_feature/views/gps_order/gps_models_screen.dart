@@ -21,7 +21,7 @@ import '../../../../utils/app_icon_button.dart';
 import '../../../../utils/app_icons.dart';
 import '../../../../utils/app_search_bar.dart';
 import '../../../../utils/app_text_style.dart';
-import '../../../kavach/view/kavach_support_screen.dart';
+import '../../../profile/view/support_screen.dart';
 import '../../widgets/gps_model_widget.dart';
 import 'gps_order_checkout_screen.dart';
 
@@ -308,7 +308,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
           AppIconButton(
             onPressed: () {
               // Navigate to support screen
-              Navigator.push(context, commonRoute(KavachSupportScreen()));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -325,6 +325,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
               children: [
                 // Search bar
                 AppSearchBar(
+                  hintText: context.appText.search,
                   searchController: searchController,
                   onChanged: (text) {
                     _gpsProductsCubit.searchProducts(text);

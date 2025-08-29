@@ -46,7 +46,7 @@ class DriverLoadHelper {
 
     Color textColor =
         loadOnHold
-            ? Colors.white
+            ? AppColors.white
             : DriverLoadHelper.getColor(statusTxtColor ?? '');
 
     return Container(
@@ -100,7 +100,7 @@ class DriverLoadHelper {
         case 4:
         return isLpAgreed
             ? context.appText.swipeToStart
-            : context.appText.waitingForLpToAcceptLoad;
+            : context.appText.waitingForLpToConfirmed;
       case 5:
           return context.appText.swipeToCompleteLoading;
 
@@ -247,21 +247,22 @@ class DriverLoadHelper {
     bool isLoading = false,
     required VoidCallback onPressed,
     bool? enable = true,
-    bool isMemoSigned = false,
+    bool isLpagreed = true,
   }) {
     switch (statusId) {
       case 4:
-        if (!isMemoSigned) {
+        if (!isLpagreed) {
           // 🟡 Memo not signed → Show View Detail button
           return AppButton(
+            enable: isLpagreed,
             buttonHeight: commonButtonHeight2,
             onPressed: isLoading ? () {} : onPressed,
             isLoading: isLoading,
-            title: context.appText.startTrip,
+            title:  isLpagreed ? context.appText.startTrip :context.appText.waitingForLpToConfirmed,
           );
         } else {
           return SlideAction(
-            enabled: true,
+            enabled: enable ?? true,
             borderRadius: commonButtonRadius,
             elevation: 0,
             height: commonButtonHeight2,

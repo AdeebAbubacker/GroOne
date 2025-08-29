@@ -65,9 +65,6 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setLoadUIState(UIState.loading());
     }
 
-
-    print("calling this here");
-
     Result result = await _repository.fetchLoads(request: loadListApiRequest);
 
     if (result is Success<LpLoadResponse>) {
@@ -523,15 +520,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   void _updateConsigneeState(UIState<ConsigneAddedSuccessModel>? uiState) {
     emit(state.copyWith(lpUpdateConsignee: uiState));
   }
-  
-  void _isFieldUpdabled(bool isFieldUpdable){
-    emit(state.copyWith(isFieldUpdatble: isFieldUpdable));
-  }
 
-  ///Feeback Edit
-  void _isFeedBackEditabel(bool isFeedBackUpdatble){
-    emit(state.copyWith(isFeedBackUpdatble: isFeedBackUpdatble));
-  }
   
   // Updates Excisting consignee to a load
   Future<void> updateConsignee({required UpdateConsigneeApiRequest updateConsigneeReq,required String consigneeId}) async {

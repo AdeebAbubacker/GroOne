@@ -1,27 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-
-import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_document_meta_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
-import 'package:image/image.dart' as imgLib;
 import 'package:path_provider/path_provider.dart';
 
 
 class KycHelper {
-
- static KycStage kycStage(int? isKyc) {
-    switch (isKyc) {
-      case 3:  return KycStage.done;
-      case 2:  return KycStage.inProgress;
-      case 0:  return KycStage.none;
-      default: return KycStage.unknown;
-    }
- }
 
  // Get Mine Type
  static String getMimeTypeFromExtension(String extension) {

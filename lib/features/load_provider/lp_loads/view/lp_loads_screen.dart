@@ -17,6 +17,8 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trucktype_dropdown.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -56,6 +58,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   final ScrollController _listController = ScrollController();
   int page = 1;
   late LpLoadPaginationController paginationController;
+  final analytics = locator<AnalyticsService>();
 
   TabController? _tabController;
   List<LoadStatusResponse> tabLabels = [];
@@ -72,6 +75,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void initFunction() => frameCallback(() {
+    analytics.logEvent(AnalyticEventName.LP_MY_LOAD);
     lpLoadLocator.updateSelectedTabIndex(0);
     paginationController = lpLoadLocator.paginationController;
     _tabController = TabController(
@@ -261,8 +265,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             loadListApiRequest: LoadListApiRequest(
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
               laneId: selectedRoute,
-              truckTypeId: selectedTruckTypeId.toString(),
-              loadPostDate: loadPostedDateController.text,
+              truckTypeId: selectedTruckTypeId?.toString(),
+              loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
             ),
           );
         },

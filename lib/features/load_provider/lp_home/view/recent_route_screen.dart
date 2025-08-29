@@ -9,7 +9,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/destination_mod
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shipment_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -159,7 +158,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
               return CircularProgressIndicator().center();
             case Status.SUCCESS :
               if (state.recentRouteUIState?.data != null) {
-                final routes = state.recentRouteUIState!.data!.data.data ?? [];
+                final routes = state.recentRouteUIState!.data!.data.data;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,

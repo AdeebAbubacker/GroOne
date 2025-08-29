@@ -6,9 +6,6 @@ import 'package:gro_one_app/features/driver/driver_profile/model/driver_logout_m
 import 'package:gro_one_app/features/driver/driver_profile/model/driver_profile_details_model.dart';
 import 'package:gro_one_app/features/driver/driver_profile/repository/driver_profile_repository.dart';
 import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
-import 'package:gro_one_app/features/profile/model/log_out_model.dart';
-import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
-import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 part 'driver_profile_state.dart';
 

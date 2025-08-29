@@ -12,6 +12,7 @@ class AnalyticEventName {
 
   /// Fleet Events
   static const String FLEET_PRODUCT_CATALOG_CREATED = "fleet_product_catalog_created";
+  static const String FLEET_ORDER_CREATION = "fleet_order_creation";
 
 
   /// Marketplace Events
@@ -51,7 +52,10 @@ class AnalyticEventName {
   static const String KYC_PENDING = "kyc_pending";
   static const String KYC_IN_PROGRESS = "kyc_in_progress";
   static const String KYC_COMPLETED = "kyc_completed";
-
+ 
+ // Master
+ static const String ADD_DRIVER = "add_driver";
+ static const String ADD_VEHICLE = "add_vehicle";
 
   // Load Document
   static const String LORRY_RECEIPT_UPLOADED = "kyc_receipt_uploaded";
