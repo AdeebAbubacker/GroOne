@@ -24,8 +24,7 @@ class AnalyticsService {
       String unknown = "Unknown";
       String os = unknown,
           osVersion = unknown,
-          device = unknown,
-          app = unknown;
+          device = unknown;
 
       DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
 

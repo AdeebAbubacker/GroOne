@@ -311,7 +311,6 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               }
             },
             builder: (context, state) {
-              final status = state.logoutUIState?.status;
               return ProfileMyAccountTile(
                 imageString: AppImage.svg.logOut,
                 text: context.appText.logOut,
