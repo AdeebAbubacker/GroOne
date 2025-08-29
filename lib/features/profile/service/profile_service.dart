@@ -80,12 +80,10 @@ class ProfileService {
             final customer = data.customer;
             final newBlueId = customer?.blueId;
             final storedBlueId = await _userInformationRepository.getBlueID();
-            debugPrint("Service Blue Id : $newBlueId");
 
             if (newBlueId != null && newBlueId.isNotEmpty) {
               // Save Blue ID and popup flag if not stored before
               if (storedBlueId == null || storedBlueId.isEmpty) {
-                debugPrint("🎉 First time Blue ID saved: $newBlueId");
                 await _securedSharedPref.saveKey(
                   AppString.sessionKey.blueId,
                   newBlueId,
@@ -97,7 +95,6 @@ class ProfileService {
               }
             } else {
               // Clear Blue ID and popup flag if blueId is null
-              debugPrint("🧹 Blue ID cleared");
               await _securedSharedPref.deleteKey(AppString.sessionKey.blueId);
               await _securedSharedPref.deleteKey(
                 AppString.sessionKey.hasBlueIdPopupShown,
@@ -107,9 +104,6 @@ class ProfileService {
               await _securedSharedPref.saveInt(
                 AppString.sessionKey.companyTypeId,
                 data.customer!.companyType!.id,
-              );
-              debugPrint(
-                "🎉 Company Type ID saved: ${data.customer!.companyType!.id}",
               );
             }
 
@@ -367,7 +361,6 @@ class ProfileService {
         return Error(GenericError());
       }
     } catch (e) {
-      print('error is $e');
       return Error(DeserializationError());
     }
   }
@@ -516,17 +509,13 @@ class ProfileService {
       final result = await _apiService.put(url, body: request.toJson());
 
       if (result is Success) {
-        print("delete success ${result.value.toString()}");
         return Success(true);
       } else if (result is Error) {
-        print("delete error ${result.type.toString()}");
         return Error(result.type);
       } else {
-        print("delete error GenericError");
         return Error(GenericError());
       }
     } catch (e) {
-      print("delete error e");
       return Error(DeserializationError());
     }
   }
@@ -539,19 +528,14 @@ class ProfileService {
       final url = ApiUrls.driverListUrl;
       final response = await _apiService.post(url, body: request.toJson());
       if (response is Success) {
-        print("driver ${response.value.toString()}");
         final loads = DriverNewModel.fromJson(response.value);
         return Success(loads);
       } else if (response is Error) {
-        print("driver ${response.toString()}");
         return Error(response.type);
       } else {
-        print("driver GenericError");
         return Error(GenericError());
       }
     } catch (e, stackTrace) {
-      print("driver Exception: $e");
-      print("driver StackTrace:\n$stackTrace");
       return Error(DeserializationError());
     }
   }
@@ -856,7 +840,6 @@ class ProfileService {
         return Error(GenericError());
       }
     } catch (e) {
-      print('error is $e');
       return Error(DeserializationError());
     }
   }
@@ -880,7 +863,6 @@ class ProfileService {
         return Error(GenericError());
       }
     } catch (e) {
-      print('error is $e');
       return Error(DeserializationError());
     }
   }
@@ -890,7 +872,6 @@ class ProfileService {
   ) async {
     try {
       // === Step 1: Hit API-2 (Check if vehicle exists) ===
-      print('=== Step 1: Hit API-2 (Check if vehicle exists) ===');
       final url = '${ApiUrls.checkVehicleNumber}$vehicleNumber';
 
       final api2Response = await _apiService.get(url);
@@ -902,7 +883,6 @@ class ProfileService {
         return Success(api2Data);
       }
       // === Step 2: Fallback to API-1 ===
-      print('=== Step 2: Fallback to API-1 ===');
       final customHeaders = {
         'accept': 'application/json',
         'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
@@ -933,7 +913,6 @@ class ProfileService {
   }) async {
     try {
       // === Step 1: Hit API-2 (Check if License exists) ===
-      print('=== Step 1: Hit API-2 (Check if License exists) ===');
       final url = '${ApiUrls.checkLicenseNumber}${request.licenseNumber}';
 
       final api2Response = await _apiService.get(url);
@@ -946,7 +925,6 @@ class ProfileService {
       }
 
       // === Step 2: Fallback to API-1 ===
-      print('=== Step 2: Fallback to API-1 ===');
       final customHeaders = {
         'accept': 'application/json',
         'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',

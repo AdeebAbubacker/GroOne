@@ -399,9 +399,6 @@ class _buildVehicleTabState extends BaseState<buildVehicleTab> {
                                 selectedTruckType = matchedTruckType;
                               } else {
                                 selectedTruckType = null;
-                                print(
-                                  'No matching truck type found for id: ${vehicleData['truckTypeId']}',
-                                );
                               }
 
                               final insurancyexpiryRaw =
@@ -1068,9 +1065,6 @@ class AddVehicleDialog {
                                 selectedTruckType = matchedTruckType;
                               } else {
                                 selectedTruckType = null;
-                                print(
-                                  'No matching truck type found for id: ${vehicleData['truckTypeId']}',
-                                );
                               }
 
                               final insurancyexpiryRaw =

@@ -74,7 +74,6 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
     appVersion = await appVersionInfo();
     await kycCubit.fetchUserRole();
     setState(() {});
-    debugPrint("user id ${lpHomeLocator.userId}");
   });
 
   void disposeFunction() => frameCallback(() {

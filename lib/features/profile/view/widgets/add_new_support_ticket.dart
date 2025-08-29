@@ -138,7 +138,6 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                             ticketDocId = profileCubit.state.createDocumentUIState!.data!.data!.documentId;
                           }
                         }
-                        debugPrint("ticketDocId : $ticketDocId");
                       }
                     }
                   },

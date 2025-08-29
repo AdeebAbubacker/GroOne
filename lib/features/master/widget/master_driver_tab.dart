@@ -508,14 +508,12 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                           final Result result =
                               await uploadLicenseDocumentApiCall(licenseDoc);
                           if (result is Success) {
-                            print("calling 1");
                             final licenseData =
                                 mastersCubit
                                     .state
                                     .uploadlicenseDocUIState
                                     ?.data;
                             if (licenseData != null && licenseDoc.isNotEmpty) {
-                              print("calling 2 $licenseDoc");
                               final apiRequest = CreateDocumentApiRequest(
                                 documentTypeId:
                                     await DriverLicenseHelper.getDocumentTypeId(
@@ -538,7 +536,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                                 ),
                                 fileExtension: licenseDoc.first['extension'],
                               );
-                              print("calling 3");
                               await createDocumentApiCall(apiRequest);
                               if (mastersCubit
                                       .state
@@ -565,7 +562,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                                           .documentId;
                                 }
                               }
-                              debugPrint("licenseDocId : $licenseDocId");
                             }
                           }
                         },
@@ -580,7 +576,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                               .deleteDocument(licenseDocId ?? "")
                               .then((onValue) {
                                 licenseDocId = null;
-                                debugPrint("licenseDocId : $licenseDocId");
                               });
                         },
                       );
@@ -650,7 +645,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                       setState(() {
                         selectedLicense = category?.categoryName;
                         selectedLicneseId = category?.id;
-                        print("selected licesne id $selectedLicneseId");
                       });
                     },
                   ),
@@ -661,7 +655,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                       setState(() {
                         selectedBloodGroup = category?.groupName;
                         selectedBloodId = category?.id;
-                        print("selected blood id $selectedLicneseId");
                       });
                     },
                   ),
