@@ -125,6 +125,8 @@ static const Color mediumGreyColor = Color(0xFF626262);
   static const Color red = Colors.red;
   static const Color teal = Color(0xff009688);
   static const Color disabledFieldBackgroundColor = Color(0xFFF2F2F2);
+  static const Color mediumDarkGrey = Color(0xFF6C6C6C);
+  static const Color lightGreyE9 = Color(0xFFE9E9E9);
   static WidgetStateProperty<Color> materialStateColor(Color color) {
     return WidgetStateProperty.all(color);
   }

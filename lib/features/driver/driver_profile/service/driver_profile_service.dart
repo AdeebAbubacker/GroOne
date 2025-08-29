@@ -96,7 +96,6 @@ class DriverProfileService {
         final deleteAccountModel = DeleteAccountModel.fromJson(result.value);
         return Success(deleteAccountModel);
       } else if (result is Error) {
-        // Log error type for debugging
         CustomLog.error(
           this,
           "Delete account failed with API error type: ${result.type}",
