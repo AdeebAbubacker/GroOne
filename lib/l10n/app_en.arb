@@ -823,6 +823,7 @@
   "uploadProductPhoto":"Please upload Product Photo",
   "emptyQuantityValidation":"You can't add 0 quantity",
   "damageRecordedSuccessfully":"Your damage has been recorded.",
+  "lanesRecordedSuccessfully":"Your Preferred lanes has been recorded.",
   "notifiedTheConcernTeam":"We have notified the concerned team.",
   "sureToDeleteDamage":"Are you sure you want to delete this damage?",
   "cancelEdit":"Cancel Edit",
@@ -831,7 +832,7 @@
   "viewFiles":"View Files",
   "days":"Days",
   "settlementRecordedSuccessfully":"Your settlement details has been recorded.",
-
+    "updateLanes":"Update lanes",
 
 
   "pod":"Proof of Document",

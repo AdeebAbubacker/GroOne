@@ -1,25 +1,41 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/preferLans_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
+import '../../../data/ui_state/status.dart';
 import '../../../utils/app_icons.dart';
 
-class LpMyAccount extends StatelessWidget {
+class LpMyAccount extends StatefulWidget {
   final Customer? customerDetail;
   final BankDetails? bankDetails;
   final KycDoc? kycDoc;
   const LpMyAccount({super.key, required this.customerDetail, required this.bankDetails,
     required this.kycDoc});
+
+  @override
+  State<LpMyAccount> createState() => _LpMyAccountState();
+}
+
+class _LpMyAccountState extends State<LpMyAccount> {
 
   String checkUserDetails(dynamic value){
     if(value != null && value.toString().isNotEmpty){
@@ -28,6 +44,18 @@ class LpMyAccount extends StatelessWidget {
       return "--";
     }
   }
+  final vpCreationCubit = locator<VpCreateAccountCubit>();
+  List<int> selectedPrefLanesTypeList = [];
+
+
+  @override
+  void initState() {
+
+    super.initState();
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -56,21 +84,21 @@ class LpMyAccount extends StatelessWidget {
             children: [
               0.height,
 
-              if (customerDetail != null)...[
+              if (widget.customerDetail != null)...[
                 headingText(text: context.appText.personalDetails),
                 buildDetailWidget(
                   text1: context.appText.name,
-                  text2: checkUserDetails(customerDetail?.customerName.capitalize),
+                  text2: checkUserDetails(widget.customerDetail?.customerName.capitalize),
                 ),
 
                 buildDetailWidget(
                   text1: context.appText.mobileNumber,
-                  text2: checkUserDetails('+91 ${customerDetail?.mobileNumber}'),
+                  text2: checkUserDetails('+91 ${widget.customerDetail?.mobileNumber}'),
                 ),
 
                 buildDetailWidget(
                     text1: context.appText.email,
-                    text2: checkUserDetails(customerDetail?.emailId)
+                    text2: checkUserDetails(widget.customerDetail?.emailId)
                 ),
                 dividerWidget(),
 
@@ -78,26 +106,26 @@ class LpMyAccount extends StatelessWidget {
                 headingText(text: context.appText.accountDetails),
                 buildDetailWidget(
                     text1: context.appText.blueMembershipId,
-                    text2: checkUserDetails(customerDetail?.blueId)
+                    text2: checkUserDetails(widget.customerDetail?.blueId)
                 ),
 
-                if(customerDetail?.companyType != null)
+                if(widget.customerDetail?.companyType != null)
                   buildDetailWidget(
                     text1: context.appText.accountType,
-                    text2: checkUserDetails(customerDetail?.companyType!.companyType),
+                    text2: checkUserDetails(widget.customerDetail?.companyType!.companyType),
                   ),
 
                 buildDetailWidget(
                   text1: context.appText.registrationData,
-                  text2: customerDetail?.createdAt != null ? DateTimeHelper.getFormattedDateWithShortMonthName(customerDetail!.createdAt!) : "--",
+                  text2: widget.customerDetail?.createdAt != null ? DateTimeHelper.getFormattedDateWithShortMonthName(widget.customerDetail!.createdAt!) : "--",
                 ),
 
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(context.appText.kycStatus, style: AppTextStyle.textGreyDetailColor14w400).expand(),
-                    Text(customerDetail?.kycType?.kycType ?? '', style: AppTextStyle.textGreyDetailColor14w400),
-                    if(customerDetail?.isKyc == 3)
+                    Text(widget.customerDetail?.kycType?.kycType ?? '', style: AppTextStyle.textGreyDetailColor14w400),
+                    if(widget.customerDetail?.isKyc == 3)
                       ...[
                         5.width,
                         const Icon(Icons.verified, color: Colors.green)
@@ -111,41 +139,45 @@ class LpMyAccount extends StatelessWidget {
 
 
               // Bank Details
-              if(bankDetails == null)...[
+              if(widget.bankDetails == null)...[
                 headingText(text: context.appText.bankDetails),
                 buildDetailWidget(
                   text1: context.appText.accountNumber,
-                  text2: checkUserDetails(bankDetails?.bankAccount),
+                  text2: checkUserDetails(widget.bankDetails?.bankAccount),
                 ),
                 buildDetailWidget(
                   text1: context.appText.bankName,
-                  text2: checkUserDetails(bankDetails?.bankName),
+                  text2: checkUserDetails(widget.bankDetails?.bankName),
                 ),
                 buildDetailWidget(
                   text1: context.appText.branchName,
-                  text2: checkUserDetails(bankDetails?.branchName),
+                  text2: checkUserDetails(widget.bankDetails?.branchName),
                 ),
                 buildDetailWidget(
                   text1: context.appText.ifscCode,
-                  text2: checkUserDetails(bankDetails?.ifscCode),
+                  text2: checkUserDetails(widget.bankDetails?.ifscCode),
                 ),
                 dividerWidget(),
+
               ],
 
 
               // Company Detail
               headingText(text: context.appText.companyDetails),
-              if (customerDetail != null)
+              if (widget.customerDetail != null)
               buildDetailWidget(
                 text1: context.appText.companyName,
-                text2: checkUserDetails(customerDetail?.companyName.capitalize),
+                text2: checkUserDetails(widget.customerDetail?.companyName.capitalize),
               ),
 
-              if (customerDetail?.companyType?.id != 2)
+              if (widget.customerDetail?.companyType?.id != 2)
                 buildDetailWidget(
                   text1: context.appText.gst,
-                  text2: checkUserDetails(kycDoc?.gstin ?? ''),
+                  text2: checkUserDetails(widget.kycDoc?.gstin ?? ''),
                 ),
+
+
+
 
               20.height,
             ],
@@ -164,6 +196,5 @@ class LpMyAccount extends StatelessWidget {
       ],
     );
   }
-
 
 }

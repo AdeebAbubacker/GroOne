@@ -121,7 +121,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   /// Handle app lifecycle changes
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
+  Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
+
     super.didChangeAppLifecycleState(state);
 
     switch (state) {
@@ -130,6 +131,8 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         AppLifecycleMonitor.endLifecycleEvent('app_background');
         AppLifecycleMonitor.startLifecycleEvent('app_foreground');
         NotificationService().clearBadgeCount();
+        await HasInternetConnection().checkConnectivity();
+
         break;
       case AppLifecycleState.paused:
         // App went to background
@@ -152,6 +155,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
   /// Initialize app functions
   initFun() => frameCallback(() async {
+
     try {
       // Check internet connectivity
       await HasInternetConnection().checkConnectivity();

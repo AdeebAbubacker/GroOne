@@ -7,12 +7,14 @@ class MastersState {
   final UIState<UploadLicenseDocumentModel>? uploadlicenseDocUIState;
   final UIState<CreateDocumentModel>? createDocumentUIState;
   final UIState<DeleteDocumentModel>? deleteDocumentUIState;
+  final UIState<EditUserResponse>? editUserUIState;
   const MastersState({
     required this.vehicleVerification,
      required this.licenseVerification,
      this.createDocumentUIState,
     this.deleteDocumentUIState,
     this.uploadlicenseDocUIState,
+    this.editUserUIState,
   });
 
   factory MastersState.initial() => MastersState(
@@ -26,8 +28,10 @@ class MastersState {
     UIState<CreateDocumentModel>? createDocumentUIState,
     UIState<DeleteDocumentModel>? deleteDocumentUIState,
     UIState<UploadLicenseDocumentModel>? uploadlicenseDocUIState,
+    UIState<EditUserResponse>? editUserUIState
   }) {
     return MastersState(
+      editUserUIState: editUserUIState??this.editUserUIState,
       vehicleVerification: vehicleVerification ?? this.vehicleVerification,
       licenseVerification: licenseVerification ?? this.licenseVerification,
       uploadlicenseDocUIState :uploadlicenseDocUIState ?? this.uploadlicenseDocUIState,

@@ -32,6 +32,7 @@ import 'package:gro_one_app/features/profile/model/delete_account_response.dart'
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_updated_response.dart';
+import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
@@ -134,7 +135,8 @@ class ProfileService {
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
+    } catch (e,stackrress) {
+      print("error is >>  ${e.toString} stacktress  ${stackrress}");
       return Error(DeserializationError());
     }
   }
@@ -988,6 +990,30 @@ class ProfileService {
       );
       if (result is Success) {
         final logOutModel = LogOutModel.fromJson(result.value);
+        return Success(logOutModel);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// update prefer lanes
+  Future<Result<EditUserResponse>> updatePreferredLanes(List<int> preferredLanes) async {
+    try {
+      String? usedID= (await _userInformationRepository.getUserID() ?? "");
+      final url = "${ApiUrls.updateCompanyInfo}/$usedID";
+      final result = await _apiService.patch(
+        url,
+        body: {
+          "preferredLanes": preferredLanes,
+        },
+      );
+      if (result is Success) {
+        final logOutModel = EditUserResponse.fromJson(result.value);
         return Success(logOutModel);
       } else if (result is Error) {
         return Error(result.type);
