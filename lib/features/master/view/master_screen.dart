@@ -121,7 +121,6 @@ class _MasterScreenState extends State<MasterScreen>
     ProfileDetailModel? profileDetailModel= profileCubit.state.profileDetailUIState?.data;
     if((profileDetailModel?.vehicles??[]).isNotEmpty){
       List<int> preferLanes=profileDetailModel?.vehicles.first.preferredLanes as List<int> ;
-      print("preferLanes is ${preferLanes}");
 
       vpCreationCubit.autoSelectLanes(preferLanes);
     }
@@ -322,7 +321,7 @@ class _MasterScreenState extends State<MasterScreen>
           unselectedLabelStyle: AppTextStyle.h6,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
           tabs: [
-            _buildTab("Lanes", _tabController.index == 0),
+            _buildTab(context.appText.lanes, _tabController.index == 0),
             _buildTab(context.appText.address, _tabController.index == 1),
             _buildTab(context.appText.vehicles, _tabController.index == 2),
             _buildTab(context.appText.drivers, _tabController.index == 3),
@@ -333,9 +332,9 @@ class _MasterScreenState extends State<MasterScreen>
                 controller: _tabController,
                 children: [
                   PreferLanesTab(),
-                  buildAddressTab(),
-                  buildVehicleTab(),
-                  buildDriverTab(),
+                  BuildAddressTab(),
+                  BuildVehicleTab(),
+                  BuildDriverTab(),
                 ],
               ),
             ),
