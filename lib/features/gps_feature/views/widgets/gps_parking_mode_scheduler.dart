@@ -196,6 +196,7 @@ class _GpsParkingModeSchedulerState extends State<GpsParkingModeScheduler> {
                       parkingScheduleEndUtc: _formatTimeUtc(_endTime),
                       parkingScheduleDays: selectedDays,
                     );
+                    if (!context.mounted) return;
                     if (result is Success) {
                       Navigator.pop(context);
                       ToastMessages.success(

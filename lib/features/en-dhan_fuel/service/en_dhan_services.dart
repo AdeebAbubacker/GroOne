@@ -5,7 +5,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/api_request/en-dhan_api_request.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/api_request/en_dhan_api_request.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart';
@@ -521,7 +521,7 @@ class EnDhanService {
 
         return Error(ErrorWithMessage(message: errorMessage));
       }
-    } on DioError catch (dioError) {
+    } on DioException catch (dioError) {
       CustomLog.error(
         this,
         "DioError response: ${dioError.response?.data}",
@@ -925,7 +925,7 @@ class EnDhanService {
         return Error(ErrorWithMessage(message: 'Failed to fetch transactions'));
       }
     } catch (e) {
-      final errorMessage = e?.toString() ?? 'Unknown error occurred';
+      final errorMessage = e.toString();
       CustomLog.error(this, "Error fetching En-Dhan transactions", e);
       return Error(ErrorWithMessage(message: errorMessage));
     }
@@ -961,7 +961,7 @@ class EnDhanService {
         return Error(ErrorWithMessage(message: 'Failed to fetch pincode details'));
       }
     } catch (e) {
-      final errorMessage = e?.toString() ?? 'Unknown error occurred';
+      final errorMessage = e.toString();
       CustomLog.error(this, "Error fetching pincode details", e);
       return Error(ErrorWithMessage(message: errorMessage));
     }

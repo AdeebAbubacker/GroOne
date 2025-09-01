@@ -3,7 +3,6 @@ import '../../../../data/model/result.dart';
 import '../../model/kavach_product_model.dart';
 import '../../model/kavach_masters_model.dart';
 import '../../model/kavach_choose_preference_model.dart';
-import 'package:collection/collection.dart';
 
 class KavachProductsListState extends Equatable {
   final List<KavachProduct> products;

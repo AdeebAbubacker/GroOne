@@ -1,19 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
-import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import '../../../../utils/app_image.dart';
 import '../../../../utils/app_searchabledropdown.dart';
 import '../../model/kavach_masters_model.dart';
 import '../../model/kavach_choose_preference_model.dart';
@@ -78,24 +72,6 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
   /// Checks if the form has valid selections (make and model are required)
   bool get _isFormValid {
     return selectedMake != null && selectedModel != null;
-  }
-
-  /// Determines if a field should be enabled based on previous selections
-  bool _isFieldEnabled(String fieldName) {
-    switch (fieldName) {
-      case 'make':
-        return true; // Make is always enabled
-      case 'model':
-        return selectedMake != null; // Model enabled when make is selected
-      case 'engine':
-        return selectedMake != null && selectedModel != null; // Engine enabled when make and model are selected
-      case 'tankType':
-        return selectedMake != null && selectedModel != null && selectedEngine != null; // Tank type enabled when make, model, and engine are selected
-      case 'deviceType':
-        return selectedMake != null && selectedModel != null && selectedEngine != null && selectedTankType != null; // Device type enabled when make, model, engine, and tank type are selected
-      default:
-        return false;
-    }
   }
 
   @override

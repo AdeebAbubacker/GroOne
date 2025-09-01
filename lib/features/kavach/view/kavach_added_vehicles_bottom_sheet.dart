@@ -6,7 +6,6 @@ import 'package:gro_one_app/features/kavach/model/kavach_vehicle_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_truck_length_model.dart';
 import 'package:gro_one_app/features/kavach/repository/kavach_repository.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/features/kavach/view/kavach_add_vehicle_bottom_sheet.dart';
 import 'package:gro_one_app/features/master/widget/master_vehicle_tab.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -16,10 +15,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_icons.dart';
-import '../../../utils/app_route.dart';
 import '../../../utils/app_search_bar.dart';
 import '../../../utils/app_text_style.dart';
-import '../../../utils/common_widgets.dart';
 import '../../../utils/extensions/string_extensions.dart';
 import '../bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_bloc.dart';
 import '../bloc/kavach_checkout_vehicle_bloc/kavach_checkout_vehicle_event.dart';
@@ -208,7 +205,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFE7F8ED),
+                  color: Colors.green.shade50,
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(

@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/kavach/view/kavach_summary_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_order_bloc/kavach_order_bloc.dart';
+import 'package:gro_one_app/features/profile/view/widgets/add_new_support_ticket.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -379,7 +380,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK,), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -1187,6 +1188,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           );
 
           // kavachOrderBloc.add(KavachSubmitOrder(request));
+          if (!mounted) return;
           Navigator.of(context).push(
             commonRoute(
               KavachSummaryScreen(

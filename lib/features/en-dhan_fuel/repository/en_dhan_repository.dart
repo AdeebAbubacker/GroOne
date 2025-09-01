@@ -1,14 +1,14 @@
 import 'dart:io';
 
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/api_request/en-dhan_api_request.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/api_request/en_dhan_api_request.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
     as api_models;
 import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/service/en-dhan_services.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/service/en_dhan_services.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -132,13 +132,10 @@ class EnDhanRepository {
 
   /// Fetch Card Balance Repository
   Future<Result<api_models.EnDhanCardBalanceResponse>> fetchCardBalance() async {
-    print('🔄 EnDhanRepository.fetchCardBalance called');
     try {
       final result = await _enDhanService.fetchCardBalance();
-      print('📥 Repository result: ${result.runtimeType}');
       return result;
     } catch (e) {
-      print('❌ Repository error: $e');
       CustomLog.error(this, "Error fetching card balance", e);
       return Error(GenericError());
     }
@@ -148,13 +145,10 @@ class EnDhanRepository {
   Future<Result<api_models.EnDhanCardListModel>> fetchCards({
     String? searchTerm,
   }) async {
-    print('🔄 EnDhanRepository.fetchCards called with searchTerm: $searchTerm');
     try {
       final result = await _enDhanService.fetchCards(searchTerm: searchTerm);
-      print('📥 Repository result: ${result.runtimeType}');
       return result;
     } catch (e) {
-      print('❌ Repository error: $e');
       CustomLog.error(this, "Error fetching cards", e);
       return Error(GenericError());
     }

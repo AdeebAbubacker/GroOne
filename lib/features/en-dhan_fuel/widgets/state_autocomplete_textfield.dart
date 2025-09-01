@@ -60,8 +60,6 @@ class _StateAutoCompleteTextFieldState
       setState(() {
         allStates = List.from(cubit.state.states);
         isLoading = false;
-
-        print("allStates is ${allStates}");
       });
     } catch (e) {
       setState(() {

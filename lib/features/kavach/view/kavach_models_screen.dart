@@ -29,6 +29,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
 import '../../../utils/common_functions.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
@@ -146,7 +147,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

@@ -20,6 +20,7 @@ class _GpsNotificationTypesSheetState extends State<GpsNotificationTypesSheet> {
   void initState() {
     super.initState();
     Future.microtask(() {
+      if (!mounted) return;
       context.read<GpsNotificationTypesSheetCubit>().fetchNotificationToggles();
     });
   }

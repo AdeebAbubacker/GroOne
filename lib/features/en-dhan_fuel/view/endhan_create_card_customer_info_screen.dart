@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/profile/view/widgets/add_new_support_ticket.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
@@ -21,7 +22,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/repository/en_dhan_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import '../../../utils/app_icon_button.dart';
@@ -67,11 +68,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     super.dispose();
   }
 
-  /// Debug method to log current state of controllers and cubit
-  void _logCurrentState(EnDhanCubit cubit) {
-    // Debug logging removed for production
-  }
-
   /// Force sync all controller values to cubit state
   void _forceSyncControllersToCubit(EnDhanCubit cubit) {
     // Email sync removed since field is now read-only
@@ -114,9 +110,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
   @override
   void initState() {
     super.initState();
-    
-    // Initialize controllers with current state values immediately
-    final cubit = locator<EnDhanCubit>();
     _addControllerListeners();
   }
 
@@ -226,7 +219,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                     Container(
                       width: double.infinity,
                       decoration: commonContainerDecoration(
-                        color: const Color(0xFFD6EEFB),
+                        color: AppColors.lightPrimaryColor,
                         borderRadius: BorderRadius.zero,
                       ),
                       padding: const EdgeInsets.only(bottom: 24),
@@ -234,11 +227,11 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                         children: [
                           CommonAppBar(
                             title: context.appText.customerInformation,
-                            backgroundColor: Color(0xFFD6EEFB),
+                            backgroundColor: AppColors.lightPrimaryColor,
                             actions: [
                               AppIconButton(
                                 onPressed: () {
-                                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,ticketTag: TicketTags.ENDHAN,), isForward: true));
                                 },
                                 icon: AppIcons.svg.filledSupport,
                                 iconColor: AppColors.primaryColor,
@@ -628,6 +621,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               // Force sync all controller values to cubit state before validation
                               _forceSyncControllersToCubit(cubit);
                               await Future.delayed(Duration(milliseconds: 50));
+                              if (!context.mounted) return;
                               if (formKey.currentState?.validate() ?? false) {
                                 // Additional validation for dropdowns and required fields
                                 if (state.selectedZonalOfficeId == null) {
@@ -689,40 +683,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
         );
       },
     );
-  }
-
-  /// Helper method to get valid regional office value for dropdown
-  String? _getValidRegionalOfficeValue(EnDhanState state) {
-    if (state.selectedRegionalOfficeId == null) return null;
-
-    // Check if the selected regional office ID exists in the current list
-    final selectedId = state.selectedRegionalOfficeId.toString();
-    final validOffices =
-        state.regionalOffices
-            .where(
-              (regional) => (regional['id'] ?? '').toString() == selectedId,
-            )
-            .toList();
-
-    // Return the value only if exactly one match is found
-    return validOffices.length == 1 ? selectedId : null;
-  }
-
-  /// Helper method to get valid district value for dropdown
-  String? _getValidDistrictValue(EnDhanState state) {
-    if (state.selectedDistrictId == null) return null;
-
-    // Check if the selected district ID exists in the current list
-    final selectedId = state.selectedDistrictId.toString();
-    final validDistricts =
-        state.districts
-            .where(
-              (district) => (district['id'] ?? '').toString() == selectedId,
-            )
-            .toList();
-
-    // Return the value only if exactly one match is found
-    return validDistricts.length == 1 ? selectedId : null;
   }
 }
 

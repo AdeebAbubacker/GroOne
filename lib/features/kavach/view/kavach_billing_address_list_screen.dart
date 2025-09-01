@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import '../../../utils/app_bottom_sheet_body.dart';
@@ -16,7 +14,6 @@ import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_add
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_state.dart';
 import '../model/kavach_address_model.dart';
 import 'kavach_add_address_bottom_sheet.dart';
-// Import GPS dependencies for GPS feature support
 import '../../gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
 import '../../gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
 
@@ -70,6 +67,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
               feature: AddressFeature.kavach,
           ),
         );
+        if (!context.mounted) return;
         context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
         } else if (feature == AddressListFeature.gps && gpsBillingAddressCubit != null) {
           await commonBottomSheetWithBGBlur(
@@ -566,7 +564,7 @@ class GpsAddressListItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: commonContainerDecoration(
-          color: isSelected ? AppColors.primaryColor.withOpacity(0.1) : AppColors.greyContainerBackgroundColor,
+          color: isSelected ? AppColors.primaryColor.withValues(alpha: 0.1) : AppColors.greyContainerBackgroundColor,
         ),
         child: Row(
           children: [

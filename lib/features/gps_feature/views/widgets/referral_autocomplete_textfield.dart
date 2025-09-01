@@ -67,6 +67,7 @@ class _ReferralAutoCompleteTextFieldState
         });
         CustomLog.debug(this, "Successfully loaded ${allUsers.length} users for referral code");
       } else {
+        if (!mounted) return;
         final apiErrorMessage = result is Error<List<KavachUserModel>> ? result.type.getText(context) : 'Failed to load users';
         CustomLog.error(this, "API returned error: $apiErrorMessage", null);
         setState(() {

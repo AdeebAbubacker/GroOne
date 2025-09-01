@@ -20,6 +20,7 @@ import '../../../utils/app_image.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/common_functions.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
@@ -37,7 +38,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF5F7FA),
+      backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
         title: context.appText.orderDetail,
         actions: [
@@ -52,7 +53,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           ),
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

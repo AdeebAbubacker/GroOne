@@ -3,7 +3,6 @@ import '../../../../data/model/result.dart';
 import '../../../../utils/toast_messages.dart';
 import '../../model/kavach_product_model.dart';
 import '../../model/kavach_masters_model.dart';
-import '../../model/kavach_choose_preference_model.dart';
 import '../../repository/kavach_repository.dart';
 import 'kavach_products_list_event.dart';
 import 'kavach_products_list_state.dart';

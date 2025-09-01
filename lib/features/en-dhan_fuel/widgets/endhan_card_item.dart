@@ -8,7 +8,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 class EndhanCardItem extends StatefulWidget {
   final Map<String, dynamic> card;
-  const EndhanCardItem({required this.card});
+  const EndhanCardItem({super.key, required this.card});
 
   @override
   State<EndhanCardItem> createState() => _EndhanCardItemState();

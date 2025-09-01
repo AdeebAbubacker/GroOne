@@ -581,18 +581,11 @@ class EnDhanVehicleTypeResponse {
   const EnDhanVehicleTypeResponse({required this.document});
 
   factory EnDhanVehicleTypeResponse.fromJson(Map<String, dynamic> json) {
-    print('🔍 EnDhanVehicleTypeResponse.fromJson called with: $json');
-    print('🔍 json[\'data\']: ${json['data']}');
-    print('🔍 json[\'data\']?[\'document\']: ${json['data']?['document']}');
-
     final document =
         (json['data']?['document'] as List<dynamic>?)
             ?.map((e) => e.toString())
             .toList() ??
         [];
-
-    print('🔍 Parsed document: $document');
-
     return EnDhanVehicleTypeResponse(document: document);
   }
 }
@@ -631,8 +624,6 @@ class EnDhanCardListModel {
   });
 
   factory EnDhanCardListModel.fromJson(Map<String, dynamic> json) {
-    print('🔍 EnDhanCardListModel.fromJson called with: $json');
-
     EnDhanCardData? cardData;
 
     if (json['data'] != null && json['data'] is Map<String, dynamic>) {
