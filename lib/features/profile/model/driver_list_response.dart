@@ -74,7 +74,7 @@ class DriverDetailsData {
         String? mobile,
         String? email,
         String? licenseNumber,
-        dynamic? licenseDocLink,
+        dynamic licenseDocLink,
         DateTime? licenseExpiryDate,
         String? customerId,
         DateTime? dateOfBirth,
@@ -185,7 +185,7 @@ class PageMeta {
     PageMeta copyWith({
         int? page,
         int? pageCount,
-        dynamic? nextPage,
+        dynamic nextPage,
         int? pageSize,
         int? total,
     }) {

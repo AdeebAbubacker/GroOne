@@ -25,7 +25,6 @@ class MobileOtpVerificationRepository {
           if (saveUserResult is Success) {
             // Add a small delay to ensure token is properly stored
             await Future.delayed(Duration(milliseconds: 100));
-            print('🔐 Login successful - Token saved and ready for API calls');
             return result;
           }
           if (saveUserResult is Error) {

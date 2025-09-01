@@ -5,7 +5,6 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
@@ -73,7 +72,6 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
     appVersion = await appVersionInfo();
     await kycCubit.fetchUserRole();
     setState(() {});
-    debugPrint("user id ${lpHomeLocator.userId}");
   });
 
   void disposeFunction() => frameCallback(() {
@@ -369,7 +367,6 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               }
             },
             builder: (context, state) {
-              final status = state.logoutUIState?.status;
               return ProfileMyAccountTile(
                 imageString: AppImage.svg.logOut,
                 text: context.appText.logOut,

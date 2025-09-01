@@ -570,6 +570,7 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
                       final status = state.deleteDamageUIState?.status;
                       if (status == Status.SUCCESS) {
                         cubit.resetDeleteDamageUIState();
+                        if (!context.mounted) return;
                         ToastMessages.success(message:context.appText.damageDeletedSuccessfully);
                       }
                       if (status == Status.ERROR) {

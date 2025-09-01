@@ -18,7 +18,7 @@ class VpCompanyTypeModel {
     String? companyType,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return VpCompanyTypeModel(
       id: id ?? this.id,

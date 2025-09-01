@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 /// Helper function to safely parse int from dynamic
 int _parseInt(dynamic val, [int defaultValue = 0]) {
@@ -86,10 +85,10 @@ class VpAddressModel {
     String? city,
     String? state,
     String? pincode,
-    dynamic? status,
+    dynamic status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return VpAddressModel(
       customersAddressId: customersAddressId ?? this.customersAddressId,
@@ -157,7 +156,7 @@ class BankDetails {
     String? branchName,
     String? ifscCode,
     int? status,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) {
@@ -340,7 +339,7 @@ class VpvehiclesDetails {
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return VpvehiclesDetails(
       vpVehiclesId: vpVehiclesId ?? this.vpVehiclesId,

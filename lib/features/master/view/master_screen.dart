@@ -1,8 +1,6 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
@@ -405,10 +403,6 @@ class _MasterScreenState extends State<MasterScreen>
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
-          List<Map<String, dynamic>> localRcDocList = List.from(vehicleDocList);
-          final rcDocUpload =
-              context.watch<ProfileCubit>().state.vehicleDocUpload;
-          final isUploading = rcDocUpload?.status == Status.LOADING;
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -460,7 +454,7 @@ class _MasterScreenState extends State<MasterScreen>
                                 vehicleData['vehicle_gross_weight'] ??
                                 vehicleData['tonnage'];
                             if (capacity != null) {
-                              final numberOnly = RegExp(
+                              RegExp(
                                 r'\d+',
                               ).stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
@@ -477,10 +471,8 @@ class _MasterScreenState extends State<MasterScreen>
                               final matchedTruckType = truckTypeList.firstWhere(
                                 (t) => t.id == vehicleData['truckTypeId'],
                               );
-                              if (matchedTruckType != null) {
-                                selectedTruckType = matchedTruckType;
-                              }
-                            }
+                              selectedTruckType = matchedTruckType;
+                                                        }
                           }
                         });
 
@@ -490,23 +482,19 @@ class _MasterScreenState extends State<MasterScreen>
                             insuranceValidityDate =
                                 formatApiDateForVehicleVahan(
                                   vehicleData['insurance_expiry_date'],
-                                ) ??
-                                null;
+                                );
                             pucExpiryDate =
                                 formatApiDateForVehicleVahan(
                                   vehicleData['rc_pucc_expiry_date'],
-                                ) ??
-                                null;
+                                );
                             fcExpiryDate =
                                 formatApiDateForVehicleVahan(
                                   vehicleData['rc_expiry_date'],
-                                ) ??
-                                null;
+                                );
                             registrationDate =
                                 formatApiDateForVehicleVahan(
                                   vehicleData['rc_registration_date'],
-                                ) ??
-                                null;
+                                );
                           }
                         });
                       },
@@ -615,9 +603,6 @@ class _MasterScreenState extends State<MasterScreen>
                         final weights = uiState?.data ?? [];
                         final weightLabels =
                             weights.map((e) => '${e.value} Ton').toList();
-                        final weightLabelIdMap = Map.fromEntries(
-                          weights.map((e) => MapEntry('${e.value} Ton', e.id)),
-                        );
 
                         return SearchableDropdown(
                           hintText: context.appText.capacity,
@@ -749,7 +734,7 @@ class _MasterScreenState extends State<MasterScreen>
                             setState(() => isVehicleActive = val);
                             if (vehcile != null) {
                               profileCubit.deleteVehicle(
-                                vehicleId: vehcile!.vehicleId,
+                                vehicleId: vehcile.vehicleId,
                                 request: DeleteVehicleRequest(
                                   status: val ? 1 : 2,
                                 ),
@@ -780,10 +765,6 @@ class _MasterScreenState extends State<MasterScreen>
                 return;
               }
               if (formKey.currentState!.validate()) {
-                final rcDocLink =
-                    vehicleDocList.isNotEmpty
-                        ? vehicleDocList.first['path']
-                        : '';
                 final request = VehicleRequest(
                   customerId: profileCubit.userId ?? "",
                   truckNo: truckNumberController.text.trim(),
@@ -909,15 +890,15 @@ class StateDropdown extends StatelessWidget {
   final ValueChanged<String?> onStateChanged;
 
   const StateDropdown({
-    Key? key,
+    super.key,
     required this.selected,
     required this.onStateChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final stateUI = context.watch<KycCubit>().state.stateUIState;
-    final stateList = stateUI?.data?.map((e) => e.name ?? '').toList() ?? [];
+    final stateList = stateUI?.data?.map((e) => e.name).toList() ?? [];
 
     return SearchableDropdown(
       labelText: context.appText.state,
@@ -962,7 +943,7 @@ class CityDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cityUI = context.watch<KycCubit>().state.cityUIState;
-    final cityList = cityUI?.data?.map((e) => e.city ?? '').toList() ?? [];
+    final cityList = cityUI?.data?.map((e) => e.city).toList() ?? [];
 
     return AbsorbPointer(
       absorbing: !isStateSelected,

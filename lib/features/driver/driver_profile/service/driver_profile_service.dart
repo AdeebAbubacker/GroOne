@@ -27,10 +27,9 @@ class DriverProfileService {
         return Error(InvalidInputError());
       }
 
-      print("user id is  ${_userInformationRepository.getUserID()}");
+
       final result = await _apiService.get(url);
       if (result is Success) {
-        print(result.value.toString());
         dynamic data = DriverProfileDetailsModel.fromJson(result.value);
         // Save Blue Id
         if (data is DriverProfileDetailsModel) {
@@ -97,7 +96,6 @@ class DriverProfileService {
         final deleteAccountModel = DeleteAccountModel.fromJson(result.value);
         return Success(deleteAccountModel);
       } else if (result is Error) {
-        // Log error type for debugging
         CustomLog.error(
           this,
           "Delete account failed with API error type: ${result.type}",
