@@ -52,6 +52,13 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
           title: titleController.text.trim(),
           description: descriptionController.text.trim(),
           attachmentLink: ticketDocId != null ? [ticketDocId] : [],
+          ticketTag: profileCubit.userRole == 1
+              ? TicketTags.LOAD_PROVIDER
+              : profileCubit.userRole == 2
+              ? TicketTags.VEHICLE_PROVIDER
+              : profileCubit.userRole == 3
+              ? TicketTags.BOTH_LP_VP
+              : '',
         ),
       );
 
@@ -192,4 +199,14 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
     }
     return Error(GenericError());
   }
+}
+
+class TicketTags {
+  static const BOTH_LP_VP = 'Both Load provider Vehicle provider related';
+  static const LOAD_PROVIDER = 'Load provider related';
+  static const VEHICLE_PROVIDER = 'Vehicle provider related';
+  static const ENDHAN = 'Endhan related';
+  static const FASTAG = 'Fastag related';
+  static const GPS = 'GPS related';
+  static const TANK_LOCK = 'Tank lock related';
 }
