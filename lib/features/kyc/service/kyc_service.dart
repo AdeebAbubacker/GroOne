@@ -116,10 +116,13 @@ class KycService {
   }
 
   /// Verified Valid Doc
-  Future<Result<DocVerificationModel>> verifiedDocID(String? aadharDoc) async {
+  Future<Result<DocVerificationModel>> verifiedDocID({String? aadharDoc ,String? panNumber,String? tan,String? gstNumber}) async {
     try {
       final result = await _apiService.post(ApiUrls.verifiedDocument, body: {
-        "aadhar":aadharDoc
+        if(aadharDoc!=null)  "aadhar":aadharDoc,
+      if(panNumber!=null)  "pan":panNumber,
+      if(gstNumber!=null)  "gstin":gstNumber,
+      if(tan!=null)  "tan":tan,
       },);
       if (result is Success) {
         return Success(DocVerificationModel.fromJson(result.value));

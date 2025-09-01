@@ -72,9 +72,7 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
         if (state.prefLaneUIState?.data?.data != null &&
             state.prefLaneUIState!.data!.data!.items.isNotEmpty) {
           final preferredLaneItems =
-              state.prefLaneUIState?.data?.data?.items
-                  .where((element) => element.isSelected ?? false)
-                  .toList();
+              state.selectedPreferLanes;
           if ((preferredLaneItems ?? []).isNotEmpty) {
             selectedPrefLanesTypeList =
                 preferredLaneItems?.map((e) => e.masterLaneId).toList() ?? [];
@@ -146,7 +144,6 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
                       ),
                       onDeleted: () {
                         vpCreationCubit.selectLanes(
-                          -1,
                           selected: false,
                           id: preferredLaneItems?[index].masterLaneId,
                         );

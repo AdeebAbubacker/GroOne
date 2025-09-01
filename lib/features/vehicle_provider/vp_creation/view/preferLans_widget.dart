@@ -67,7 +67,9 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
                 return CheckboxListTile(
                   title: Text( '${locationItem.fromLocation?.name ?? ""} - ${locationItem.toLocation?.name ?? ""}'),
                   value: locationItem.isSelected, onChanged: (bool? value) {
-                    vpCreationCubit.selectLanes(index,selected: value);
+                    vpCreationCubit.selectLanes(
+                        id:locationItem.masterLaneId ,
+                        selected: value);
                     },
                 ) ;
               },).expand();

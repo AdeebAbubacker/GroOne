@@ -458,11 +458,25 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   Future<void> verifyPANApiCall(String panNumber, BuildContext context) async {
     final apiRequest = VerifyPanApiRequest(pan: panNumber, force: true);
     await kycCubit.verifyPan(apiRequest);
+
     if (!context.mounted) return;
     if (kycCubit.state.panState?.status == Status.SUCCESS) {
+      await kycCubit.verifyPanExistence(panNumber);
+    }
+
+    if(kycCubit.state.panDocVerificationState?.status==Status.SUCCESS){
+      kycCubit.updatePanVerificationState();
       ToastMessages.success(message: context.appText.panVerifiedSuccessfully);
       securePrefs.saveBoolean(AppString.sessionKey.isPanNumberVerified, true);
     }
+
+    if (kycCubit.state.panDocVerificationState?.status == Status.ERROR) {
+      final error = kycCubit.state.panDocVerificationState?.errorType;
+      ToastMessages.error(
+        message: getErrorMsg(errorType: error ?? GenericError()),
+      );
+    }
+
     if (kycCubit.state.panState?.status == Status.ERROR) {
       final error = kycCubit.state.panState?.errorType;
       ToastMessages.error(
@@ -523,14 +537,15 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     bool tanValid() {
-      final uploaded = tanDoc.isNotEmpty;
+  /*    final uploaded = tanDoc.isNotEmpty;
       final verified = kycCubit.state.verifiedTan ?? false;
       return need(context.appText.tanDocument, uploaded) &&
           checkId(tanDocId, "TAN") &
           need(
             '${context.appText.tanDocument} ${context.appText.notVerified}',
             verified,
-          );
+          );*/
+      return true;
     }
 
     // VP FLOW
@@ -1244,6 +1259,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       : context.appText.unVerified,
               readOnly: verified,
               rightText: "TAN",
+              isMandatory: false,
               controller: tanTextController,
               suffixOnTap: () async {
                 if (tanTextController.text.isEmpty) {
@@ -1730,7 +1746,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         6.height,
         AppTextField(
           maxLength: maxLength,
-          validator: (value) => Validator.fieldRequired(value),
+          validator: (value) =>  (isMandatory??true) ? Validator.fieldRequired(value):null,
           readOnly: readOnly,
           inputFormatters: inputFormatters,
           currentFocus: currentFocus,

@@ -545,10 +545,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           builder: (context, state) {
             if (state.prefLaneUIState?.data?.data != null &&
                 state.prefLaneUIState!.data!.data!.items.isNotEmpty) {
-              final preferredLaneItems =
-                  state.prefLaneUIState?.data?.data?.items
-                      .where((element) => element.isSelected ?? false)
-                      .toList();
+              final preferredLaneItems = state.selectedPreferLanes;
               if((preferredLaneItems??[]).isNotEmpty){
                 selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId,).toList()??[];
               }else{
@@ -605,6 +602,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                                   children: List.generate(
                                     preferredLaneItems?.length ?? 0,
                                     (index) => Chip(
+
                                       label: Text(
                                         '${preferredLaneItems?[index].fromLocation?.name ?? ""} - ${preferredLaneItems?[index].toLocation?.name ?? ""}',
                                       ),
@@ -612,7 +610,11 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                                       labelStyle: AppTextStyle.body3WhiteColor,
                                       deleteIcon:  Icon(Icons.clear, color: Colors.white, size: 18),
                                       deleteIconColor: Colors.red,
-                                      shape: RoundedRectangleBorder(
+                                      onDeleted: () =>  vpCreationCubit.selectLanes(
+                                        selected: false,
+                                        id: preferredLaneItems?[index].masterLaneId,
+                                      )
+                                     , shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12)
                                       ),
                                       padding: EdgeInsets.zero,

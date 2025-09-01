@@ -190,12 +190,24 @@ class KycCubit extends BaseCubit<KycState> {
     emit(state.copyWith(
         kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
         docVerificationState: UIState.loading()));
-    Result result = await _repo.verifiedDocID(aadharNumber);
+    Result result = await _repo.verifiedDocID(aadharNumber: aadharNumber);
     if (result is Success<DocVerificationModel>) {
       emit(state.copyWith(docVerificationState: UIState.success(result.value)));
     }
     if (result is Error) {
       emit(state.copyWith(docVerificationState: UIState.error(result.type)));
+    }
+  }
+
+  // Verify Pan doc existence
+  Future<void> verifyPanExistence(String panNumber) async {
+    emit(state.copyWith(panDocVerificationState: UIState.loading()));
+    Result result = await _repo.verifiedDocID(panNumber:panNumber );
+    if (result is Success<DocVerificationModel>) {
+      emit(state.copyWith(panDocVerificationState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(panDocVerificationState: UIState.error(result.type)));
     }
   }
 
@@ -219,11 +231,15 @@ class KycCubit extends BaseCubit<KycState> {
     Result result = await _repo.verifyPan(request);
     if (result is Success<bool>) {
       emit(state.copyWith(panState: UIState.success(result.value)));
-      emit(state.copyWith(verifiedPan: true));
+
     }
     if (result is Error) {
       emit(state.copyWith(panState: UIState.error(result.type)));
     }
+  }
+
+  void updatePanVerificationState(){
+    emit(state.copyWith(verifiedPan: true));
   }
 
 

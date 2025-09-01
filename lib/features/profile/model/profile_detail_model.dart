@@ -589,7 +589,7 @@ class Vehicle {
       truckType: json["truckType"],
       ownedTrucks: json["ownedTrucks"],
       attachedTrucks: json["attachedTrucks"],
-      preferredLanes: List<int>.from(json["preferredLanes"].map((x)=>x)),
+      preferredLanes: json["preferredLanes"]!=null ? List<int>.from(json["preferredLanes"].map((x)=>x)):null,
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["created_at"] ?? ""),
       updatedAt: DateTime.tryParse(json["updated_at"] ?? ""),
