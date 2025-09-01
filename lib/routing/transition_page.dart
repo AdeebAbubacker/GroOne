@@ -7,12 +7,9 @@ Page<T> buildTransitionPage<T>({
   bool isForward = false,
 }) {
 
-  // Cupertino-style transition (iOS look)
-  Page<T> cupertinoPage() =>
-      CupertinoPage<T>(key: state.pageKey, child: child);
+  Page<T> cupertinoPage() => CupertinoPage<T>(key: state.pageKey, child: child);
 
 
-  // Custom slide transition (your original)
   Page<T> slidePage() {
     const begin = Offset(0.0, 1.5);
     const end = Offset.zero;

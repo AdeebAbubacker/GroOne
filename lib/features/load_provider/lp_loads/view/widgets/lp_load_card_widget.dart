@@ -138,7 +138,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
             if(status >= LoadStatus.loading.index)
               ...[
                 Text(
-                  widget.loadItem.scheduleTripDetails?.vehicle?.vehicle?.truckNo ?? '',
+                  widget.loadItem.scheduleTripDetails?.vehicle?.truckNo ?? '',
                   style: AppTextStyle.body3.copyWith(color: AppColors.textBlackDetailColor),
                 ),
                 4.height,
