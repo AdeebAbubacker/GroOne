@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/preferLans_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -31,6 +32,7 @@ class PreferLanesTab extends StatefulWidget {
 class _PreferLanesTabState extends State<PreferLanesTab> {
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final masterCubit = locator<MastersCubit>();
+  final profileCubit = locator<ProfileCubit>();
   List<int> selectedPrefLanesTypeList = [];
 
   @override
@@ -186,7 +188,11 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
             isLoading: status == Status.LOADING,
             title:context.appText.updateLanes,
             onPressed: () {
-              masterCubit.updatePreferLanes(selectedPrefLanesTypeList);
+              masterCubit.updatePreferLanes(
+                  companyName: profileCubit.state.profileDetailUIState?.data?.customer?.companyName??"",
+                  companyTypeId:profileCubit.state.profileDetailUIState?.data?.customer?.companyTypeId??0,
+                  customerName: profileCubit.state.profileDetailUIState?.data?.customer?.customerName??"",
+                  selectedPrefLanesTypeList);
             },
           );
         },

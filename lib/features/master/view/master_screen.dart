@@ -111,8 +111,10 @@ class _MasterScreenState extends State<MasterScreen>
 
   void initFunction() => frameCallback(() async {
     await kycCubit.fetchUserRole();
+    await profileCubit.fetchProfileDetail();
     await vpCreationCubit.fetchPrefLane(null,isInit: true);
     _autoSelectPreSelectLanes();
+
     _checkAuthenticationAndLoadData();
   });
 
