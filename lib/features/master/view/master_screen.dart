@@ -15,10 +15,12 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.d
 import 'package:gro_one_app/features/master/widget/master_address_tab.dart';
 import 'package:gro_one_app/features/master/widget/master_driver_tab.dart';
 import 'package:gro_one_app/features/master/widget/master_vehicle_tab.dart';
+import 'package:gro_one_app/features/master/widget/prefer_lanes_tab.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/view/widgets/master_dialogue_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
@@ -82,13 +84,15 @@ class _MasterScreenState extends State<MasterScreen>
   String? pucExpiryDate;
   String? registrationDate;
   @override
+
+
   void initState() {
     super.initState();
     context.read<MastersCubit>().resetVehicleVerification();
     _tabController = TabController(
       initialIndex: widget.initialIndex ?? 0,
 
-      length: 3,
+      length: 4,
       vsync: this,
     );
     _tabController.addListener(() {
@@ -104,11 +108,28 @@ class _MasterScreenState extends State<MasterScreen>
     super.dispose();
   }
 
+
   void initFunction() => frameCallback(() async {
     await kycCubit.fetchUserRole();
-
+    await vpCreationCubit.fetchPrefLane(null,isInit: true);
+    _autoSelectPreSelectLanes();
     _checkAuthenticationAndLoadData();
   });
+
+  void _autoSelectPreSelectLanes()  {
+
+    ProfileDetailModel? profileDetailModel= profileCubit.state.profileDetailUIState?.data;
+    if((profileDetailModel?.vehicles??[]).isNotEmpty){
+      List<int> preferLanes=profileDetailModel?.vehicles.first.preferredLanes as List<int> ;
+
+      vpCreationCubit.autoSelectLanes(preferLanes);
+    }
+    // profileDetailModel.vehicles
+
+  }
+
+
+
 
   /// Check authentication status before loading data
   Future<void> _checkAuthenticationAndLoadData() async {
@@ -179,7 +200,7 @@ class _MasterScreenState extends State<MasterScreen>
   }
 
   /// Load initial data after authentication check
-  void _loadInitialData() {
+  Future<void> _loadInitialData() async {
     profileCubit.fetchAddress(
       isInit: true,
       isLoading: true
@@ -193,6 +214,7 @@ class _MasterScreenState extends State<MasterScreen>
     profileCubit.fetchBloodGroup();
     profileCubit.fetchLicenseCategory();
     lpHomeCubit.fetchLoadWeight();
+
   }
 
   void disposeFunction() => frameCallback(() {
@@ -204,6 +226,9 @@ class _MasterScreenState extends State<MasterScreen>
     addressSearchController.dispose();
     driverSearchController.dispose();
   });
+
+
+
 
   /// Delete Popup
   void showDeletePopUp({
@@ -233,7 +258,6 @@ class _MasterScreenState extends State<MasterScreen>
         ),
         onClickYesButton: () async {
           final result = await onDelete();
-
           if (result is Success) {
             if (context.mounted) {
               Navigator.of(context).pop();
@@ -297,15 +321,17 @@ class _MasterScreenState extends State<MasterScreen>
           unselectedLabelStyle: AppTextStyle.h6,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
           tabs: [
-            _buildTab(context.appText.address, _tabController.index == 0),
-            _buildTab(context.appText.vehicles, _tabController.index == 1),
-            _buildTab(context.appText.drivers, _tabController.index == 2),
+            _buildTab(context.appText.lanes, _tabController.index == 0),
+            _buildTab(context.appText.address, _tabController.index == 1),
+            _buildTab(context.appText.vehicles, _tabController.index == 2),
+            _buildTab(context.appText.drivers, _tabController.index == 3),
           ],
         ),
         Expanded(
               child: TabBarView(
                 controller: _tabController,
                 children: [
+                  PreferLanesTab(),
                   BuildAddressTab(),
                   BuildVehicleTab(),
                   BuildDriverTab(),

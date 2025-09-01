@@ -549,7 +549,7 @@ class Vehicle {
   final dynamic truckType;
   final dynamic ownedTrucks;
   final dynamic attachedTrucks;
-  final dynamic preferredLanes;
+  final List<int>? preferredLanes;
   final int status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -582,13 +582,14 @@ class Vehicle {
   }
 
   factory Vehicle.fromJson(Map<String, dynamic> json){
+
     return Vehicle(
       vpVehiclesId: json["vp_vehicles_id"] ?? "",
       customerId: json["customer_id"] ?? "",
       truckType: json["truckType"],
       ownedTrucks: json["ownedTrucks"],
       attachedTrucks: json["attachedTrucks"],
-      preferredLanes: json["preferredLanes"],
+      preferredLanes: List<int>.from(json["preferredLanes"].map((x)=>x)),
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["created_at"] ?? ""),
       updatedAt: DateTime.tryParse(json["updated_at"] ?? ""),

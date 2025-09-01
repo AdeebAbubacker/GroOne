@@ -67,7 +67,7 @@ class VpHomeScreen extends StatefulWidget {
   State<VpHomeScreen> createState() => _VpHomeScreenState();
 }
 
-class _VpHomeScreenState extends BaseState<VpHomeScreen> {
+class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObserver {
 
    VpMyLoadResponse? vpMyLoadResponse;
    final profileCubit = locator<ProfileCubit>();
@@ -93,12 +93,14 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
   @override
   void initState() {
     initFunction();
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
     disposeFunction();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -156,6 +158,15 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    });
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(state==AppLifecycleState.resumed){
+     vpRecentLoadListBloc.add(VpRecentLoadEvent());
+     vpHomeScreenBloc.add(VpMyLoadListRequested());
+   }
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBarWidget(context),
@@ -180,6 +191,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
     );
   }
 
+
+
+
   // Appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
@@ -199,7 +213,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
         // Notification
         Visibility(
-visible: false,
+          visible: false,
           child: IconButton(
             onPressed: () {
               Navigator.push(context, commonRoute(NotificationScreen()));

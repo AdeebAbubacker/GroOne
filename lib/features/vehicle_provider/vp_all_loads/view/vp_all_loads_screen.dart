@@ -428,7 +428,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                       });
                       },
                       child: VpAllLoadMyLoadWidget(
-                        data: recentLoads![index],
+                        data: recentLoads[index],
                         onBack: () {
                           _onPullToRefresh();
                         },

@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/download_handler.dart';
 import 'package:open_filex/open_filex.dart';
@@ -11,6 +14,8 @@ import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 
 class VpHelper {
+  static final AnalyticsService analyticsHelper = locator<AnalyticsService>();
+
   static String getLoadStatusButtonTitle(int loadStatus) {
     BuildContext context = navigatorKey.currentState!.context;
     switch (loadStatus) {
@@ -65,6 +70,24 @@ class VpHelper {
     // Fallback color (e.g. transparent or default)
     return Colors.transparent;
   }
+
+
+  // Upload Event for document upload
+ static void logDocumentUploadedEvent(String fileType){
+    if (fileType==DocumentFileType.lorryReceipt.name) {
+      analyticsHelper.logEvent(AnalyticEventName.LORRY_RECEIPT_UPLOADED);
+    } else if (fileType==DocumentFileType.ewayBill.name) {
+      analyticsHelper.logEvent(AnalyticEventName.E_WAY_BILLED_UPLOADED);
+    } else if (fileType==DocumentFileType.materialInvoice.name) {
+      analyticsHelper.logEvent(AnalyticEventName.MATERIAL_INVOICE_UPLOADED);
+    } else if(fileType==DocumentFileType.uploadOtherDocument.name){
+      analyticsHelper.logEvent(AnalyticEventName.OTHERS_DOCUMENT_UPLOADED);
+    } else if(fileType==DocumentFileType.proofOfDelivery.name){
+      analyticsHelper.logEvent(AnalyticEventName.POD_DOCUMENT_UPLOADED);
+    }
+  }
+
+
 }
 
 enum LoadStatus {
@@ -227,3 +250,13 @@ String formatVehicleNumber(String number) {
 double calculateGstAmount(double amountWithoutGst, double amountWithGst) {
   return amountWithGst - amountWithoutGst;
 }
+
+
+
+
+
+
+
+
+
+
