@@ -58,8 +58,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
     return GestureDetector(
       onTap: (){
-        /// TODO:
-        /// Temp navigation remote remove it after you done design part
         context.push(AppRouteName.loadDetailsScreen,extra: {
           "loadId":widget.data.id
         });
@@ -227,14 +225,17 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                                 String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
                                 if (widget.companyTypeId == 2 || widget.companyTypeId == 1) {
                                   if(isAadharVerified){
+                                    if(!context.mounted) return;
                                     Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                                       pdfPath: aadharPDF,
                                       aadhaarNumber: aadharNumber,
                                     )));
                                     return;
                                   }
+                                  if(!context.mounted) return;
                                   commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                                 } else {
+                                  if(!context.mounted) return;
                                   Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                                     pdfPath: aadharPDF,
                                     aadhaarNumber: aadharNumber,

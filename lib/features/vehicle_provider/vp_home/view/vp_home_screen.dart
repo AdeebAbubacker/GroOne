@@ -239,15 +239,18 @@ visible: false,
 
                   if (companyId != null && (companyId == 2 || companyId == 1)) {
                     if (isKycCompleted || aadharVerified) {
+                      if(!context.mounted) return;
                       Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                         aadhaarNumber: aadharNumber,
                         pdfPath: aadharPDF,
                       )));
                       } else{
+                        if(!context.mounted) return;
                         commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                       }
                     
                   } else {
+                    if(!context.mounted) return;
                     Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                       aadhaarNumber: aadharNumber,
                       pdfPath: aadharPDF,
@@ -479,17 +482,21 @@ visible: false,
                           final isKycDone = VpVariables.isKycVerified;
                           final companyId = int.parse(profileCubit.companyTypeId ?? "0");
                           if (isKycDone) {
+                            if(!context.mounted) return;
                             context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
                           } else if (companyId == 2 || companyId == 1) {
                            if (isKycCompleted || isAadharVerified) {
+                            if(!context.mounted) return;
                             Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                               aadhaarNumber: aadharNumber,
                               pdfPath: aadharPDF,
                             )));
                             } else{
+                              if(!context.mounted) return;
                               commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                             }
                           } else {
+                            if(!context.mounted) return;
                             Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                               aadhaarNumber: aadharNumber,
                               pdfPath: aadharPDF,
