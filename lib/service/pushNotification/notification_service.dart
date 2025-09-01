@@ -4,12 +4,10 @@ import 'dart:io';
 
 import 'package:app_badge_plus/app_badge_plus.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
-import 'package:gro_one_app/features/login/service/login_service.dart';
 import 'package:gro_one_app/service/pushNotification/notification_helper.dart';
 import 'package:gro_one_app/service/pushNotification/notification_payload.dart';
 import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
@@ -19,8 +17,6 @@ import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class NotificationService {
-
-
   static final NotificationService _instance = NotificationService._internal();
   factory NotificationService() => _instance;
 
@@ -373,7 +369,6 @@ class NotificationService {
       }
 
       if (payload.route != null) {
-
         // Store route for when app opens
         // You can implement route storage logic here
       }
@@ -800,7 +795,7 @@ class NotificationService {
   ) {
     CustomLog.debug(this, "$consolePrint : $payload");
     if (payload.route != null) {
-    /// TODO: handle notification routing
+      /// TODO: handle notification routing
       // navigatorKey.currentState?.pushNamed(payload.route!);
     }
   }
@@ -826,20 +821,21 @@ class NotificationService {
   /// Get FCM Token
   Future<void> getFcmToken() async {
     try {
-      await Firebase.initializeApp().then(
-        (value) => {
-          FirebaseMessaging.instance.getToken().then((value) async {
-            FirebaseMessaging.instance.subscribeToTopic('global');
-            String token = value ?? "";
-            CustomLog.debug(this, "FCM Token: ${token.trim()}");
-            await _secureSharedPrefs.saveKey(
-              AppString.sessionKey.fcmToken,
-              token.trim(),
-            );
-            deviceToken=await _secureSharedPrefs.get(AppString.sessionKey.fcmToken);
-          }),
-        },
-      );
+      // Don't re-initialize Firebase, just get the token
+      String? token = await FirebaseMessaging.instance.getToken();
+      if (token != null && token.isNotEmpty) {
+        await FirebaseMessaging.instance.subscribeToTopic('global');
+        CustomLog.debug(this, "FCM Token: ${token.trim()}");
+        await _secureSharedPrefs.saveKey(
+          AppString.sessionKey.fcmToken,
+          token.trim(),
+        );
+        deviceToken = await _secureSharedPrefs.get(
+          AppString.sessionKey.fcmToken,
+        );
+      } else {
+        CustomLog.debug(this, "FCM Token is null or empty");
+      }
     } catch (e) {
       CustomLog.error(this, "Get FCM token error", e);
     }
