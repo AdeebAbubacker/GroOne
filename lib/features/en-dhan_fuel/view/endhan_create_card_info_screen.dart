@@ -14,7 +14,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -157,7 +156,6 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
     },
   ];
   List<bool> _expanded = [true];
-  int? _currentUploadingCardIndex;
   List<bool> vehicleVerificationStatus = [false]; // Track verification status for each card
 
   @override
@@ -213,241 +211,6 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
     cubit.addCard();
   }
 
-  Future<void> _pickAndUploadDocument(int cardIndex) async {
-    showModalBottomSheet(
-      context: context,
-      builder:
-          (_) => Container(
-        color: AppColors.white,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            10.height,
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(context.appText.selectDocument, style: AppTextStyle.body1),
-                IconButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  icon: Icon(Icons.clear_rounded),
-                ),
-              ],
-            ),
-            20.height,
-            ListTile(
-              leading: Icon(
-                Icons.camera_alt,
-                color: AppColors.primaryColor,
-              ),
-              title: Text(context.appText.camera),
-              onTap: () async {
-                Navigator.of(context).pop();
-                final result = await ImagePickerFrom.fromCamera();
-                if (result != null) {
-                  setState(() {
-                    cardData[cardIndex]['rcFile'] = 'Uploading...';
-                    // Extract just the file name from the path
-                    String fileName = result['fileName'];
-                    if (fileName.contains('/')) {
-                      fileName = fileName.split('/').last;
-                    }
-                    cardData[cardIndex]['rcFileName'] = fileName;
-                  });
-
-                  // Store the current card index for the BlocListener
-                  _currentUploadingCardIndex = cardIndex;
-
-                  // Upload document and get the actual URL
-                  try {
-                    
-                    final uploadResponse = await locator<EnDhanCubit>()
-                        .uploadDocument(File(result['path']));
-
-                  
-                    
-                   
-
-                    if (uploadResponse != null &&
-                        uploadResponse.data?.url != null &&
-                        uploadResponse.data!.url!.isNotEmpty) {
-                      final uploadedUrl = uploadResponse.data!.url!;
-                    
-
-                      if (cardIndex < cardData.length) {
-                        setState(() {
-                          cardData[cardIndex]['rcFile'] = uploadedUrl;
-                        });
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              context.appText.documentUploadedSuccessfully,
-                            ),
-                          ),
-                        );
-                      }
-                    } else {
-                      
-                      setState(() {
-                        cardData[cardIndex]['rcFile'] = null;
-                        cardData[cardIndex]['rcFileName'] = null;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(context.appText.uploadFailedNoUrl),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                   
-                    setState(() {
-                      cardData[cardIndex]['rcFile'] = null;
-                      cardData[cardIndex]['rcFileName'] = null;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Upload failed: $e')),
-                    );
-                  }
-                }
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.photo_library,
-                color: AppColors.primaryColor,
-              ),
-              title: Text(context.appText.gallery),
-              onTap: () async {
-                Navigator.of(context).pop();
-                final result = await ImagePickerFrom.fromGallery();
-                if (result != null) {
-                  setState(() {
-                    cardData[cardIndex]['rcFile'] = 'Uploading...';
-                    // Extract just the file name from the path
-                    String fileName = result['fileName'];
-                    if (fileName.contains('/')) {
-                      fileName = fileName.split('/').last;
-                    }
-                    cardData[cardIndex]['rcFileName'] = fileName;
-                  });
-
-                  // Upload document and get the actual URL
-                  try {
-                    final uploadResponse = await locator<EnDhanCubit>()
-                        .uploadDocument(File(result['path']));
-
-                    if (uploadResponse != null &&
-                        uploadResponse.data?.url != null) {
-                      final uploadedUrl = uploadResponse.data!.url!;
-
-                      if (cardIndex < cardData.length) {
-                        setState(() {
-                          cardData[cardIndex]['rcFile'] = uploadedUrl;
-                        });
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              context.appText.documentUploadedSuccessfully,
-                            ),
-                          ),
-                        );
-                      }
-                    } else {
-                      setState(() {
-                        cardData[cardIndex]['rcFile'] = null;
-                        cardData[cardIndex]['rcFileName'] = null;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(context.appText.uploadFailedNoUrl),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    setState(() {
-                      cardData[cardIndex]['rcFile'] = null;
-                      cardData[cardIndex]['rcFileName'] = null;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${context.appText.uploadFailed} $e')),
-                    );
-                  }
-                }
-              },
-            ),
-            ListTile(
-              leading: Icon(
-                Icons.attach_file,
-                color: AppColors.primaryColor,
-              ),
-              title: Text('File'),
-              onTap: () async {
-                Navigator.of(context).pop();
-                final result = await pickMultipleFiles();
-                if (result != null) {
-                  setState(() {
-                    cardData[cardIndex]['rcFile'] = 'Uploading...';
-                    // Extract just the file name from the path
-                    String fileName = result['fileName'];
-                    if (fileName.contains('/')) {
-                      fileName = fileName.split('/').last;
-                    }
-                    cardData[cardIndex]['rcFileName'] = fileName;
-                  });
-
-                  // Upload document and get the actual URL
-                  try {
-                    final uploadResponse = await locator<EnDhanCubit>()
-                        .uploadDocument(File(result['path']));
-
-                    if (uploadResponse != null &&
-                        uploadResponse.data?.url != null) {
-                      final uploadedUrl = uploadResponse.data!.url!;
-
-                      if (cardIndex < cardData.length) {
-                        setState(() {
-                          cardData[cardIndex]['rcFile'] = uploadedUrl;
-                        });
-
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              context.appText.documentUploadedSuccessfully,
-                            ),
-                          ),
-                        );
-                      }
-                    } else {
-                      setState(() {
-                        cardData[cardIndex]['rcFile'] = null;
-                        cardData[cardIndex]['rcFileName'] = null;
-                      });
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(context.appText.uploadFailedNoUrl),
-                        ),
-                      );
-                    }
-                  } catch (e) {
-                    setState(() {
-                      cardData[cardIndex]['rcFile'] = null;
-                      cardData[cardIndex]['rcFileName'] = null;
-                    });
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${context.appText.uploadFailed} $e')),
-                    );
-                  }
-                }
-              },
-            ),
-            20.height,
-          ],
-        ),
-      ),
-    );
-  }
-
   String getFileNameFromUrl(String url) {
     return url.split('/').last.split('?').first;
   }
@@ -466,7 +229,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         card['controllers'] as Map<String, TextEditingController>;
 
         // Validate vehicle number
-        if (controllers['vehicleNumber']?.text?.trim().isEmpty ?? true) {
+        if (controllers['vehicleNumber']?.text.trim().isEmpty ?? true) {
           isValid = false;
           errorMessage = '${context.appText.vehicleNumberRequired} for ${context.appText.card} ${i + 1}';
           break;
@@ -481,14 +244,14 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
         }
 
         // Validate VIN number
-        if (controllers['vinNumber']?.text?.trim().isEmpty ?? true) {
+        if (controllers['vinNumber']?.text.trim().isEmpty ?? true) {
           isValid = false;
           errorMessage = '${context.appText.vinNumberRequired} for ${context.appText.card} ${i + 1}';
           break;
         }
 
         // Validate mobile number format only if provided
-        final mobileText = controllers['mobile']?.text?.trim() ?? '';
+        final mobileText = controllers['mobile']?.text.trim() ?? '';
         if (mobileText.isNotEmpty) {
           final mobileRegex = RegExp(r'^(\+91\s?)?[6-9]\d{9}$');
           if (!mobileRegex.hasMatch(mobileText)) {
@@ -553,8 +316,8 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
 
       // Call the API
       await cubit.createCustomer();
-
       // Check for error state after API call
+      if (!mounted) return;
       if (cubit.state.customerCreationState?.status == Status.ERROR) {
         EndhanErrorDialog.show(
           context,
@@ -803,8 +566,6 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
     if (_expanded.length != cardData.length) {
       _expanded = List.generate(cardData.length, (index) => false);
     }
-
-    final cubit = locator<EnDhanCubit>();
     final isLoading =
         widget.state.customerCreationState?.status == Status.LOADING;
     return Scaffold(
@@ -818,7 +579,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                 Container(
                   width: double.infinity,
                   decoration: commonContainerDecoration(
-                    color: const Color(0xFFD6EEFB),
+                    color: AppColors.lightPrimaryColor,
                     borderRadius: BorderRadius.zero,
                   ),
                   padding: const EdgeInsets.only(bottom: 24),
@@ -826,7 +587,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                     children: [
                       CommonAppBar(
                         title: context.appText.cardInformation,
-                        backgroundColor: Color(0xFFD6EEFB),
+                        backgroundColor: AppColors.lightPrimaryColor,
                         actions: [
                           AppIconButton(
                             onPressed: () {
@@ -1052,7 +813,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                         _syncCardFieldWithCubit(index, 'mobile', val);
                                       },
                                       validator: (value) {
-                                        if ((widget.state.hasAttemptedSubmit ?? false) && value != null && value.isNotEmpty && value.length > 10) {
+                                        if ((widget.state.hasAttemptedSubmit) && value != null && value.isNotEmpty && value.length > 10) {
                                           return context.appText.mobileNumberCannotBeMoreThan10Digits;
                                         }
                                         return null;
@@ -1135,7 +896,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                   uploadResponse.data?.url !=
                                                       null) {
                                                 final uploadedUrl =
-                                                uploadResponse.data!.url!;
+                                                uploadResponse.data!.url;
 
                                                 // Update both rcFile and rcDocuments with the uploaded URL
                                                 setState(() {
@@ -1157,7 +918,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                 if (mounted) {
                                                   setState(() {});
                                                 }
-
+                                                if (!context.mounted) return;
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
@@ -1173,6 +934,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
                                                   card['rcFileName'] = null;
                                                   card['rcDocuments'] = [];
                                                 });
+                                                if (!context.mounted) return;
                                                 ScaffoldMessenger.of(
                                                   context,
                                                 ).showSnackBar(
@@ -1264,7 +1026,7 @@ class _EndhanCreateCardInfoContentState extends State<_EndhanCreateCardInfoConte
             // Loading overlay
             if (isLoading)
               Container(
-                color: Colors.black.withOpacity(0.5),
+                color: Colors.black.withValues(alpha: 0.5),
                 child: Center(
                   child: CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(

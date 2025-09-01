@@ -39,8 +39,7 @@ import '../../models/gps_vehicle_models.dart';
 // --- GPS Vehicle List Screen ---
 class GpsVehicleSelectionScreen extends StatefulWidget {
   final String? currentlySelectedVehicle;
-  const GpsVehicleSelectionScreen({Key? key, this.currentlySelectedVehicle})
-    : super(key: key);
+  const GpsVehicleSelectionScreen({super.key, this.currentlySelectedVehicle});
 
   @override
   State<GpsVehicleSelectionScreen> createState() =>
@@ -295,8 +294,8 @@ class AddGpsVehicleForm extends StatefulWidget {
   const AddGpsVehicleForm({
     required this.onVehicleAdded,
     required this.vehicleCubit,
-    Key? key,
-  }) : super(key: key);
+    super.key,
+  });
   @override
   State<AddGpsVehicleForm> createState() => _AddGpsVehicleFormState();
 }
@@ -348,6 +347,12 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
   ) async {
     final cubit = widget.vehicleCubit;
     await cubit.uploadDocument(File(multiFilesList.first['path']));
+
+    if (!context.mounted) {
+      // Widget is gone, just return
+      return Error(GenericError());
+    }
+
     final status = cubit.state.documentUpload.status;
 
     if (status == Status.SUCCESS) {
@@ -715,6 +720,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                         final userIDString = await userInfoRepo.getUserID();
 
                         if (userIDString == null || userIDString.isEmpty) {
+                          if (!context.mounted) return;
                           ToastMessages.error(
                             message:
                                 context.appText.userIdNotFoundPleaseLoginAgain,
@@ -743,6 +749,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                         final result = await widget.vehicleCubit.addVehicle(
                           request,
                         );
+                        if (!context.mounted) return;
                         if (result is Success) {
                           Navigator.of(context).pop();
                           widget.onVehicleAdded();

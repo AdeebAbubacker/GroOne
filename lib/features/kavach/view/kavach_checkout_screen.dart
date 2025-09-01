@@ -1187,6 +1187,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           );
 
           // kavachOrderBloc.add(KavachSubmitOrder(request));
+          if (!mounted) return;
           Navigator.of(context).push(
             commonRoute(
               KavachSummaryScreen(

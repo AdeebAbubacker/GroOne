@@ -227,7 +227,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                               color:
                                   isSelected
                                       ? AppColors.primaryColor
-                                      : const Color(0xFFEFEFEF),
+                                      : AppColors.greyContainerBg,
                               borderRadius: BorderRadius.circular(25),
                             ),
                             child: Text(

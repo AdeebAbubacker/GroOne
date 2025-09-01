@@ -403,7 +403,6 @@ class GpsOrderApiService {
           // Check if response has data array (actual API format)
           if (responseData.containsKey('data') && responseData['data'] is List) {
             final addresses = responseData['data'] as List;
-            final total = responseData['total'] as int? ?? 0;
             final pageMeta = responseData['pageMeta'] as Map<String, dynamic>?;
 
             // Convert addresses to GpsAddress objects
@@ -526,7 +525,7 @@ class GpsOrderApiService {
         CustomLog.debug(this, "GPS Create Order - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => null, // For void return
+              (data) {}, // For void return
         );
       } else if (result is Error) {
         CustomLog.error(this, "GPS Create Order failed: ${result.type}", null);
@@ -709,7 +708,7 @@ class GpsOrderApiService {
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
-    } catch (e, s) {
+    } catch (e) {
       CustomLog.error(this, "Failed to initiate payment", e);
       return Error(DeserializationError());
     }

@@ -79,19 +79,6 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
     super.dispose();
   }
 
-
-  void _showOtpBottomSheet(BuildContext context, GpsUploadDocumentCubit cubit) {
-    // Add a small delay for smoother transition
-    Future.delayed(Duration(milliseconds: 100), () {
-      if (context.mounted) {
-        commonBottomSheetWithBGBlur(
-          context: context,
-          screen: GpsOtpVerificationBottomSheet(cubit: cubit),
-        );
-      }
-    });
-  }
-
   void _showSuccessDialog(BuildContext context) {
     AppDialog.show(
       context,
@@ -108,27 +95,19 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<GpsUploadDocumentCubit>();
-    Future<void> _checkKycVerification(AadharVerificationData? aadharVerificationData) async {
+    Future<void> checkKycVerification(AadharVerificationData? aadharVerificationData) async {
       String? statusVerified = aadharVerificationData?.status;
       if (statusVerified == "VERIFIED") {
-        // String? path = await KycHelper.saveBase64PdfToFile(aadharVerificationData?.dataPdf ?? "");
-        // // Set GPS cubit state manually
-        // if (path != null) {
-        //   await cubit.uploadAadhaarPdfFile(File(path));
-        // }
         final pdfPath = await KycHelper.saveBase64PdfToFile(aadharVerificationData?.dataPdf ?? "");
-        if (pdfPath != null) {
-          await cubit.uploadAadhaarPdfFile(File(pdfPath));
-        }
+        await cubit.uploadAadhaarPdfFile(File(pdfPath));
 
         cubit.setAadhaar(aadharNoController.text);
         cubit.validateAadhaar(aadharNoController.text);
-        cubit.emit(cubit.state.copyWith(isAadhaarVerified: true));
-
+        cubit.markAadhaarVerified();
       }
     }
 
-    Future<void> _checkVerification(KycInitResponse? kycInitResponse) async {
+    Future<void> checkVerification(KycInitResponse? kycInitResponse) async {
       String? sdkUrl = kycInitResponse?.sdkUrl ?? "";
       aadharRequestId ??= kycInitResponse?.requestId ?? "";
 
@@ -183,14 +162,15 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                       listener: (context, state) async {
                         final initState = state.kycInitResponse;
                         if (initState?.status == Status.SUCCESS) {
-                          await _checkVerification(initState?.data);
+                          await checkVerification(initState?.data);
                         }
 
                         final verifyState = state.aadharVerificationState;
                         if (verifyState?.status == Status.SUCCESS) {
-                          await _checkKycVerification(verifyState?.data?.data);
+                          await checkKycVerification(verifyState?.data?.data);
                         }
                         if (initState?.status == Status.ERROR) {
+                          if (!context.mounted) return;
                           ToastMessages.error(message: context.appText.errorMessage);
                         }
                       },
@@ -565,41 +545,38 @@ class _GpsOtpVerificationBottomSheetState
                         32.height,
 
                         // OTP Input Field matching the image design (6 fields)
-                        Container(
-                          //padding: const EdgeInsets.symmetric(horizontal: 20),
-                          child: Column(
-                            children: [
-                              OtpTextField(
-                                numberOfFields: 6,
-                                borderColor: AppColors.borderColor,
-                                showFieldAsBox: true,
-                                borderRadius: BorderRadius.circular(8),
-                                fieldWidth: 45,
-                                fieldHeight: 60,
-                                textStyle: AppTextStyle.h4.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.primaryTextColor,
-                                  letterSpacing: 2,
-                                ),
-                                enabledBorderColor: AppColors.borderColor,
-                                focusedBorderColor: AppColors.primaryColor,
-                                cursorColor: AppColors.primaryColor,
-                                keyboardType: TextInputType.number,
-                                autoFocus: true,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                onCodeChanged: (String code) {
-                                  setState(() {
-                                    otpValue = code;
-                                  });
-                                },
-                                onSubmit: (String verificationCode) {
-                                  setState(() {
-                                    otpValue = verificationCode;
-                                  });
-                                },
+                        Column(
+                          children: [
+                            OtpTextField(
+                              numberOfFields: 6,
+                              borderColor: AppColors.borderColor,
+                              showFieldAsBox: true,
+                              borderRadius: BorderRadius.circular(8),
+                              fieldWidth: 45,
+                              fieldHeight: 60,
+                              textStyle: AppTextStyle.h4.copyWith(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.primaryTextColor,
+                                letterSpacing: 2,
                               ),
-                            ],
-                          ),
+                              enabledBorderColor: AppColors.borderColor,
+                              focusedBorderColor: AppColors.primaryColor,
+                              cursorColor: AppColors.primaryColor,
+                              keyboardType: TextInputType.number,
+                              autoFocus: true,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              onCodeChanged: (String code) {
+                                setState(() {
+                                  otpValue = code;
+                                });
+                              },
+                              onSubmit: (String verificationCode) {
+                                setState(() {
+                                  otpValue = verificationCode;
+                                });
+                              },
+                            ),
+                          ],
                         ),
                         32.height,
 
@@ -655,12 +632,12 @@ class _GpsOtpVerificationBottomSheetState
                                         } : null,
                                         child: Text(
                                           _canResendOtp 
-                                            ? (context.appText.resendOtp ?? 'Resend OTP')
+                                            ? (context.appText.resendOtp)
                                             : 'Resend OTP in ${_resendTimer}s',
                                           style: AppTextStyle.body3.copyWith(
                                             color: _canResendOtp 
                                               ? AppColors.primaryColor 
-                                              : AppColors.primaryTextColor.withOpacity(0.5),
+                                              : AppColors.primaryTextColor.withValues(alpha: 0.5),
                                             decoration: _canResendOtp 
                                               ? TextDecoration.underline 
                                               : TextDecoration.none,

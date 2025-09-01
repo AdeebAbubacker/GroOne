@@ -4,7 +4,6 @@ import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_re
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
-import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 // Events

@@ -81,7 +81,7 @@ class FastagCubit extends Cubit<FastagState> {
     final result = await _repository.getFastagList(searchTerm: searchTerm);
 
     if (result is Success<FastagListResponse>) {
-      final list = result.value.data ?? [];
+      final list = result.value.data;
 
       // Only trigger navigation if this is the first load & list is empty
       if (isInitialLoad && list.isEmpty) {

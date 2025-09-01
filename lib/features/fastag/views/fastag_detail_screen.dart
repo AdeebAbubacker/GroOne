@@ -1,14 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_route.dart' show commonRoute;
-import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import 'fastag_recharge_screen.dart';
 
@@ -25,7 +20,7 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -81,7 +76,7 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -142,7 +137,7 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: Colors.green.withOpacity(0.1),
+                  color: Colors.green.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
@@ -352,7 +347,7 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
         borderRadius: BorderRadius.circular(8),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 5,
             offset: const Offset(0, 1),
           ),
@@ -366,8 +361,8 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
             height: 40,
             decoration: BoxDecoration(
               color: transaction['icon'] == Icons.local_hospital 
-                  ? AppColors.primaryColor.withOpacity(0.1)
-                  : Colors.green.withOpacity(0.1),
+                  ? AppColors.primaryColor.withValues(alpha: 0.1)
+                  : Colors.green.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -450,7 +445,7 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.1),
+              color: Colors.black.withValues(alpha: 0.1),
               blurRadius: 10,
               offset: const Offset(0, -2),
             ),

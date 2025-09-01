@@ -5,7 +5,6 @@ import '../../../../data/ui_state/ui_state.dart';
 import '../../api_request/kavach_add_vehicle_request.dart';
 import '../../model/kavach_commodity_model.dart';
 import '../../model/kavach_truck_length_model.dart';
-import '../../model/kavach_truck_type_model.dart';
 import '../../model/kavach_vehicle_document_upload_model.dart';
 import '../../repository/kavach_repository.dart';
 import 'kavach_add_vehicle_state.dart';

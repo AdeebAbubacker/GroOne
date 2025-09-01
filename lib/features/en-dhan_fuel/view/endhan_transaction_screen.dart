@@ -87,11 +87,11 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFFE67E22), // Orange color
+                color: Colors.orange, // Orange color
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFE67E22).withOpacity(0.3),
+                    color: Colors.orange.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -108,7 +108,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
             Text(
               context.appText.dateRangeTooLarge,
               style: AppTextStyle.h4.copyWith(
-                color: const Color(0xFFE67E22),
+                color: AppColors.orangeTextColor,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
@@ -170,6 +170,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
       
       if (wouldExceedLimit) {
         // Show alert popup
+        if (!context.mounted) return;
         if (mounted) {
           _showDateRangeErrorDialog(context);
         }
@@ -191,11 +192,11 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
     switch (status.toLowerCase()) {
       case 'success':
       case 'completed':
-        return const Color(0xFF22C55E); // Green color matching screenshot
+        return Colors.green; // Green color matching screenshot
       case 'failed':
-        return const Color(0xFFEF4444); // Red color matching screenshot
+        return AppColors.red; // Red color matching screenshot
       case 'pending':
-        return const Color(0xFFF59E0B); // Orange color
+        return Colors.orange; // Orange color
       default:
         return Colors.grey;
     }
@@ -205,13 +206,13 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
     switch (status.toLowerCase()) {
       case 'success':
       case 'completed':
-        return const Color(0xFF22C55E).withOpacity(0.1); // Light green background
+        return Colors.green.withValues(alpha: 0.1); // Light green background
       case 'failed':
-        return const Color(0xFFEF4444).withOpacity(0.1); // Light red background
+        return AppColors.red.withValues(alpha:0.1); // Light red background
       case 'pending':
-        return const Color(0xFFF59E0B).withOpacity(0.1); // Light orange background
+        return Colors.orange.withValues(alpha:0.1); // Light orange background
       default:
-        return Colors.grey.withOpacity(0.1);
+        return Colors.grey.withValues(alpha:0.1);
     }
   }
 
@@ -422,7 +423,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                           width: 16,
                                           height: 16,
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFF22C55E),
+                                            color: Colors.green,
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Icon(
@@ -440,7 +441,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                           width: 16,
                                           height: 16,
                                           decoration: BoxDecoration(
-                                            color: const Color(0xFFEF4444),
+                                            color: AppColors.red,
                                             borderRadius: BorderRadius.circular(8),
                                           ),
                                           child: Icon(

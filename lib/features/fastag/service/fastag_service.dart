@@ -1,4 +1,3 @@
-import 'dart:developer';
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
 import '../../../data/network/api_urls.dart';

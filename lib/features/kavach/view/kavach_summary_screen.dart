@@ -175,11 +175,13 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           kavachOrderBloc.add(KavachSubmitOrder(request));
         }
         if (state is KavachPaymentStatusFailure) {
+          if (!context.mounted) return;
           ToastMessages.error(message: context.appText.paymentFailed);
         }
         if (state is KavachOrderSuccess) {
           await Future.delayed(Duration(milliseconds: 500));
           ///new
+          if (!context.mounted) return;
           AppDialog.show(
             context,
             child: SuccessDialogView(

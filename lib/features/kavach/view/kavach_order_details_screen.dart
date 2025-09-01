@@ -37,7 +37,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF5F7FA),
+      backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
         title: context.appText.orderDetail,
         actions: [

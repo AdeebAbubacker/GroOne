@@ -20,7 +20,7 @@ class FastagNewUserScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.backgroundColor,
       bottomNavigationBar:  AppButton(
         title: context.appText.buyFastag,
         onPressed: () {

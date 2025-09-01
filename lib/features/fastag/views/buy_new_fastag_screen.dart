@@ -9,7 +9,6 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -233,16 +232,18 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                                 if (uploadResponse?.data?.url != null) {
                                   cubit.updateFrontRc([
                                     {
-                                      'fileName': uploadResponse!.data!.url!,
-                                      'path': uploadResponse.data!.url!,
+                                      'fileName': uploadResponse!.data!.url,
+                                      'path': uploadResponse.data!.url,
                                     },
                                   ]);
                                   cubit.setFrontRcUploaded(true);
+                                  if (!context.mounted) return;
                                   ToastMessages.success(
                                     message: context.appText.fileUploadSuccessfully,
                                   );
                                 } else {
                                   cubit.setFrontRcUploaded(false);
+                                  if (!context.mounted) return;
                                   ToastMessages.alert(message: context.appText.uploadFailed,);
                                 }
                               }
@@ -268,16 +269,18 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                                 if (uploadResponse?.data?.url != null) {
                                   cubit.updateBackRc([
                                     {
-                                      'fileName': uploadResponse!.data!.url!,
-                                      'path': uploadResponse.data!.url!,
+                                      'fileName': uploadResponse!.data!.url,
+                                      'path': uploadResponse.data!.url,
                                     },
                                   ]);
                                   cubit.setBackRcUploaded(true);
+                                  if (!context.mounted) return;
                                   ToastMessages.success(
                                     message: context.appText.fileUploadSuccessfully,
                                   );
                                 } else {
                                   cubit.setBackRcUploaded(false);
+                                  if (!context.mounted) return;
                                   ToastMessages.alert(message: context.appText.uploadFailed);
                                 }
                               }
@@ -386,12 +389,13 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
 
     setState(() => _isLoading = false);
 
+    if (!mounted) return;
     if (result is Success) {
       _showSuccessPopup(context);
     } else if (result is Error<bool>) {
       String errorMessage = context.appText.fastagRequestFailed;
       if (result.type is ErrorWithMessage) {
-        errorMessage = (result.type as ErrorWithMessage).message ?? errorMessage;
+        errorMessage = (result.type as ErrorWithMessage).message;
       }
       // _showFailurePopup(errorMessage);
       ToastMessages.error(message: errorMessage);
@@ -413,54 +417,6 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
       ),
     );
   }
-
-  void _showFailurePopup(String message) {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) => Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            20.height,
-            AppIconButton(
-              onPressed: () => Navigator.of(context).pop(),
-              icon: Icons.close,
-            ).align(Alignment.topRight),
-            10.height,
-            Text(
-              context.appText.fastagRequest,
-              textAlign: TextAlign.center,
-              style: AppTextStyle.h3.copyWith(
-                color: AppColors.activeRedColor,
-                fontSize: 25,
-              ),
-            ),
-            10.height,
-            Text(
-              context.appText.unsuccessful,
-              textAlign: TextAlign.center,
-              style: AppTextStyle.h3.copyWith(
-                color: AppColors.activeRedColor,
-                fontSize: 25,
-              ),
-            ),
-            20.height,
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: AppTextStyle.bodyGreyColor,
-            ),
-            20.height,
-          ],
-        ),
-      ),
-    );
-  }
-
 }
 
 class ContactAddressSheet extends StatefulWidget {

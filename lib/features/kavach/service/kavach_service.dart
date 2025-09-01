@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
@@ -15,7 +14,6 @@ import '../model/kavach_address_model.dart';
 import '../model/kavach_commodity_model.dart';
 import '../model/kavach_invoice_response_model.dart';
 import '../model/kavach_order_list_model.dart';
-import '../model/kavach_transaction_model.dart';
 import '../model/kavach_truck_length_model.dart';
 import '../model/kavach_user_model.dart';
 import '../model/kavach_vehicle_document_upload_model.dart';
@@ -285,7 +283,7 @@ class KavachService {
         // It's still good to pass the response through getResponseStatus to check for success/status flags.
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => null,
+              (data) {},
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
@@ -330,7 +328,7 @@ class KavachService {
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
-    } catch (e, s) {
+    } catch (e) {
       CustomLog.error(this, "Failed to initiate payment", e);
       return Error(DeserializationError());
     }
@@ -785,12 +783,9 @@ class KavachService {
 
   Future<Result<Map<String, dynamic>>> fetchVehicleData(String vehicleNumber) async {
     try {
-      // === Step 1: Hit API-2 (Check if vehicle exists) ===
-      print('=== Step 1: Hit API-2 (Check if vehicle exists) ===');
       final url = '${ApiUrls.checkVehicleNumber}/$vehicleNumber';
 
       final api2Response = await _apiService.get(
-        // 'https://gro-devapi.letsgro.co/customer/api/v1/vehicle/check/vehicle-no/$vehicleNumber',
         url,
       );
 
@@ -799,12 +794,8 @@ class KavachService {
       if (api2Data != null && api2Data != false) {
         return Success(api2Data);
       }
-      // if (api2Response is Success && api2Response.value['data'] != null) {
-      //   return Success(api2Response.value['data']);
-      // }
 
       // === Step 2: Fallback to API-1 ===
-      print('=== Step 2: Fallback to API-1 ===');
       final customHeaders = {
         'accept': 'application/json',
         'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
@@ -813,7 +804,6 @@ class KavachService {
       };
 
       final api1Response = await _apiService.post(
-        // 'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number',
         ApiUrls.kavachVehicleVerification,
         body: {"vehicle_number": vehicleNumber},
         customHeaders: customHeaders,

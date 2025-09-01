@@ -7,11 +7,8 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:gro_one_app/utils/validator.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import '../../../../dependency_injection/locator.dart';
 import '../../repository/kavach_repository.dart';
@@ -93,11 +90,13 @@ class _VehicleSelectionFieldState extends State<VehicleSelectionField> {
       final capacity = data['vehicle_gross_weight'] ?? data['tonnage'];
 
       if (makeModel != null || capacity != null) {
+        if (!mounted) return;
         ToastMessages.success(message: "${context.appText.verified}: $makeModel, ${context.appText.capacity}: $capacity");
       }
 
       widget.onVehicleVerified?.call(vehicleNumber);
     } else {
+      if (!mounted) return;
       ToastMessages.alert(message: context.appText.vehicleVerificationFailed);
     }
   }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
-import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -70,6 +68,7 @@ class KavachShippingAddressListScreen extends StatelessWidget {
           ),
         );
         // After the bottom sheet is dismissed, refetch the shipping addresses
+        if (!context.mounted) return;
         context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachShippingAddresses());
         } else if (feature == AddressListFeature.gps && gpsShippingAddressCubit != null) {
           await commonBottomSheetWithBGBlur(
@@ -566,7 +565,7 @@ class GpsAddressListItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: commonContainerDecoration(
-          color: isSelected ? AppColors.primaryColor.withOpacity(0.1) : AppColors.greyContainerBackgroundColor,
+          color: isSelected ? AppColors.primaryColor.withValues(alpha: 0.1) : AppColors.greyContainerBackgroundColor,
         ),
         child: Row(
           children: [

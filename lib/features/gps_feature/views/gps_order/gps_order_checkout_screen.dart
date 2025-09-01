@@ -7,7 +7,6 @@ import '../../../kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import '../../../login/repository/user_information_repository.dart';
 import '../../../profile/view/support_screen.dart';
-import '../../gps_order_request/gps_order_api_request.dart';
 import '../../cubit/gps_order_cubit_folder/gps_order_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -223,59 +222,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
     }
   }
 
-  /// Refresh addresses while preserving current selections
-  void _refreshAddressesPreservingSelections() {
-    if (!mounted) return;
-
-    final billingState = gpsBillingAddressCubit.state;
-    final shippingState = gpsShippingAddressCubit.state;
-
-    // Store current selections
-    KavachAddressModel? currentBillingSelection;
-    KavachAddressModel? currentShippingSelection;
-
-    if (billingState is GpsBillingAddressSelected) {
-      currentBillingSelection = billingState.selectedAddress;
-    }
-
-    if (shippingState is GpsShippingAddressSelected) {
-      currentShippingSelection = shippingState.selectedAddress;
-    }
-
-    // Only refresh if not already loading
-    if (billingState is! GpsBillingAddressLoading) {
-      gpsBillingAddressCubit.fetchGpsBillingAddresses().then((_) {
-        // Restore billing selection if it was previously selected
-        if (currentBillingSelection != null && mounted) {
-          // Add a small delay to ensure the fetch is complete
-          Future.delayed(Duration(milliseconds: 100), () {
-            if (mounted) {
-              gpsBillingAddressCubit.selectGpsBillingAddress(
-                currentBillingSelection!,
-              );
-            }
-          });
-        }
-      });
-    }
-
-    if (shippingState is! GpsShippingAddressLoading) {
-      gpsShippingAddressCubit.fetchGpsShippingAddresses().then((_) {
-        // Restore shipping selection if it was previously selected
-        if (currentShippingSelection != null && mounted) {
-          // Add a small delay to ensure the fetch is complete
-          Future.delayed(Duration(milliseconds: 100), () {
-            if (mounted) {
-              gpsShippingAddressCubit.selectGpsShippingAddress(
-                currentShippingSelection!,
-              );
-            }
-          });
-        }
-      });
-    }
-  }
-
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -461,49 +407,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
     }
   }
 
-  // Helper function to parse address and extract city, state, postal code
-  Map<String, String> _parseAddress(String addressString) {
-    // Default values
-    String city = '';
-    String state = '';
-    String postalCode = '';
-
-    try {
-      // Split by commas and clean up
-      List<String> parts =
-          addressString.split(',').map((part) => part.trim()).toList();
-
-      if (parts.length >= 3) {
-        // Try to extract postal code from the last part (format: "Country - PostalCode")
-        String lastPart = parts.last;
-        if (lastPart.contains('-')) {
-          List<String> countryPostal =
-              lastPart.split('-').map((part) => part.trim()).toList();
-          if (countryPostal.length >= 2) {
-            postalCode = countryPostal.last;
-          }
-        }
-
-        // Extract city and state from middle parts
-        if (parts.length >= 4) {
-          if (parts.length >= 5) {
-            city = parts[parts.length - 3]; // Third from last
-            state = parts[parts.length - 2]; // Second from last
-          } else {
-            city = parts[1]; // Second part
-            state = parts[2]; // Third part
-          }
-        } else if (parts.length >= 3) {
-          state = parts[1];
-        }
-      }
-    } catch (e) {
-      print('Error parsing address: $e');
-    }
-
-    return {'city': city, 'state': state, 'postalCode': postalCode};
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -537,7 +440,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(
+                commonRoute(LpSupport(showBackButton: true), isForward: true),
+              );
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -1426,8 +1331,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                     ) {
                       for (int i = 0; i < controllers.length; i++) {
                         // Skip the current field being updated
-                        if (productId == product.id && i == selectedIndex)
+                        if (productId == product.id && i == selectedIndex) {
                           continue;
+                        }
 
                         if (controllers[i].text.trim() ==
                             selectedVehicle.trim()) {
@@ -1564,148 +1470,6 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
         // If all validations pass, create order
         if (shippingState is GpsShippingAddressSelected &&
             billingState is GpsBillingAddressSelected) {
-          // Calculate total amount
-          double totalAmount = 0.0;
-          for (var product in _products) {
-            int qty = _quantities[product.id] ?? 0;
-            double price = double.tryParse(product.price) ?? 0.0;
-            double itemTotal = price * qty;
-            totalAmount += itemTotal + (itemTotal * (18.0 / 100)); // 18% GST
-          }
-
-          // Get customer information
-          final customerInfo = await getCustomerInfo();
-
-          // Determine if referral code is provided and extract employee details
-          String? createdEmpId;
-          int createdEmpUserId = 1234; // Default value for direct orders
-
-          if (referralCodeController.text.trim().isNotEmpty) {
-            createdEmpId = referralCodeController.text.trim();
-            // For referral orders, use the employee ID as per documentation
-            // In a real implementation, this should be fetched from an API based on the referral code
-            createdEmpUserId = 52864; // Employee ID for referral code GDP00584
-            print(
-              "GPS Order: Referral order detected - createdEmpId: $createdEmpId, createdEmpUserId: $createdEmpUserId",
-            );
-          } else {
-            print(
-              "GPS Order: Direct order detected - createdEmpId: null, createdEmpUserId: $createdEmpUserId",
-            );
-          }
-
-          // Create billing address
-          final billingAddressParts = _parseAddress(
-            billingState.selectedAddress.addr1,
-          );
-          final billingAddress = GpsOrderAddress(
-            addressLine1: billingState.selectedAddress.addressName,
-            addressLine2: billingState.selectedAddress.addr1,
-            city:
-                billingState.selectedAddress.city.isNotEmpty
-                    ? billingState.selectedAddress.city
-                    : billingAddressParts['city']!,
-            state:
-                billingState.selectedAddress.state.isNotEmpty
-                    ? billingState.selectedAddress.state
-                    : billingAddressParts['state']!,
-            postalCode:
-                billingState.selectedAddress.pincode.isNotEmpty
-                    ? billingState.selectedAddress.pincode
-                    : billingAddressParts['postalCode']!,
-            country: billingState.selectedAddress.country,
-            gstId: billingState.selectedAddress.gstin ?? "",
-          );
-
-          // Create shipping address
-          final shippingAddressParts = _parseAddress(
-            shippingState.selectedAddress.addr1,
-          );
-          final shippingAddress = GpsOrderAddress(
-            addressLine1: shippingState.selectedAddress.addressName,
-            addressLine2: shippingState.selectedAddress.addr1,
-            city:
-                shippingState.selectedAddress.city.isNotEmpty
-                    ? shippingState.selectedAddress.city
-                    : shippingAddressParts['city']!,
-            state:
-                shippingState.selectedAddress.state.isNotEmpty
-                    ? shippingState.selectedAddress.state
-                    : shippingAddressParts['state']!,
-            postalCode:
-                shippingState.selectedAddress.pincode.isNotEmpty
-                    ? shippingState.selectedAddress.pincode
-                    : shippingAddressParts['postalCode']!,
-            country: shippingState.selectedAddress.country,
-            gstId: shippingState.selectedAddress.gstin ?? "",
-          );
-
-          // Create order items
-          final orders =
-              _products.map((product) {
-                final quantity = _quantities[product.id]!;
-                final stock = _availableStocks[product.id] ?? 0;
-                final vehicleControllers =
-                    vehicleControllersPerProduct[product.id] ?? [];
-                final price = double.tryParse(product.price) ?? 0.0;
-                final itemTotal = price * quantity;
-                final itemGst = itemTotal * (18.0 / 100);
-                final totalWithGst = itemTotal + itemGst;
-
-                return GpsOrderItem(
-                  productServiceId: int.parse(product.id),
-                  noOfProducts: quantity,
-                  unitPrice: price,
-                  totalPrice: totalWithGst,
-                  stockAvailable: stock,
-                  vehicleNumbers:
-                      vehicleControllers
-                          .map(
-                            (controller) => GpsOrderVehicle(
-                              vehicleNumber: controller.text.trim(),
-                            ),
-                          )
-                          .toList(),
-                );
-              }).toList();
-
-          // Create customer info
-          final customerInfoObj = GpsCustomerInfo(
-            companyName: customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
-            contactNumber: customerInfo["contactNumber"] ?? "9876543210",
-            blueMembershipId: customerInfo["blueMembershipId"] ?? "BLUE123456",
-            email: customerInfo['email'] ?? "venkat03it@gmail.com",
-            mobileNumber: customerInfo['mobileNumber'] ?? '9876543210',
-          );
-
-          int? customerSeriesId = await userInfoRepo.getCustomerSeriesId();
-
-          final request = GpsOrderRequest(
-            orderSource: "MOBILE",
-            customerSeriesId: customerSeriesId??200,
-            isOrderPaid: false,
-            // Set to false since payment will be handled separately
-            customerId: await gpsOrderCubit.getUserId() ?? '',
-            createdEmpUserId: createdEmpUserId,
-            createdEmpId: createdEmpId,
-            orderReferencedBy:
-                referralCodeController.text.trim().isNotEmpty
-                    ? referralCodeController.text.trim()
-                    : "DIRECT",
-            totalPrice: totalAmount,
-            categoryId: 1,
-            orderTypeId: 1,
-            teamId: 1,
-            shippingPersonIncharge:
-                shippingPersonInChargeController.text.trim(),
-            shippingPersonContactNo:
-                shippingPersonContactNoController.text.trim(),
-            customerInfo: customerInfoObj,
-            billingAddress: billingAddress,
-            shippingAddress: shippingAddress,
-            orders: orders,
-          );
-
           Navigator.of(context).push(
             commonRoute(
               GpsOrderSummaryScreen(
@@ -1716,16 +1480,14 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                 billingAddress: _getCurrentBillingAddress()!,
                 selectedVehicleNumbers: _getSelectedVehicles(),
                 shippingPersonContactNo:
-                shippingPersonContactNoController.text.trim(),
+                    shippingPersonContactNoController.text.trim(),
                 shippingPersonInCharge:
-                shippingPersonInChargeController.text.trim(),
+                    shippingPersonInChargeController.text.trim(),
                 orderReferencedBy: referralCodeController.text.trim(),
                 selectedVehiclePerProduct: vehicleControllersPerProduct.map(
-                      (key, value) => MapEntry(
+                  (key, value) => MapEntry(
                     key,
-                    value
-                        .map((controller) => controller.text.trim())
-                        .toList(),
+                    value.map((controller) => controller.text.trim()).toList(),
                   ),
                 ),
               ),
