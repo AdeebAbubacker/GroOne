@@ -21,7 +21,7 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
   final searchController=TextEditingController();
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final ScrollController scrollController = ScrollController();
-
+  final Set<int> selectedIds={};
 
   void _fetchMoreLens(){
     scrollController.addListener(() {
@@ -54,7 +54,8 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
             },
           ),
           8.height,
-          BlocBuilder<VpCreateAccountCubit,VpCreateAccountState>(
+          BlocConsumer<VpCreateAccountCubit,VpCreateAccountState>(
+            listener: (context, state) {},
             builder: (context, state) {
               List<Item> preferLanes=  state.prefLaneUIState?.data?.data?.items??[];
 

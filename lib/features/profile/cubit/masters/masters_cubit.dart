@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_license_document_model.dart';
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
+import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 part 'masters_state.dart';
 
@@ -68,6 +69,11 @@ class MastersCubit extends BaseCubit<MastersState> {
     emit(state.copyWith(uploadlicenseDocUIState: uiState));
   }
 
+  // Upload Edit user UIState
+  void _setEditUserUIState(UIState<EditUserResponse>? uiState){
+    emit(state.copyWith(editUserUIState: uiState));
+  }
+
   Future<void> uploadLicenseDoc(File file) async {
     _setLicenseDocUIState(UIState.loading());
     Result result = await _repository.postUploadLicenseData(file);
@@ -76,6 +82,22 @@ class MastersCubit extends BaseCubit<MastersState> {
     }
     if (result is Error) {
       _setLicenseDocUIState(UIState.error(result.type));
+    }
+  }
+
+
+  Future<void> updatePreferLanes(List<int> preferredLanes,{required String customerName,required String companyName,required int companyTypeId}) async {
+    _setEditUserUIState(UIState.loading());
+    Result result = await _repository.updatePreferredLanes(
+        customerName: customerName,
+        companyTypeId: companyTypeId,
+        companyName: companyName,
+        preferredLanes: preferredLanes);
+    if (result is Success<EditUserResponse>) {
+      _setEditUserUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setEditUserUIState(UIState.error(result.type));
     }
   }
 

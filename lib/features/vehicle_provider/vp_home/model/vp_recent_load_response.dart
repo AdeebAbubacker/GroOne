@@ -260,7 +260,7 @@ class VpRecentLoadData {
     ///
     return VpRecentLoadData(
        isAgreed: json['isAgreed'],
-        memoDetails:json['loadMemo']!=null ?MemoDetails.fromJson(json['loadMemo']) :null,
+        memoDetails: json['loadMemo']!=null ?MemoDetails.fromJson(json['loadMemo']) :null,
       loadDocument: json["loadDocument"] == null ? [] : List<LoadDocument>.from(json["loadDocument"]!.map((x) =>LoadDocument.fromJson(x) )),
       loadUnHold: json['loadOnhold'],
       driverConsent: json['driverConsent'],

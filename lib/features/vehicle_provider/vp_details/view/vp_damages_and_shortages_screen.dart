@@ -370,6 +370,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
         if (status == Status.SUCCESS) {
           clearValues();
           showSuccessDialog(context);
+          analyticsHelper.logEvent(AnalyticEventName.DAMAGE_SHORTAGE_ADDED);
         }
         if (status == Status.ERROR) {
           final error = state.createDamageUIState?.errorType;

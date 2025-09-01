@@ -208,6 +208,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                           enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                           loadStatus: widget.data.loadStatusValues ,
                           isAgreed: widget.data.isAgreed,
+                          memo:widget.data.memoDetails ,
                           documentList: widget.data.loadDocument??[]
                     ),
                       context: context,

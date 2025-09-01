@@ -102,6 +102,7 @@ Future<void> _initializeWithParallelOptimization(Stopwatch stopwatch) async {
 
   // Wait for tokens
   final results = await Future.wait([fcmTokenFuture, apnsTokenFuture]);
+
   final fcmToken = results[0];
   final apnsToken = results[1];
 

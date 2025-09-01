@@ -26,6 +26,7 @@ import 'package:gro_one_app/features/profile/model/customer_settings_response.da
 import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
+import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
@@ -153,6 +154,19 @@ class ProfileRepository {
   Future<Result<void>> deleteAddress({required String addressId}) async {
     try {
       return await _profileService.deleteAddress(addressId: addressId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// delete address
+  Future<Result<EditUserResponse>> updatePreferredLanes({required List<int> preferredLanes,required String customerName,required String companyName,required int companyTypeId}) async {
+    try {
+      return await _profileService.updatePreferredLanes(
+      companyName: companyName,
+      companyTypeId: companyTypeId,
+      customerName: customerName,
+      preferredLanes);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
