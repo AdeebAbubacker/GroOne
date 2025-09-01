@@ -27,7 +27,6 @@ import 'package:gro_one_app/features/profile/model/customer_settings_response.da
 import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
-import 'package:gro_one_app/features/profile/model/driver_updated_response.dart';
 import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';

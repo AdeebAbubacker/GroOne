@@ -9,18 +9,15 @@ import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
-import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/customer_settings_response.dart';
 import 'package:gro_one_app/features/profile/model/settings_response.dart';
-import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_switch_toggle.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
@@ -29,7 +26,6 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/radio_button.dart';
@@ -198,16 +194,10 @@ class _LpSettingState extends State<LpSetting> {
                                   text: setting.label,
                                   onTap: () {
                                     if (setting.key == 'privacy_policy') {
-                                      Navigator.push(
-                                        context,
-                                        commonRoute(PrivacyPolicyScreen()),
-                                      );
+                                      context.push(AppRouteName.privacyPolicy);
                                     } else if (setting.key ==
                                         'terms_conditions') {
-                                      Navigator.push(
-                                        context,
-                                        commonRoute(TermsAndConditionsScreen()),
-                                      );
+                                      context.push(AppRouteName.termsAndConditions);
                                     }
                                   },
                                 ).paddingSymmetric(vertical: 20),
@@ -320,29 +310,6 @@ class _LpSettingState extends State<LpSetting> {
     style: AppTextStyle.body2.copyWith(color: AppColors.textBlackDetailColor),
   );
 
-  Widget buildLinks(BuildContext context) {
-    return Column(
-      children: [
-        linkTile(
-          context,
-          icon: AppIcons.svg.tAndCDoc,
-          text: context.appText.termsAndConditions.capitalizeFirst,
-          onTap:
-              () => Navigator.push(
-                context,
-                commonRoute(TermsAndConditionsScreen()),
-              ),
-        ).paddingSymmetric(vertical: 20),
-        linkTile(
-          context,
-          icon: AppIcons.svg.privacyLock,
-          text: context.appText.privacyPolicy,
-          onTap:
-              () => Navigator.push(context, commonRoute(PrivacyPolicyScreen())),
-        ),
-      ],
-    );
-  }
 
   Widget linkTile(
     BuildContext context, {

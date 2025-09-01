@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_service.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -98,19 +96,11 @@ class ChooseRoleScreen extends StatelessWidget {
                        context.push(AppRouteName.lpCreateAccount, extra: extra);
                        break;
                       case 2:
-                         Navigator.push(context, commonRoute(VpCreationFormScreen(
-                             id: userId,
-                             mobileNumber:mobileNumber,
-                             roleId: roleId,
-                         ), isForward: true));
-                         break;
+                        context.push(AppRouteName.vpCreateAccount, extra: extra);
+                        break;
                       case 3: // Both
-                          Navigator.push(context, commonRoute(VpCreationFormScreen(
-                              id: userId,
-                              mobileNumber:mobileNumber,
-                              roleId: roleId,
-                          ), isForward: true));
-                          break;
+                        context.push(AppRouteName.vpCreateAccount, extra: extra);
+                        break;
                       case 4: // Fleet Products
                         context.push(AppRouteName.lpCreateAccount, extra: extra);
                           break;

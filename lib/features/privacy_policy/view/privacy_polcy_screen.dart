@@ -2,17 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/privacy_policy/bloc/privacy_policy_bloc.dart';
 import 'package:gro_one_app/features/privacy_policy/model/privacy_policy_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_application_bar.dart';
-import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
@@ -38,7 +33,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: buildAppBarWidget(context),
+      appBar: CommonOnboardingAppbar(),
       body: BlocBuilder<PrivacyPolicyBloc, PrivacyPolicyState>(
         builder: (context, state) {
           if (state is PrivacyPolicyLoading) {
@@ -52,33 +47,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
           }
         },
       ),
-    );
-  }
-
- // appbar
-  PreferredSizeWidget buildAppBarWidget(BuildContext context) {
-    return CommonAppBar(
-      backgroundColor: Colors.transparent,
-      scrolledUnderElevation: 0,
-      actions: [
-        translateWiget(
-          onTap: () {
-            Navigator.push(
-              context,
-              commonRoute(ChooseLanguageScreen(isCloseButton: true)),
-            );
-          },
-        ),
-        20.width,
-        customerSupportWidget(
-          onTap: () {
-            showCustomerCareBottomSheet(context);
-          },
-        ),
-        20.width,
-        Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
-        30.width,
-      ],
     );
   }
 

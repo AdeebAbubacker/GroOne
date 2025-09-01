@@ -1,17 +1,17 @@
 import 'dart:async';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/lp_get_load_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -90,7 +90,8 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
 
     return  GestureDetector(
       onTap: () {
-        Navigator.push(context, commonRoute(LpLoadsLocationDetailsScreen(loadId: widget.loadData.loadId))).then((value) {
+        final extra = {"loadId": widget.loadData.loadId};
+        context.push(AppRouteName.lpLoadsLocationDetails, extra: extra).then((val) {
           lpHomeCubit.fetchGetLoadList();
         },);
       },
