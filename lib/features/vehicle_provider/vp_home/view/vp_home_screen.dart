@@ -159,8 +159,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("this is calling");
-   if(state==AppLifecycleState.resumed){
+    if(state==AppLifecycleState.resumed){
      vpRecentLoadListBloc.add(VpRecentLoadEvent());
      vpHomeScreenBloc.add(VpMyLoadListRequested());
    }
