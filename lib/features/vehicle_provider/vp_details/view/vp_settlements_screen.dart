@@ -144,7 +144,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                        },
                         label: context.appText.noOfDays, controller: noOfDays, isMandatory: false),
                     Visibility(
-                      visible:(int.tryParse(noOfDays.text??"0")??0)>0 ,
+                      visible:(int.tryParse(noOfDays.text)??0)>0 ,
                       child: AppTextField(
                         controller: detentionAmount,
                         labelText: context.appText.amount,

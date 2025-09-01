@@ -383,7 +383,6 @@ void _registerBasicRepositories() {
   locator.registerLazySingleton(
     () => LoadDetailsRepository(
       locator<VpDetailsService>(),
-      locator<VpHomeService>(),
       locator<UserInformationRepository>(),
     ),
   );
@@ -545,7 +544,6 @@ void _registerBasicBlocs() {
     () => LoadDetailsCubit(
       locator<LoadDetailsRepository>(),
       locator<VpHomeRepository>(),
-      locator<LpLoadRepository>(),
       locator<LpLoadRepository>(),
     ),
   );

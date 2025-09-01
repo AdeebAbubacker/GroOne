@@ -71,7 +71,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
     vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId.toString()));
     vpHomeScreenBloc.add(
-      VpDriverDetailsRequested(userId: userId.toString() ?? ""),
+      VpDriverDetailsRequested(userId: userId.toString()),
     );
     //  Call your init methods
   });
@@ -401,7 +401,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     // Create a list of driver names with status label
     final driverNames =
         driverList.map((driver) {
-          final status = driver.activeStatus.trim().toLowerCase() ?? "";
+          final status = driver.activeStatus.trim().toLowerCase();
           final statusLabel = status == "inactive" ? " (On Another Trip)" : "";
           return "${driver.name}$statusLabel";
         }).toList();

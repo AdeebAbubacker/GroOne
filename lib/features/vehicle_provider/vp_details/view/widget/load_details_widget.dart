@@ -180,9 +180,9 @@ class LoadDetailsWidget extends StatelessWidget {
                                   progressPercentage:
                                       trackingData.coverPercentage ?? 0,
                                   coveredDistance:
-                                      trackingData.covereddistance ?? '--',
+                                      trackingData.covereddistance,
                                   totalDistance:
-                                      trackingData.overalldistance ?? '--',
+                                      trackingData.overalldistance,
                                   eta: trackingData.durationValue,
                                 ).paddingSymmetric(horizontal: 15);
                               },
@@ -316,7 +316,7 @@ class LoadDetailsWidget extends StatelessWidget {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               8.height,
-                                              Text("(${loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? ""})" ?? "",
+                                              Text("(${loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? ""})",
                                               style:AppTextStyle.h3RedLight14,),
                                             ],
                                           ))
@@ -1007,55 +1007,6 @@ Widget _buildPriceRow(
                     : AppColors.textGreyDetailColor,
           ),
         ),
-      ),
-    ],
-  );
-}
-
-// Status Details
-Widget _buildStatusRow({
-  required String title,
-  required String amount,
-  required String statusText,
-  required Color statusColor,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        title,
-        style: AppTextStyle.body.copyWith(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.darkDividerColor,
-        ),
-      ),
-      6.height,
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            amount,
-            style: AppTextStyle.body.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textBlackColor,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: statusColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              statusText,
-              style: AppTextStyle.textBlackColor12w400.copyWith(
-                color: AppColors.textGreen,
-              ),
-            ),
-          ),
-        ],
       ),
     ],
   );

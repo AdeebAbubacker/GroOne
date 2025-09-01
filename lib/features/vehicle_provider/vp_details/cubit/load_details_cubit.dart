@@ -40,10 +40,9 @@ import 'load_details_state.dart';
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LoadDetailsRepository _loadDetailsRepository;
   final VpHomeRepository _vHomeRepository;
-  final LpLoadRepository _lpLoadRepository;
   final LpLoadRepository _lpLoadsrepository;
 
-  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadRepository,this._lpLoadsrepository)
+  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadsrepository)
       : super(LoadDetailsState(tripDocumentList:[]));
 
 
@@ -210,6 +209,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     if (result is Success<ScheduleTripResponse>) {
       emit(state.copyWith(
           scheduleTripResponse: UIState.success(result.value)));
+          
       Navigator.pop(navigatorKey.currentState!.context);
     } else if (result is Error) {
       emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
@@ -626,7 +626,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       DocumentEntity? document = documentEntity.firstWhere((element) {
         return (element.loadDocument??[]).isEmpty && element.visible==true;
       });
-      print("document.fileType is ${document.fileType}");
       return document.fileType==DocumentFileType.uploadOtherDocument.value;
     } catch (e) {
       return true;

@@ -103,7 +103,7 @@ String getSwipeButtonTitle(
 
 Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
   try {
-    final fileName = path.basename(url);
+    path.basename(url);
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, originalFileName);
     final dio = Dio();

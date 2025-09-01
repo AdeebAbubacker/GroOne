@@ -271,7 +271,7 @@ class VpRecentLoadData {
       dropWholeAddr:  json['loadRoute']!=null ? json['loadRoute']['dropWholeAddr']?.toString()??"":"",
       pickUpWholeAddr: json['loadRoute']!=null ? json['loadRoute']['pickUpWholeAddr']?.toString()??"":"",
       id: json["loadId"] ?? "0",
-      loadId: json["loadSeriesId"].toString() ?? "",
+      loadId: json["loadSeriesId"].toString(),
       laneId: json["laneId"] ?? 0,
       rateId: json["rateId"] ?? 0,
       customerId: json["customerId"] ?? 0,
