@@ -18,6 +18,7 @@ import 'package:gro_one_app/features/kyc/view/kyc_verification_webview.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -117,6 +118,7 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
          path= await KycHelper.saveBase64PdfToFile(aadharVerificationData?.dataPdf??"");
        }
        setAadharDocumentToLocal(path,aadhaarNumberTextController.text);
+       analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_SUCCESS);
 
        Navigator.of(navigatorKey.currentState!.context).pushReplacement(commonRoute(KycUploadDocumentScreen(aadhaarNumber: aadhaarNumberTextController.text,pdfPath: path,))).then((v) {
          if(v != null && v == true){
@@ -126,7 +128,9 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
          }
        });
        return;
-     }
+     }else{
+      analyticsHelper.logEvent(AnalyticEventName.AADHAAR_VERIFICATION_FAILED);
+    }
    }
 
 

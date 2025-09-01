@@ -259,7 +259,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
         ).then((value) async {
           if (value != null) {
             /// Map document with load
-            await saveDocument(value, loadId).then((value) {
+            await saveDocument(value, loadId,fileType).then((value) {
               uploadLoadingStatus(index, value);
             });
           } else {
@@ -367,6 +367,7 @@ class DriverLoadDetailsCubit extends BaseCubit<DriverLoadDetailsState> {
   Future<LoadDocument?> saveDocument(
     CreateDocumentResponse createDocumentResponse,
     String loadId,
+      String? fileType,
   ) async {
     try {
       return await _loadDetailsRepository

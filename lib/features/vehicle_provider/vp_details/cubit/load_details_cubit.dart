@@ -246,6 +246,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setSettlementUIState(UIState<SettlementApiResponse>? uiState){
     emit(state.copyWith(settlementUIState: uiState));
   }
+
   Future<void> submitSettlement(SettlementApiRequest req) async {
     _setSettlementUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
@@ -391,7 +392,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         await createDocument(title ?? "", documentTypeId ?? 1, result.value).then((value) async {
           if (value != null) {
             /// Map document with load
-            await saveDocument(value, loadId).then((value) {
+            await saveDocument(value, loadId,fileType).then((value) {
               uploadLoadingStatus(index, value);
             },);
           } else{
@@ -500,14 +501,14 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   Future<LoadDocument?> saveDocument(
-      CreateDocumentResponse createDocumentResponse, String loadId) async {
+      CreateDocumentResponse createDocumentResponse, String loadId,String fileType) async {
     try {
       return await _loadDetailsRepository.saveLoadDocument(
           documentId: createDocumentResponse.documentId ?? "",
           loadId: loadId
       ).then((value) {
         if (value is Success<LoadDocument>) {
-
+          VpHelper.logDocumentUploadedEvent(fileType);
           return value.value;
         }
         return null;
@@ -629,7 +630,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       DocumentEntity? document = documentEntity.firstWhere((element) {
         return (element.loadDocument??[]).isEmpty && element.visible==true;
       });
-      print("document.fileType is ${document.fileType}");
+
       return document == null || document.fileType==DocumentFileType.uploadOtherDocument.value;
     } catch (e) {
       return true;
@@ -651,6 +652,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  MemoDetails? memo , LoadStatus? loadStatus,int? isAgreed}) {
+
     switch(loadStatus){
       case LoadStatus.loading:
       return  checkLoadingDocumentAddedOrNot(documentList,true);
