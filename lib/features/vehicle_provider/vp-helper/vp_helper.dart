@@ -108,10 +108,6 @@ Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
     final filePath = path.join(directory.path, originalFileName);
     final dio = Dio();
     await dio.download(url, filePath);
-
-    print(
-      "filePath gettign :: $filePath and original file name $originalFileName",
-    );
     await OpenFilex.open(filePath);
   } catch (e) {
     debugPrint("Error downloading/opening file: $e");

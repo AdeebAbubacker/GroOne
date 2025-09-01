@@ -57,7 +57,6 @@ void main() {
 
       // Start refresh
       service.startRefresh(GpsScreenType.map);
-      final initialTime = DateTime.now();
 
       // Try to start again with same type
       service.startRefresh(GpsScreenType.map);

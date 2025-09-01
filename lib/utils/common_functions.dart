@@ -243,8 +243,7 @@ class ImagePickerFrom {
       if (compressedFIle == null) {
         return null;
       }
-      final File fileImage = File(pickedFromCamera.path ?? "");
-      final File fileName = File(pickedFromCamera.name);
+      final File fileImage = File(pickedFromCamera.path);
       final String fileExtension = path
           .extension(pickedFromCamera.path)
           .replaceFirst('.', '');
@@ -272,13 +271,10 @@ class ImagePickerFrom {
     } else {
       final compressedFile = await compressImage(File(pickedFromGallery.path));
 
-      int fileSize = await compressedFile?.length() ?? 0;
       if (compressedFile == null) {
         return null;
       }
 
-      final File fileImage = File(compressedFile.path);
-      final File fileName = File(compressedFile.name);
       final String fileExtension = path
           .extension(compressedFile.path)
           .replaceFirst('.', '');
