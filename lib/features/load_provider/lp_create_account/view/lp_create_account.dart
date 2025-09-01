@@ -8,7 +8,6 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
-import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/widgets/company_type_dropdown.dart';
@@ -20,7 +19,6 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -284,7 +282,9 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
           if (status == Status.SUCCESS) {
             if (!context.mounted) return;
-            final result = await Navigator.of(context).push(commonRoute(EmailVerificationScreen(userId: widget.userId,emailAddress: emailTextController.text), isForward: true));
+
+            final extra = {"userId": widget.userId, "emailAddress": emailTextController.text};
+            final result = await context.push(AppRouteName.emailVerification, extra: extra);
             verifyEmailCubit.setVerifiedEmail(result == true);
           }
 
@@ -313,7 +313,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(!(state.sendOtpState?.status == Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3.copyWith(
+                    Text(!(state.sendOtpState?.status == Status.LOADING) ? (state.isVerifiedEmail ? context.appText.verified : context.appText.verify): "${context.appText.loading}..", style: AppTextStyle.body3.copyWith(
                       color: AppColors.primaryColor,
                       decoration: TextDecoration.underline,
                       decorationColor: AppColors.primaryColor,

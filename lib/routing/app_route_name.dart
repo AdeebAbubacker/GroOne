@@ -6,6 +6,7 @@ class AppRouteName {
   static const String lpBottomNavigationBar = "/lpBottomNavigation";
   static const String vpBottomNavigationBar = "/vpBottomNavigationBar";
   static const String lpCreateAccount = "/lpCreateAccount";
+  static const String vpCreateAccount = "/vpCreateAccount";
 
   static const String notFound = "/notFound";
 
@@ -50,4 +51,26 @@ class AppRouteName {
   static const String vehicleMap = '/vehicle-map';
 
   static const String fastagList = '/fastagList';
+  static const String emailVerification = '/emailVerification';
+
+  /// profile
+  static const String profile = '/profile';
+  static const String benefitsOfMembership = '/benefitsOfMembership';
+  static const String myAccount = '/myAccount';
+  static const String master = '/master';
+  static const String routes = '/routes';
+  static const String myDocuments = '/myDocuments';
+  static const String lpTransaction = '/lpTransaction';
+  static const String settings = '/settings';
+  static const String support = '/support';
+
+  /// Load Provider
+  static const String lpLoadsLocationDetails = '/lpLoadsLocationDetails';
+  static const String lpLoadValidateMemo = '/lpLoadValidateMemo';
+  static const String lpLoadSummary = '/lpLoadSummary';
+  static const String recentRoute = '/recentRoute';
+  static const String paymentSummary = '/paymentSummary';
+
+  static const String termsAndConditions = '/termsAndConditions';
+  static const String privacyPolicy = '/privacyPolicy';
 }

@@ -1,18 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/create_orderid_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/helper/lp_payment_helper.dart';
-import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -217,10 +217,11 @@ class PaymentWidget extends StatelessWidget {
             10.height,
             GestureDetector(
               onTap: () {
-                Navigator.push(context, commonRoute(PaymentSummary(
-                  vpLogs: loadItem.lpPaymentsData?.lpLogs ?? [],
-                  tripCost: PriceHelper.formatINR(agreedPriceToShow),
-                ),));
+                final extra = {
+                  "lpLogs": loadItem.lpPaymentsData?.lpLogs ?? [],
+                  "tripCost": PriceHelper.formatINR(agreedPriceToShow),
+                };
+                context.push(AppRouteName.paymentSummary, extra: extra);
               },
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

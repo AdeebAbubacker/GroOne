@@ -1,27 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/preferLans_widget.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
-import 'package:gro_one_app/utils/toast_messages.dart';
-
-import '../../../data/ui_state/status.dart';
 import '../../../utils/app_icons.dart';
 
 class LpMyAccount extends StatefulWidget {
