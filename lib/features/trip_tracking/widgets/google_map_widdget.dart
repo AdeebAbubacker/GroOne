@@ -41,8 +41,8 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
   String kilometers = '';
   GoogleMapController? googleMapController;
   final vpDetailsCubit = locator<LoadDetailsCubit>();
-  List<LatLng> _polylineCoordinates = [];
-  Set<Polyline> _polylines = {};
+  final List<LatLng> _polylineCoordinates = [];
+  final Set<Polyline> _polylines = {};
 
 
   @override

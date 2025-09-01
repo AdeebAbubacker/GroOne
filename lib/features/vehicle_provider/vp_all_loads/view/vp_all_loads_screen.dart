@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -39,7 +38,6 @@ import '../../../profile/model/profile_detail_model.dart';
 import '../../vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import '../../vp_home/bloc/load_accpect/vp_accept_load_state.dart';
 import '../bloc/vp_all_loads_bloc.dart';
-import '../bloc/vp_all_loads_event.dart';
 import '../bloc/vp_all_loads_state.dart';
 
 class VpAllLoadsScreen extends StatefulWidget {
@@ -428,7 +426,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                       });
                       },
                       child: VpAllLoadMyLoadWidget(
-                        data: recentLoads![index],
+                        data: recentLoads[index],
                         onBack: () {
                           _onPullToRefresh();
                         },
@@ -447,7 +445,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                         });
                       },
                       child: VpAllLoadMyLoadWidget(
-                        data: recentLoads![index],
+                        data: recentLoads[index],
                         showButton: _tabController.index!=3,
                         onBack: () {
                           _onPullToRefresh();

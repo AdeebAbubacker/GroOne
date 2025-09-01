@@ -9,7 +9,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
-import 'package:gro_one_app/features/login/service/login_service.dart';
 import 'package:gro_one_app/service/pushNotification/notification_helper.dart';
 import 'package:gro_one_app/service/pushNotification/notification_payload.dart';
 import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';

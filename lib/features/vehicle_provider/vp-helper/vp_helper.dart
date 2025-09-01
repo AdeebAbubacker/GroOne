@@ -1,11 +1,9 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
-import 'package:gro_one_app/utils/download_handler.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -112,7 +110,7 @@ Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
     await dio.download(url, filePath);
 
     print(
-      "filePath gettign :: ${filePath} and original file name ${originalFileName}",
+      "filePath gettign :: $filePath and original file name $originalFileName",
     );
     await OpenFilex.open(filePath);
   } catch (e) {

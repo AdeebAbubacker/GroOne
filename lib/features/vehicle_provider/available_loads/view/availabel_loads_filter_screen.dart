@@ -11,14 +11,10 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/validator.dart';
 
 class AvailableLoadsFilterScreen extends StatefulWidget {
   const AvailableLoadsFilterScreen({super.key});

@@ -179,6 +179,7 @@ class VpMyLoadUIHelper {
           ),
           onSubmit: () {
             onPressed.call();
+            return null;
           },
         );
       case "POD Dispatch":

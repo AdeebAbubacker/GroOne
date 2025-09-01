@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';

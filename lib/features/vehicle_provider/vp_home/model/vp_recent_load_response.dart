@@ -178,7 +178,7 @@ class VpRecentLoadData {
     DateTime? pickUpDateTime,
     DateTime? expectedDeliveryDateTime,
     num? handlingCharges,
-    dynamic? acceptedBy,
+    dynamic acceptedBy,
     num? agreedPrice,
     num? acceptedVehicleId,
     DateTime? createdAt,
@@ -207,7 +207,7 @@ class VpRecentLoadData {
       podDispatch: podDispatch??this.podDispatch,
       loadDocument: loadDocument??this.loadDocument,
       loadUnHold: loadUnHold ?? this.loadUnHold,
-      driverConsent:  driverConsent??this.driverConsent,
+      driverConsent:  driverConsent??driverConsent,
       loadStatusValues: loadStatusValues??this.loadStatusValues,
       loadStatusDetails: loadStatusDetails??this.loadStatusDetails,
       id: id ?? this.id,
@@ -324,7 +324,7 @@ class Commodity {
   Commodity copyWith({
     int? id,
     String? name,
-    dynamic? iconUrl,
+    dynamic iconUrl,
   }) {
     return Commodity(
       id: id ?? this.id,

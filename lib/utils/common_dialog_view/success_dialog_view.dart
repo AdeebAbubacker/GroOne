@@ -1,14 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:lottie/lottie.dart';
 
 class SuccessDialogView extends StatefulWidget {

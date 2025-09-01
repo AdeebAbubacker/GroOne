@@ -17,8 +17,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 
-import '../../../../../utils/app_dropdown.dart' show AppDropdown;
-import '../../../../../utils/common_widgets.dart' show commonInputDecoration;
 
 
 class TripDetails extends StatelessWidget {

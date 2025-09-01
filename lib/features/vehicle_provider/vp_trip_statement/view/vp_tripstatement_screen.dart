@@ -363,7 +363,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
                       borderRadius: BorderRadius.circular(5)
                     ),
                     child:  FittedBox(
-                      child: Text("${context.appText.gst} ${gstPercentage}%",
+                      child: Text("${context.appText.gst} $gstPercentage%",
                         maxLines: 1,
                         style: AppTextStyle.body3.copyWith(
                           fontSize: 14,

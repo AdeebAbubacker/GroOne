@@ -21,7 +21,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../../data/ui_state/status.dart';
 

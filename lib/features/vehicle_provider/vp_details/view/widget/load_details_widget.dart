@@ -1,15 +1,10 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart'
-    hide DataTruckType;
-import 'package:gro_one_app/features/kavach/view/kavach_support_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
@@ -17,13 +12,11 @@ import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.
 import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_settlements_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/document_widget_view.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/information_view.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
@@ -33,7 +26,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/view/vp_tripstatement_screen.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -51,14 +43,9 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
-import 'package:path_provider/path_provider.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
-import '../../../../trip_tracking/widgets/payment_information_dialogue.dart';
 
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
@@ -920,7 +907,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
       if ((advancePayment ?? "" ).isNotEmpty) ...[
         8.height,
         _buildPriceRow(
-          "${context.appText.advancedReceived}",
+          context.appText.advancedReceived,
           advancePayment??"",
           context,
           highlight: true,

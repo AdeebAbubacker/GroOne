@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' hide LoadStatus;
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
@@ -31,13 +30,11 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_ap
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:mime/mime.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' as lpHelper;
 import 'load_details_state.dart';
 
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
@@ -630,7 +627,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         return (element.loadDocument??[]).isEmpty && element.visible==true;
       });
       print("document.fileType is ${document.fileType}");
-      return document == null || document.fileType==DocumentFileType.uploadOtherDocument.value;
+      return document.fileType==DocumentFileType.uploadOtherDocument.value;
     } catch (e) {
       return true;
     }

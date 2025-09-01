@@ -10,10 +10,10 @@ class LicenseCategoryDropdown extends StatelessWidget {
   final ValueChanged<LicenseCategoryResponseModel?> onChanged;
 
   const LicenseCategoryDropdown({
-    Key? key,
+    super.key,
     required this.selected,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

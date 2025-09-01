@@ -36,7 +36,7 @@ class SearchableDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    print("selectedItem is ${selectedItem}");
+    print("selectedItem is $selectedItem");
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
