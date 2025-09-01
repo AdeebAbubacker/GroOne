@@ -76,7 +76,7 @@ class Datum {
     String? description,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return Datum(
       damageId: damageId ?? this.damageId,
@@ -130,7 +130,7 @@ class PageMeta {
     PageMeta copyWith({
         int? page,
         int? pageCount,
-        dynamic? nextPage,
+        dynamic nextPage,
         int? pageSize,
         int? total,
     }) {

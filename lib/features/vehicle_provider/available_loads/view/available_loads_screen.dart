@@ -1,19 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/vehicle_provider/available_loads/view/availabel_loads_filter_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
-import 'package:gro_one_app/utils/app_button_style.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
-import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -38,14 +31,12 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     initFunction();
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     disposeFunction();
     super.dispose();
   }
@@ -70,14 +61,6 @@ class _AvailableLoadsScreenState extends State<AvailableLoadsScreen> {
             Row(
               children: [
                 AppSearchBar(searchController: searchController).expand(),
-                // 15.width,
-                // AppIconButton(
-                //   onPressed: (){
-                //     commonBottomSheetWithBGBlur(context: context, screen: AvailableLoadsFilterScreen());
-                //   },
-                //   style: AppButtonStyle.primaryIconButtonStyle,
-                //   icon: SvgPicture.asset(AppIcons.svg.filter, width: 20, colorFilter: AppColors.svg(AppColors.primaryColor)),
-                // )
               ],
             ),
             10.height,

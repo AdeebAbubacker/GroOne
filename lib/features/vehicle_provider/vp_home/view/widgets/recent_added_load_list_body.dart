@@ -20,7 +20,6 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -59,8 +58,6 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
 
     return GestureDetector(
       onTap: (){
-        /// TODO:
-        /// Temp navigation remote remove it after you done design part
         context.push(AppRouteName.loadDetailsScreen,extra: {
           "loadId":widget.data.id
         });
@@ -228,14 +225,17 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                                 String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
                                 if (widget.companyTypeId == 2 || widget.companyTypeId == 1) {
                                   if(isAadharVerified){
+                                    if(!context.mounted) return;
                                     Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                                       pdfPath: aadharPDF,
                                       aadhaarNumber: aadharNumber,
                                     )));
                                     return;
                                   }
+                                  if(!context.mounted) return;
                                   commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                                 } else {
+                                  if(!context.mounted) return;
                                   Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                                     pdfPath: aadharPDF,
                                     aadhaarNumber: aadharNumber,

@@ -1,5 +1,4 @@
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/model/pod_center_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/model/trip_statement_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/service/vp_trip_settlement_service.dart';
 import 'package:gro_one_app/utils/custom_log.dart';

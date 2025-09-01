@@ -36,7 +36,7 @@ class UpdateDamageModel {
     String? description,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return UpdateDamageModel(
       damageId: damageId ?? this.damageId,

@@ -70,7 +70,7 @@ class Load {
   final dynamic rate;
   final dynamic acceptedBy;
   final DateTime? createdAt;
-  final dynamic? loadStatus;
+  final dynamic loadStatus;
   final dynamic deletedAt;
 
   Load copyWith({
@@ -90,7 +90,7 @@ class Load {
     String? rate,
     num? acceptedBy,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return Load(
       loadStatus: loadStatus?? this.loadStatus,

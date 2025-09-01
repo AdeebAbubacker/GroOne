@@ -4,7 +4,6 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:geolocator/geolocator.dart' as geo;
-import 'package:geocoding/geocoding.dart';
 
 
 class LocationService {

@@ -64,7 +64,7 @@ class AppColors {
 
   // Others Colors
   static const Color lightGreyColor = Color(0xffF8FAFC);
-  static Color extraLightBackgroundGray = CupertinoColors.extraLightBackgroundGray.withOpacity(0.5);
+  static Color extraLightBackgroundGray = CupertinoColors.extraLightBackgroundGray.withValues(alpha: 0.5);
   static const Color darkGreyColor = Color(0xff838383);
   static const Color chipBackgroundColor = Color(0xFFF4F0E9);
   static const Color textColor = Color(0xFF512B15);

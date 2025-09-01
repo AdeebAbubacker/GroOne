@@ -8,7 +8,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/preview_document_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
-import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 import '../../../vp-helper/vp_helper.dart';

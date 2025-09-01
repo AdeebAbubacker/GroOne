@@ -15,6 +15,7 @@ class TicketRequest extends Serializable<TicketRequest>{
     this.search,
   });
 
+  @override
   Map<String, dynamic> toJson() => {
     if (ticketStatus != null) 'ticketStatus': ticketStatus,
     if (page != null) 'page': page,

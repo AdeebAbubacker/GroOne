@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
@@ -18,15 +17,13 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_da
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/services/vp_details_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
 class LoadDetailsRepository {
   final VpDetailsService _vpDetailsService;
-  final VpHomeService _vpHomeService;
   final UserInformationRepository _userInformationRepository;
-  LoadDetailsRepository(this._vpDetailsService,this._vpHomeService, this._userInformationRepository);
+  LoadDetailsRepository(this._vpDetailsService, this._userInformationRepository);
 
   Future<Result<LoadDetailModel>> fetchLoadDetails(String? loadId) async {
     try {
@@ -161,7 +158,6 @@ class LoadDetailsRepository {
       final userId=await _userInformationRepository.getUserID() ?? "";
       return await _vpDetailsService.createNewDocument(createDocumentRequest: createDocumentRequest,userId: userId);
     } catch (e) {
-      print("error in create document");
       CustomLog.error(this, "Failed to get upload gst document data", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }

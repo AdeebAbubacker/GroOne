@@ -28,9 +28,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:gro_one_app/utils/validator.dart';
 
-import '../../../../utils/app_dropdown.dart' show AppDropdown;
 
 class TripScheduleScreen extends StatefulWidget {
   final String? loadId;
@@ -73,7 +71,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
     vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId.toString()));
     vpHomeScreenBloc.add(
-      VpDriverDetailsRequested(userId: userId.toString() ?? ""),
+      VpDriverDetailsRequested(userId: userId.toString()),
     );
     //  Call your init methods
   });
@@ -403,7 +401,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     // Create a list of driver names with status label
     final driverNames =
         driverList.map((driver) {
-          final status = driver.activeStatus?.trim().toLowerCase() ?? "";
+          final status = driver.activeStatus.trim().toLowerCase();
           final statusLabel = status == "inactive" ? " (On Another Trip)" : "";
           return "${driver.name}$statusLabel";
         }).toList();

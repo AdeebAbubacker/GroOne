@@ -287,8 +287,8 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
-        color:Colors.white,
+        border: Border.all(color: AppColors.grey.withValues(alpha: 0.1),),
+        color:AppColors.white,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -309,7 +309,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
                style: AppTextStyle.body2.copyWith(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,
-                 color:(isPositive??false)?  Colors.green:
+                 color:(isPositive??false)?  AppColors.greenColor:
 
                  isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
               ),
@@ -333,8 +333,8 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
-        color:Colors.white,
+        border: Border.all(color: AppColors.grey.withValues(alpha: 0.1)),
+        color:AppColors.white,
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -356,18 +356,18 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
                     height: 20,
                    padding: EdgeInsets.symmetric(horizontal: 2),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: AppColors.grey.withValues(alpha: 0.1),
                       border: Border.all(
-                        color: Colors.grey
+                        color: AppColors.grey
                       ),
                       borderRadius: BorderRadius.circular(5)
                     ),
                     child:  FittedBox(
-                      child: Text("${context.appText.gst} ${gstPercentage}%",
+                      child: Text("${context.appText.gst} $gstPercentage%",
                         maxLines: 1,
                         style: AppTextStyle.body3.copyWith(
                           fontSize: 14,
-                          color: AppColors.textBlackDetailColor.withOpacity(0.6),
+                          color: AppColors.textBlackDetailColor.withValues(alpha:0.6),
                         ),),
                     ),
                   )

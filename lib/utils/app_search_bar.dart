@@ -35,13 +35,10 @@ class _AppSearchBarState extends State<AppSearchBar> {
       }
     };
 
-    if(widget.searchController != null){
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        widget.searchController!.addListener(_listener);
-      });
-    }else{
-    }
-    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      widget.searchController.addListener(_listener);
+    });
+      super.initState();
   }
 
   @override
@@ -98,14 +95,12 @@ class _AppSearchBarState extends State<AppSearchBar> {
             ),
           ),
 
-          if(widget.searchController!.text.isNotEmpty)
+          if(widget.searchController.text.isNotEmpty)
           IconButton(
             onPressed: widget.onClear ?? () {
-              if(widget.searchController != null){
-                widget.searchController?.clear();
-                commonHideKeyboard(context);
-              }
-            },
+              widget.searchController.clear();
+              commonHideKeyboard(context);
+                        },
             icon:  const Icon(CupertinoIcons.clear, color: AppColors.greyIconColor, size: 20),
           )
         ],

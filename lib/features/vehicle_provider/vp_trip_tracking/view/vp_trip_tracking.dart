@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
 
 class VpTripTracking extends StatefulWidget {
   const VpTripTracking({super.key});

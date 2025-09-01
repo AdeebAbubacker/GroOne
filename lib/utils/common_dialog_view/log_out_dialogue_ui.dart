@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -45,7 +44,7 @@ class DeleteAccountDialogueUi extends StatelessWidget {
             ),
 
         // Title
-        Text("${context.appText.deleteAccount}", style: AppTextStyle.h3),
+        Text(context.appText.deleteAccount, style: AppTextStyle.h3),
         10.height,
 
         // Subtitle

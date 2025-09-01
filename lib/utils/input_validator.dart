@@ -85,8 +85,9 @@ class InputValidator {
 
   /// Validate vehicle number format
   static String? validateVehicleNumber(String? vehicleNumber) {
-    if (vehicleNumber == null || vehicleNumber.isEmpty)
+    if (vehicleNumber == null || vehicleNumber.isEmpty) {
       return 'Vehicle number is required';
+    }
 
     // Basic Indian vehicle number format: AA-12-BB-1234
     final pattern = RegExp(r'^[A-Z]{2}-[0-9]{1,2}-[A-Z]{1,2}-[0-9]{4}$');

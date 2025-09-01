@@ -23,7 +23,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../../data/ui_state/status.dart';
 
@@ -150,7 +149,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                        },
                         label: context.appText.noOfDays, controller: noOfDays, isMandatory: false),
                     Visibility(
-                      visible:(int.tryParse(noOfDays.text??"0")??0)>0 ,
+                      visible:(int.tryParse(noOfDays.text)??0)>0 ,
                       child: AppTextField(
                         controller: detentionAmount,
                         labelText: context.appText.amount,

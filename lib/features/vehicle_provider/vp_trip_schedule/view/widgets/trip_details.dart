@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
@@ -17,8 +16,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 
-import '../../../../../utils/app_dropdown.dart' show AppDropdown;
-import '../../../../../utils/common_widgets.dart' show commonInputDecoration;
 
 
 class TripDetails extends StatelessWidget {
@@ -101,8 +98,6 @@ class TripDetails extends StatelessWidget {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    // TODO:
-                                    // put company name
                                     Text(
                                       "${loadDetails?.customer?.companyName}",
                                       style: AppTextStyle.h5w500.copyWith(
