@@ -86,9 +86,13 @@ class MastersCubit extends BaseCubit<MastersState> {
   }
 
 
-  Future<void> updatePreferLanes(List<int> preferredLanes) async {
+  Future<void> updatePreferLanes(List<int> preferredLanes,{required String customerName,required String companyName,required int companyTypeId}) async {
     _setEditUserUIState(UIState.loading());
-    Result result = await _repository.updatePreferredLanes( preferredLanes: preferredLanes);
+    Result result = await _repository.updatePreferredLanes(
+        customerName: customerName,
+        companyTypeId: companyTypeId,
+        companyName: companyName,
+        preferredLanes: preferredLanes);
     if (result is Success<EditUserResponse>) {
       _setEditUserUIState(UIState.success(result.value));
     }

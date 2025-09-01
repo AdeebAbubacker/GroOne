@@ -973,7 +973,7 @@ class ProfileService {
   }
 
   /// update prefer lanes
-  Future<Result<EditUserResponse>> updatePreferredLanes(List<int> preferredLanes) async {
+  Future<Result<EditUserResponse>> updatePreferredLanes(List<int> preferredLanes,{required String customerName,required String companyName,required int companyTypeId}) async {
     try {
       String? usedID= (await _userInformationRepository.getUserID() ?? "");
       final url = "${ApiUrls.updateCompanyInfo}/$usedID";
@@ -981,6 +981,9 @@ class ProfileService {
         url,
         body: {
           "preferredLanes": preferredLanes,
+          "customerName":customerName,
+          "companyName":companyName,
+          "companyTypeId":companyTypeId
         },
       );
       if (result is Success) {

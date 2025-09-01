@@ -160,9 +160,13 @@ class ProfileRepository {
   }
 
   /// delete address
-  Future<Result<EditUserResponse>> updatePreferredLanes({required List<int> preferredLanes}) async {
+  Future<Result<EditUserResponse>> updatePreferredLanes({required List<int> preferredLanes,required String customerName,required String companyName,required int companyTypeId}) async {
     try {
-      return await _profileService.updatePreferredLanes(preferredLanes);
+      return await _profileService.updatePreferredLanes(
+      companyName: companyName,
+      companyTypeId: companyTypeId,
+      customerName: customerName,
+      preferredLanes);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
