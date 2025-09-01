@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/master/widget/master_address_tab.dart';
+import 'package:gro_one_app/features/master/widget/master_driver_tab.dart';
 import 'package:gro_one_app/features/master/widget/master_vehicle_tab.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
@@ -307,7 +308,7 @@ class _MasterScreenState extends State<MasterScreen>
                 children: [
                   BuildAddressTab(),
                   BuildVehicleTab(),
-                  BuildAddressTab(),
+                  BuildDriverTab(),
                 ],
               ),
             ),
