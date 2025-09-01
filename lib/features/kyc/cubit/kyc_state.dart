@@ -22,6 +22,7 @@ class KycState extends Equatable {
   final UIState<DeleteDocumentModel>? deleteDocumentUIState;
   final UIState<UploadAadharDocumentModel>? uploadAadharDocumentModel;
   final UIState<DocVerificationModel>? docVerificationState;
+  final UIState<DocVerificationModel>? panDocVerificationState;
   final bool? verifiedPan;
   final bool? verifiedGst;
   final bool? verifiedTan;
@@ -53,6 +54,7 @@ class KycState extends Equatable {
     this.verifiedTan,
     this.aadharVerificationState,
     this.uploadAadharDocumentModel,
+    this.panDocVerificationState,
 
   });
 
@@ -81,9 +83,11 @@ class KycState extends Equatable {
     bool? verifiedGst,
     bool? verifiedTan,
     UIState<KycInitResponse>? kycInitResponse,
+    UIState<DocVerificationModel>? panDocVerificationState
 
   }) {
     return KycState(
+      panDocVerificationState: panDocVerificationState??this.panDocVerificationState,
       uploadAadharDocumentModel: uploadAadharDocUIState??uploadAadharDocumentModel,
       aadharVerificationState: aadharVerificationResponse ?? aadharVerificationState,
       docVerificationState: docVerificationState??this.docVerificationState,
@@ -136,7 +140,8 @@ class KycState extends Equatable {
     kycInitResponse,
     aadharVerificationState,
     uploadAadharDocumentModel,
-    docVerificationState
+    docVerificationState,
+    panDocVerificationState
   ];
 }
 

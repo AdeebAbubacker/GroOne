@@ -124,6 +124,7 @@ class ProfileService {
         return Error(GenericError());
       }
     } catch (e) {
+
       return Error(DeserializationError());
     }
   }

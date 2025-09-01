@@ -80,9 +80,13 @@ class KycRepository {
   }
 
   /// Verify Doc Id
-  Future<Result<DocVerificationModel>> verifiedDocID(String aadharNumber) async {
+  Future<Result<DocVerificationModel>> verifiedDocID({String? aadharNumber,String? panNumber,String? tan,String? gstNumber}) async {
     try {
-      return await _service.verifiedDocID(aadharNumber);
+      return await _service.verifiedDocID(aadharDoc: aadharNumber,
+      gstNumber: gstNumber,
+        panNumber: panNumber,
+        tan: tan
+      );
     } catch (e) {
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));
