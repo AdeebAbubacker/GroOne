@@ -7,6 +7,7 @@ import '../../../kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import '../../../login/repository/user_information_repository.dart';
 import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
 import '../../cubit/gps_order_cubit_folder/gps_order_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -441,7 +442,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
           AppIconButton(
             onPressed: () {
               Navigator.of(context).push(
-                commonRoute(LpSupport(showBackButton: true), isForward: true),
+                commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true),
               );
             },
             icon: AppIcons.svg.filledSupport,

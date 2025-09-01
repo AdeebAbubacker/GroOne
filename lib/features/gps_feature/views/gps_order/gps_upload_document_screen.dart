@@ -35,6 +35,7 @@ import '../../../kyc/model/kyc_init_response.dart';
 import '../../../kyc/view/kyc_verification_webview.dart';
 import '../../../profile/cubit/profile/profile_cubit.dart';
 import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
 import '../../cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
 import '../../cubit/gps_order_cubit_folder/gps_upload_document_state.dart';
 import '../../gps_order_repo/gps_order_api_repository.dart';
@@ -130,7 +131,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

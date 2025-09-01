@@ -31,6 +31,7 @@ import '../../../../utils/common_widgets.dart';
 import '../../../../utils/constant_variables.dart';
 import '../../../kavach/view/kavach_transaction_screen.dart';
 import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
 import 'gps_order_detail_screen.dart';
 import 'gps_upload_document_screen.dart';
 
@@ -253,7 +254,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,  ticketTag: TicketTags.GPS,), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -353,7 +354,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -383,7 +384,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                     4.width,
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,

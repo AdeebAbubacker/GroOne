@@ -35,6 +35,7 @@ import '../../kyc/helper/kyc_helper.dart';
 import '../../kyc/model/aadhar_status_response.dart';
 import '../../kyc/view/kyc_verification_webview.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 
 class EndhanKycScreen extends StatefulWidget {
   final String? aadhaarPrefill;
@@ -177,7 +178,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
           AppIconButton(
             onPressed: () {
               Navigator.of(context).push(
-                commonRoute(LpSupport(showBackButton: true), isForward: true),
+                commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true),
               );
             },
             icon: AppIcons.svg.filledSupport,

@@ -33,6 +33,7 @@ import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/model/kavach_address_model.dart';
 import '../../../payments/view/payments_screen.dart';
 import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
 import '../../models/gps_document_models.dart';
 import '../gps_home_screen.dart';
 
@@ -310,7 +311,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           actions: [
             AppIconButton(
               onPressed: () {
-                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
               },
               icon: AppIcons.svg.filledSupport,
               iconColor: AppColors.primaryButtonColor,

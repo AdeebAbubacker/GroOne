@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/profile/view/widgets/add_new_support_ticket.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
@@ -230,7 +231,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             actions: [
                               AppIconButton(
                                 onPressed: () {
-                                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,ticketTag: TicketTags.ENDHAN,), isForward: true));
                                 },
                                 icon: AppIcons.svg.filledSupport,
                                 iconColor: AppColors.primaryColor,

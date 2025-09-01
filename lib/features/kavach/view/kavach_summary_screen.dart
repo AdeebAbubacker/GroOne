@@ -38,6 +38,7 @@ import '../../../utils/common_widgets.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import '../../login/repository/user_information_repository.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 
 class KavachSummaryScreen extends StatefulWidget {
   final List<KavachProduct> products;
@@ -231,7 +232,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
           actions: [
             AppIconButton(
               onPressed: () {
-                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
               },
               icon: AppIcons.svg.filledSupport,
               iconColor: AppColors.primaryButtonColor,

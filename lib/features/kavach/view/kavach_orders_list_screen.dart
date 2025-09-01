@@ -19,6 +19,7 @@ import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
@@ -75,7 +76,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
@@ -121,7 +122,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
@@ -169,7 +170,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,

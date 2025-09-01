@@ -29,6 +29,7 @@ import '../../../utils/constant_variables.dart';
 import '../../../utils/app_dialog.dart';
 import '../../../utils/common_dialog_view/common_dialog_view.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 import 'endhan_kyc_screen.dart';
 import 'endhan_transaction_screen.dart';
 
@@ -262,7 +263,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -293,7 +294,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,ticketTag: TicketTags.ENDHAN,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -322,7 +323,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -347,7 +348,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -423,7 +424,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     ),
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryColor,

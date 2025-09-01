@@ -24,7 +24,6 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-
 import '../../../utils/app_icons.dart';
 import '../../ai_chat/view/chat_screen.dart';
 import '../../ai_chat/cubit/chat_cubit.dart';
@@ -32,9 +31,10 @@ import '../../ai_chat/cubit/chat_cubit.dart';
 
 
 class LpSupport extends StatefulWidget {
-  const LpSupport({super.key, this.showBackButton = true});
+  const LpSupport({super.key, this.showBackButton = true, this.ticketTag,});
 
   final bool showBackButton;
+  final String? ticketTag; // <-- New
 
   @override
   State<LpSupport> createState() => _LpSupportState();
@@ -421,7 +421,7 @@ class _LpSupportState extends State<LpSupport> {
   Widget buildCreateTicketButton() {
     return AppButton(
       onPressed: () {
-        Navigator.push(context, commonRoute(AddNewTicketScreen())).then((val) {
+        Navigator.push(context, commonRoute(AddNewTicketScreen(ticketTag: widget.ticketTag))).then((val) {
           profileCubit.fetchTickets(request: TicketRequest());
         });
       },
