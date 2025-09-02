@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,6 +25,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
@@ -124,6 +124,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
                         5.height,
       
                         AppTextField(
+                          key: AppKeys.txt('mobile_number') ,
                           validator: (value) => Validator.phone(value),
                           controller: phoneNumber,
                           maxLength: 10,
@@ -156,6 +157,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
       
                         // Get Otp Button
                         AppButton(
+                          key: AppKeys.btn('get_otp'),
                           isLoading: isLoading,
                           title: context.appText.getOtp,
                           style:
@@ -191,27 +193,29 @@ class _LoginScreenState extends BaseState<LoginScreen>
                                 text: context.appText.agree,
                                 style: AppTextStyle.blackColor14w400,
                               ),
-                              TextSpan(
-                                text: context.appText.termsAndConditions,
-                                style: AppTextStyle.primaryColor14w400UnderLine,
-                                recognizer:
-                                    TapGestureRecognizer()
-                                      ..onTap = () {
-                                        context.push(AppRouteName.termsAndConditions);
-                                      },
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  key: AppKeys.link('terms_and_conditions'),
+                                  onTap: () => context.push(AppRouteName.termsAndConditions),
+                                  child: Text(
+                                    context.appText.termsAndConditions,
+                                    style: AppTextStyle.primaryColor14w400UnderLine,
+                                  ),
+                                ),
                               ),
                               TextSpan(
                                 text: context.appText.and,
                                 style: AppTextStyle.blackColor14w400,
                               ),
-                              TextSpan(
-                                text: context.appText.privacyPolicy,
-                                style: AppTextStyle.primaryColor14w400UnderLine,
-                                recognizer:
-                                    TapGestureRecognizer()
-                                      ..onTap = () {
-                                        context.push(AppRouteName.privacyPolicy);
-                                      },
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  key: AppKeys.link('privacy_policy'),
+                                  onTap: () => context.push(AppRouteName.privacyPolicy),
+                                  child: Text(
+                                    context.appText.privacyPolicy,
+                                    style: AppTextStyle.primaryColor14w400UnderLine,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -219,6 +223,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
       
                         1.height,
                         customCheckbox(
+                          key: AppKeys.chk('agree'),
                           context: context,
                           text: context.appText.iAgree,
                           onTap: () {

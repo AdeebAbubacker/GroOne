@@ -144,6 +144,9 @@ dependencies:
   geocoding: ^3.0.0
   toastification: ^3.0.3
 
+  network_info_plus:
+  dart_ipify:
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

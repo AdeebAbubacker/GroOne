@@ -62,6 +62,7 @@ class AppCountSelector extends StatelessWidget {
           ],
         ),
         Container(
+          key: key,
           decoration: BoxDecoration(
             color: Colors.grey.shade100,
             borderRadius: BorderRadius.circular(30),

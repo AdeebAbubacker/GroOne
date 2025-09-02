@@ -34,6 +34,7 @@ class VpCompanyTypeSearchableDropdown extends StatelessWidget {
         : null;
 
     return SearchableDropdown(
+      key: key,
       labelText: labelText,
       mandatoryStar: mandatoryStar,
       selectedItem: selectedItem?.isEmpty ?? true ? null : selectedItem,

@@ -38,6 +38,7 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/remove_space_inpur_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -245,7 +246,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       children: [
         // Name
         AppTextField(
-
+          key: AppKeys.txt('full_name'),
           validator: (value) => Validator.fieldRequired(value),
           controller: nameTextController,
           labelText: context.appText.fullName,
@@ -262,6 +263,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Phone Number
         AppTextField(
+          key: AppKeys.txt('mobile_number'),
           readOnly: true,
           validator: (value) => Validator.phone(value),
           controller: mobileNumberTextController,
@@ -293,6 +295,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Pin code Truck
         AppTextField(
+          key: AppKeys.txt('pincode'),
           validator: (value) => Validator.pincode(value),
           controller: pinCodeTextController,
           labelText: context.appText.pinCode,
@@ -340,6 +343,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       },
       builder: (context, state) {
         return AppTextField(
+          key: AppKeys.txt('email'),
           validator: (value) => Validator.fieldRequired(value),
           controller: emailTextController,
           labelText: context.appText.email,
@@ -410,6 +414,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Company Name
         AppTextField(
+          key: AppKeys.txt('company_name'),
           inputFormatters: [
             NoLeadingSpaceFormatter(),
             LengthLimitingTextInputFormatter(50),
@@ -442,6 +447,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                 return Column(
                   children: [
                     VpCompanyTypeSearchableDropdown(
+                      key: AppKeys.ddl('company_type'),
                       selectedCompanyTypeId: companyTypeDropDownValue,
                       onCompanyTypeChanged: (newVal) {
                         setState(() {
@@ -484,6 +490,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               return Column(
                 children: [
                   AppMultiSelectionDropdown<int>(
+                    key: AppKeys.ddl('truck_type'),
                     labelText: context.appText.truckType,
                     hintText: context.appText.selectTruckType,
                     controller: truckTypeController,
@@ -635,6 +642,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Owned Trucks
         AppCountSelector(
+          key: AppKeys.cnt('owned_trucks'),
           label: context.appText.ownedTrucks,
           controller: ownedTruckTextController,
           isMandatory: true,
@@ -642,6 +650,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Attached Trucks
         AppCountSelector(
+          key: AppKeys.cnt('attached_trucks'),
           label: context.appText.attachedTrucks,
           controller: attachedTruckTextController,
         ),
@@ -741,6 +750,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         final isLoading =
             state.createAccountUIState?.status == Status.LOADING;
         return AppButton(
+          key: AppKeys.btn('submit'),
           title: context.appText.submit,
           isLoading: isLoading,
           onPressed:

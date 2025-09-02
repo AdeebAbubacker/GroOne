@@ -36,6 +36,7 @@ class AppButton extends StatelessWidget {
     return SizedBox(
       height: buttonHeight,
       child: ElevatedButton(
+        key: key,
         onPressed:   isLoading == true || enable==false
             ? null // better UX: disabled state
             : () {

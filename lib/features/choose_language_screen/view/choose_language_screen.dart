@@ -17,6 +17,7 @@ import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 
 class ChooseLanguageScreen extends StatefulWidget {
   final bool isCloseButton;
@@ -75,6 +76,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                   CircularProgressIndicator().center().expand()
                 else
                   ListView.separated(
+                    key: AppKeys.lst('language'),
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     separatorBuilder: (_, __) => 15.height,
@@ -103,6 +105,7 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     ).align(Alignment.center),
                     10.height,
                     AppButton(
+                      key: AppKeys.btn('next'),
                       title: context.appText.next,
                       onPressed: () {
                         if (widget.isCloseButton) {
