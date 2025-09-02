@@ -68,6 +68,7 @@ class AppMultiSelectionDropdown<T extends Object> extends StatelessWidget {
               }
             },
             child: MultiDropdown<T>(
+              key: key,
               controller: controller,
               items: items,
               enabled: true,

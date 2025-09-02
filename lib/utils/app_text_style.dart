@@ -89,6 +89,7 @@ class AppTextStyle {
     fontWeight: FontWeight.w400,
     color: AppColors.primaryColor,
     decoration: TextDecoration.underline,
+    decorationColor: AppColors.primaryColor,
   );
   static TextStyle textGreyColor14w400 = TextStyle(
     color: AppColors.textGreyColor,

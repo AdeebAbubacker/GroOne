@@ -193,8 +193,9 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.chooseLanguage,
         pageBuilder: (BuildContext context, GoRouterState state) {
-          final data = state.extra as Map<String, dynamic>;
-          final bool isCloseButton = data["isCloseButton"];
+          final data = (state.extra as Map<String, dynamic>?) ?? {};
+          final bool isCloseButton = (data["isCloseButton"] as bool?) ?? false;
+
           return buildTransitionPage(
               state: state,
               child: ChooseLanguageScreen(isCloseButton: isCloseButton)
