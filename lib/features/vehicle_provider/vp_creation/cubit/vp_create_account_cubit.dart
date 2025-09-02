@@ -120,6 +120,7 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
     List<Item> items= state.prefLaneUIState?.data?.data?.items??[];
     List<Item> modifiedList=List.from(items);
     List<Item> selectedList=[];
+
     if(items.isNotEmpty){
       for(var preselectLanes in selectedLanes){
         Item getLanesItem=  items.firstWhere((element) => element.masterLaneId==preselectLanes).copyWith(

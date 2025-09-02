@@ -184,17 +184,15 @@ enum DocumentFileType {
   materialInvoice('material_invoice', documentType: "Material Invoice"),
   proofOfDelivery('proof_of_delivery', documentType: "Proof of Delivery"),
   uploadOtherDocument('other_documents', documentType: "Other Documents"),
-  damageAndShortage(
-    'damages_and_shortages',
-    documentType: "Damages and Shortages",
-  ),
+  damageAndShortage('damages_and_shortages', documentType: "Damages and Shortages",),
   aadharDocument('aadhaar_card', documentType: 'Aadhaar Card'),
   panDocument('aadhaar_card', documentType: 'PAN Card'),
   tanDocument('tan_document', documentType: 'Tan Document'),
   gstinDocument('gst_document', documentType: 'GST Document'),
   tdsDocument('tds', documentType: 'TDS'),
   chequeDocument('cancelled_cheque', documentType: 'Cancelled Cheque'),
-  licenseDocument('driving_licence', documentType: 'Driving Licence');
+  licenseDocument('driving_licence', documentType: 'Driving Licence'),
+  supportTicket('ticket_document', documentType: 'Ticket Document');
 
   final String value;
   final String? documentType;

@@ -59,6 +59,7 @@ class DocumentEntity {
 class DocumentDataModel {
   static List<DocumentEntity> documentTypeList=[];
   static DocumentEntity? damageDocumentEntity;
+  static DocumentEntity? supportDocumentEntity;
 
 
   static void setDocumentEntityList(){
@@ -111,6 +112,16 @@ class DocumentDataModel {
       visible: true,
       documentType: DocumentFileType.damageAndShortage.documentType
     )..loadDocumentTypeId( DocumentFileType.damageAndShortage.documentType);
+  }
+
+  static void setSupportDocumentEntity(){
+    supportDocumentEntity=  DocumentEntity(
+      documentTypeId:null,
+      fileType: DocumentFileType.supportTicket.name,
+      title:navigatorKey.currentState?.context.appText.supportTicket,
+      visible: true,
+      documentType: DocumentFileType.supportTicket.documentType
+    )..loadDocumentTypeId( DocumentFileType.supportTicket.documentType);
   }
 
 }

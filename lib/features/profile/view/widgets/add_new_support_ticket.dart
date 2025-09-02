@@ -7,6 +7,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -129,9 +130,11 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                       final ticketData = profileCubit.state.uploadTicketDocUIState?.data;
                       if(ticketData != null &&  ticketList.isNotEmpty){
                         final mimeType = lookupMimeType(ticketList.first['extension']);
+                        final supportDocumentEntity=DocumentDataModel.supportDocumentEntity;
+
                         final apiRequest =  CreateDocumentApiRequest(
-                          documentTypeId : 342,
-                          title : 'Support Ticket',
+                          documentTypeId : supportDocumentEntity?.documentTypeId,
+                          title : supportDocumentEntity?.title,
                           description : 'Ticket',
                           originalFilename : ticketData.originalName,
                           filePath : ticketData.filePath,

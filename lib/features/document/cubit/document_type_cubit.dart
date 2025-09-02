@@ -47,6 +47,7 @@ class DocumentTypeCubit extends BaseCubit<DocumentTypeState> {
   _setDocumentData(){
     DocumentDataModel.setDocumentEntityList();
     DocumentDataModel.setDamageDocumentEntity();
+    DocumentDataModel.setSupportDocumentEntity();
     Future.delayed(Duration(seconds: 1),() => _loadDetailsCubit.setDocumentState(),);
     Future.delayed(Duration(seconds: 1),() => _driverLoadDetailsCubit.setDocumentState(),);
   }

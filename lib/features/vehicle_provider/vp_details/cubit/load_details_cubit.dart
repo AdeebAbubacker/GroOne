@@ -615,6 +615,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
     setTripDocuments(List<LoadDocument>? loadDocument) {
     List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+
       for (DocumentEntity item in documentList) {
         /// find load item for api response set into local document entity
         item.loadDocument=filterLoadDocumentById(loadDocument,item);
@@ -638,14 +639,14 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true,bool? isAgreed}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true,bool? isAgreed,bool? isDocumentApproved,bool? isPodApproved}) {
     switch(loadStatus){
       case LoadStatus.assigned:
         return (checkMemo??true) ? memo!=null && (isAgreed??false):true;
         case LoadStatus.loading:
-          return  checkIsDocumentUploaded(documentEntity);
+          return  checkIsDocumentUploaded(documentEntity) && isDocumentApproved==true;
       case LoadStatus.unloading:
-        return checkIsDocumentUploaded(documentEntity);
+        return checkIsDocumentUploaded(documentEntity) && isPodApproved==true;
       default:
         return true;
     }
