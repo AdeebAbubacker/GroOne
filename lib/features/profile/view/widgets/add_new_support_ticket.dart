@@ -181,7 +181,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
     if (status != null &&  status == Status.SUCCESS) {
       final data = profileCubit.state.uploadTicketDocUIState?.data;
       final url = data?.url ?? '';
-      print('url is $url');
+
       if (url.isNotEmpty) {
         ticketList.first['path'] = url;
         return Success(true);
