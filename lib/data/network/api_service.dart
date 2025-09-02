@@ -17,6 +17,8 @@ import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
+import 'package:network_info_plus/network_info_plus.dart';
+import 'package:dart_ipify/dart_ipify.dart';
 
 class ApiService {
   final Duration _timeout = const Duration(
@@ -35,11 +37,33 @@ class ApiService {
     _dio.options.receiveTimeout = _timeout;
   }
 
+
+  Future<String> getDeviceIp() async {
+    String? ip;
+
+    try {
+      final info = NetworkInfo();
+      ip = await info.getWifiIP(); // local IP on Wi-Fi
+    } catch (_) {}
+
+    if (ip == null || ip.isEmpty) {
+      try {
+        ip = await Ipify.ipv4(); // public IP if on mobile data
+      } catch (_) {
+        ip = "0.0.0.0"; // fallback
+      }
+    }
+    return ip;
+  }
+
+
   /// Header
   Future<Map<String, String>> _getHeaders({bool isMultipart = false}) async {
+    final ip = await getDeviceIp();
     Map<String, String> headers = {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
+      'X-Real-IP' : ip
     };
     try {
       String? accessToken = await _secureSharedPrefs.get(

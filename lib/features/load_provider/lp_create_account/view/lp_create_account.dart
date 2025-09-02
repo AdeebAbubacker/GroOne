@@ -29,6 +29,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -156,6 +157,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
           // Company Name
           AppTextField(
+            key: AppKeys.txt('company_name'),
             validator: (value) => Validator.fieldRequired(value),
             controller: companyNameTextController,
             labelText: context.appText.companyName,
@@ -186,6 +188,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
                 return Column(
                   children: [
                     CompanyTypeSearchableDropdown(
+                      key: AppKeys.ddl('company_type'),
                       selectedCompanyTypeId: companyTypeDropDownValue,
                       onCompanyTypeChanged: (newVal) {
                         setState(() {
@@ -208,6 +211,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
            // Name
           AppTextField(
+            key: AppKeys.txt('full_name'),
             validator: (value) => Validator.fieldRequired(value),
             controller: nameTextController,
             labelText: context.appText.fullName,
@@ -223,6 +227,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
           // Phone Number
           AppTextField(
+            key: AppKeys.txt('mobile_number'),
             readOnly: true,
             validator: (value)=> Validator.phone(value),
             controller: phoneNumberTextController,
@@ -255,6 +260,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
           // Pin code
           AppTextField(
+            key: AppKeys.txt('pincode'),
             validator: (value) => Validator.pincode(value),
             controller: pinCodeTextController,
             labelText: context.appText.pincode,
@@ -296,6 +302,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
         },
         builder: (context, state) {
           return AppTextField(
+            key: AppKeys.txt('email'),
             validator: (value) => Validator.fieldRequired(value),
             controller: emailTextController,
             labelText: context.appText.email,
@@ -363,6 +370,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
         final status = state.createAccountUIState?.status;
         final isLoading = status == Status.LOADING;
         return AppButton(
+          key: AppKeys.btn('continue'),
           title: context.appText.continueText,
           isLoading: isLoading,
           onPressed: isLoading ? (){} : () async {

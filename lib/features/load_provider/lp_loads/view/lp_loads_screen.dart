@@ -298,7 +298,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     lpLoadLocator.getLpLoadsByType(
       loadListApiRequest: LoadListApiRequest(
         loadStatus: loadStatus,
-        page: paginationController.currentPage,
+        page: 1,
+        laneId: selectedRoute,
+        truckTypeId: selectedTruckTypeId?.toString(),
+        loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
       ),
     );
   }

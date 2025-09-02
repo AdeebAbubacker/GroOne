@@ -1098,7 +1098,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                     LpBottomNavigation.selectedIndexNotifier.value = 1;
                                   },
                                   style: AppButtonStyle.primaryTextButton,
-                                  child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+                                  child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor, textAlign: TextAlign.center),
                                 ),
 
                               ],

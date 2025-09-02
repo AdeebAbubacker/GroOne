@@ -84,6 +84,7 @@ class AppTextField extends StatelessWidget {
         if (labelText != null)
           6.height,
         TextFormField(
+          key: key,
           enabled: enabled ?? true,
           validator: validator,
           inputFormatters: inputFormatters ?? [],
