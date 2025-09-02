@@ -3,7 +3,6 @@ import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
-import 'package:gro_one_app/utils/global_variables.dart';
 
 import '../../vp-helper/vp_helper.dart';
 

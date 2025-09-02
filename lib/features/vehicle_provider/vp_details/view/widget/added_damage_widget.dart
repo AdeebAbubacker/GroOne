@@ -1,16 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
-import '../../../../../utils/app_icons.dart';
 
 class AddedDamageWidget extends StatelessWidget {
   final List<DamageReport>? damageReport;

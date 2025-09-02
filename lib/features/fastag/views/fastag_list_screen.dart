@@ -17,7 +17,6 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_search_bar.dart';
 import '../cubit/fastag_cubit.dart';
 import 'buy_new_fastag_screen.dart';
-import 'fastag_detail_screen.dart';
 import 'fastag_new_user_screen.dart';
 import 'fastag_recharge_screen.dart';
 
@@ -213,7 +212,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: statusColor.withOpacity(0.1),
+                            color: statusColor.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(5),
                           ),
                           child: Text(

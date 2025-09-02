@@ -67,10 +67,11 @@ class MapHelper {
         return LatLng(locations.first.latitude, locations.first.longitude);
       }
     } catch (e) {
-      // debugPrint("Error fetching LatLng from address: $e");
+    
+    return null;
     }
     return null;
-  }
+    }
 
 
   // Reusable: Get address from latitude and longitude

@@ -8,8 +8,6 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
-import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
-import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -17,7 +15,6 @@ import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -200,11 +197,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
                                 recognizer:
                                     TapGestureRecognizer()
                                       ..onTap = () {
-                                        // Handle terms & conditions tap
-                                        Navigator.push(
-                                          context,
-                                          commonRoute(TermsAndConditionsScreen()),
-                                        );
+                                        context.push(AppRouteName.termsAndConditions);
                                       },
                               ),
                               TextSpan(
@@ -217,10 +210,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
                                 recognizer:
                                     TapGestureRecognizer()
                                       ..onTap = () {
-                                        Navigator.push(
-                                          context,
-                                          commonRoute(PrivacyPolicyScreen()),
-                                        );
+                                        context.push(AppRouteName.privacyPolicy);
                                       },
                               ),
                             ],

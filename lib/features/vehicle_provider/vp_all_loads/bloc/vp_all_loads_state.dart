@@ -27,7 +27,7 @@ class VpLoadState extends Equatable {
       loads: loads ?? this.loads,
       statuses: statuses ?? this.statuses,
       currentPage: currentPage ?? this.currentPage,
-      totalRecords: totalPage ?? this.totalRecords
+      totalRecords: totalPage ?? totalRecords
     );
   }
   @override

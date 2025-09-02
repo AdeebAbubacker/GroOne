@@ -18,6 +18,7 @@ import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/common_functions.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 
 
 class KavachChooseYourPreferenceScreen extends StatefulWidget {
@@ -49,7 +50,7 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

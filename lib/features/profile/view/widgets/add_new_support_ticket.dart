@@ -21,7 +21,9 @@ import 'package:mime/mime.dart';
 
 
 class AddNewTicketScreen extends StatefulWidget {
-  const AddNewTicketScreen({super.key});
+  const AddNewTicketScreen({super.key, this.ticketTag});
+
+  final String? ticketTag;
 
   @override
   State<AddNewTicketScreen> createState() => _AddNewTicketScreenState();
@@ -47,19 +49,22 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final tag = widget.ticketTag ??
+          (profileCubit.userRole == 1
+              ? TicketTags.LOAD_PROVIDER
+              : profileCubit.userRole == 2
+              ? TicketTags.VEHICLE_PROVIDER
+              : profileCubit.userRole == 3
+              ? TicketTags.BOTH_LP_VP
+              : '');
+
        await profileCubit.createTicket(
         request: CreateTicketRequest(
           issueCategory: issueCategoryController.text.trim(),
           title: titleController.text.trim(),
           description: descriptionController.text.trim(),
           attachmentLink: ticketDocId != null ? [ticketDocId] : [],
-          ticketTag: profileCubit.userRole == 1
-              ? TicketTags.LOAD_PROVIDER
-              : profileCubit.userRole == 2
-              ? TicketTags.VEHICLE_PROVIDER
-              : profileCubit.userRole == 3
-              ? TicketTags.BOTH_LP_VP
-              : '',
+          ticketTag: tag,
         ),
       );
 

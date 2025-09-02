@@ -28,8 +28,8 @@ import '../../../utils/app_text_style.dart';
 import '../../../utils/constant_variables.dart';
 import '../../../utils/app_dialog.dart';
 import '../../../utils/common_dialog_view/common_dialog_view.dart';
-import '../../kavach/view/kavach_support_screen.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 import 'endhan_kyc_screen.dart';
 import 'endhan_transaction_screen.dart';
 
@@ -149,11 +149,11 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: const Color(0xFFE67E22), // Orange color
+                color: Colors.orange, // Orange color
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFE67E22).withOpacity(0.3),
+                    color: Colors.orange.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -170,7 +170,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             Text(
               context.appText.cardAlreadyAdded,
               style: AppTextStyle.h4.copyWith(
-                color: const Color(0xFFE67E22),
+                color: AppColors.orangeTextColor,
                 fontWeight: FontWeight.bold,
               ),
               textAlign: TextAlign.center,
@@ -184,10 +184,13 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        _safeNavigateBack(context);
-        return false;
+    return PopScope(
+      canPop: false, // Prevents auto-pop (like returning false in WillPopScope)
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          // System tried to pop, but we blocked it
+          _safeNavigateBack(context);
+        }
       },
       child: BlocProvider.value(
         value: locator<EnDhanCubit>(),
@@ -260,7 +263,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -291,7 +294,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,ticketTag: TicketTags.ENDHAN,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -320,7 +323,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -345,7 +348,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -421,7 +424,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     ),
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryColor,
@@ -636,14 +639,6 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     return const Center(child: AppLoadingWidget());
   }
 
-  String _maskCardNumber(String cardNumber) {
-    if (cardNumber.length < 4) return cardNumber;
-    // Mask all but the first 2 and last 4 digits
-    final visibleStart = cardNumber.substring(0, 2);
-    final visibleEnd = cardNumber.substring(cardNumber.length - 4);
-    return 'XXX XXXXX X$visibleEnd';
-  }
-
   Widget enDhanBenifitsWidget(BuildContext context, {bool showKycScreen = false}){
     return Stack(
       children: [
@@ -729,7 +724,6 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
   }
 
   Widget buildenDhanProductImageWidget(BuildContext context){
-    final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(

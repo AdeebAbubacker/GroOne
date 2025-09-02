@@ -7,7 +7,6 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_in_progress_dialogue.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_pending_dialogue.dart';
@@ -25,7 +24,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_mod
 import 'package:gro_one_app/features/load_provider/lp_home/view/commodity_types_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/load_summary_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/recent_route_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/truck_type_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shipment_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
@@ -38,12 +36,12 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
-import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -372,7 +370,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   void navigateToRecentRouteScreen() {
-    Navigator.of(context).push(createRoute(RecentRouteScreen())).then((onValue) async {
+    context.push(AppRouteName.recentRoute).then((onValue) async {
       if (onValue != null && onValue == true) {
         await fetchRateDiscovery();
       }
@@ -413,7 +411,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
         // Language
         AppIconButton(
           onPressed: (){
-            Navigator.push(context, commonRoute(ChooseLanguageScreen(isCloseButton: true)));
+            context.push(AppRouteName.chooseLanguage, extra: {"isCloseButton" : true});
           },
           icon: AppIcons.svg.translation,
         ),
@@ -514,9 +512,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                       decoration: commonContainerDecoration(borderWidth : 2, borderRadius: BorderRadius.circular(100), color: blueId != null && blueId.isNotEmpty ? AppColors.primaryColor : AppColors.extraLightBackgroundGray),
                       child: Text(getInitialsFromName(this, name : state.profileDetailUIState!.data!.customer!.companyName), style: AppTextStyle.h6.copyWith(color: blueId != null && blueId.isNotEmpty ? AppColors.white : AppColors.black)),
                     ).onClick((){
-                      Navigator.push(context, commonRoute(ProfileScreen(), isForward: true)).then((v) {
-                        // frameCallback(() =>  profileCubit.fetchProfileDetail());
-                      });
+                      context.push(AppRouteName.profile);
                     }).paddingRight(commonSafeAreaPadding),
                   ],
                 );
@@ -529,7 +525,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
               decoration: commonContainerDecoration(borderRadius: BorderRadius.circular(100), color: AppColors.extraLightBackgroundGray),
               child: Text(getInitialsFromName(this, name : "")),
             ).onClick((){
-              Navigator.push(context, commonRoute(ProfileScreen(), isForward: true));
+              context.push(AppRouteName.profile);
             }).paddingRight(commonSafeAreaPadding);
           },
         ),

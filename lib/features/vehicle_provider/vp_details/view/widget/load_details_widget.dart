@@ -1,15 +1,10 @@
 import 'dart:io';
 
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/model/driver_load_details_model.dart'
-    hide DataTruckType;
-import 'package:gro_one_app/features/kavach/view/kavach_support_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_button_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
@@ -17,13 +12,11 @@ import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.
 import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_settlements_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/added_damage_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/document_widget_view.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/information_view.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
@@ -33,7 +26,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_statement/view/vp_tripstatement_screen.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -51,14 +43,9 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
-import 'package:path_provider/path_provider.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
-import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
-import '../../../../trip_tracking/widgets/payment_information_dialogue.dart';
 
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
@@ -193,9 +180,9 @@ class LoadDetailsWidget extends StatelessWidget {
                                   progressPercentage:
                                       trackingData.coverPercentage ?? 0,
                                   coveredDistance:
-                                      trackingData.covereddistance ?? '--',
+                                      trackingData.covereddistance,
                                   totalDistance:
-                                      trackingData.overalldistance ?? '--',
+                                      trackingData.overalldistance,
                                   eta: trackingData.durationValue,
                                 ).paddingSymmetric(horizontal: 15);
                               },
@@ -329,7 +316,7 @@ class LoadDetailsWidget extends StatelessWidget {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               8.height,
-                                              Text("(${loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? ""})" ?? "",
+                                              Text("(${loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? ""})",
                                               style:AppTextStyle.h3RedLight14,),
                                             ],
                                           ))
@@ -925,7 +912,7 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
       if ((advancePayment ?? "" ).isNotEmpty) ...[
         8.height,
         _buildPriceRow(
-          "${context.appText.advancedReceived}",
+          context.appText.advancedReceived,
           advancePayment??"",
           context,
           highlight: true,
@@ -1025,55 +1012,6 @@ Widget _buildPriceRow(
                     : AppColors.textGreyDetailColor,
           ),
         ),
-      ),
-    ],
-  );
-}
-
-// Status Details
-Widget _buildStatusRow({
-  required String title,
-  required String amount,
-  required String statusText,
-  required Color statusColor,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Text(
-        title,
-        style: AppTextStyle.body.copyWith(
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-          color: AppColors.darkDividerColor,
-        ),
-      ),
-      6.height,
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            amount,
-            style: AppTextStyle.body.copyWith(
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
-              color: AppColors.textBlackColor,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: statusColor,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Text(
-              statusText,
-              style: AppTextStyle.textBlackColor12w400.copyWith(
-                color: AppColors.textGreen,
-              ),
-            ),
-          ),
-        ],
       ),
     ],
   );

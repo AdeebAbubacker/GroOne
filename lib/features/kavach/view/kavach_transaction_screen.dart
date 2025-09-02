@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -12,9 +11,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_icons.dart';
-import '../../../utils/common_functions.dart';
 import '../cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
-import '../model/kavach_transaction_model.dart';
 
 
 class KavachTransactionsScreen extends StatefulWidget {
@@ -119,7 +116,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen> {
                               children: [
                                 Text(txn.referenceNumber, style: AppTextStyle.h5),
                                 Text(
-                                  '${txn.paymentDate}',
+                                  txn.paymentDate,
                                   style: AppTextStyle.textGreyColor12w400,
                                 ),
                               ],
@@ -140,7 +137,7 @@ class _KavachTransactionsScreenState extends State<KavachTransactionsScreen> {
                                   vertical: 2,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: getStatusColor(txn.status ?? '').withOpacity(0.2),
+                                  color: getStatusColor(txn.status ?? '').withValues(alpha: 0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                                 child: Text(

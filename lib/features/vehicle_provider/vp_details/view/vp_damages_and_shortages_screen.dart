@@ -23,7 +23,6 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_count_selector.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -573,6 +572,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
                       final status = state.deleteDamageUIState?.status;
                       if (status == Status.SUCCESS) {
                         cubit.resetDeleteDamageUIState();
+                        if(!context.mounted) return;
                         ToastMessages.success(message:context.appText.damageDeletedSuccessfully);
                       }
                       if (status == Status.ERROR) {

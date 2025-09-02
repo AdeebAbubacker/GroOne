@@ -43,7 +43,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5),
+      backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
         child: Column(
           children: [
@@ -208,7 +208,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFFE0E0E0)),
+              border: Border.all(color: AppColors.borderColor),
             ),
             child: AppTextField(
               controller: _amountController,

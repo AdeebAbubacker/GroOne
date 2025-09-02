@@ -1,4 +1,3 @@
-import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 
 class VpMyLoadResponse {

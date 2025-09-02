@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -8,7 +7,6 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
-import 'package:gro_one_app/utils/download_handler.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
@@ -128,15 +126,11 @@ String getSwipeButtonTitle(
 
 Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
   try {
-    final fileName = path.basename(url);
+    path.basename(url);
     final directory = await getApplicationDocumentsDirectory();
     final filePath = path.join(directory.path, originalFileName);
     final dio = Dio();
     await dio.download(url, filePath);
-
-    print(
-      "filePath gettign :: ${filePath} and original file name ${originalFileName}",
-    );
     await OpenFilex.open(filePath);
   } catch (e) {
     debugPrint("Error downloading/opening file: $e");

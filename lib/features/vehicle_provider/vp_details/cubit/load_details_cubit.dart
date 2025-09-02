@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' hide LoadStatus;
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
@@ -31,22 +30,19 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_ap
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:mime/mime.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' as lpHelper;
 import 'load_details_state.dart';
 
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LoadDetailsRepository _loadDetailsRepository;
   final VpHomeRepository _vHomeRepository;
-  final LpLoadRepository _lpLoadRepository;
   final LpLoadRepository _lpLoadsrepository;
 
-  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadRepository,this._lpLoadsrepository)
+  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadsrepository)
       : super(LoadDetailsState(tripDocumentList:[]));
 
 
@@ -213,6 +209,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     if (result is Success<ScheduleTripResponse>) {
       emit(state.copyWith(
           scheduleTripResponse: UIState.success(result.value)));
+          
       Navigator.pop(navigatorKey.currentState!.context);
     } else if (result is Error) {
       emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));

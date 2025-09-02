@@ -41,8 +41,8 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
   String kilometers = '';
   GoogleMapController? googleMapController;
   final vpDetailsCubit = locator<LoadDetailsCubit>();
-  List<LatLng> _polylineCoordinates = [];
-  Set<Polyline> _polylines = {};
+  final List<LatLng> _polylineCoordinates = [];
+  final Set<Polyline> _polylines = {};
 
 
   @override
@@ -157,7 +157,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
 
       _polylines.add(Polyline(
         polylineId: PolylineId(navigatorKey.currentState!.context.appText.remainingDistance),
-        color: AppColors.primaryColor.withOpacity(0.7),
+        color: AppColors.primaryColor.withValues(alpha: 0.7),
         width: 5,
         points: blueSegment,
       ));

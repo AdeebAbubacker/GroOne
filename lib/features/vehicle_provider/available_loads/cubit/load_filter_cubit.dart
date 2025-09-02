@@ -119,7 +119,6 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState>{
           "value":value
         }
     ));
-    print("function calling");
 
 
   }

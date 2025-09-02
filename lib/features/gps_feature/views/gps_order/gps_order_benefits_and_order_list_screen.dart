@@ -29,16 +29,14 @@ import '../../../../utils/app_text_style.dart';
 import '../../../../utils/common_functions.dart';
 import '../../../../utils/common_widgets.dart';
 import '../../../../utils/constant_variables.dart';
-import '../../../kavach/view/kavach_order_details_screen.dart';
-import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../kavach/view/kavach_transaction_screen.dart';
 import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
 import 'gps_order_detail_screen.dart';
-import 'gps_transaction_screen.dart';
 import 'gps_upload_document_screen.dart';
 
 class GpsOrderBenefitsAndOrderListScreen extends StatefulWidget {
-  GpsOrderBenefitsAndOrderListScreen({super.key});
+  const GpsOrderBenefitsAndOrderListScreen({super.key});
 
   @override
   State<GpsOrderBenefitsAndOrderListScreen> createState() =>
@@ -128,6 +126,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
       } else {
         targetRoute = AppRouteName.lpBottomNavigationBar;
       }
+      if (!mounted) return;
       if (context.mounted) {
         context.go(targetRoute);
       }
@@ -141,11 +140,13 @@ class _GpsOrderBenefitsAndOrderListScreenState
 
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
-      onWillPop: () async {
-        // Use the same navigation logic as the back button
-        _navigateBackSynchronously();
-        return false; // Prevent default back behavior
+    return PopScope(
+      canPop: false, // disables default pop, same as returning false in onWillPop
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          // Use the same navigation logic as the back button
+          _navigateBackSynchronously();
+        }
       },
       child: BlocProvider.value(
         value: GpsKycCheckCubit(locator<GpsOrderApiRepository>())..resetCubit(),
@@ -163,6 +164,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
               Future.microtask(() {
                 if (mounted) {
                   if (customerId != null) {
+                    if (!context.mounted) return;
                     context.read<GpsKycCheckCubit>().checkKycDocuments(
                       customerId!,
                     );
@@ -252,7 +254,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,  ticketTag: TicketTags.GPS,), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -282,6 +284,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
           if (state is GpsOrderListInitial && customerId != null) {
             Future.microtask(() {
               if (mounted) {
+                if (!context.mounted) return;
                 context.read<GpsOrderListCubit>().getOrderList(
                   customerId: customerId!,
                 );
@@ -351,7 +354,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -381,7 +384,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                     4.width,
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -426,6 +429,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                         );
 
                         if (selected == 'transaction') {
+                          if (!context.mounted) return;
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (_) => KavachTransactionsScreen(fleetProductId: 1)),
@@ -637,7 +641,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                       color:
                           isSelected
                               ? AppColors.primaryColor
-                              : const Color(0xFFEFEFEF),
+                              : AppColors.greyContainerBg,
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
@@ -696,7 +700,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                                     vertical: 4,
                                   ),
                                   decoration: commonContainerDecoration(
-                                    color: statusColor.withOpacity(0.09),
+                                    color: statusColor.withValues(alpha: 0.09),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(

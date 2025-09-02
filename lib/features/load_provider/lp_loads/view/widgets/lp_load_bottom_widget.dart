@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -11,7 +12,6 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_credit_check_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_get_by_id_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_load_trip_statement.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/advance_payment_dialog.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/feedback_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/low_credit_dialog.dart';
@@ -24,12 +24,12 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -583,7 +583,8 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
               ),
             if(widget.loadStatus == LoadStatus.completed)
               AppButton(onPressed: () {
-                Navigator.push(context, commonRoute(LpLoadSummaryScreen(loadId: widget.loadItem.loadId, loadItem: widget.loadItem)));
+                final extra = {"loadId": widget.loadItem.loadId, "loadItem": widget.loadItem};
+                context.push(AppRouteName.lpLoadSummary, extra: extra);
               }, title: context.appText.viewTripStatement).paddingSymmetric(horizontal: 10, vertical: 10)
           ],
         ),

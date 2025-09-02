@@ -47,7 +47,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
   ) {
     return Container(
       decoration: commonContainerDecoration(
-        color: Color(0xffE9F3FA).withOpacity(0.8),
+        color: Color(0xffE9F3FA).withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(

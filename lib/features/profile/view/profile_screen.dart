@@ -10,13 +10,6 @@ import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_botto
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
-import 'package:gro_one_app/features/profile/view/benefits_of_membership_screen.dart';
-import 'package:gro_one_app/features/master/view/master_screen.dart';
-import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
-import 'package:gro_one_app/features/profile/view/my_document_screen.dart';
-import 'package:gro_one_app/features/profile/view/setting_screen.dart';
-import 'package:gro_one_app/features/profile/view/support_screen.dart';
-import 'package:gro_one_app/features/profile/view/transaction_screen.dart';
 import 'package:gro_one_app/features/profile/view/widgets/profile_my_account_tile.dart';
 import 'package:gro_one_app/utils/common_dialog_view/log_out_dialogue_ui.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -25,7 +18,6 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -36,8 +28,6 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-
-import 'routes_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -210,10 +200,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                   state.profileDetailUIState?.data?.customer?.blueId != "")
                 InkWell(
                   onTap: () {
-                    Navigator.push(
-                      context,
-                      commonRoute(BenefitsOfMembershipScreen()),
-                    );
+                    context.push(AppRouteName.benefitsOfMembership);
                   },
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
@@ -249,19 +236,14 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                 imageString: AppImage.svg.user,
                 text: context.appText.myAccount,
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    commonRoute(
-                      LpMyAccount(
-                        customerDetail:
-                            state.profileDetailUIState!.data!.customer!,
-                        bankDetails:
-                            state.profileDetailUIState!.data!.bankDetails!,
-                        kycDoc: state.profileDetailUIState!.data!.kycDocs[0],
-                      ),
-                      isForward: true,
-                    ),
-                  );
+
+                  final extra = {
+                    "customerDetail": state.profileDetailUIState?.data?.customer,
+                    "bankDetails": state.profileDetailUIState?.data?.bankDetails,
+                    "kycDoc": state.profileDetailUIState?.data?.kycDocs[0],
+                  };
+
+                  context.push(AppRouteName.myAccount, extra: extra);
                 },
               );
             },
@@ -272,9 +254,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             imageString: AppImage.svg.master,
             text: context.appText.masters,
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(commonRoute(MasterScreen(), isForward: true));
+              context.push(AppRouteName.master);
             },
           ),
           commonDivider(),
@@ -283,9 +263,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               imageString: AppImage.svg.routes,
               text: context.appText.routes,
               onTap: () {
-                Navigator.of(
-                  context,
-                ).push(commonRoute(RouteScreen(), isForward: true));
+                context.push(AppRouteName.routes);
               },
             ),
             commonDivider(),
@@ -295,9 +273,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             imageString: AppImage.svg.myDocuments,
             text: context.appText.myDocuments,
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(commonRoute(MyDocumentScreen(), isForward: true));
+              context.push(AppRouteName.myDocuments);
             },
           ),
           commonDivider(),
@@ -308,9 +284,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                 imageString: AppImage.svg.transaction,
                 text: context.appText.transactions,
                 onTap: () {
-                  Navigator.of(
-                    context,
-                  ).push(commonRoute(LpTransaction(), isForward: true));
+                  context.push(AppRouteName.lpTransaction);
                 },
               ),
             ),
@@ -321,9 +295,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             imageString: AppImage.svg.settings,
             text: context.appText.settings,
             onTap: () {
-              Navigator.of(
-                context,
-              ).push(commonRoute(LpSetting(), isForward: true));
+              context.push(AppRouteName.settings);
             },
           ),
           commonDivider(),
@@ -332,9 +304,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
             imageString: AppImage.svg.support,
             text: context.appText.support,
             onTap: () {
-              Navigator.of(context).push(
-                commonRoute(LpSupport(showBackButton: true), isForward: true),
-              );
+              context.push(AppRouteName.support, extra: {"showBackButton" : true});
             },
           ),
           commonDivider(),

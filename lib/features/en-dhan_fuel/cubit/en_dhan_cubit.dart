@@ -5,13 +5,13 @@ import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/api_request/en-dhan_api_request.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/api_request/en_dhan_api_request.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/document_upload_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_kyc_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
     as api_models;
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/repository/en_dhan_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 import '../../../data/network/api_service.dart';
@@ -1158,7 +1158,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     String cleanPan = value.replaceAll(RegExp(r'\s+'), '').toUpperCase();
 
     // PAN format: ABCDE1234F (5 letters + 4 digits + 1 letter)
-    RegExp panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
+    RegExp panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]$');
 
     if (!panRegex.hasMatch(cleanPan)) {
       return 'Please enter valid PAN number (e.g., ABCDE1234F)';

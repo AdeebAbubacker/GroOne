@@ -100,7 +100,6 @@ class DateTimeHelper {
       final DateFormat format = DateFormat("dd/MM/yyyy");
       return format.parse(dateString);
     } catch (e) {
-      debugPrint("Error parsing date: $e");
       return null;
     }
   }
@@ -112,7 +111,6 @@ class DateTimeHelper {
       DateTime now = DateTime.now();
       return DateTime(parsedDate.year, parsedDate.month, parsedDate.day, now.hour, now.minute, now.second);
     } catch (e) {
-      debugPrint("Error parsing date: $e");
       return DateTime.now();
     }
   }
@@ -124,7 +122,6 @@ class DateTimeHelper {
       final DateTime parsedDateTime = format.parse(timeString);
       return TimeOfDay(hour: parsedDateTime.hour, minute: parsedDateTime.minute);
     } catch (e) {
-      debugPrint("Error parsing time: $e");
       return TimeOfDay.now();
     }
   }

@@ -28,7 +28,7 @@ class VpMyLoadUIHelper {
         loadOnHold ? AppColors.iconRed : VpHelper.getColor(statusBgColor ?? '');
 
     Color textColor =
-        loadOnHold ? Colors.white : VpHelper.getColor(statusTxtColor ?? '');
+        loadOnHold ? AppColors.white : VpHelper.getColor(statusTxtColor ?? '');
 
     return Container(
       decoration: commonContainerDecoration(
@@ -93,7 +93,12 @@ class VpMyLoadUIHelper {
                   : Color(0xffE9E9E9),
           sliderButtonIcon: SvgPicture.asset(
             AppIcons.svg.swipeButtonIcon,
-            color: (enable ?? false) ? null : Color(0xff6C6C6C),
+            colorFilter: (enable ?? false)
+          ? null
+          : const ColorFilter.mode(
+              Color(0xff6C6C6C),
+              BlendMode.srcIn,
+            ),
           ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
           sliderRotate: false,
           sliderButtonYOffset: -30,
@@ -179,6 +184,7 @@ class VpMyLoadUIHelper {
           ),
           onSubmit: () {
             onPressed.call();
+            return null;
           },
         );
       case "POD Dispatch":
