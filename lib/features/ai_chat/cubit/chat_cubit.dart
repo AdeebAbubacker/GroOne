@@ -71,9 +71,7 @@ class ChatCubit extends Cubit<ChatState> {
               chatMessages.add(message);
               
               // Debug individual message parsing
-              print('   📝 Message: ${message.isUser ? 'USER' : 'AI'} - ID: ${message.id} - Reported: ${message.reported}');
             } catch (e) {
-              print('   ❌ Error parsing message: $e');
               continue;
             }
           }
@@ -95,14 +93,11 @@ class ChatCubit extends Cubit<ChatState> {
               chatMessages[chatMessages.indexOf(newMessage)] = newMessage.copyWith(
                 reported: true,
               );
-              print('🔄 Preserved reported status for message: ${newMessage.id}');
             }
           }
 
-          print('📊 Message status after merging:');
           for (final msg in chatMessages) {
             if (!msg.isUser) {
-              print('   - AI Message ${msg.id}: reported = ${msg.reported}');
             }
           }
 
@@ -111,13 +106,8 @@ class ChatCubit extends Cubit<ChatState> {
           final updatedMessages = isInitialLoad 
               ? chatMessages  // Initial load - use messages as-is
               : [...chatMessages, ...state.messages]; // Pagination - add older messages at top
-          
-          print('📱 Load type: ${isInitialLoad ? "Initial" : "Pagination"}');
-          print('📱 Messages count: ${updatedMessages.length}');
-          print('📱 AI Messages with reported status:');
           for (final msg in updatedMessages) {
             if (!msg.isUser) {
-              print('   - ${msg.id}: reported = ${msg.reported}');
             }
           }
 
@@ -481,24 +471,17 @@ class ChatCubit extends Cubit<ChatState> {
   /// Report a message
   /// Updates the message's reported status if successful
   Future<void> reportMessage(String messageId, {String? feedbackType}) async {
-    print('🎯 [CUBIT] Report message called...');
-    print('🎯 [CUBIT] Message ID: $messageId');
-    print('🎯 [CUBIT] Feedback Type: $feedbackType');
+
     
     try {
       // Find the message to report
       final messageIndex = state.messages.indexWhere((msg) => msg.id == messageId);
       if (messageIndex == -1) {
-        print('🎯 [CUBIT] Message not found: $messageId');
         emit(state.copyWith(error: 'Message not found'));
         return;
       }
 
-      print('🎯 [CUBIT] Found message at index: $messageIndex');
-      print('🎯 [CUBIT] Current reported status: ${state.messages[messageIndex].reported}');
-
       // Call the repository to report the message with feedback
-      print('🎯 [CUBIT] Calling repository...');
       final response = await _repository.reportMessage(
         messageId: messageId,
         feedbackType: feedbackType ?? 'inappropriate_content',
@@ -506,9 +489,7 @@ class ChatCubit extends Cubit<ChatState> {
       
       // Check if report was successful
       final success = response['success'] as bool? ?? false;
-      
-      print('🎯 [CUBIT] Repository response: $response');
-      print('🎯 [CUBIT] Report success: $success');
+    
       
       if (success) {
         // Update the message's reported status based on API response
@@ -520,7 +501,6 @@ class ChatCubit extends Cubit<ChatState> {
           reported: newReportedStatus,
         );
         
-        print('🎯 [CUBIT] Updated message $messageId: reported = $oldReportedStatus -> $newReportedStatus');
         
         emit(state.copyWith(
           messages: updatedMessages,
@@ -528,13 +508,10 @@ class ChatCubit extends Cubit<ChatState> {
           successMessage: 'Thanks you for helping improve Gro AI Saathi',
         ));
         
-        print('🎯 [CUBIT] State updated successfully');
       } else {
-        print('🎯 [CUBIT] Report failed');
         emit(state.copyWith(error: 'Failed to report message'));
       }
     } catch (e) {
-      print('🎯 [CUBIT] Error occurred: $e');
       emit(state.copyWith(error: _getUserFriendlyErrorMessage(e)));
     }
   }
@@ -562,13 +539,6 @@ class ChatCubit extends Cubit<ChatState> {
         final currentPage = data['page'] as int? ?? 1;
         final totalCount = data['total_count'] as int? ?? 0;
         final pageSize = data['page_size'] as int? ?? _pageSize;
-
-        print('📱 Chat History API Response:');
-        print('   - Total messages: $totalCount');
-        print('   - Current page: $currentPage');
-        print('   - Page size: $pageSize');
-        print('   - Has more: $hasMore');
-        print('   - Messages count: ${messages?.length ?? 0}');
 
         if (messages != null) {
           final List<ChatMessage> chatMessages = [];
