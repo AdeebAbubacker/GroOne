@@ -300,9 +300,9 @@ Future<Result<bool>> deleteVehicle({
   }
 
   /// Get Address
-  Future<Result<FaqResponse>> fetchFaq({String search = ''}) async {
+  Future<Result<FaqResponse>> fetchFaq({String? search = '',int page = 1, int limit= 10}) async {
     try {
-      return await _profileService.fetchFaq(search: search);
+      return await _profileService.fetchFaq(search: search,page: page,limit: limit);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

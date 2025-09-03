@@ -679,22 +679,33 @@ class ProfileService {
   }
 
   /// fetch FAQ
-  Future<Result<FaqResponse>> fetchFaq({String search = ''}) async {
-    try {
-      final url = '${ApiUrls.getFaq}?search=$search';
-      final response = await _apiService.get(url);
-      if (response is Success) {
-        final loads = FaqResponse.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch (e) {
-      return Error(DeserializationError());
+  /// fetch FAQ
+Future<Result<FaqResponse>> fetchFaq({
+  String? search,
+  int page = 1,
+  int limit = 10,
+}) async {
+  try {
+    String url = '${ApiUrls.getFaq}?page=$page&limit=$limit';
+    if (search != null && search.isNotEmpty) {
+      url += '&search=$search';
     }
+
+    final response = await _apiService.get(url);
+
+    if (response is Success) {
+      final loads = FaqResponse.fromJson(response.value);
+      return Success(loads);
+    } else if (response is Error) {
+      return Error(response.type);
+    } else {
+      return Error(GenericError());
+    }
+  } catch (_) {
+    return Error(DeserializationError());
   }
+}
+
 
   /// fetch Tickets
   Future<Result<TicketResponse>> fetchTickets({
