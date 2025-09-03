@@ -5,11 +5,11 @@ class FaqResponse {
     });
 
     final String message;
-    final Data? data;
+    final FaqResponseData? data;
 
     FaqResponse copyWith({
         String? message,
-        Data? data,
+        FaqResponseData? data,
     }) {
         return FaqResponse(
             message: message ?? this.message,
@@ -20,47 +20,47 @@ class FaqResponse {
     factory FaqResponse.fromJson(Map<String, dynamic> json){ 
         return FaqResponse(
             message: json["message"] ?? "",
-            data: json["data"] == null ? null : Data.fromJson(json["data"]),
+            data: json["data"] == null ? null : FaqResponseData.fromJson(json["data"]),
         );
     }
 
 }
 
-class Data {
-    Data({
+class FaqResponseData {
+    FaqResponseData({
         required this.data,
         required this.total,
         required this.pageMeta,
     });
 
-    final List<Datum> data;
+    final List<FaqData> data;
     final int total;
-    final PageMeta? pageMeta;
+    final FaqPageMeta? pageMeta;
 
-    Data copyWith({
-        List<Datum>? data,
+    FaqResponseData copyWith({
+        List<FaqData>? data,
         int? total,
-        PageMeta? pageMeta,
+        FaqPageMeta? pageMeta,
     }) {
-        return Data(
+        return FaqResponseData(
             data: data ?? this.data,
             total: total ?? this.total,
             pageMeta: pageMeta ?? this.pageMeta,
         );
     }
 
-    factory Data.fromJson(Map<String, dynamic> json){ 
-        return Data(
-            data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+    factory FaqResponseData.fromJson(Map<String, dynamic> json){ 
+        return FaqResponseData(
+            data: json["data"] == null ? [] : List<FaqData>.from(json["data"]!.map((x) => FaqData.fromJson(x))),
             total: json["total"] ?? 0,
-            pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+            pageMeta: json["pageMeta"] == null ? null : FaqPageMeta.fromJson(json["pageMeta"]),
         );
     }
 
 }
 
-class Datum {
-    Datum({
+class FaqData {
+    FaqData({
         required this.id,
         required this.question,
         required this.slug,
@@ -78,16 +78,16 @@ class Datum {
     final DateTime? createdAt;
     final DateTime? updatedAt;
 
-    Datum copyWith({
+    FaqData copyWith({
         int? id,
         String? question,
-        dynamic? slug,
+        dynamic slug,
         String? answer,
         int? status,
         DateTime? createdAt,
         DateTime? updatedAt,
     }) {
-        return Datum(
+        return FaqData(
             id: id ?? this.id,
             question: question ?? this.question,
             slug: slug ?? this.slug,
@@ -98,8 +98,8 @@ class Datum {
         );
     }
 
-    factory Datum.fromJson(Map<String, dynamic> json){ 
-        return Datum(
+    factory FaqData.fromJson(Map<String, dynamic> json){ 
+        return FaqData(
             id: json["id"] ?? 0,
             question: json["question"] ?? "",
             slug: json["slug"],
@@ -112,8 +112,8 @@ class Datum {
 
 }
 
-class PageMeta {
-    PageMeta({
+class FaqPageMeta {
+    FaqPageMeta({
         required this.page,
         required this.pageCount,
         required this.nextPage,
@@ -127,14 +127,14 @@ class PageMeta {
     final String pageSize;
     final int total;
 
-    PageMeta copyWith({
+    FaqPageMeta copyWith({
         String? page,
         int? pageCount,
         String? nextPage,
         String? pageSize,
         int? total,
     }) {
-        return PageMeta(
+        return FaqPageMeta(
             page: page ?? this.page,
             pageCount: pageCount ?? this.pageCount,
             nextPage: nextPage ?? this.nextPage,
@@ -143,8 +143,8 @@ class PageMeta {
         );
     }
 
-    factory PageMeta.fromJson(Map<String, dynamic> json){ 
-        return PageMeta(
+    factory FaqPageMeta.fromJson(Map<String, dynamic> json){ 
+        return FaqPageMeta(
             page: json["page"] ?? "",
             pageCount: json["pageCount"] ?? 0,
             nextPage: json["nextPage"] ?? "",
