@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:record/record.dart';
 import 'package:uuid/uuid.dart';
@@ -521,7 +520,7 @@ class ChatCubit extends Cubit<ChatState> {
           reported: newReportedStatus,
         );
         
-        print('🎯 [CUBIT] Updated message ${messageId}: reported = $oldReportedStatus -> $newReportedStatus');
+        print('🎯 [CUBIT] Updated message $messageId: reported = $oldReportedStatus -> $newReportedStatus');
         
         emit(state.copyWith(
           messages: updatedMessages,

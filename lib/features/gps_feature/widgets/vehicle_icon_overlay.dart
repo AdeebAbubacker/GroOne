@@ -50,7 +50,7 @@ class VehicleIconOverlay extends StatelessWidget {
       top: 0,
       child: GestureDetector(
         onTap: () => onVehicleTap(vehicle),
-        child: Container(
+        child: SizedBox(
           width: 48,
           height: 48,
           child: VehicleMarkerHelper.createVehicleIconWidget(
