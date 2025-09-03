@@ -140,13 +140,9 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LpLoadRouteResponse>> fetchRouteList({
-    int page = 1,
-    int pageSize = 4,
-  }) async {
+  Future<Result<LpLoadRouteResponse>> fetchRouteList() async {
     try {
-       final url =   "https://gro-uat-api.letsgro.co/ratediscovery/api/v1/lane?&page=1&limit=4";
-      // final url =   "${ApiUrls.lpLoadRoute}?&page=$page&limit=$pageSize";
+      final url = ApiUrls.lpLoadRoute;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = LpLoadRouteResponse.fromJson(response.value);

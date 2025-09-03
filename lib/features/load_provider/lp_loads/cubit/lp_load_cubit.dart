@@ -264,78 +264,18 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     emit(state.copyWith(lpLoadRouteDetails: uiState));
   }
 
- 
-  int _routesCurrentPage = 1;
-  bool _routesIsLastPage = false;
-  bool _routesIsLoadingMore = false;
-  // // Fetches the LP load route Details.
-  // Future<void> getRouteDetails() async {
-  //   _setLoadUIState(UIState.loading());
+  // Fetches the LP load route Details.
+  Future<void> getRouteDetails() async {
+    _setLoadUIState(UIState.loading());
 
-  //   Result result = await _repository.fetchRouteList(limit: 10,page: 1);
-
-  //   if (result is Success<LpLoadRouteResponse>) {
-  //     _setRouteDetailsState(UIState.success(result.value));
-  //   } else if (result is Error) {
-  //     _setRouteDetailsState(UIState.error(result.type));
-  //   }
-  // }
-  
- Future<void> getRouteDetails({
-  bool isLoading = true,
-  String? search,
-  bool loadMore = false,
-}) async {
-  if (_routesIsLoadingMore && loadMore) return;
-
-  if (!loadMore) {
-    _routesIsLastPage = false;
-  } else if (_routesIsLastPage) {
-    return;
-  }
-
-  if (loadMore) {
-    _routesIsLoadingMore = true;
-    _routesCurrentPage++;
-  } else {
-    _routesCurrentPage = 1;
-    _routesIsLastPage = false;
-    if (isLoading) _setRouteDetailsState(UIState.loading());
-  }
-
-  try {
-    final result = await _repository.fetchRouteList(
-      limit: 4,
-      page: _routesCurrentPage,
-    );
+    Result result = await _repository.fetchRouteList();
 
     if (result is Success<LpLoadRouteResponse>) {
-      final newList = result.value.data?.items ?? <RouteList>[];
-
-      if (loadMore) {
-        final existing = state.lpLoadRouteDetails?.data?.data?.items ?? <RouteList>[];
-        final combined = [...existing, ...newList];
-
-        // Create a new Data object with combined list
-        final newData = result.value.data?.copyWith(items: combined);
-
-        _setRouteDetailsState(
-          UIState.success(result.value.copyWith(data: newData)),
-        );
-      } else {
-        _setRouteDetailsState(UIState.success(result.value));
-      }
-
-      // Check if last page
-      final totalPages = ((result.value.data?.total ?? 0) / (34?? 10)).ceil();
-      _routesIsLastPage = _routesCurrentPage >= totalPages;
-    } else if (result is Error<LpLoadRouteResponse>) {
+      _setRouteDetailsState(UIState.success(result.value));
+    } else if (result is Error) {
       _setRouteDetailsState(UIState.error(result.type));
     }
-  } finally {
-    _routesIsLoadingMore = false;
   }
-}
 
   // Updates the UI state related to load status.
   void _setLoadStatusState(UIState<List<LoadStatusResponse>>? uiState) {
