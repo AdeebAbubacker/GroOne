@@ -1,10 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
-import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
@@ -13,9 +9,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
-import 'package:gro_one_app/utils/app_global_variables.dart';
-import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 
 class VpHomeService {
   final ApiService _apiService;

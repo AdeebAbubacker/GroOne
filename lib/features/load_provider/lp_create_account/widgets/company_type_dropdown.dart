@@ -14,14 +14,14 @@ class CompanyTypeSearchableDropdown extends StatelessWidget {
   final bool mandatoryStar;
 
   const CompanyTypeSearchableDropdown({
-    Key? key,
+    super.key,
     required this.selectedCompanyTypeId,
     required this.onCompanyTypeChanged,
     required this.companyTypeList,
     required this.labelText,
     required this.hintText,
     this.mandatoryStar = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,6 +34,7 @@ class CompanyTypeSearchableDropdown extends StatelessWidget {
         : null;
 
     return SearchableDropdown(
+      key: key,
       labelText: labelText,
       mandatoryStar: mandatoryStar,
       selectedItem: selectedItem?.isEmpty ?? true ? null : selectedItem,

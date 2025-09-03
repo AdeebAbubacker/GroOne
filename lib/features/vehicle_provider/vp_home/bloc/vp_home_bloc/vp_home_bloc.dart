@@ -5,11 +5,8 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedu
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vehicle_list_response.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
-import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:meta/meta.dart';
 
 part 'vp_home_event.dart';

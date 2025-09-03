@@ -15,17 +15,17 @@ class OtpResendLoading extends OtpState {}
 class OtpSuccess extends OtpState {
   final MobileOtpVerificationModel otpResponse;
 
-  OtpSuccess(this.otpResponse);
+  const OtpSuccess(this.otpResponse);
 }
 
 class OtpResendSuccess extends OtpState {
   final MobileOtpResendModel loginApiResponseModel;
 
-  OtpResendSuccess(this.loginApiResponseModel);
+  const OtpResendSuccess(this.loginApiResponseModel);
 }
 
 class OtpError extends OtpState {
   final ErrorType errorType;
 
-  OtpError(this.errorType);
+  const OtpError(this.errorType);
 }

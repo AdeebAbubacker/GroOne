@@ -1,4 +1,3 @@
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,8 +7,6 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
-import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
-import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -17,7 +14,6 @@ import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -29,6 +25,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
@@ -127,6 +124,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
                         5.height,
       
                         AppTextField(
+                          key: AppKeys.txt('mobile_number') ,
                           validator: (value) => Validator.phone(value),
                           controller: phoneNumber,
                           maxLength: 10,
@@ -159,6 +157,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
       
                         // Get Otp Button
                         AppButton(
+                          key: AppKeys.btn('get_otp'),
                           isLoading: isLoading,
                           title: context.appText.getOtp,
                           style:
@@ -194,34 +193,29 @@ class _LoginScreenState extends BaseState<LoginScreen>
                                 text: context.appText.agree,
                                 style: AppTextStyle.blackColor14w400,
                               ),
-                              TextSpan(
-                                text: context.appText.termsAndConditions,
-                                style: AppTextStyle.primaryColor14w400UnderLine,
-                                recognizer:
-                                    TapGestureRecognizer()
-                                      ..onTap = () {
-                                        // Handle terms & conditions tap
-                                        Navigator.push(
-                                          context,
-                                          commonRoute(TermsAndConditionsScreen()),
-                                        );
-                                      },
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  key: AppKeys.link('terms_and_conditions'),
+                                  onTap: () => context.push(AppRouteName.termsAndConditions),
+                                  child: Text(
+                                    context.appText.termsAndConditions,
+                                    style: AppTextStyle.primaryColor14w400UnderLine,
+                                  ),
+                                ),
                               ),
                               TextSpan(
                                 text: context.appText.and,
                                 style: AppTextStyle.blackColor14w400,
                               ),
-                              TextSpan(
-                                text: context.appText.privacyPolicy,
-                                style: AppTextStyle.primaryColor14w400UnderLine,
-                                recognizer:
-                                    TapGestureRecognizer()
-                                      ..onTap = () {
-                                        Navigator.push(
-                                          context,
-                                          commonRoute(PrivacyPolicyScreen()),
-                                        );
-                                      },
+                              WidgetSpan(
+                                child: GestureDetector(
+                                  key: AppKeys.link('privacy_policy'),
+                                  onTap: () => context.push(AppRouteName.privacyPolicy),
+                                  child: Text(
+                                    context.appText.privacyPolicy,
+                                    style: AppTextStyle.primaryColor14w400UnderLine,
+                                  ),
+                                ),
                               ),
                             ],
                           ),
@@ -229,6 +223,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
       
                         1.height,
                         customCheckbox(
+                          key: AppKeys.chk('agree'),
                           context: context,
                           text: context.appText.iAgree,
                           onTap: () {

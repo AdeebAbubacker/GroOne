@@ -1,7 +1,5 @@
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/damage_api_request.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/model/damage_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/api_request/schedule_trip_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_api_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/driver_list_response.dart';

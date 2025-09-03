@@ -44,11 +44,11 @@ class SetPrimaryAddressResponse {
     bool? isDefault,
     String? addrType,
     String? country,
-    dynamic? gstIn,
+    dynamic gstIn,
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return SetPrimaryAddressResponse(
       preferedAddressId: preferedAddressId ?? this.preferedAddressId,

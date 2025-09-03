@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
@@ -8,20 +7,14 @@ import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/helper/vp_my_
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
-import 'package:gro_one_app/utils/app_progress_bar.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-import '../../../../../utils/app_button.dart';
-import '../../../../../utils/app_button_style.dart';
 import '../../../../../utils/app_colors.dart';
 import '../../../../../utils/app_icons.dart';
 import '../../../../../utils/app_image.dart';
@@ -215,6 +208,7 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                           enable:  loadDetailsCubit.checkAllDocumentAddedOrNot(
                           loadStatus: widget.data.loadStatusValues ,
                           isAgreed: widget.data.isAgreed,
+                          memo:widget.data.memoDetails ,
                           documentList: widget.data.loadDocument??[]
                     ),
                       context: context,

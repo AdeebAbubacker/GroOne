@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -18,7 +17,6 @@ import '../../../utils/app_bottom_sheet_body.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_button_style.dart';
 import '../../../utils/app_colors.dart';
-import '../../../utils/app_dropdown.dart';
 import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_functions.dart';
@@ -498,7 +496,7 @@ class _KavachAddVehicleBottomSheetState
 
                         final result = await kavachAddNewVehicleCubit
                             .addVehicle(request);
-
+                        if (!context.mounted) return;
                         if (result is Success) {
                           context.pop();
                           ToastMessages.success(

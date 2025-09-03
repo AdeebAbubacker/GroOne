@@ -1,16 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:multi_dropdown/multi_dropdown.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-
-import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
-
-import 'package:flutter/material.dart';
 
 class KavachMultiSelectionDropdown extends StatefulWidget {
   final String labelText;
@@ -37,7 +25,6 @@ class KavachMultiSelectionDropdown extends StatefulWidget {
 }
 
 class _KavachMultiSelectionDropdownState extends State<KavachMultiSelectionDropdown> {
-  final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
   final GlobalKey _actionKey = GlobalKey();
 

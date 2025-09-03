@@ -1,5 +1,4 @@
 import 'package:dotted_border/dotted_border.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -7,9 +6,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
-import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -190,7 +187,7 @@ class _EndhanDocumentUploadWidgetState extends State<EndhanDocumentUploadWidget>
                 ],
               ),
             );
-          }).toList(),
+          }),
         ],
       ],
     );

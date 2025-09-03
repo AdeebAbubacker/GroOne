@@ -47,14 +47,12 @@ class GpsOrderListCubit extends Cubit<GpsOrderListState> {
 
   @override
   Future<void> close() {
-    print('🔒 GpsOrderListCubit.close() called');
     _isClosed = true;
     return super.close();
   }
 
   /// Reset the cubit state and reopen it for use
   void resetCubit() {
-    print('🔄 Resetting GpsOrderListCubit state');
     _isClosed = false;
     emit(GpsOrderListInitial());
   }
@@ -66,7 +64,6 @@ class GpsOrderListCubit extends Cubit<GpsOrderListState> {
     bool isRefresh = false,
   }) async {
     if (_isClosed) {
-      print('🔍 GpsOrderListCubit is closed, returning early');
       return;
     }
 

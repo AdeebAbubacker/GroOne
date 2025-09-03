@@ -2,15 +2,12 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
-import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/widgets/company_type_dropdown.dart';
@@ -18,12 +15,10 @@ import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
-import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -34,7 +29,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-import 'package:gro_one_app/utils/extra_utils.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -162,6 +157,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
           // Company Name
           AppTextField(
+            key: AppKeys.txt('company_name'),
             validator: (value) => Validator.fieldRequired(value),
             controller: companyNameTextController,
             labelText: context.appText.companyName,
@@ -192,6 +188,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
                 return Column(
                   children: [
                     CompanyTypeSearchableDropdown(
+                      key: AppKeys.ddl('company_type'),
                       selectedCompanyTypeId: companyTypeDropDownValue,
                       onCompanyTypeChanged: (newVal) {
                         setState(() {
@@ -214,6 +211,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
            // Name
           AppTextField(
+            key: AppKeys.txt('full_name'),
             validator: (value) => Validator.fieldRequired(value),
             controller: nameTextController,
             labelText: context.appText.fullName,
@@ -229,6 +227,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
           // Phone Number
           AppTextField(
+            key: AppKeys.txt('mobile_number'),
             readOnly: true,
             validator: (value)=> Validator.phone(value),
             controller: phoneNumberTextController,
@@ -261,6 +260,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
           // Pin code
           AppTextField(
+            key: AppKeys.txt('pincode'),
             validator: (value) => Validator.pincode(value),
             controller: pinCodeTextController,
             labelText: context.appText.pincode,
@@ -288,7 +288,9 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
           if (status == Status.SUCCESS) {
             if (!context.mounted) return;
-            final result = await Navigator.of(context).push(commonRoute(EmailVerificationScreen(userId: widget.userId,emailAddress: emailTextController.text), isForward: true));
+
+            final extra = {"userId": widget.userId, "emailAddress": emailTextController.text};
+            final result = await context.push(AppRouteName.emailVerification, extra: extra);
             verifyEmailCubit.setVerifiedEmail(result == true);
           }
 
@@ -300,6 +302,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
         },
         builder: (context, state) {
           return AppTextField(
+            key: AppKeys.txt('email'),
             validator: (value) => Validator.fieldRequired(value),
             controller: emailTextController,
             labelText: context.appText.email,
@@ -317,7 +320,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    Text(!(state.sendOtpState?.status == Status.LOADING) ? (state.isVerifiedEmail ? "Verified" :"Verify"): "Loading..", style: AppTextStyle.body3.copyWith(
+                    Text(!(state.sendOtpState?.status == Status.LOADING) ? (state.isVerifiedEmail ? context.appText.verified : context.appText.verify): "${context.appText.loading}..", style: AppTextStyle.body3.copyWith(
                       color: AppColors.primaryColor,
                       decoration: TextDecoration.underline,
                       decorationColor: AppColors.primaryColor,
@@ -367,6 +370,7 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
         final status = state.createAccountUIState?.status;
         final isLoading = status == Status.LOADING;
         return AppButton(
+          key: AppKeys.btn('continue'),
           title: context.appText.continueText,
           isLoading: isLoading,
           onPressed: isLoading ? (){} : () async {

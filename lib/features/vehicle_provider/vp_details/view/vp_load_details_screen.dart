@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:geolocator/geolocator.dart' show Geolocator;
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
-import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
-import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/google_map_widdget.dart';
 
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
@@ -19,11 +14,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_deta
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_details_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/load_status_label.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';

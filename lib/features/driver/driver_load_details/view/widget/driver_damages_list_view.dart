@@ -91,7 +91,7 @@ class _DriverDamagesListViewState extends State<DriverDamagesListView> {
           );
         }
 
-        return const SizedBox(); // Empty if isUpdateDamage is false or no data
+        return const SizedBox(); 
       },
     );
   }

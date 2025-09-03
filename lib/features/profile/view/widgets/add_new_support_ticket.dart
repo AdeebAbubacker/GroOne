@@ -7,6 +7,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -20,7 +21,9 @@ import 'package:mime/mime.dart';
 
 
 class AddNewTicketScreen extends StatefulWidget {
-  const AddNewTicketScreen({super.key});
+  const AddNewTicketScreen({super.key, this.ticketTag});
+
+  final String? ticketTag;
 
   @override
   State<AddNewTicketScreen> createState() => _AddNewTicketScreenState();
@@ -46,12 +49,22 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
+      final tag = widget.ticketTag ??
+          (profileCubit.userRole == 1
+              ? TicketTags.LOAD_PROVIDER
+              : profileCubit.userRole == 2
+              ? TicketTags.VEHICLE_PROVIDER
+              : profileCubit.userRole == 3
+              ? TicketTags.BOTH_LP_VP
+              : '');
+
        await profileCubit.createTicket(
         request: CreateTicketRequest(
           issueCategory: issueCategoryController.text.trim(),
           title: titleController.text.trim(),
           description: descriptionController.text.trim(),
           attachmentLink: ticketDocId != null ? [ticketDocId] : [],
+          ticketTag: tag,
         ),
       );
 
@@ -122,9 +135,11 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                       final ticketData = profileCubit.state.uploadTicketDocUIState?.data;
                       if(ticketData != null &&  ticketList.isNotEmpty){
                         final mimeType = lookupMimeType(ticketList.first['extension']);
+                        final supportDocumentEntity=DocumentDataModel.supportDocumentEntity;
+
                         final apiRequest =  CreateDocumentApiRequest(
-                          documentTypeId : 342,
-                          title : 'Support Ticket',
+                          documentTypeId : supportDocumentEntity?.documentTypeId,
+                          title : supportDocumentEntity?.title,
                           description : 'Ticket',
                           originalFilename : ticketData.originalName,
                           filePath : ticketData.filePath,
@@ -138,7 +153,6 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                             ticketDocId = profileCubit.state.createDocumentUIState!.data!.data!.documentId;
                           }
                         }
-                        debugPrint("ticketDocId : $ticketDocId");
                       }
                     }
                   },
@@ -167,7 +181,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
     if (status != null &&  status == Status.SUCCESS) {
       final data = profileCubit.state.uploadTicketDocUIState?.data;
       final url = data?.url ?? '';
-      print('url is $url');
+
       if (url.isNotEmpty) {
         ticketList.first['path'] = url;
         return Success(true);
@@ -193,4 +207,14 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
     }
     return Error(GenericError());
   }
+}
+
+class TicketTags {
+  static const BOTH_LP_VP = 'Both Load provider Vehicle provider related';
+  static const LOAD_PROVIDER = 'Load provider related';
+  static const VEHICLE_PROVIDER = 'Vehicle provider related';
+  static const ENDHAN = 'Endhan related';
+  static const FASTAG = 'Fastag related';
+  static const GPS = 'GPS related';
+  static const TANK_LOCK = 'Tank lock related';
 }

@@ -1,5 +1,4 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:equatable/equatable.dart';
 import '../../../data/model/result.dart';
 import '../model/kavach_masters_model.dart';
 import '../model/kavach_choose_preference_model.dart';

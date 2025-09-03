@@ -21,7 +21,11 @@ class KycState extends Equatable {
   final UIState<CreateDocumentModel>? createDocumentUIState;
   final UIState<DeleteDocumentModel>? deleteDocumentUIState;
   final UIState<UploadAadharDocumentModel>? uploadAadharDocumentModel;
+
   final UIState<DocVerificationModel>? docVerificationState;
+  final UIState<DocVerificationModel>? panDocVerificationState;
+  final UIState<DocVerificationModel>? tanDocVerificationState;
+  final UIState<DocVerificationModel>? gstDocVerificationState;
   final bool? verifiedPan;
   final bool? verifiedGst;
   final bool? verifiedTan;
@@ -34,6 +38,8 @@ class KycState extends Equatable {
     this.uploadCancelledUIState,
     this.docVerificationState,
 
+    this.tanDocVerificationState,
+    this.gstDocVerificationState,
 
     this.uploadGSTDocUIState,
     this.uploadPanDocUIState,
@@ -53,6 +59,7 @@ class KycState extends Equatable {
     this.verifiedTan,
     this.aadharVerificationState,
     this.uploadAadharDocumentModel,
+    this.panDocVerificationState,
 
   });
 
@@ -81,11 +88,17 @@ class KycState extends Equatable {
     bool? verifiedGst,
     bool? verifiedTan,
     UIState<KycInitResponse>? kycInitResponse,
+    UIState<DocVerificationModel>? panDocVerificationState,
+    UIState<DocVerificationModel>? gstDocVerificationState,
+    UIState<DocVerificationModel>? tanDocVerificationState,
 
   }) {
     return KycState(
-      uploadAadharDocumentModel: uploadAadharDocUIState??this.uploadAadharDocumentModel,
-      aadharVerificationState: aadharVerificationResponse ?? this.aadharVerificationState,
+      gstDocVerificationState: gstDocVerificationState ?? this.gstDocVerificationState,
+      tanDocVerificationState: tanDocVerificationState ?? this.tanDocVerificationState,
+      panDocVerificationState: panDocVerificationState??this.panDocVerificationState,
+      uploadAadharDocumentModel: uploadAadharDocUIState??uploadAadharDocumentModel,
+      aadharVerificationState: aadharVerificationResponse ?? aadharVerificationState,
       docVerificationState: docVerificationState??this.docVerificationState,
       kycInitResponse: kycInitResponse??this.kycInitResponse,
       uploadStates: uploadStates ?? this.uploadStates,
@@ -136,7 +149,10 @@ class KycState extends Equatable {
     kycInitResponse,
     aadharVerificationState,
     uploadAadharDocumentModel,
-    docVerificationState
+    docVerificationState,
+    panDocVerificationState,
+    tanDocVerificationState,
+    gstDocVerificationState
   ];
 }
 

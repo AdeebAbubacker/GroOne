@@ -93,8 +93,8 @@ class VehicleDetailsData {
         DateTime? pucExpiryDate,
         int? status,
         DateTime? createdAt,
-        dynamic? updatedAt,
-        dynamic? deletedAt,
+        dynamic updatedAt,
+        dynamic deletedAt,
         String? companyName,
         TruckType? truckType,
     }) {
@@ -172,10 +172,10 @@ class TruckType {
         int? id,
         String? type,
         String? subType,
-        dynamic? iconUrl,
+        dynamic iconUrl,
         int? status,
         DateTime? createdAt,
-        dynamic? deletedAt,
+        dynamic deletedAt,
     }) {
         return TruckType(
             id: id ?? this.id,

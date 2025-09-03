@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart' as api_models;
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/init_kyc_request.dart';
 import 'package:gro_one_app/features/kyc/api_request/submit_kyc_request.dart';
@@ -11,10 +9,8 @@ import 'package:gro_one_app/features/kyc/model/city_model.dart';
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/delete_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/doc_verification_model.dart';
-import 'package:gro_one_app/features/kyc/model/file_upload_response.dart';
 import 'package:gro_one_app/features/kyc/model/kyc_init_response.dart';
 import 'package:gro_one_app/features/kyc/model/state_model.dart';
-import 'package:gro_one_app/features/kyc/model/state_response_mode.dart';
 import 'package:gro_one_app/features/kyc/model/submit_kyc_response.dart';
 import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_cancelled_check_document_model.dart';
@@ -22,7 +18,6 @@ import 'package:gro_one_app/features/kyc/model/upload_gstin_document_model.dart'
 import 'package:gro_one_app/features/kyc/model/upload_pan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tan_document_model.dart';
 import 'package:gro_one_app/features/kyc/model/upload_tds_document_model.dart';
-import 'package:gro_one_app/features/kyc/model/verify_gst_response.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 
@@ -33,8 +28,6 @@ import '../api_request/addhar_verify_otp_request.dart';
 import '../api_request/verify_pan_request.dart';
 import '../api_request/verify_tan_request.dart';
 import '../model/addhar_otp_response.dart';
-import '../model/verify_pan_response.dart';
-import '../model/verify_tan_response.dart';
 import '../service/kyc_service.dart';
 
 class KycRepository {
@@ -44,7 +37,7 @@ class KycRepository {
 
 
   /// Send Kyc otp repo
-  Future<Result<AadhaarOtpModel>> kycSendOtp(AddharOtpApiRequest request) async {
+  Future<Result<AadhaarOtpModel>> kycSendOtp(AadhaarOtpApiRequest request) async {
     try {
       return await _service.kycSendOtp(request);
     } catch (e) {
@@ -55,7 +48,7 @@ class KycRepository {
 
 
   /// Verify Aadhaar Repo
-  Future<Result<AadhaarVerifyOtpModel>> verifyAadhaarOtp(AddharVerifyOtpApiRequest request) async {
+  Future<Result<AadhaarVerifyOtpModel>> verifyAadhaarOtp(AadhaarVerifyOtpApiRequest request) async {
     try {
       return await _service.kycVerifyOtp(request);
     } catch (e) {
@@ -87,9 +80,13 @@ class KycRepository {
   }
 
   /// Verify Doc Id
-  Future<Result<DocVerificationModel>> verifiedDocID(String aadharNumber) async {
+  Future<Result<DocVerificationModel>> verifiedDocID({String? aadharNumber,String? panNumber,String? tan,String? gstNumber}) async {
     try {
-      return await _service.verifiedDocID(aadharNumber);
+      return await _service.verifiedDocID(aadharDoc: aadharNumber,
+      gstNumber: gstNumber,
+        panNumber: panNumber,
+        tan: tan
+      );
     } catch (e) {
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));

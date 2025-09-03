@@ -1,7 +1,6 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -35,6 +34,7 @@ class VpCompanyTypeSearchableDropdown extends StatelessWidget {
         : null;
 
     return SearchableDropdown(
+      key: key,
       labelText: labelText,
       mandatoryStar: mandatoryStar,
       selectedItem: selectedItem?.isEmpty ?? true ? null : selectedItem,
@@ -45,12 +45,8 @@ class VpCompanyTypeSearchableDropdown extends StatelessWidget {
           final selectedCompanyType = companyTypeList.firstWhere(
             (e) => e.companyType.toString() == newCompanyTypeName,
           );
-          if (selectedCompanyType.id != null) {
-            onCompanyTypeChanged(selectedCompanyType.id.toString());
-          } else {
-            onCompanyTypeChanged(null);
-          }
-        }
+          onCompanyTypeChanged(selectedCompanyType.id.toString());
+                }
       },
       dropdownBuilder: (context, selectedItem) {
         if (selectedItem == null || selectedItem.isEmpty) {

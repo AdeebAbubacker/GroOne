@@ -3,7 +3,6 @@ import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
-import 'package:gro_one_app/utils/global_variables.dart';
 
 import '../../vp-helper/vp_helper.dart';
 
@@ -59,6 +58,7 @@ class DocumentEntity {
 class DocumentDataModel {
   static List<DocumentEntity> documentTypeList=[];
   static DocumentEntity? damageDocumentEntity;
+  static DocumentEntity? supportDocumentEntity;
 
 
   static void setDocumentEntityList(){
@@ -111,6 +111,16 @@ class DocumentDataModel {
       visible: true,
       documentType: DocumentFileType.damageAndShortage.documentType
     )..loadDocumentTypeId( DocumentFileType.damageAndShortage.documentType);
+  }
+
+  static void setSupportDocumentEntity(){
+    supportDocumentEntity=  DocumentEntity(
+      documentTypeId:null,
+      fileType: DocumentFileType.supportTicket.name,
+      title:navigatorKey.currentState?.context.appText.supportTicket,
+      visible: true,
+      documentType: DocumentFileType.supportTicket.documentType
+    )..loadDocumentTypeId( DocumentFileType.supportTicket.documentType);
   }
 
 }

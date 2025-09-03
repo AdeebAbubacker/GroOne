@@ -6,6 +6,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gp
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
+import 'package:gro_one_app/features/profile/view/widgets/add_new_support_ticket.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -308,7 +309,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
           AppIconButton(
             onPressed: () {
               // Navigate to support screen
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -325,6 +326,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
               children: [
                 // Search bar
                 AppSearchBar(
+                  hintText: context.appText.search,
                   searchController: searchController,
                   onChanged: (text) {
                     _gpsProductsCubit.searchProducts(text);

@@ -21,6 +21,7 @@ import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart'
 import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
 import '../../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_state.dart';
 import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
 import 'gps_models_screen.dart';
 import 'package:intl/intl.dart';
 
@@ -36,7 +37,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xffF5F7FA),
+      backgroundColor: AppColors.backgroundColor,
       appBar: CommonAppBar(
         title: context.appText.orderDetail,
         actions: [
@@ -51,7 +52,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
           ),
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,

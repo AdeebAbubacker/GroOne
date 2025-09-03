@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
@@ -10,8 +9,6 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-
-import '../../../utils/app_icons.dart';
 
 class TransactionInformation extends StatefulWidget {
   final List? vpLogs;
@@ -50,7 +47,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
   ) {
     return Container(
       decoration: commonContainerDecoration(
-        color: Color(0xffE9F3FA).withOpacity(0.8),
+        color: Color(0xffE9F3FA).withValues(alpha: 0.8),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Column(
@@ -95,7 +92,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
     bool? isBold,
   }) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -112,7 +109,7 @@ class _TransactionInformationState extends State<TransactionInformation> {
           Container(
             decoration: commonContainerDecoration(
               color:
-                  (status ?? false) ? Colors.green.shade100 : Color(0xffFFD7D9),
+                  (status ?? false) ? AppColors.boxGreen : AppColors.red,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Text(
@@ -129,20 +126,20 @@ class _TransactionInformationState extends State<TransactionInformation> {
           )
         else
           Expanded(
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: Text(
-                value ?? "",
-                maxLines: 2,
-                style: TextStyle(
-                  color: AppColors.textBlackDetailColor,
-                  fontWeight:
-                      (isBold ?? false) ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 12,
-                  decoration:
-                      isLink ? TextDecoration.underline : TextDecoration.none,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.end, // aligns to right
+              children: [
+                Text(
+                  value ?? "",
+                  textAlign: TextAlign.right,
+                  style: TextStyle(
+                    color: AppColors.textBlackDetailColor,
+                    fontWeight: (isBold ?? false) ? FontWeight.bold : FontWeight.normal,
+                    fontSize: 12,
+                    decoration: isLink ? TextDecoration.underline : TextDecoration.none,
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
       ],

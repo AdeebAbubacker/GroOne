@@ -4,7 +4,6 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
 import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -23,7 +22,7 @@ class IncompleteKycStatusWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: commonSafeAreaPadding),
-      color: Colors.red.shade50,
+      color: AppColors.lightRedColor,
       height: 60,
       child: Row(
         children: [
@@ -61,23 +60,28 @@ class IncompleteKycStatusWidget extends StatelessWidget {
 
               if (companyId != null && (companyId == 2 || companyId == 1)) {
                 if (isKycCompleted || isAadharVerified) {
-                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                  aadhaarNumber: aadharNumber,
-                  pdfPath: aadharPDF,
-                )));
+                if(context.mounted) {
+                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                    aadhaarNumber: aadharNumber,
+                    pdfPath: aadharPDF,
+                  )));
+                }
                 } else{
-                  commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet(
-                  ));
+                  if(context.mounted) {
+                    commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
+                  }
                 }
 
               } else {
-                Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                  pdfPath: aadharPDF,
-                  aadhaarNumber: aadharNumber,
-                )));
+                if(context.mounted) {
+                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
+                    pdfPath: aadharPDF,
+                    aadhaarNumber: aadharNumber,
+                  )));
+                }
               }
             },
-            style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(Colors.redAccent)),
+            style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(AppColors.red)),
             child: Text(context.appText.verify, style: AppTextStyle.h5WhiteColor),
           ),
         ],

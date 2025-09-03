@@ -8,7 +8,7 @@ class VpTripStatementState extends Equatable {
     UIState<TripStatementResponse>? tripSettlementUIState,
   }) {
     return VpTripStatementState(
-      tripStatementUIState: tripSettlementUIState ?? this.tripStatementUIState,
+      tripStatementUIState: tripSettlementUIState ?? tripStatementUIState,
     );
   }
 

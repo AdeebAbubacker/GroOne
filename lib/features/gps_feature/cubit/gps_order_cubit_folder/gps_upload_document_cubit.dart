@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:bloc/bloc.dart';
-import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
@@ -194,7 +193,7 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       return null; // PAN is optional, empty is valid
     }
     String cleanPan = value.replaceAll(RegExp(r'\s+'), '').toUpperCase();
-    RegExp panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]{1}$');
+    RegExp panRegex = RegExp(r'^[A-Z]{5}[0-9]{4}[A-Z]$');
     if (!panRegex.hasMatch(cleanPan)) {
       return 'Please enter valid PAN number (e.g., ABCDE1234F)';
     }
@@ -449,5 +448,9 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
         panVerificationState: UIState.initial(),
       ));
     }
+  }
+
+  void markAadhaarVerified() {
+    emit(state.copyWith(isAadhaarVerified: true));
   }
 } 

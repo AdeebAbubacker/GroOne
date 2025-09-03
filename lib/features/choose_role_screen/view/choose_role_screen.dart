@@ -2,17 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_service.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 
 import '../../../utils/app_button.dart';
 import '../../../utils/app_colors.dart';
@@ -44,45 +43,51 @@ class ChooseRoleScreen extends StatelessWidget {
                   context.appText.chooseRoleText,
                   style: AppTextStyle.textBlackColors20w400,
                 ),
-                buildRoleSelectionTileWidget(
-                  isSelected: state.index == 0 ? true : false,
-                  text1: context.appText.loadProvider,
-                  text2: context.appText.lpText,
-                  onTap: () {
-                    context.read<RoleBloc>().add(const ChangeIndex(index: 0));
-                  },
-                  imageString: AppImage.png.lp,
-                ),
-                buildRoleSelectionTileWidget(
-                  isSelected: state.index == 1 ? true : false,
-                  text1: context.appText.truckProvider,
-                  text2: context.appText.vpText,
-                  onTap: () {
-                    context.read<RoleBloc>().add(const ChangeIndex(index: 1));
-                  },
-                  imageString: AppImage.png.vp,
-                ),
-                buildRoleSelectionTileWidget(
-                  isSelected: state.index == 2 ? true : false,
-                  text1: context.appText.vpLpHeading,
-                  text2: context.appText.vpLp,
-                  onTap: () {
-                    context.read<RoleBloc>().add(const ChangeIndex(index: 2));
-                  },
-                  imageString: AppImage.png.lpVp,
-                ),
-                buildRoleSelectionTileWidget(
-                  isSelected: state.index == 3 ? true : false,
-                  text1:  context.appText.fleetHeading,
-                  text2: context.appText.fleet,
-                  onTap: () {
-                    context.read<RoleBloc>().add(const ChangeIndex(index: 3));
-                  },
-                  imageString: AppImage.png.fleet,
+                Column(
+                  key: AppKeys.tile('role'),
+                  children: [
+                    buildRoleSelectionTileWidget(
+                      isSelected: state.index == 0 ? true : false,
+                      text1: context.appText.loadProvider,
+                      text2: context.appText.lpText,
+                      onTap: () {
+                        context.read<RoleBloc>().add(const ChangeIndex(index: 0));
+                      },
+                      imageString: AppImage.png.lp,
+                    ),
+                    buildRoleSelectionTileWidget(
+                      isSelected: state.index == 1 ? true : false,
+                      text1: context.appText.truckProvider,
+                      text2: context.appText.vpText,
+                      onTap: () {
+                        context.read<RoleBloc>().add(const ChangeIndex(index: 1));
+                      },
+                      imageString: AppImage.png.vp,
+                    ),
+                    buildRoleSelectionTileWidget(
+                      isSelected: state.index == 2 ? true : false,
+                      text1: context.appText.vpLpHeading,
+                      text2: context.appText.vpLp,
+                      onTap: () {
+                        context.read<RoleBloc>().add(const ChangeIndex(index: 2));
+                      },
+                      imageString: AppImage.png.lpVp,
+                    ),
+                    buildRoleSelectionTileWidget(
+                      isSelected: state.index == 3 ? true : false,
+                      text1:  context.appText.fleetHeading,
+                      text2: context.appText.fleet,
+                      onTap: () {
+                        context.read<RoleBloc>().add(const ChangeIndex(index: 3));
+                      },
+                      imageString: AppImage.png.fleet,
+                    ),
+                  ],
                 ),
                 30.height,
 
                 AppButton(
+                  key: AppKeys.btn('next'),
                   title: context.appText.next,
                   onPressed: () {
 
@@ -98,19 +103,11 @@ class ChooseRoleScreen extends StatelessWidget {
                        context.push(AppRouteName.lpCreateAccount, extra: extra);
                        break;
                       case 2:
-                         Navigator.push(context, commonRoute(VpCreationFormScreen(
-                             id: userId,
-                             mobileNumber:mobileNumber,
-                             roleId: roleId,
-                         ), isForward: true));
-                         break;
+                        context.push(AppRouteName.vpCreateAccount, extra: extra);
+                        break;
                       case 3: // Both
-                          Navigator.push(context, commonRoute(VpCreationFormScreen(
-                              id: userId,
-                              mobileNumber:mobileNumber,
-                              roleId: roleId,
-                          ), isForward: true));
-                          break;
+                        context.push(AppRouteName.vpCreateAccount, extra: extra);
+                        break;
                       case 4: // Fleet Products
                         context.push(AppRouteName.lpCreateAccount, extra: extra);
                           break;

@@ -6,7 +6,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class VpAddedDamageWidget extends StatelessWidget {
   final List<DamageReport>? damageReport;
@@ -138,11 +137,11 @@ class ExpandableText extends StatefulWidget {
   final TextStyle? style;
 
   const ExpandableText({
-    Key? key,
+    super.key,
     required this.text,
     this.maxLines = 2,
     this.style,
-  }) : super(key: key);
+  });
 
   @override
   _ExpandableTextState createState() => _ExpandableTextState();

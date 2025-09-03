@@ -24,7 +24,6 @@ import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_add
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_bloc.dart';
 import '../bloc/kavach_checkout_shipping_address_bloc/kavach_checkout_shipping_address_event.dart';
-// Import GPS dependencies for GPS feature support
 import '../../gps_feature/gps_order_request/gps_order_api_request.dart';
 import '../../gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import '../../gps_feature/models/gps_document_models.dart';
@@ -89,6 +88,7 @@ class _KavachAddAddressBottomSheetState
       });
     }else if (placemarkResult is Error) {
       final error = placemarkResult as Error;
+      if (!mounted) return;
       final errorMessage = error.type is ErrorWithMessage
           ? (error.type as ErrorWithMessage).message
           : context.appText.failedToGetLocation;
@@ -119,6 +119,7 @@ class _KavachAddAddressBottomSheetState
       try {
         final customerId = await _userRepository.getUserID();
         if (customerId == null || customerId.isEmpty) {
+          if (!mounted) return;
           ToastMessages.error(message: context.appText.unableToGetCustomerId);
           return;
         }
@@ -138,6 +139,7 @@ class _KavachAddAddressBottomSheetState
 
         final result = await _gpsRepository.addGpsAddress(request);
 
+        if (!mounted) return;
         if (result is Success) {
           Navigator.of(context).pop();
           ToastMessages.success(message: context.appText.addressAddedSuccess);
@@ -171,16 +173,26 @@ class _KavachAddAddressBottomSheetState
                   Navigator.of(context).pop();
                   ToastMessages.success(message: context.appText.addressAddedSuccess);
 
-                  // Refresh both billing and shipping address lists after successful addition
-                  Future.delayed(Duration(milliseconds: 300), () {
-                    if (context.mounted) {
-                      // Refresh billing addresses
-                      context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
-                      // Refresh shipping addresses
-                      context.read<KavachCheckoutShippingAddressBloc>().add(FetchKavachShippingAddresses());
+                  Future.delayed(const Duration(milliseconds: 300), () {
+                    if (!context.mounted) return;
+
+                    // ✅ Always refresh both lists
+                    context.read<KavachCheckoutBillingAddressBloc>()
+                        .add(FetchKavachBillingAddresses());
+                    context.read<KavachCheckoutShippingAddressBloc>()
+                        .add(FetchKavachShippingAddresses());
+
+                    // ✅ Auto-select only in the list where the address was added
+                    if (widget.addrType == 2) {
+                      context.read<KavachCheckoutBillingAddressBloc>()
+                          .add(SelectKavachBillingAddress(state.address));
+                    } else if (widget.addrType == 1) {
+                      context.read<KavachCheckoutShippingAddressBloc>()
+                          .add(SelectKavachShippingAddress(state.address));
                     }
                   });
-                } else if (state is KavachCheckoutAddressError) {
+                }
+                else if (state is KavachCheckoutAddressError) {
                   ToastMessages.error(message: state.error);
                 }
               },

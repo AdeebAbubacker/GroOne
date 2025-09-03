@@ -51,7 +51,7 @@ class PodCenterData {
     String? podCenterName,
     int? status,
     DateTime? createAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return PodCenterData(
       podCenterId: podCenterId ?? this.podCenterId,

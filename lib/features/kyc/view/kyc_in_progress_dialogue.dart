@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -18,16 +18,16 @@ class KycInProgressDialogue extends StatelessWidget {
         20.height,
         SvgPicture.asset(AppImage.svg.kycPending, width: 150),
         30.height,
-        Text("KYC InProgress",style: AppTextStyle.orangeTextColor26w700),
+        Text(context.appText.kycInProgressText,style: AppTextStyle.orangeTextColor26w700),
         10.height,
-        Text("You can post only one load while your KYC is in progress. Please contact admin for further assistance.",
+        Text(context.appText.youCanPostOnlyOneLoad,
           textAlign: TextAlign.center,
           style: AppTextStyle.bodyGreyColor,
         ),
         40.height,
         AppButton(
           onPressed: onPressed,
-          title: "Continue",
+          title: context.appText.continueText,
         )
 
       ],

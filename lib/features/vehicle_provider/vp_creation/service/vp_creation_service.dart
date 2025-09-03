@@ -8,8 +8,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pr
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/upload_rc_truck_file_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/vp_creation_model.dart';
-import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
+
 
 class VpCreationService {
   final ApiService _apiService;
@@ -25,8 +24,6 @@ class VpCreationService {
         final data = UserModel.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
-
-        print("result in fetchVpCreationData ${result.type}");
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -110,39 +107,30 @@ class VpCreationService {
   // Fetch Company Type
   Future<Result<List<VpCompanyTypeModel>>> fetchGetCompanyTypeData() async {
     try {
-      // Add debugging for company-type API call
-      print('🔐 Company Type API: Starting API call to ${ApiUrls.companyType}');
-      
       // Check if token is available before making the API call
       bool hasToken = await _apiService.hasValidToken();
-      print('🔐 Company Type API: Token available: $hasToken');
       
       if (!hasToken) {
-        print('🔐 Company Type API: No token available - API call may fail');
+
       }
       
       final result = await _apiService.get(ApiUrls.companyType);
       
       if (result is Success) {
-        print('🔐 Company Type API: Success response received');
         final responseData = result.value;
         if (responseData is List) {
           final companyTypes = responseData.map((e) => VpCompanyTypeModel.fromJson(e)).toList();
-          print('🔐 Company Type API: Parsed ${companyTypes.length} company types');
           return Success(companyTypes);
         } else {
-          print('🔐 Company Type API: Response is not a list');
           return Error(DeserializationError());
         }
       } else if (result is Error) {
-        print('🔐 Company Type API: Error response - ${result.type}');
+
         return Error(result.type);
       } else {
-        print('🔐 Company Type API: Unknown response type');
         return Error(GenericError());
       }
     } catch (e) {
-      print('🔐 Company Type API: Exception caught - $e');
       return Error(DeserializationError());
     }
   }

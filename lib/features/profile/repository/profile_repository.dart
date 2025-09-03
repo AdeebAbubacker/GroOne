@@ -19,7 +19,6 @@ import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/api_request/update_settings_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
-import 'package:gro_one_app/features/profile/api_request/vehicle_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/address_response.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/blue_membership_response.dart';
@@ -27,6 +26,7 @@ import 'package:gro_one_app/features/profile/model/customer_settings_response.da
 import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
+import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
@@ -42,9 +42,7 @@ import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
-import 'package:gro_one_app/features/profile/model/vehicle_verification_success.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
-import 'package:gro_one_app/features/profile/model/verified_vehicle_vahan_response.dart';
 import 'package:gro_one_app/features/profile/service/profile_service.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -156,6 +154,19 @@ class ProfileRepository {
   Future<Result<void>> deleteAddress({required String addressId}) async {
     try {
       return await _profileService.deleteAddress(addressId: addressId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// delete address
+  Future<Result<EditUserResponse>> updatePreferredLanes({required List<int> preferredLanes,required String customerName,required String companyName,required int companyTypeId}) async {
+    try {
+      return await _profileService.updatePreferredLanes(
+      companyName: companyName,
+      companyTypeId: companyTypeId,
+      customerName: customerName,
+      preferredLanes);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

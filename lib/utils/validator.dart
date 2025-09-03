@@ -41,7 +41,6 @@ class Validator {
   }
 
   static String? phone(String? value) {
-    const int requiredLength = 10;
 
     if (value == null || value.isEmpty) {
       return appContext.appText.pleaseEnterMobileNumber;
@@ -126,7 +125,7 @@ class Validator {
     final regex = RegExp(r'^[A-Z]{2}-\d{13}$');
 
     if (!regex.hasMatch(value.trim().toUpperCase())) {
-      return '$fieldName';
+      return fieldName;
     }
 
     return null;

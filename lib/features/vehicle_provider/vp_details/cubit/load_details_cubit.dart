@@ -4,7 +4,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' hide LoadStatus;
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/tracking_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_distance_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
@@ -31,22 +30,19 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/model/direction_ap
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/schedule_trip_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_load_accept_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:mime/mime.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart' as lpHelper;
 import 'load_details_state.dart';
 
 class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   final LoadDetailsRepository _loadDetailsRepository;
   final VpHomeRepository _vHomeRepository;
-  final LpLoadRepository _lpLoadRepository;
   final LpLoadRepository _lpLoadsrepository;
 
-  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadRepository,this._lpLoadsrepository)
+  LoadDetailsCubit(this._loadDetailsRepository, this._vHomeRepository,this._lpLoadsrepository)
       : super(LoadDetailsState(tripDocumentList:[]));
 
 
@@ -213,6 +209,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
     if (result is Success<ScheduleTripResponse>) {
       emit(state.copyWith(
           scheduleTripResponse: UIState.success(result.value)));
+          
       Navigator.pop(navigatorKey.currentState!.context);
     } else if (result is Error) {
       emit(state.copyWith(scheduleTripResponse: UIState.error(result.type)));
@@ -246,6 +243,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   void _setSettlementUIState(UIState<SettlementApiResponse>? uiState){
     emit(state.copyWith(settlementUIState: uiState));
   }
+
   Future<void> submitSettlement(SettlementApiRequest req) async {
     _setSettlementUIState(UIState.loading());
     Result result = await _loadDetailsRepository.getSubmitSettlementData(req);
@@ -391,7 +389,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         await createDocument(title ?? "", documentTypeId ?? 1, result.value).then((value) async {
           if (value != null) {
             /// Map document with load
-            await saveDocument(value, loadId).then((value) {
+            await saveDocument(value, loadId,fileType).then((value) {
               uploadLoadingStatus(index, value);
             },);
           } else{
@@ -500,14 +498,14 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
   Future<LoadDocument?> saveDocument(
-      CreateDocumentResponse createDocumentResponse, String loadId) async {
+      CreateDocumentResponse createDocumentResponse, String loadId,String fileType) async {
     try {
       return await _loadDetailsRepository.saveLoadDocument(
           documentId: createDocumentResponse.documentId ?? "",
           loadId: loadId
       ).then((value) {
         if (value is Success<LoadDocument>) {
-
+          VpHelper.logDocumentUploadedEvent(fileType);
           return value.value;
         }
         return null;
@@ -614,6 +612,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
     setTripDocuments(List<LoadDocument>? loadDocument) {
     List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+
       for (DocumentEntity item in documentList) {
         /// find load item for api response set into local document entity
         item.loadDocument=filterLoadDocumentById(loadDocument,item);
@@ -629,7 +628,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       DocumentEntity? document = documentEntity.firstWhere((element) {
         return (element.loadDocument??[]).isEmpty && element.visible==true;
       });
-      print("document.fileType is ${document.fileType}");
+
       return document == null || document.fileType==DocumentFileType.uploadOtherDocument.value;
     } catch (e) {
       return true;
@@ -637,20 +636,21 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true,bool? isAgreed}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true,bool? isAgreed,bool? isDocumentApproved,bool? isPodApproved}) {
     switch(loadStatus){
       case LoadStatus.assigned:
         return (checkMemo??true) ? memo!=null && (isAgreed??false):true;
         case LoadStatus.loading:
-          return  checkIsDocumentUploaded(documentEntity);
+          return  checkIsDocumentUploaded(documentEntity) && isDocumentApproved==true;
       case LoadStatus.unloading:
-        return checkIsDocumentUploaded(documentEntity);
+        return checkIsDocumentUploaded(documentEntity) && isPodApproved==true;
       default:
         return true;
     }
   }
 
   bool checkAllDocumentAddedOrNot({required List<LoadDocument> documentList,  MemoDetails? memo , LoadStatus? loadStatus,int? isAgreed}) {
+
     switch(loadStatus){
       case LoadStatus.loading:
       return  checkLoadingDocumentAddedOrNot(documentList,true);

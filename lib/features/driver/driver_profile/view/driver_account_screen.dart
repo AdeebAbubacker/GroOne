@@ -10,12 +10,15 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 
 class DriverAccountScreen extends StatelessWidget {
   final DriverProfileDetailsModel driverProfileDetailsModel;
-  const DriverAccountScreen({super.key,required this.driverProfileDetailsModel});
+  const DriverAccountScreen({
+    super.key,
+    required this.driverProfileDetailsModel,
+  });
 
-  String checkUserDetails(dynamic value){
-    if(value != null && value.toString().isNotEmpty){
+  String checkUserDetails(dynamic value) {
+    if (value != null && value.toString().isNotEmpty) {
       return value.toString();
-    }else{
+    } else {
       return "--";
     }
   }
@@ -33,35 +36,38 @@ class DriverAccountScreen extends StatelessWidget {
             children: [
               0.height,
 
-            
-                headingText(text: context.appText.personalDetails),
-                buildDetailWidget(
-                  text1: context.appText.name,
-                  text2: checkUserDetails(driverProfileDetailsModel.data?.name.capitalize),
+              headingText(text: context.appText.personalDetails),
+              buildDetailWidget(
+                text1: context.appText.name,
+                text2: checkUserDetails(
+                  driverProfileDetailsModel.data?.name.capitalize,
                 ),
+              ),
 
-                buildDetailWidget(
-                  text1: context.appText.mobileNumber,
-                  text2: checkUserDetails(driverProfileDetailsModel.data?.mobile),
-                ),
+              buildDetailWidget(
+                text1: context.appText.mobileNumber,
+                text2: checkUserDetails(driverProfileDetailsModel.data?.mobile),
+              ),
 
-                buildDetailWidget(
-                    text1: context.appText.email,
-                    text2: checkUserDetails(driverProfileDetailsModel.data?.email)
-                ),
-                dividerWidget(),
-
-
-              
-
-
+              buildDetailWidget(
+                text1: context.appText.email,
+                text2: checkUserDetails(driverProfileDetailsModel.data?.email),
+              ),
+              dividerWidget(),
 
               // Company Detail
               headingText(text: context.appText.companyDetails),
-           
+
               buildDetailWidget(
                 text1: context.appText.companyName,
-                text2: checkUserDetails(driverProfileDetailsModel.data?.companyDetails?.companyName.capitalize ?? ''),
+                text2: checkUserDetails(
+                  driverProfileDetailsModel
+                          .data
+                          ?.companyDetails
+                          ?.companyName
+                          .capitalize ??
+                      '',
+                ),
               ),
               20.height,
             ],
@@ -71,7 +77,7 @@ class DriverAccountScreen extends StatelessWidget {
     );
   }
 
- Widget buildDetailWidget({required String text1, required String text2}) {
+  Widget buildDetailWidget({required String text1, required String text2}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -80,6 +86,4 @@ class DriverAccountScreen extends StatelessWidget {
       ],
     );
   }
-
-
 }

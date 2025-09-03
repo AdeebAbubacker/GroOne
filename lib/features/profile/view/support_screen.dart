@@ -24,7 +24,6 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-
 import '../../../utils/app_icons.dart';
 import '../../ai_chat/view/chat_screen.dart';
 import '../../ai_chat/cubit/chat_cubit.dart';
@@ -32,9 +31,10 @@ import '../../ai_chat/cubit/chat_cubit.dart';
 
 
 class LpSupport extends StatefulWidget {
-  const LpSupport({super.key, this.showBackButton = true});
+  const LpSupport({super.key, this.showBackButton = true, this.ticketTag,});
 
   final bool showBackButton;
+  final String? ticketTag; // <-- New
 
   @override
   State<LpSupport> createState() => _LpSupportState();
@@ -421,7 +421,7 @@ class _LpSupportState extends State<LpSupport> {
   Widget buildCreateTicketButton() {
     return AppButton(
       onPressed: () {
-        Navigator.push(context, commonRoute(AddNewTicketScreen())).then((val) {
+        Navigator.push(context, commonRoute(AddNewTicketScreen(ticketTag: widget.ticketTag))).then((val) {
           profileCubit.fetchTickets(request: TicketRequest());
         });
       },
@@ -463,100 +463,4 @@ class _LpSupportState extends State<LpSupport> {
     );
   }
 
-  Widget _buildRobotIcon() {
-    return Container(
-      width: 36,
-      height: 36,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Robot Head
-          Positioned(
-            top: 2,
-            child: Container(
-              width: 20,
-              height: 16,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  // Left Eye
-                  Container(
-                    width: 3,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF1976D2),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                  // Right Eye
-                  Container(
-                    width: 3,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Color(0xFF1976D2),
-                      borderRadius: BorderRadius.circular(2),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // Robot Body
-          Positioned(
-            bottom: 4,
-            child: Container(
-              width: 14,
-              height: 16,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(7),
-              ),
-            ),
-          ),
-          // Left Arm
-          Positioned(
-            left: 6,
-            bottom: 10,
-            child: Container(
-              width: 4,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          // Right Arm
-          Positioned(
-            right: 6,
-            bottom: 10,
-            child: Container(
-              width: 4,
-              height: 8,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          // Head connector
-          Positioned(
-            top: 16,
-            child: Container(
-              width: 6,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }

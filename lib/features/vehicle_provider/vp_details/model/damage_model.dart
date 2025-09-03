@@ -30,10 +30,10 @@ class DamageModel {
     int? quantity,
     List<String>? image,
     String? description,
-    dynamic? updatedAt,
+    dynamic updatedAt,
     String? damageId,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return DamageModel(
       vehicleId: vehicleId ?? this.vehicleId,

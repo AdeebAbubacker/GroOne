@@ -29,6 +29,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../features/login/repository/user_information_repository.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 import '../constants/app_constants.dart';
 import '../cubit/gps_settings_cubit/gps_settings_cubit.dart';
 import '../repository/gps_repository.dart';
@@ -271,7 +272,7 @@ class _GpsHomeContent extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS), isForward: true));
                 },
                 child: Image.asset(
                   AppImage.png.customerSupport,

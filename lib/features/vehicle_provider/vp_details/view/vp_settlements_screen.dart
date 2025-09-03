@@ -7,6 +7,8 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/set
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
+import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -21,7 +23,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extra_utils.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-import 'package:gro_one_app/utils/validator.dart';
 
 import '../../../../data/ui_state/status.dart';
 
@@ -41,6 +42,9 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
   TextEditingController detentionAmount = TextEditingController();
   TextEditingController loadingAmount = TextEditingController();
   TextEditingController unloadingAmount = TextEditingController();
+
+  final AnalyticsService analyticsHelper = locator<AnalyticsService>();
+
   final formKey = GlobalKey<FormState>();
   final vpDetailsCubit = locator<LoadDetailsCubit>();
   bool isSettementsSubmited=false;
@@ -145,7 +149,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                        },
                         label: context.appText.noOfDays, controller: noOfDays, isMandatory: false),
                     Visibility(
-                      visible:(int.tryParse(noOfDays.text??"0")??0)>0 ,
+                      visible:(int.tryParse(noOfDays.text)??0)>0 ,
                       child: AppTextField(
                         controller: detentionAmount,
                         labelText: context.appText.amount,
@@ -201,6 +205,7 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                   final status = state.settlementUIState?.status;
                   if (status == Status.SUCCESS) {
                     clearValues();
+                    analyticsHelper.logEvent(AnalyticEventName.SETTLEMENT_ADDED);
                     showSuccessDialog(context);
                   }
                   if (status == Status.ERROR) {

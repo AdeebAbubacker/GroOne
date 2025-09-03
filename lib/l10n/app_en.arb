@@ -18,7 +18,7 @@
   "enterMobileNumber": "Enter your mobile number to continue.",
   "loginSingUp": "Login / Sign up",
   "agree": "By logging in, you agree to GRO's ",
-  "termsAndConditions": "Terms & conditions",
+  "termsAndConditions": "Terms & Conditions",
   "and": " and ",
   "privacyPolicy": "Privacy policy",
   "iAgree": "I Agree",
@@ -823,6 +823,7 @@
   "uploadProductPhoto":"Please upload Product Photo",
   "emptyQuantityValidation":"You can't add 0 quantity",
   "damageRecordedSuccessfully":"Your damage has been recorded.",
+  "lanesRecordedSuccessfully":"Your Preferred lanes has been recorded.",
   "notifiedTheConcernTeam":"We have notified the concerned team.",
   "sureToDeleteDamage":"Are you sure you want to delete this damage?",
   "cancelEdit":"Cancel Edit",
@@ -831,7 +832,7 @@
   "viewFiles":"View Files",
   "days":"Days",
   "settlementRecordedSuccessfully":"Your settlement details has been recorded.",
-
+    "updateLanes":"Update lanes",
 
 
   "pod":"Proof of Document",
@@ -1311,7 +1312,12 @@
   "locationDisabled": "Location Disabled",
   "pleaseEnableLocationServicesToContinue": "Please enable location services to continue.",
   "openSettings": "Open Settings",
-  "okay": "ok"
+  "okay": "ok",
+  "postLoadPriceContent": "Sit back and relax, we will reach out in 30 min.",
+  "youCanPostOnlyOneLoad": "You can post only one load while your KYC is in progress. Please contact admin for further assistance.",
+  "kycInProgressText": "KYC InProgress",
+  "lanes":"Lanes",
+  "supportTicket":"Support Ticket"
 
 
 }

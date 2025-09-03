@@ -4,7 +4,6 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 
 class AppButton extends StatelessWidget {
   final void Function()? onPressed;
@@ -37,6 +36,7 @@ class AppButton extends StatelessWidget {
     return SizedBox(
       height: buttonHeight,
       child: ElevatedButton(
+        key: key,
         onPressed:   isLoading == true || enable==false
             ? null // better UX: disabled state
             : () {

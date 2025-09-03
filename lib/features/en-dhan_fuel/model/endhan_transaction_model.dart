@@ -126,12 +126,12 @@ class EndhanTransactionModel {
       final parts = transactionDate?.split(' ');
       if (parts?.isNotEmpty ?? false) {
         final dateParts = parts![0].split('/');
-        if (dateParts?.length == 3) {
-          final day = int.parse(dateParts?[0] ?? '');
-          final month = int.parse(dateParts?[1] ?? '');
+        if (dateParts.length == 3) {
+          final day = int.parse(dateParts[0]);
+          final month = int.parse(dateParts[1]);
           final year = int.parse(dateParts[2]);
           
-          if (parts!.length >= 2) {
+          if (parts.length >= 2) {
             final timeParts = parts[1].split(':');
             if (timeParts.length >= 2) {
               final hour = int.parse(timeParts[0]);
@@ -144,7 +144,7 @@ class EndhanTransactionModel {
         }
       }
     } catch (e) {
-      print('Error parsing transaction date: $e');
+      return null;
     }
     return null;
   }
@@ -172,24 +172,17 @@ class EndhanTransactionResponse {
 
   factory EndhanTransactionResponse.fromJson(Map<String, dynamic> json) {
     try {
-      print('Parsing response JSON: $json');
-      
       final data = json['data'] as Map<String, dynamic>?;
-      print('Data field: $data');
-      
+
       final document = data?['document'] as List<dynamic>?;
-      print('Document field: $document');
-      
+
       final transactions = document?.map((item) {
         if (item is Map<String, dynamic>) {
           return EndhanTransactionModel.fromJson(item);
         } else {
-          print('Warning: Invalid transaction item format: $item');
           return null;
         }
       }).whereType<EndhanTransactionModel>().toList() ?? [];
-
-      print('Parsed transactions: ${transactions.length}');
 
       return EndhanTransactionResponse(
         success: json['success'] ?? false,
@@ -197,7 +190,6 @@ class EndhanTransactionResponse {
         transactions: transactions,
       );
     } catch (e) {
-      print('Error parsing EndhanTransactionResponse: $e');
       return EndhanTransactionResponse(
         success: false,
         message: 'Error parsing response: $e',

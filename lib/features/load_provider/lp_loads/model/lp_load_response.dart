@@ -604,7 +604,7 @@ class ScheduleTripDetails {
     DateTime? possibleDeliveryDate,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     String? loadId,
     Driver? driver,
     Vehicle? vehicle,

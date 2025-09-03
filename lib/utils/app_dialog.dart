@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class AppDialog extends StatefulWidget {
   final Widget child;

@@ -6,8 +6,6 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
-import 'package:gro_one_app/utils/textFieldInputFormatter/remove_space_inpur_formatter.dart';
 
 class AppTextField extends StatelessWidget {
   final String? labelText;
@@ -86,6 +84,7 @@ class AppTextField extends StatelessWidget {
         if (labelText != null)
           6.height,
         TextFormField(
+          key: key,
           enabled: enabled ?? true,
           validator: validator,
           inputFormatters: inputFormatters ?? [],

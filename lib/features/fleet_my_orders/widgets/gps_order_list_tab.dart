@@ -103,7 +103,7 @@ class _GpsOrderListTabWidgetState extends State<GpsOrderListTabWidget> {
                                     vertical: 4,
                                   ),
                                   decoration: commonContainerDecoration(
-                                    color: statusColor.withOpacity(0.09),
+                                    color: statusColor.withValues(alpha: 0.09),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(

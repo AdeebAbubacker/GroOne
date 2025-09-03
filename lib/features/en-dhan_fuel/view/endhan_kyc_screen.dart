@@ -26,7 +26,7 @@ import '../../../utils/app_colors.dart';
 import '../../../utils/app_dialog.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
-import 'package:gro_one_app/features/en-dhan_fuel/repository/en-dhan_repository.dart';
+import 'package:gro_one_app/features/en-dhan_fuel/repository/en_dhan_repository.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 
 import '../../kyc/api_request/init_kyc_request.dart';
@@ -35,6 +35,7 @@ import '../../kyc/helper/kyc_helper.dart';
 import '../../kyc/model/aadhar_status_response.dart';
 import '../../kyc/view/kyc_verification_webview.dart';
 import '../../profile/view/support_screen.dart';
+import '../../profile/view/widgets/add_new_support_ticket.dart';
 
 class EndhanKycScreen extends StatefulWidget {
   final String? aadhaarPrefill;
@@ -93,9 +94,8 @@ class _EndhanKycScreenContent extends StatelessWidget {
   final bool showPanUpload; // <- new property
 
   _EndhanKycScreenContent({
-    Key? key,
     required this.showPanUpload, // <- make it required or give default
-  }) : super(key: key);
+  });
   final kycCubit = locator<KycCubit>(); // For KYC flow
   final aadharRequestId = ValueNotifier<String?>(null);
 
@@ -115,353 +115,12 @@ class _EndhanKycScreenContent extends StatelessWidget {
     );
   }
 
-  void _showOtpBottomSheet(BuildContext context, EnDhanCubit cubit) {
-    final List<TextEditingController> otpControllers = List.generate(
-      6,
-      (i) => TextEditingController(),
-    );
-    final List<FocusNode> focusNodes = List.generate(6, (i) => FocusNode());
-
-    void _onOtpChanged(int idx, String value) {
-      // Handle forward navigation when a digit is entered
-      if (value.length == 1 && idx < 5) {
-        // Add a small delay to ensure the current field is properly updated
-        Future.delayed(Duration(milliseconds: 50), () {
-          focusNodes[idx + 1].requestFocus();
-        });
-      }
-      // Handle backward navigation when a digit is deleted
-      else if (value.isEmpty && idx > 0) {
-        // Add a small delay to ensure the current field is properly cleared
-        Future.delayed(Duration(milliseconds: 50), () {
-          focusNodes[idx - 1].requestFocus();
-          // Ensure cursor is at the end of the previous field
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            otpControllers[idx - 1].selection = TextSelection.fromPosition(
-              TextPosition(offset: otpControllers[idx - 1].text.length),
-            );
-          });
-        });
-      }
-      // When the last digit (6th) is entered, keep focus but show visual feedback
-      else if (value.length == 1 && idx == 5) {
-        // Keep focus on the last field but add a small delay for visual feedback
-        Future.delayed(Duration(milliseconds: 100), () {
-          if (context.mounted) {
-            // Add a subtle visual feedback by briefly changing focus
-            focusNodes[idx].unfocus();
-            Future.delayed(Duration(milliseconds: 50), () {
-              if (context.mounted) {
-                focusNodes[idx].requestFocus();
-              }
-            });
-          }
-        });
-      }
-    }
-
-    String getOtp() => otpControllers.map((c) => c.text).join();
-    bool isOtpComplete() =>
-        getOtp().length == 6 && getOtp().runes.every((r) => r >= 48 && r <= 57);
-
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext context) {
-        return StatefulBuilder(
-          builder: (BuildContext context, StateSetter setState) {
-            // Resend OTP timer variables
-            bool _canResendOtp = false;
-            int _resendTimer = 10; // 10 seconds countdown
-            Timer? _timer;
-
-            void _startResendTimer() {
-              _canResendOtp = false;
-              _resendTimer = 10;
-              _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-                if (context.mounted) {
-                  setState(() {
-                    if (_resendTimer > 0) {
-                      _resendTimer--;
-                    } else {
-                      _canResendOtp = true;
-                      timer.cancel();
-                    }
-                  });
-                }
-              });
-            }
-
-            void _resetResendTimer() {
-              _timer?.cancel();
-              _startResendTimer();
-            }
-
-            // Start timer when bottom sheet opens
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _startResendTimer();
-            });
-
-            return BlocListener<EnDhanCubit, EnDhanState>(
-              bloc: cubit,
-              listenWhen: (previous, current) {
-                final changed =
-                    previous.aadhaarVerifyOtpState !=
-                    current.aadhaarVerifyOtpState;
-                return changed;
-              },
-              listener: (context, state) {
-                if (state.aadhaarVerifyOtpState?.status == Status.SUCCESS) {
-                  Navigator.of(context).pop();
-                  ToastMessages.success(
-                    message: context.appText.aadhaarVerifiedSuccessfully,
-                  );
-                }
-                if (state.aadhaarVerifyOtpState?.status == Status.ERROR) {
-                  final error = state.aadhaarVerifyOtpState?.errorType;
-                  ToastMessages.error(
-                    message: getErrorMsg(errorType: error ?? GenericError()),
-                  );
-                }
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20),
-                    topRight: Radius.circular(20),
-                  ),
-                ),
-                child: Padding(
-                  padding: EdgeInsets.only(
-                    bottom: MediaQuery.of(context).viewInsets.bottom,
-                    left: 20,
-                    right: 20,
-                    top: 20,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Handle bar and close button row
-                      Row(
-                        children: [
-                          // Handle bar
-                          Center(
-                            child: Container(
-                              width: 40,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[300],
-                                borderRadius: BorderRadius.circular(2),
-                              ),
-                            ),
-                          ).expand(),
-                          // Close button
-                          GestureDetector(
-                            onTap: () => Navigator.of(context).pop(),
-                            child: Container(
-                              padding: EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: Colors.grey[100],
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Icon(
-                                Icons.close,
-                                size: 20,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      20.height,
-                      // Title
-                      Text(
-                        context.appText.verifyYourKyc,
-                        style: AppTextStyle.h4.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      30.height,
-                      // Subtitle with OTP hint
-                      Text(
-                        '${context.appText.enterOtpSentToMobile}\n${context.appText.otpHint}',
-                        style: AppTextStyle.body3.copyWith(
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                      40.height,
-                      // OTP input boxes - 6 digits
-                      Center(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            6,
-                            (i) => Container(
-                              width: 45,
-                              height: 50,
-                              margin: EdgeInsets.symmetric(horizontal: 4),
-                              child: TextField(
-                                controller: otpControllers[i],
-                                focusNode: focusNodes[i],
-                                textAlign: TextAlign.center,
-                                style: AppTextStyle.h4.copyWith(
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 2,
-                                ),
-                                decoration: InputDecoration(
-                                  counterText: '',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: AppColors.borderColor,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: AppColors.borderColor,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8),
-                                    borderSide: BorderSide(
-                                      color: AppColors.primaryColor,
-                                    ),
-                                  ),
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                ),
-                                maxLength: 1,
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
-                                ],
-                                onChanged: (value) {
-                                  _onOtpChanged(i, value);
-                                  // Ensure cursor is always at the end after any change
-                                  WidgetsBinding.instance.addPostFrameCallback((
-                                    _,
-                                  ) {
-                                    if (otpControllers[i].text.isNotEmpty) {
-                                      otpControllers[i].selection =
-                                          TextSelection.fromPosition(
-                                            TextPosition(
-                                              offset:
-                                                  otpControllers[i].text.length,
-                                            ),
-                                          );
-                                    }
-                                  });
-                                },
-                                onTap: () {
-                                  // Ensure cursor is at the end when tapping
-                                  WidgetsBinding.instance.addPostFrameCallback((
-                                    _,
-                                  ) {
-                                    otpControllers[i]
-                                        .selection = TextSelection.fromPosition(
-                                      TextPosition(
-                                        offset: otpControllers[i].text.length,
-                                      ),
-                                    );
-                                  });
-                                },
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      35.height,
-                      // Verify button
-                      BlocBuilder<EnDhanCubit, EnDhanState>(
-                        bloc: cubit,
-                        builder: (context, state) {
-                          final bool isLoading =
-                              state.aadhaarVerifyOtpState?.status ==
-                              Status.LOADING;
-                          final bool canVerify = isOtpComplete();
-                          return AppButton(
-                            onPressed:
-                                (!isLoading && canVerify)
-                                    ? () {
-                                      cubit.verifyAadhaarOtp(getOtp());
-                                    }
-                                    : () {
-                                      // Button disabled
-                                    },
-                            title: context.appText.verifyOtp,
-                            isLoading: isLoading,
-                            style:
-                                canVerify
-                                    ? AppButtonStyle.primary
-                                    : AppButtonStyle.disableButton,
-                          );
-                        },
-                      ),
-                      20.height,
-                      // Resend code option with timer
-                      BlocBuilder<EnDhanCubit, EnDhanState>(
-                        bloc: cubit,
-                        builder: (context, state) {
-                          final bool isResendLoading =
-                              state.aadhaarSendOtpState?.status ==
-                              Status.LOADING;
-                          return Center(
-                            child: GestureDetector(
-                              onTap:
-                                  (isResendLoading || !_canResendOtp)
-                                      ? null
-                                      : () {
-                                        cubit.sendAadhaarOtp();
-                                        _resetResendTimer();
-                                        ToastMessages.success(
-                                          message: context.appText.otpHasBeenSentSuccessfully,
-                                        );
-                                      },
-                              child: Text(
-                                _canResendOtp
-                                    ? (context.appText.resendOtp ??
-                                        'Resend OTP')
-                                    : 'Resend OTP in ${_resendTimer}s',
-                                style: AppTextStyle.body3.copyWith(
-                                  color:
-                                      (isResendLoading || !_canResendOtp)
-                                          ? AppColors.primaryTextColor
-                                              .withOpacity(0.5)
-                                          : AppColors.primaryColor,
-                                  decoration:
-                                      (isResendLoading || !_canResendOtp)
-                                          ? TextDecoration.none
-                                          : TextDecoration.underline,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                      20.height,
-                    ],
-                  ),
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<EnDhanCubit>();
-    final _formKey = GlobalKey<FormState>();
+    final formKey = GlobalKey<FormState>();
 
-    Future<void> _checkVerification(
+    Future<void> checkVerification(
       BuildContext context,
       String? sdkUrl,
       String? requestId,
@@ -478,7 +137,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
       }
     }
 
-    Future<void> _checkKycVerification(
+    Future<void> checkKycVerification(
       BuildContext context,
       AadharVerificationData? data,
       EnDhanCubit cubit,
@@ -487,24 +146,26 @@ class _EndhanKycScreenContent extends StatelessWidget {
         final pdfPath = await KycHelper.saveBase64PdfToFile(
           data?.dataPdf ?? "",
         );
-        if (pdfPath != null) {
-          final file = File(pdfPath);
-          final uploadResponse = await cubit.uploadDocument(
-            file,
-          ); // This function already exists in your cubit
+        final file = File(pdfPath);
+        final uploadResponse = await cubit.uploadDocument(
+          file,
+        ); // This function already exists in your cubit
 
-          if (uploadResponse?.data?.url != null) {
-            final url = uploadResponse!.data!.url!;
-            cubit.setAadhaarDocUrl(
-              url,
-            ); // You’ll create this method and update the state
-            cubit.setAadhaarVerified(true);
-            ToastMessages.success(
-              message: context.appText.aadhaarVerifiedSuccessfully,
-            );
-          } else {
-            ToastMessages.error(message: context.appText.failedToUploadAadhaarPdf);
-          }
+        if (uploadResponse?.data?.url != null) {
+          final url = uploadResponse!.data!.url;
+          cubit.setAadhaarDocUrl(
+            url,
+          ); // You’ll create this method and update the state
+          cubit.setAadhaarVerified(true);
+          if (!context.mounted) return;
+          ToastMessages.success(
+            message: context.appText.aadhaarVerifiedSuccessfully,
+          );
+        } else {
+          if (!context.mounted) return;
+          ToastMessages.error(
+            message: context.appText.failedToUploadAadhaarPdf,
+          );
         }
       }
     }
@@ -516,7 +177,9 @@ class _EndhanKycScreenContent extends StatelessWidget {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+              Navigator.of(context).push(
+                commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true),
+              );
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -526,7 +189,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
       ),
       body: SafeArea(
         child: Form(
-          key: _formKey,
+          key: formKey,
           child: BlocListener<EnDhanCubit, EnDhanState>(
             bloc: cubit,
             listenWhen: (previous, current) {
@@ -583,7 +246,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             final requestId =
                                 state.kycInitResponse?.data?.requestId;
                             aadharRequestId.value = requestId;
-                            await _checkVerification(
+                            await checkVerification(
                               context,
                               sdkUrl,
                               requestId,
@@ -592,10 +255,17 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
                           if (state.aadharVerificationState?.status ==
                               Status.SUCCESS) {
-                            await _checkKycVerification(
+                            if (!context.mounted) return;
+                            await checkKycVerification(
                               context,
                               state.aadharVerificationState?.data?.data,
                               cubit,
+                            );
+                          }
+                          if (state.kycInitResponse?.status == Status.ERROR) {
+                            if (!context.mounted) return;
+                            ToastMessages.error(
+                              message: context.appText.errorMessage,
                             );
                           }
                         },
@@ -780,25 +450,32 @@ class _EndhanKycScreenContent extends StatelessWidget {
                               feildTitle: context.appText.uploadDocument,
                               multiFilesList: state.panDocuments,
                               isSingleFile: true,
-                            onFilesChanged: (newList) async {
-                              cubit.updatePanDocuments(newList);
+                              onFilesChanged: (newList) async {
+                                cubit.updatePanDocuments(newList);
 
-                              final filePath = newList.isNotEmpty ? newList.first['path'] : null;
-                              if (filePath != null) {
-                                final uploadResult = await cubit.uploadDocument(File(filePath));
-                                if (uploadResult?.success??false) {
-                                  final fileUrl = uploadResult?.data?.url ?? '';
-                                  final updatedDocs = [
-                                    {'path': fileUrl, 'name': newList.first['name']}
-                                  ];
-                                  cubit.updatePanDocuments(updatedDocs);
-                                  cubit.setPanImageUploaded(true);
-                                } else {
-                                  cubit.setPanImageUploaded(false);
+                                final filePath =
+                                    newList.isNotEmpty
+                                        ? newList.first['path']
+                                        : null;
+                                if (filePath != null) {
+                                  final uploadResult = await cubit
+                                      .uploadDocument(File(filePath));
+                                  if (uploadResult?.success ?? false) {
+                                    final fileUrl =
+                                        uploadResult?.data?.url ?? '';
+                                    final updatedDocs = [
+                                      {
+                                        'path': fileUrl,
+                                        'name': newList.first['name'],
+                                      },
+                                    ];
+                                    cubit.updatePanDocuments(updatedDocs);
+                                    cubit.setPanImageUploaded(true);
+                                  } else {
+                                    cubit.setPanImageUploaded(false);
+                                  }
                                 }
-
-                              }
-                            }
+                              },
                             ),
                             if (state.panDocuments.isEmpty &&
                                 state.hasAttemptedSubmit)
@@ -997,8 +674,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
               if (!isAadhaarVerified || !isPanVerified) {
                 String message = '';
                 if (!isAadhaarVerified && !isPanVerified) {
-                  message =
-                      context.appText.verifyPanAndAadhaarBeforeSubmit;
+                  message = context.appText.verifyPanAndAadhaarBeforeSubmit;
                 } else if (!isAadhaarVerified) {
                   message = context.appText.verifyAadhaarBeforeSubmit;
                 } else if (!isPanVerified) {
@@ -1023,7 +699,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                 return;
               }
 
-              if (!_formKey.currentState!.validate()) {
+              if (!formKey.currentState!.validate()) {
                 ToastMessages.alert(
                   message: context.appText.pleaseFillAllRequiredFields,
                 );

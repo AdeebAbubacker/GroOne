@@ -1,6 +1,3 @@
-import 'dart:convert';
-import 'dart:developer';
-
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,16 +25,15 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-
 import '../../../../service/analytics/analytics_event_name.dart';
 import '../../../../service/analytics/analytics_service.dart';
 import '../../../../utils/app_dialog.dart' show AppDialog;
 import '../../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/model/kavach_address_model.dart';
-import '../../../kavach/view/kavach_support_screen.dart';
 import '../../../payments/view/payments_screen.dart';
 import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
 import '../../models/gps_document_models.dart';
 import '../gps_home_screen.dart';
 
@@ -232,11 +228,13 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
         if (state is GpsPaymentStatusFailure) {
           // Payment failed → show toast
+          if (!context.mounted) return;
           ToastMessages.error(message: context.appText.paymentFailed);
         }
 
         if (state is GpsOrderSuccess) {
           await Future.delayed(Duration(milliseconds: 500));
+          if (!context.mounted) return;
           AppDialog.show(
             context,
             child: SuccessDialogView(
@@ -300,6 +298,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           setState(() {
             isLoadingSummary = false;
           });
+          if (!context.mounted) return;
           ToastMessages.error(
             message: context.appText.failedToLoadOrderSummary,
           );
@@ -312,7 +311,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           actions: [
             AppIconButton(
               onPressed: () {
-                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true), isForward: true));
+                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
               },
               icon: AppIcons.svg.filledSupport,
               iconColor: AppColors.primaryButtonColor,
@@ -502,7 +501,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 15.height,
               ],
             );
-          }).toList(),
+          }),
         ],
       ),
     );
@@ -773,65 +772,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         Text(value, style: AppTextStyle.blackColor15w500),
       ],
     ).paddingSymmetric(vertical: 5);
-  }
-
-  /// Show success dialog and handle navigation with proper context management
-  void _showSuccessDialogAndNavigate(BuildContext context, String message) {
-    // Store the current context before showing dialog
-    final currentContext = context;
-
-    AppDialog.show(
-      currentContext,
-      child: SuccessDialogView(
-        message: message,
-        onContinue: () {
-          // // Close the dialog first
-          // Navigator.of(currentContext).pop();
-
-          // Use a post-frame callback to ensure dialog is fully closed
-          WidgetsBinding.instance.addPostFrameCallback((_) async {
-            // Add a small delay to ensure dialog is fully closed
-            // await Future.delayed(Duration(milliseconds: 100));
-
-            if (currentContext.mounted) {
-              try {
-                // Try multiple navigation approaches
-                GoRouter.of(currentContext).go(AppRouteName.gps);
-              } catch (e) {
-                try {
-                  currentContext.go(AppRouteName.gps);
-                } catch (fallbackError) {
-                  try {
-                    Navigator.of(currentContext).pushNamedAndRemoveUntil(
-                      AppRouteName.gps,
-                      (route) => false,
-                    );
-                  } catch (navigatorError) {
-                    try {
-                      Navigator.of(currentContext).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (context) => GpsHomeScreen(),
-                        ),
-                        (route) => false,
-                      );
-                    } catch (pushError) {
-                      // Last resort: Try to navigate to a different route
-                      try {
-                        currentContext.go(AppRouteName.lpBottomNavigationBar);
-                      } catch (lastResortError) {
-                        ToastMessages.error(
-                          message: 'Navigation failed. Please try again.',
-                        );
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          });
-        },
-      ),
-    );
   }
 
   Widget _buildAddressCard(KavachAddressModel address) {

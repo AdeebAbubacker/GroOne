@@ -133,8 +133,8 @@ class LpLoadState extends Equatable {
       downloadedFiles: downloadedFiles ?? this.downloadedFiles,
       allDamageImageList: allDamageImageList ?? this.allDamageImageList,
       loadStatus: loadStatus ?? this.loadStatus,
-      isFieldUpdatble : isFieldUpdatble ?? this.isFieldUpdatble,
-      isFeedBackUpdatble: isFeedBackUpdatble ?? this.isFeedBackUpdatble,
+      isFieldUpdatble : isFieldUpdatble,
+      isFeedBackUpdatble: isFeedBackUpdatble,
     );
   }
 

@@ -10,7 +10,6 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_create_account/widgets/company_type_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
@@ -25,7 +24,6 @@ import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_count_selector.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_dropdown.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_multi_selection_dropdown.dart';
@@ -40,6 +38,7 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/remove_space_inpur_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -247,7 +246,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       children: [
         // Name
         AppTextField(
-
+          key: AppKeys.txt('full_name'),
           validator: (value) => Validator.fieldRequired(value),
           controller: nameTextController,
           labelText: context.appText.fullName,
@@ -264,6 +263,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Phone Number
         AppTextField(
+          key: AppKeys.txt('mobile_number'),
           readOnly: true,
           validator: (value) => Validator.phone(value),
           controller: mobileNumberTextController,
@@ -295,6 +295,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Pin code Truck
         AppTextField(
+          key: AppKeys.txt('pincode'),
           validator: (value) => Validator.pincode(value),
           controller: pinCodeTextController,
           labelText: context.appText.pinCode,
@@ -342,6 +343,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       },
       builder: (context, state) {
         return AppTextField(
+          key: AppKeys.txt('email'),
           validator: (value) => Validator.fieldRequired(value),
           controller: emailTextController,
           labelText: context.appText.email,
@@ -412,6 +414,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Company Name
         AppTextField(
+          key: AppKeys.txt('company_name'),
           inputFormatters: [
             NoLeadingSpaceFormatter(),
             LengthLimitingTextInputFormatter(50),
@@ -444,6 +447,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                 return Column(
                   children: [
                     VpCompanyTypeSearchableDropdown(
+                      key: AppKeys.ddl('company_type'),
                       selectedCompanyTypeId: companyTypeDropDownValue,
                       onCompanyTypeChanged: (newVal) {
                         setState(() {
@@ -486,6 +490,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               return Column(
                 children: [
                   AppMultiSelectionDropdown<int>(
+                    key: AppKeys.ddl('truck_type'),
                     labelText: context.appText.truckType,
                     hintText: context.appText.selectTruckType,
                     controller: truckTypeController,
@@ -547,10 +552,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           builder: (context, state) {
             if (state.prefLaneUIState?.data?.data != null &&
                 state.prefLaneUIState!.data!.data!.items.isNotEmpty) {
-              final preferredLaneItems =
-                  state.prefLaneUIState?.data?.data?.items
-                      .where((element) => element.isSelected ?? false)
-                      .toList();
+              final preferredLaneItems = state.selectedPreferLanes;
               if((preferredLaneItems??[]).isNotEmpty){
                 selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId,).toList()??[];
               }else{
@@ -607,6 +609,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                                   children: List.generate(
                                     preferredLaneItems?.length ?? 0,
                                     (index) => Chip(
+
                                       label: Text(
                                         '${preferredLaneItems?[index].fromLocation?.name ?? ""} - ${preferredLaneItems?[index].toLocation?.name ?? ""}',
                                       ),
@@ -614,7 +617,11 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                                       labelStyle: AppTextStyle.body3WhiteColor,
                                       deleteIcon:  Icon(Icons.clear, color: Colors.white, size: 18),
                                       deleteIconColor: Colors.red,
-                                      shape: RoundedRectangleBorder(
+                                      onDeleted: () =>  vpCreationCubit.selectLanes(
+                                        selected: false,
+                                        id: preferredLaneItems?[index].masterLaneId,
+                                      )
+                                     , shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(12)
                                       ),
                                       padding: EdgeInsets.zero,
@@ -635,6 +642,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Owned Trucks
         AppCountSelector(
+          key: AppKeys.cnt('owned_trucks'),
           label: context.appText.ownedTrucks,
           controller: ownedTruckTextController,
           isMandatory: true,
@@ -642,6 +650,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Attached Trucks
         AppCountSelector(
+          key: AppKeys.cnt('attached_trucks'),
           label: context.appText.attachedTrucks,
           controller: attachedTruckTextController,
         ),
@@ -741,6 +750,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         final isLoading =
             state.createAccountUIState?.status == Status.LOADING;
         return AppButton(
+          key: AppKeys.btn('submit'),
           title: context.appText.submit,
           isLoading: isLoading,
           onPressed:

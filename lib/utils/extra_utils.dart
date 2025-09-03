@@ -24,8 +24,10 @@ Widget customCheckbox({
   required String text,
   required Function() onTap,
   required bool selected,
+  Key? key
 }) {
   return InkWell(
+  key: key,
   onTap: onTap,
     child: Row(
       children: [

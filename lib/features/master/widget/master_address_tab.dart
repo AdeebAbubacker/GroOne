@@ -32,14 +32,14 @@ import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:lottie/lottie.dart';
 
-class buildAddressTab extends StatefulWidget {
-  const buildAddressTab({super.key});
+class BuildAddressTab extends StatefulWidget {
+  const BuildAddressTab({super.key});
 
   @override
-  State<buildAddressTab> createState() => _buildAddressTabState();
+  State<BuildAddressTab> createState() => _BuildAddressTabState();
 }
 
-class _buildAddressTabState extends State<buildAddressTab> {
+class _BuildAddressTabState extends State<BuildAddressTab> {
   List<String> selectedCommodities = [];
   final profileCubit = locator<ProfileCubit>();
   final vehicleSearchController = TextEditingController();
@@ -63,7 +63,6 @@ class _buildAddressTabState extends State<buildAddressTab> {
     _addressScrollController.addListener(() {
       if (_addressScrollController.position.pixels >=
           _addressScrollController.position.maxScrollExtent){
-        print("calling again");
         profileCubit.fetchAddress(isLoading: false,isInit: false);
       }
     },);
@@ -234,7 +233,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                                     .primaryAddressUpdatedSuccessfully,
                           ); // optional toast
                           profileCubit.fetchAddress(
-                            isLoading: false,
+                            isLoading: true,
                           ); // silent refresh
                         } else {
                           final error = primaryState?.errorType;
@@ -308,6 +307,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                     _buildTextField(
                       context,
                       addressNameController,
+
                       context.appText.addressName,
                       alphanumericWithSpaceRegex,
                     ),
@@ -325,7 +325,6 @@ class _buildAddressTabState extends State<buildAddressTab> {
                         setState(() {
                           selectedState = value;
                           selectedCity = null;
-                          print("selected state is ${selectedCity}");
                         });
                       },
                     ),
@@ -342,6 +341,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
                     ),
                     16.height,
                     AppTextField(
+                      mandatoryStar: true,
                       validator: Validator.pincode,
                       controller: pinCodeController,
                       labelText: context.appText.pincode,
@@ -381,8 +381,9 @@ class _buildAddressTabState extends State<buildAddressTab> {
 
                 final state = profileCubit.state.createAddressState;
                 if (state?.status == Status.SUCCESS) {
-                  if (context.mounted) Navigator.pop(context);
-                  profileCubit.fetchAddress(isLoading: false);
+                  profileCubit.fetchAddress(isLoading: true);
+                  if (!context.mounted) return;
+                   Navigator.pop(context);
                   ToastMessages.success(
                     message:
                         isEdit
@@ -434,7 +435,8 @@ class _buildAddressTabState extends State<buildAddressTab> {
           final result = await onDelete();
 
           if (result is Success) {
-            if (context.mounted) {
+            profileCubit.fetchAddress(isLoading: true);
+            if (context.mounted) {       
               Navigator.of(context).pop();
               ToastMessages.success(message: successMessage);
             }
@@ -453,6 +455,7 @@ class _buildAddressTabState extends State<buildAddressTab> {
     RegExp pattern,
   ) {
     return AppTextField(
+      mandatoryStar: true,
       validator: (value) => Validator.fieldRequired(value, fieldName: label),
       controller: controller,
       labelText: label,

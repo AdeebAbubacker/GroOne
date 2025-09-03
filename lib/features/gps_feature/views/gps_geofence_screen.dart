@@ -369,7 +369,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                     ),
                     10.height,
                     Text(
-                      'Unable to load vehicle data',
+                      context.appText.noVehiclesAvailableToAssignGeofences,
                       style: AppTextStyle.blackColor14w400.copyWith(
                         color: AppColors.grayColor,
                       ),

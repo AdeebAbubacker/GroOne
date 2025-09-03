@@ -5,6 +5,7 @@ class CreateTicketRequest {
     required this.title,
     required this.description,
     required this.attachmentLink,
+    required this.ticketTag,
   });
 
   final String? customerId;
@@ -12,6 +13,7 @@ class CreateTicketRequest {
   final String title;
   final String description;
   final List<dynamic> attachmentLink;
+  final String ticketTag;
 
   CreateTicketRequest copyWith({
     String? customerId,
@@ -19,6 +21,7 @@ class CreateTicketRequest {
     String? title,
     String? description,
     List<String>? attachmentLink,
+    String? ticketTag,
   }) {
     return CreateTicketRequest(
       customerId: customerId ?? this.customerId,
@@ -26,6 +29,7 @@ class CreateTicketRequest {
       title: title ?? this.title,
       description: description ?? this.description,
       attachmentLink: attachmentLink ?? this.attachmentLink,
+      ticketTag: ticketTag ?? this.ticketTag,
     );
   }
 
@@ -36,6 +40,7 @@ class CreateTicketRequest {
       title: json["title"] ?? "",
       description: json["description"] ?? "",
       attachmentLink: json["attachmentLink"] == null ? [] : List<String>.from(json["attachmentLink"]!.map((x) => x)),
+      ticketTag: json['ticketTag'] ?? "",
     );
   }
 
@@ -45,6 +50,7 @@ class CreateTicketRequest {
     "title": title,
     "description": description,
     "attachmentLink": attachmentLink.map((x) => x).toList(),
+    "ticketTag": ticketTag,
   };
 
   fromJson() {}

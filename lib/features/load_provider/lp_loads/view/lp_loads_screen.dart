@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -11,12 +12,12 @@ import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_loads_location_details_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_card_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trucktype_dropdown.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_service.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -25,7 +26,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -265,8 +265,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             loadListApiRequest: LoadListApiRequest(
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
               laneId: selectedRoute,
-              truckTypeId: selectedTruckTypeId.toString(),
-              loadPostDate: loadPostedDateController.text,
+              truckTypeId: selectedTruckTypeId?.toString(),
+              loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
             ),
           );
         },
@@ -298,7 +298,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     lpLoadLocator.getLpLoadsByType(
       loadListApiRequest: LoadListApiRequest(
         loadStatus: loadStatus,
-        page: paginationController.currentPage,
+        page: 1,
+        laneId: selectedRoute,
+        truckTypeId: selectedTruckTypeId?.toString(),
+        loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
       ),
     );
   }
@@ -511,14 +514,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   return RepaintBoundary(
                     child: GestureDetector(
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          commonRoute(
-                            LpLoadsLocationDetailsScreen(
-                              loadId: loadItem.loadId,
-                            ),
-                          ),
-                        ).then((value) {
+                        final extra = {"loadId": loadItem.loadId};
+                        context.push(AppRouteName.lpLoadsLocationDetails, extra: extra).then((value) {
                           _onPullToRefresh();
                         });
                       },

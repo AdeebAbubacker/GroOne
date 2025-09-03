@@ -71,15 +71,15 @@ class Address {
   Address copyWith({
     String? customersAddressId,
     String? customerId,
-    dynamic? addressName,
-    dynamic? fullAddress,
-    dynamic? city,
-    dynamic? state,
+    dynamic addressName,
+    dynamic fullAddress,
+    dynamic city,
+    dynamic state,
     String? pincode,
-    dynamic? status,
+    dynamic status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return Address(
       customersAddressId: customersAddressId ?? this.customersAddressId,
@@ -142,14 +142,14 @@ class BankDetails {
   BankDetails copyWith({
     String? bankDetailsId,
     String? customerId,
-    dynamic? bankAccount,
-    dynamic? bankName,
-    dynamic? branchName,
-    dynamic? ifscCode,
+    dynamic bankAccount,
+    dynamic bankName,
+    dynamic branchName,
+    dynamic ifscCode,
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return BankDetails(
       bankDetailsId: bankDetailsId ?? this.bankDetailsId,
@@ -236,21 +236,21 @@ class Customer {
     String? mobileNumber,
     int? companyTypeId,
     String? emailId,
-    dynamic? blueId,
-    dynamic? kycRejectReason,
-    dynamic? password,
+    dynamic blueId,
+    dynamic kycRejectReason,
+    dynamic password,
     String? companyName,
     String? otp,
-    dynamic? otpAttempt,
+    dynamic otpAttempt,
     int? isKyc,
-    dynamic? preferredLanes,
+    dynamic preferredLanes,
     int? roleId,
     bool? tempFlg,
     int? status,
     bool? isLogin,
     bool? blueIdFlg,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     Type? kycType,
     Type? companyType,
   }) {
@@ -331,7 +331,7 @@ class Type {
     String? companyType,
     int? status,
     DateTime? createdAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
     String? kycType,
   }) {
     return Type(
@@ -427,35 +427,35 @@ class KycDoc {
   KycDoc copyWith({
     String? kycDocsId,
     String? customerId,
-    dynamic? docType,
-    dynamic? docNo,
-    dynamic? docLink,
-    dynamic? uploadRc,
+    dynamic docType,
+    dynamic docNo,
+    dynamic docLink,
+    dynamic uploadRc,
     bool? isApproved,
-    dynamic? approvedBy,
-    dynamic? approvedAt,
+    dynamic approvedBy,
+    dynamic approvedAt,
     int? status,
-    dynamic? gstin,
-    dynamic? gstinDocLink,
-    dynamic? aadhar,
-    dynamic? aadharDocLink,
-    dynamic? pan,
-    dynamic? panDocLink,
-    dynamic? cheque,
-    dynamic? chequeDocLink,
-    dynamic? drivingLicense,
-    dynamic? drivingLicenseDocLink,
-    dynamic? tds,
-    dynamic? tdsDocLink,
-    dynamic? tan,
-    dynamic? tanDocLink,
+    dynamic gstin,
+    dynamic gstinDocLink,
+    dynamic aadhar,
+    dynamic aadharDocLink,
+    dynamic pan,
+    dynamic panDocLink,
+    dynamic cheque,
+    dynamic chequeDocLink,
+    dynamic drivingLicense,
+    dynamic drivingLicenseDocLink,
+    dynamic tds,
+    dynamic tdsDocLink,
+    dynamic tan,
+    dynamic tanDocLink,
     bool? isAadhar,
     bool? isGstin,
     bool? isTan,
     bool? isPan,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return KycDoc(
       kycDocsId: kycDocsId ?? this.kycDocsId,
@@ -549,7 +549,7 @@ class Vehicle {
   final dynamic truckType;
   final dynamic ownedTrucks;
   final dynamic attachedTrucks;
-  final dynamic preferredLanes;
+  final List<int>? preferredLanes;
   final int status;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -558,14 +558,14 @@ class Vehicle {
   Vehicle copyWith({
     String? vpVehiclesId,
     String? customerId,
-    dynamic? truckType,
-    dynamic? ownedTrucks,
-    dynamic? attachedTrucks,
-    dynamic? preferredLanes,
+    dynamic truckType,
+    dynamic ownedTrucks,
+    dynamic attachedTrucks,
+    dynamic preferredLanes,
     int? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-    dynamic? deletedAt,
+    dynamic deletedAt,
   }) {
     return Vehicle(
       vpVehiclesId: vpVehiclesId ?? this.vpVehiclesId,
@@ -582,13 +582,17 @@ class Vehicle {
   }
 
   factory Vehicle.fromJson(Map<String, dynamic> json){
+
     return Vehicle(
       vpVehiclesId: json["vp_vehicles_id"] ?? "",
       customerId: json["customer_id"] ?? "",
       truckType: json["truckType"],
       ownedTrucks: json["ownedTrucks"],
       attachedTrucks: json["attachedTrucks"],
-      preferredLanes: json["preferredLanes"],
+      preferredLanes: json["preferredLanes"] == null
+          ? []
+          : List<int>.from(
+          (json["preferredLanes"] as List).where((x) => x != null).map((x) => x as int)),
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["created_at"] ?? ""),
       updatedAt: DateTime.tryParse(json["updated_at"] ?? ""),

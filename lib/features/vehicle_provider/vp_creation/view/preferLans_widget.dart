@@ -21,12 +21,12 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
   final searchController=TextEditingController();
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final ScrollController scrollController = ScrollController();
-
+  final Set<int> selectedIds={};
 
   void _fetchMoreLens(){
     scrollController.addListener(() {
-      if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent - 200){
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent){
         vpCreationCubit.fetchPrefLane(null);
       }
     },);
@@ -54,7 +54,8 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
             },
           ),
           8.height,
-          BlocBuilder<VpCreateAccountCubit,VpCreateAccountState>(
+          BlocConsumer<VpCreateAccountCubit,VpCreateAccountState>(
+            listener: (context, state) {},
             builder: (context, state) {
               List<Item> preferLanes=  state.prefLaneUIState?.data?.data?.items??[];
 
@@ -66,7 +67,9 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
                 return CheckboxListTile(
                   title: Text( '${locationItem.fromLocation?.name ?? ""} - ${locationItem.toLocation?.name ?? ""}'),
                   value: locationItem.isSelected, onChanged: (bool? value) {
-                    vpCreationCubit.selectLanes(index,selected: value);
+                    vpCreationCubit.selectLanes(
+                        id:locationItem.masterLaneId ,
+                        selected: value);
                     },
                 ) ;
               },).expand();

@@ -6,12 +6,11 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_agree_response.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_validate_memo.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -75,7 +74,7 @@ class AdvancePaymentDialog extends StatelessWidget {
             else if (uiState?.status == Status.SUCCESS) {
               if(context.mounted) {
                 context.pop();
-                Navigator.push(context, commonRoute(LpLoadValidateMemo(loadId: loadId)));
+                context.push(AppRouteName.lpLoadValidateMemo, extra: {"loadId": loadId});
               }
             }
             else if (uiState?.status == Status.ERROR) {

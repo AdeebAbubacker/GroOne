@@ -3,15 +3,16 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -80,10 +81,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
             heading: context.appText.memoESignSuccess,
             onContinue: () {
               LpBottomNavigation.selectedIndexNotifier.value = 1;
-              Navigator.pushReplacement(
-                parentCtx,
-                commonRoute(LpBottomNavigation()),
-              );
+              context.push(AppRouteName.lpBottomNavigationBar);
             },
           ),
         );

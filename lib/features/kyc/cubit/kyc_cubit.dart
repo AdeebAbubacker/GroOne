@@ -107,7 +107,7 @@ class KycCubit extends BaseCubit<KycState> {
 
 
   // Send Aadhaar Otp
-  Future<void> sendAadhaarOtp(AddharOtpApiRequest request) async {
+  Future<void> sendAadhaarOtp(AadhaarOtpApiRequest request) async {
     emit(state.copyWith(aadhaarOtpState: UIState.loading()));
     Result result = await _repo.kycSendOtp(request);
     if (result is Success<AadhaarOtpModel>) {
@@ -146,7 +146,7 @@ class KycCubit extends BaseCubit<KycState> {
   }
 
   // Verify Aadhaar Otp
-  Future<void> verifyAadhaarOtp(AddharVerifyOtpApiRequest request) async {
+  Future<void> verifyAadhaarOtp(AadhaarVerifyOtpApiRequest request) async {
     emit(state.copyWith(aadhaarVerifyOtpState: UIState.loading()));
     Result result = await _repo.verifyAadhaarOtp(request);
     if (result is Success<AadhaarVerifyOtpModel>) {
@@ -163,8 +163,8 @@ class KycCubit extends BaseCubit<KycState> {
     emit(state.copyWith(gstState: UIState.loading()));
     Result result = await _repo.verifyGST(request);
     if (result is Success<bool>) {
+      emit(state.copyWith(gstState: UIState.success(result.value)));
       await securePrefs.saveBoolean(AppString.sessionKey.isGstNumberVerified, true);
-      emit(state.copyWith(verifiedGst: true));
     }
     if (result is Error) {
       emit(state.copyWith(gstState: UIState.error(result.type)));
@@ -178,7 +178,6 @@ class KycCubit extends BaseCubit<KycState> {
     Result result = await _repo.verifyTan(request);
     if (result is Success<bool>) {
       emit(state.copyWith(tanState: UIState.success(result.value)));
-      emit(state.copyWith(verifiedTan: true));
     }
     if (result is Error) {
       emit(state.copyWith(tanState: UIState.error(result.type)));
@@ -190,7 +189,7 @@ class KycCubit extends BaseCubit<KycState> {
     emit(state.copyWith(
         kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
         docVerificationState: UIState.loading()));
-    Result result = await _repo.verifiedDocID(aadharNumber);
+    Result result = await _repo.verifiedDocID(aadharNumber: aadharNumber);
     if (result is Success<DocVerificationModel>) {
       emit(state.copyWith(docVerificationState: UIState.success(result.value)));
     }
@@ -198,6 +197,45 @@ class KycCubit extends BaseCubit<KycState> {
       emit(state.copyWith(docVerificationState: UIState.error(result.type)));
     }
   }
+
+  // Verify Pan doc existence
+  Future<void> verifyPanExistence(String panNumber) async {
+    emit(state.copyWith(panDocVerificationState: UIState.loading()));
+    Result result = await _repo.verifiedDocID(panNumber:panNumber );
+    if (result is Success<DocVerificationModel>) {
+      emit(state.copyWith(panDocVerificationState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(panDocVerificationState: UIState.error(result.type)));
+    }
+  }
+
+  // Verify Tan
+  Future<void> verifyTanExistence(String tanNumber) async {
+    emit(state.copyWith(tanDocVerificationState: UIState.loading()));
+    Result result = await _repo.verifiedDocID(tan:tanNumber );
+    if (result is Success<DocVerificationModel>) {
+      emit(state.copyWith(tanDocVerificationState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(tanDocVerificationState: UIState.error(result.type)));
+    }
+  }
+
+  // Verify Gst doc existence
+  Future<void> verifyGstDocExistence(String gstNumber) async {
+    emit(state.copyWith(gstDocVerificationState: UIState.loading()));
+    Result result = await _repo.verifiedDocID(gstNumber:gstNumber );
+    if (result is Success<DocVerificationModel>) {
+      emit(state.copyWith(gstDocVerificationState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(gstDocVerificationState: UIState.error(result.type)));
+    }
+  }
+
+
+
 
   // Check Kyc Verified
   Future<void> checkIsKycNumberVerified(SecuredSharedPreferences securePrefs) async{
@@ -219,11 +257,23 @@ class KycCubit extends BaseCubit<KycState> {
     Result result = await _repo.verifyPan(request);
     if (result is Success<bool>) {
       emit(state.copyWith(panState: UIState.success(result.value)));
-      emit(state.copyWith(verifiedPan: true));
+
     }
     if (result is Error) {
       emit(state.copyWith(panState: UIState.error(result.type)));
     }
+  }
+
+  void updatePanVerificationState(){
+    emit(state.copyWith(verifiedPan: true));
+  }
+
+  void updateTanVerificationState(){
+    emit(state.copyWith(verifiedTan: true));
+  }
+
+  void updateGstVerificationState(){
+    emit(state.copyWith(verifiedGst: true));
   }
 
 

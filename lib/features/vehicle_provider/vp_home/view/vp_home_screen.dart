@@ -21,7 +21,6 @@ import 'package:gro_one_app/features/our_value_added_services_view/our_value_add
 import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
@@ -29,12 +28,10 @@ import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_my_load_response.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/my_loads_list_body.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/view/widgets/recent_added_load_list_body.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
-import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
@@ -67,7 +64,7 @@ class VpHomeScreen extends StatefulWidget {
   State<VpHomeScreen> createState() => _VpHomeScreenState();
 }
 
-class _VpHomeScreenState extends BaseState<VpHomeScreen> {
+class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObserver {
 
    VpMyLoadResponse? vpMyLoadResponse;
    final profileCubit = locator<ProfileCubit>();
@@ -93,12 +90,14 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
   @override
   void initState() {
     initFunction();
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
   @override
   void dispose() {
     disposeFunction();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
@@ -156,6 +155,15 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
    });
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if(state==AppLifecycleState.resumed){
+     vpRecentLoadListBloc.add(VpRecentLoadEvent());
+     vpHomeScreenBloc.add(VpMyLoadListRequested());
+   }
+    super.didChangeAppLifecycleState(state);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBarWidget(context),
@@ -180,6 +188,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
     );
   }
 
+
+
+
   // Appbar
   PreferredSizeWidget buildAppBarWidget(BuildContext context) {
     return CommonAppBar(
@@ -199,7 +210,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> {
 
         // Notification
         Visibility(
-visible: false,
+          visible: false,
           child: IconButton(
             onPressed: () {
               Navigator.push(context, commonRoute(NotificationScreen()));
@@ -242,15 +253,18 @@ visible: false,
 
                   if (companyId != null && (companyId == 2 || companyId == 1)) {
                     if (isKycCompleted || aadharVerified) {
+                      if(!context.mounted) return;
                       Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                         aadhaarNumber: aadharNumber,
                         pdfPath: aadharPDF,
                       )));
                       } else{
+                        if(!context.mounted) return;
                         commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                       }
                     
                   } else {
+                    if(!context.mounted) return;
                     Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                       aadhaarNumber: aadharNumber,
                       pdfPath: aadharPDF,
@@ -327,7 +341,6 @@ visible: false,
         if (profileState != null && profileState.status == Status.SUCCESS && profileState.data?.customer != null) {
 
           final blueIdFromApi = profileState.data!.customer!.blueId;
-          final blueIdFromStorage = await profileCubit.fetchBlueId();
           // bool popupShownFlag = await profileCubit.getHasShowBluePopup();
           final blueIdFlag = profileState.data!.customer?.blueIdFlg  ?? false;
 
@@ -483,17 +496,21 @@ visible: false,
                           final isKycDone = VpVariables.isKycVerified;
                           final companyId = int.parse(profileCubit.companyTypeId ?? "0");
                           if (isKycDone) {
+                            if(!context.mounted) return;
                             context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":data.id});
                           } else if (companyId == 2 || companyId == 1) {
                            if (isKycCompleted || isAadharVerified) {
+                            if(!context.mounted) return;
                             Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                               aadhaarNumber: aadharNumber,
                               pdfPath: aadharPDF,
                             )));
                             } else{
+                              if(!context.mounted) return;
                               commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                             }
                           } else {
+                            if(!context.mounted) return;
                             Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
                               aadhaarNumber: aadharNumber,
                               pdfPath: aadharPDF,

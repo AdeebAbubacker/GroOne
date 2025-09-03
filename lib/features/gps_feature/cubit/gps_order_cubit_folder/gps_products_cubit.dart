@@ -17,14 +17,12 @@ class GpsProductsCubit extends Cubit<GpsProductsState> {
 
   @override
   Future<void> close() {
-    print('🔒 GpsProductsCubit.close() called');
     _isClosed = true;
     return super.close();
   }
 
   /// Reset the cubit state and reopen it for use
   void resetCubit() {
-    print('🔄 Resetting GpsProductsCubit state');
     _isClosed = false;
     emit(GpsProductsState.initial());
   }
@@ -35,9 +33,7 @@ class GpsProductsCubit extends Cubit<GpsProductsState> {
     int page = 1,
     int limit = 10,
   }) async {
-    print('🔍 GpsProductsCubit.fetchGpsProducts called');
     if (_isClosed) {
-      print('🔍 Cubit is closed, returning early');
       return;
     }
 
@@ -53,13 +49,11 @@ class GpsProductsCubit extends Cubit<GpsProductsState> {
       final result = await _repository.fetchGpsProducts(request);
 
       if (_isClosed) {
-        print('🔍 Cubit is closed after API call, returning early');
         return;
       }
 
       if (result is Success<GpsProductListResponse>) {
         final response = result.value;
-        print('🔍 GPS Products fetched successfully: ${response.data?.rows.length} products');
         
         final updatedQuantities = Map<String, int>.from(state.quantities);
         final updatedAvailableStocks = Map<String, int>.from(state.availableStocks);
@@ -86,11 +80,9 @@ class GpsProductsCubit extends Cubit<GpsProductsState> {
         ));
         _setProductsUIState(UIState.success(response));
       } else if (result is Error) {
-        print('❌ GPS Products fetch failed: ${(result as Error).type}');
         _setProductsUIState(UIState.error((result as Error).type));
       }
     } catch (e) {
-      print('💥 GPS Products fetch exception: $e');
       if (!_isClosed) {
         _setProductsUIState(UIState.error(GenericError()));
       }
@@ -184,12 +176,7 @@ class GpsProductsCubit extends Cubit<GpsProductsState> {
         final updatedQuantities = Map<String, int>.from(state.quantities);
         updatedQuantities[productId] = currentQty + 1;
         emit(state.copyWith(quantities: updatedQuantities));
-      } else {
-        // Stock limit reached - could emit an event or use a callback
-        print('⚠️ Cannot increment quantity - stock limit reached for product $productId');
       }
-    } else {
-      print('❌ Failed to check stock availability for product $productId');
     }
   }
 

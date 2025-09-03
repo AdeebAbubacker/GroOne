@@ -8,13 +8,11 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
-import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
-import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/upload_file_and_image_bottom_sheet.dart';
 
@@ -101,7 +99,6 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                                 widget.multiFilesList.add(value);
                                 isFile = false;
                                 widget.thenUploadFileToSever?.call();
-                                debugPrint("Add new : $value");
                               } else {
                                 isFile = false;
                               }
@@ -223,7 +220,6 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
               onTap: !isFile ? () {
                 commonHideKeyboard(context);
                 commonBottomSheet(context: context, barrierDismissible: true, screen: UploadFileAndImageBottomSheet(isMultipleSelectionFile: widget.isMultipleSelectionFile, allowedExtensions: widget.allowedExtensions)).then((value) {
-                  debugPrint("First Time : $value");
                   isFile = true;
                   if (value != null) {
                     for (int i = 0; i < value.length;) {

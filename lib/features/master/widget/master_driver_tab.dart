@@ -55,14 +55,14 @@ import 'package:lottie/lottie.dart';
 import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
 import 'package:gro_one_app/core/base_state.dart';
 
-class buildDriverTab extends StatefulWidget {
-  const buildDriverTab({super.key});
+class BuildDriverTab extends StatefulWidget {
+  const BuildDriverTab({super.key});
 
   @override
-  State<buildDriverTab> createState() => _buildDriverTabState();
+  State<BuildDriverTab> createState() => _BuildDriverTabState();
 }
 
-class _buildDriverTabState extends BaseState<buildDriverTab>
+class _BuildDriverTabState extends BaseState<BuildDriverTab>
     with EnhancedDisposeMixin {
   final profileCubit = locator<ProfileCubit>();
   final mastersCubit = locator<MastersCubit>();
@@ -326,7 +326,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
     int? selectedLicneseId = driver?.licenseCategory;
     int? selectedBloodId = driver?.bloodGroup;
     final emailController = TextEditingController(text: driver?.email ?? "");
-    bool isInitialized = false;
     String previousLicenseNo = licenseNumberController.text.trim();
     bool isActive = driver != null ? (driver.driverStatus == 1) : true;
     bool listenerAdded = false;
@@ -353,7 +352,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                 previousLicenseNo = currentText;
                 mastersCubit.resetLicenseVerification();
                 setState(() {
-                  isInitialized = false;
                   isLicenseVerified = false;
                 });
               }
@@ -361,9 +359,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
             listenerAdded = true;
           }
 
-          final licenseDocUpload =
-              context.watch<ProfileCubit>().state.licenseDocUpload;
-          final isUploading = licenseDocUpload?.status == Status.LOADING;
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -508,14 +503,12 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                           final Result result =
                               await uploadLicenseDocumentApiCall(licenseDoc);
                           if (result is Success) {
-                            print("calling 1");
                             final licenseData =
                                 mastersCubit
                                     .state
                                     .uploadlicenseDocUIState
                                     ?.data;
                             if (licenseData != null && licenseDoc.isNotEmpty) {
-                              print("calling 2 ${licenseDoc}");
                               final apiRequest = CreateDocumentApiRequest(
                                 documentTypeId:
                                     await DriverLicenseHelper.getDocumentTypeId(
@@ -538,7 +531,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                                 ),
                                 fileExtension: licenseDoc.first['extension'],
                               );
-                              print("calling 3");
                               await createDocumentApiCall(apiRequest);
                               if (mastersCubit
                                       .state
@@ -565,7 +557,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                                           .documentId;
                                 }
                               }
-                              debugPrint("licenseDocId : $licenseDocId");
                             }
                           }
                         },
@@ -580,7 +571,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                               .deleteDocument(licenseDocId ?? "")
                               .then((onValue) {
                                 licenseDocId = null;
-                                debugPrint("licenseDocId : $licenseDocId");
                               });
                         },
                       );
@@ -610,7 +600,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                     child: buildReadOnlyField(
                       context.appText.licenseExpiryDate,
                       selectedlicenseExpiryDate ?? 'Select date',
-                      fillColor: Colors.white,
+                      fillColor: AppColors.white,
                       mandatoryStar: true,
                       textStyle:
                           (selectedlicenseExpiryDate ?? "").isEmpty
@@ -650,7 +640,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                       setState(() {
                         selectedLicense = category?.categoryName;
                         selectedLicneseId = category?.id;
-                        print("selected licesne id ${selectedLicneseId}");
                       });
                     },
                   ),
@@ -661,7 +650,6 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                       setState(() {
                         selectedBloodGroup = category?.groupName;
                         selectedBloodId = category?.id;
-                        print("selected blood id ${selectedLicneseId}");
                       });
                     },
                   ),
@@ -785,6 +773,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                 if (state?.status == Status.SUCCESS) {
                   if (context.mounted) Navigator.pop(context);
                   profileCubit.fetchDriver(isLoading: false);
+                  if (!context.mounted) return;
                   ToastMessages.success(
                     message:
                         isEdit
@@ -867,7 +856,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
 
   String formatMobileNumber(String number) {
     if (!number.startsWith("+91") && number.length == 10) {
-      return "$number";
+      return number;
     }
     return number;
   }
@@ -882,7 +871,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
 
   String removeformatMobileNumber(String number) {
     if (!number.startsWith("+91") && number.length == 10) {
-      return "$number";
+      return number;
     }
     return number;
   }
@@ -975,7 +964,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                         : isVerified
-                        ? const Icon(Icons.verified, color: Colors.green)
+                        ? const Icon(Icons.verified, color: AppColors.greenColor)
                         : SizedBox.shrink(),
               ),
             ),
@@ -1008,7 +997,7 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
               child: buildReadOnlyField(
                 "Date of Birth",
                 selectedDoB.isEmpty ? 'DOB' : selectedDoB,
-                fillColor: Colors.white,
+                fillColor: AppColors.white,
                 mandatoryStar: true,
                 textStyle:
                     selectedDoB.isEmpty
@@ -1084,12 +1073,14 @@ class _buildDriverTabState extends BaseState<buildDriverTab>
                                   );
 
                               if (result is Success<Map<String, dynamic>>) {
+                                if (!context.mounted) return;
                                 ToastMessages.success(
                                   message:
                                      context.appText.licenseVerifiedSuccess
                                 );
                                 onVerificationResult(true, result.value);
                               } else {
+                                if (!context.mounted) return;
                                 ToastMessages.alert(
                                   message:context.appText.licenseVerificationFailed
                                 );
