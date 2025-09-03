@@ -150,6 +150,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   void getKycDetailsFromLocal() => frameCallback(() async {
     gstInTextController.text =
         await securePrefs.get(AppString.sessionKey.gtsinNumber) ?? "";
+
     tanTextController.text =
         await securePrefs.get(AppString.sessionKey.tanNumber) ?? "";
     panTextController.text =
@@ -158,6 +159,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // set gst
   void setGstNumberIntoLocal(String gstNumber) => frameCallback(() async {
+
     securePrefs.saveKey(AppString.sessionKey.gtsinNumber, gstNumber);
   });
   // Set Pan Number
@@ -172,6 +174,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // set gst doc and url
   void setGstDocIDAndUrl(String url, String docID) => frameCallback(() async {
+
     securePrefs.saveKey(AppString.sessionKey.gstDocUrl, url);
     securePrefs.saveKey(AppString.sessionKey.gstDocID, docID);
   });

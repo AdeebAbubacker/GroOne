@@ -114,6 +114,16 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
 
 
 
+  void clearSelectedLanes(){
+    emit(state.copyWith(
+      selectedPreferLanes: []
+    ));
+  }
+
+
+
+
+
 
   /// auto select lanes
   void autoSelectLanes(List<int> selectedLanes){
@@ -123,20 +133,21 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
 
     if(items.isNotEmpty){
       for(var preselectLanes in selectedLanes){
-        Item getLanesItem=  items.firstWhere((element) => element.masterLaneId==preselectLanes).copyWith(
-          isSelected: true
-        );
-        int index=items.indexWhere((element) => element.masterLaneId==preselectLanes);
-        selectedList.add(getLanesItem);
-        modifiedList[index]=getLanesItem;
+       try{
+         Item getLanesItem=  items.firstWhere((element) => element.masterLaneId==preselectLanes).copyWith(
+             isSelected: true
+         );
+         int index=items.indexWhere((element) => element.masterLaneId==preselectLanes);
+         selectedList.add(getLanesItem);
+         modifiedList[index]=getLanesItem;
+       }catch(E){
+
+       }
       }
       TruckPrefLaneModel lanesModel=state.prefLaneUIState!.data!;
       final newLanesModel=lanesModel.copyWith(
-
           data: lanesModel.data?.copyWith(
-
-              items:modifiedList
-          )
+              items:modifiedList)
       );
 
       emit(state.copyWith(
@@ -209,6 +220,7 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
       truckTypeUIState: resetUIState<List<TruckTypeModel>>(state.truckTypeUIState),
       prefLaneUIState: resetUIState<TruckPrefLaneModel>(state.prefLaneUIState),
       uploadRcFileUIState: resetUIState<UploadRcTruckFileModel>(state.uploadRcFileUIState),
+      selectedPreferLanes: []
     ));
   }
 
