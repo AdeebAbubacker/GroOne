@@ -780,8 +780,8 @@ class LoadDetailsWidget extends StatelessWidget {
                     driverConsent: loadDetails?.driverConsent ?? 0,
                     loadStatus: state.loadStatus,
                     memo: loadDetails?.loadMemo,
-                    isDocumentApproved: loadDetails?.loadApproval?.documentApproved??false,
-                    isPodApproved: loadDetails?.loadApproval?.podApproved
+                    // isDocumentApproved: loadDetails?.loadApproval?.documentApproved??false,
+                    // isPodApproved: loadDetails?.loadApproval?.podApproved
 
                   ),
                   text: getSwipeButtonTitle(

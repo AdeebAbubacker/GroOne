@@ -123,8 +123,8 @@ class _MasterScreenState extends State<MasterScreen>
     ProfileDetailModel? profileDetailModel= profileCubit.state.profileDetailUIState?.data;
     if((profileDetailModel?.vehicles??[]).isNotEmpty){
       List<int> preferLanes=profileDetailModel?.vehicles.first.preferredLanes as List<int> ;
-
       vpCreationCubit.autoSelectLanes(preferLanes);
+
     }
     // profileDetailModel.vehicles
 
@@ -227,6 +227,9 @@ class _MasterScreenState extends State<MasterScreen>
     vehicleSearchController.dispose();
     addressSearchController.dispose();
     driverSearchController.dispose();
+
+
+    vpCreationCubit.clearSelectedLanes();
   });
 
 

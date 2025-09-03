@@ -702,6 +702,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                 truckNumberController.text.trim(),
                 fieldName: 'Vehicle Reg No',
               );
+
               if (validation != null) {
                 ToastMessages.alert(message: validation);
                 return;
@@ -812,6 +813,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
       ),
     );
   }
+
+
 
   /// Delete Popup
   void showDeletePopUp({
