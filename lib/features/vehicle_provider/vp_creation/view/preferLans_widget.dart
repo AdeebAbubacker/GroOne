@@ -25,8 +25,8 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
 
   void _fetchMoreLens(){
     scrollController.addListener(() {
-      if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent - 200){
+      if (scrollController.position.pixels ==
+          scrollController.position.maxScrollExtent){
         vpCreationCubit.fetchPrefLane(null);
       }
     },);

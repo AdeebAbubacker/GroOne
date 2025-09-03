@@ -428,8 +428,21 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
     await kycCubit.verifyGst(apiRequest, securePrefs);
     if (kycCubit.state.gstState?.status == Status.SUCCESS && context.mounted) {
+     await kycCubit.verifyGstDocExistence(gstNumber);
+    }
+
+    if(kycCubit.state.gstDocVerificationState?.status==Status.SUCCESS){
+      kycCubit.updateGstVerificationState();
       ToastMessages.success(message: context.appText.gstVerifiedSuccessfully);
     }
+
+    if (kycCubit.state.gstDocVerificationState?.status == Status.ERROR) {
+      final error = kycCubit.state.gstDocVerificationState?.errorType;
+      ToastMessages.error(
+        message: getErrorMsg(errorType: error ?? GenericError()),
+      );
+    }
+
     if (kycCubit.state.gstState?.status == Status.ERROR && context.mounted) {
       final error = kycCubit.state.gstState?.errorType;
       ToastMessages.error(
@@ -443,9 +456,24 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     final apiRequest = VerifyTanApiRequest(tan: tanNumber, force: true);
     await kycCubit.verifyTan(apiRequest);
     if (kycCubit.state.tanState?.status == Status.SUCCESS && context.mounted) {
+      await kycCubit.verifyTanExistence(tanNumber);
+    }
+
+    if(kycCubit.state.tanDocVerificationState?.status==Status.SUCCESS){
+      kycCubit.updateTanVerificationState();
       ToastMessages.success(message: context.appText.tanVerifiedSuccessfully);
       securePrefs.saveBoolean(AppString.sessionKey.isTanNumberVerified, true);
     }
+
+
+    if (kycCubit.state.tanDocVerificationState?.status == Status.ERROR) {
+      final error = kycCubit.state.tanDocVerificationState?.errorType;
+      ToastMessages.error(
+        message: getErrorMsg(errorType: error ?? GenericError()),
+      );
+    }
+
+
     if (kycCubit.state.tanState?.status == Status.ERROR && context.mounted) {
       final error = kycCubit.state.tanState?.errorType;
       ToastMessages.error(

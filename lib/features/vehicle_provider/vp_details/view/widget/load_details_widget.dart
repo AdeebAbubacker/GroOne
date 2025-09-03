@@ -337,7 +337,8 @@ class LoadDetailsWidget extends StatelessWidget {
                               20.height,
                               _buildAdableSectionHeader(
                                 context: context,
-                                showAddButton:   state.loadStatus != LoadStatus.completed &&
+                                showAddButton:
+                                state.loadStatus != LoadStatus.completed &&
                                     loadDetails?.loadSettlement == null,
                                 title: context.appText.settlement,
                                 onAdd: () async {
@@ -772,12 +773,16 @@ class LoadDetailsWidget extends StatelessWidget {
                   padding: 0,
                   price: 0,
                   loadId: "",
-                  enable: cubit.isNextProcessButtonEnabled(
+                  enable:
+                  cubit.isNextProcessButtonEnabled(
                     isAgreed:loadDetails?.isAgreed==1 ,
                     documentEntity: state.tripDocumentList ?? [],
                     driverConsent: loadDetails?.driverConsent ?? 0,
                     loadStatus: state.loadStatus,
                     memo: loadDetails?.loadMemo,
+                    isDocumentApproved: loadDetails?.loadApproval?.documentApproved??false,
+                    isPodApproved: loadDetails?.loadApproval?.podApproved
+
                   ),
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
