@@ -56,12 +56,14 @@
 	<string>We need access to your photo library to pick images</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>This app needs access to your microphone for voice chat with AI assistant.</string>
-	<key>NSSpeechRecognitionUsageDescription</key>
-	<string>This app needs speech recognition to convert your voice to text for AI chat.</string>
 	<key>NSPushNotificationsUsageDescription</key>
 	<string>This app would like to send you notifications.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app needs speech recognition to convert your voice to text for AI chat.</string>
 	<key>NSUserNotificationAlertStyle</key>
 	<string>alert</string>
+	<key>NSUserNotificationUsageDescription</key>
+	<string>This app needs to send you notifications about important updates and alerts.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
@@ -69,6 +71,7 @@
 		<string>remote-notification</string>
 		<string>location</string>
 		<string>fetch</string>
+		<string>processing</string>
 	</array>
 	<key>UIFileSharingEnabled</key>
 	<true/>
@@ -80,20 +83,5 @@
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
-	<key>FirebaseAppDelegateProxyEnabled</key>
-    <false/>
-	<key>NSLocalNetworkUsageDescription</key>
-    <string>This app requires access to the local network for debugging.</string>
-    <key>NSBonjourServices</key>
-    <array>
-        <string>_dartobservatory._tcp</string>
-    </array>
-    <key>UIBackgroundModes</key>
-    <array>
-      <string>fetch</string>
-      <string>remote-notification</string>
-    </array>
-    <key>FirebaseAppDelegateProxyEnabled</key>
-    <true/>
 </dict>
 </plist>

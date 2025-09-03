@@ -158,7 +158,7 @@ class PathReplayCubit extends Cubit<PathReplayState> {
     });
 
     // Animate marker if index changed
-    if (_lastAnimatedIndex != currentIndex && previousPosition != null) {
+    if (_lastAnimatedIndex != currentIndex) {
       _lastAnimatedIndex = currentIndex;
       final int durationMs = (400 / state.playbackSpeed).clamp(80, 400).toInt();
       _animateMarker(
@@ -188,7 +188,7 @@ class PathReplayCubit extends Cubit<PathReplayState> {
     });
 
     // Animate marker if index changed
-    if (_lastAnimatedIndex != currentIndex && previousPosition != null) {
+    if (_lastAnimatedIndex != currentIndex) {
       _lastAnimatedIndex = currentIndex;
       final int durationMs = (400 / state.playbackSpeed).clamp(80, 400).toInt();
       _animateMarker(

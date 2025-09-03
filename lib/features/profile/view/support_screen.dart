@@ -28,10 +28,8 @@ import '../../../utils/app_icons.dart';
 import '../../ai_chat/view/chat_screen.dart';
 import '../../ai_chat/cubit/chat_cubit.dart';
 
-
-
 class LpSupport extends StatefulWidget {
-  const LpSupport({super.key, this.showBackButton = true, this.ticketTag,});
+  const LpSupport({super.key, this.showBackButton = true, this.ticketTag});
 
   final bool showBackButton;
   final String? ticketTag; // <-- New
@@ -45,7 +43,6 @@ class _LpSupportState extends State<LpSupport> {
 
   TextEditingController searchController = TextEditingController();
   final profileCubit = locator<ProfileCubit>();
-
 
   @override
   void initState() {
@@ -61,7 +58,10 @@ class _LpSupportState extends State<LpSupport> {
     if (selectedTabIndex == 0) {
       profileCubit.fetchFaq(search: searchController.text, isLoading: false);
     } else {
-      profileCubit.fetchTickets(isLoading: false, request: TicketRequest(search: searchController.text));
+      profileCubit.fetchTickets(
+        isLoading: false,
+        request: TicketRequest(search: searchController.text),
+      );
     }
   }
 
@@ -81,7 +81,10 @@ class _LpSupportState extends State<LpSupport> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(context.appText.filter, style: AppTextStyle.body1.copyWith(fontSize: 20)),
+                Text(
+                  context.appText.filter,
+                  style: AppTextStyle.body1.copyWith(fontSize: 20),
+                ),
                 10.height,
                 RadioListTile<TicketStatus>(
                   contentPadding: EdgeInsets.zero,
@@ -144,10 +147,11 @@ class _LpSupportState extends State<LpSupport> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => BlocProvider.value(
-                  value: locator<ChatCubit>(),
-                  child: ChatScreen(),
-                ),
+                builder:
+                    (context) => BlocProvider.value(
+                      value: locator<ChatCubit>(),
+                      child: ChatScreen(),
+                    ),
               ),
             );
           },
@@ -155,9 +159,7 @@ class _LpSupportState extends State<LpSupport> {
           elevation: 0,
           child: Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Image.asset(
-              'assets/icons/gif/lntAnimateLogo.gif',
-            ),
+            child: Image.asset('assets/icons/gif/lntAnimateLogo.gif'),
           ),
         ),
       ),
@@ -225,7 +227,7 @@ class _LpSupportState extends State<LpSupport> {
           },
         ).expand(),
         8.width,
-        if(selectedTabIndex == 1)
+        if (selectedTabIndex == 1)
           AppIconButton(
             onPressed: filterPopUp,
             style: AppButtonStyle.primaryIconButtonStyle,
@@ -257,38 +259,50 @@ class _LpSupportState extends State<LpSupport> {
         final isSearching = searchController.text.isNotEmpty;
 
         if (faqList.isEmpty) {
-          final message = isSearching
-              ? context.appText.noSearchResults
-              : context.appText.noFAQFound;
+          final message =
+              isSearching
+                  ? context.appText.noSearchResults
+                  : context.appText.noFAQFound;
           return Text(message).center().expand();
         }
 
         return Expanded(
-          child: ListView.separated(
-            itemCount: faqList.length,
-            separatorBuilder: (_, __) => 12.height,
-            itemBuilder: (context, index) {
-              final faq = faqList[index];
-              return Container(
-                padding: const EdgeInsets.all(14),
-                decoration: commonContainerDecoration(
-                  borderColor: AppColors.lightGrey200,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(faq.question, style: AppTextStyle.body2),
-                    6.height,
-                    Divider(color: AppColors.borderColor),
-                    6.height,
-                    Text(
-                      faq.answer,
-                      style: AppTextStyle.body4.copyWith(color: AppColors.textGreyDetailColor),
-                    ),
-                  ],
-                ),
-              );
+          child: NotificationListener<ScrollNotification>(
+            onNotification: (scrollInfo) {
+              if (scrollInfo.metrics.pixels ==
+                  scrollInfo.metrics.maxScrollExtent) {
+                context.read<ProfileCubit>().fetchFaq(loadMore: true);
+              }
+              return false;
             },
+            child: ListView.separated(
+              itemCount: faqList.length,
+              separatorBuilder: (_, __) => 12.height,
+              itemBuilder: (context, index) {
+                final faq = faqList[index];
+                return Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: commonContainerDecoration(
+                    borderColor: AppColors.lightGrey200,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(faq.question, style: AppTextStyle.body2),
+                      6.height,
+                      Divider(color: AppColors.borderColor),
+                      6.height,
+                      Text(
+                        faq.answer,
+                        style: AppTextStyle.body4.copyWith(
+                          color: AppColors.textGreyDetailColor,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+            ),
           ),
         );
       },
@@ -312,14 +326,15 @@ class _LpSupportState extends State<LpSupport> {
 
         final isSearching = searchController.text.isNotEmpty;
 
-        if(ticketList.isEmpty) {
-          final message = isSearching
-              ? context.appText.noSearchResults
-              : context.appText.noTicketsFound;
+        if (ticketList.isEmpty) {
+          final message =
+              isSearching
+                  ? context.appText.noSearchResults
+                  : context.appText.noTicketsFound;
           return Column(
             children: [
               Text(message).center().expand(),
-              buildCreateTicketButton()
+              buildCreateTicketButton(),
             ],
           ).expand();
         }
@@ -330,87 +345,111 @@ class _LpSupportState extends State<LpSupport> {
               Expanded(
                 child: RefreshIndicator(
                   onRefresh: () async {
-                    profileCubit.fetchTickets(request: TicketRequest(search: searchController.text));
+                    profileCubit.fetchTickets(
+                      request: TicketRequest(search: searchController.text),
+                    );
                   },
-                  child: ListView.separated(
-                    itemCount: ticketList.length,
-                    separatorBuilder: (_, __) => 12.height,
-                    itemBuilder: (_, index) {
-                      final ticket = ticketList[index];
-                      final isCompleted = ticket.ticketStatusKey == 'COMPLETED';
-                      return Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: commonContainerDecoration(borderColor: AppColors.lightGrey200),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Ticket ID & Status
-                            Row(
-                              children: [
-                                Text(ticket.ticketSeriesId ?? '', style: AppTextStyle.h5),
-                                20.width,
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (scrollInfo) {
+                      if (scrollInfo.metrics.pixels ==
+                          scrollInfo.metrics.maxScrollExtent) {
+                        context.read<ProfileCubit>().fetchTickets(
+                          loadMore: true,
+                          request: TicketRequest(),
+                        );
+                      }
+                      return false;
+                    },
+                    child: ListView.separated(
+                      itemCount: ticketList.length,
+                      separatorBuilder: (_, __) => 12.height,
+                      itemBuilder: (_, index) {
+                        final ticket = ticketList[index];
+                        final isCompleted =
+                            ticket.ticketStatusKey == 'COMPLETED';
+                        return Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: commonContainerDecoration(
+                            borderColor: AppColors.lightGrey200,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Ticket ID & Status
+                              Row(
+                                children: [
+                                  Text(
+                                    ticket.ticketSeriesId ?? '',
+                                    style: AppTextStyle.h5,
                                   ),
-                                  decoration: BoxDecoration(
-                                    color:
-                                        isCompleted
-                                            ? Colors.green.shade50
-                                            : Colors.orange.shade50,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    ticket.ticketStatusKey ?? '',
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w600,
-                                      color: isCompleted ? Colors.green : Colors.orange,
+                                  20.width,
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 8,
+                                      vertical: 4,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          isCompleted
+                                              ? Colors.green.shade50
+                                              : Colors.orange.shade50,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      ticket.ticketStatusKey ?? '',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w600,
+                                        color:
+                                            isCompleted
+                                                ? Colors.green
+                                                : Colors.orange,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                            commonDivider(height: 20),
-                            4.height,
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(
-                                  ticket.title,
-                                  style: AppTextStyle.body3.copyWith(
-                                    color: AppColors.textGreyDetailColor,
-                                  ),
-                                ),
-                                4.height,
-                                Text(
-                                  DateTimeHelper.formatCustomDateTimeIST(
-                                    ticket.createdAt,
-                                  ),
-                                  style: AppTextStyle.body3.copyWith(
-                                    color: AppColors.grayColor,
-                                  ),
-                                ),
-                              ],
-                            ),
-
-                            8.height,
-                            Text(
-                              ticket.description,
-                              style: AppTextStyle.body4.copyWith(
-                                color: AppColors.grayColor,
+                                ],
                               ),
-                            ),
-                          ],
-                        ),
-                      );
-                    },
+                              commonDivider(height: 20),
+                              4.height,
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    ticket.title,
+                                    style: AppTextStyle.body3.copyWith(
+                                      color: AppColors.textGreyDetailColor,
+                                    ),
+                                  ),
+                                  4.height,
+                                  Text(
+                                    DateTimeHelper.formatCustomDateTimeIST(
+                                      ticket.createdAt,
+                                    ),
+                                    style: AppTextStyle.body3.copyWith(
+                                      color: AppColors.grayColor,
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                              8.height,
+                              Text(
+                                ticket.description,
+                                style: AppTextStyle.body4.copyWith(
+                                  color: AppColors.grayColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
               10.height,
-              buildCreateTicketButton()
+              buildCreateTicketButton(),
             ],
           ),
         );
@@ -421,7 +460,10 @@ class _LpSupportState extends State<LpSupport> {
   Widget buildCreateTicketButton() {
     return AppButton(
       onPressed: () {
-        Navigator.push(context, commonRoute(AddNewTicketScreen(ticketTag: widget.ticketTag))).then((val) {
+        Navigator.push(
+          context,
+          commonRoute(AddNewTicketScreen(ticketTag: widget.ticketTag)),
+        ).then((val) {
           profileCubit.fetchTickets(request: TicketRequest());
         });
       },
@@ -434,7 +476,7 @@ class _LpSupportState extends State<LpSupport> {
     return Expanded(
       child: GestureDetector(
         onTap: () async {
-            selectedTabIndex = index;
+          selectedTabIndex = index;
           if (index == 0) {
             await profileCubit.fetchFaq();
           } else {
@@ -447,14 +489,16 @@ class _LpSupportState extends State<LpSupport> {
         child: Container(
           height: 42,
           decoration: commonContainerDecoration(
-            color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
+            color:
+                isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
             borderRadius: BorderRadius.circular(24),
           ),
           alignment: Alignment.center,
           child: Text(
             label,
             style: AppTextStyle.body3.copyWith(
-              color: isSelected ? AppColors.white : AppColors.textGreyDetailColor,
+              color:
+                  isSelected ? AppColors.white : AppColors.textGreyDetailColor,
               fontSize: 14,
             ),
           ),
@@ -462,5 +506,4 @@ class _LpSupportState extends State<LpSupport> {
       ),
     );
   }
-
 }

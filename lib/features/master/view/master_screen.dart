@@ -3,10 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/network/api_service.dart';
-import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
@@ -26,7 +23,6 @@ import 'package:gro_one_app/features/profile/view/widgets/master_dialogue_widget
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -34,14 +30,12 @@ import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
-import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
-import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -104,7 +98,7 @@ class _MasterScreenState extends State<MasterScreen>
 
   @override
   void dispose() {
-    disposeFunction();
+   disposeFunction();
     super.dispose();
   }
 
@@ -115,7 +109,6 @@ class _MasterScreenState extends State<MasterScreen>
     await vpCreationCubit.fetchPrefLane(null,isInit: true);
     _autoSelectPreSelectLanes();
 
-    _checkAuthenticationAndLoadData();
   });
 
   void _autoSelectPreSelectLanes()  {
@@ -132,92 +125,6 @@ class _MasterScreenState extends State<MasterScreen>
 
 
 
-
-  /// Check authentication status before loading data
-  Future<void> _checkAuthenticationAndLoadData() async {
-    try {
-      // Check if user has valid token and user data
-      final apiService = locator<ApiService>();
-      final hasToken = await apiService.hasValidToken();
-
-      // Also check if we have user data stored
-      final securePrefs = locator<SecuredSharedPreferences>();
-      final userId = await securePrefs.get(AppString.sessionKey.userId);
-      final userRole = await securePrefs.getInt(AppString.sessionKey.userRole);
-
-      CustomLog.debug(
-        this,
-        "🔐 Auth check - Token: $hasToken, UserId: $userId, UserRole: $userRole",
-      );
-
-      if (!hasToken || userId == null || userId.isEmpty) {
-        // Clear any partial authentication data
-        if (userId != null && userId.isNotEmpty) {
-          CustomLog.debug(this, "🔐 Clearing partial authentication data");
-          await securePrefs.deleteKey(AppString.sessionKey.userId);
-          await securePrefs.deleteKey(AppString.sessionKey.userRole);
-          await securePrefs.deleteKey(AppString.sessionKey.companyTypeId);
-        }
-
-        // Check if we're already on the choose language screen to prevent loop
-        if (mounted) {
-          final currentRoute = GoRouterState.of(context).uri.path;
-          if (currentRoute != AppRouteName.chooseLanguage) {
-            CustomLog.debug(
-              this,
-              "🔐 No valid authentication found, redirecting to login",
-            );
-            ToastMessages.error(
-              message: 'Authentication required. Please login again.',
-            );
-            Navigator.of(context).pushReplacementNamed('/choose-language');
-          } else {
-            CustomLog.debug(
-              this,
-              "🔐 Already on choose language screen, skipping redirect",
-            );
-          }
-        }
-        return;
-      }
-
-      // If token exists, proceed with data loading
-      CustomLog.debug(
-        this,
-        "🔐 Valid authentication found, loading initial data",
-      );
-      _loadInitialData();
-    } catch (e) {
-      CustomLog.error(this, "Error checking authentication", e);
-      if (mounted) {
-        final currentRoute = GoRouterState.of(context).uri.path;
-        if (currentRoute != AppRouteName.chooseLanguage) {
-          ToastMessages.error(
-            message: 'Authentication check failed. Please login again.',
-          );
-          Navigator.of(context).pushReplacementNamed('/choose-language');
-        }
-      }
-    }
-  }
-
-  /// Load initial data after authentication check
-  Future<void> _loadInitialData() async {
-    profileCubit.fetchAddress(
-      isInit: true,
-      isLoading: true
-    );
-    profileCubit.fetchVehicle();
-    profileCubit.fetchDriver();
-    profileCubit.fetchUserRole();
-    gpsVehicleCubit.fetchTruckTypes();
-    gpsVehicleCubit.fetchCommodities();
-    vpCreationCubit.fetchTruckType();
-    profileCubit.fetchBloodGroup();
-    profileCubit.fetchLicenseCategory();
-    lpHomeCubit.fetchLoadWeight();
-
-  }
 
   void disposeFunction() => frameCallback(() {
     _tabController.dispose();
