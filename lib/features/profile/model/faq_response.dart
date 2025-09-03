@@ -111,21 +111,20 @@ class FaqData {
     }
 
 }
-
 class FaqPageMeta {
     FaqPageMeta({
-        required this.page,
-        required this.pageCount,
-        required this.nextPage,
-        required this.pageSize,
-        required this.total,
+        this.page,
+        this.pageCount,
+        this.nextPage,
+        this.pageSize,
+        this.total,
     });
 
-    final String page;
-    final int pageCount;
-    final String nextPage;
-    final String pageSize;
-    final int total;
+    final String? page;
+    final int? pageCount;
+    final String? nextPage;
+    final String? pageSize;
+    final int? total;
 
     FaqPageMeta copyWith({
         String? page,
@@ -145,12 +144,11 @@ class FaqPageMeta {
 
     factory FaqPageMeta.fromJson(Map<String, dynamic> json){ 
         return FaqPageMeta(
-            page: json["page"] ?? "",
-            pageCount: json["pageCount"] ?? 0,
-            nextPage: json["nextPage"] ?? "",
-            pageSize: json["pageSize"] ?? "",
-            total: json["total"] ?? 0,
+            page: json["page"]?.toString(),
+            pageCount: json["pageCount"] is int ? json["pageCount"] : int.tryParse(json["pageCount"]?.toString() ?? ''),
+            nextPage: json["nextPage"]?.toString(),
+            pageSize: json["pageSize"]?.toString(),
+            total: json["total"] is int ? json["total"] : int.tryParse(json["total"]?.toString() ?? ''),
         );
     }
-
 }

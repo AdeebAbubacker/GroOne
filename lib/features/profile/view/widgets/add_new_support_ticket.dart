@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -151,6 +152,9 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                         if(profileCubit.state.createDocumentUIState?.status == Status.SUCCESS){
                           if(profileCubit.state.createDocumentUIState?.data != null && profileCubit.state.createDocumentUIState?.data?.data != null){
                             ticketDocId = profileCubit.state.createDocumentUIState!.data!.data!.documentId;
+                            if(context.mounted) {
+                              ToastMessages.success(message: context.appText.fileUploadedSuccessfully);
+                            }
                           }
                         }
                       }
@@ -163,10 +167,15 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
 
                 const Spacer(),
 
-                AppButton(
-                  onPressed: _submitForm,
-                  title: context.appText.submit,
-                ),
+                BlocBuilder<ProfileCubit, ProfileState>(
+                builder: (context, profileState) {
+                  final isLoading = profileState.createTicketState?.status == Status.LOADING;
+                  return AppButton(
+                    isLoading: isLoading,
+                    onPressed: _submitForm,
+                    title: context.appText.submit,
+                  );
+                })
               ],
             ),
           ),
@@ -217,4 +226,5 @@ class TicketTags {
   static const FASTAG = 'Fastag related';
   static const GPS = 'GPS related';
   static const TANK_LOCK = 'Tank lock related';
+  static const DRIVER = 'Driver related';
 }
