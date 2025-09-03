@@ -10,7 +10,7 @@ sealed class TermsAndConditionsEvent extends Equatable {
 
 
 class TermsAndConditionsRequested extends TermsAndConditionsEvent {
-  TermsAndConditionsRequested();
+  const TermsAndConditionsRequested();
 }
 
 
