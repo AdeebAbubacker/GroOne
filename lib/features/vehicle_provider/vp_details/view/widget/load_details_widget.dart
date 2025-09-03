@@ -1131,11 +1131,19 @@ Widget _buildDetailWidget({required String text1, required String text2}) {
         text1,
         style: AppTextStyle.body2.copyWith(color: AppColors.textBlackColor),
       ),
-      Text(
-        text2,
-        style: AppTextStyle.body2.copyWith(
-          fontWeight: FontWeight.w500,
-          color: AppColors.primaryColor,
+      30.width,
+      Flexible(
+        child: Tooltip(
+          message: text2,
+          child: Text(
+            text2,
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.body2.copyWith(
+              fontWeight: FontWeight.w500,
+              color: AppColors.primaryColor,
+            ),
+          ),
         ),
       ),
     ],

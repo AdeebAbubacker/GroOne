@@ -31,7 +31,7 @@ class RouteSearchableDropdown extends StatelessWidget {
     final selectedItem = selectedRouteStatus != null
         ? (() {
             final selected = routeList.firstWhere(
-              (e) => e.status.toString() == selectedRouteStatus,
+              (e) => e.masterLaneId.toString() == selectedRouteStatus,
             );
             return '${selected.fromLocation?['name'] ?? ''} → ${selected.toLocation?['name'] ?? ''}';
           })()
