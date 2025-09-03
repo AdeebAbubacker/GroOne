@@ -159,10 +159,40 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
     await loginAndFetchAllData();
   }
 
-  /// Refresh all data - resets state and reinitializes
+  /// Refresh all data - uses existing token if available, otherwise re-login
   Future<void> refreshData() async {
-    resetState();
-    await initializeGpsFeature();
+    try {
+      // First try to get stored token
+      final storedLoginResponse = await _repository.getStoredLoginResponse();
+
+      if (storedLoginResponse?.token != null) {
+        // Use existing token for refresh
+        _authToken = storedLoginResponse!.token;
+        AppConstants.token = _authToken;
+
+        // Try to refresh data with existing token
+        final vehicleDataResult = await _repository.getAllVehicleData(
+          _authToken,
+        );
+
+        if (vehicleDataResult is Success<List<GpsCombinedVehicleData>>) {
+          // Success with existing token
+          _setDataFetchUIState(UIState.success("Data refreshed successfully"));
+          _hasLoadedData = true;
+          return;
+        }
+
+        // If refresh with existing token failed, fall back to full re-login
+      }
+
+      // Fallback: Full re-login if no token or refresh failed
+      resetState();
+      await initializeGpsFeature();
+    } catch (e) {
+      // If anything fails, fall back to full re-login
+      resetState();
+      await initializeGpsFeature();
+    }
   }
 
   /// Check if data has been loaded
