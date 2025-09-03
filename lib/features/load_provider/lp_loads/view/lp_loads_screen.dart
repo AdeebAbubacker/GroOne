@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:collection/collection.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -212,24 +213,84 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               },
             ),
             15.height,
-            BlocBuilder<LpLoadCubit, LpLoadState>(
-              builder: (context, state) {
-                final uiState = state.lpLoadRouteDetails;
-                final routeList = uiState?.data?.data?.routeList ?? [];
+//           BlocBuilder<LpLoadCubit, LpLoadState>(
+//   builder: (context, state) {
+//     final uiState = state.lpLoadRouteDetails;
+//     final routeList = uiState?.data?.data?.routeList ?? [];
 
-                return RouteSearchableDropdown(
-                  labelText: context.appText.route,
-                  hintText: context.appText.searchRoutes,
-                  routeList: routeList,
-                  selectedRouteStatus: routeDropDownValue,
-                  onRouteChanged: (RouteList? value) {
-                    routeDropDownValue = value?.status.toString();
-                    selectedRoute = value?.masterLaneId;
-                    setState(() {});
-                  },
-                );
-              },
-            ),
+//     return RouteSearchableDropdown(
+//       labelText: context.appText.route,
+//       hintText: context.appText.searchRoutes,
+//       fetchRoutes: (page, searchKey) async {
+//         // Simulate API fetch using the routeList you have
+//         // You can implement proper pagination if needed
+//         List<RouteList> filtered = routeList;
+//         if (searchKey != null && searchKey.isNotEmpty) {
+//           filtered = routeList
+//               .where((route) =>
+//                   (route.fromLocation?['name'] ?? '')
+//                       .toLowerCase()
+//                       .contains(searchKey.toLowerCase()) ||
+//                   (route.toLocation?['name'] ?? '')
+//                       .toLowerCase()
+//                       .contains(searchKey.toLowerCase()))
+//               .toList();
+//         }
+//         // For pagination, you can return a slice of the list
+//         return filtered;
+//       },
+//       selectedRoute: routeList.firstWhereOrNull(
+//           (r) => r.masterLaneId == selectedRoute), // preselect current
+//       onChanged: (RouteList? value) {
+//         setState(() {
+//           routeDropDownValue = value?.status.toString();
+//           selectedRoute = value?.masterLaneId;
+//         });
+//       },
+//       mandatoryStar: true, // optional
+//     );
+//   },
+// ),
+
+BlocBuilder<LpLoadCubit, LpLoadState>(
+  builder: (context, state) {
+    final uiState = state.lpLoadRouteDetails;
+    final routeList = uiState?.data?.data?.items ?? [];
+
+    return RouteSearchableDropdown(
+      labelText: context.appText.route,
+      hintText: context.appText.searchRoutes,
+      fetchRoutes: (page, searchKey) async {
+
+
+        // After fetch, get the updated list
+        final updatedList = lpLoadLocator.state.lpLoadRouteDetails?.data?.data?.items ?? [];
+
+        // Filter routes based on searchKey
+        if (searchKey != null && searchKey.isNotEmpty) {
+          return updatedList.where((route) {
+            final fromName = route.fromLocation?.name?.toString().toLowerCase() ?? '';
+            final toName = route.toLocation?.name?.toString().toLowerCase() ?? '';
+            return fromName.contains(searchKey.toLowerCase()) || toName.contains(searchKey.toLowerCase());
+          }).toList();
+        }
+
+        return updatedList;
+      },
+      selectedRoute: routeList.firstWhereOrNull(
+        (r) => r.masterLaneId == selectedRoute,
+      ), // preselect current
+      onChanged: (RouteList? value) {
+        setState(() {
+          routeDropDownValue = value?.status.toString();
+          selectedRoute = value?.masterLaneId;
+        });
+      },
+      mandatoryStar: true,
+    );
+  },
+),
+
 
             15.height,
             Text(context.appText.loadPostedDate, style: AppTextStyle.body3),

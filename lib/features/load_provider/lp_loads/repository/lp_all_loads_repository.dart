@@ -75,9 +75,9 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<LpLoadRouteResponse>> fetchRouteList() async {
+  Future<Result<LpLoadRouteResponse>> fetchRouteList({required int page,required int limit}) async {
     try {
-      return service.fetchRouteList();
+      return service.fetchRouteList(page: page,pageSize: limit);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

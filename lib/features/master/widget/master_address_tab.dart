@@ -26,6 +26,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -58,21 +59,15 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
   final _addressScrollController=ScrollController();
 
 
-  // fetch more address
-  void _fetchMoreAddress(){
-    _addressScrollController.addListener(() {
-      if (_addressScrollController.position.pixels >=
-          _addressScrollController.position.maxScrollExtent){
-        profileCubit.fetchAddress(isLoading: false,isInit: false);
-      }
-    },);
-  }
-
   @override
   void initState() {
-    _fetchMoreAddress();
+    initFunction();
     super.initState();
   }
+
+    void initFunction() => frameCallback(() async {
+    await profileCubit.fetchAddress();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -187,66 +182,75 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                   // Reset page count if you are paginating
                   context.read<ProfileCubit>().fetchAddress(isLoading: true);
                 },
-                child: ListView.builder(
-                  controller: _addressScrollController,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 20,
-                  ),
-                  itemBuilder: (context, index) {
-                    var address = addressList[index];
-                    String fullAddress =
-                        '${address.addr}, ${address.city}, ${address.state}, ${address.pincode}';
-                    return masterInfoWidget(
-                      context: context,
-                      title: address.addrName.capitalizeFirst,
-                      address: fullAddress,
-                      isPrimary: address.isDefault,
-                      onEdit:
-                          () => showAddAddressPopup(context, address: address),
-                      onDelete:
-                          () => showDeletePopUp(
-                            context: context,
-                            confirmMessage:
-                                context.appText.areYouSureToDeleteThisAddress,
-                            successMessage:
-                                context.appText.addressDeletedSuccessfully,
-                            onDelete:
-                                () => profileCubit.deleteAddress(
-                                  addressId: address.preferedAddressId,
-                                ),
-                          ),
-                      onSetPrimary: () async {
-                        await profileCubit.setPrimaryAddress(
-                          addressId: address.preferedAddressId,
-                        );
-
-                        // Check if it succeeded
-                        final primaryState =
-                            profileCubit.state.primaryAddressState;
-                        if (primaryState != null &&
-                            primaryState.status == Status.SUCCESS) {
-                          ToastMessages.success(
-                            message:
-                                context
-                                    .appText
-                                    .primaryAddressUpdatedSuccessfully,
-                          ); // optional toast
-                          profileCubit.fetchAddress(
-                            isLoading: true,
-                          ); // silent refresh
-                        } else {
-                          final error = primaryState?.errorType;
-                          ToastMessages.error(
-                            message: getErrorMsg(
-                              errorType: error ?? GenericError(),
-                            ),
-                          ); // optional toast
-                        }
-                      },
-                    );
+                child:  NotificationListener<ScrollNotification>(
+                  onNotification: (scrollInfo) {
+                    if (scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent) {
+                      profileCubit.fetchAddress(isLoading: false,isInit: false);
+                    }
+                    return false;
                   },
-                  itemCount: addressList.length,
+                  child: ListView.builder(
+                    controller: _addressScrollController,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 20,
+                    ),
+                    itemBuilder: (context, index) {
+                      var address = addressList[index];
+                      String fullAddress =
+                          '${address.addr}, ${address.city}, ${address.state}, ${address.pincode}';
+                      return masterInfoWidget(
+                        context: context,
+                        title: address.addrName.capitalizeFirst,
+                        address: fullAddress,
+                        isPrimary: address.isDefault,
+                        onEdit:
+                            () => showAddAddressPopup(context, address: address),
+                        onDelete:
+                            () => showDeletePopUp(
+                              context: context,
+                              confirmMessage:
+                                  context.appText.areYouSureToDeleteThisAddress,
+                              successMessage:
+                                  context.appText.addressDeletedSuccessfully,
+                              onDelete:
+                                  () => profileCubit.deleteAddress(
+                                    addressId: address.preferedAddressId,
+                                  ),
+                            ),
+                        onSetPrimary: () async {
+                          await profileCubit.setPrimaryAddress(
+                            addressId: address.preferedAddressId,
+                          );
+                  
+                          // Check if it succeeded
+                          final primaryState =
+                              profileCubit.state.primaryAddressState;
+                          if (primaryState != null &&
+                              primaryState.status == Status.SUCCESS) {
+                            ToastMessages.success(
+                              message:
+                                  context
+                                      .appText
+                                      .primaryAddressUpdatedSuccessfully,
+                            ); // optional toast
+                            profileCubit.fetchAddress(
+                              isLoading: true,
+                            ); // silent refresh
+                          } else {
+                            final error = primaryState?.errorType;
+                            ToastMessages.error(
+                              message: getErrorMsg(
+                                errorType: error ?? GenericError(),
+                              ),
+                            ); // optional toast
+                          }
+                        },
+                      );
+                    },
+                    itemCount: addressList.length,
+                  ),
                 ),
               );
             },

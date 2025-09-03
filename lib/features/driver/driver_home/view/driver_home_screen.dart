@@ -250,24 +250,24 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             ),
 
             15.height,
-            BlocBuilder<LpLoadCubit, LpLoadState>(
-              builder: (context, state) {
-                final uiState = state.lpLoadRouteDetails;
-                final routeList = uiState?.data?.data?.routeList ?? [];
+          //  BlocBuilder<LpLoadCubit, LpLoadState>(
+            //   builder: (context, state) {
+            //     final uiState = state.lpLoadRouteDetails;
+            //     final routeList = uiState?.data?.data?.routeList ?? [];
 
-                return RouteSearchableDropdown(
-                  labelText: context.appText.routes,
-                  hintText: '${context.appText.select} ${context.appText.route}',
-                  routeList: routeList,
-                  selectedRouteStatus: routeDropDownValue,
-                  onRouteChanged: (RouteList? value) {
-                    routeDropDownValue = value?.status.toString();
-                    selectedRoute = value?.masterLaneId;
-                    setState(() {});
-                  },
-                );
-              },
-            ),
+            //     return RouteSearchableDropdown(
+            //       labelText: context.appText.routes,
+            //       hintText: '${context.appText.select} ${context.appText.route}',
+            //       routeList: routeList,
+            //       selectedRouteStatus: routeDropDownValue,
+            //       onRouteChanged: (RouteList? value) {
+            //         routeDropDownValue = value?.status.toString();
+            //         selectedRoute = value?.masterLaneId;
+            //         setState(() {});
+            //       },
+            //     );
+            //   },
+            // ),
             15.height,
             BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
               builder: (context, state) {
