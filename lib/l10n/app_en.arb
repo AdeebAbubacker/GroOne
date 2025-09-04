@@ -61,7 +61,7 @@
   "availableLoads": "Available Loads",
   "filter": "Filter",
   "thisFieldIsRequired": "This field is required",
-  "vehicleType": "Vehicle type",
+  "vehicleType": "Vehicle Type",
   "selectVehicleType": "Select Vehicle type",
   "lane": "Lane",
   "selectLaneType": "Select lane type",
@@ -132,7 +132,7 @@
   "continueText": "Continue",
   "inText": "  in  ",
   "dateAndTime": "Date & Time",
-  "consignmentWeightWithMT": "Consignment weight (MT)",
+  "consignmentWeightWithMT": "Consignment Weight (MT)",
   "yes": "Yes",
   "no": "No",
   "markAsFavouriteTitle": "Mark as Favourite",
@@ -586,7 +586,7 @@
   "cardInformation": "Card Information",
   "card": "Card",
   "deleteThisCard": "Delete this card",
-  "selectVehicleNumber": "Select vehicle number",
+  "selectVehicleNumber": "Enter vehicle number",
   "loadingVehicleTypes": "Loading vehicle types...",
   "noVehicleTypesAvailable": "No vehicle types available",
   "vehicleTypeRequired": "Vehicle type is required",
@@ -645,9 +645,9 @@
   "handlingChargeLessTenPercent": "Handling charges should be less than 10% of the average price",
   "loadingPoint": "Loading Point",
   "unLoadingPoint": "Unloading Point",
-  "consignmentWeight": "Consignment weight",
+  "consignmentWeight": "Consignment Weight",
   "commodity": "Commodity",
-  "pickupDateAndTime": "Pickup date & time",
+  "pickupDateAndTime": "Pickup Date & Time",
   "expectedDeliveryDateAndTime": "Expected Delivery Date & Time",
   "enterHandlingCharges": "Enter Handling Charges",
   "notesOrInstruction": "Notes/ Instructions",
@@ -1318,6 +1318,9 @@
   "kycInProgressText": "KYC InProgress",
   "lanes":"Lanes",
   "supportTicket":"Support Ticket",
+  "ticket":"Ticket",
+  "forAnyQueriesContactSupportTeam": "For any further queries, please contact the support team."
+
   "self":"Self"
 
 

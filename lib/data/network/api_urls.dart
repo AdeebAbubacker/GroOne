@@ -277,6 +277,7 @@ class ApiUrls {
   static final String deleteVehicle = "$_baseUrl$_customer$_path$_v1/vehicle/status/";
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
   static final String getTicketList = "$_baseUrl$_customer$_path$_v1/support-ticket/";
+  static final String getTicketMessages = "$_baseUrl$_customer$_path$_v1/support-ticket/";
   static final String createTicket = "$_baseUrl$_customer$_path$_v1/support-ticket/";
   static final String createVehicle = "$_baseUrl$_customer$_path$_v1/vehicle";
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";

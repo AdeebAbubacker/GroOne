@@ -125,9 +125,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       setState(() {
         isLoadingSummary = false;
       });
-      ToastMessages.error(
-        message: 'Failed to load order summary. Please try again.',
-      );
+      ToastMessages.error(message: 'Failed to load order summary. Please try again.');
     }
   }
 
@@ -175,9 +173,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       // Fallback to hardcoded values if still not available
       return {
         "companyName":
-            companyName?.isNotEmpty == true
-                ? companyName!
-                : "ABC Logistics Pvt Ltd",
+            companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
         "contactNumber":
             contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
         "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456",
@@ -250,17 +246,14 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                         context.go(AppRouteName.gps);
                       } catch (fallbackError) {
                         try {
-                          Navigator.of(context).pushNamedAndRemoveUntil(
-                            AppRouteName.gps,
-                                (route) => false,
-                          );
+                          Navigator.of(
+                            context,
+                          ).pushNamedAndRemoveUntil(AppRouteName.gps, (route) => false);
                         } catch (navigatorError) {
                           try {
                             Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (context) => GpsHomeScreen(),
-                              ),
-                                  (route) => false,
+                              MaterialPageRoute(builder: (context) => GpsHomeScreen()),
+                              (route) => false,
                             );
                           } catch (pushError) {
                             // Last resort: Try to navigate to a different route
@@ -283,9 +276,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         }
 
         if (state is GpsOrderError) {
-          ToastMessages.error(
-            message: "Order creation failed: ${state.message}",
-          );
+          ToastMessages.error(message: "Order creation failed: ${state.message}");
         }
 
         // Handle order summary states
@@ -299,9 +290,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             isLoadingSummary = false;
           });
           if (!context.mounted) return;
-          ToastMessages.error(
-            message: context.appText.failedToLoadOrderSummary,
-          );
+          ToastMessages.error(message: context.appText.failedToLoadOrderSummary);
         }
       },
       child: Scaffold(
@@ -311,7 +300,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           actions: [
             AppIconButton(
               onPressed: () {
-                Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
+                Navigator.of(context).push(
+                  commonRoute(
+                    LpSupport(showBackButton: true, ticketTag: TicketTags.GPS),
+                    isForward: true,
+                  ),
+                );
               },
               icon: AppIcons.svg.filledSupport,
               iconColor: AppColors.primaryButtonColor,
@@ -387,10 +381,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              context.appText.paymentDetails,
-              style: AppTextStyle.h4,
-            ),
+            Text(context.appText.paymentDetails, style: AppTextStyle.h4),
             10.height,
             Center(child: CircularProgressIndicator()),
           ],
@@ -405,10 +396,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              context.appText.paymentDetails,
-              style: AppTextStyle.h4,
-            ),
+            Text(context.appText.paymentDetails, style: AppTextStyle.h4),
             10.height,
             Text(
               'Failed to load order summary',
@@ -425,10 +413,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            context.appText.paymentDetails,
-            style: AppTextStyle.h4,
-          ),
+          Text(context.appText.paymentDetails, style: AppTextStyle.h4),
           10.height,
           ...orderSummary!.data.summary.map((summaryItem) {
             return Column(
@@ -512,68 +497,68 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
     return BlocBuilder<GpsOrderCubit, GpsOrderState>(
       bloc: gpsOrderCubit,
-  builder: (context, state) {
-    final isLoading = state is GpsOrderLoading || state is GpsPaymentInitiating;
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, -2), // shadow towards top
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(context.appText.total, style: AppTextStyle.blackColor14w400),
-              Text(
-                '₹${totalAmount.toStringAsFixed(2)}',
-                style: AppTextStyle.primaryColor16w900,
+      builder: (context, state) {
+        final isLoading = state is GpsOrderLoading || state is GpsPaymentInitiating;
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.2),
+                blurRadius: 8,
+                offset: const Offset(0, -2), // shadow towards top
               ),
             ],
           ),
-          15.width,
-          AppButton(
-            isLoading: isLoading,
-            onPressed: () async {
-              // Get customer information
-              final customerInfo = await getCustomerInfo();
-              final userRepository = locator<UserInformationRepository>();
-              final customerId = await userRepository.getUserID();
+          child: Row(
+            children: [
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(context.appText.total, style: AppTextStyle.blackColor14w400),
+                  Text(
+                    "₹${KavachHelper.formatCurrencyRoundOf(totalAmount.toStringAsFixed(2))}",
+                    style: AppTextStyle.primaryColor16w900,
+                  ),
+                ],
+              ),
+              15.width,
+              AppButton(
+                isLoading: isLoading,
+                onPressed: () async {
+                  // Get customer information
+                  final customerInfo = await getCustomerInfo();
+                  final userRepository = locator<UserInformationRepository>();
+                  final customerId = await userRepository.getUserID();
 
-              // Create payment request using the order ID from checkout
-              if (customerId != null && customerId.isNotEmpty) {
-                final paymentRequest = KavachInitiatePaymentRequest(
-                  orderId: "ORDER_${DateTime.now().millisecondsSinceEpoch}",
-                  // This should be the actual order ID from the order creation
-                  amount: totalAmount,
-                  customerName:
-                      customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
-                  customerEmail: "customer@example.com",
-                  // This should be fetched from user profile
-                  customerMobile: customerInfo["contactNumber"] ?? "9876543210",
-                  customerCity: widget.billingAddress.city,
-                  customerId: customerId,
-                  merchantReferenceNo: 'fleet',
-                );
+                  // Create payment request using the order ID from checkout
+                  if (customerId != null && customerId.isNotEmpty) {
+                    final paymentRequest = KavachInitiatePaymentRequest(
+                      orderId: "ORDER_${DateTime.now().millisecondsSinceEpoch}",
+                      // This should be the actual order ID from the order creation
+                      amount: totalAmount,
+                      customerName:
+                          customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
+                      customerEmail: "customer@example.com",
+                      // This should be fetched from user profile
+                      customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                      customerCity: widget.billingAddress.city,
+                      customerId: customerId,
+                      merchantReferenceNo: 'fleet',
+                    );
 
-                gpsOrderCubit.initiatePayment(paymentRequest);
-              }
-            },
-            title: context.appText.placeOrder,
-            style: AppButtonStyle.primary,
-          ).expand(),
-        ],
-      ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15),
+                    gpsOrderCubit.initiatePayment(paymentRequest);
+                  }
+                },
+                title: context.appText.placeOrder,
+                style: AppButtonStyle.primary,
+              ).expand(),
+            ],
+          ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15),
+        );
+      },
     );
-  },
-);
   }
 
   // Helper function to parse address and extract city, state, postal code
@@ -585,8 +570,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
     try {
       // Split by commas and clean up
-      List<String> parts =
-          addressString.split(',').map((part) => part.trim()).toList();
+      List<String> parts = addressString.split(',').map((part) => part.trim()).toList();
 
       if (parts.length >= 3) {
         // Try to extract postal code from the last part (format: "Country - PostalCode")
@@ -651,8 +635,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         createdEmpId = widget.orderReferencedBy;
         // For now, using a default user ID. In a real implementation,
         // you would fetch the employee details from the referral code
-        createdEmpUserId =
-            52864; // This should be fetched based on referral code
+        createdEmpUserId = 52864; // This should be fetched based on referral code
       }
 
       // Create billing address
@@ -702,8 +685,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           widget.products.map((product) {
             final quantity = widget.quantities[product.id]!;
             final stock = widget.availableStocks[product.id] ?? 0;
-            final vehicleNumbers =
-                widget.selectedVehiclePerProduct[product.id] ?? [];
+            final vehicleNumbers = widget.selectedVehiclePerProduct[product.id] ?? [];
             final price = double.tryParse(product.price) ?? 0.0;
             final itemTotal = price * quantity;
             final itemGst = itemTotal * (18.0 / 100);
@@ -716,9 +698,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               totalPrice: totalWithGst,
               stockAvailable: stock,
               vehicleNumbers:
-                  vehicleNumbers
-                      .map((v) => GpsOrderVehicle(vehicleNumber: v))
-                      .toList(),
+                  vehicleNumbers.map((v) => GpsOrderVehicle(vehicleNumber: v)).toList(),
             );
           }).toList();
 
@@ -736,9 +716,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         createdEmpId: createdEmpId,
         // Will be null if no referral code
         orderReferencedBy:
-            widget.orderReferencedBy.isNotEmpty
-                ? widget.orderReferencedBy
-                : "DIRECT",
+            widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
         totalPrice: orderSummary?.data.grandTotal ?? _fallbackTotalAmount,
         // Use the API's grandTotal or fallback
         categoryId: 1,
@@ -754,7 +732,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         orders: orders,
       );
 
-      analyticsHelper.logEvent(AnalyticEventName.FLEET_ORDER_CREATION, request.toJson(),);
+      analyticsHelper.logEvent(
+        AnalyticEventName.FLEET_ORDER_CREATION,
+        request.toJson(),
+      );
       // Create the order
       await gpsOrderCubit.createOrder(request);
     } catch (e) {
@@ -766,9 +747,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(
-          child: Text(label, style: AppTextStyle.textDarkGreyColor14w500),
-        ),
+        Expanded(child: Text(label, style: AppTextStyle.textDarkGreyColor14w500)),
         Text(value, style: AppTextStyle.blackColor15w500),
       ],
     ).paddingSymmetric(vertical: 5);
