@@ -40,6 +40,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/vehicle_formatter.dart';
@@ -78,6 +79,17 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
   String? fcExpiryDate;
   String? pucExpiryDate;
   String? registrationDate;
+  
+  @override
+    void initState() {
+    super.initState();
+    initFunction();
+  }
+
+    void initFunction() => frameCallback(() async {
+    await profileCubit.fetchVehicle();
+    await vpCreationCubit.fetchTruckType();
+  });
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -702,6 +714,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                 truckNumberController.text.trim(),
                 fieldName: 'Vehicle Reg No',
               );
+
               if (validation != null) {
                 ToastMessages.alert(message: validation);
                 return;
@@ -812,6 +825,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
       ),
     );
   }
+
+
 
   /// Delete Popup
   void showDeletePopUp({

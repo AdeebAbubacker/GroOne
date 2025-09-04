@@ -46,7 +46,7 @@ class Data {
     int? limit,
   }) {
     return Data(
-      routeList: items ?? this.routeList,
+      routeList: items ?? routeList,
       total: total ?? this.total,
       page: page ?? this.page,
       limit: limit ?? this.limit,

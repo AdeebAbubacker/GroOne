@@ -43,6 +43,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/enhanced_dispose.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/indian_licesne_fromatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
@@ -88,6 +89,19 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
   String? pucExpiryDate;
   String? registrationDate;
   List<dynamic> licenseDoc = [];
+
+    @override
+  void initState() {
+    initFunction();
+    super.initState();
+  }
+
+    void initFunction() => frameCallback(() async {
+    await profileCubit.fetchDriver();
+    await profileCubit.fetchLicenseCategory();
+    await profileCubit.fetchBloodGroup();
+  });
+  
   @override
   Widget build(BuildContext context) {
     return Column(

@@ -636,14 +636,14 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
   }
 
  bool isNextProcessButtonEnabled({required List<
-     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true,bool? isAgreed,bool? isDocumentApproved,bool? isPodApproved}) {
+     DocumentEntity> documentEntity, required int driverConsent, dynamic memo, LoadStatus? loadStatus,bool? checkMemo=true,bool? isAgreed}) {
     switch(loadStatus){
       case LoadStatus.assigned:
         return (checkMemo??true) ? memo!=null && (isAgreed??false):true;
         case LoadStatus.loading:
-          return  checkIsDocumentUploaded(documentEntity) && isDocumentApproved==true;
+          return  checkIsDocumentUploaded(documentEntity) ;
       case LoadStatus.unloading:
-        return checkIsDocumentUploaded(documentEntity) && isPodApproved==true;
+        return checkIsDocumentUploaded(documentEntity);
       default:
         return true;
     }

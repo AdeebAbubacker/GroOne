@@ -147,7 +147,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         }, vehicleDetail),
 
                         GestureDetector(
-                          onTap: () => addVehicleAndDriver(1),
+                          onTap: () => addVehicleAndDriver(2),
                           child: Row(
                             children: [
                               Icon(Icons.add_circle_outline, size: 15),
@@ -169,7 +169,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                           });
                         }, driverDetails),
                         GestureDetector(
-                          onTap: () => addVehicleAndDriver(2),
+                          onTap: () => addVehicleAndDriver(3),
                           child: Row(
                             children: [
                               Icon(Icons.add_circle_outline, size: 15),

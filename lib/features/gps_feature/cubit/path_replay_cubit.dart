@@ -194,7 +194,7 @@ class PathReplayCubit extends Cubit<PathReplayState> {
     });
 
     // Animate marker if index changed
-    if (_lastAnimatedIndex != currentIndex && previousPosition != null) {
+    if (_lastAnimatedIndex != currentIndex) {
       _lastAnimatedIndex = currentIndex;
 
       // Better duration calculation for smoother movement
@@ -229,7 +229,7 @@ class PathReplayCubit extends Cubit<PathReplayState> {
     });
 
     // Animate marker if index changed
-    if (_lastAnimatedIndex != currentIndex && previousPosition != null) {
+    if (_lastAnimatedIndex != currentIndex) {
       _lastAnimatedIndex = currentIndex;
 
       // Better duration calculation for smoother movement

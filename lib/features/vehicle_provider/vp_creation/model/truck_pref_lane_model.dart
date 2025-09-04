@@ -62,21 +62,21 @@ class Data {
 
 class Item {
     Item({
-        required this.masterLaneId,
-        required this.fromLocationId,
-        required this.toLocationId,
-        required this.status,
-        required this.createdAt,
-        required this.deletedAt,
-        required this.fromLocation,
-        required this.toLocation,
-        required this.isSelected,
+         this.masterLaneId,
+         this.fromLocationId,
+         this.toLocationId,
+         this.status,
+         this.createdAt,
+         this.deletedAt,
+         this.fromLocation,
+         this.toLocation,
+         this.isSelected,
     });
 
-    final int masterLaneId;
-    final int fromLocationId;
-    final int toLocationId;
-    final int status;
+    final int? masterLaneId;
+    final int? fromLocationId;
+    final int? toLocationId;
+    final int? status;
     final DateTime? createdAt;
     final dynamic deletedAt;
     final Location? fromLocation;
@@ -125,20 +125,20 @@ class Item {
 
 class Location {
     Location({
-        required this.id,
-        required this.name,
-        required this.slug,
-        required this.latLong,
-        required this.status,
-        required this.createdAt,
-        required this.deletedAt,
+         this.id,
+         this.name,
+         this.slug,
+         this.latLong,
+         this.status,
+         this.createdAt,
+         this.deletedAt,
     });
 
-    final int id;
-    final String name;
-    final String slug;
-    final String latLong;
-    final int status;
+    final int? id;
+    final String? name;
+    final String? slug;
+    final String? latLong;
+    final int? status;
     final DateTime? createdAt;
     final dynamic deletedAt;
 

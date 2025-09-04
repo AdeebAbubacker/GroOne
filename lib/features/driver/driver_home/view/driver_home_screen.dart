@@ -261,7 +261,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   routeList: routeList,
                   selectedRouteStatus: routeDropDownValue,
                   onRouteChanged: (RouteList? value) {
-                    routeDropDownValue = value?.status.toString();
+                    routeDropDownValue = value?.masterLaneId.toString();
                     selectedRoute = value?.masterLaneId;
                     setState(() {});
                   },

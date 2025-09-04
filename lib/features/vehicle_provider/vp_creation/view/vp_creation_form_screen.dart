@@ -149,6 +149,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
   Future<void> vpCreationApiCall(VpCreateAccountState state) async {
     if (formKey.currentState!.validate()) {
       FocusManager.instance.primaryFocus?.unfocus();
+
       if (uploadedRcFile == null) {
         ToastMessages.alert(message: context.appText.rcDocumentRequiredError);
         return;
@@ -554,7 +555,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                 state.prefLaneUIState!.data!.data!.items.isNotEmpty) {
               final preferredLaneItems = state.selectedPreferLanes;
               if((preferredLaneItems??[]).isNotEmpty){
-                selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId,).toList()??[];
+                selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId??0,).toList()??[];
               }else{
                 selectedPrefLanesTypeList=[];
               }
@@ -574,7 +575,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                   GestureDetector(
                     onTap: () async {
                     await  Navigator.push(context, commonRoute(PreferLensScreen()));
-
                     },
                     child: Container(
                       padding: EdgeInsets.only(
@@ -703,11 +703,15 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
             final isLoading =
                 state.uploadRcFileUIState?.status == Status.LOADING;
             return UploadAttachmentFiles(
+              onDelete: (p0) {
+                uploadedRcFile=null;
+              },
               allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               multiFilesList: multiFilesList,
               title: context.appText.uploadRC,
               isMandatory: true,
               isSingleFile: true,
+
               isLoading: isLoading,
               thenUploadFileToSever: () {
                 if (multiFilesList.isNotEmpty) {
@@ -717,6 +721,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                   );
                 }
               },
+
             );
           },
         ),

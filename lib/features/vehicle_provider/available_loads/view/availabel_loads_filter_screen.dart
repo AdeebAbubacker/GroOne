@@ -31,19 +31,21 @@ class _AvailableLoadsFilterScreenState
   String? vehicleTypeDownValue;
   String? laneDropDownValue;
   String? loadTypeDropDownValue;
+  final ScrollController scrollController=ScrollController();
 
-  final filterCubit=locator<LoadFilterCubit>();
-
+  final filterCubit = locator<LoadFilterCubit>();
 
   /// Selected Data
 
   int? truckTypeId;
   int? laneId;
   int? commodityId;
+  List<Item> preferLanesModel=[];
 
   @override
   void initState() {
     _setInitialFilterData();
+    check();
     super.initState();
   }
 
@@ -54,51 +56,69 @@ class _AvailableLoadsFilterScreenState
   }
 
 
+  check(){
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent) {
+
+      }
+    },);
+  }
+
+
+
   void disposeFunction() => frameCallback(() {});
 
-
-  void _getTruckType(List<TruckTypeModel> truckTypeList,String? selectedTruckType){
-    TruckTypeModel? truckTypeModel=truckTypeList.firstWhere((element) {
-        String commodity=  "${element.type} ${element.subType}";
-        return commodity==selectedTruckType;
+  void _getTruckType(
+    List<TruckTypeModel> truckTypeList,
+    String? selectedTruckType,
+  ) {
+    TruckTypeModel? truckTypeModel = truckTypeList.firstWhere((element) {
+      String commodity = "${element.type} ${element.subType}";
+      return commodity == selectedTruckType;
     });
-    truckTypeId=truckTypeModel.id;
-    filterCubit.setTruckTypeData(truckTypeId: truckTypeModel.id, value:selectedTruckType);
+    truckTypeId = truckTypeModel.id;
+    filterCubit.setTruckTypeData(
+      truckTypeId: truckTypeModel.id,
+      value: selectedTruckType,
+    );
   }
 
-  void _getLaneId(List<Item> preferLanesModel ,String? selectedLens){
-    Item? selectedObject=preferLanesModel.firstWhere((element) {
-      String lane=  '${element.fromLocation?.name ?? ""} - ${element.toLocation?.name ?? ""}';
-      return lane==selectedLens;
+  void _getLaneId(List<Item> preferLanesModel, String? selectedLens) {
+    Item? selectedObject = preferLanesModel.firstWhere((element) {
+      String lane =
+          '${element.fromLocation?.name ?? ""} - ${element.toLocation?.name ?? ""}';
+      return lane == selectedLens;
     });
-    laneId=selectedObject.masterLaneId;
-    filterCubit.setLensData(leneId: selectedObject.masterLaneId, value:selectedLens);
+    laneId = selectedObject.masterLaneId;
+    filterCubit.setLensData(
+      leneId: selectedObject.masterLaneId,
+      value: selectedLens,
+    );
   }
 
-  void _getCommodity(List<LoadCommodityListModel> loadTypeList,String? value){
-    LoadCommodityListModel? loadType=loadTypeList.firstWhere((element) {
-      String loadType=  element.name;
-      return loadType==value;
+  void _getCommodity(List<LoadCommodityListModel> loadTypeList, String? value) {
+    LoadCommodityListModel? loadType = loadTypeList.firstWhere((element) {
+      String loadType = element.name;
+      return loadType == value;
     });
-    commodityId=loadType.id;
-    filterCubit.setCommodityData(commodityId: loadType.id, value:value);
+    commodityId = loadType.id;
+    filterCubit.setCommodityData(commodityId: loadType.id, value: value);
   }
 
-
-  void _setInitialFilterData(){
-    if(filterCubit.state.isFilterApplied==false){
+  void _setInitialFilterData() {
+    if (filterCubit.state.isFilterApplied == false) {
       return;
     }
 
-    vehicleTypeDownValue=filterCubit.state.selectedTruckType?['value'];
-    truckTypeId=filterCubit.state.selectedTruckType?['id'];
+    vehicleTypeDownValue = filterCubit.state.selectedTruckType?['value'];
+    truckTypeId = filterCubit.state.selectedTruckType?['id'];
 
+    laneDropDownValue = filterCubit.state.selectedLaneType?['value'];
+    laneId = filterCubit.state.selectedLaneType?['id'];
 
-    laneDropDownValue=filterCubit.state.selectedLaneType?['value'];
-    laneId=filterCubit.state.selectedLaneType?['id'];
-
-    loadTypeDropDownValue=filterCubit.state.selectedCommodity?['value'];
-    commodityId=filterCubit.state.selectedCommodity?['id'];
+    loadTypeDropDownValue = filterCubit.state.selectedCommodity?['value'];
+    commodityId = filterCubit.state.selectedCommodity?['id'];
   }
 
   @override
@@ -109,43 +129,46 @@ class _AvailableLoadsFilterScreenState
     );
   }
 
-
-
   Widget _buildBody({required BuildContext context}) {
-    return BlocBuilder<LoadFilterCubit,LoadFilterState>(
-     builder: (context, state) {
+    return BlocBuilder<LoadFilterCubit, LoadFilterState>(
+      builder: (context, state) {
+        List<TruckTypeModel> truckTypeList = state.truckTypeUIState?.data ?? [];
+        preferLanesModel  =
+            state.truckTypeLaneUIState?.data?.data?.items ?? [];
+        List<LoadCommodityListModel> loadTypeList =
+            state.commodityResponseUIState?.data ?? [];
 
-       List<TruckTypeModel> truckTypeList=state.truckTypeUIState?.data??[];
-       List<Item> preferLanesModel=state.truckTypeLaneUIState?.data?.data?.items??[];
-       List<LoadCommodityListModel> loadTypeList=state.commodityResponseUIState?.data??[];
-
-
-
-
-       return Form(
+        return Form(
           key: formKey,
           child: Column(
             children: [
               // Vehicle Type
               SearchableDropdown(
                 hintText: context.appText.selectVehicleType,
-                items: truckTypeList.map((e) =>"${e.type} ${e.subType}").toList(),
+                items:
+                    truckTypeList.map((e) => "${e.type} ${e.subType}").toList(),
                 labelText: context.appText.vehicleType,
                 selectedItem: vehicleTypeDownValue,
                 onChanged: (value) {
-                  _getTruckType(truckTypeList,value);
-                  },
+                  _getTruckType(truckTypeList, value);
+                },
               ),
               20.height,
 
               // Lane Type
               SearchableDropdown(
-                hintText:  context.appText.selectLaneType,
-                items: preferLanesModel.map((e) => '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',).toList(),
+                hintText: context.appText.selectLaneType,
+                items:
+                preferLanesModel
+                        .map(
+                          (e) =>
+                              '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',
+                        )
+                        .toList(),
                 labelText: context.appText.lane,
                 selectedItem: laneDropDownValue,
                 onChanged: (value) {
-                  _getLaneId(preferLanesModel,value );
+                  _getLaneId(preferLanesModel, value);
                 },
               ),
 
@@ -153,12 +176,13 @@ class _AvailableLoadsFilterScreenState
 
               // Road Type
               SearchableDropdown(
-                hintText:  context.appText.selectRoadType,
+
+                hintText: context.appText.selectRoadType,
                 items: loadTypeList.map((e) => e.name).toList(),
                 labelText: context.appText.loadType,
                 selectedItem: loadTypeDropDownValue,
                 onChanged: (value) {
-                  _getCommodity(loadTypeList,value );
+                  _getCommodity(loadTypeList, value);
                 },
               ),
               50.height,
@@ -179,10 +203,10 @@ class _AvailableLoadsFilterScreenState
                   // Apply
                   AppButton(
                     onPressed: () {
-                      Navigator.pop(context,{
-                        "commodityId":commodityId,
-                        "truckTypeId":truckTypeId,
-                        "lensType":laneId
+                      Navigator.pop(context, {
+                        "commodityId": commodityId,
+                        "truckTypeId": truckTypeId,
+                        "lensType": laneId,
                       });
                       filterCubit.setIsFilterApplied(value: true);
                     },
@@ -194,7 +218,7 @@ class _AvailableLoadsFilterScreenState
             ],
           ),
         );
-      }
+      },
     );
   }
 }

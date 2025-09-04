@@ -13,10 +13,10 @@ class BloodCategoryDropdown extends StatelessWidget {
   final ValueChanged<BloodGroupResponseModel?> onChanged;
 
   const BloodCategoryDropdown({
-    Key? key,
+    super.key,
     required this.selected,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

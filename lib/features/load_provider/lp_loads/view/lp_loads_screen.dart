@@ -223,7 +223,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   routeList: routeList,
                   selectedRouteStatus: routeDropDownValue,
                   onRouteChanged: (RouteList? value) {
-                    routeDropDownValue = value?.status.toString();
+                    routeDropDownValue = value?.masterLaneId.toString();
                     selectedRoute = value?.masterLaneId;
                     setState(() {});
                   },
