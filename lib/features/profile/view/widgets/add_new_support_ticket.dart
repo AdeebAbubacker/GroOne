@@ -1,12 +1,14 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -134,9 +136,11 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                       final ticketData = profileCubit.state.uploadTicketDocUIState?.data;
                       if(ticketData != null &&  ticketList.isNotEmpty){
                         final mimeType = lookupMimeType(ticketList.first['extension']);
+                        final supportDocumentEntity=DocumentDataModel.supportDocumentEntity;
+
                         final apiRequest =  CreateDocumentApiRequest(
-                          documentTypeId : 342,
-                          title : 'Support Ticket',
+                          documentTypeId : supportDocumentEntity?.documentTypeId,
+                          title : supportDocumentEntity?.title,
                           description : 'Ticket',
                           originalFilename : ticketData.originalName,
                           filePath : ticketData.filePath,
@@ -148,6 +152,9 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                         if(profileCubit.state.createDocumentUIState?.status == Status.SUCCESS){
                           if(profileCubit.state.createDocumentUIState?.data != null && profileCubit.state.createDocumentUIState?.data?.data != null){
                             ticketDocId = profileCubit.state.createDocumentUIState!.data!.data!.documentId;
+                            if(context.mounted) {
+                              ToastMessages.success(message: context.appText.fileUploadedSuccessfully);
+                            }
                           }
                         }
                       }
@@ -160,10 +167,15 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
 
                 const Spacer(),
 
-                AppButton(
-                  onPressed: _submitForm,
-                  title: context.appText.submit,
-                ),
+                BlocBuilder<ProfileCubit, ProfileState>(
+                builder: (context, profileState) {
+                  final isLoading = profileState.createTicketState?.status == Status.LOADING;
+                  return AppButton(
+                    isLoading: isLoading,
+                    onPressed: _submitForm,
+                    title: context.appText.submit,
+                  );
+                })
               ],
             ),
           ),
@@ -178,7 +190,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
     if (status != null &&  status == Status.SUCCESS) {
       final data = profileCubit.state.uploadTicketDocUIState?.data;
       final url = data?.url ?? '';
-      print('url is $url');
+
       if (url.isNotEmpty) {
         ticketList.first['path'] = url;
         return Success(true);
@@ -214,4 +226,5 @@ class TicketTags {
   static const FASTAG = 'Fastag related';
   static const GPS = 'GPS related';
   static const TANK_LOCK = 'Tank lock related';
+  static const DRIVER = 'Driver related';
 }

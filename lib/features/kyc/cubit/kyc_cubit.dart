@@ -163,8 +163,8 @@ class KycCubit extends BaseCubit<KycState> {
     emit(state.copyWith(gstState: UIState.loading()));
     Result result = await _repo.verifyGST(request);
     if (result is Success<bool>) {
+      emit(state.copyWith(gstState: UIState.success(result.value)));
       await securePrefs.saveBoolean(AppString.sessionKey.isGstNumberVerified, true);
-      emit(state.copyWith(verifiedGst: true));
     }
     if (result is Error) {
       emit(state.copyWith(gstState: UIState.error(result.type)));
@@ -178,7 +178,6 @@ class KycCubit extends BaseCubit<KycState> {
     Result result = await _repo.verifyTan(request);
     if (result is Success<bool>) {
       emit(state.copyWith(tanState: UIState.success(result.value)));
-      emit(state.copyWith(verifiedTan: true));
     }
     if (result is Error) {
       emit(state.copyWith(tanState: UIState.error(result.type)));
@@ -211,6 +210,33 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
+  // Verify Tan
+  Future<void> verifyTanExistence(String tanNumber) async {
+    emit(state.copyWith(tanDocVerificationState: UIState.loading()));
+    Result result = await _repo.verifiedDocID(tan:tanNumber );
+    if (result is Success<DocVerificationModel>) {
+      emit(state.copyWith(tanDocVerificationState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(tanDocVerificationState: UIState.error(result.type)));
+    }
+  }
+
+  // Verify Gst doc existence
+  Future<void> verifyGstDocExistence(String gstNumber) async {
+    emit(state.copyWith(gstDocVerificationState: UIState.loading()));
+    Result result = await _repo.verifiedDocID(gstNumber:gstNumber );
+    if (result is Success<DocVerificationModel>) {
+      emit(state.copyWith(gstDocVerificationState: UIState.success(result.value)));
+    }
+    if (result is Error) {
+      emit(state.copyWith(gstDocVerificationState: UIState.error(result.type)));
+    }
+  }
+
+
+
+
   // Check Kyc Verified
   Future<void> checkIsKycNumberVerified(SecuredSharedPreferences securePrefs) async{
    bool? isPanVerified=await securePrefs.getBooleans(AppString.sessionKey.isPanNumberVerified);
@@ -240,6 +266,14 @@ class KycCubit extends BaseCubit<KycState> {
 
   void updatePanVerificationState(){
     emit(state.copyWith(verifiedPan: true));
+  }
+
+  void updateTanVerificationState(){
+    emit(state.copyWith(verifiedTan: true));
+  }
+
+  void updateGstVerificationState(){
+    emit(state.copyWith(verifiedGst: true));
   }
 
 

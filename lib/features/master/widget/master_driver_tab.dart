@@ -98,6 +98,8 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
 
     void initFunction() => frameCallback(() async {
     await profileCubit.fetchDriver();
+    await profileCubit.fetchLicenseCategory();
+    await profileCubit.fetchBloodGroup();
   });
   
   @override

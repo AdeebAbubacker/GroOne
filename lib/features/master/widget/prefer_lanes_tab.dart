@@ -75,7 +75,7 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
               state.selectedPreferLanes;
           if ((preferredLaneItems ?? []).isNotEmpty) {
             selectedPrefLanesTypeList =
-                preferredLaneItems?.map((e) => e.masterLaneId).toList() ?? [];
+                preferredLaneItems?.map((e) => e.masterLaneId??0).toList() ?? [];
           } else {
             selectedPrefLanesTypeList = [];
           }

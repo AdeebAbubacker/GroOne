@@ -5,6 +5,7 @@ import 'package:gro_one_app/features/driver/driver_profile/view/driver_account_s
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_setting_screen.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/view/support_screen.dart';
+import 'package:gro_one_app/features/profile/view/widgets/add_new_support_ticket.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -181,7 +182,7 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
             imageString: AppImage.svg.support,
             text: context.appText.support,
             onTap: () {
-              Navigator.of(context).push(commonRoute(LpSupport(), isForward: true));
+              Navigator.of(context).push(commonRoute(LpSupport(ticketTag: TicketTags.DRIVER), isForward: true));
             },
           ),
           commonDivider(),

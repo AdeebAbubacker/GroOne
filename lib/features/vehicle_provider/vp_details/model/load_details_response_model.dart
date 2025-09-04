@@ -1674,93 +1674,100 @@ class VpLog {
 
 
 class VpLoadApproval {
-    VpLoadApproval({
-        required this.id,
-        required this.loadId,
-        required this.rejectionReason,
-        required this.documentApproved,
-        required this.damageAndShortagesApproved,
-        required this.damageAndShortagesRejectionReason,
-        required this.settlementApproved,
-        required this.settlementRejectionReason,
-        required this.paymentApproved,
-        required this.podApproved,
-        required this.approvedBy,
-        required this.createdAt,
-        required this.updatedAt,
-        required this.deletedAt,
-    });
+  VpLoadApproval({
+    this.id,
+    this.loadId,
+    this.rejectionReason,
+    this.documentApproved,
+    this.damageAndShortagesApproved,
+    this.damageAndShortagesRejectionReason,
+    this.settlementApproved,
+    this.settlementRejectionReason,
+    this.paymentApproved,
+    this.podApproved,
+    this.approvedBy,
+    this.createdAt,
+    this.updatedAt,
+    this.deletedAt,
+  });
 
-    final String id;
-    final String loadId;
-    final dynamic rejectionReason;
-    final bool documentApproved;
-    final dynamic damageAndShortagesApproved;
-    final String damageAndShortagesRejectionReason;
-    final dynamic settlementApproved;
-    final dynamic settlementRejectionReason;
-    final dynamic paymentApproved;
-    final bool podApproved;
-    final String approvedBy;
-    final DateTime? createdAt;
-    final DateTime? updatedAt;
-    final dynamic deletedAt;
+  final String? id;
+  final String? loadId;
+  final dynamic rejectionReason;
+  final bool? documentApproved;
+  final dynamic damageAndShortagesApproved;
+  final String? damageAndShortagesRejectionReason;
+  final dynamic settlementApproved;
+  final dynamic settlementRejectionReason;
+  final dynamic paymentApproved;
+  final bool? podApproved;
+  final String? approvedBy;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final dynamic deletedAt;
 
-    VpLoadApproval copyWith({
-        String? id,
-        String? loadId,
-        dynamic rejectionReason,
-        bool? documentApproved,
-        dynamic damageAndShortagesApproved,
-        String? damageAndShortagesRejectionReason,
-        dynamic settlementApproved,
-        dynamic settlementRejectionReason,
-        dynamic paymentApproved,
-        bool? podApproved,
-        String? approvedBy,
-        DateTime? createdAt,
-        DateTime? updatedAt,
-        dynamic deletedAt,
-    }) {
-        return VpLoadApproval(
-            id: id ?? this.id,
-            loadId: loadId ?? this.loadId,
-            rejectionReason: rejectionReason ?? this.rejectionReason,
-            documentApproved: documentApproved ?? this.documentApproved,
-            damageAndShortagesApproved: damageAndShortagesApproved ?? this.damageAndShortagesApproved,
-            damageAndShortagesRejectionReason: damageAndShortagesRejectionReason ?? this.damageAndShortagesRejectionReason,
-            settlementApproved: settlementApproved ?? this.settlementApproved,
-            settlementRejectionReason: settlementRejectionReason ?? this.settlementRejectionReason,
-            paymentApproved: paymentApproved ?? this.paymentApproved,
-            podApproved: podApproved ?? this.podApproved,
-            approvedBy: approvedBy ?? this.approvedBy,
-            createdAt: createdAt ?? this.createdAt,
-            updatedAt: updatedAt ?? this.updatedAt,
-            deletedAt: deletedAt ?? this.deletedAt,
-        );
-    }
+  VpLoadApproval copyWith({
+    String? id,
+    String? loadId,
+    dynamic rejectionReason,
+    bool? documentApproved,
+    dynamic damageAndShortagesApproved,
+    String? damageAndShortagesRejectionReason,
+    dynamic settlementApproved,
+    dynamic settlementRejectionReason,
+    dynamic paymentApproved,
+    bool? podApproved,
+    String? approvedBy,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    dynamic deletedAt,
+  }) {
+    return VpLoadApproval(
+      id: id ?? this.id,
+      loadId: loadId ?? this.loadId,
+      rejectionReason: rejectionReason ?? this.rejectionReason,
+      documentApproved: documentApproved ?? this.documentApproved,
+      damageAndShortagesApproved:
+      damageAndShortagesApproved ?? this.damageAndShortagesApproved,
+      damageAndShortagesRejectionReason:
+      damageAndShortagesRejectionReason ?? this.damageAndShortagesRejectionReason,
+      settlementApproved: settlementApproved ?? this.settlementApproved,
+      settlementRejectionReason:
+      settlementRejectionReason ?? this.settlementRejectionReason,
+      paymentApproved: paymentApproved ?? this.paymentApproved,
+      podApproved: podApproved ?? this.podApproved,
+      approvedBy: approvedBy ?? this.approvedBy,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
 
-    factory VpLoadApproval.fromJson(Map<String, dynamic> json){ 
-        return VpLoadApproval(
-            id: json["id"] ?? "",
-            loadId: json["loadId"] ?? "",
-            rejectionReason: json["rejectionReason"],
-            documentApproved: json["documentApproved"] ?? false,
-            damageAndShortagesApproved: (json["damageAndShortagesApproved"] == null ||
-                            (json["damageAndShortagesApproved"] is Map && json["damageAndShortagesApproved"].isEmpty))
-            ? ""
-            : json["damageAndShortagesApproved"],
-
-            damageAndShortagesRejectionReason: json["damageAndShortagesRejectionReason"] ?? "",
-            settlementApproved: json["settlementApproved"],
-            settlementRejectionReason: json["settlementRejectionReason"],
-            paymentApproved: json["paymentApproved"],
-            podApproved: json["podApproved"] ?? false,
-            approvedBy: json["approvedBy"] ?? "",
-            createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
-            updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
-            deletedAt: json["deletedAt"],
-        );
-    }
-
+  factory VpLoadApproval.fromJson(Map<String, dynamic> json) {
+    return VpLoadApproval(
+      id: json["id"],
+      loadId: json["loadId"],
+      rejectionReason: json["rejectionReason"],
+      documentApproved: json["documentApproved"],
+      damageAndShortagesApproved: (json["damageAndShortagesApproved"] == null ||
+          (json["damageAndShortagesApproved"] is Map &&
+              json["damageAndShortagesApproved"].isEmpty))
+          ? null
+          : json["damageAndShortagesApproved"],
+      damageAndShortagesRejectionReason: json["damageAndShortagesRejectionReason"],
+      settlementApproved: json["settlementApproved"],
+      settlementRejectionReason: json["settlementRejectionReason"],
+      paymentApproved: json["paymentApproved"],
+      podApproved: json["podApproved"],
+      approvedBy: json["approvedBy"],
+      createdAt: json["createdAt"] != null
+          ? DateTime.tryParse(json["createdAt"])
+          : null,
+      updatedAt: json["updatedAt"] != null
+          ? DateTime.tryParse(json["updatedAt"])
+          : null,
+      deletedAt: json["deletedAt"],
+    );
+  }
 }
+
