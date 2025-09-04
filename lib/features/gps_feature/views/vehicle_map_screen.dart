@@ -59,7 +59,6 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
       }
     } catch (e) {
       // Handle any errors that might occur during emit
-      debugPrint('SelectedVehicleCubit select error: $e');
     }
   }
 }
@@ -113,7 +112,7 @@ class _VehicleMapContent extends StatelessWidget {
           }
         }
       } catch (e) {
-        debugPrint('Safe select vehicle error: $e');
+        // Error selecting vehicle
       }
     });
   }
@@ -210,464 +209,389 @@ class _VehicleMapContent extends StatelessWidget {
                 }
               }();
               return Scaffold(
-                body: Stack(
-                  children: [
-                    BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
-                      builder: (context, geofenceState) {
-                        debugPrint(
-                          '📍 Geofence state: ${geofenceState.runtimeType}',
-                        );
-
-                        // Load geofences if not already loaded
-                        if (geofenceState is GpsGeofenceInitial) {
-                          debugPrint('📍 Loading geofences...');
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            context.read<GpsGeofenceCubit>().loadGeofences();
-                          });
-                        }
-
-                        // Check if geofence display is enabled
-                        final showGeofenceOnMap =
-                            GpsSessionManager.isShowGeofenceOnMapEnabled();
-                        debugPrint(
-                          '📍 Show geofence on map: $showGeofenceOnMap',
-                        );
-
-                        // Add a test circle for debugging
-                        Set<Circle> testCircles = {};
-                        if (showGeofenceOnMap) {
-                          testCircles.add(
-                            Circle(
-                              circleId: const CircleId("test_circle"),
-                              center: const LatLng(
-                                28.6139,
-                                77.2090,
-                              ), // Delhi coordinates
-                              radius: 1000,
-                              fillColor: const Color(
-                                0x33FF0000,
-                              ), // Red with 20% opacity
-                              strokeColor: Colors.red,
-                              strokeWidth: 3,
-                            ),
-                          );
-                          debugPrint('📍 Added test circle for debugging');
-                        }
-
-                        if (showGeofenceOnMap &&
-                            geofenceState is GpsGeofenceLoaded) {
-                          debugPrint(
-                            '📍 Geofences loaded: ${geofenceState.geofences.length} geofences',
-                          );
-
-                          // Debug: Print all geofences
-                          for (final geofence in geofenceState.geofences) {
-                            debugPrint(
-                              '📍 Available geofence: ${geofence.id} - ${geofence.name} - ${geofence.shapeType}',
-                            );
-                            if (geofence.shapeType == 'circle') {
-                              debugPrint(
-                                '📍 Circle data: center=${geofence.center}, radius=${geofence.radius}',
-                              );
-                            } else if (geofence.shapeType == 'polygon' ||
-                                geofence.shapeType == 'polyline') {
-                              debugPrint(
-                                '📍 ${geofence.shapeType} data: points=${geofence.polygonPoints?.length}',
-                              );
-                            }
+                body: RefreshIndicator(
+                  onRefresh: () => _performRefresh(context),
+                  child: Stack(
+                    children: [
+                      BlocBuilder<GpsGeofenceCubit, GpsGeofenceState>(
+                        builder: (context, geofenceState) {
+                          // Load geofences if not already loaded
+                          if (geofenceState is GpsGeofenceInitial) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              context.read<GpsGeofenceCubit>().loadGeofences();
+                            });
                           }
 
-                          return FutureBuilder<Map<String, bool>>(
-                            future: _loadGeofenceToggles(),
-                            builder: (context, toggleSnapshot) {
-                              Set<Circle> circles = {};
-                              Set<Polygon> polygons = {};
-                              Set<Polyline> polylines = {};
+                          // Check if geofence display is enabled
+                          final showGeofenceOnMap =
+                              GpsSessionManager.isShowGeofenceOnMapEnabled();
 
-                              if (toggleSnapshot.hasData) {
-                                final toggleMap = toggleSnapshot.data!;
-                                debugPrint('📍 Toggle map: $toggleMap');
+                          if (showGeofenceOnMap &&
+                              geofenceState is GpsGeofenceLoaded) {
+                            return FutureBuilder<Map<String, bool>>(
+                              future: _loadGeofenceToggles(),
+                              builder: (context, toggleSnapshot) {
+                                Set<Circle> circles = {};
+                                Set<Polygon> polygons = {};
+                                Set<Polyline> polylines = {};
 
-                                for (final geofence
-                                    in geofenceState.geofences) {
-                                  final shouldShow =
-                                      toggleMap[geofence.id] ?? false;
-                                  debugPrint(
-                                    '📍 Geofence ${geofence.id} (${geofence.name}): shouldShow = $shouldShow, shapeType = ${geofence.shapeType}',
-                                  );
+                                if (toggleSnapshot.hasData) {
+                                  final toggleMap = toggleSnapshot.data!;
 
-                                  // TEMPORARY: Show all geofences for testing
-                                  final testShow =
-                                      true; // Set to true to show all geofences
+                                  for (final geofence
+                                      in geofenceState.geofences) {
+                                    final shouldShow =
+                                        toggleMap[geofence.id] ?? false;
 
-                                  if (shouldShow || testShow) {
-                                    if (geofence.shapeType == 'circle' &&
-                                        geofence.center != null &&
-                                        geofence.radius != null) {
-                                      circles.add(
-                                        Circle(
-                                          circleId: CircleId(
-                                            "geofence_circle_${geofence.id}",
+                                    if (shouldShow) {
+                                      if (geofence.shapeType == 'circle' &&
+                                          geofence.center != null &&
+                                          geofence.radius != null) {
+                                        circles.add(
+                                          Circle(
+                                            circleId: CircleId(
+                                              "geofence_circle_${geofence.id}",
+                                            ),
+                                            center: geofence.center!,
+                                            radius: geofence.radius!,
+                                            fillColor: const Color(
+                                              0x330000FF,
+                                            ), // Blue with 20% opacity
+                                            strokeColor: Colors.blue,
+                                            strokeWidth: 2,
                                           ),
-                                          center: geofence.center!,
-                                          radius: geofence.radius!,
-                                          fillColor: const Color(
-                                            0x330000FF,
-                                          ), // Blue with 20% opacity
-                                          strokeColor: Colors.blue,
-                                          strokeWidth: 2,
-                                        ),
-                                      );
-                                      debugPrint(
-                                        '📍 Added circle geofence: ${geofence.name} at ${geofence.center} with radius ${geofence.radius}',
-                                      );
-                                    } else if (geofence.shapeType ==
-                                            'polygon' &&
-                                        geofence.polygonPoints != null &&
-                                        geofence.polygonPoints!.isNotEmpty) {
-                                      polygons.add(
-                                        Polygon(
-                                          polygonId: PolygonId(
-                                            "geofence_polygon_${geofence.id}",
+                                        );
+                                      } else if (geofence.shapeType ==
+                                              'polygon' &&
+                                          geofence.polygonPoints != null &&
+                                          geofence.polygonPoints!.isNotEmpty) {
+                                        polygons.add(
+                                          Polygon(
+                                            polygonId: PolygonId(
+                                              "geofence_polygon_${geofence.id}",
+                                            ),
+                                            points: geofence.polygonPoints!,
+                                            fillColor: const Color(
+                                              0x3300FF00,
+                                            ), // Green with 20% opacity
+                                            strokeColor: Colors.green,
+                                            strokeWidth: 2,
                                           ),
-                                          points: geofence.polygonPoints!,
-                                          fillColor: const Color(
-                                            0x3300FF00,
-                                          ), // Green with 20% opacity
-                                          strokeColor: Colors.green,
-                                          strokeWidth: 2,
-                                        ),
-                                      );
-                                      debugPrint(
-                                        '📍 Added polygon geofence: ${geofence.name} with ${geofence.polygonPoints!.length} points',
-                                      );
-                                    } else if (geofence.shapeType ==
-                                            'polyline' &&
-                                        geofence.polygonPoints != null &&
-                                        geofence.polygonPoints!.isNotEmpty) {
-                                      polylines.add(
-                                        Polyline(
-                                          polylineId: PolylineId(
-                                            "geofence_polyline_${geofence.id}",
+                                        );
+                                      } else if (geofence.shapeType ==
+                                              'polyline' &&
+                                          geofence.polygonPoints != null &&
+                                          geofence.polygonPoints!.isNotEmpty) {
+                                        polylines.add(
+                                          Polyline(
+                                            polylineId: PolylineId(
+                                              "geofence_polyline_${geofence.id}",
+                                            ),
+                                            points: geofence.polygonPoints!,
+                                            color: Colors.red,
+                                            width: 3,
                                           ),
-                                          points: geofence.polygonPoints!,
-                                          color: Colors.red,
-                                          width: 3,
-                                        ),
-                                      );
-                                      debugPrint(
-                                        '📍 Added polyline geofence: ${geofence.name} with ${geofence.polygonPoints!.length} points',
-                                      );
-                                    } else {
-                                      debugPrint(
-                                        '📍 Skipped geofence ${geofence.name}: invalid data',
-                                      );
+                                        );
+                                      }
                                     }
                                   }
                                 }
 
-                                debugPrint(
-                                  '📍 Final counts - circles: ${circles.length}, polygons: ${polygons.length}, polylines: ${polylines.length}',
+                                return GpsMapHelper.createGpsMap(
+                                  initialCameraPosition: initialCameraPosition,
+                                  markers: markers,
+                                  circles: circles,
+                                  polygons: polygons,
+                                  polylines: polylines,
+                                  myLocationButtonEnabled: false,
+                                  zoomControlsEnabled: true,
+                                  mapType:
+                                      context
+                                          .watch<VehicleListCubit>()
+                                          .state
+                                          .mapType,
+                                  trafficEnabled:
+                                      context
+                                          .watch<VehicleListCubit>()
+                                          .state
+                                          .trafficEnabled,
+                                  onMapCreated: (controller) {
+                                    GpsMapHelper.handleMapCreated(
+                                      controller,
+                                      mapController,
+                                      null,
+                                    );
+                                  },
+                                  onTap: (LatLng position) {
+                                    // Hide bottom sheet and top card when tapping on map (not on vehicle)
+                                    _safeSelectVehicle(context, null);
+                                  },
                                 );
-                              } else {
-                                debugPrint('📍 Toggle snapshot has no data');
-                              }
-
-                              // Combine test circles with actual geofences
-                              circles.addAll(testCircles);
-
-                              return GpsMapHelper.createGpsMap(
-                                initialCameraPosition: initialCameraPosition,
-                                markers: markers,
-                                circles: circles,
-                                polygons: polygons,
-                                polylines: polylines,
-                                myLocationButtonEnabled: false,
-                                zoomControlsEnabled: true,
-                                mapType:
-                                    context
-                                        .watch<VehicleListCubit>()
-                                        .state
-                                        .mapType,
-                                trafficEnabled:
-                                    context
-                                        .watch<VehicleListCubit>()
-                                        .state
-                                        .trafficEnabled,
-                                onMapCreated: (controller) {
-                                  GpsMapHelper.handleMapCreated(
-                                    controller,
-                                    mapController,
-                                    null,
-                                  );
-                                },
-                                onTap: (LatLng position) {
-                                  // Hide bottom sheet and top card when tapping on map (not on vehicle)
-                                  _safeSelectVehicle(context, null);
-                                },
-                              );
-                            },
-                          );
-                        } else {
-                          debugPrint(
-                            '📍 Not showing geofences: showGeofenceOnMap=$showGeofenceOnMap, state=${geofenceState.runtimeType}',
-                          );
-
-                          // Show test circle even if no geofences are loaded
-                          return GpsMapHelper.createGpsMap(
-                            initialCameraPosition: initialCameraPosition,
-                            markers: markers,
-                            circles: testCircles,
-                            myLocationButtonEnabled: false,
-                            zoomControlsEnabled: true,
-                            mapType:
-                                context.watch<VehicleListCubit>().state.mapType,
-                            trafficEnabled:
-                                context
-                                    .watch<VehicleListCubit>()
-                                    .state
-                                    .trafficEnabled,
-                            onMapCreated: (controller) {
-                              GpsMapHelper.handleMapCreated(
-                                controller,
-                                mapController,
-                                null,
-                              );
-                            },
-                            onTap: (LatLng position) {
-                              // Hide bottom sheet and top card when tapping on map (not on vehicle)
-                              _safeSelectVehicle(context, null);
-                            },
-                          );
-                        }
-                      },
-                    ),
-                    if (selectedVehicle == null) ...[
-                      Positioned(
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        child: Container(
-                          color: Colors.white,
-                          padding: const EdgeInsets.only(
-                            top: 36,
-                            left: 16,
-                            right: 16,
-                            bottom: 12,
-                          ),
-                          child: Row(
-                            children: [
-                              IconButton(
-                                icon: const Icon(
-                                  Icons.arrow_back,
-                                  color: Colors.black,
-                                ),
-                                onPressed: () => context.pop(),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Text(
-                                  'SB Matric School',
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 18,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Positioned(
-                        right: 16,
-                        bottom: 60,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            elevation: 4,
-                          ),
-                          icon: Icon(Icons.list, color: Colors.blue),
-                          label: const Text(
-                            'List View',
-                            style: TextStyle(
-                              color: Colors.blue,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 16,
-                            ),
-                          ),
-                          onPressed: () {
-                            context.pop();
-                          },
-                        ),
-                      ),
-                    ],
-                    if (selectedVehicle != null) ...[
-                      Positioned(
-                        top: 24,
-                        left: 16,
-                        right: 16,
-                        child: _VehicleInfoOverlayCard(
-                          vehicle: selectedVehicle,
-                        ),
-                      ),
-                      DraggableScrollableSheet(
-                        initialChildSize: 0.35,
-                        minChildSize: 0.2,
-                        maxChildSize: 0.85,
-                        builder: (context, scrollController) {
-                          return _VehicleBottomCard(
-                            vehicle: selectedVehicle,
-                            scrollController: scrollController,
-                          );
+                              },
+                            );
+                          } else {
+                            return GpsMapHelper.createGpsMap(
+                              initialCameraPosition: initialCameraPosition,
+                              markers: markers,
+                              myLocationButtonEnabled: false,
+                              zoomControlsEnabled: true,
+                              mapType:
+                                  context
+                                      .watch<VehicleListCubit>()
+                                      .state
+                                      .mapType,
+                              trafficEnabled:
+                                  context
+                                      .watch<VehicleListCubit>()
+                                      .state
+                                      .trafficEnabled,
+                              onMapCreated: (controller) {
+                                GpsMapHelper.handleMapCreated(
+                                  controller,
+                                  mapController,
+                                  null,
+                                );
+                              },
+                              onTap: (LatLng position) {
+                                // Hide bottom sheet and top card when tapping on map (not on vehicle)
+                                _safeSelectVehicle(context, null);
+                              },
+                            );
+                          }
                         },
                       ),
-                    ],
-                    // Current Location Button
-                    Positioned(
-                      right: 16,
-                      bottom: 180,
-                      child: GpsMapHelper.createMapFloatingButton(
-                        icon: Icons.my_location,
-                        heroTag: "currentLocation",
-                        onPressed: () async {
-                          try {
-                            final locationService = LocationService();
-                            final result =
-                                await locationService.getCurrentLatLong();
-                            if (result is Success<geo.Position>) {
-                              final position = result.value;
-                              final controller = await mapController.future;
-                              await GpsMapHelper.animateToLocation(
-                                controller,
-                                LatLng(position.latitude, position.longitude),
-                                zoom: 15,
-                              );
-                            } else if (result is Error<geo.Position>) {
+                      if (selectedVehicle == null) ...[
+                        Positioned(
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          child: Container(
+                            color: Colors.white,
+                            padding: const EdgeInsets.only(
+                              top: 36,
+                              left: 16,
+                              right: 16,
+                              bottom: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.arrow_back,
+                                    color: Colors.black,
+                                  ),
+                                  onPressed: () => context.pop(),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    'SB Matric School',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 18,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Positioned(
+                          right: 16,
+                          bottom: 60,
+                          child: ElevatedButton.icon(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              elevation: 4,
+                            ),
+                            icon: Icon(Icons.list, color: Colors.blue),
+                            label: const Text(
+                              'List View',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                              ),
+                            ),
+                            onPressed: () {
+                              context.pop();
+                            },
+                          ),
+                        ),
+                      ],
+                      if (selectedVehicle != null) ...[
+                        Positioned(
+                          top: 24,
+                          left: 16,
+                          right: 16,
+                          child: _VehicleInfoOverlayCard(
+                            vehicle: selectedVehicle,
+                          ),
+                        ),
+                        DraggableScrollableSheet(
+                          initialChildSize: 0.35,
+                          minChildSize: 0.2,
+                          maxChildSize: 0.85,
+                          builder: (context, scrollController) {
+                            return _VehicleBottomCard(
+                              vehicle: selectedVehicle,
+                              scrollController: scrollController,
+                            );
+                          },
+                        ),
+                      ],
+
+                      // Current Location Button
+                      Positioned(
+                        right: 16,
+                        bottom: 180,
+                        child: GpsMapHelper.createMapFloatingButton(
+                          icon: Icons.my_location,
+                          heroTag: "currentLocation",
+                          onPressed: () async {
+                            try {
+                              final locationService = LocationService();
+                              final result =
+                                  await locationService.getCurrentLatLong();
+                              if (result is Success<geo.Position>) {
+                                final position = result.value;
+                                final controller = await mapController.future;
+                                await GpsMapHelper.animateToLocation(
+                                  controller,
+                                  LatLng(position.latitude, position.longitude),
+                                  zoom: 15,
+                                );
+                              } else if (result is Error<geo.Position>) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(result.type.getText(context)),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            } catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(result.type.getText(context)),
+                                const SnackBar(
+                                  content: Text(
+                                    'Error getting current location',
+                                  ),
                                   backgroundColor: Colors.red,
                                 ),
                               );
                             }
-                          } catch (e) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Error getting current location'),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                          }
-                        },
+                          },
+                        ),
                       ),
-                    ),
-                    Positioned(
-                      right: 16,
-                      bottom: 260,
-                      child: MapFloatingMenu(
-                        onToggleTraffic:
-                            () =>
-                                context
-                                    .read<VehicleListCubit>()
-                                    .toggleTraffic(),
-                        onToggleMapType:
-                            () =>
-                                context
-                                    .read<VehicleListCubit>()
-                                    .toggleMapType(),
-                        onReachability: () {
-                          // Navigate to GPS reports screen with reachability pre-selected
-                          context.push(
-                            AppRouteName.gpsReports,
-                            extra: {
-                              'preSelectedReportType': 'reachability',
-                              'preSelectedVehicle': selectedVehicle,
-                            },
-                          );
-                        },
-                        onNearbyVehicles: () async {
-                          final locationService = LocationService();
-                          final result =
-                              await locationService.getCurrentLatLong();
-                          if (result is Success<geo.Position>) {
-                            final userPos = result.value;
-                            double minDistance = double.infinity;
-                            GpsCombinedVehicleData? nearestVehicle;
-                            double? nearestDistance;
+                      Positioned(
+                        right: 16,
+                        bottom: 260,
+                        child: MapFloatingMenu(
+                          onToggleTraffic:
+                              () =>
+                                  context
+                                      .read<VehicleListCubit>()
+                                      .toggleTraffic(),
+                          onToggleMapType:
+                              () =>
+                                  context
+                                      .read<VehicleListCubit>()
+                                      .toggleMapType(),
+                          onReachability: () {
+                            // Navigate to GPS reports screen with reachability pre-selected
+                            context.push(
+                              AppRouteName.gpsReports,
+                              extra: {
+                                'preSelectedReportType': 'reachability',
+                                'preSelectedVehicle': selectedVehicle,
+                              },
+                            );
+                          },
+                          onNearbyVehicles: () async {
+                            final locationService = LocationService();
+                            final result =
+                                await locationService.getCurrentLatLong();
+                            if (result is Success<geo.Position>) {
+                              final userPos = result.value;
+                              double minDistance = double.infinity;
+                              GpsCombinedVehicleData? nearestVehicle;
+                              double? nearestDistance;
 
-                            for (final vehicle in vehicles) {
-                              if (vehicle.location != null &&
-                                  vehicle.location!.contains(',')) {
-                                final parts = vehicle.location!.split(',');
-                                final lat = double.tryParse(parts[0].trim());
-                                final lng = double.tryParse(parts[1].trim());
-                                if (lat != null && lng != null) {
-                                  final distance =
-                                      geo.Geolocator.distanceBetween(
-                                        userPos.latitude,
-                                        userPos.longitude,
-                                        lat,
-                                        lng,
-                                      ) /
-                                      1000; // in km
-                                  if (distance < minDistance) {
-                                    minDistance = distance;
-                                    nearestVehicle = vehicle;
-                                    nearestDistance = distance;
+                              for (final vehicle in vehicles) {
+                                if (vehicle.location != null &&
+                                    vehicle.location!.contains(',')) {
+                                  final parts = vehicle.location!.split(',');
+                                  final lat = double.tryParse(parts[0].trim());
+                                  final lng = double.tryParse(parts[1].trim());
+                                  if (lat != null && lng != null) {
+                                    final distance =
+                                        geo.Geolocator.distanceBetween(
+                                          userPos.latitude,
+                                          userPos.longitude,
+                                          lat,
+                                          lng,
+                                        ) /
+                                        1000; // in km
+                                    if (distance < minDistance) {
+                                      minDistance = distance;
+                                      nearestVehicle = vehicle;
+                                      nearestDistance = distance;
+                                    }
                                   }
                                 }
                               }
-                            }
 
-                            if (nearestVehicle != null &&
-                                nearestDistance != null) {
-                              showDialog(
-                                context: context,
-                                builder:
-                                    (_) => NearestVehicleDialog(
-                                      vehicle: nearestVehicle!,
-                                      distance: nearestDistance!,
-                                    ),
-                              );
+                              if (nearestVehicle != null &&
+                                  nearestDistance != null) {
+                                showDialog(
+                                  context: context,
+                                  builder:
+                                      (_) => NearestVehicleDialog(
+                                        vehicle: nearestVehicle!,
+                                        distance: nearestDistance!,
+                                      ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('No vehicles found'),
+                                  ),
+                                );
+                              }
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text('No vehicles found'),
+                                  content: Text(
+                                    'Could not get current location',
+                                  ),
                                 ),
                               );
                             }
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Could not get current location'),
-                              ),
+                          },
+                          onNearbyPlaces: () {
+                            showModalBottomSheet(
+                              context: context,
+                              backgroundColor: Colors.transparent,
+                              isScrollControlled: true,
+                              builder:
+                                  (context) => const NearbyPlacesBottomSheet(),
                             );
-                          }
-                        },
-                        onNearbyPlaces: () {
-                          showModalBottomSheet(
-                            context: context,
-                            backgroundColor: Colors.transparent,
-                            isScrollControlled: true,
-                            builder:
-                                (context) => const NearbyPlacesBottomSheet(),
-                          );
-                        },
-                        isTrafficEnabled:
-                            context
-                                .watch<VehicleListCubit>()
-                                .state
-                                .trafficEnabled,
-                        isSatellite:
-                            context.watch<VehicleListCubit>().state.mapType ==
-                            MapType.satellite,
+                          },
+                          isTrafficEnabled:
+                              context
+                                  .watch<VehicleListCubit>()
+                                  .state
+                                  .trafficEnabled,
+                          isSatellite:
+                              context.watch<VehicleListCubit>().state.mapType ==
+                              MapType.satellite,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -788,23 +712,6 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
             const SizedBox(height: 8),
             Row(
               children: [
-                Icon(Icons.signal_cellular_alt, color: Colors.green, size: 18),
-                const SizedBox(width: 4),
-                Icon(Icons.battery_full, color: Colors.blue, size: 18),
-                const SizedBox(width: 2),
-                Text(
-                  _formatNetworkSignal(vehicle.networkSignal),
-                  style: TextStyle(
-                    color: Colors.blue,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
                 Expanded(
                   child: Text(
                     _formatStatusDuration(vehicle.statusDuration),
@@ -815,7 +722,26 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                     ),
                   ),
                 ),
-                Icon(Icons.refresh, size: 20, color: Colors.black54),
+                BlocBuilder<VehicleListCubit, VehicleListState>(
+                  builder: (context, vehicleState) {
+                    final isRefreshing =
+                        vehicleState.vehicleDataState?.status == Status.LOADING;
+
+                    return GestureDetector(
+                      onTap:
+                          isRefreshing ? null : () => _performRefresh(context),
+                      child: AnimatedRotation(
+                        turns: isRefreshing ? 1 : 0,
+                        duration: const Duration(milliseconds: 500),
+                        child: Icon(
+                          Icons.refresh,
+                          size: 20,
+                          color: isRefreshing ? Colors.blue : Colors.black54,
+                        ),
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           ],
@@ -930,21 +856,6 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
         return Colors.orange;
       default:
         return Colors.grey;
-    }
-  }
-
-  String _formatNetworkSignal(int? networkSignal) {
-    if (networkSignal == null) return '-';
-
-    // Network signal is typically 0-5 or 0-100
-    if (networkSignal >= 0 && networkSignal <= 5) {
-      // Convert 0-5 scale to percentage
-      final percentage = (networkSignal / 5 * 100).round();
-      return '${percentage}%';
-    } else if (networkSignal >= 0 && networkSignal <= 100) {
-      return '${networkSignal}%';
-    } else {
-      return '${networkSignal}';
     }
   }
 
@@ -1607,7 +1518,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                               icon: Icons.electric_car,
                               iconColor: Colors.green,
                               label: 'GPS Btt',
-                              value: _getGPSBatteryDisplay(),
+                              value: _getVehicleBatteryDisplay(),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -1616,7 +1527,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                               icon: Icons.battery_charging_full,
                               iconColor: Colors.green,
                               label: 'Vehicle Btt',
-                              value: _getVehicleBatteryDisplay(),
+                              value: _getGPSBatteryDisplay(),
                               valueColor: Colors.black,
                             ),
                           ),
@@ -1759,29 +1670,18 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
       final DateTime idleFixTimeLocal = idleFixTimeUtc.toLocal();
       final DateTime idleFixTimeKeyLocal = idleFixTimeKeyUtc.toLocal();
 
-      // Debug logging
-      debugPrint('🕐 Idle Time Debug:');
-      debugPrint('  idleFixTime (UTC): $idleFixTime');
-      debugPrint('  idleFixTimeKey (UTC): $idleFixTimeKey');
-      debugPrint('  idleFixTime (Local): $idleFixTimeLocal');
-      debugPrint('  idleFixTimeKey (Local): $idleFixTimeKeyLocal');
-
       // Calculate the difference - always subtract the earlier time from the later time
       Duration difference;
       if (idleFixTimeLocal.isAfter(idleFixTimeKeyLocal)) {
         difference = idleFixTimeLocal.difference(idleFixTimeKeyLocal);
-        debugPrint('  Calculation: idleFixTime - idleFixTimeKey');
       } else {
         difference = idleFixTimeKeyLocal.difference(idleFixTimeLocal);
-        debugPrint('  Calculation: idleFixTimeKey - idleFixTime');
       }
 
       // Format the duration
       final int totalSeconds = difference.inSeconds;
-      debugPrint('  Total seconds: $totalSeconds');
 
       if (totalSeconds < 0) {
-        debugPrint('  Result: Invalid time difference');
         return '-'; // Invalid time difference
       }
 
@@ -1799,10 +1699,8 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
         result = '0m';
       }
 
-      debugPrint('  Result: $result');
       return result;
     } catch (e) {
-      debugPrint('  Error parsing timestamps: $e');
       // If parsing fails, fall back to the original idleTime
       return _formatIdleTime(widget.vehicle.idleTime);
     }
@@ -1922,12 +1820,31 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                 }
               }
             }
+            // Also try other common temperature field names
+            if (posAttrMap.containsKey('temperature')) {
+              final tempValue = posAttrMap['temperature'];
+              if (tempValue != null) {
+                final temp = double.tryParse(tempValue.toString());
+                if (temp != null) {
+                  return '${temp.toStringAsFixed(1)}°C';
+                }
+              }
+            }
+            if (posAttrMap.containsKey('temp')) {
+              final tempValue = posAttrMap['temp'];
+              if (tempValue != null) {
+                final temp = double.tryParse(tempValue.toString());
+                if (temp != null) {
+                  return '${temp.toStringAsFixed(1)}°C';
+                }
+              }
+            }
           } catch (e) {
             // JSON parsing failed
           }
         }
-        // If no temperature in posAttr, show the timestamp
-        return '${dateTime.hour}:${dateTime.minute.toString().padLeft(2, '0')}';
+        // If no temperature found in posAttr, return N/A instead of timestamp
+        return 'N/A';
       } catch (e) {
         // Timestamp parsing failed
       }
@@ -3355,6 +3272,75 @@ class _RouteOption extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+// Helper function for refresh functionality
+Future<void> _performRefresh(BuildContext context) async {
+  try {
+    // Show loading state
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Row(
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              ),
+            ),
+            SizedBox(width: 12),
+            Text('Refreshing GPS data...'),
+          ],
+        ),
+        backgroundColor: Colors.blue,
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    // Trigger GPS data refresh using the lifecycle extension
+    await context.gpsManualRefresh();
+
+    // Also refresh vehicle list data
+    await context.read<VehicleListCubit>().refreshData();
+
+    // Show success message
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white, size: 16),
+              SizedBox(width: 12),
+              Text('GPS data refreshed successfully!'),
+            ],
+          ),
+          backgroundColor: Colors.green,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (e) {
+    // Show error message
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white, size: 16),
+              SizedBox(width: 12),
+              Text('Failed to refresh GPS data'),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 3),
+        ),
+      );
+    }
   }
 }
 
