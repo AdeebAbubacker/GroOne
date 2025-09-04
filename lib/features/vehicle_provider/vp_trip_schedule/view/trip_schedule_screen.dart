@@ -268,7 +268,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                                   expectedDeliveryDate:
                                       loadDetails?.expectedDeliveryDateTime
                                           ?.toString(),
-                                  vehicleId: truckType,
+                                  vehicleId: truckType ?? "0",
                                   driverId: driverType ?? "0",
                                   acceptedBy: userId ?? "",
                                   etaForPickUp:
@@ -402,42 +402,70 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     final driverNames =
         driverList.map((driver) {
           final status = driver.activeStatus.trim().toLowerCase();
-          final statusLabel = status == "inactive" ? " (On Another Trip)" : "";
+          final statusLabel = status == "inactive" ? " (On Trip)" : "";
           return "${driver.name}$statusLabel";
         }).toList();
 
+    // return SearchableDropdown(
+    //   labelText: context.appText.driverNameAndNumber,
+    //   mandatoryStar: true,
+    //   selectedItem:
+    //       selectedDriverId != null
+    //           ? driverList.firstWhere((v) => v.id == selectedDriverId).name
+    //           : null,
+    //   items: driverNames,
+    //   hintText: context.appText.select,
+    //   onChanged: (String? newDriver) {
+    //     if (newDriver != null) {
+    //       final actualName = newDriver.replaceAll(" (On Trip)", "");
+    //       final selectedDriver = driverList.firstWhere(
+    //         (v) => v.name == actualName,
+    //       );
+    //       if (selectedDriver.id != null && selectedDriver.id!.isNotEmpty) {
+    //         onDriverChanged(selectedDriver.id);
+    //       } else {
+    //         onDriverChanged(null);
+    //       }
+    //     } else {
+    //       onDriverChanged(null);
+    //     }
+    //   },
+    //   dropdownBuilder: (context, selectedItem) {
+    //     if (selectedItem == null || selectedItem.isEmpty) {
+    //       return const SizedBox.shrink();
+    //     }
+    //     return Row(children: [Text(selectedItem)]);
+    //   },
+    //   emptyBuilder:
+    //       (context, _) => const Center(child: Text("No Driver found")),
+    // );
     return SearchableDropdown(
-      labelText: context.appText.driverNameAndNumber,
-      mandatoryStar: true,
-      selectedItem:
-          selectedDriverId != null
-              ? driverList.firstWhere((v) => v.id == selectedDriverId).name
-              : null,
-      items: driverNames,
-      hintText: context.appText.select,
-      onChanged: (String? newDriver) {
-        if (newDriver != null) {
-          final actualName = newDriver.replaceAll(" (On Another Trip)", "");
-          final selectedDriver = driverList.firstWhere(
-            (v) => v.name == actualName,
-          );
-          if (selectedDriver.id != null && selectedDriver.id!.isNotEmpty) {
-            onDriverChanged(selectedDriver.id);
-          } else {
-            onDriverChanged(null);
-          }
-        } else {
-          onDriverChanged(null);
-        }
+      selectedItem: selectedDriverId != null
+          ? driverList.firstWhere((v) => v.id == selectedDriverId).name
+          : null,
+      items: driverList.map((d) => d.name).toList(),
+      hintText: "Select Driver",
+      onChanged: (value) {
+        final driver = driverList.firstWhere((d) => d.name == value);
+        onDriverChanged(driver.id);
       },
-      dropdownBuilder: (context, selectedItem) {
-        if (selectedItem == null || selectedItem.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return Row(children: [Text(selectedItem)]);
-      },
-      emptyBuilder:
-          (context, _) => const Center(child: Text("No Driver found")),
-    );
+      popupItemBuilder: (context, item, isDisabled, isSelected) {
+        final driver = driverList.firstWhere((d) => d.name == item);
+        return ListTile(
+          title: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(driver.name),
+              if (driver.activeStatus.trim().toLowerCase() == "inactive")
+                const Text(
+                  "(On Another Trip)",
+                  style: TextStyle(color: Colors.red, fontSize: 12),
+                ),
+            ],
+          ),
+          selected: isSelected,
+          enabled: !isDisabled, // 👈 respect disabled state
+        );
+});
   }
 }
