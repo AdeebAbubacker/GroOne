@@ -1317,7 +1317,9 @@
   "youCanPostOnlyOneLoad": "You can post only one load while your KYC is in progress. Please contact admin for further assistance.",
   "kycInProgressText": "KYC InProgress",
   "lanes":"Lanes",
-  "supportTicket":"Support Ticket"
+  "supportTicket":"Support Ticket",
+  "ticket":"Ticket",
+  "forAnyQueriesContactSupportTeam": "For any further queries, please contact the support team."
 
 
 }

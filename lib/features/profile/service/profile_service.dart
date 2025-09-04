@@ -38,6 +38,7 @@ import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
 import 'package:gro_one_app/features/profile/model/settings_response.dart';
+import 'package:gro_one_app/features/profile/model/ticket_message_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
@@ -721,6 +722,29 @@ Future<Result<FaqResponse>> fetchFaq({
       if (response is Success) {
         final loads = TicketResponse.fromJson(response.value);
         return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch Ticket messages
+  Future<Result<List<TicketMessageResponse>>> fetchTicketMessages({
+    required String ticketId,
+  }) async {
+    try {
+      final url = '${ApiUrls.getTicketMessages}$ticketId/messages';
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final list =
+        (response.value as List)
+            .map((json) => TicketMessageResponse.fromJson(json))
+            .toList();
+        return Success(list);
       } else if (response is Error) {
         return Error(response.type);
       } else {

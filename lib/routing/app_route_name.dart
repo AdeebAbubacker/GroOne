@@ -70,6 +70,7 @@ class AppRouteName {
   static const String lpLoadSummary = '/lpLoadSummary';
   static const String recentRoute = '/recentRoute';
   static const String paymentSummary = '/paymentSummary';
+  static const String lpSelectAddressScreen = '/lpSelectAddressScreen';
 
   static const String termsAndConditions = '/termsAndConditions';
   static const String privacyPolicy = '/privacyPolicy';

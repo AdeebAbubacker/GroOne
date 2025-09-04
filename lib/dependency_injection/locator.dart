@@ -572,6 +572,7 @@ void _registerBasicBlocs() {
     () => ProfileCubit(
       locator<ProfileRepository>(),
       locator<LpHomeRepository>(),
+      locator<LpLoadRepository>(),
       locator<KavachRepository>(),
     ),
   );
