@@ -4,6 +4,7 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/master/view/master_screen.dart';
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
@@ -29,7 +30,6 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 
-
 class TripScheduleScreen extends StatefulWidget {
   final String? loadId;
 
@@ -45,6 +45,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final cubit = locator<LoadDetailsCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
+  final profileCubit = locator<ProfileCubit>();
 
   String? truckType;
   String? driverType;
@@ -70,9 +71,9 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     String? userId = await vpHomeScreenBloc.getUserId() ?? "0";
 
     vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId.toString()));
-    vpHomeScreenBloc.add(
-      VpDriverDetailsRequested(userId: userId.toString()),
-    );
+    vpHomeScreenBloc.add(VpDriverDetailsRequested(userId: userId.toString()));
+    // _addSelfOption();
+
     //  Call your init methods
   });
 
@@ -81,6 +82,16 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
       context,
     ).push(commonRoute(MasterScreen(initialIndex: index), isForward: true));
     onRefresh();
+  }
+
+  void _addSelfOption() {
+    driverDetails.add(
+      DriverDetails(
+        self: 1,
+        name: context.appText.self,
+        id: profileCubit.state.profileDetailUIState?.data?.customer?.customerId,
+      ),
+    );
   }
 
   @override
@@ -116,9 +127,14 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
             if (state is VpDriverListSuccess) {
               setState(() {
                 driverDetails =
-                    state.driverListResponse.data
+                    (state.driverListResponse.data
                         .where((element) => element.status == 1)
-                        .toList();
+                        .toList());
+
+                // _addSelfOption();
+                driverDetails.sort(
+                  (a, b) => (b.self ?? 0).compareTo(a.self ?? 0),
+                );
               });
             }
           },
@@ -401,16 +417,16 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     // Create a list of driver names with status label
     final driverNames =
         driverList.map((driver) {
-          final status = driver.activeStatus.trim().toLowerCase();
+          final status = (driver.activeStatus??"").trim().toLowerCase();
           final statusLabel = status == "inactive" ? " (On Trip)" : "";
           return "${driver.name}$statusLabel";
         }).toList();
-        
+
     return SearchableDropdown(
       selectedItem: selectedDriverId != null
           ? driverList.firstWhere((v) => v.id == selectedDriverId).name
           : null,
-      items: driverList.map((d) => d.name).toList(),
+      items: driverList.map((d) => d.name??"").toList() ,
       hintText: context.appText.selectDriver,
       onChanged: (value) {
         final driver = driverList.firstWhere((d) => d.name == value);
@@ -422,8 +438,8 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(driver.name),
-              if (driver.activeStatus.trim().toLowerCase() == "inactive")
+              Text(driver.name??""),
+              if (driver.activeStatus?.trim().toLowerCase() == "inactive")
                  Text(
                   context.appText.onAnotherTrip,
                   style: TextStyle(color: Colors.red, fontSize: 12),

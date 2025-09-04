@@ -25,52 +25,55 @@ class DriverListResponse {
 
 class DriverDetails {
   DriverDetails({
-    required this.id,
-    required this.customerId,
-    required this.name,
-    required this.mobile,
-    required this.email,
-    required this.licenseNumber,
-    required this.licenseDocLink,
-    required this.status,
-    required this.createdAt,
-    required this.deletedAt,
-    required this.activeStatus,
-    required this.licenseExpiryDate,
+    this.id,
+    this.customerId,
+    this.name,
+    this.mobile,
+    this.email,
+    this.licenseNumber,
+    this.licenseDocLink,
+    this.status,
+    this.createdAt,
+    this.deletedAt,
+    this.activeStatus,
+    this.licenseExpiryDate,
+    this.self,
   });
 
   final String? id;
   final String? customerId;
-  final String name;
-  final String mobile;
-  final String email;
-  final String licenseNumber;
-  final String licenseDocLink;
-  final String activeStatus;
-  final num status;
+  final String? name;
+  final String? mobile;
+  final String? email;
+  final String? licenseNumber;
+  final String? licenseDocLink;
+  final String? activeStatus;
+  final num? status;
   final DateTime? createdAt;
   final dynamic deletedAt;
   final DateTime? licenseExpiryDate;
+  final int? self;
 
-  factory DriverDetails.fromJson(Map<String, dynamic> json){
+  factory DriverDetails.fromJson(Map<String, dynamic> json) {
     return DriverDetails(
-      id: json["driverId"] ?? 0,
-      customerId: json["customerId"] ?? "",
-      name: json["name"] ?? "",
-      mobile: json["mobile"] ?? "",
-      email: json["email"] ?? "",
-      licenseNumber: json["licenseNumber"] ?? "",
-      licenseDocLink: json["licenseDocLink"] ?? "",
-      activeStatus: json["activeStatus"] ?? "",
-      status: json["driverStatus"] ?? 0,
-      createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
+      id: json["driverId"]?.toString(),
+      customerId: json["customerId"]?.toString(),
+      name: json["name"]?.toString(),
+      mobile: json["mobile"]?.toString(),
+      email: json["email"]?.toString(),
+      licenseNumber: json["licenseNumber"]?.toString(),
+      licenseDocLink: json["licenseDocLink"]?.toString(),
+      activeStatus: json["activeStatus"]?.toString(),
+      status: json["driverStatus"] is num ? json["driverStatus"] : num.tryParse(json["driverStatus"]?.toString() ?? ""),
+      createdAt: json["createdAt"] != null ? DateTime.tryParse(json["createdAt"].toString()) : null,
       deletedAt: json["deletedAt"],
-      licenseExpiryDate: DateTime.tryParse(json["licenseExpiryDate"] ?? ""),
+      licenseExpiryDate: json["licenseExpiryDate"] != null ? DateTime.tryParse(json["licenseExpiryDate"].toString()) : null,
+      self: 0
     );
   }
 
   Map<String, dynamic> toJson() => {
-    "id": id,
+    "driverId": id,
     "customerId": customerId,
     "name": name,
     "mobile": mobile,
@@ -78,10 +81,12 @@ class DriverDetails {
     "licenseNumber": licenseNumber,
     "licenseDocLink": licenseDocLink,
     "activeStatus": activeStatus,
-    "status": status,
+    "driverStatus": status,
     "createdAt": createdAt?.toIso8601String(),
     "deletedAt": deletedAt,
     "licenseExpiryDate": licenseExpiryDate?.toIso8601String(),
+    "self": self,
   };
-
 }
+
+
