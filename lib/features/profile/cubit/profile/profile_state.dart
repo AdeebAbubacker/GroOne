@@ -17,6 +17,7 @@ class ProfileState extends Equatable {
   final UIState<FaqResponse>? faqUIState;
   final UIState<TicketResponse>? ticketState;
   final UIState<Ticket>? createTicketState;
+  final UIState<List<TicketMessageResponse>>? ticketMessageState;
   final TicketStatus? selectedTicketStatus;
   final TicketStatus? tempSelectedTicketStatus;
   final bool showSuccessKyc;
@@ -32,6 +33,8 @@ class ProfileState extends Equatable {
   final UIState<List<LicenseCategoryResponseModel>>? licneseCategoryResponseUIState;
   final UIState<DeleteAccountModel>? deleteAccountUIState;
   final int? currentPage;
+  final UIState<DocumentDetails>? documentById;
+
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -55,6 +58,7 @@ class ProfileState extends Equatable {
     this.faqUIState,
     this.ticketState,
     this.createTicketState,
+    this.ticketMessageState,
     this.uploadTicketDocUIState,
     this.selectedTicketStatus,
     this.tempSelectedTicketStatus,
@@ -64,6 +68,7 @@ class ProfileState extends Equatable {
     this.licneseCategoryResponseUIState,
     this.deleteAccountUIState,
     this.currentPage,
+    this.documentById,
   });
 
   ProfileState copyWith({
@@ -88,6 +93,7 @@ class ProfileState extends Equatable {
     UIState<FaqResponse>? faqUIState,
     UIState<TicketResponse>? ticketState,
     UIState<Ticket>? createTicketState,
+    UIState<List<TicketMessageResponse>>? ticketMessageState,
     UIState<UploadTicketResponse>? uploadTicketDocUIState,
     UIState<CreateDocumentModel>? createDocumentUIState,
     TicketStatus? selectedTicketStatus,
@@ -99,6 +105,8 @@ class ProfileState extends Equatable {
     bool? showSuccessKyc,
     String? blueId,
     int? currentPage,
+    UIState<DocumentDetails>? documentById,
+
 
   }) {
     return ProfileState(
@@ -125,6 +133,7 @@ class ProfileState extends Equatable {
       faqUIState: faqUIState ?? this.faqUIState,
       ticketState: ticketState ?? this.ticketState,
       createTicketState: createTicketState ?? this.createTicketState,
+      ticketMessageState: ticketMessageState ?? this.ticketMessageState,
       uploadTicketDocUIState: uploadTicketDocUIState ?? this.uploadTicketDocUIState,
       createDocumentUIState: createDocumentUIState ?? this.createDocumentUIState,
       selectedTicketStatus: selectedTicketStatus ?? this.selectedTicketStatus,
@@ -133,6 +142,7 @@ class ProfileState extends Equatable {
       bloodGroupResponseUIState : bloodGroupResponseUIState ?? this.bloodGroupResponseUIState,
       licneseCategoryResponseUIState : licneseCategoryResponseUIState ?? this.licneseCategoryResponseUIState,
       deleteAccountUIState: deleteAccountUIState ?? this.deleteAccountUIState,
+      documentById: documentById ?? this.documentById,
     );
   }
 
@@ -160,6 +170,7 @@ class ProfileState extends Equatable {
     faqUIState,
     ticketState,
     createTicketState,
+    ticketMessageState,
     uploadTicketDocUIState,
     createDocumentUIState,
     selectedTicketStatus,
@@ -168,6 +179,7 @@ class ProfileState extends Equatable {
     bloodGroupResponseUIState,
     licneseCategoryResponseUIState,
     deleteAccountUIState,
-    currentPage
+    currentPage,
+    documentById
   ];
 }
