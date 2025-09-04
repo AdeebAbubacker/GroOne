@@ -411,7 +411,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           ? driverList.firstWhere((v) => v.id == selectedDriverId).name
           : null,
       items: driverList.map((d) => d.name).toList(),
-      hintText: "Select Driver",
+      hintText: context.appText.selectDriver,
       onChanged: (value) {
         final driver = driverList.firstWhere((d) => d.name == value);
         onDriverChanged(driver.id);
@@ -424,8 +424,8 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
             children: [
               Text(driver.name),
               if (driver.activeStatus.trim().toLowerCase() == "inactive")
-                const Text(
-                  "(On Another Trip)",
+                 Text(
+                  context.appText.onAnotherTrip,
                   style: TextStyle(color: Colors.red, fontSize: 12),
                 ),
             ],
