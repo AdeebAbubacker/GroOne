@@ -89,6 +89,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
     void initFunction() => frameCallback(() async {
     await profileCubit.fetchVehicle();
     await vpCreationCubit.fetchTruckType();
+    await lpHomeCubit.fetchLoadWeight();
   });
   @override
   Widget build(BuildContext context) {
