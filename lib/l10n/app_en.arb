@@ -586,7 +586,7 @@
   "cardInformation": "Card Information",
   "card": "Card",
   "deleteThisCard": "Delete this card",
-  "selectVehicleNumber": "Select vehicle number",
+  "selectVehicleNumber": "Enter vehicle number",
   "loadingVehicleTypes": "Loading vehicle types...",
   "noVehicleTypesAvailable": "No vehicle types available",
   "vehicleTypeRequired": "Vehicle type is required",
@@ -1318,6 +1318,8 @@
   "kycInProgressText": "KYC InProgress",
   "lanes":"Lanes",
   "supportTicket":"Support Ticket",
+  "ticket":"Ticket",
+  "forAnyQueriesContactSupportTeam": "For any further queries, please contact the support team.",
   "onAnotherTrip" : "On Another Trip"
 
 

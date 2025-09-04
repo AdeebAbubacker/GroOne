@@ -11,10 +11,12 @@ import 'package:gro_one_app/features/kyc/api_request/create_document_api_request
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
+import 'package:gro_one_app/features/profile/model/ticket_message_response.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
@@ -40,6 +42,7 @@ import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import '../../../load_provider/lp_loads/model/lp_load_get_by_id_response.dart' hide CustomerAddress;
 part 'profile_state.dart';
 
 enum TicketStatus { pending, completed }
@@ -47,8 +50,9 @@ enum TicketStatus { pending, completed }
 class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _repo;
   final LpHomeRepository _lpHomeRepository;
+  final LpLoadRepository _lpLoadRepository;
   final KavachRepository kavachRepository;
-  ProfileCubit(this._repo, this._lpHomeRepository, this.kavachRepository)
+  ProfileCubit(this._repo, this._lpHomeRepository, this._lpLoadRepository, this.kavachRepository)
     : super(ProfileState());
 
   // Save Has Blue ID
@@ -878,6 +882,47 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Error) {
       _setCreateTicketsUIState(UIState.error(result.type));
     }
+  }
+
+  // create ticket from api call
+  void _setTicketMessageUIState(UIState<List<TicketMessageResponse>>? uiState) {
+    emit(state.copyWith(ticketMessageState: uiState));
+  }
+
+  Future<void> fetchTicketMessages({required String ticketId, String? docId}) async {
+    _setTicketMessageUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchTicketMessages(ticketId: ticketId);
+    if (result is Success<List<TicketMessageResponse>>) {
+      _setTicketMessageUIState(UIState.success(result.value));
+      fetchTickets(request: TicketRequest());
+      if(docId != '') {
+        getDocumentById(docId: docId ?? '');
+      }
+    }
+    if (result is Error) {
+      _setTicketMessageUIState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to Document by ID.
+  void _setDocumentByIdState(UIState<DocumentDetails>? uiState) {
+    emit(state.copyWith(documentById: uiState));
+  }
+
+  // load Document by ID
+  Future<void> getDocumentById({required String docId}) async {
+    _setDocumentByIdState(UIState.loading());
+
+    Result result = await _lpLoadRepository.getDocumentById(docId: docId);
+
+    if (result is Success<DocumentDetails>) {
+      _setDocumentByIdState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setDocumentByIdState(UIState.error(result.type));
+    }
+
   }
 
   void updateTempTicketStatus(TicketStatus? status) {

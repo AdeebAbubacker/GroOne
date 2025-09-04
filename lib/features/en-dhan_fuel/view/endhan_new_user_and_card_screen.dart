@@ -648,7 +648,8 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               buildenDhanProductImageWidget(context),
               6.height,
               buildenDhanBenefitsDetailsWidget(context),
-              buildGroBannerImageWidget(),
+              // Removed as per change request
+              // buildGroBannerImageWidget(),
               70.height,
             ],
           ),
