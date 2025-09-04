@@ -798,8 +798,18 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
         state.isPlaying &&
         state.pathType != 'ignition' &&
         state.pathType != 'daily') {
+      // Use smoother camera animation with appropriate zoom level
+      final currentZoom = await controller.getZoomLevel();
       controller.animateCamera(
-        CameraUpdate.newLatLng(state.animatedMarkerPosition!),
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: state.animatedMarkerPosition!,
+            zoom: currentZoom.clamp(
+              14.0,
+              18.0,
+            ), // Maintain reasonable zoom level
+          ),
+        ),
       );
     }
   }

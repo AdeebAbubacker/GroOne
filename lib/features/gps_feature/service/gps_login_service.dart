@@ -274,10 +274,17 @@ class GpsLoginService {
   Future<Result<GpsDeviceFuelModel>> getDeviceFuel(String token) async {
     try {
       CustomLog.info(this, "Getting device fuel data...");
-      final result = await _makeAuthenticatedRequest(
+
+      // Make a direct API call with better error handling for this non-critical endpoint
+      final headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
+      };
+
+      final result = await _apiService.get(
         'https://api.letsgro.co/api/v1/auth/device_fuel',
-        'GET',
-        token: token,
+        customHeaders: headers,
       );
 
       if (result is Success) {
@@ -286,17 +293,27 @@ class GpsLoginService {
           final deviceFuel = GpsDeviceFuelModel.fromJson(result.value);
           return Success(deviceFuel);
         } catch (e) {
-          CustomLog.error(this, "Error parsing device fuel response", e);
+          CustomLog.info(
+            this,
+            "Device fuel API response parsing failed (non-critical)",
+          );
           return Error(DeserializationError());
         }
       } else if (result is Error) {
-        CustomLog.error(this, "Device fuel API call failed", null);
+        // Device fuel endpoint is not critical - log as info, not error
+        CustomLog.info(
+          this,
+          "Device fuel API not available (non-critical feature)",
+        );
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, AppString.error.deserializationError, e);
+      CustomLog.info(
+        this,
+        "Device fuel API not available (non-critical feature)",
+      );
       return Error(DeserializationError());
     }
   }
@@ -487,7 +504,7 @@ class GpsLoginService {
       final headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Authorization': token,
+        'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
       };
 
       CustomLog.info(this, "Making $method request to: $url");

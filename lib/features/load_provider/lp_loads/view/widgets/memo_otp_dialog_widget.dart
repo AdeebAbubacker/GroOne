@@ -81,7 +81,7 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
             heading: context.appText.memoESignSuccess,
             onContinue: () {
               LpBottomNavigation.selectedIndexNotifier.value = 1;
-              context.push(AppRouteName.lpBottomNavigationBar);
+              parentCtx.push(AppRouteName.lpBottomNavigationBar);
             },
           ),
         );

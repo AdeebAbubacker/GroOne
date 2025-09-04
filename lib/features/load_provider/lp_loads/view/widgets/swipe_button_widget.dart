@@ -29,7 +29,7 @@ class CustomSwipeButton extends StatelessWidget {
         visible: enable,
           child: _buildChevronIcon()),
       sliderRotate: false,
-      sliderButtonYOffset: -30,
+      sliderButtonYOffset: -20,
       text: text ?? context.appText.swipeToAgree,
 
       textStyle: AppTextStyle.body2.copyWith(

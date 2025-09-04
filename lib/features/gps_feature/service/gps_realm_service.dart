@@ -595,8 +595,8 @@ class GpsRealmService {
       });
       print("💾 Device fuel data saved to Realm");
     } catch (e) {
-      print("❌ Failed to save device fuel data to Realm: $e");
-      throw Exception('Failed to save device fuel data to Realm: $e');
+      print("ℹ️ Device fuel data not saved (non-critical feature): $e");
+      // Don't throw exception for non-critical feature
     }
   }
 
@@ -616,7 +616,7 @@ class GpsRealmService {
       }
       return null;
     } catch (e) {
-      print("❌ Failed to read device fuel data from Realm: $e");
+      print("ℹ️ Device fuel data not available from Realm (non-critical): $e");
       return null;
     }
   }

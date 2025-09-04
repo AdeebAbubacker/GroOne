@@ -2,6 +2,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 
+import '../model/distance_report_realm_model.dart';
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_device_fuel_model.dart';
 import '../model/gps_distance_data_model.dart';
@@ -10,12 +11,10 @@ import '../model/gps_mobile_config_model.dart';
 import '../model/gps_user_config_model.dart';
 import '../model/gps_user_configuration_model.dart';
 import '../model/gps_user_details_model.dart';
+import '../models/gps_device_distance_model.dart';
 import '../models/gps_geofence_model.dart';
 import '../service/gps_login_service.dart';
 import '../service/gps_realm_service.dart';
-import 'package:intl/intl.dart';
-import '../models/gps_device_distance_model.dart';
-import '../model/distance_report_realm_model.dart';
 
 class GpsLoginRepository {
   final GpsLoginService _gpsLoginService;
@@ -187,12 +186,11 @@ class GpsLoginRepository {
         await saveDeviceFuel(deviceFuelResult.value);
         print("💾 Device fuel data fetched and stored successfully");
       } else {
-        print(
-          "❌ Failed to fetch device fuel data: ${deviceFuelResult.runtimeType}",
-        );
+        // Device fuel is not critical - don't log as error
+        print("ℹ️ Device fuel API not available (non-critical feature)");
       }
     } catch (e) {
-      print("❌ Error fetching device fuel data: $e");
+      print("ℹ️ Device fuel API not available (non-critical feature)");
     }
   }
 
