@@ -17,6 +17,7 @@ class SearchableDropdown extends StatelessWidget {
   final TextStyle? labelTextStyle;
   final DropdownSearchBuilder<String>? dropdownBuilder;
   final Widget Function(BuildContext, String)? emptyBuilder;
+  final DropdownSearchPopupItemBuilder<String>? popupItemBuilder;
   
 
   const SearchableDropdown({
@@ -31,6 +32,7 @@ class SearchableDropdown extends StatelessWidget {
      this.labelText,
     this.mandatoryStar = false,
     this.labelTextStyle,
+    this.popupItemBuilder,
   });
 
   @override
@@ -90,8 +92,9 @@ class SearchableDropdown extends StatelessWidget {
               isDense: true,
             ),
           ),
-
+         itemBuilder: popupItemBuilder,
           ),
+          
           decoratorProps: DropDownDecoratorProps(
             decoration: commonInputDecoration(
               hintText: hintText,
