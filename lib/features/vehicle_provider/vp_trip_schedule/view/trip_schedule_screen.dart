@@ -405,40 +405,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           final statusLabel = status == "inactive" ? " (On Trip)" : "";
           return "${driver.name}$statusLabel";
         }).toList();
-
-    // return SearchableDropdown(
-    //   labelText: context.appText.driverNameAndNumber,
-    //   mandatoryStar: true,
-    //   selectedItem:
-    //       selectedDriverId != null
-    //           ? driverList.firstWhere((v) => v.id == selectedDriverId).name
-    //           : null,
-    //   items: driverNames,
-    //   hintText: context.appText.select,
-    //   onChanged: (String? newDriver) {
-    //     if (newDriver != null) {
-    //       final actualName = newDriver.replaceAll(" (On Trip)", "");
-    //       final selectedDriver = driverList.firstWhere(
-    //         (v) => v.name == actualName,
-    //       );
-    //       if (selectedDriver.id != null && selectedDriver.id!.isNotEmpty) {
-    //         onDriverChanged(selectedDriver.id);
-    //       } else {
-    //         onDriverChanged(null);
-    //       }
-    //     } else {
-    //       onDriverChanged(null);
-    //     }
-    //   },
-    //   dropdownBuilder: (context, selectedItem) {
-    //     if (selectedItem == null || selectedItem.isEmpty) {
-    //       return const SizedBox.shrink();
-    //     }
-    //     return Row(children: [Text(selectedItem)]);
-    //   },
-    //   emptyBuilder:
-    //       (context, _) => const Center(child: Text("No Driver found")),
-    // );
+        
     return SearchableDropdown(
       selectedItem: selectedDriverId != null
           ? driverList.firstWhere((v) => v.id == selectedDriverId).name
