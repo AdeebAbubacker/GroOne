@@ -417,7 +417,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     // Create a list of driver names with status label
     final driverNames =
         driverList.map((driver) {
-          final status = driver.activeStatus.trim().toLowerCase();
+          final status = (driver.activeStatus??"").trim().toLowerCase();
           final statusLabel = status == "inactive" ? " (On Trip)" : "";
           return "${driver.name}$statusLabel";
         }).toList();
@@ -426,7 +426,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
       selectedItem: selectedDriverId != null
           ? driverList.firstWhere((v) => v.id == selectedDriverId).name
           : null,
-      items: driverList.map((d) => d.name).toList(),
+      items: driverList.map((d) => d.name??"").toList() ,
       hintText: context.appText.selectDriver,
       onChanged: (value) {
         final driver = driverList.firstWhere((d) => d.name == value);
@@ -438,8 +438,8 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
           title: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(driver.name),
-              if (driver.activeStatus.trim().toLowerCase() == "inactive")
+              Text(driver.name??""),
+              if (driver.activeStatus?.trim().toLowerCase() == "inactive")
                  Text(
                   context.appText.onAnotherTrip,
                   style: TextStyle(color: Colors.red, fontSize: 12),
