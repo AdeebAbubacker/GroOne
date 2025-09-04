@@ -1,72 +1,150 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
-import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/model/model.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';
 
 
+// class TruckTypeSearchableDropdown extends StatelessWidget {
+//   final String? selectedTruckTypeId;
+//   final ValueChanged<String?> onTruckTypeChanged;
+//   final List<LoadTruckTypeListModel> truckTypeList;
+//   final String labelText;
+//   final String hintText;
+//   final bool mandatoryStar;
+
+//   const TruckTypeSearchableDropdown({
+//     super.key,
+//     required this.selectedTruckTypeId,
+//     required this.onTruckTypeChanged,
+//     required this.truckTypeList,
+//     required this.labelText,
+//     required this.hintText,
+//     this.mandatoryStar = false,
+//   });
+
+//   @override
+//   Widget build(BuildContext context) {
+//     final truckTypeLabels = truckTypeList
+//         .map((e) => '${e.type} Truck - ${e.subType}')
+//         .toList();
+
+//     final selectedItem = selectedTruckTypeId != null
+//         ? (() {
+//             final selected =
+//                 truckTypeList.firstWhere((e) => e.id.toString() == selectedTruckTypeId);
+//             return '${selected.type} Truck - ${selected.subType}';
+//           })()
+//         : null;
+
+//     return SearchableDropdown(
+//       labelText: labelText,
+//       mandatoryStar: mandatoryStar,
+//       selectedItem: (selectedItem?.isEmpty ?? true) ? null : selectedItem,
+//       items: truckTypeLabels,
+//       hintText: hintText,
+//       onChanged: (String? newTruckTypeLabel) {
+//         if (newTruckTypeLabel != null) {
+//           try {
+//             final selectedTruckType = truckTypeList.firstWhere(
+//               (e) => '${e.type} Truck - ${e.subType}' == newTruckTypeLabel,
+//             );
+//             onTruckTypeChanged(selectedTruckType.id.toString());
+//           } catch (e) {
+//             onTruckTypeChanged(null);
+//           }
+//         } else {
+//           onTruckTypeChanged(null);
+//         }
+//       },
+//       dropdownBuilder: (context, selectedItem) {
+//         if (selectedItem == null || selectedItem.isEmpty) {
+//           return SizedBox.shrink();
+//         }
+//         return Row(
+//           children: [
+//             Text(selectedItem, style: AppTextStyle.body),
+//           ],
+//         );
+//       },
+//       emptyBuilder: (context, _) => Center(child: Text("No truck types found")),
+//     );
+//   }
+// }
 class TruckTypeSearchableDropdown extends StatelessWidget {
-  final String? selectedTruckTypeId;
-  final ValueChanged<String?> onTruckTypeChanged;
-  final List<LoadTruckTypeListModel> truckTypeList;
+  final LoadTruckTypeListModel? selectedTruckType;
+  final ValueChanged<LoadTruckTypeListModel?> onChanged;
   final String labelText;
   final String hintText;
   final bool mandatoryStar;
+  final Future<List<LoadTruckTypeListModel>> Function(int page, String? searchKey)
+      fetchTruckTypes;
 
   const TruckTypeSearchableDropdown({
     super.key,
-    required this.selectedTruckTypeId,
-    required this.onTruckTypeChanged,
-    required this.truckTypeList,
+    required this.selectedTruckType,
+    required this.onChanged,
     required this.labelText,
     required this.hintText,
+    required this.fetchTruckTypes,
     this.mandatoryStar = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    final truckTypeLabels = truckTypeList
-        .map((e) => '${e.type} Truck - ${e.subType}')
-        .toList();
-
-    final selectedItem = selectedTruckTypeId != null
-        ? (() {
-            final selected =
-                truckTypeList.firstWhere((e) => e.id.toString() == selectedTruckTypeId);
-            return '${selected.type} Truck - ${selected.subType}';
-          })()
-        : null;
-
-    return SearchableDropdown(
-      labelText: labelText,
-      mandatoryStar: mandatoryStar,
-      selectedItem: (selectedItem?.isEmpty ?? true) ? null : selectedItem,
-      items: truckTypeLabels,
-      hintText: hintText,
-      onChanged: (String? newTruckTypeLabel) {
-        if (newTruckTypeLabel != null) {
-          try {
-            final selectedTruckType = truckTypeList.firstWhere(
-              (e) => '${e.type} Truck - ${e.subType}' == newTruckTypeLabel,
-            );
-            onTruckTypeChanged(selectedTruckType.id.toString());
-          } catch (e) {
-            onTruckTypeChanged(null);
-          }
-        } else {
-          onTruckTypeChanged(null);
-        }
-      },
-      dropdownBuilder: (context, selectedItem) {
-        if (selectedItem == null || selectedItem.isEmpty) {
-          return SizedBox.shrink();
-        }
-        return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Text(selectedItem, style: AppTextStyle.body),
+            Text(labelText, style: AppTextStyle.textFiled),
+            if (mandatoryStar)
+              Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
           ],
-        );
-      },
-      emptyBuilder: (context, _) => Center(child: Text("No truck types found")),
+        ),
+        const SizedBox(height: 6),
+
+        /// Dropdown with pagination
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(4),
+            color: Colors.white,
+          ),
+          child: SearchableDropdown<LoadTruckTypeListModel>.paginated(
+            hintText: Text(hintText, style: AppTextStyle.textFieldHint),
+            isDialogExpanded: false,
+            requestItemCount: 10,
+
+            // Initial selected value
+            initialValue: selectedTruckType != null
+                ? SearchableDropdownMenuItem<LoadTruckTypeListModel>(
+                    value: selectedTruckType!,
+                    label: "${selectedTruckType?.type} Truck - ${selectedTruckType?.subType}",
+                    child: Text("${selectedTruckType?.type} Truck - ${selectedTruckType?.subType}"),
+                  )
+                : null,
+
+            // Called whenever dropdown needs more items
+            paginatedRequest: (int page, String? searchKey) async {
+              final truckTypes = await fetchTruckTypes(page, searchKey);
+              return truckTypes.map((truck) {
+                final label = "${truck.type} Truck - ${truck.subType}";
+                return SearchableDropdownMenuItem<LoadTruckTypeListModel>(
+                  value: truck,
+                  label: label,
+                  child: Text(label),
+                );
+              }).toList();
+            },
+
+            onChanged: onChanged,
+          ),
+        ),
+      ],
     );
   }
 }
