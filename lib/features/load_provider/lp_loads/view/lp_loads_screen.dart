@@ -198,22 +198,23 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 final truckTypes = uiState?.data ?? [];
 
                 return TruckTypeSearchableDropdown(
-  selectedTruckType: truckTypes.firstWhereOrNull(
-      (e) => e.id == selectedTruckTypeId), // preselect
-  labelText: "Truck Type",
-  hintText: "Select Truck Type",
-  fetchTruckTypes: (page, searchKey) async {
-    await lpLoadLocator.getTruckType( loadMore: page > 1);
-    return lpLoadLocator.state.lpLoadTruckTypes?.data ?? [];
-  },
-  onChanged: (selectedTruck) {
-    setState(() {
-      truckTypeDropDownValue = "${selectedTruck?.type} Truck - ${selectedTruck?.subType}";
-      selectedTruckTypeId = selectedTruck?.id;
-    });
-  },
-)
-;
+                  selectedTruckType: truckTypes.firstWhereOrNull(
+                    (e) => e.id == selectedTruckTypeId,
+                  ), // preselect
+                  labelText: "Truck Type",
+                  hintText: "Select Truck Type",
+                  fetchTruckTypes: (page, searchKey) async {
+                    await lpLoadLocator.getTruckType(loadMore: page > 1);
+                    return lpLoadLocator.state.lpLoadTruckTypes?.data ?? [];
+                  },
+                  onChanged: (selectedTruck) {
+                    setState(() {
+                      truckTypeDropDownValue =
+                          "${selectedTruck?.type} Truck - ${selectedTruck?.subType}";
+                      selectedTruckTypeId = selectedTruck?.id;
+                    });
+                  },
+                );
               },
             ),
             15.height,
@@ -247,7 +248,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                       selectedRoute = value?.masterLaneId;
                     });
                   },
-                  mandatoryStar: false, 
+                  mandatoryStar: false,
                 );
               },
             ),

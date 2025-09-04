@@ -795,92 +795,92 @@ Widget buildReadOnlyField(
   );
 }
 
-/// State Dropdown
-class StateDropdown extends StatelessWidget {
-  final String? selected;
-  final ValueChanged<String?> onStateChanged;
+// /// State Dropdown
+// class StateDropdown extends StatelessWidget {
+//   final String? selected;
+//   final ValueChanged<String?> onStateChanged;
 
-  const StateDropdown({
-    super.key,
-    required this.selected,
-    required this.onStateChanged,
-  });
+//   const StateDropdown({
+//     super.key,
+//     required this.selected,
+//     required this.onStateChanged,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    final stateUI = context.watch<KycCubit>().state.stateUIState;
-    final stateList = stateUI?.data?.map((e) => e.name).toList() ?? [];
+//   @override
+//   Widget build(BuildContext context) {
+//     final stateUI = context.watch<KycCubit>().state.stateUIState;
+//     final stateList = stateUI?.data?.map((e) => e.name).toList() ?? [];
 
-    return SearchableDropdown(
-      labelText: context.appText.state,
-      mandatoryStar: true,
-      selectedItem: selected,
-      items: stateList,
-      hintText: context.appText.selectState,
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          // 1️⃣ Update parent state
-          onStateChanged(newValue);
+//     return SearchableDropdown(
+//       labelText: context.appText.state,
+//       mandatoryStar: true,
+//       selectedItem: selected,
+//       items: stateList,
+//       hintText: context.appText.selectState,
+//       onChanged: (String? newValue) {
+//         if (newValue != null) {
+//           // 1️⃣ Update parent state
+//           onStateChanged(newValue);
 
-          // 2️⃣ Trigger city list fetch immediately (like in KYC)
-          context.read<KycCubit>().fetchCityList(newValue);
-        }
-      },
-      dropdownBuilder: (context, selectedItem) {
-        if (selectedItem == null || selectedItem.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return Row(children: [Text(selectedItem)]);
-      },
-      emptyBuilder:
-          (context, _) => const Center(child: Text("No states found")),
-    );
-  }
-}
+//           // 2️⃣ Trigger city list fetch immediately (like in KYC)
+//           context.read<KycCubit>().fetchCityList(newValue);
+//         }
+//       },
+//       dropdownBuilder: (context, selectedItem) {
+//         if (selectedItem == null || selectedItem.isEmpty) {
+//           return const SizedBox.shrink();
+//         }
+//         return Row(children: [Text(selectedItem)]);
+//       },
+//       emptyBuilder:
+//           (context, _) => const Center(child: Text("No states found")),
+//     );
+//   }
+// }
 
-/// City Dropdwon
-class CityDropdown extends StatelessWidget {
-  final String? selected;
-  final bool isStateSelected;
-  final ValueChanged<String?> onCityChanged;
+// /// City Dropdwon
+// class CityDropdown extends StatelessWidget {
+//   final String? selected;
+//   final bool isStateSelected;
+//   final ValueChanged<String?> onCityChanged;
 
-  const CityDropdown({
-    super.key,
-    required this.selected,
-    required this.isStateSelected,
-    required this.onCityChanged,
-  });
+//   const CityDropdown({
+//     super.key,
+//     required this.selected,
+//     required this.isStateSelected,
+//     required this.onCityChanged,
+//   });
 
-  @override
-  Widget build(BuildContext context) {
-    final cityUI = context.watch<KycCubit>().state.cityUIState;
-    final cityList = cityUI?.data?.map((e) => e.city).toList() ?? [];
+//   @override
+//   Widget build(BuildContext context) {
+//     final cityUI = context.watch<KycCubit>().state.cityUIState;
+//     final cityList = cityUI?.data?.map((e) => e.city).toList() ?? [];
 
-    return AbsorbPointer(
-      absorbing: !isStateSelected,
-      child: SearchableDropdown(
-        labelText: context.appText.city,
-        mandatoryStar: true,
-        selectedItem: selected,
-        items: cityList,
-        hintText: context.appText.selectCity,
-        onChanged: (String? newValue) {
-          if (newValue != null) {
-            onCityChanged(newValue);
-          }
-        },
-        dropdownBuilder: (context, selectedItem) {
-          if (selectedItem == null || selectedItem.isEmpty) {
-            return const SizedBox.shrink();
-          }
-          return Row(children: [Text(selectedItem)]);
-        },
-        emptyBuilder:
-            (context, _) => const Center(child: Text("No cities found")),
-      ),
-    );
-  }
-}
+//     return AbsorbPointer(
+//       absorbing: !isStateSelected,
+//       child: SearchableDropdown(
+//         labelText: context.appText.city,
+//         mandatoryStar: true,
+//         selectedItem: selected,
+//         items: cityList,
+//         hintText: context.appText.selectCity,
+//         onChanged: (String? newValue) {
+//           if (newValue != null) {
+//             onCityChanged(newValue);
+//           }
+//         },
+//         dropdownBuilder: (context, selectedItem) {
+//           if (selectedItem == null || selectedItem.isEmpty) {
+//             return const SizedBox.shrink();
+//           }
+//           return Row(children: [Text(selectedItem)]);
+//         },
+//         emptyBuilder:
+//             (context, _) => const Center(child: Text("No cities found")),
+//       ),
+//     );
+//   }
+// }
 
 String? formatApiDateForVehicleVahan(String? apiDate) {
   if (apiDate == null || apiDate.isEmpty) return null;

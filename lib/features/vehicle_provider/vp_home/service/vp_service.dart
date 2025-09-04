@@ -70,13 +70,20 @@ class VpHomeService {
         final driverResponse=DriverListResponse.fromJson(result.value);
         return  Success(driverResponse);
       } else if (result is Error) {
+         print("Error in getDriverDetails Error: $result");
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
-      return Error(DeserializationError());
-    }
+    }catch (e, stackTrace) {
+    // Print the error and full stack trace
+    print("Error in getDriverDetails: $e");
+    print(stackTrace);
+
+    // Optionally log it to a monitoring service here
+
+    return Error(DeserializationError());
+  }
   }
 
   Future<Result<ScheduleTripResponse>> scheduleTripResponse({

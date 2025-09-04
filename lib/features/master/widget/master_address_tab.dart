@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,6 +7,9 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
+import 'package:gro_one_app/features/kyc/model/city_model.dart';
+import 'package:gro_one_app/features/kyc/model/state_model.dart';
 import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/master/widget/master_addrress_widget.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
@@ -16,6 +19,8 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/model/searchable_dropdown_menu_item.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
@@ -311,7 +316,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     _buildTextField(
                       context,
                       addressNameController,
-
                       context.appText.addressName,
                       alphanumericWithSpaceRegex,
                     ),
@@ -324,7 +328,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     ),
                     16.height,
                     StateDropdown(
-                      selected: selectedState,
+                      selectedStateId: selectedState,
                       onStateChanged: (value) {
                         setState(() {
                           selectedState = value;
@@ -334,7 +338,8 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     ),
                     16.height,
                     CityDropdown(
-                      selected: selectedCity,
+                      selectedStateId: selectedState,
+                      selectedCityId: selectedCity,
                       isStateSelected:
                           selectedState != null && selectedState!.isNotEmpty,
                       onCityChanged: (value) {
@@ -466,6 +471,177 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
       inputFormatters: [
         FilteringTextInputFormatter.allow(pattern),
         LengthLimitingTextInputFormatter(100),
+      ],
+    );
+  }
+}
+
+/// State Dropdown
+class StateDropdown extends StatelessWidget {
+  final String? selectedStateId;
+  final ValueChanged<String?> onStateChanged;
+
+  const StateDropdown({
+    super.key,
+    required this.selectedStateId,
+    required this.onStateChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final stateCubit = context.read<KycCubit>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(context.appText.state, style: AppTextStyle.textFiled),
+            const SizedBox(width: 2),
+            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(4),
+            color: Colors.white,
+          ),
+          child: SearchableDropdown<StateModelList>.paginated(
+            hintText: Text(
+              context.appText.selectState,
+              style: AppTextStyle.textFieldHint,
+            ),
+            isDialogExpanded: false,
+            requestItemCount: 10,
+
+            // Initial selected value
+            initialValue: selectedStateId != null
+                ? SearchableDropdownMenuItem<StateModelList>(
+                    value: stateCubit.state.stateUIState?.data
+                        ?.firstWhereOrNull((e) => e.id.toString() == selectedStateId),
+                    label: stateCubit.state.stateUIState?.data
+                            ?.firstWhereOrNull((e) => e.id.toString() == selectedStateId)
+                            ?.name ??
+                        '',
+                    child: Text(stateCubit.state.stateUIState?.data
+                            ?.firstWhereOrNull((e) => e.id.toString() == selectedStateId)
+                            ?.name ??
+                        ''),
+                  )
+                : null,
+
+            // Pagination request
+            paginatedRequest: (int page, String? searchKey) async {
+              await stateCubit.fetchStateList();
+              final stateList = stateCubit.state.stateUIState?.data ?? [];
+              return stateList.map((state) {
+                return SearchableDropdownMenuItem<StateModelList>(
+                  value: state,
+                  label: state.name,
+                  child: Text(state.name),
+                );
+              }).toList();
+            },
+
+            onChanged: (StateModelList? newState) {
+              // Pass the ID to parent callback
+              onStateChanged(newState?.id.toString());
+              if (newState != null) {
+                context.read<KycCubit>().fetchCityList(newState.name);
+              }
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// City Dropdown
+class CityDropdown extends StatelessWidget {
+  final String? selectedCityId;
+  final bool isStateSelected;
+  final String? selectedStateId;
+  final ValueChanged<String?> onCityChanged;
+
+  const CityDropdown({
+    super.key,
+    required this.selectedCityId,
+    required this.isStateSelected,
+    required this.selectedStateId,
+    required this.onCityChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final kycCubit = context.read<KycCubit>();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(context.appText.city, style: AppTextStyle.textFiled),
+            const SizedBox(width: 2),
+            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
+        const SizedBox(height: 6),
+        AbsorbPointer(
+          absorbing: !isStateSelected,
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.grey.shade400),
+              borderRadius: BorderRadius.circular(4),
+              color: Colors.white,
+            ),
+            child: SearchableDropdown<CityModelList>.paginated(
+              hintText: Text(
+                context.appText.selectCity,
+                style: AppTextStyle.textFieldHint,
+              ),
+              isDialogExpanded: false,
+              requestItemCount: 10,
+
+              // Initial selected value
+              initialValue: selectedCityId != null
+                  ? SearchableDropdownMenuItem<CityModelList>(
+                      value: kycCubit.state.cityUIState?.data
+                          ?.firstWhereOrNull((e) => e.id.toString() == selectedCityId),
+                      label: kycCubit.state.cityUIState?.data
+                              ?.firstWhereOrNull((e) => e.id.toString() == selectedCityId)
+                              ?.city ??
+                          '',
+                      child: Text(kycCubit.state.cityUIState?.data
+                              ?.firstWhereOrNull((e) => e.id.toString() == selectedCityId)
+                              ?.city ??
+                          ''),
+                    )
+                  : null,
+
+              // Pagination request
+              paginatedRequest: (int page, String? searchKey) async {
+                if (selectedStateId != null) {
+                  await kycCubit.fetchCityList(selectedStateId!);
+                }
+                final cityList = kycCubit.state.cityUIState?.data ?? [];
+                return cityList.map((city) {
+                  return SearchableDropdownMenuItem<CityModelList>(
+                    value: city,
+                    label: city.city,
+                    child: Text(city.city),
+                  );
+                }).toList();
+              },
+
+              onChanged: (CityModelList? newCity) {
+                onCityChanged(newCity?.id.toString());
+              },
+            ),
+          ),
+        ),
       ],
     );
   }

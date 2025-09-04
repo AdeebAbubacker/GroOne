@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
@@ -18,8 +21,10 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/model/searchable_dropdown_menu_item.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';
 import 'package:gro_one_app/utils/app_route.dart';
-import 'package:gro_one_app/utils/app_searchabledropdown.dart';
+// import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -28,7 +33,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
-
+import 'package:collection/collection.dart';
 
 class TripScheduleScreen extends StatefulWidget {
   final String? loadId;
@@ -138,13 +143,61 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 8,
                       children: [
-                        truckNoSearchableDropdown(context, truckType, (
-                          truckId,
-                        ) {
-                          setState(() {
-                            truckType = truckId;
-                          });
-                        }, vehicleDetail),
+                        // truckNoSearchableDropdown(context, truckType, (
+                        //   truckId,
+                        // ) {
+                        //   setState(() {
+                        //     truckType = truckId;
+                        //   });
+                        // }, vehicleDetail),
+ truckNoSearchableDropdown(
+  context,
+  truckType,
+  (truckId) {
+    setState(() {
+      truckType = truckId;
+    });
+  },
+  // Paginated fetch function using BLoC
+  (page, searchKey) async {
+    final userId = await vpHomeScreenBloc.getUserId() ?? "0";
+
+    // Trigger BLoC event to fetch vehicle list
+    vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId));
+
+    // Wait for the BLoC to emit success state
+    final completer = Completer<List<VehicleDetail>>();
+
+    final subscription = vpHomeScreenBloc.stream.listen((state) {
+      if (state is VpVehicleListSuccess) {
+        // Filter based on searchKey
+        final filtered = state.vehicleListResponse.data
+            .where((v) =>
+                searchKey == null ||
+                v.truckNumber.toLowerCase().contains(searchKey.toLowerCase()))
+            .toList();
+        completer.complete(filtered);
+      } else if (state is VpMyLoadListError) {
+        completer.complete([]);
+      }
+    });
+
+    final vehicles = await completer.future;
+    await subscription.cancel();
+    return vehicles;
+  },
+  // Optional: initial selected truck
+  selectedTruck: (() {
+    final currentState = vpHomeScreenBloc.state;
+    if (currentState is VpVehicleListSuccess) {
+      return currentState.vehicleListResponse.data
+          .firstWhereOrNull((v) => v.id == truckType);
+    }
+    return null;
+  })(),
+),
+
+
 
                         GestureDetector(
                           onTap: () => addVehicleAndDriver(2),
@@ -163,11 +216,25 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 8,
                       children: [
-                        driverDropdown(context, driverType, (driverId) {
-                          setState(() {
-                            driverType = driverId;
-                          });
-                        }, driverDetails),
+                        driverDropdown(
+  context,
+  driverType,
+  (driverId) {
+    setState(() {
+      driverType = driverId;
+    });
+  },
+  vpHomeScreenBloc,
+  selectedDriver: (() {
+    final currentState = vpHomeScreenBloc.state;
+    if (currentState is VpDriverListSuccess) {
+      return currentState.driverListResponse.data
+          .firstWhereOrNull((d) => d.id == driverType);
+    }
+    return null;
+  })(),
+),
+
                         GestureDetector(
                           onTap: () => addVehicleAndDriver(3),
                           child: Row(
@@ -329,115 +396,168 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     );
   }
 
+
+static Widget driverDropdown(
+  BuildContext context,
+  String? selectedDriverId,
+  ValueChanged<String?> onDriverChanged,
+  // BLoC instance
+  VpHomeBloc vpHomeScreenBloc, {
+  DriverDetails? selectedDriver,
+}) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+       Row(
+          children: [
+            Text(context.appText.driverNameAndNumber, style: AppTextStyle.textFiled),
+            const SizedBox(width: 2),
+            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
+        const SizedBox(height: 6),
+      Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade400),
+          borderRadius: BorderRadius.circular(4),
+          color: Colors.white,
+        ),
+        child: SearchableDropdown<DriverDetails>.paginated(
+          hintText: Text(
+            context.appText.select,
+            style: AppTextStyle.textFieldHint,
+          ),
+          isDialogExpanded: false,
+          requestItemCount: 10,
+
+          // Initial selected value
+          initialValue: selectedDriver != null
+              ? SearchableDropdownMenuItem<DriverDetails>(
+                  value: selectedDriver,
+                  label: selectedDriver.name,
+                  child: Text(selectedDriver.name),
+                )
+              : null,
+
+          // Pagination request
+          paginatedRequest: (int page, String? searchKey) async {
+            final userId = await vpHomeScreenBloc.getUserId() ?? "0";
+
+            // Trigger BLoC event
+            vpHomeScreenBloc.add(VpDriverDetailsRequested(userId: userId));
+
+            // Wait for BLoC to emit success state
+            final completer = Completer<List<DriverDetails>>();
+            final subscription = vpHomeScreenBloc.stream.listen((state) {
+              if (state is VpDriverListSuccess) {
+                final filtered = state.driverListResponse.data
+                    .where((driver) => searchKey == null ||
+                        driver.name
+                            .toLowerCase()
+                            .contains(searchKey.toLowerCase()))
+                    .toList();
+                completer.complete(filtered);
+              } else if (state is VpMyLoadListError) {
+                completer.complete([]);
+              }
+            });
+
+            final drivers = await completer.future;
+            await subscription.cancel();
+            return drivers.map((driver) {
+              final status = driver.activeStatus.trim().toLowerCase();
+              final statusLabel =
+                  status == "inactive" ? " (On Another Trip)" : "";
+              return SearchableDropdownMenuItem<DriverDetails>(
+                value: driver,
+                label: "${driver.name}$statusLabel",
+                child: Text("${driver.name}$statusLabel"),
+              );
+            }).toList();
+          },
+
+          onChanged: (DriverDetails? newDriver) {
+            if (newDriver != null) {
+              onDriverChanged(newDriver.id);
+            } else {
+              onDriverChanged(null);
+            }
+          },
+        ),
+      ),
+    ],
+  );
+}
+
+
   static Widget truckNoSearchableDropdown(
-    BuildContext context,
-    String? selectedTruckId,
-    ValueChanged<String?> onTruckChanged,
-    List<VehicleDetail> vehicleList,
-  ) {
-    // Build display string with truck type info
-    final truckNumbers =
-        vehicleList.map((e) {
-          final type = e.truckType?.type ?? "";
-          final subType = e.truckType?.subType ?? "";
-          final typeInfo =
-              (type.isNotEmpty || subType.isNotEmpty)
+  BuildContext context,
+  String? selectedTruckId,
+  ValueChanged<String?> onTruckChanged,
+  Future<List<VehicleDetail>> Function(int page, String? searchKey) fetchTrucks,
+  {VehicleDetail? selectedTruck}
+) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Row(
+          children: [
+            Text(context.appText.truckNumber, style: AppTextStyle.textFiled),
+            const SizedBox(width: 2),
+            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
+        const SizedBox(height: 6),
+      Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey.shade400),
+          borderRadius: BorderRadius.circular(4),
+          color: Colors.white,
+        ),
+        child: SearchableDropdown<VehicleDetail>.paginated(
+          hintText: Text(context.appText.select, style: AppTextStyle.textFieldHint),
+          isDialogExpanded: false,
+          requestItemCount: 10,
+
+          // Initial selected value
+          initialValue: selectedTruck != null
+              ? SearchableDropdownMenuItem<VehicleDetail>(
+                  value: selectedTruck,
+                  label:
+                      "${selectedTruck.truckNumber}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
+                  child: Text(
+                      "${selectedTruck.truckNumber}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}"),
+                )
+              : null,
+
+          // Pagination request
+          paginatedRequest: (int page, String? searchKey) async {
+            final trucks = await fetchTrucks(page, searchKey);
+            return trucks.map((truck) {
+              final type = truck.truckType?.type ?? "";
+              final subType = truck.truckType?.subType ?? "";
+              final typeInfo = (type.isNotEmpty || subType.isNotEmpty)
                   ? " ($type ${subType.isNotEmpty ? subType : ""})"
                   : "";
-          return "${e.truckNumber}$typeInfo".trim();
-        }).toList();
+              return SearchableDropdownMenuItem<VehicleDetail>(
+                value: truck,
+                label: "${truck.truckNumber}$typeInfo",
+                child: Text("${truck.truckNumber}$typeInfo"),
+              );
+            }).toList();
+          },
 
-    return SearchableDropdown(
-      labelText: context.appText.truckNumber,
-      mandatoryStar: true,
-      selectedItem:
-          selectedTruckId != null
-              ? (() {
-                final selectedVehicle = vehicleList.firstWhere(
-                  (v) => v.id == selectedTruckId,
-                );
-                final type = selectedVehicle.truckType?.type ?? "";
-                final subType = selectedVehicle.truckType?.subType ?? "";
-                final typeInfo =
-                    (type.isNotEmpty || subType.isNotEmpty)
-                        ? " ($type ${subType.isNotEmpty ? subType : ""})"
-                        : "";
-                return "${selectedVehicle.truckNumber}$typeInfo".trim();
-              })()
-              : null,
-      items: truckNumbers,
-      hintText: context.appText.select,
-      onChanged: (String? newTruckDisplay) {
-        if (newTruckDisplay != null) {
-          final selectedVehicle = vehicleList.firstWhere((v) {
-            final type = v.truckType?.type ?? "";
-            final subType = v.truckType?.subType ?? "";
-            final typeInfo =
-                (type.isNotEmpty || subType.isNotEmpty)
-                    ? " ($type ${subType.isNotEmpty ? subType : ""})"
-                    : "";
-            return "${v.truckNumber}$typeInfo".trim() == newTruckDisplay;
-          });
-          onTruckChanged(selectedVehicle.id);
-        }
-      },
-      dropdownBuilder: (context, selectedItem) {
-        if (selectedItem == null || selectedItem.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return Row(children: [Text(selectedItem)]);
-      },
-      emptyBuilder:
-          (context, _) => const Center(child: Text("No trucks found")),
-    );
-  }
+          onChanged: (VehicleDetail? newTruck) {
+            if (newTruck != null) {
+              onTruckChanged(newTruck.id);
+            } else {
+              onTruckChanged(null);
+            }
+          },
+        ),
+      ),
+    ],
+  );
+}
 
-  static Widget driverDropdown(
-    BuildContext context,
-    String? selectedDriverId,
-    ValueChanged<String?> onDriverChanged,
-    List<DriverDetails> driverList,
-  ) {
-    // Create a list of driver names with status label
-    final driverNames =
-        driverList.map((driver) {
-          final status = driver.activeStatus.trim().toLowerCase();
-          final statusLabel = status == "inactive" ? " (On Another Trip)" : "";
-          return "${driver.name}$statusLabel";
-        }).toList();
-
-    return SearchableDropdown(
-      labelText: context.appText.driverNameAndNumber,
-      mandatoryStar: true,
-      selectedItem:
-          selectedDriverId != null
-              ? driverList.firstWhere((v) => v.id == selectedDriverId).name
-              : null,
-      items: driverNames,
-      hintText: context.appText.select,
-      onChanged: (String? newDriver) {
-        if (newDriver != null) {
-          final actualName = newDriver.replaceAll(" (On Another Trip)", "");
-          final selectedDriver = driverList.firstWhere(
-            (v) => v.name == actualName,
-          );
-          if (selectedDriver.id != null && selectedDriver.id!.isNotEmpty) {
-            onDriverChanged(selectedDriver.id);
-          } else {
-            onDriverChanged(null);
-          }
-        } else {
-          onDriverChanged(null);
-        }
-      },
-      dropdownBuilder: (context, selectedItem) {
-        if (selectedItem == null || selectedItem.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return Row(children: [Text(selectedItem)]);
-      },
-      emptyBuilder:
-          (context, _) => const Center(child: Text("No Driver found")),
-    );
-  }
 }
