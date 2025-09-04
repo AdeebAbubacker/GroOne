@@ -205,6 +205,7 @@ class Customer {
     required this.kycType,
     required this.companyType,
       this.customerSeriesNo,
+      this.laneDetails,
   });
 
   final String customerId;
@@ -229,6 +230,7 @@ class Customer {
   final Type? kycType;
   final Type? companyType;
   final int? customerSeriesNo;
+  final List<LaneDetails>? laneDetails;
 
   Customer copyWith({
     String? customerId,
@@ -253,8 +255,11 @@ class Customer {
     dynamic deletedAt,
     Type? kycType,
     Type? companyType,
+    List<LaneDetails>? laneDetails,
   }) {
     return Customer(
+
+     laneDetails: laneDetails??this.laneDetails,
       customerId: customerId ?? this.customerId,
       customerName: customerName ?? this.customerName,
       mobileNumber: mobileNumber ?? this.mobileNumber,
@@ -280,7 +285,9 @@ class Customer {
   }
 
   factory Customer.fromJson(Map<String, dynamic> json){
+    List laneDetails=json['laneDetails'] ?? [];
     return Customer(
+      laneDetails:laneDetails.map((e) => LaneDetails.fromJson(e),).toList() ,
       customerId: json["customer_id"] ?? "",
       customerName: json["customerName"] ?? "",
       mobileNumber: json["mobileNumber"] ?? "",
@@ -600,4 +607,21 @@ class Vehicle {
     );
   }
 
+}
+
+class LaneDetails {
+  int? masterLaneId;
+  String? lane;
+
+  LaneDetails(
+  {
+    this.masterLaneId,
+    this.lane
+}
+      );
+
+  LaneDetails.fromJson(Map<String,dynamic> json){
+    masterLaneId=json['masterLaneId'];
+    lane=json['lane'];
+  }
 }

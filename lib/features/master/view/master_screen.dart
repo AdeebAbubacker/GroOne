@@ -108,16 +108,14 @@ class _MasterScreenState extends State<MasterScreen>
     await profileCubit.fetchProfileDetail();
     await vpCreationCubit.fetchPrefLane(null,isInit: true);
     _autoSelectPreSelectLanes();
-
+    lpHomeCubit.fetchLoadWeight();
   });
 
   void _autoSelectPreSelectLanes()  {
-
     ProfileDetailModel? profileDetailModel= profileCubit.state.profileDetailUIState?.data;
-    if((profileDetailModel?.vehicles??[]).isNotEmpty){
-      List<int> preferLanes=profileDetailModel?.vehicles.first.preferredLanes as List<int> ;
-      vpCreationCubit.autoSelectLanes(preferLanes);
-
+    List<LaneDetails> laneDetails=profileDetailModel?.customer?.laneDetails??[];
+    if((laneDetails).isNotEmpty){
+      vpCreationCubit.autoSelectLanes(laneDetails);
     }
     // profileDetailModel.vehicles
 
@@ -346,6 +344,7 @@ class _MasterScreenState extends State<MasterScreen>
                             final makeModel =
                                 vehicleData['vehicle_make_model'] ??
                                 vehicleData['modelNumber'];
+
                             if (makeModel != null) {
                               truckMakeModelController.text =
                                   makeModel.toString();

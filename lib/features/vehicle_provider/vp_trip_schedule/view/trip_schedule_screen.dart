@@ -72,7 +72,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
     vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId.toString()));
     vpHomeScreenBloc.add(VpDriverDetailsRequested(userId: userId.toString()));
-    _addSelfOption();
+    // _addSelfOption();
 
     //  Call your init methods
   });
@@ -131,7 +131,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         .where((element) => element.status == 1)
                         .toList());
 
-                _addSelfOption();
+                // _addSelfOption();
                 driverDetails.sort(
                   (a, b) => (b.self ?? 0).compareTo(a.self ?? 0),
                 );
