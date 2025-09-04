@@ -20,6 +20,7 @@ class AppTextField extends StatelessWidget {
   final Function(String)? onChanged;
   final TextEditingController? controller;
   final FocusNode? currentFocus;
+  final bool? enableInteractiveSelection;
   final FocusNode? nextFocus;
   final InputDecoration? decoration;
   final TextInputType? keyboardType;
@@ -66,6 +67,7 @@ class AppTextField extends StatelessWidget {
     this.mandatoryStar = false,
     this.enabled = true,
     this.textCapitalization = TextCapitalization.none,
+    this.enableInteractiveSelection = false,
   });
 
   @override
@@ -91,6 +93,7 @@ class AppTextField extends StatelessWidget {
           textAlign: textAlign ?? TextAlign.start,
           controller: controller,
           focusNode: currentFocus,
+          enableInteractiveSelection: enableInteractiveSelection ?? false,
           cursorColor: cursorColor ?? AppColors.lightGreyTextColor,
           cursorWidth: 1.5,
           keyboardType: keyboardType,

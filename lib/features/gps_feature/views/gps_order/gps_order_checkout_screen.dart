@@ -43,6 +43,7 @@ class GpsOrderCheckoutScreen extends StatefulWidget {
   final List<GpsProduct> products;
   final Map<String, int> quantities;
   final Map<String, List<String>>? previousVehicleSelection;
+  final Map<String, List<bool>>? vehicleStatus;
   final String? previousReferralCode;
   final bool? previousShippingSameAsBilling;
   final String? previousShippingPersonInCharge;
@@ -53,6 +54,7 @@ class GpsOrderCheckoutScreen extends StatefulWidget {
     required this.products,
     required this.quantities,
     this.previousVehicleSelection,
+    this.vehicleStatus,
     this.previousReferralCode,
     this.previousShippingSameAsBilling,
     this.previousShippingPersonInCharge,
@@ -68,6 +70,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   Map<String, List<TextEditingController>> vehicleControllersPerProduct = {};
   Map<String, List<bool>> vehicleVerificationStatusPerProduct =
       {}; // Track verification status
+  Map<String, List<bool>> vehicleStatusList = {}; // Track verification status
   late final GpsShippingAddressCubit gpsShippingAddressCubit;
   late final GpsBillingAddressCubit gpsBillingAddressCubit;
   late final GpsOrderCubit gpsOrderCubit;
@@ -94,6 +97,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
     WidgetsBinding.instance.addObserver(this);
     _quantities = Map<String, int>.from(widget.quantities);
     _products = List<GpsProduct>.from(widget.products);
+    if (widget.vehicleStatus != null) {
+      vehicleStatusList = widget.vehicleStatus!;
+    }
     _availableStocks = {};
 
     for (var product in _products) {
@@ -160,7 +166,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
       // Initialize verification status - vehicles from previous selection are considered verified
       final verificationStatus = List<bool>.generate(qty, (index) {
         if (index < previousControllers.length &&
-            previousControllers[index].isNotEmpty) {
+            previousControllers[index].isNotEmpty &&
+            vehicleStatusList[product.id] != null &&
+            vehicleStatusList[product.id]![index]) {
           return true; // Previously selected vehicles are verified
         } else {
           return false;
@@ -424,6 +432,12 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                   value.map((controller) => controller.text.trim()).toList(),
                 ),
               ),
+              'vehicleStatus': vehicleVerificationStatusPerProduct.map(
+                (key, value) => MapEntry(
+                  key,
+                  value.map((controller) => controller).toList(),
+                ),
+              ),
               'referralCode': referralCodeController.text.trim(),
               'shippingSameAsBilling': shippingSameAsBilling,
               'shippingPersonInCharge':
@@ -442,7 +456,10 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
           AppIconButton(
             onPressed: () {
               Navigator.of(context).push(
-                commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true),
+                commonRoute(
+                  LpSupport(showBackButton: true, ticketTag: TicketTags.GPS),
+                  isForward: true,
+                ),
               );
             },
             icon: AppIcons.svg.filledSupport,
@@ -524,6 +541,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                 .toList(),
                           ),
                         ),
+                        'vehicleStatus': vehicleVerificationStatusPerProduct
+                            .map(
+                              (key, value) => MapEntry(
+                                key,
+                                value.map((controller) => controller).toList(),
+                              ),
+                            ),
                         'referralCode': referralCodeController.text.trim(),
                         'shippingSameAsBilling': shippingSameAsBilling,
                         'shippingPersonInCharge':
@@ -1458,6 +1482,22 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
             }
           }
         });
+        List<bool> verificationStatusVal = [];
+        for (var product in _products) {
+          final qty = _quantities[product.id] ?? 0;
+          verificationStatusVal = List<bool>.generate(qty, (index) {
+            if (vehicleVerificationStatusPerProduct[product.id] != null &&
+                vehicleVerificationStatusPerProduct[product.id]![index]) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+        }
+        if (verificationStatusVal.contains(false)) {
+          ToastMessages.alert(message: 'Please verify all vehicles');
+          return;
+        }
 
         if (duplicateVehicles.isNotEmpty) {
           final uniqueDuplicates = duplicateVehicles.toSet().toList();

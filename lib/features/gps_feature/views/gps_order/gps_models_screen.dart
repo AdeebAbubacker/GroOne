@@ -27,7 +27,9 @@ import '../../widgets/gps_model_widget.dart';
 import 'gps_order_checkout_screen.dart';
 
 class GpsModelsScreen extends StatefulWidget {
-  const GpsModelsScreen({super.key});
+  var result;
+
+  GpsModelsScreen({super.key, this.result});
 
   @override
   State<GpsModelsScreen> createState() => _GpsModelsScreenState();
@@ -49,10 +51,12 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       _gpsProductsCubit = GpsProductsCubit(repository);
       _gpsProductsCubit.fetchGpsProducts();
     }
-    
+
     // Clear search field when navigating to this screen
     searchController.clear();
     _gpsProductsCubit.searchProducts('');
+    var res = widget.result;
+    callBackMethodFromOrderCheckoutScreen(res);
   }
 
   @override
@@ -63,6 +67,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   // Track previous vehicle selections
   Map<String, List<String>>? _previousVehicleSelection;
+  Map<String, List<bool>>? vehicleStatus;
 
   // Track previous form data
   String? _previousReferralCode;
@@ -72,22 +77,32 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   // Filtered products based on search
   List<KavachProduct> get _filteredProducts {
-    final products = _gpsProductsCubit.filteredProducts.map((gpsProduct) => gpsProduct.toKavachProduct()).toList();
+    final products =
+        _gpsProductsCubit.filteredProducts
+            .map((gpsProduct) => gpsProduct.toKavachProduct())
+            .toList();
 
     if (searchController.text.isEmpty) {
       return products;
     }
     return products.where((product) {
-      return product.name.toLowerCase().contains(searchController.text.toLowerCase()) ||
-          product.part.toLowerCase().contains(searchController.text.toLowerCase());
+      return product.name.toLowerCase().contains(
+            searchController.text.toLowerCase(),
+          ) ||
+          product.part.toLowerCase().contains(
+            searchController.text.toLowerCase(),
+          );
     }).toList();
   }
 
-
-
   // Get products that have quantities > 0
   List<KavachProduct> get _selectedProducts {
-    return _filteredProducts.where((product) => (_gpsProductsCubit.state.quantities[product.id] ?? 0) > 0).toList();
+    return _filteredProducts
+        .where(
+          (product) =>
+              (_gpsProductsCubit.state.quantities[product.id] ?? 0) > 0,
+        )
+        .toList();
   }
 
   // Get quantities map for selected products only
@@ -104,10 +119,9 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   Widget _buildProductsList(GpsProductsState state) {
     // Show loading state
-    if (state.productsState?.status == Status.LOADING && state.products.isEmpty) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+    if (state.productsState?.status == Status.LOADING &&
+        state.products.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
     }
 
     // Show error state
@@ -116,17 +130,11 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: AppColors.greyTextColor,
-            ),
+            Icon(Icons.error_outline, size: 64, color: AppColors.greyTextColor),
             16.height,
             Text(
               context.appText.failedToLoadGpsDevices,
-              style: AppTextStyle.h5.copyWith(
-                color: AppColors.greyTextColor,
-              ),
+              style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
             ),
             8.height,
             TextButton(
@@ -144,17 +152,11 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.search_off,
-              size: 64,
-              color: AppColors.greyTextColor,
-            ),
+            Icon(Icons.search_off, size: 64, color: AppColors.greyTextColor),
             16.height,
             Text(
               context.appText.noGpsDevicesFound,
-              style: AppTextStyle.h5.copyWith(
-                color: AppColors.greyTextColor,
-              ),
+              style: AppTextStyle.h5.copyWith(color: AppColors.greyTextColor),
             ),
           ],
         ),
@@ -162,8 +164,14 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     }
 
     // Separate in-stock and out-of-stock products
-    final inStockProducts = _filteredProducts.where((p) => (state.availableStocks[p.id] ?? 0) > 0).toList();
-    final outOfStockProducts = _filteredProducts.where((p) => (state.availableStocks[p.id] ?? 0) == 0).toList();
+    final inStockProducts =
+        _filteredProducts
+            .where((p) => (state.availableStocks[p.id] ?? 0) > 0)
+            .toList();
+    final outOfStockProducts =
+        _filteredProducts
+            .where((p) => (state.availableStocks[p.id] ?? 0) == 0)
+            .toList();
 
     // Combine them with in-stock first
     final sortedProducts = [...inStockProducts, ...outOfStockProducts];
@@ -192,7 +200,9 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
                 if (newQuantity <= availableStock) {
                   _gpsProductsCubit.incrementQuantity(product.id);
                 } else {
-                  ToastMessages.alert(message: 'Cannot add more items. Stock limit reached.');
+                  ToastMessages.alert(
+                    message: 'Cannot add more items. Stock limit reached.',
+                  );
                 }
               } else {
                 // Decrementing - no stock check needed
@@ -207,25 +217,31 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   void _onCheckoutPressed() async {
     if (_selectedProducts.isEmpty) {
-      ToastMessages.alert(message: context.appText.pleaseSelectAtLeastOneGpsDevice);
+      ToastMessages.alert(
+        message: context.appText.pleaseSelectAtLeastOneGpsDevice,
+      );
       return;
     }
 
     final result = await Navigator.of(context).push(
       commonRoute(
         GpsOrderCheckoutScreen(
-          products: _selectedProducts.map((kavachProduct) =>
-              GpsProduct(
-                id: kavachProduct.id,
-                fleetProductId: '1',
-                name: kavachProduct.name,
-                part: kavachProduct.part,
-                price: kavachProduct.price.toString(),
-                gstPerc: kavachProduct.gstPerc.toString(),
-              )
-          ).toList(),
+          products:
+              _selectedProducts
+                  .map(
+                    (kavachProduct) => GpsProduct(
+                      id: kavachProduct.id,
+                      fleetProductId: '1',
+                      name: kavachProduct.name,
+                      part: kavachProduct.part,
+                      price: kavachProduct.price.toString(),
+                      gstPerc: kavachProduct.gstPerc.toString(),
+                    ),
+                  )
+                  .toList(),
           quantities: _selectedQuantities,
           previousVehicleSelection: _previousVehicleSelection,
+          vehicleStatus: vehicleStatus,
           previousReferralCode: _previousReferralCode,
           previousShippingSameAsBilling: _previousShippingSameAsBilling,
           previousShippingPersonInCharge: _previousShippingPersonInCharge,
@@ -235,12 +251,15 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     );
 
     // Handle result from checkout screen
+    callBackMethodFromOrderCheckoutScreen(result);
+  }
+
+  callBackMethodFromOrderCheckoutScreen(var result) {
     if (result != null) {
-      
       // Clear search text when returning from checkout (Add More or other navigation)
       searchController.clear();
       _gpsProductsCubit.searchProducts('');
-      
+
       // Update quantities based on result from checkout
       if (result is Map<String, dynamic>) {
         // Handle new format with quantities and vehicles
@@ -257,11 +276,28 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
           try {
             final vehiclesData = result['vehicles'] as Map<String, dynamic>;
             _previousVehicleSelection = vehiclesData.map(
-                  (key, value) => MapEntry(
+              (key, value) => MapEntry(
                 key,
-                (value as List<dynamic>).map((item) => item.toString()).toList(),
+                (value as List<dynamic>)
+                    .map((item) => item.toString())
+                    .toList(),
               ),
             );
+          } catch (e) {
+            _previousVehicleSelection = null;
+          }
+        }
+        if (result.containsKey('vehicleStatus')) {
+          try {
+            final vehiclesData =
+                result['vehicleStatus'] as Map<String, dynamic>;
+            vehicleStatus = vehiclesData.map(
+              (key, value) => MapEntry(
+                key,
+                (value as List<bool>).map((item) => item).toList(),
+              ),
+            );
+            debugPrint('vehiclesDataInPreviousScreen $vehiclesData');
           } catch (e) {
             _previousVehicleSelection = null;
           }
@@ -273,15 +309,18 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         }
 
         if (result.containsKey('shippingSameAsBilling')) {
-          _previousShippingSameAsBilling = result['shippingSameAsBilling'] as bool?;
+          _previousShippingSameAsBilling =
+              result['shippingSameAsBilling'] as bool?;
         }
 
         if (result.containsKey('shippingPersonInCharge')) {
-          _previousShippingPersonInCharge = result['shippingPersonInCharge'] as String?;
+          _previousShippingPersonInCharge =
+              result['shippingPersonInCharge'] as String?;
         }
 
         if (result.containsKey('shippingPersonContactNo')) {
-          _previousShippingPersonContactNo = result['shippingPersonContactNo'] as String?;
+          _previousShippingPersonContactNo =
+              result['shippingPersonContactNo'] as String?;
         }
       }
     } else {
@@ -292,7 +331,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       _previousShippingSameAsBilling = null;
       _previousShippingPersonInCharge = null;
       _previousShippingPersonContactNo = null;
-      
+
       // Clear search text when returning from checkout
       searchController.clear();
       _gpsProductsCubit.searchProducts('');
@@ -309,7 +348,12 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
           AppIconButton(
             onPressed: () {
               // Navigate to support screen
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
+              Navigator.of(context).push(
+                commonRoute(
+                  LpSupport(showBackButton: true, ticketTag: TicketTags.GPS),
+                  isForward: true,
+                ),
+              );
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -337,9 +381,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
                 ),
                 20.height,
                 // Products list
-                Expanded(
-                  child: _buildProductsList(state),
-                ),
+                Expanded(child: _buildProductsList(state)),
               ],
             ).paddingAll(commonSafeAreaPadding);
           },
@@ -349,53 +391,61 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       bottomNavigationBar: BlocBuilder<GpsProductsCubit, GpsProductsState>(
         bloc: _gpsProductsCubit,
         builder: (context, state) {
-          final totalQuantity = state.quantities.values.fold<int>(0, (sum, qty) => sum + qty);
-          final totalPrice = _filteredProducts.fold<double>(0.0, (sum, product) {
+          final totalQuantity = state.quantities.values.fold<int>(
+            0,
+            (sum, qty) => sum + qty,
+          );
+          final totalPrice = _filteredProducts.fold<double>(0.0, (
+            sum,
+            product,
+          ) {
             final quantity = state.quantities[product.id] ?? 0;
             return sum + (product.price * quantity);
           });
-          
+
           return totalQuantity > 0
               ? Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(top: BorderSide(color: Colors.grey.shade300, width: 1.0)),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.transparent,
-                  spreadRadius: 2,
-                  blurRadius: 8,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              top: false,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "₹ ${NumberFormat("#,##,###").format(totalPrice.toInt())}",
-                        style: AppTextStyle.h4,
-                      ),
-                      Text(
-                        "$totalQuantity ${totalQuantity == 1 ? context.appText.item : context.appText.items}",
-                        style: AppTextStyle.bodyPrimaryColor,
-                      ),
-                    ],
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  border: Border(
+                    top: BorderSide(color: Colors.grey.shade300, width: 1.0),
                   ),
-                  AppButton(
-                    title: context.appText.checkout.capitalize,
-                    onPressed: _onCheckoutPressed,
-                  ).withWidth(180),
-                ],
-              ).paddingSymmetric(horizontal: 20, vertical: 20),
-            ),
-          )
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.transparent,
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: SafeArea(
+                  top: false,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "₹ ${NumberFormat("#,##,##0.00").format(totalPrice.toDouble())}",
+                            style: AppTextStyle.h4,
+                          ),
+                          Text(
+                            "$totalQuantity ${totalQuantity == 1 ? context.appText.item : context.appText.items}",
+                            style: AppTextStyle.bodyPrimaryColor,
+                          ),
+                        ],
+                      ),
+                      AppButton(
+                        title: context.appText.checkout.capitalize,
+                        onPressed: _onCheckoutPressed,
+                      ).withWidth(180),
+                    ],
+                  ).paddingSymmetric(horizontal: 20, vertical: 20),
+                ),
+              )
               : const SizedBox.shrink();
         },
       ),

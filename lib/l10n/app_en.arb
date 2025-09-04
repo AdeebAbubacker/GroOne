@@ -586,7 +586,7 @@
   "cardInformation": "Card Information",
   "card": "Card",
   "deleteThisCard": "Delete this card",
-  "selectVehicleNumber": "Select vehicle number",
+  "selectVehicleNumber": "Enter vehicle number",
   "loadingVehicleTypes": "Loading vehicle types...",
   "noVehicleTypesAvailable": "No vehicle types available",
   "vehicleTypeRequired": "Vehicle type is required",
