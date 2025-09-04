@@ -16,7 +16,7 @@ import 'package:gro_one_app/utils/extra_utils.dart';
 import '../../../utils/app_icons.dart';
 
 class LpMyAccount extends StatefulWidget {
-  final Customer? customerDetail;
+  final CustomerDataResponse? customerDetail;
   final BankDetails? bankDetails;
   final KycDoc? kycDoc;
   const LpMyAccount({super.key, required this.customerDetail, required this.bankDetails,

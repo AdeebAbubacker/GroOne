@@ -127,7 +127,7 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
 
 
   /// auto select lanes
-  void autoSelectLanes(List<LaneDetails> laneDetails){
+  void autoSelectLanes(List<LaneDetailsResponse> laneDetails){
     List<Item> items= state.prefLaneUIState?.data?.data?.items??[];
     List<Item> modifiedList=List.from(items);
     List<Item> selectedList=[];

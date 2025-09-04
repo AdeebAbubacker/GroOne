@@ -364,7 +364,7 @@ class AppRoutes {
         path: AppRouteName.myAccount,
         pageBuilder: (BuildContext context, GoRouterState state) {
           final data = state.extra as Map<String, dynamic>;
-          final Customer customerDetail = data["customerDetail"];
+          final CustomerDataResponse customerDetail = data["customerDetail"];
           final BankDetails bankDetails = data["bankDetails"];
           final KycDoc kycDoc = data["kycDoc"];
 

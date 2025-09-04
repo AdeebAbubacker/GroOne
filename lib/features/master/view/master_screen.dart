@@ -113,7 +113,7 @@ class _MasterScreenState extends State<MasterScreen>
 
   void _autoSelectPreSelectLanes()  {
     ProfileDetailModel? profileDetailModel= profileCubit.state.profileDetailUIState?.data;
-    List<LaneDetails> laneDetails=profileDetailModel?.customer?.laneDetails??[];
+    List<LaneDetailsResponse> laneDetails=profileDetailModel?.customer?.laneDetails??[];
     if((laneDetails).isNotEmpty){
       vpCreationCubit.autoSelectLanes(laneDetails);
     }
