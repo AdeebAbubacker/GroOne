@@ -1319,7 +1319,8 @@
   "lanes":"Lanes",
   "supportTicket":"Support Ticket",
   "ticket":"Ticket",
-  "forAnyQueriesContactSupportTeam": "For any further queries, please contact the support team."
+  "forAnyQueriesContactSupportTeam": "For any further queries, please contact the support team.",
+  "onAnotherTrip" : "On Another Trip"
 
   "self":"Self"
 
