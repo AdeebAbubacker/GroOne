@@ -49,7 +49,8 @@ class FastagNewUserScreen extends StatelessWidget {
               buildFastagProductImageWidget(context),
               20.height,
               buildFastagBenefitsDetailsWidget(context),
-              buildGroBannerImageWidget(),
+              // Removed as per change request
+              // buildGroBannerImageWidget(),
             ],
           ),
         ),
