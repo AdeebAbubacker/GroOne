@@ -10,6 +10,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/widgets/company_type_dropdown.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -33,6 +34,11 @@ import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
+import 'package:flutter/material.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/model/searchable_dropdown_menu_item.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 
 
 class LpCreateAccount extends StatefulWidget {
@@ -187,19 +193,32 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
               if (isSuccess && data != null) {
                 return Column(
                   children: [
-                    CompanyTypeSearchableDropdown(
-                      key: AppKeys.ddl('company_type'),
-                      selectedCompanyTypeId: companyTypeDropDownValue,
-                      onCompanyTypeChanged: (newVal) {
-                        setState(() {
-                          companyTypeDropDownValue = newVal;
-                        });
-                      },
-                      companyTypeList: data,
-                      labelText: context.appText.companyType,
-                      hintText: context.appText.selectCompanyType,
-                      mandatoryStar: true,
-                    ),
+                  LpCompanyTypeSearchableDropdown(
+                    key: AppKeys.ddl('company_type'),
+                    selectedCompanyTypeId: companyTypeDropDownValue,
+                    onCompanyTypeChanged: (newVal) {
+                      if (!mounted) return;
+                      setState(() {
+                        companyTypeDropDownValue = newVal;
+                      });
+                    },
+                    fetchCompanyTypes: (page, searchKey) async {
+                        final companyList = lpCreateCubit.state.companyTypeUIState?.data ?? [];
+
+                      // Optional: filter by search key
+                      final filtered = searchKey == null || searchKey.isEmpty
+                          ? companyList
+                          : companyList
+                              .where((c) =>
+                                  c.companyType.toLowerCase().contains(searchKey.toLowerCase()))
+                              .toList();
+
+                      return filtered;
+                    },
+                    labelText: context.appText.companyType,
+                    hintText: context.appText.selectCompanyType,
+                    mandatoryStar: true,
+                  ),
                     20.height,
                   ],
                 );
@@ -402,4 +421,80 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
     );
   }
 
+}
+
+
+
+
+class LpCompanyTypeSearchableDropdown extends StatelessWidget {
+  final String? selectedCompanyTypeId;
+  final ValueChanged<String?> onCompanyTypeChanged;
+  final Future<List<LpCompanyTypeModel>> Function(int page, String? searchKey) fetchCompanyTypes;
+  final String labelText;
+  final String hintText;
+  final bool mandatoryStar;
+
+  const LpCompanyTypeSearchableDropdown({
+    super.key,
+    required this.selectedCompanyTypeId,
+    required this.onCompanyTypeChanged,
+    required this.fetchCompanyTypes,
+    required this.labelText,
+    required this.hintText,
+    this.mandatoryStar = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(labelText, style: AppTextStyle.textFiled),
+            if (mandatoryStar)
+              Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(4),
+            color: Colors.white,
+          ),
+          child: SearchableDropdown<LpCompanyTypeModel>.paginated(
+            hintText: Text(hintText, style: AppTextStyle.textFieldHint),
+            isDialogExpanded: false,
+            requestItemCount: 10,
+
+            // Initial selected value
+            initialValue: selectedCompanyTypeId != null
+                ? SearchableDropdownMenuItem<LpCompanyTypeModel>(
+                    value: null, // We will resolve the selected item in paginatedRequest
+                    label: '',
+                    child: const SizedBox.shrink(),
+                  )
+                : null,
+
+            // Pagination request
+            paginatedRequest: (int page, String? searchKey) async {
+              final companyTypes = await fetchCompanyTypes(page, searchKey);
+              return companyTypes.map((company) {
+                return SearchableDropdownMenuItem<LpCompanyTypeModel>(
+                  value: company,
+                  label: company.companyType.toString(),
+                  child: Text(company.companyType.toString()),
+                );
+              }).toList();
+            },
+
+            onChanged: (LpCompanyTypeModel? newCompany) {
+              onCompanyTypeChanged(newCompany?.id.toString());
+            },
+          ),
+        ),
+      ],
+    );
+  }
 }
