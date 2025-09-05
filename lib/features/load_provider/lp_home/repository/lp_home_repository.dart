@@ -2,6 +2,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/location_address_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/lp_get_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_detail_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
@@ -124,6 +125,15 @@ class LpHomeRepository{
     try {
       String userId = await _userInformationRepository.getUserID() ?? '';
       return await _lpHomeService.setBluIDFlag(userId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// fetch location address
+  Future<Result<LocationAddressResponse>> fetchLocationAddress({required double lat, required double lng}) async {
+    try {
+      return await _lpHomeService.fetchLocationAddress(lat: lat, lng: lng);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
