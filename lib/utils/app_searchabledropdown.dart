@@ -84,6 +84,7 @@ class SearchableDropdown extends StatelessWidget {
              backgroundColor: AppColors.white, 
             ), 
             searchFieldProps: TextFieldProps(
+
             decoration: InputDecoration(
               prefixIcon: const Icon(Icons.search, color: Colors.grey),
               hintText: "${context.appText.search}...",
