@@ -167,11 +167,11 @@ Future<void> _loadEnvironmentVariables() async {
   try {
     await dotenv.load(
       /// uat environment
-      fileName: "assets/env/.env.uat"
+      // fileName: "assets/env/.env.uat"
       /// dev environment
-      // fileName: "assets/env/.env.dev"
+      // fileName: "assets/env/.env.dev",
       /// prod environment
-      // fileName: "assets/env/.env.production",
+      fileName: "assets/env/.env.production",
     );
     debugPrint("✅ Environment variables loaded successfully");
   } catch (e) {

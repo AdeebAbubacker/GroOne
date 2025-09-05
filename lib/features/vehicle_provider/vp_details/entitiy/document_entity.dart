@@ -128,6 +128,7 @@ class DocumentDataModel {
 Future<int> getDocumentTypeId(String name) async {
   final cubit=locator<DocumentTypeCubit>();
   int documentTypeID= await cubit.getDocumentTypeId(name);
+
   return documentTypeID;
 }
 
