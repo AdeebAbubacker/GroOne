@@ -236,6 +236,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
                   text: formatted,
                   selection: TextSelection.collapsed(offset: formatted.length),
                 );
+
                 if (value.isNotEmpty) {
                   final enteredValue = int.tryParse(value) ?? 0;
                   final maxAllowed = int.tryParse(

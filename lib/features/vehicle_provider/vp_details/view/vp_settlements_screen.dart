@@ -6,6 +6,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/settlement_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/cubit/load_details_state.dart';
+import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_service.dart';
@@ -43,6 +44,10 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
   TextEditingController loadingAmount = TextEditingController();
   TextEditingController unloadingAmount = TextEditingController();
 
+  String? detentionAmountRow;
+  String? loadingAmountRow;
+  String? unloadingAmountRow;
+
   final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   final formKey = GlobalKey<FormState>();
@@ -77,9 +82,9 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 
   bool get canSubmit {
   final numberOfDays = int.tryParse(noOfDays.text) ?? 0;
-  final amountPerDays = int.tryParse(detentionAmount.text) ?? 0;
-  final loadingChargeVal = int.tryParse(loadingAmount.text) ?? 0;
-  final unloadingChargeVal = int.tryParse(unloadingAmount.text) ?? 0;
+  final amountPerDays = int.tryParse(detentionAmountRow??"") ?? 0;
+  final loadingChargeVal = int.tryParse(loadingAmountRow??"") ?? 0;
+  final unloadingChargeVal = int.tryParse(unloadingAmountRow??"") ?? 0;
 
   final detentionValid = numberOfDays > 0 && amountPerDays > 0;
   final chargesValid = loadingChargeVal > 0 || unloadingChargeVal > 0;
@@ -88,9 +93,8 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
 }
  void _refresh() => setState(() {});
   void createAndSubmitSettlements(){
-
     int numberOfDays=int.tryParse(noOfDays.text)??0;
-   int amountPerDays= int.tryParse(detentionAmount.text)??0;
+    int amountPerDays= int.tryParse(detentionAmountRow??"0")??0;
 
    if(numberOfDays>0){
      if(amountPerDays==0 && loadingAmount.text.isEmpty){
@@ -100,12 +104,12 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
    }
 
 
-    vpDetailsCubit.submitSettlement(SettlementApiRequest(
+   vpDetailsCubit.submitSettlement(SettlementApiRequest(
       loadId: widget.loadId??"",
       amountPerDay:amountPerDays,
-      loadingCharge: int.tryParse(loadingAmount.text)??0,
+      loadingCharge: int.tryParse(loadingAmountRow??"0")??0,
       noOfDays:numberOfDays,
-      unloadingCharge: int.tryParse(unloadingAmount.text)??0,
+      unloadingCharge: int.tryParse(unloadingAmountRow??"0")??0,
       vehicleId: widget.vehicleID??"",
     ));
   }
@@ -155,11 +159,22 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                         labelText: context.appText.amount,
                         hintText: "Ex: 2000",
                         keyboardType: TextInputType.number,
+                        onChanged: (p0) {
+                          detentionAmountRow=p0;
+
+
+                          final formatted = PriceHelper.formatINR(p0,addDecimal:false);
+                          detentionAmount.value = TextEditingValue(
+                            text: formatted,
+                            selection: TextSelection.collapsed(offset: formatted.length),
+                          );
+                        },
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
                           LengthLimitingTextInputFormatter(8),
                         ],
                       ),
+
                     ),
                   ],
                 );
@@ -173,6 +188,13 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
+                onChanged: (p0) {
+                  loadingAmountRow=p0;
+                  final formatted = PriceHelper.formatINR(p0,addDecimal:false);
+                  loadingAmount.value = TextEditingValue(
+                      text: formatted,
+                      selection: TextSelection.collapsed(offset: formatted.length));
+                },
 
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
@@ -188,7 +210,14 @@ class _VpSettlementsScreenState extends State<VpSettlementsScreen> {
                 labelText: context.appText.amount,
                 hintText: "Ex: 2000",
                 keyboardType: TextInputType.number,
+                onChanged: (p0) {
 
+                  unloadingAmountRow=p0;
+                  final formatted = PriceHelper.formatINR(p0,addDecimal:false);
+                  unloadingAmount.value = TextEditingValue(
+                      text: formatted,
+                      selection: TextSelection.collapsed(offset: formatted.length));
+                },
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[0-9 ]')),
                   LengthLimitingTextInputFormatter(8),
