@@ -101,7 +101,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   Future<void> getLoadDetails(String loadId) async {
     emit(state.copyWith(
-
         loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
@@ -168,6 +167,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           destLat: double.tryParse(drop.first) ?? 0.0,
           destLong: double.tryParse(drop.last) ?? 0.0,
         );
+        print("data getting from here");
       } else {
 
         request = TrackingDistanceApiRequest(
@@ -181,6 +181,8 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       }
 
       await getTrackingDistance(request: request);
+    }else{
+      print("calling else part");
     }
   }
 
