@@ -151,7 +151,10 @@ LoadStatus getLoadStatus(int? status) {
 }
 
 LoadStatus? getVPLoadStatusFromString(String? loadType) {
+
   switch (loadType) {
+    case 'Matching':
+      return LoadStatus.matching;
     case 'Confirmed':
       return LoadStatus.accepted;
     case 'Assigned':
@@ -176,11 +179,11 @@ enum DocumentFileType {
   lorryReceipt('lorry_receipt', documentType: "Lorry Receipt"),
   ewayBill('eway_bill', documentType: "Eway Bill"),
   materialInvoice('material_invoice', documentType: "Material Invoice"),
-  proofOfDelivery('proof_of_delivery', documentType: "Proof of Delivery"),
-  uploadOtherDocument('other_documents', documentType: "Other Documents"),
+  proofOfDelivery('proof_of_delivery', documentType: "Upload POD"),
+  uploadOtherDocument('upload_other_document', documentType: "Upload Other Documents"),
   damageAndShortage('damages_and_shortages', documentType: "Damages and Shortages",),
   aadharDocument('aadhaar_card', documentType: 'Aadhaar Card'),
-  panDocument('aadhaar_card', documentType: 'PAN Card'),
+  panDocument('pan_card', documentType: 'PAN Card'),
   tanDocument('tan_document', documentType: 'Tan Document'),
   gstinDocument('gst_document', documentType: 'GST Document'),
   tdsDocument('tds', documentType: 'TDS'),
