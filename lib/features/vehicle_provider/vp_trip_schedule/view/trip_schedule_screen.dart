@@ -75,9 +75,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     String? userId = await vpHomeScreenBloc.getUserId() ?? "0";
 
     vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId.toString()));
-    vpHomeScreenBloc.add(
-      VpDriverDetailsRequested(userId: userId.toString()),
-    );
+    vpHomeScreenBloc.add(VpDriverDetailsRequested(userId: userId.toString()));
     //  Call your init methods
   });
 
@@ -122,7 +120,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
               setState(() {
                 driverDetails =
                     state.driverListResponse.data
-                        .where((element) => element.status == 1)
+                        .where((element) => element.driverStatus == 1)
                         .toList();
               });
             }
@@ -143,61 +141,70 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 8,
                       children: [
-                        // truckNoSearchableDropdown(context, truckType, (
-                        //   truckId,
-                        // ) {
-                        //   setState(() {
-                        //     truckType = truckId;
-                        //   });
-                        // }, vehicleDetail),
- truckNoSearchableDropdown(
-  context,
-  truckType,
-  (truckId) {
-    setState(() {
-      truckType = truckId;
-    });
-  },
-  // Paginated fetch function using BLoC
-  (page, searchKey) async {
-    final userId = await vpHomeScreenBloc.getUserId() ?? "0";
+                        truckNoSearchableDropdown(
+                          context,
+                          truckType,
+                          (truckId) {
+                            setState(() {
+                              truckType = truckId;
+                            });
+                          },
+                          // Paginated fetch function using BLoC
+                          (page, searchKey) async {
+                            final userId =
+                                await vpHomeScreenBloc.getUserId() ?? "0";
 
-    // Trigger BLoC event to fetch vehicle list
-    vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId));
+                            // Trigger BLoC event to fetch vehicle list
+                            vpHomeScreenBloc.add(
+                              VpVehicleListRequested(
+                                userId: userId,
+                                search: searchKey,
+                              ),
+                            );
 
-    // Wait for the BLoC to emit success state
-    final completer = Completer<List<VehicleDetail>>();
+                            // Wait for the BLoC to emit success state
+                            final completer = Completer<List<VehicleDetail>>();
 
-    final subscription = vpHomeScreenBloc.stream.listen((state) {
-      if (state is VpVehicleListSuccess) {
-        // Filter based on searchKey
-        final filtered = state.vehicleListResponse.data
-            .where((v) =>
-                searchKey == null ||
-                v.truckNumber.toLowerCase().contains(searchKey.toLowerCase()))
-            .toList();
-        completer.complete(filtered);
-      } else if (state is VpMyLoadListError) {
-        completer.complete([]);
-      }
-    });
+                            final subscription = vpHomeScreenBloc.stream.listen(
+                              (state) {
+                                if (state is VpVehicleListSuccess) {
+                                  // Filter based on searchKey
+                                  final filtered =
+                                      state.vehicleListResponse.data
+                                          .where(
+                                            (v) =>
+                                                searchKey == null ||
+                                                v.truckNumber
+                                                    .toLowerCase()
+                                                    .contains(
+                                                      searchKey.toLowerCase(),
+                                                    ),
+                                          )
+                                          .toList();
+                                  completer.complete(filtered);
+                                } else if (state is VpMyLoadListError) {
+                                  completer.complete([]);
+                                }
+                              },
+                            );
 
-    final vehicles = await completer.future;
-    await subscription.cancel();
-    return vehicles;
-  },
-  // Optional: initial selected truck
-  selectedTruck: (() {
-    final currentState = vpHomeScreenBloc.state;
-    if (currentState is VpVehicleListSuccess) {
-      return currentState.vehicleListResponse.data
-          .firstWhereOrNull((v) => v.id == truckType);
-    }
-    return null;
-  })(),
-),
-
-
+                            final vehicles = await completer.future;
+                            await subscription.cancel();
+                            return vehicles;
+                          },
+                          // Optional: initial selected truck
+                          selectedTruck:
+                              (() {
+                                final currentState = vpHomeScreenBloc.state;
+                                if (currentState is VpVehicleListSuccess) {
+                                  return currentState.vehicleListResponse.data
+                                      .firstWhereOrNull(
+                                        (v) => v.id == truckType,
+                                      );
+                                }
+                                return null;
+                              })(),
+                        ),
 
                         GestureDetector(
                           onTap: () => addVehicleAndDriver(2),
@@ -217,23 +224,26 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       spacing: 8,
                       children: [
                         driverDropdown(
-  context,
-  driverType,
-  (driverId) {
-    setState(() {
-      driverType = driverId;
-    });
-  },
-  vpHomeScreenBloc,
-  selectedDriver: (() {
-    final currentState = vpHomeScreenBloc.state;
-    if (currentState is VpDriverListSuccess) {
-      return currentState.driverListResponse.data
-          .firstWhereOrNull((d) => d.id == driverType);
-    }
-    return null;
-  })(),
-),
+                          context,
+                          driverType,
+                          (driverId) {
+                            setState(() {
+                              driverType = driverId;
+                            });
+                          },
+                          vpHomeScreenBloc,
+                          selectedDriver:
+                              (() {
+                                final currentState = vpHomeScreenBloc.state;
+                                if (currentState is VpDriverListSuccess) {
+                                  return currentState.driverListResponse.data
+                                      .firstWhereOrNull(
+                                        (d) => d.driverStatus == driverType,
+                                      );
+                                }
+                                return null;
+                              })(),
+                        ),
 
                         GestureDetector(
                           onTap: () => addVehicleAndDriver(3),
@@ -396,168 +406,188 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     );
   }
 
-
-static Widget driverDropdown(
-  BuildContext context,
-  String? selectedDriverId,
-  ValueChanged<String?> onDriverChanged,
-  // BLoC instance
-  VpHomeBloc vpHomeScreenBloc, {
-  DriverDetails? selectedDriver,
-}) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-       Row(
+  static Widget driverDropdown(
+    BuildContext context,
+    String? selectedDriverId,
+    ValueChanged<String?> onDriverChanged,
+    // BLoC instance
+    VpHomeBloc vpHomeScreenBloc, {
+    DriverDetails? selectedDriver,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
-            Text(context.appText.driverNameAndNumber, style: AppTextStyle.textFiled),
+            Text(
+              context.appText.driverNameAndNumber,
+              style: AppTextStyle.textFiled,
+            ),
             const SizedBox(width: 2),
-            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            Text(
+              " *",
+              style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+            ),
           ],
         ),
         const SizedBox(height: 6),
-      Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(4),
-          color: Colors.white,
-        ),
-        child: SearchableDropdown<DriverDetails>.paginated(
-          hintText: Text(
-            context.appText.select,
-            style: AppTextStyle.textFieldHint,
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(4),
+            color: Colors.white,
           ),
-          isDialogExpanded: false,
-          requestItemCount: 10,
+          child: SearchableDropdown<DriverDetails>.paginated(
+            hintText: Text(
+              context.appText.select,
+              style: AppTextStyle.textFieldHint,
+            ),
+            isDialogExpanded: false,
+            requestItemCount: 10,
 
-          // Initial selected value
-          initialValue: selectedDriver != null
-              ? SearchableDropdownMenuItem<DriverDetails>(
-                  value: selectedDriver,
-                  label: selectedDriver.name,
-                  child: Text(selectedDriver.name),
-                )
-              : null,
+            // Initial selected value
+            initialValue:
+                selectedDriver != null
+                    ? SearchableDropdownMenuItem<DriverDetails>(
+                      value: selectedDriver,
+                      label: selectedDriver.name,
+                      child: Text(selectedDriver.name),
+                    )
+                    : null,
 
-          // Pagination request
-          paginatedRequest: (int page, String? searchKey) async {
-            final userId = await vpHomeScreenBloc.getUserId() ?? "0";
+            // Pagination request
+            paginatedRequest: (int page, String? searchKey) async {
+              final userId = await vpHomeScreenBloc.getUserId() ?? "0";
 
-            // Trigger BLoC event
-            vpHomeScreenBloc.add(VpDriverDetailsRequested(userId: userId));
-
-            // Wait for BLoC to emit success state
-            final completer = Completer<List<DriverDetails>>();
-            final subscription = vpHomeScreenBloc.stream.listen((state) {
-              if (state is VpDriverListSuccess) {
-                final filtered = state.driverListResponse.data
-                    .where((driver) => searchKey == null ||
-                        driver.name
-                            .toLowerCase()
-                            .contains(searchKey.toLowerCase()))
-                    .toList();
-                completer.complete(filtered);
-              } else if (state is VpMyLoadListError) {
-                completer.complete([]);
-              }
-            });
-
-            final drivers = await completer.future;
-            await subscription.cancel();
-            return drivers.map((driver) {
-              final status = driver.activeStatus.trim().toLowerCase();
-              final statusLabel =
-                  status == "inactive" ? " (On Another Trip)" : "";
-              return SearchableDropdownMenuItem<DriverDetails>(
-                value: driver,
-                label: "${driver.name}$statusLabel",
-                child: Text("${driver.name}$statusLabel"),
+              // Trigger BLoC event
+              vpHomeScreenBloc.add(
+                VpDriverDetailsRequested(userId: userId, search: searchKey),
               );
-            }).toList();
-          },
 
-          onChanged: (DriverDetails? newDriver) {
-            if (newDriver != null) {
-              onDriverChanged(newDriver.id);
-            } else {
-              onDriverChanged(null);
-            }
-          },
+              // Wait for BLoC to emit success state
+              final completer = Completer<List<DriverDetails>>();
+              final subscription = vpHomeScreenBloc.stream.listen((state) {
+                if (state is VpDriverListSuccess) {
+                  final filtered =
+                      state.driverListResponse.data
+                          .where(
+                            (driver) =>
+                                searchKey == null ||
+                                driver.name.toLowerCase().contains(
+                                  searchKey.toLowerCase(),
+                                ),
+                          )
+                          .toList();
+                  completer.complete(filtered);
+                } else if (state is VpMyLoadListError) {
+                  completer.complete([]);
+                }
+              });
+
+              final drivers = await completer.future;
+              await subscription.cancel();
+              return drivers.map((driver) {
+                final status = driver.activeStatus.trim().toLowerCase();
+                final statusLabel =
+                    status == "inactive" ? " (On Another Trip)" : "";
+                return SearchableDropdownMenuItem<DriverDetails>(
+                  value: driver,
+                  label: "${driver.name}$statusLabel",
+                  child: Text("${driver.name}$statusLabel"),
+                );
+              }).toList();
+            },
+
+            onChanged: (DriverDetails? newDriver) {
+              if (newDriver != null) {
+                onDriverChanged(newDriver.driverId);
+              } else {
+                onDriverChanged(null);
+              }
+            },
+          ),
         ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 
   static Widget truckNoSearchableDropdown(
-  BuildContext context,
-  String? selectedTruckId,
-  ValueChanged<String?> onTruckChanged,
-  Future<List<VehicleDetail>> Function(int page, String? searchKey) fetchTrucks,
-  {VehicleDetail? selectedTruck}
-) {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Row(
+    BuildContext context,
+    String? selectedTruckId,
+    ValueChanged<String?> onTruckChanged,
+    Future<List<VehicleDetail>> Function(int page, String? searchKey)
+    fetchTrucks, {
+    VehicleDetail? selectedTruck,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
           children: [
             Text(context.appText.truckNumber, style: AppTextStyle.textFiled),
             const SizedBox(width: 2),
-            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            Text(
+              " *",
+              style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+            ),
           ],
         ),
         const SizedBox(height: 6),
-      Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey.shade400),
-          borderRadius: BorderRadius.circular(4),
-          color: Colors.white,
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(4),
+            color: Colors.white,
+          ),
+          child: SearchableDropdown<VehicleDetail>.paginated(
+            hintText: Text(
+              context.appText.select,
+              style: AppTextStyle.textFieldHint,
+            ),
+            isDialogExpanded: false,
+            requestItemCount: 10,
+
+            // Initial selected value
+            initialValue:
+                selectedTruck != null
+                    ? SearchableDropdownMenuItem<VehicleDetail>(
+                      value: selectedTruck,
+                      label:
+                          "${selectedTruck.truckNumber}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
+                      child: Text(
+                        "${selectedTruck.truckNumber}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
+                      ),
+                    )
+                    : null,
+
+            // Pagination request
+            paginatedRequest: (int page, String? searchKey) async {
+              final trucks = await fetchTrucks(page, searchKey);
+              return trucks.map((truck) {
+                final type = truck.truckType?.type ?? "";
+                final subType = truck.truckType?.subType ?? "";
+                final typeInfo =
+                    (type.isNotEmpty || subType.isNotEmpty)
+                        ? " ($type ${subType.isNotEmpty ? subType : ""})"
+                        : "";
+                return SearchableDropdownMenuItem<VehicleDetail>(
+                  value: truck,
+                  label: "${truck.truckNumber}$typeInfo",
+                  child: Text("${truck.truckNumber}$typeInfo"),
+                );
+              }).toList();
+            },
+
+            onChanged: (VehicleDetail? newTruck) {
+              if (newTruck != null) {
+                onTruckChanged(newTruck.id);
+              } else {
+                onTruckChanged(null);
+              }
+            },
+          ),
         ),
-        child: SearchableDropdown<VehicleDetail>.paginated(
-          hintText: Text(context.appText.select, style: AppTextStyle.textFieldHint),
-          isDialogExpanded: false,
-          requestItemCount: 10,
-
-          // Initial selected value
-          initialValue: selectedTruck != null
-              ? SearchableDropdownMenuItem<VehicleDetail>(
-                  value: selectedTruck,
-                  label:
-                      "${selectedTruck.truckNumber}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
-                  child: Text(
-                      "${selectedTruck.truckNumber}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}"),
-                )
-              : null,
-
-          // Pagination request
-          paginatedRequest: (int page, String? searchKey) async {
-            final trucks = await fetchTrucks(page, searchKey);
-            return trucks.map((truck) {
-              final type = truck.truckType?.type ?? "";
-              final subType = truck.truckType?.subType ?? "";
-              final typeInfo = (type.isNotEmpty || subType.isNotEmpty)
-                  ? " ($type ${subType.isNotEmpty ? subType : ""})"
-                  : "";
-              return SearchableDropdownMenuItem<VehicleDetail>(
-                value: truck,
-                label: "${truck.truckNumber}$typeInfo",
-                child: Text("${truck.truckNumber}$typeInfo"),
-              );
-            }).toList();
-          },
-
-          onChanged: (VehicleDetail? newTruck) {
-            if (newTruck != null) {
-              onTruckChanged(newTruck.id);
-            } else {
-              onTruckChanged(null);
-            }
-          },
-        ),
-      ),
-    ],
-  );
-}
-
+      ],
+    );
+  }
 }

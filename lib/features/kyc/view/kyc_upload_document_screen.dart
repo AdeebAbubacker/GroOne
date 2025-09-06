@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
 import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
 import 'package:gro_one_app/features/kyc/model/upload_aadhhar_document_model.dart';
+import 'package:gro_one_app/features/master/widget/master_address_tab.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -906,25 +907,46 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               ),
                               16.height,
                               // State Dropdown
-                              _stateDropdown(context, selectedState, (value) {
+                              // _stateDropdown(context, selectedState, (value) {
+                              //   setState(() {
+                              //     selectedState = value;
+                              //     selectedCity = null;
+                              //   });
+                              // }),
+
+                              // 16.height,
+                              // _cityDropdown(
+                              //   context,
+                              //   selectedCity,
+                              //   selectedState != null &&
+                              //       selectedState!.isNotEmpty,
+                              //   (value) {
+                              //     setState(() {
+                              //       selectedCity = value;
+                              //     });
+                              //   },
+                              // ),
+                               StateDropdown(
+                              selectedStateId: selectedState,
+                              onStateChanged: (value) {
                                 setState(() {
                                   selectedState = value;
                                   selectedCity = null;
                                 });
-                              }),
-
-                              16.height,
-                              _cityDropdown(
-                                context,
-                                selectedCity,
-                                selectedState != null &&
-                                    selectedState!.isNotEmpty,
-                                (value) {
-                                  setState(() {
-                                    selectedCity = value;
-                                  });
-                                },
-                              ),
+                              },
+                            ),
+                            16.height,
+                            CityDropdown(
+                              selectedStateId: selectedState,
+                              selectedCityId: selectedCity,
+                              isStateSelected:
+                                  selectedState != null && selectedState!.isNotEmpty,
+                              onCityChanged: (value) {
+                                setState(() {
+                                  selectedCity = value;
+                                });
+                              },
+                            ),
                               16.height,
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
@@ -1070,75 +1092,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             );
           },
         ),
-      ),
-    );
-  }
-
-  static Widget _stateDropdown(
-    BuildContext context,
-    String? selected,
-    ValueChanged<String?> onStateChanged,
-  ) {
-    final stateUI = context.watch<KycCubit>().state.stateUIState;
-
-    final stateList = stateUI?.data?.map((e) => e.name).toList() ?? [];
-
-    return SearchableDropdown(
-      labelText: context.appText.state,
-      mandatoryStar: true,
-      selectedItem: selected,
-
-      items: stateList,
-      hintText: context.appText.selectState,
-      onChanged: (String? newValue) {
-        if (newValue != null) {
-          onStateChanged(newValue);
-          // Fetch cities for selected state
-          context.read<KycCubit>().fetchCityList(newValue);
-        }
-      },
-
-      dropdownBuilder: (context, selectedItem) {
-        if (selectedItem == null || selectedItem.isEmpty) {
-          return SizedBox.shrink();
-        }
-        return Row(children: [Text(selectedItem)]);
-      },
-      emptyBuilder:
-          (context, _) => const Center(child: Text("No states found")),
-    );
-  }
-
-  static Widget _cityDropdown(
-    BuildContext context,
-    String? selected,
-    bool isStateSelected,
-    ValueChanged<String?> onCityChanged,
-  ) {
-    final cityUI = context.watch<KycCubit>().state.cityUIState;
-    final cityList = cityUI?.data?.map((e) => e.city).toList() ?? [];
-
-    return AbsorbPointer(
-      absorbing: !isStateSelected,
-      child: SearchableDropdown(
-        labelText: context.appText.city,
-        mandatoryStar: true,
-        selectedItem: selected,
-        items: cityList,
-        hintText: context.appText.selectCity,
-        onChanged: (String? newValue) {
-          if (newValue != null) {
-            onCityChanged(newValue); // call callback to update state
-          }
-        },
-        dropdownBuilder: (context, selectedItem) {
-          if (selectedItem == null || selectedItem.isEmpty) {
-            return SizedBox.shrink();
-          }
-          return Row(children: [Text(selectedItem)]);
-        },
-        emptyBuilder:
-            (context, _) => const Center(child: Text("No cities found")),
       ),
     );
   }

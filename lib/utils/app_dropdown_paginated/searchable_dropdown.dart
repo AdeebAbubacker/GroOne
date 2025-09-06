@@ -435,7 +435,7 @@ class _DropDown<T> extends StatelessWidget {
                 if (value == null || !hasTrailingClearIcon) {
                   return trailingIcon ??
                       const Icon(
-                        Icons.keyboard_arrow_down_rounded,
+                        Icons.arrow_drop_down_outlined,
                         size: 24,
                       );
                 }

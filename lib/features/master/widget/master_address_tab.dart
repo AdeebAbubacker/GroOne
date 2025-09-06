@@ -534,7 +534,7 @@ class StateDropdown extends StatelessWidget {
 
             // Pagination request
             paginatedRequest: (int page, String? searchKey) async {
-              await stateCubit.fetchStateList();
+              await stateCubit.fetchStateList(search: searchKey, loadMore: page > 1,);
               final stateList = stateCubit.state.stateUIState?.data ?? [];
               return stateList.map((state) {
                 return SearchableDropdownMenuItem<StateModelList>(
@@ -549,7 +549,12 @@ class StateDropdown extends StatelessWidget {
               // Pass the ID to parent callback
               onStateChanged(newState?.id.toString());
               if (newState != null) {
-                context.read<KycCubit>().fetchCityList(newState.name);
+                Future.delayed(const Duration(milliseconds: 300), () {
+                  context.read<KycCubit>().fetchCityList(
+                    newState.name,
+                    isLoading: true,
+                  );
+                });
               }
             },
           ),
@@ -623,9 +628,13 @@ class CityDropdown extends StatelessWidget {
 
               // Pagination request
               paginatedRequest: (int page, String? searchKey) async {
-                if (selectedStateId != null) {
-                  await kycCubit.fetchCityList(selectedStateId!);
-                }
+                 if (selectedStateId == null) return [];
+                  await kycCubit.fetchCityList(
+                  selectedStateId!,
+                  search: searchKey,
+                  loadMore: page > 1,
+                ); 
+                            
                 final cityList = kycCubit.state.cityUIState?.data ?? [];
                 return cityList.map((city) {
                   return SearchableDropdownMenuItem<CityModelList>(

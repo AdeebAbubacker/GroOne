@@ -145,10 +145,13 @@ class LpLoadService {
   }
 
   Future<Result<LpLoadRouteResponse>> fetchRouteList({int page = 1,
-    int pageSize = 10,}) async {
+    int pageSize = 10,String? search}) async {
     try {
-        final url =
+      String url =
           "${ApiUrls.lpLoadRoute}?page=$page&limit=$pageSize";
+       if (search != null && search.trim().isNotEmpty) {
+      url = "$url&search=$search";
+    }    
 
       final response = await _apiService.get(url);
       if (response is Success) {

@@ -341,6 +341,7 @@ Future<void> getTruckType({bool isLoading = true, bool loadMore = false}) async 
 
     try {
       final result = await _repository.fetchRouteList(
+        search: search,
         limit: 10,
         page: _routesCurrentPage,
       );

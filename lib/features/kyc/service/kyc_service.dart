@@ -350,18 +350,16 @@ class KycService {
 
     /// Get State Service
     Future<Result<StateModel>> fetchStateData({
-      String filter = '',
-      int page = 1,
+      String? filter,
+      int? page,
+      int? pageSize = 10,
     }) async {
       
       try {
-        final queryParams = {
-          if (filter.trim().isNotEmpty) 'search': filter,
-        };
+     final url = (filter != null && filter.trim().isNotEmpty)
+        ? '${ApiUrls.getState}?search=$filter'
+        : '${ApiUrls.getState}?page=$page&limit=$pageSize';
 
-        final url = Uri.parse(ApiUrls.getState)
-            .replace(queryParameters: queryParams)
-            .toString();
 
         final result = await _apiService.get(url);
 
@@ -380,10 +378,19 @@ class KycService {
 
 
    /// Get City Service
-  Future<Result<CityModel>> fetchCityData(String stateName, {String filter = ''}) async {
+  Future<Result<CityModel>> fetchCityData(String stateName, {String? filter, int? page, int? limit}) async {
     try {
-      final url = ApiUrls.getCity;
-      final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter,});
+       // Base URL with required params
+    String url = 'https://gro-devapi.letsgro.co/load/api/v1/location/city?state=${stateName}&page=${page}&limit=${limit}';
+
+    // Add search if provided
+    if (filter != null && filter.trim().isNotEmpty) {
+      url = '$url&search=$filter';
+    }
+
+    final result = await _apiService.get(url);
+      // final url = ApiUrls.getCity;
+      // final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter, 'page' : page,'limit' :limit});
       if (result is Success) {
         final data = CityModel.fromJson(result.value);
         return Success(data);

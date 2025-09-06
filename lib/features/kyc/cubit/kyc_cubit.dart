@@ -35,11 +35,10 @@ import 'package:gro_one_app/features/login/repository/user_information_repositor
 import 'package:gro_one_app/utils/app_string.dart';
 part 'kyc_state.dart';
 
-
 class KycCubit extends BaseCubit<KycState> {
   final KycRepository _repo;
-  KycCubit(this._repo, UserInformationRepository userInformationRepository) : super(KycState());
-
+  KycCubit(this._repo, UserInformationRepository userInformationRepository)
+    : super(KycState());
 
   // fetch user role
   int? userRole;
@@ -48,14 +47,12 @@ class KycCubit extends BaseCubit<KycState> {
     return userRole;
   }
 
-
   // fetch user if
   String? userId;
   Future<String?> fetchUserId() async {
     userId = await _repo.getUserId();
     return userId;
   }
-
 
   // fetch company Type Id
   String? companyTypeId;
@@ -64,47 +61,166 @@ class KycCubit extends BaseCubit<KycState> {
     return companyTypeId;
   }
 
+  int _stateCurrentPage = 1;
+  bool _stateIsLastPage = false;
+  bool _stateIsLoadingMore = false;
 
   // Fetch State Api Call
-  void _setStateUIState(UIState<List<StateModelList>>? uiState){
+  void _setStateUIState(UIState<List<StateModelList>>? uiState) {
     emit(state.copyWith(stateUIState: uiState));
   }
-  Future<void> fetchStateList({String filter = ''}) async {
-    _setStateUIState(UIState.loading());
-    Result result = await _repo.getStateData(filter: filter);
-    if (result is Success<StateModel>) {
-      _setStateUIState(UIState.success(result.value.data));
+
+  Future<void> fetchStateList({
+    bool isLoading = true,
+    String? search,
+    bool loadMore = false,
+  }) async {
+    // Prevent multiple simultaneous loadMore calls
+    if (_stateIsLoadingMore && loadMore) return;
+
+    // Reset when it's a fresh call (not loadMore)
+    if (!loadMore) {
+      _stateIsLastPage = false;
+    } else if (_stateIsLastPage) {
+      return; // no more pages
     }
-    if (result is Error) {
-      _setStateUIState(UIState.error(result.type));
+
+    if (loadMore) {
+      _stateIsLoadingMore = true;
+      _stateCurrentPage++;
+    } else {
+      _stateCurrentPage = 1;
+      _stateIsLastPage = false;
+      if (isLoading) _setStateUIState(UIState.loading());
+    }
+
+    try {
+      final result = await _repo.getStateData(
+        filter: search,
+        page:
+            (search != null && search.trim().isNotEmpty)
+                ? null
+                : _stateCurrentPage,
+        limit: (search != null && search.trim().isNotEmpty) ? null : 10,
+      );
+
+      if (result is Success<StateModel>) {
+        final newList = result.value.data;
+
+        if (loadMore) {
+          final existing = state.stateUIState?.data ?? <StateModelList>[];
+          final combined = [...existing, ...newList];
+
+          _setStateUIState(UIState.success(combined));
+        } else {
+          _setStateUIState(UIState.success(newList));
+        }
+
+        // ✅ Check if last page (only for non-search)
+        if (search == null || search.trim().isEmpty) {
+          final totalPages = ((result.value.total) / (10)).ceil();
+          _stateIsLastPage = _stateCurrentPage >= totalPages;
+        } else {
+          _stateIsLastPage = true; // search returns full list
+        }
+      }
+
+      if (result is Error<StateModel>) {
+        _setStateUIState(UIState.error(result.type));
+      }
+    } finally {
+      _stateIsLoadingMore = false;
     }
   }
 
-  Future<Result<StateModel>> getFilteredStateList({required String filter}) async {
+  Future<Result<StateModel>> getFilteredStateList({
+    required String filter,
+  }) async {
     return await _repo.getStateData(filter: filter);
   }
 
-
-
   // Fetch City Api Call
-  void _setCityUIState(UIState<List<CityModelList>>? uiState){
+  void _setCityUIState(UIState<List<CityModelList>>? uiState) {
     emit(state.copyWith(cityUIState: uiState));
   }
-  Future<void> fetchCityList(String stateName, {String filter = ''}) async {
-    _setCityUIState(UIState.loading());
-    Result result = await _repo.getCityData(stateName, filter: filter);
-    if (result is Success<CityModel>) {
-      _setCityUIState(UIState.success(result.value.data));
+
+  // Future<void> fetchCityList(String stateName, {String filter = ''}) async {
+  //   _setCityUIState(UIState.loading());
+  //   Result result = await _repo.getCityData(stateName, filter: filter);
+  //   if (result is Success<CityModel>) {
+  //     _setCityUIState(UIState.success(result.value.data));
+  //   }
+  //   if (result is Error) {
+  //     _setCityUIState(UIState.error(result.type));
+  //   }
+  // }
+  // In your Cubit
+  int _cityCurrentPage = 1;
+  bool _cityIsLastPage = false;
+  bool _cityIsLoadingMore = false;
+
+  Future<void> fetchCityList(
+    String stateName, {
+    String? search,
+    bool isLoading = true,
+    bool loadMore = false,
+  }) async {
+    if (_cityIsLoadingMore && loadMore) return;
+
+    if (!loadMore) {
+      _cityIsLastPage = false;
+    } else if (_cityIsLastPage) {
+      return;
     }
-    if (result is Error) {
-      _setCityUIState(UIState.error(result.type));
+
+    if (loadMore) {
+      _cityIsLoadingMore = true;
+      _cityCurrentPage++;
+    } else {
+      _cityCurrentPage = 1;
+      _cityIsLastPage = false;
+      if (isLoading) _setCityUIState(UIState.loading());
+    }
+
+    try {
+      final result = await _repo.getCityData(
+        stateName,
+        filter: search,
+        page: _cityCurrentPage,
+        limit: 10,
+      );
+
+      if (result is Success<CityModel>) {
+        final newList = result.value.data;
+
+        if (loadMore) {
+          final existing = state.cityUIState?.data ?? [];
+          final combined = [...existing, ...newList];
+          _setCityUIState(UIState.success(combined));
+        } else {
+          _setCityUIState(UIState.success(newList));
+        }
+
+        // ✅ Pagination check (only for non-search)
+        if (search == null || search.trim().isEmpty) {
+          final totalPages = ((result.value.total) / (10)).ceil();
+          _cityIsLastPage = _cityCurrentPage >= totalPages;
+        } else {
+          _cityIsLastPage = true; // when searching → treat as full result
+        }
+      }
+
+      if (result is Error<CityModel>) {
+        _setCityUIState(UIState.error(result.type));
+      }
+    } finally {
+      _cityIsLoadingMore = false;
     }
   }
 
-  Future<Result<CityModel>> getFilteredCityList({required String stateName, required String filter}) async {
-    return await _repo.getCityData(stateName,filter: filter);
-  }
-
+  // Future<Result<CityModel>> getFilteredCityList({required String stateName, required String filter}) async {
+  //   return await _repo.getCityData(stateName,filter: filter);
+  // }
 
   // Send Aadhaar Otp
   Future<void> sendAadhaarOtp(AadhaarOtpApiRequest request) async {
@@ -119,9 +235,14 @@ class KycCubit extends BaseCubit<KycState> {
   }
 
   Future<void> sendKycRequest(KycInitRequest request) async {
-    emit(state.copyWith(
-        docVerificationState: resetUIState<DocVerificationModel>(state.docVerificationState),
-        kycInitResponse: UIState.loading()));
+    emit(
+      state.copyWith(
+        docVerificationState: resetUIState<DocVerificationModel>(
+          state.docVerificationState,
+        ),
+        kycInitResponse: UIState.loading(),
+      ),
+    );
     Result result = await _repo.initKycRequest(request);
     if (result is Success<KycInitResponse>) {
       emit(state.copyWith(kycInitResponse: UIState.success(result.value)));
@@ -132,16 +253,27 @@ class KycCubit extends BaseCubit<KycState> {
   }
 
   Future<void> getKYCStatus(String requestID) async {
-    emit(state.copyWith(
-        docVerificationState: resetUIState<DocVerificationModel>(state.docVerificationState),
+    emit(
+      state.copyWith(
+        docVerificationState: resetUIState<DocVerificationModel>(
+          state.docVerificationState,
+        ),
         kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
-        aadharVerificationResponse: UIState.loading()));
+        aadharVerificationResponse: UIState.loading(),
+      ),
+    );
     Result result = await _repo.getKYCStatus(requestID);
     if (result is Success<AadharVerificationResponse>) {
-      emit(state.copyWith(aadharVerificationResponse: UIState.success(result.value)));
+      emit(
+        state.copyWith(
+          aadharVerificationResponse: UIState.success(result.value),
+        ),
+      );
     }
     if (result is Error) {
-      emit(state.copyWith(aadharVerificationResponse: UIState.error(result.type)));
+      emit(
+        state.copyWith(aadharVerificationResponse: UIState.error(result.type)),
+      );
     }
   }
 
@@ -150,27 +282,33 @@ class KycCubit extends BaseCubit<KycState> {
     emit(state.copyWith(aadhaarVerifyOtpState: UIState.loading()));
     Result result = await _repo.verifyAadhaarOtp(request);
     if (result is Success<AadhaarVerifyOtpModel>) {
-      emit(state.copyWith(aadhaarVerifyOtpState: UIState.success(result.value)));
+      emit(
+        state.copyWith(aadhaarVerifyOtpState: UIState.success(result.value)),
+      );
     }
     if (result is Error) {
       emit(state.copyWith(aadhaarVerifyOtpState: UIState.error(result.type)));
     }
   }
 
-
   // Verify Gst
-  Future<void> verifyGst(VerifyGstApiRequest request,SecuredSharedPreferences securePrefs) async {
+  Future<void> verifyGst(
+    VerifyGstApiRequest request,
+    SecuredSharedPreferences securePrefs,
+  ) async {
     emit(state.copyWith(gstState: UIState.loading()));
     Result result = await _repo.verifyGST(request);
     if (result is Success<bool>) {
       emit(state.copyWith(gstState: UIState.success(result.value)));
-      await securePrefs.saveBoolean(AppString.sessionKey.isGstNumberVerified, true);
+      await securePrefs.saveBoolean(
+        AppString.sessionKey.isGstNumberVerified,
+        true,
+      );
     }
     if (result is Error) {
       emit(state.copyWith(gstState: UIState.error(result.type)));
     }
   }
-
 
   // Verify Tan
   Future<void> verifyTan(VerifyTanApiRequest request) async {
@@ -186,9 +324,12 @@ class KycCubit extends BaseCubit<KycState> {
 
   // Verify Doc
   Future<void> verifyDocId(String aadharNumber) async {
-    emit(state.copyWith(
+    emit(
+      state.copyWith(
         kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
-        docVerificationState: UIState.loading()));
+        docVerificationState: UIState.loading(),
+      ),
+    );
     Result result = await _repo.verifiedDocID(aadharNumber: aadharNumber);
     if (result is Success<DocVerificationModel>) {
       emit(state.copyWith(docVerificationState: UIState.success(result.value)));
@@ -201,9 +342,11 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Pan doc existence
   Future<void> verifyPanExistence(String panNumber) async {
     emit(state.copyWith(panDocVerificationState: UIState.loading()));
-    Result result = await _repo.verifiedDocID(panNumber:panNumber );
+    Result result = await _repo.verifiedDocID(panNumber: panNumber);
     if (result is Success<DocVerificationModel>) {
-      emit(state.copyWith(panDocVerificationState: UIState.success(result.value)));
+      emit(
+        state.copyWith(panDocVerificationState: UIState.success(result.value)),
+      );
     }
     if (result is Error) {
       emit(state.copyWith(panDocVerificationState: UIState.error(result.type)));
@@ -213,9 +356,11 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Tan
   Future<void> verifyTanExistence(String tanNumber) async {
     emit(state.copyWith(tanDocVerificationState: UIState.loading()));
-    Result result = await _repo.verifiedDocID(tan:tanNumber );
+    Result result = await _repo.verifiedDocID(tan: tanNumber);
     if (result is Success<DocVerificationModel>) {
-      emit(state.copyWith(tanDocVerificationState: UIState.success(result.value)));
+      emit(
+        state.copyWith(tanDocVerificationState: UIState.success(result.value)),
+      );
     }
     if (result is Error) {
       emit(state.copyWith(tanDocVerificationState: UIState.error(result.type)));
@@ -225,31 +370,39 @@ class KycCubit extends BaseCubit<KycState> {
   // Verify Gst doc existence
   Future<void> verifyGstDocExistence(String gstNumber) async {
     emit(state.copyWith(gstDocVerificationState: UIState.loading()));
-    Result result = await _repo.verifiedDocID(gstNumber:gstNumber );
+    Result result = await _repo.verifiedDocID(gstNumber: gstNumber);
     if (result is Success<DocVerificationModel>) {
-      emit(state.copyWith(gstDocVerificationState: UIState.success(result.value)));
+      emit(
+        state.copyWith(gstDocVerificationState: UIState.success(result.value)),
+      );
     }
     if (result is Error) {
       emit(state.copyWith(gstDocVerificationState: UIState.error(result.type)));
     }
   }
 
-
-
-
   // Check Kyc Verified
-  Future<void> checkIsKycNumberVerified(SecuredSharedPreferences securePrefs) async{
-   bool? isPanVerified=await securePrefs.getBooleans(AppString.sessionKey.isPanNumberVerified);
-   bool? isGtsNumberVerified=await  securePrefs.getBooleans(AppString.sessionKey.isGstNumberVerified);
-   bool? isTanNumberVerified= await  securePrefs.getBooleans(AppString.sessionKey.isTanNumberVerified);
+  Future<void> checkIsKycNumberVerified(
+    SecuredSharedPreferences securePrefs,
+  ) async {
+    bool? isPanVerified = await securePrefs.getBooleans(
+      AppString.sessionKey.isPanNumberVerified,
+    );
+    bool? isGtsNumberVerified = await securePrefs.getBooleans(
+      AppString.sessionKey.isGstNumberVerified,
+    );
+    bool? isTanNumberVerified = await securePrefs.getBooleans(
+      AppString.sessionKey.isTanNumberVerified,
+    );
 
-
-   emit(state.copyWith(
-       verifiedGst:isGtsNumberVerified ,
-       verifiedTan: isTanNumberVerified,
-       verifiedPan: isPanVerified));
+    emit(
+      state.copyWith(
+        verifiedGst: isGtsNumberVerified,
+        verifiedTan: isTanNumberVerified,
+        verifiedPan: isPanVerified,
+      ),
+    );
   }
-
 
   // Verify Pan
   Future<void> verifyPan(VerifyPanApiRequest request) async {
@@ -257,28 +410,26 @@ class KycCubit extends BaseCubit<KycState> {
     Result result = await _repo.verifyPan(request);
     if (result is Success<bool>) {
       emit(state.copyWith(panState: UIState.success(result.value)));
-
     }
     if (result is Error) {
       emit(state.copyWith(panState: UIState.error(result.type)));
     }
   }
 
-  void updatePanVerificationState(){
+  void updatePanVerificationState() {
     emit(state.copyWith(verifiedPan: true));
   }
 
-  void updateTanVerificationState(){
+  void updateTanVerificationState() {
     emit(state.copyWith(verifiedTan: true));
   }
 
-  void updateGstVerificationState(){
+  void updateGstVerificationState() {
     emit(state.copyWith(verifiedGst: true));
   }
 
-
   // // Upload GST File
-  void _setUploadGstDocUIState(UIState<UploadGSTDocumentModel>? uiState){
+  void _setUploadGstDocUIState(UIState<UploadGSTDocumentModel>? uiState) {
     emit(state.copyWith(uploadGSTDocUIState: uiState));
   }
 
@@ -293,9 +444,8 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-
   // // Upload TAN File
-  void _setUploadTanDocUIState(UIState<UploadTANDocumentModel>? uiState){
+  void _setUploadTanDocUIState(UIState<UploadTANDocumentModel>? uiState) {
     emit(state.copyWith(uploadTanDocUIState: uiState));
   }
 
@@ -310,11 +460,11 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-
   // // Upload PAN File
-  void _setUploadPanDocUIState(UIState<UploadPANDocumentModel>? uiState){
+  void _setUploadPanDocUIState(UIState<UploadPANDocumentModel>? uiState) {
     emit(state.copyWith(uploadPanDocUIState: uiState));
   }
+
   Future<void> uploadPanDoc(File file) async {
     _setUploadPanDocUIState(UIState.loading());
     Result result = await _repo.getUploadPanData(file);
@@ -326,11 +476,9 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-  void _setUploadAadharDocUIState(UIState<UploadAadharDocumentModel>? uiState){
+  void _setUploadAadharDocUIState(UIState<UploadAadharDocumentModel>? uiState) {
     emit(state.copyWith(uploadAadharDocUIState: uiState));
   }
-
-
 
   // Upload Aadhar DOC
   Future<void> uploadAadharDoc(File file) async {
@@ -344,11 +492,11 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-
   // // Upload TDS File
-  void _setUploadTdsDocUIState(UIState<UploadTDSDocumentModel>? uiState){
+  void _setUploadTdsDocUIState(UIState<UploadTDSDocumentModel>? uiState) {
     emit(state.copyWith(uploadTDSDocUIState: uiState));
   }
+
   Future<void> uploadTdsDoc(File file) async {
     _setUploadTdsDocUIState(UIState.loading());
     Result result = await _repo.getUploadTdsData(file);
@@ -360,11 +508,13 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-
   // // Upload TDS File
-  void _setUploadCancelledCheckDocUIState(UIState<UploadCancelledCheckedDocumentModel>? uiState){
+  void _setUploadCancelledCheckDocUIState(
+    UIState<UploadCancelledCheckedDocumentModel>? uiState,
+  ) {
     emit(state.copyWith(uploadCancelledUIState: uiState));
   }
+
   Future<void> uploadCancelledCheckDoc(File file) async {
     _setUploadCancelledCheckDocUIState(UIState.loading());
     Result result = await _repo.getUploadCancelledCheckedData(file);
@@ -376,11 +526,11 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-
   // Create Document
-  void _setCreateDocumentUIState(UIState<CreateDocumentModel>? uiState){
+  void _setCreateDocumentUIState(UIState<CreateDocumentModel>? uiState) {
     emit(state.copyWith(createDocumentUIState: uiState));
   }
+
   Future<void> createDocument(CreateDocumentApiRequest request) async {
     _setCreateDocumentUIState(UIState.loading());
     Result result = await _repo.getCreateDocumentData(request);
@@ -392,11 +542,11 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-
   // Delete Document
-  void _setDeleteDocumentUIState(UIState<DeleteDocumentModel>? uiState){
+  void _setDeleteDocumentUIState(UIState<DeleteDocumentModel>? uiState) {
     emit(state.copyWith(deleteDocumentUIState: uiState));
   }
+
   Future<void> deleteDocument(String documentId) async {
     _setDeleteDocumentUIState(UIState.loading());
     Result result = await _repo.getDeleteDocumentData(documentId);
@@ -407,7 +557,6 @@ class KycCubit extends BaseCubit<KycState> {
       _setDeleteDocumentUIState(UIState.error(result.type));
     }
   }
-
 
   // Submit Kyc
   Future<void> submitKyc(SubmitKycApiRequest request, String userId) async {
@@ -421,28 +570,42 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-
   // Reset State
-  void resetState(){
-    emit(state.copyWith(
-      submitKycState: resetUIState<SubmitKycModel>(state.submitKycState),
-      uploadCancelledUIState: resetUIState<UploadCancelledCheckedDocumentModel>(state.uploadCancelledUIState),
-      uploadTDSDocUIState: resetUIState<UploadTDSDocumentModel>(state.uploadTDSDocUIState),
-      uploadPanDocUIState: resetUIState<UploadPANDocumentModel>(state.uploadPanDocUIState),
-      uploadTanDocUIState: resetUIState<UploadTANDocumentModel>(state.uploadTanDocUIState),
-      uploadGSTDocUIState: resetUIState<UploadGSTDocumentModel>(state.uploadGSTDocUIState),
-      aadhaarVerifyOtpState: resetUIState<AadhaarVerifyOtpModel>(state.aadhaarVerifyOtpState),
-      aadharVerificationResponse: resetUIState<AadharVerificationResponse>(state.aadharVerificationState),
-      kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
+  void resetState() {
+    emit(
+      state.copyWith(
+        submitKycState: resetUIState<SubmitKycModel>(state.submitKycState),
+        uploadCancelledUIState:
+            resetUIState<UploadCancelledCheckedDocumentModel>(
+              state.uploadCancelledUIState,
+            ),
+        uploadTDSDocUIState: resetUIState<UploadTDSDocumentModel>(
+          state.uploadTDSDocUIState,
+        ),
+        uploadPanDocUIState: resetUIState<UploadPANDocumentModel>(
+          state.uploadPanDocUIState,
+        ),
+        uploadTanDocUIState: resetUIState<UploadTANDocumentModel>(
+          state.uploadTanDocUIState,
+        ),
+        uploadGSTDocUIState: resetUIState<UploadGSTDocumentModel>(
+          state.uploadGSTDocUIState,
+        ),
+        aadhaarVerifyOtpState: resetUIState<AadhaarVerifyOtpModel>(
+          state.aadhaarVerifyOtpState,
+        ),
+        aadharVerificationResponse: resetUIState<AadharVerificationResponse>(
+          state.aadharVerificationState,
+        ),
+        kycInitResponse: resetUIState<KycInitResponse>(state.kycInitResponse),
 
-      // stateUIState: resetUIState<List<StateModelList>>(state.stateUIState?.data ?? []),
-      // cityUIState: resetUIState<List<CityModel>>(state.cityUIState),
-      aadhaarOtpState: resetUIState<AadhaarOtpModel>(state.aadhaarOtpState),
-      verifiedPan: false,
-      verifiedTan: false,
-      verifiedGst: false,
-    ));
+        // stateUIState: resetUIState<List<StateModelList>>(state.stateUIState?.data ?? []),
+        // cityUIState: resetUIState<List<CityModel>>(state.cityUIState),
+        aadhaarOtpState: resetUIState<AadhaarOtpModel>(state.aadhaarOtpState),
+        verifiedPan: false,
+        verifiedTan: false,
+        verifiedGst: false,
+      ),
+    );
   }
-
-
 }
