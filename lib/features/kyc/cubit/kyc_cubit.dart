@@ -159,7 +159,7 @@ class KycCubit extends BaseCubit<KycState> {
   bool _cityIsLastPage = false;
   bool _cityIsLoadingMore = false;
 
-  Future<void> fetchCityList(
+  Future fetchCityList(
     String stateName, {
     String? search,
     bool isLoading = true,

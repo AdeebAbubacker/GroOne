@@ -107,6 +107,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/services/vp_det
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/cubit/vp_home_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
@@ -733,6 +734,8 @@ void _registerDeferredBlocs() {
   locator.registerLazySingleton(
     () => PathReplayCubit(locator<PathReplayRepository>()),
   );
+  locator.registerLazySingleton(() => VpHomeCubit(locator<VpHomeRepository>(),
+      locator<UserInformationRepository>(),));
 
   // Verify GPS cubits are registered
   try {

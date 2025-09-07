@@ -38,10 +38,13 @@ class VpHomeService {
   Future<Result<VehicleListResponse>> getVehicleDetails({
     required String userId,
     String? search,
+    int? page,
+    int? pageSize = 5,
   }) async {
     try {
       // Base URL
-      String url = ApiUrls.vehicleDetails + userId;
+      String url =
+        "${ApiUrls.vehicleDetails}$userId?page=$page&limit=$pageSize";
 
       // Append search if provided
       if (search != null && search.trim().isNotEmpty) {
@@ -67,7 +70,7 @@ class VpHomeService {
     required String userId,
     String? search,
     int? page,
-    int? pageSize = 5,
+    int? pageSize = 10,
   }) async {
     try {
       // Base URL

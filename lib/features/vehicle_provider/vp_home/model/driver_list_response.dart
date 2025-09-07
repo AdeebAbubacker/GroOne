@@ -85,6 +85,7 @@
 //   };
 
 // }
+
 class DriverListResponse {
   List<DriverDetails> data;
   int total;

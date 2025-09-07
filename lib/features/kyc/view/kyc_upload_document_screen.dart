@@ -114,7 +114,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   String? cancelledChequeDocId;
   String? selectedState;
   String? selectedCity;
-
+  String? selectedStateData;
   dynamic companyId;
   dynamic kycUserInfo;
 
@@ -930,14 +930,16 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               selectedStateId: selectedState,
                               onStateChanged: (value) {
                                 setState(() {
-                                  selectedState = value;
+                                  selectedStateData =value?.name.toString();
+                                  print("selected State Data is ${selectedStateData}");
+                                  selectedState = value?.id.toString();
                                   selectedCity = null;
                                 });
                               },
                             ),
                             16.height,
                             CityDropdown(
-                              selectedStateId: selectedState,
+                              selectedState: selectedStateData,
                               selectedCityId: selectedCity,
                               isStateSelected:
                                   selectedState != null && selectedState!.isNotEmpty,

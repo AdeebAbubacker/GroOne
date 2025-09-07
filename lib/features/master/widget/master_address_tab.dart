@@ -62,7 +62,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
   String? registrationDate;
   Timer? addressSearchDebounce;
   final _addressScrollController=ScrollController();
-
+  String? selectedStateData;
 
   @override
   void initState() {
@@ -331,14 +331,15 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                       selectedStateId: selectedState,
                       onStateChanged: (value) {
                         setState(() {
-                          selectedState = value;
+                          selectedState = value?.id.toString();
+                          selectedStateData = value?.id.toString();
                           selectedCity = null;
                         });
                       },
                     ),
                     16.height,
                     CityDropdown(
-                      selectedStateId: selectedState,
+                      selectedState: selectedStateData,
                       selectedCityId: selectedCity,
                       isStateSelected:
                           selectedState != null && selectedState!.isNotEmpty,
@@ -479,7 +480,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
 /// State Dropdown
 class StateDropdown extends StatelessWidget {
   final String? selectedStateId;
-  final ValueChanged<String?> onStateChanged;
+  final ValueChanged<StateModelList?> onStateChanged;
 
   const StateDropdown({
     super.key,
@@ -547,12 +548,11 @@ class StateDropdown extends StatelessWidget {
 
             onChanged: (StateModelList? newState) {
               // Pass the ID to parent callback
-              onStateChanged(newState?.id.toString());
+              onStateChanged(newState);
               if (newState != null) {
                 Future.delayed(const Duration(milliseconds: 300), () {
                   context.read<KycCubit>().fetchCityList(
                     newState.name,
-                    isLoading: true,
                   );
                 });
               }
@@ -565,20 +565,25 @@ class StateDropdown extends StatelessWidget {
 }
 
 /// City Dropdown
-class CityDropdown extends StatelessWidget {
+class CityDropdown extends StatefulWidget {
   final String? selectedCityId;
+  final String? selectedState;
   final bool isStateSelected;
-  final String? selectedStateId;
   final ValueChanged<String?> onCityChanged;
 
   const CityDropdown({
     super.key,
     required this.selectedCityId,
+    required this.selectedState,
     required this.isStateSelected,
-    required this.selectedStateId,
     required this.onCityChanged,
   });
 
+  @override
+  State<CityDropdown> createState() => _CityDropdownState();
+}
+
+class _CityDropdownState extends State<CityDropdown> {
   @override
   Widget build(BuildContext context) {
     final kycCubit = context.read<KycCubit>();
@@ -595,7 +600,7 @@ class CityDropdown extends StatelessWidget {
         ),
         const SizedBox(height: 6),
         AbsorbPointer(
-          absorbing: !isStateSelected,
+          absorbing: !widget.isStateSelected,
           child: Container(
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey.shade400),
@@ -611,16 +616,16 @@ class CityDropdown extends StatelessWidget {
               requestItemCount: 10,
 
               // Initial selected value
-              initialValue: selectedCityId != null
+              initialValue: widget.selectedCityId != null
                   ? SearchableDropdownMenuItem<CityModelList>(
                       value: kycCubit.state.cityUIState?.data
-                          ?.firstWhereOrNull((e) => e.id.toString() == selectedCityId),
+                          ?.firstWhereOrNull((e) => e.id.toString() == widget.selectedCityId),
                       label: kycCubit.state.cityUIState?.data
-                              ?.firstWhereOrNull((e) => e.id.toString() == selectedCityId)
+                              ?.firstWhereOrNull((e) => e.id.toString() == widget.selectedCityId)
                               ?.city ??
                           '',
                       child: Text(kycCubit.state.cityUIState?.data
-                              ?.firstWhereOrNull((e) => e.id.toString() == selectedCityId)
+                              ?.firstWhereOrNull((e) => e.id.toString() == widget.selectedCityId)
                               ?.city ??
                           ''),
                     )
@@ -628,13 +633,14 @@ class CityDropdown extends StatelessWidget {
 
               // Pagination request
               paginatedRequest: (int page, String? searchKey) async {
-                 if (selectedStateId == null) return [];
+                if (widget.selectedState != null) {
                   await kycCubit.fetchCityList(
-                  selectedStateId!,
-                  search: searchKey,
-                  loadMore: page > 1,
-                ); 
-                            
+                    widget.selectedState!,
+                    search: searchKey,
+                    loadMore: page > 1,
+                  );
+                }
+
                 final cityList = kycCubit.state.cityUIState?.data ?? [];
                 return cityList.map((city) {
                   return SearchableDropdownMenuItem<CityModelList>(
@@ -646,7 +652,7 @@ class CityDropdown extends StatelessWidget {
               },
 
               onChanged: (CityModelList? newCity) {
-                onCityChanged(newCity?.id.toString());
+                widget.onCityChanged(newCity?.id.toString());
               },
             ),
           ),

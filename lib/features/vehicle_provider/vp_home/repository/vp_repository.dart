@@ -29,10 +29,12 @@ class VpHomeRepository {
 
   Future<Result<VehicleListResponse>> getVehicleDetails({
     required String userId,
-    String? search
+    String? search,
+    int? page, 
+    int? limit
   }) async {
     try {
-      return await _vpService.getVehicleDetails(userId: userId,search: search);
+      return await _vpService.getVehicleDetails(userId: userId,search: search,page: page,pageSize: limit);
     } catch (e) {
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));
