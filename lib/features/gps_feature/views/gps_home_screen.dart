@@ -341,7 +341,8 @@ class _GpsHomeContent extends StatelessWidget {
                         ),
                       ),
                       // Bottom banner
-                      _buildBottomBannerImageWidget(),
+                      // Change request to remove this image
+                      // _buildBottomBannerImageWidget(),
 
                       // Buy New GPS button
                     ],

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -8,14 +9,13 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.d
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -286,8 +286,8 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
         AppButton(
           title:  context.appText.selectDifferent,
           onPressed: (){
-          Navigator.of(context).pushReplacement(commonRoute(LPSelectAddressScreen(title: context.appText.pickupPoint), isForward: true));
-         }
+            context.pushReplacement(AppRouteName.lpSelectAddressScreen, extra: {'title' : context.appText.pickupPoint});
+          }
         ).expand(),
       ],
     ).paddingAll(commonPadding);

@@ -7,14 +7,14 @@ class ProfileDetailModel {
     required this.vehicles,
   });
 
-  final Customer? customer;
+  final CustomerDataResponse? customer;
   final Address? address;
   final BankDetails? bankDetails;
   final List<KycDoc> kycDocs;
   final List<Vehicle> vehicles;
 
   ProfileDetailModel copyWith({
-    Customer? customer,
+    CustomerDataResponse? customer,
     Address? address,
     BankDetails? bankDetails,
     List<KycDoc>? kycDocs,
@@ -31,7 +31,7 @@ class ProfileDetailModel {
 
   factory ProfileDetailModel.fromJson(Map<String, dynamic> json){
     return ProfileDetailModel(
-      customer: json["customer"] == null ? null : Customer.fromJson(json["customer"]),
+      customer: json["customer"] == null ? null : CustomerDataResponse.fromJson(json["customer"]),
       address: json["address"] == null ? null : Address.fromJson(json["address"]),
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
       kycDocs: json["kycDocs"] == null ? [] : List<KycDoc>.from(json["kycDocs"]!.map((x) => KycDoc.fromJson(x))),
@@ -182,8 +182,8 @@ class BankDetails {
 
 }
 
-class Customer {
-  Customer({
+class CustomerDataResponse {
+  CustomerDataResponse({
     required this.customerId,
     required this.customerName,
     required this.mobileNumber,
@@ -205,6 +205,7 @@ class Customer {
     required this.kycType,
     required this.companyType,
       this.customerSeriesNo,
+      this.laneDetails,
   });
 
   final String customerId;
@@ -229,8 +230,9 @@ class Customer {
   final Type? kycType;
   final Type? companyType;
   final int? customerSeriesNo;
+  final List<LaneDetailsResponse>? laneDetails;
 
-  Customer copyWith({
+  CustomerDataResponse copyWith({
     String? customerId,
     String? customerName,
     String? mobileNumber,
@@ -253,8 +255,11 @@ class Customer {
     dynamic deletedAt,
     Type? kycType,
     Type? companyType,
+    List<LaneDetailsResponse>? laneDetails,
   }) {
-    return Customer(
+    return CustomerDataResponse(
+
+     laneDetails: laneDetails??this.laneDetails,
       customerId: customerId ?? this.customerId,
       customerName: customerName ?? this.customerName,
       mobileNumber: mobileNumber ?? this.mobileNumber,
@@ -279,8 +284,10 @@ class Customer {
     );
   }
 
-  factory Customer.fromJson(Map<String, dynamic> json){
-    return Customer(
+  factory CustomerDataResponse.fromJson(Map<String, dynamic> json){
+    List laneDetails=json['laneDetails'] ?? [];
+    return CustomerDataResponse(
+      laneDetails:laneDetails.map((e) => LaneDetailsResponse.fromJson(e),).toList() ,
       customerId: json["customer_id"] ?? "",
       customerName: json["customerName"] ?? "",
       mobileNumber: json["mobileNumber"] ?? "",
@@ -600,4 +607,21 @@ class Vehicle {
     );
   }
 
+}
+
+class LaneDetailsResponse {
+  int? masterLaneId;
+  String? lane;
+
+  LaneDetailsResponse(
+  {
+    this.masterLaneId,
+    this.lane
+}
+      );
+
+  LaneDetailsResponse.fromJson(Map<String,dynamic> json){
+    masterLaneId=json['masterLaneId'];
+    lane=json['lane'];
+  }
 }

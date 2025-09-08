@@ -20,9 +20,18 @@ class KavachHelper {
     }
   }
 
-  static String formatCurrency(dynamic totalPrice) {
-    final formatter = NumberFormat("#,##,###.##");
-    final num value = totalPrice is num ? totalPrice : double.tryParse(totalPrice.toString()) ?? 0;
-    return formatter.format(value);
+  static String formatCurrency(dynamic totalPrice, {bool roundOf = false}) {
+    final formatter = NumberFormat("#,##,##0.00");
+    final num value =
+        totalPrice is num ? totalPrice : double.tryParse(totalPrice.toString()) ?? 0;
+    return formatter.format(roundOf ? value.round().toDouble() : value);
+  }
+
+  static String formatCurrencyRoundOf(dynamic totalPrice) {
+    final formatter = NumberFormat("#,##,##0.00", "en_IN");
+    final num value =
+        totalPrice is num ? totalPrice : double.tryParse(totalPrice.toString()) ?? 0;
+    final roundedValue = value.round();
+    return formatter.format(roundedValue.toDouble());
   }
 }

@@ -52,6 +52,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
   final vpHomeScreenBloc = locator<VpHomeBloc>();
   final cubit = locator<LoadDetailsCubit>();
   final lpHomeCubit = locator<LPHomeCubit>();
+  final profileCubit = locator<ProfileCubit>();
 
   String? truckType;
   String? driverType;
@@ -78,6 +79,8 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
 
     vpHomeScreenBloc.add(VpVehicleListRequested(userId: userId.toString()));
     vpHomeScreenBloc.add(VpDriverDetailsRequested(userId: userId.toString()));
+    // _addSelfOption();
+
     //  Call your init methods
   });
 
@@ -86,6 +89,16 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
       context,
     ).push(commonRoute(MasterScreen(initialIndex: index), isForward: true));
     onRefresh();
+  }
+
+  void _addSelfOption() {
+    driverDetails.add(
+      DriverDetails(
+        self: 1,
+        name: context.appText.self,
+        id: profileCubit.state.profileDetailUIState?.data?.customer?.customerId,
+      ),
+    );
   }
 
   @override
@@ -121,9 +134,14 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
             if (state is VpDriverListSuccess) {
               setState(() {
                 driverDetails =
-                    state.driverListResponse.data
-                        .where((element) => element.driverStatus == 1)
-                        .toList();
+                    (state.driverListResponse.data
+                        .where((element) => element.status == 1)
+                        .toList());
+
+                // _addSelfOption();
+                driverDetails.sort(
+                  (a, b) => (b.self ?? 0).compareTo(a.self ?? 0),
+                );
               });
             }
           },
@@ -299,7 +317,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                                   expectedDeliveryDate:
                                       loadDetails?.expectedDeliveryDateTime
                                           ?.toString(),
-                                  vehicleId: truckType,
+                                  vehicleId: truckType ?? "0",
                                   driverId: driverType ?? "0",
                                   acceptedBy: userId ?? "",
                                   etaForPickUp:

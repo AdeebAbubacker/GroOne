@@ -272,7 +272,8 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           buildKavachProductImageWidget(),
           6.height,
           buildKavachBenefitsDetailsWidget(context),
-          buildGroBannerImageWidget(),
+          // Removed as per change request
+          // buildGroBannerImageWidget(),
         ],
       ),
     );
