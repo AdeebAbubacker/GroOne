@@ -156,7 +156,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                                 final currentState =
                                     context.read<VpHomeCubit>().state;
                                 return currentState.vehicleUIState?.data?.data
-                                    .firstWhereOrNull((v) => v.id == truckType);
+                                    .firstWhereOrNull((v) => v.vehicleId == truckType);
                               })(),
                         ),
 
@@ -405,8 +405,8 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                     selectedDriver != null
                         ? SearchableDropdownMenuItem<DriverDetails>(
                           value: selectedDriver,
-                          label: selectedDriver.name,
-                          child: Text(selectedDriver.name),
+                          label: selectedDriver.name ?? "",
+                          child: Text(selectedDriver.name ?? ""),
                         )
                         : null,
 
@@ -423,7 +423,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
             final drivers = cubit.state.driverUIState?.data?.data ?? [];
 
             return drivers.map((driver) {
-              final status = driver.activeStatus.trim().toLowerCase();
+              final status = driver.activeStatus?.trim().toLowerCase();
               final statusLabel = status == "inactive" ? " (On Another Trip)" : "";
               return SearchableDropdownMenuItem<DriverDetails>(
                 value: driver,
@@ -431,7 +431,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                 child:Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(driver.name),
+                        Text(driver.name ?? ""),
                         if (driver.activeStatus
                                 ?.trim()
                                 .toLowerCase() ==
@@ -506,55 +506,40 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         ? SearchableDropdownMenuItem<VehicleDetail>(
                           value: selectedTruck,
                           label:
-                              "${selectedTruck.truckNumber}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
+                              "${selectedTruck.truckNo}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
                           child: Text(
-                            "${selectedTruck.truckNumber}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
+                            "${selectedTruck.truckNo}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
                           ),
                         )
                         : null,
 
                 /// Fetch trucks via Cubit (with local filtering)
-                paginatedRequest: (int page, String? searchKey) async {
-                  final cubit = context.read<VpHomeCubit>();
+            paginatedRequest: (int page, String? searchKey) async {
+  final cubit = context.read<VpHomeCubit>();
 
-                  // Fetch once if not already fetched
-                  if (cubit.state.vehicleUIState?.data == null ||
-                      cubit.state.vehicleUIState!.data!.data.isEmpty) {
-                    await cubit.fetchVehicles();
-                  }
+  // Always fetch from API (with pagination/search if needed)
+  await cubit.fetchVehicles(
+    search: searchKey,
+    loadMore: page > 1,
+  );
 
-                  final allTrucks =
-                      cubit.state.vehicleUIState?.data?.data ?? [];
+  final trucks = cubit.state.vehicleUIState?.data?.data ?? [];
 
-                  // Apply local search
-                  final filtered =
-                      (searchKey == null || searchKey.isEmpty)
-                          ? allTrucks
-                          : allTrucks
-                              .where(
-                                (truck) => truck.truckNumber
-                                    .toLowerCase()
-                                    .contains(searchKey.toLowerCase()),
-                              )
-                              .toList();
-
-                  return filtered.map((truck) {
-                    final type = truck.truckType?.type ?? "";
-                    final subType = truck.truckType?.subType ?? "";
-                    final typeInfo =
-                        (type.isNotEmpty || subType.isNotEmpty)
-                            ? " ($type ${subType.isNotEmpty ? subType : ""})"
-                            : "";
-                    return SearchableDropdownMenuItem<VehicleDetail>(
-                      value: truck,
-                      label: "${truck.truckNumber}$typeInfo",
-                      child: Text("${truck.truckNumber}$typeInfo"),
-                    );
-                  }).toList();
-                },
+  return trucks.map((truck) {
+    final type = truck.truckType?.type ?? "";
+    final subType = truck.truckType?.subType ?? "";
+    final typeInfo =
+        (type.isNotEmpty || subType.isNotEmpty) ? " ($type $subType)" : "";
+    return SearchableDropdownMenuItem<VehicleDetail>(
+      value: truck,
+      label: "${truck.truckNo}$typeInfo",
+      child: Text("${truck.truckNo}$typeInfo"),
+    );
+  }).toList();
+},
 
                 onChanged: (VehicleDetail? newTruck) {
-                  onTruckChanged(newTruck?.id);
+                  onTruckChanged(newTruck?.vehicleId);
                 },
               ),
             ),

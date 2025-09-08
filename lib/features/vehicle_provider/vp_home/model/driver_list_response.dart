@@ -117,85 +117,93 @@ class DriverListResponse {
 }
 
 class DriverDetails {
-  String driverId;
-  String name;
-  String mobile;
-  String email;
-  String licenseNumber;
-  String licenseDocLink;
-  DateTime licenseExpiryDate;
-  String customerId;
-  DateTime dateOfBirth;
-  int driverStatus;
-  String experience;
-  int bloodGroup;
-  int licenseCategory;
-  int specialLicense;
-  String communicationPreference;
-  CompanyDetails companyDetails;
-  String activeStatus;
+  String? driverId;
+  String? name;
+  String? mobile;
+  String? email;
+  String? licenseNumber;
+  String? licenseDocLink;
+  DateTime? licenseExpiryDate;
+  String? customerId;
+  DateTime? dateOfBirth;
+  int? driverStatus;
+  String? experience;
+  int? bloodGroup;
+  int? licenseCategory;
+  int? specialLicense;
+  String? communicationPreference;
+  CompanyDetails? companyDetails;
+  String? activeStatus;
 
   DriverDetails({
-    required this.driverId,
-    required this.name,
-    required this.mobile,
-    required this.email,
-    required this.licenseNumber,
-    required this.licenseDocLink,
-    required this.licenseExpiryDate,
-    required this.customerId,
-    required this.dateOfBirth,
-    required this.driverStatus,
-    required this.experience,
-    required this.bloodGroup,
-    required this.licenseCategory,
-    required this.specialLicense,
-    required this.communicationPreference,
-    required this.companyDetails,
-    required this.activeStatus,
-  });
+    this.driverId = "",
+    this.name = "",
+    this.mobile = "",
+    this.email = "",
+    this.licenseNumber = "",
+    this.licenseDocLink = "",
+    DateTime? licenseExpiryDate,
+    this.customerId = "",
+    DateTime? dateOfBirth,
+    this.driverStatus = 0,
+    this.experience = "",
+    this.bloodGroup = 0,
+    this.licenseCategory = 0,
+    this.specialLicense = 0,
+    this.communicationPreference = "",
+    CompanyDetails? companyDetails,
+    this.activeStatus = "",
+  })  : licenseExpiryDate = licenseExpiryDate ?? DateTime.now(),
+        dateOfBirth = dateOfBirth ?? DateTime.now(),
+        companyDetails = companyDetails;
 
   factory DriverDetails.fromJson(Map<String, dynamic> json) {
     return DriverDetails(
-      driverId: json['driverId'],
-      name: json['name'],
-      mobile: json['mobile'],
-      email: json['email'],
-      licenseNumber: json['licenseNumber'],
-      licenseDocLink: json['licenseDocLink'],
-      licenseExpiryDate: DateTime.parse(json['licenseExpiryDate']),
-      customerId: json['customerId'],
-      dateOfBirth: DateTime.parse(json['dateOfBirth']),
-      driverStatus: json['driverStatus'],
-      experience: json['experience'],
-      bloodGroup: json['bloodGroup'],
-      licenseCategory: json['licenseCategory'],
-      specialLicense: json['specialLicense'],
-      communicationPreference: json['communicationPreference'],
-      companyDetails: CompanyDetails.fromJson(json['companyDetails']),
-      activeStatus: json['activeStatus'],
+      driverId: json['driverId'] ?? "",
+      name: json['name'] ?? "",
+      mobile: json['mobile'] ?? "",
+      email: json['email'] ?? "",
+      licenseNumber: json['licenseNumber'] ?? "",
+      licenseDocLink: json['licenseDocLink'] ?? "",
+      licenseExpiryDate: json['licenseExpiryDate'] != null
+          ? DateTime.tryParse(json['licenseExpiryDate']) ?? DateTime.now()
+          : DateTime.now(),
+      customerId: json['customerId'] ?? "",
+      dateOfBirth: json['dateOfBirth'] != null
+          ? DateTime.tryParse(json['dateOfBirth']) ?? DateTime.now()
+          : DateTime.now(),
+      driverStatus: json['driverStatus'] ?? 0,
+      experience: json['experience'] ?? "",
+      bloodGroup: json['bloodGroup'] ?? 0,
+      licenseCategory: json['licenseCategory'] ?? 0,
+      specialLicense: json['specialLicense'] ?? 0,
+      communicationPreference: json['communicationPreference'] ?? "",
+      companyDetails:  CompanyDetails.fromJson(json['companyDetails']),
+      activeStatus: json['activeStatus'] ?? "",
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
-      'driverId': driverId,
-      'name': name,
-      'mobile': mobile,
-      'email': email,
-      'licenseNumber': licenseNumber,
-      'licenseDocLink': licenseDocLink,
-      'licenseExpiryDate': licenseExpiryDate.toIso8601String(),
-      'customerId': customerId,
-      'dateOfBirth': dateOfBirth.toIso8601String(),
-      'driverStatus': driverStatus,
-      'experience': experience,
-      'bloodGroup': bloodGroup,
-      'licenseCategory': licenseCategory,
-      'specialLicense': specialLicense,
-      'communicationPreference': communicationPreference,
-      'companyDetails': companyDetails.toJson(),
-      'activeStatus': activeStatus,
+      'driverId': driverId ?? "",
+      'name': name ?? "",
+      'mobile': mobile ?? "",
+      'email': email ?? "",
+      'licenseNumber': licenseNumber ?? "",
+      'licenseDocLink': licenseDocLink ?? "",
+      'licenseExpiryDate': licenseExpiryDate?.toIso8601String() ??
+          DateTime.now().toIso8601String(),
+      'customerId': customerId ?? "",
+      'dateOfBirth':
+          dateOfBirth?.toIso8601String() ?? DateTime.now().toIso8601String(),
+      'driverStatus': driverStatus ?? 0,
+      'experience': experience ?? "",
+      'bloodGroup': bloodGroup ?? 0,
+      'licenseCategory': licenseCategory ?? 0,
+      'specialLicense': specialLicense ?? 0,
+      'communicationPreference': communicationPreference ?? "",
+      'companyDetails': companyDetails?.toJson() ?? {},
+      'activeStatus': activeStatus ?? "",
     };
   }
 }

@@ -54,14 +54,17 @@ class VpHomeService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
+        print("sucess from service ${result}");
         final vehicleListResponse = VehicleListResponse.fromJson(result.value);
         return Success(vehicleListResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
+        print("eror from service ");
         return Error(GenericError());
       }
     } catch (e) {
+      print("eror from service ${e}");
       return Error(DeserializationError());
     }
   }

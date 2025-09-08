@@ -34,8 +34,11 @@ class VpHomeRepository {
     int? limit
   }) async {
     try {
+      
       return await _vpService.getVehicleDetails(userId: userId,search: search,page: page,pageSize: limit);
+      
     } catch (e) {
+      print("eror from service ${e}");
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
