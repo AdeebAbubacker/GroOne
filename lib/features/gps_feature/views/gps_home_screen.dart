@@ -27,6 +27,8 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/device_activation_dialog_manager.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/memory_optimizer.dart';
+
 import '../../../features/login/repository/user_information_repository.dart';
 import '../../profile/view/support_screen.dart';
 import '../../profile/view/widgets/add_new_support_ticket.dart';
@@ -272,7 +274,15 @@ class _GpsHomeContent extends StatelessWidget {
               ),
               InkWell(
                 onTap: () {
-                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS), isForward: true));
+                  Navigator.of(context).push(
+                    commonRoute(
+                      LpSupport(
+                        showBackButton: true,
+                        ticketTag: TicketTags.GPS,
+                      ),
+                      isForward: true,
+                    ),
+                  );
                 },
                 child: Image.asset(
                   AppImage.png.customerSupport,
@@ -459,20 +469,13 @@ class _GpsHomeContent extends StatelessWidget {
         },
       ),
     ];
-    return GridView.builder(
+    return MemoryEfficientGridView(
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.5,
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        crossAxisSpacing: 12,
-        mainAxisSpacing: 12,
-        childAspectRatio: 1.5,
-      ),
-      itemCount: menuItems.length,
-      itemBuilder: (context, index) {
-        final item = menuItems[index];
-        return _buildMenuCard(item);
-      },
+      children: menuItems.map((item) => _buildMenuCard(item)).toList(),
     );
   }
 
