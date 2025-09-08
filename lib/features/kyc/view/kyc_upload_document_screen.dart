@@ -160,7 +160,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // set gst
   void setGstNumberIntoLocal(String gstNumber) => frameCallback(() async {
-
     securePrefs.saveKey(AppString.sessionKey.gtsinNumber, gstNumber);
   });
   // Set Pan Number
@@ -175,7 +174,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // set gst doc and url
   void setGstDocIDAndUrl(String url, String docID) => frameCallback(() async {
-
     securePrefs.saveKey(AppString.sessionKey.gstDocUrl, url);
     securePrefs.saveKey(AppString.sessionKey.gstDocID, docID);
   });
@@ -245,7 +243,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         kycCubit.state.uploadAadharDocumentModel?.data;
     if (status != null && status == Status.SUCCESS) {
       final apiRequest = CreateDocumentApiRequest(
-        documentTypeId: await KycHelper.getDocumentTypeId(KycDocType.aadharCard,documentCubit),
+        documentTypeId: await KycHelper.getDocumentTypeId(
+          KycDocType.aadharCard,
+          documentCubit,
+        ),
         title: KycHelper.getMeta(KycDocType.aadharCard).title,
         description: KycHelper.getMeta(KycDocType.aadharCard).description,
         originalFilename: uploadAadharDocumentModel?.originalName,
@@ -432,10 +433,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
     await kycCubit.verifyGst(apiRequest, securePrefs);
     if (kycCubit.state.gstState?.status == Status.SUCCESS && context.mounted) {
-     await kycCubit.verifyGstDocExistence(gstNumber);
+      await kycCubit.verifyGstDocExistence(gstNumber);
     }
 
-    if(kycCubit.state.gstDocVerificationState?.status==Status.SUCCESS){
+    if (kycCubit.state.gstDocVerificationState?.status == Status.SUCCESS) {
       kycCubit.updateGstVerificationState();
       ToastMessages.success(message: context.appText.gstVerifiedSuccessfully);
     }
@@ -463,12 +464,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       await kycCubit.verifyTanExistence(tanNumber);
     }
 
-    if(kycCubit.state.tanDocVerificationState?.status==Status.SUCCESS){
+    if (kycCubit.state.tanDocVerificationState?.status == Status.SUCCESS) {
       kycCubit.updateTanVerificationState();
       ToastMessages.success(message: context.appText.tanVerifiedSuccessfully);
       securePrefs.saveBoolean(AppString.sessionKey.isTanNumberVerified, true);
     }
-
 
     if (kycCubit.state.tanDocVerificationState?.status == Status.ERROR) {
       final error = kycCubit.state.tanDocVerificationState?.errorType;
@@ -476,7 +476,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         message: getErrorMsg(errorType: error ?? GenericError()),
       );
     }
-
 
     if (kycCubit.state.tanState?.status == Status.ERROR && context.mounted) {
       final error = kycCubit.state.tanState?.errorType;
@@ -496,7 +495,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       await kycCubit.verifyPanExistence(panNumber);
     }
 
-    if(kycCubit.state.panDocVerificationState?.status==Status.SUCCESS){
+    if (kycCubit.state.panDocVerificationState?.status == Status.SUCCESS) {
       kycCubit.updatePanVerificationState();
       ToastMessages.success(message: context.appText.panVerifiedSuccessfully);
       securePrefs.saveBoolean(AppString.sessionKey.isPanNumberVerified, true);
@@ -532,16 +531,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         ToastMessages.alert(message: '${context.appText.pleaseUpload} $msg');
       }
 
-
       return ok;
     }
 
     bool checkId(String? id, String label) {
       final ok = id != null;
       if (!ok) {
-        ToastMessages.alert(
-          message: context.appText.errorMessage,
-        );
+        ToastMessages.alert(message: context.appText.errorMessage);
       }
       return ok;
     }
@@ -551,10 +547,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       final verified = kycCubit.state.verifiedGst ?? false;
       return need(context.appText.gstDocument, uploaded) &&
           checkId(gstDocId, "GST") &
-          need(
-            '${context.appText.gstDocument} ${context.appText.notVerified}',
-            verified,
-          );
+              need(
+                '${context.appText.gstDocument} ${context.appText.notVerified}',
+                verified,
+              );
     }
 
     bool panValid() {
@@ -562,14 +558,14 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       final verified = kycCubit.state.verifiedPan ?? false;
       return need(context.appText.panDocument, uploaded) &&
           checkId(panDocId, "PAN") &
-          need(
-            '${context.appText.panDocument} ${context.appText.notVerified}',
-            verified,
-          );
+              need(
+                '${context.appText.panDocument} ${context.appText.notVerified}',
+                verified,
+              );
     }
 
     bool tanValid() {
-  /*    final uploaded = tanDoc.isNotEmpty;
+      /*    final uploaded = tanDoc.isNotEmpty;
       final verified = kycCubit.state.verifiedTan ?? false;
       return need(context.appText.tanDocument, uploaded) &&
           checkId(tanDocId, "TAN") &
@@ -584,21 +580,20 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     if (userRole != 1) {
       if (companyId == 2) {
         final chkOk =
-            need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) && checkId(cancelledChequeDocId, "Cancelled Cheque");
+            need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
+            checkId(cancelledChequeDocId, "Cancelled Cheque");
         return need(context.appText.aadhaar, true) && chkOk;
       }
 
-
       final gstOk = gstValid();
       final panOk = panValid();
-
 
       final chkOk =
           need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
           checkId(cancelledChequeDocId, "Cancelled Cheque");
       final tdsOk =
-          need(context.appText.tdsCertificate, tdsDocLink.isNotEmpty) && checkId(tdsDocId, "TDS");
-
+          need(context.appText.tdsCertificate, tdsDocLink.isNotEmpty) &&
+          checkId(tdsDocId, "TDS");
 
       return gstOk && panOk && chkOk && tdsOk;
     }
@@ -681,16 +676,17 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         tdsDocLink: tdsDocLink,
       );
       if (!ok) return;
+
       /// TODO:
       /// check if state is selected
       //add code for state and city required
 
-      if(selectedState==null && (selectedState??"").isEmpty){
-      ToastMessages.error(message: context.appText.stateRequired);
-      return;
+      if (selectedState == null && (selectedState ?? "").isEmpty) {
+        ToastMessages.error(message: context.appText.stateRequired);
+        return;
       }
 
-      if(selectedCity==null && (selectedCity??"").isEmpty){
+      if (selectedCity == null && (selectedCity ?? "").isEmpty) {
         ToastMessages.error(message: context.appText.cityRequired);
         return;
       }
@@ -926,29 +922,32 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               //     });
                               //   },
                               // ),
-                               StateDropdown(
-                              selectedStateId: selectedState,
-                              onStateChanged: (value) {
-                                setState(() {
-                                  selectedStateData =value?.name.toString();
-                                  print("selected State Data is ${selectedStateData}");
-                                  selectedState = value?.id.toString();
-                                  selectedCity = null;
-                                });
-                              },
-                            ),
-                            16.height,
-                            CityDropdown(
-                              selectedState: selectedStateData,
-                              selectedCityId: selectedCity,
-                              isStateSelected:
-                                  selectedState != null && selectedState!.isNotEmpty,
-                              onCityChanged: (value) {
-                                setState(() {
-                                  selectedCity = value;
-                                });
-                              },
-                            ),
+                              StateDropdown(
+                                selectedStateId: selectedState,
+                                onStateChanged: (value) {
+                                  setState(() {
+                                    selectedStateData = value?.name.toString();
+                                    print(
+                                      "selected State Data is ${selectedStateData}",
+                                    );
+                                    selectedState = value?.id.toString();
+                                    selectedCity = null;
+                                  });
+                                },
+                              ),
+                              16.height,
+                              CityDropdown(
+                                selectedState: selectedStateData,
+                                selectedCityId: selectedCity,
+                                isStateSelected:
+                                    selectedState != null &&
+                                    selectedState!.isNotEmpty,
+                                onCityChanged: (value) {
+                                  setState(() {
+                                    selectedCity = value;
+                                  });
+                                },
+                              ),
                               16.height,
                               AppTextField(
                                 validator: (value) => Validator.pincode(value),
@@ -1087,7 +1086,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       ),
                     ),
                     30.height,
-                    buildSubmitKycButtonWidget()
+                    buildSubmitKycButtonWidget(),
                   ],
                 );
               },
@@ -1167,9 +1166,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                   final gstData = kycCubit.state.uploadGSTDocUIState?.data;
                   if (gstData != null && gstDoc.isNotEmpty) {
                     final apiRequest = CreateDocumentApiRequest(
-                      documentTypeId:await KycHelper.getDocumentTypeId(
+                      documentTypeId: await KycHelper.getDocumentTypeId(
                         KycDocType.gstin,
-                          documentCubit
+                        documentCubit,
                       ),
                       title: KycHelper.getMeta(KycDocType.gstin).title,
                       description:
@@ -1207,9 +1206,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               },
               onDelete: (index) async {
                 if (gstDocId == null) {
-                  ToastMessages.alert(
-                    message: context.appText.errorMessage,
-                  );
+                  ToastMessages.alert(message: context.appText.errorMessage);
                   return;
                 }
                 await kycCubit.deleteDocument(gstDocId ?? "").then((onValue) {
@@ -1288,7 +1285,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       final apiRequest = CreateDocumentApiRequest(
                         documentTypeId: await KycHelper.getDocumentTypeId(
                           KycDocType.tan,
-                            documentCubit
+                          documentCubit,
                         ),
                         title: KycHelper.getMeta(KycDocType.tan).title,
                         description:
@@ -1327,9 +1324,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               },
               onDelete: (index) async {
                 if (tanDocId == null) {
-                  ToastMessages.alert(
-                    message:context.appText.errorMessage,
-                  );
+                  ToastMessages.alert(message: context.appText.errorMessage);
                   return;
                 }
                 await kycCubit.deleteDocument(tanDocId ?? "").then((onValue) {
@@ -1411,7 +1406,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                         documentTypeId: await KycHelper.getDocumentTypeId(
                           KycDocType.pan,
 
-                            documentCubit
+                          documentCubit,
                         ),
                         title: KycHelper.getMeta(KycDocType.pan).title,
                         description:
@@ -1450,9 +1445,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               },
               onDelete: (index) async {
                 if (panDocId == null) {
-                  ToastMessages.alert(
-                    message: context.appText.errorMessage,
-                  );
+                  ToastMessages.alert(message: context.appText.errorMessage);
                   return;
                 }
                 await kycCubit.deleteDocument(panDocId ?? "").then((onValue) {
@@ -1492,8 +1485,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                     final apiRequest = CreateDocumentApiRequest(
                       documentTypeId: await KycHelper.getDocumentTypeId(
                         KycDocType.cheque,
-                          documentCubit
-
+                        documentCubit,
                       ),
                       title: KycHelper.getMeta(KycDocType.cheque).title,
                       description:
@@ -1527,9 +1519,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             },
             onDelete: (index) async {
               if (cancelledChequeDocId == null) {
-                ToastMessages.alert(
-                  message: context.appText.errorMessage,
-                );
+                ToastMessages.alert(message: context.appText.errorMessage);
                 return;
               }
               await kycCubit.deleteDocument(cancelledChequeDocId ?? "").then((
@@ -1570,7 +1560,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                     final apiRequest = CreateDocumentApiRequest(
                       documentTypeId: await KycHelper.getDocumentTypeId(
                         KycDocType.tds,
-                        documentCubit
+                        documentCubit,
                       ),
                       title: KycHelper.getMeta(KycDocType.tds).title,
                       description:
@@ -1604,9 +1594,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             },
             onDelete: (index) async {
               if (tdsDocId == null) {
-                ToastMessages.alert(
-                  message: context.appText.errorMessage,
-                );
+                ToastMessages.alert(message: context.appText.errorMessage);
                 return;
               }
               await kycCubit.deleteDocument(tdsDocId ?? "").then((onValue) {
@@ -1636,7 +1624,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           await securePrefs.deleteKey(AppString.sessionKey.iskycAdarWebview);
           clearAllFormValues();
           profileCubit.fetchProfileDetail();
-          if(context.mounted) {
+          if (context.mounted) {
             navigateToHomeScreen(context);
           }
         }
@@ -1714,7 +1702,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 if (isMandatory ?? true)
                   Text(
                     "*",
-                    style: AppTextStyle.textFiled.copyWith(color: AppColors.red),
+                    style: AppTextStyle.textFiled.copyWith(
+                      color: AppColors.red,
+                    ),
                   ),
               ],
             ),
@@ -1732,7 +1722,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         6.height,
         AppTextField(
           maxLength: maxLength,
-          validator: (value) =>  (isMandatory??true) ? Validator.fieldRequired(value):null,
+          validator:
+              (value) =>
+                  (isMandatory ?? true) ? Validator.fieldRequired(value) : null,
           readOnly: readOnly,
           inputFormatters: inputFormatters,
           currentFocus: currentFocus,

@@ -144,16 +144,6 @@ class KycCubit extends BaseCubit<KycState> {
     emit(state.copyWith(cityUIState: uiState));
   }
 
-  // Future<void> fetchCityList(String stateName, {String filter = ''}) async {
-  //   _setCityUIState(UIState.loading());
-  //   Result result = await _repo.getCityData(stateName, filter: filter);
-  //   if (result is Success<CityModel>) {
-  //     _setCityUIState(UIState.success(result.value.data));
-  //   }
-  //   if (result is Error) {
-  //     _setCityUIState(UIState.error(result.type));
-  //   }
-  // }
   // In your Cubit
   int _cityCurrentPage = 1;
   bool _cityIsLastPage = false;

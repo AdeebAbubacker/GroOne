@@ -61,7 +61,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
   String? pucExpiryDate;
   String? registrationDate;
   Timer? addressSearchDebounce;
-  final _addressScrollController=ScrollController();
+  final _addressScrollController = ScrollController();
   String? selectedStateData;
 
   @override
@@ -70,7 +70,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
     super.initState();
   }
 
-    void initFunction() => frameCallback(() async {
+  void initFunction() => frameCallback(() async {
     await profileCubit.fetchAddress();
   });
 
@@ -87,7 +87,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
             addressSearchDebounce = Timer(
               const Duration(milliseconds: 300),
               () {
-                profileCubit.fetchAddress(isLoading: false,search: query);
+                profileCubit.fetchAddress(isLoading: false, search: query);
               },
             );
           },
@@ -114,7 +114,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     context.read<ProfileCubit>().fetchAddress(isLoading: true);
                   },
                   child: ListView(
-
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
@@ -136,49 +135,53 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
 
               if (addressList.isEmpty) {
                 return RefreshIndicator(
-                   onRefresh: () async {
-                  context.read<ProfileCubit>().fetchAddress(isLoading: true);
-                }, 
-                  child: isSearching ? Text(context.appText.noSearchResults).center() :
-                  ListView(
-
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      SizedBox(
-
-                        height: MediaQuery.of(context).size.height * 0.5,
-                        child: Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                  onRefresh: () async {
+                    context.read<ProfileCubit>().fetchAddress(isLoading: true);
+                  },
+                  child:
+                      isSearching
+                          ? Text(context.appText.noSearchResults).center()
+                          : ListView(
+                            physics: const AlwaysScrollableScrollPhysics(),
                             children: [
-                              Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    SvgPicture.asset(
-                                      AppImage.svg.noSearchFound,
-                                      height: 120,
-                                    ),
-                                    20.height,
-                                    Text(
-                                      context.appText.noAddressFound,
-                                      style: AppTextStyle.h5,
-                                    ),
-                                    10.height,
-                                    Text(
-                                      context.appText.startByAddingANewAddress,
-                                      style: AppTextStyle.body3,
-                                    ),
-                                  ],
+                              SizedBox(
+                                height:
+                                    MediaQuery.of(context).size.height * 0.5,
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Center(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            SvgPicture.asset(
+                                              AppImage.svg.noSearchFound,
+                                              height: 120,
+                                            ),
+                                            20.height,
+                                            Text(
+                                              context.appText.noAddressFound,
+                                              style: AppTextStyle.h5,
+                                            ),
+                                            10.height,
+                                            Text(
+                                              context
+                                                  .appText
+                                                  .startByAddingANewAddress,
+                                              style: AppTextStyle.body3,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],
                           ),
-                        ),
-                      ),
-                    ],
-                  ),
                 );
               }
 
@@ -187,11 +190,14 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                   // Reset page count if you are paginating
                   context.read<ProfileCubit>().fetchAddress(isLoading: true);
                 },
-                child:  NotificationListener<ScrollNotification>(
+                child: NotificationListener<ScrollNotification>(
                   onNotification: (scrollInfo) {
                     if (scrollInfo.metrics.pixels ==
                         scrollInfo.metrics.maxScrollExtent) {
-                      profileCubit.fetchAddress(isLoading: false,isInit: false);
+                      profileCubit.fetchAddress(
+                        isLoading: false,
+                        isInit: false,
+                      );
                     }
                     return false;
                   },
@@ -211,7 +217,8 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                         address: fullAddress,
                         isPrimary: address.isDefault,
                         onEdit:
-                            () => showAddAddressPopup(context, address: address),
+                            () =>
+                                showAddAddressPopup(context, address: address),
                         onDelete:
                             () => showDeletePopUp(
                               context: context,
@@ -228,7 +235,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                           await profileCubit.setPrimaryAddress(
                             addressId: address.preferedAddressId,
                           );
-                  
+
                           // Check if it succeeded
                           final primaryState =
                               profileCubit.state.primaryAddressState;
@@ -393,7 +400,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                 if (state?.status == Status.SUCCESS) {
                   profileCubit.fetchAddress(isLoading: true);
                   if (!context.mounted) return;
-                   Navigator.pop(context);
+                  Navigator.pop(context);
                   ToastMessages.success(
                     message:
                         isEdit
@@ -446,7 +453,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
 
           if (result is Success) {
             profileCubit.fetchAddress(isLoading: true);
-            if (context.mounted) {       
+            if (context.mounted) {
               Navigator.of(context).pop();
               ToastMessages.success(message: successMessage);
             }
@@ -499,7 +506,10 @@ class StateDropdown extends StatelessWidget {
           children: [
             Text(context.appText.state, style: AppTextStyle.textFiled),
             const SizedBox(width: 2),
-            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            Text(
+              " *",
+              style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+            ),
           ],
         ),
         const SizedBox(height: 6),
@@ -518,24 +528,37 @@ class StateDropdown extends StatelessWidget {
             requestItemCount: 10,
 
             // Initial selected value
-            initialValue: selectedStateId != null
-                ? SearchableDropdownMenuItem<StateModelList>(
-                    value: stateCubit.state.stateUIState?.data
-                        ?.firstWhereOrNull((e) => e.id.toString() == selectedStateId),
-                    label: stateCubit.state.stateUIState?.data
-                            ?.firstWhereOrNull((e) => e.id.toString() == selectedStateId)
-                            ?.name ??
-                        '',
-                    child: Text(stateCubit.state.stateUIState?.data
-                            ?.firstWhereOrNull((e) => e.id.toString() == selectedStateId)
-                            ?.name ??
-                        ''),
-                  )
-                : null,
+            initialValue:
+                selectedStateId != null
+                    ? SearchableDropdownMenuItem<StateModelList>(
+                      value: stateCubit.state.stateUIState?.data
+                          ?.firstWhereOrNull(
+                            (e) => e.id.toString() == selectedStateId,
+                          ),
+                      label:
+                          stateCubit.state.stateUIState?.data
+                              ?.firstWhereOrNull(
+                                (e) => e.id.toString() == selectedStateId,
+                              )
+                              ?.name ??
+                          '',
+                      child: Text(
+                        stateCubit.state.stateUIState?.data
+                                ?.firstWhereOrNull(
+                                  (e) => e.id.toString() == selectedStateId,
+                                )
+                                ?.name ??
+                            '',
+                      ),
+                    )
+                    : null,
 
             // Pagination request
             paginatedRequest: (int page, String? searchKey) async {
-              await stateCubit.fetchStateList(search: searchKey, loadMore: page > 1,);
+              await stateCubit.fetchStateList(
+                search: searchKey,
+                loadMore: page > 1,
+              );
               final stateList = stateCubit.state.stateUIState?.data ?? [];
               return stateList.map((state) {
                 return SearchableDropdownMenuItem<StateModelList>(
@@ -551,9 +574,7 @@ class StateDropdown extends StatelessWidget {
               onStateChanged(newState);
               if (newState != null) {
                 Future.delayed(const Duration(milliseconds: 300), () {
-                  context.read<KycCubit>().fetchCityList(
-                    newState.name,
-                  );
+                  context.read<KycCubit>().fetchCityList(newState.name);
                 });
               }
             },
@@ -595,7 +616,10 @@ class _CityDropdownState extends State<CityDropdown> {
           children: [
             Text(context.appText.city, style: AppTextStyle.textFiled),
             const SizedBox(width: 2),
-            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            Text(
+              " *",
+              style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+            ),
           ],
         ),
         const SizedBox(height: 6),
@@ -616,20 +640,33 @@ class _CityDropdownState extends State<CityDropdown> {
               requestItemCount: 10,
 
               // Initial selected value
-              initialValue: widget.selectedCityId != null
-                  ? SearchableDropdownMenuItem<CityModelList>(
-                      value: kycCubit.state.cityUIState?.data
-                          ?.firstWhereOrNull((e) => e.id.toString() == widget.selectedCityId),
-                      label: kycCubit.state.cityUIState?.data
-                              ?.firstWhereOrNull((e) => e.id.toString() == widget.selectedCityId)
-                              ?.city ??
-                          '',
-                      child: Text(kycCubit.state.cityUIState?.data
-                              ?.firstWhereOrNull((e) => e.id.toString() == widget.selectedCityId)
-                              ?.city ??
-                          ''),
-                    )
-                  : null,
+              initialValue:
+                  widget.selectedCityId != null
+                      ? SearchableDropdownMenuItem<CityModelList>(
+                        value: kycCubit.state.cityUIState?.data
+                            ?.firstWhereOrNull(
+                              (e) => e.id.toString() == widget.selectedCityId,
+                            ),
+                        label:
+                            kycCubit.state.cityUIState?.data
+                                ?.firstWhereOrNull(
+                                  (e) =>
+                                      e.id.toString() == widget.selectedCityId,
+                                )
+                                ?.city ??
+                            '',
+                        child: Text(
+                          kycCubit.state.cityUIState?.data
+                                  ?.firstWhereOrNull(
+                                    (e) =>
+                                        e.id.toString() ==
+                                        widget.selectedCityId,
+                                  )
+                                  ?.city ??
+                              '',
+                        ),
+                      )
+                      : null,
 
               // Pagination request
               paginatedRequest: (int page, String? searchKey) async {
