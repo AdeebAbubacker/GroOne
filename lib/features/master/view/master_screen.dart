@@ -207,6 +207,7 @@ class _MasterScreenState extends State<MasterScreen>
     return SafeArea(
       top: false,
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         backgroundColor: Colors.grey.shade100,
         appBar: CommonAppBar(
           scrolledUnderElevation: 0,

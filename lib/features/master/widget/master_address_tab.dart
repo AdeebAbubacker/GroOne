@@ -339,7 +339,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                       onStateChanged: (value) {
                         setState(() {
                           selectedState = value?.id.toString();
-                          selectedStateData = value?.id.toString();
+                          selectedStateData = value?.name.toString();
                           selectedCity = null;
                         });
                       },

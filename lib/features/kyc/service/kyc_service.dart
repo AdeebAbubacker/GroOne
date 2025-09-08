@@ -381,7 +381,7 @@ class KycService {
   Future<Result<CityModel>> fetchCityData(String stateName, {String? filter, int? page, int? limit}) async {
     try {
        // Base URL with required params
-    String url = 'https://gro-devapi.letsgro.co/load/api/v1/location/city?state=${stateName}&page=${page}&limit=${limit}';
+    String url = '${ApiUrls.getCity}?state=${stateName}&page=${page}&limit=${limit}';
 
     // Add search if provided
     if (filter != null && filter.trim().isNotEmpty) {

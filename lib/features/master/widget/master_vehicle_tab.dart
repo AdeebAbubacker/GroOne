@@ -551,7 +551,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           onChanged: (LoadWeightModel? value) {
                             setState(() {
                               selectedWeightDropDownValue =
-                                  value?.id.toString();
+                                  value?.value.toString();
                             });
                           },
                         );
@@ -782,7 +782,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                   truckNo: cleanVehicleNumber(
                     truckNumberController.text.trim(),
                   ),
-                  tonnage: selectedWeightDropDownValue,
+                  tonnage: '${selectedWeightDropDownValue}T',
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
                   ownerName: owenerNameController.text,
@@ -803,7 +803,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       truckNo: cleanVehicleNumber(
                         truckNumberController.text.trim(),
                       ),
-                      tonnage: selectedWeightDropDownValue,
+                      tonnage: '${selectedWeightDropDownValue}T',
                       truckTypeId: selectedTruckType?.id ?? 1,
                       fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                       insuranceValidityDate: convertToYMD(

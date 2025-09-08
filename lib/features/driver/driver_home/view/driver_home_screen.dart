@@ -243,6 +243,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   onChanged: (TruckTypeModel? value) {
                     setState(() {
                       truckTypeDropDownValue = value?.id.toString();
+                      selectedTruckTypeId = value?.id;
                     });
                   },
                   mandatoryStar: false,
@@ -316,6 +317,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   onChanged: (LoadCommodityListModel? value) {
                     setState(() {
                       selectedCommodity = value?.id.toString();
+                      selectedCommodityId = value?.id; 
                     });
                   },
                 );
