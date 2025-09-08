@@ -44,7 +44,7 @@ class VpHomeService {
     try {
       // Base URL
       String url =
-        "${ApiUrls.vehicleDetails}$userId?page=1&limit=5";
+        "${ApiUrls.vehicleDetails}$userId?page=${page}&limit=${pageSize}";
 
       // Append search if provided
       if (search != null && search.trim().isNotEmpty) {
@@ -54,17 +54,14 @@ class VpHomeService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
-        print("sucess from service ${result}");
         final vehicleListResponse = VehicleListResponse.fromJson(result.value);
         return Success(vehicleListResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
-        print("eror from service ");
         return Error(GenericError());
       }
     } catch (e) {
-      print("eror from service ${e}");
       return Error(DeserializationError());
     }
   }
@@ -90,18 +87,11 @@ class VpHomeService {
         final driverResponse = DriverListResponse.fromJson(result.value);
         return Success(driverResponse);
       } else if (result is Error) {
-        print("Error in getDriverDetails Error: $result");
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
-    } catch (e, stackTrace) {
-      // Print the error and full stack trace
-      print("Error in getDriverDetails: $e");
-      print(stackTrace);
-
-      // Optionally log it to a monitoring service here
-
+    } catch (e) {
       return Error(DeserializationError());
     }
   }

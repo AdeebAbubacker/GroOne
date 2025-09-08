@@ -191,12 +191,11 @@ class KycCubit extends BaseCubit<KycState> {
           _setCityUIState(UIState.success(newList));
         }
 
-        // ✅ Pagination check (only for non-search)
         if (search == null || search.trim().isEmpty) {
           final totalPages = ((result.value.total) / (10)).ceil();
           _cityIsLastPage = _cityCurrentPage >= totalPages;
         } else {
-          _cityIsLastPage = true; // when searching → treat as full result
+          _cityIsLastPage = true; 
         }
       }
 
@@ -208,9 +207,6 @@ class KycCubit extends BaseCubit<KycState> {
     }
   }
 
-  // Future<Result<CityModel>> getFilteredCityList({required String stateName, required String filter}) async {
-  //   return await _repo.getCityData(stateName,filter: filter);
-  // }
 
   // Send Aadhaar Otp
   Future<void> sendAadhaarOtp(AadhaarOtpApiRequest request) async {

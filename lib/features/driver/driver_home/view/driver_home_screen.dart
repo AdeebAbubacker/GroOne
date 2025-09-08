@@ -317,7 +317,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   onChanged: (LoadCommodityListModel? value) {
                     setState(() {
                       selectedCommodity = value?.id.toString();
-                      selectedCommodityId = value?.id; 
+                      selectedCommodityId = value?.id;
                     });
                   },
                 );

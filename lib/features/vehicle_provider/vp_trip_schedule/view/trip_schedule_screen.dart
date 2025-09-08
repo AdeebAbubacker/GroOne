@@ -91,15 +91,15 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
     onRefresh();
   }
 
-  void _addSelfOption() {
-    driverDetails.add(
-      DriverDetails(
-        self: 1,
-        name: context.appText.self,
-        id: profileCubit.state.profileDetailUIState?.data?.customer?.customerId,
-      ),
-    );
-  }
+  // void _addSelfOption() {
+  //   driverDetails.add(
+  //     DriverDetails(
+  //       self: 1,
+  //       name: context.appText.self,
+  //       id: profileCubit.state.profileDetailUIState?.data?.customer?.customerId,
+  //     ),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +122,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
       child: SingleChildScrollView(
         child: BlocListener(
           bloc: vpHomeScreenBloc,
-          listener: (context, state) {
+           listener: (context, state) {
             if (state is VpVehicleListSuccess) {
               setState(() {
                 vehicleDetail =
@@ -135,13 +135,13 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
               setState(() {
                 driverDetails =
                     (state.driverListResponse.data
-                        .where((element) => element.status == 1)
+                        .where((element) => element.driverStatus == 1)
                         .toList());
 
-                // _addSelfOption();
-                driverDetails.sort(
-                  (a, b) => (b.self ?? 0).compareTo(a.self ?? 0),
-                );
+                // // _addSelfOption();
+                // driverDetails.sort(
+                //   (a, b) => (b.self ?? 0).compareTo(a.self ?? 0),
+                // );
               });
             }
           },
@@ -174,7 +174,9 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                                 final currentState =
                                     context.read<VpHomeCubit>().state;
                                 return currentState.vehicleUIState?.data?.data
-                                    .firstWhereOrNull((v) => v.vehicleId == truckType);
+                                    .firstWhereOrNull(
+                                      (v) => v.vehicleId == truckType,
+                                    );
                               })(),
                         ),
 
@@ -429,43 +431,42 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         : null,
 
                 // Pagination / Search
-             paginatedRequest: (int page, String? searchKey) async {
-            final cubit = context.read<VpHomeCubit>();
+                paginatedRequest: (int page, String? searchKey) async {
+                  final cubit = context.read<VpHomeCubit>();
 
-            // Call API with page + search
-            await cubit.fetchDrivers(
-              search: searchKey,
-              loadMore: page > 1,
-            );
+                  // Call API with page + search
+                  await cubit.fetchDrivers(
+                    search: searchKey,
+                    loadMore: page > 1,
+                  );
 
-            final drivers = cubit.state.driverUIState?.data?.data ?? [];
+                  final drivers = cubit.state.driverUIState?.data?.data ?? [];
 
-            return drivers.map((driver) {
-              final status = driver.activeStatus?.trim().toLowerCase();
-              final statusLabel = status == "inactive" ? " (On Another Trip)" : "";
-              return SearchableDropdownMenuItem<DriverDetails>(
-                value: driver,
-                label: "${driver.name}$statusLabel",
-                child:Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(driver.name ?? ""),
-                        if (driver.activeStatus
-                                ?.trim()
-                                .toLowerCase() ==
-                            "inactive")
-                          Text(
-                            context.appText.onanotherTrip,
-                            style: const TextStyle(
-                              color: Colors.red,
-                              fontSize: 12,
+                  return drivers.map((driver) {
+                    final status = driver.activeStatus?.trim().toLowerCase();
+                    final statusLabel =
+                        status == "inactive" ? " (On Another Trip)" : "";
+                    return SearchableDropdownMenuItem<DriverDetails>(
+                      value: driver,
+                      label: "${driver.name}$statusLabel",
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(driver.name ?? ""),
+                          if (driver.activeStatus?.trim().toLowerCase() ==
+                              "inactive")
+                            Text(
+                              context.appText.onAnotherTrip,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
-                      ],
-                    ),
-              );
-            }).toList();
-          },
+                        ],
+                      ),
+                    );
+                  }).toList();
+                },
 
                 // Handle selection
                 onChanged: (DriverDetails? newDriver) {
@@ -532,29 +533,31 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         : null,
 
                 /// Fetch trucks via Cubit (with local filtering)
-            paginatedRequest: (int page, String? searchKey) async {
-  final cubit = context.read<VpHomeCubit>();
+                paginatedRequest: (int page, String? searchKey) async {
+                  final cubit = context.read<VpHomeCubit>();
 
-  // Always fetch from API (with pagination/search if needed)
-  await cubit.fetchVehicles(
-    search: searchKey,
-    loadMore: page > 1,
-  );
+                  // Always fetch from API (with pagination/search if needed)
+                  await cubit.fetchVehicles(
+                    search: searchKey,
+                    loadMore: page > 1,
+                  );
 
-  final trucks = cubit.state.vehicleUIState?.data?.data ?? [];
+                  final trucks = cubit.state.vehicleUIState?.data?.data ?? [];
 
-  return trucks.map((truck) {
-    final type = truck.truckType?.type ?? "";
-    final subType = truck.truckType?.subType ?? "";
-    final typeInfo =
-        (type.isNotEmpty || subType.isNotEmpty) ? " ($type $subType)" : "";
-    return SearchableDropdownMenuItem<VehicleDetail>(
-      value: truck,
-      label: "${truck.truckNo}$typeInfo",
-      child: Text("${truck.truckNo}$typeInfo"),
-    );
-  }).toList();
-},
+                  return trucks.map((truck) {
+                    final type = truck.truckType?.type ?? "";
+                    final subType = truck.truckType?.subType ?? "";
+                    final typeInfo =
+                        (type.isNotEmpty || subType.isNotEmpty)
+                            ? " ($type $subType)"
+                            : "";
+                    return SearchableDropdownMenuItem<VehicleDetail>(
+                      value: truck,
+                      label: "${truck.truckNo}$typeInfo",
+                      child: Text("${truck.truckNo}$typeInfo"),
+                    );
+                  }).toList();
+                },
 
                 onChanged: (VehicleDetail? newTruck) {
                   onTruckChanged(newTruck?.vehicleId);
