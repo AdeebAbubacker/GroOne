@@ -272,6 +272,59 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+  Widget _buildChatLimit() {
+    return BlocBuilder<ChatCubit, ChatState>(
+      builder: (context, state) {
+        // Show 0/0 initially until data is loaded from API
+        final todaysCount = state.todaysChatCount;
+        final dailyLimit = state.dailyChatLimit;
+        
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 6.0),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text.rich(
+                  TextSpan(
+                    children: [
+                      TextSpan(
+                        text: 'Chats Today : ',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.primaryColor,
+                          fontWeight: FontWeight.w500,
+                          height: 1.3,
+                        ),
+                      ),
+                      TextSpan(
+                        text: '$todaysCount',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.black,
+                          fontWeight: FontWeight.bold,
+                          height: 1.3,
+                        ),
+                      ),
+                      TextSpan(
+                        text: ' / $dailyLimit',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.grayColor,
+                          fontWeight: FontWeight.w500,
+                          height: 1.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildMessagesList(List<ChatMessage> messages) {
     return BlocBuilder<ChatCubit, ChatState>(
@@ -985,6 +1038,7 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
       child: Column(
         children: [
+          _buildChatLimit(),
           Row(
             children: [
               // Floating language options (positioned at screen level)

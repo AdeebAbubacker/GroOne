@@ -15,6 +15,9 @@ class ChatState extends Equatable {
   final String? error;
   final String? successMessage; // Success message for toasts
   final int pageNo;
+  // Chat limit tracking
+  final int todaysChatCount; // Current number of chats used today
+  final int dailyChatLimit; // Maximum chats allowed per day
 
   const ChatState({
     this.messages = const [],
@@ -30,6 +33,8 @@ class ChatState extends Equatable {
     this.pageNo =1,
     this.error,
     this.successMessage,
+    this.todaysChatCount = 0,
+    this.dailyChatLimit = 0,
   });
 
   ChatState copyWith({
@@ -49,6 +54,8 @@ class ChatState extends Equatable {
     bool clearError = false,
     String? successMessage,
     bool clearSuccessMessage = false,
+    int? todaysChatCount,
+    int? dailyChatLimit,
   }) {
     return ChatState(
       messages: messages ?? this.messages,
@@ -64,6 +71,8 @@ class ChatState extends Equatable {
       recordingDuration: recordingDuration ?? this.recordingDuration,
       error: clearError ? null : (error ?? this.error),
       successMessage: clearSuccessMessage ? null : (successMessage ?? this.successMessage),
+      todaysChatCount: todaysChatCount ?? this.todaysChatCount,
+      dailyChatLimit: dailyChatLimit ?? this.dailyChatLimit,
     );
   }
 
@@ -81,5 +90,7 @@ class ChatState extends Equatable {
         recordingDuration,
         error,
         successMessage,
+        todaysChatCount,
+        dailyChatLimit,
       ];
 }
