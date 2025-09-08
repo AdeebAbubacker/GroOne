@@ -11,7 +11,6 @@ import 'package:gro_one_app/features/email_verification/cubit/email_verification
 import 'package:gro_one_app/features/load_provider/lp_create_account/api_request/create_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/cubit/lp_create_account_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_create_account/widgets/company_type_dropdown.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -34,11 +33,9 @@ import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
-import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/model/searchable_dropdown_menu_item.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
+
 
 
 class LpCreateAccount extends StatefulWidget {
@@ -71,14 +68,12 @@ class _LpCreateAccountState extends BaseState<LpCreateAccount> {
 
   @override
   void initState() {
-    // TODO: implement initState
     initFunction();
     super.initState();
   }
 
   @override
   void dispose() {
-    // TODO: implement dispose
     disposeFunction();
     super.dispose();
   }

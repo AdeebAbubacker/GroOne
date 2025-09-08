@@ -30,7 +30,6 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
-import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -902,34 +901,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 ],
                               ),
                               16.height,
-                              // State Dropdown
-                              // _stateDropdown(context, selectedState, (value) {
-                              //   setState(() {
-                              //     selectedState = value;
-                              //     selectedCity = null;
-                              //   });
-                              // }),
-
-                              // 16.height,
-                              // _cityDropdown(
-                              //   context,
-                              //   selectedCity,
-                              //   selectedState != null &&
-                              //       selectedState!.isNotEmpty,
-                              //   (value) {
-                              //     setState(() {
-                              //       selectedCity = value;
-                              //     });
-                              //   },
-                              // ),
                               StateDropdown(
                                 selectedStateId: selectedState,
                                 onStateChanged: (value) {
                                   setState(() {
                                     selectedStateData = value?.name.toString();
-                                    print(
-                                      "selected State Data is ${selectedStateData}",
-                                    );
                                     selectedState = value?.id.toString();
                                     selectedCity = null;
                                   });

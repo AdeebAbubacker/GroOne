@@ -1,8 +1,6 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
@@ -26,7 +24,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/model/searchable_dropdown_menu_item.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';
 import 'package:gro_one_app/utils/app_route.dart';
-// import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -525,9 +522,9 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                         ? SearchableDropdownMenuItem<VehicleDetail>(
                           value: selectedTruck,
                           label:
-                              "${selectedTruck.truckNo}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
+                              "${selectedTruck.truckNo}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType})' : ''}",
                           child: Text(
-                            "${selectedTruck.truckNo}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType ?? ''})' : ''}",
+                            "${selectedTruck.truckNo}${selectedTruck.truckType != null ? ' (${selectedTruck.truckType!.type} ${selectedTruck.truckType!.subType})' : ''}",
                           ),
                         )
                         : null,
