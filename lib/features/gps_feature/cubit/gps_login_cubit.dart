@@ -162,12 +162,12 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
   /// Refresh all data - uses existing token if available, otherwise re-login
   Future<void> refreshData() async {
     try {
-      // First try to get stored token
-      final storedLoginResponse = await _repository.getStoredLoginResponse();
+      // First try to get stored token from secure storage
+      final storedGpsToken = await _repository.getStoredGpsToken();
 
-      if (storedLoginResponse?.token != null) {
+      if (storedGpsToken != null) {
         // Use existing token for refresh
-        _authToken = storedLoginResponse!.token;
+        _authToken = storedGpsToken;
         AppConstants.token = _authToken;
 
         // Try to refresh data with existing token
@@ -182,7 +182,24 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
           return;
         }
 
-        // If refresh with existing token failed, fall back to full re-login
+        // If refresh with existing token failed, try Realm fallback
+        final storedLoginResponse = await _repository.getStoredLoginResponse();
+        if (storedLoginResponse?.token != null) {
+          _authToken = storedLoginResponse!.token;
+          AppConstants.token = _authToken;
+
+          final vehicleDataResult2 = await _repository.getAllVehicleData(
+            _authToken,
+          );
+
+          if (vehicleDataResult2 is Success<List<GpsCombinedVehicleData>>) {
+            _setDataFetchUIState(
+              UIState.success("Data refreshed successfully"),
+            );
+            _hasLoadedData = true;
+            return;
+          }
+        }
       }
 
       // Fallback: Full re-login if no token or refresh failed

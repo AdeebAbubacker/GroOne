@@ -55,11 +55,5 @@ app.*.map.json
 /lib/l10n/app_localizations_ta.dart
 /lib/l10n/extensions/
 /.vscode/
-
-# Kiro Workflow Files
-.kiro/
-.cursor/rules/kiro-spec.mdc
-.cursor/rules/kiro-tasks.mdc
+*kiro*
 .cursor/rules/prompt-rewriting.mdc
-.cursor/rules/underspecification-optimizer.mdc
-README-KIRO.md

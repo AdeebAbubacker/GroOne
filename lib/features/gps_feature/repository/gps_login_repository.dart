@@ -1,4 +1,5 @@
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 
@@ -20,11 +21,13 @@ class GpsLoginRepository {
   final GpsLoginService _gpsLoginService;
   final GpsRealmService _realmService;
   final HasInternetConnection _internetConnection;
+  final UserInformationRepository _userInformationRepository;
 
   GpsLoginRepository(
     this._gpsLoginService,
     this._realmService,
     this._internetConnection,
+    this._userInformationRepository,
   );
 
   Future<bool> _checkInternetConnection() async {
@@ -126,6 +129,11 @@ class GpsLoginRepository {
   /// Get stored login response from Realm
   Future<GpsLoginResponseModel?> getStoredLoginResponse() async {
     return await _realmService.getLoginResponse();
+  }
+
+  /// Get stored GPS token from secure storage
+  Future<String?> getStoredGpsToken() async {
+    return await _userInformationRepository.getGpsToken();
   }
 
   /// Save vehicle data to Realm

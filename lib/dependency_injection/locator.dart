@@ -202,7 +202,10 @@ void _registerCriticalServices() {
 /// Register core services needed for basic functionality
 void _registerCoreServices() {
   locator.registerLazySingleton(
-    () => SplashService(locator<SecuredSharedPreferences>(), locator<ApiService>()),
+    () => SplashService(
+      locator<SecuredSharedPreferences>(),
+      locator<ApiService>(),
+    ),
   );
   locator.registerLazySingleton(() => NotificationService());
   locator.registerLazySingleton(() => LocationService());
@@ -447,12 +450,10 @@ void _registerBasicBlocs() {
     () => LpHomeBloc(locator<UserInformationRepository>()),
   );
   locator.registerLazySingleton(
-    () => LoadFilterCubit(
-        locator<VpLoadRepository>(),
-      ),
-    );
-    locator.registerLazySingleton(
-      () => LoadPostingBloc(
+    () => LoadFilterCubit(locator<VpLoadRepository>()),
+  );
+  locator.registerLazySingleton(
+    () => LoadPostingBloc(
       locator<UserInformationRepository>(),
       locator<LpHomeRepository>(),
     ),
@@ -632,7 +633,7 @@ void _registerBasicBlocs() {
   );
   locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
   locator.registerLazySingleton(
-    () => MastersCubit(locator<ProfileRepository>(),locator<KycRepository>()),
+    () => MastersCubit(locator<ProfileRepository>(), locator<KycRepository>()),
   );
 
   // AI Chat dependencies
@@ -682,6 +683,7 @@ void _registerDeferredRepositories() {
       locator<GpsLoginService>(),
       locator<GpsRealmService>(),
       locator<HasInternetConnection>(),
+      locator<UserInformationRepository>(),
     ),
   );
   locator.registerLazySingleton(

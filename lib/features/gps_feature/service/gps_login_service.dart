@@ -7,6 +7,7 @@ import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:intl/intl.dart';
 
+import '../constants/app_constants.dart';
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_device_fuel_model.dart';
 import '../model/gps_devices_expiry_model.dart';
@@ -73,6 +74,13 @@ class GpsLoginService {
               this,
               "Login data parsed successfully: token=${loginData.token?.substring(0, 20)}...",
             );
+
+            // Save GPS token to secure storage for future use
+            if (loginData.token != null) {
+              await _userInformationRepository.saveGpsToken(loginData.token!);
+              CustomLog.info(this, "GPS token saved to secure storage");
+            }
+
             return Success(loginData);
           } catch (e) {
             CustomLog.error(this, "Error parsing login response", e);
@@ -492,7 +500,7 @@ class GpsLoginService {
     }
   }
 
-  // Helper method to make authenticated requests
+  // Helper method to make authenticated requests with token refresh
   Future<Result<dynamic>> _makeAuthenticatedRequest(
     String url,
     String method, {
@@ -527,6 +535,53 @@ class GpsLoginService {
         throw Exception('Unsupported HTTP method: $method');
       }
 
+      // Handle 401 errors specifically for GPS tokens
+      if (result is Error && result.type is UnauthenticatedError) {
+        CustomLog.info(
+          this,
+          "Received 401 error, attempting GPS token refresh...",
+        );
+
+        // Try to refresh the GPS token
+        final refreshResult = await _refreshGpsToken();
+        if (refreshResult is Success<String>) {
+          final newToken = refreshResult.value;
+          CustomLog.info(
+            this,
+            "GPS token refreshed successfully, retrying request...",
+          );
+
+          // Update the token in AppConstants
+          AppConstants.token = newToken;
+
+          // Retry the request with the new token
+          final retryHeaders = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization':
+                newToken.startsWith('Bearer ') ? newToken : 'Bearer $newToken',
+          };
+
+          if (method == 'GET') {
+            result = await _apiService.get(
+              url,
+              queryParams: queryParams,
+              customHeaders: retryHeaders,
+            );
+          } else if (method == 'POST') {
+            result = await _apiService.post(
+              url,
+              body: body,
+              queryParams: queryParams,
+              customHeaders: retryHeaders,
+            );
+          }
+        } else {
+          CustomLog.error(this, "Failed to refresh GPS token", null);
+          return Error(UnauthenticatedError(message: "Token refresh failed"));
+        }
+      }
+
       if (result is Success) {
         CustomLog.info(this, "Request successful");
         return result;
@@ -535,6 +590,38 @@ class GpsLoginService {
       }
     } catch (e) {
       CustomLog.error(this, "Error making authenticated request to $url", e);
+      return Error(GenericError());
+    }
+  }
+
+  // Method to refresh GPS token by re-logging in
+  Future<Result<String>> _refreshGpsToken() async {
+    try {
+      CustomLog.info(this, "Refreshing GPS token...");
+
+      // Perform a fresh login to get a new token
+      final loginResult = await login();
+
+      if (loginResult is Success<GpsLoginResponseModel>) {
+        final newToken = loginResult.value.token;
+        if (newToken != null) {
+          // Update the stored token in Realm
+          await _userInformationRepository.saveGpsToken(newToken);
+
+          CustomLog.info(this, "GPS token refreshed successfully");
+          return Success(newToken);
+        } else {
+          CustomLog.error(this, "No token received from GPS login", null);
+          return Error(GenericError());
+        }
+      } else {
+        CustomLog.error(this, "GPS login failed during token refresh", null);
+        return Error(
+          loginResult is Error ? (loginResult as Error).type : GenericError(),
+        );
+      }
+    } catch (e) {
+      CustomLog.error(this, "Error refreshing GPS token", e);
       return Error(GenericError());
     }
   }
@@ -639,10 +726,7 @@ class GpsLoginService {
               .data ??
           {};
 
-      final apiCounts =
-          (devicesPositionsResult as Success<GpsDevicesPositionsModel>)
-              .value
-              .counts;
+      final apiCounts = devicesPositionsResult.value.counts;
 
       // Combine expiry and position data with proper status assignment
       for (final expiryDevice in expiryDevices) {
@@ -779,15 +863,16 @@ class GpsLoginService {
                 lng,
               );
 
-              // Create updated vehicle with address
-              final updatedVehicle = vehicle.copyWith(address: address);
-
               // Update in realm service (this would need to be injected)
               // For now, we'll just log the address
               CustomLog.info(
                 this,
                 "Fetched address for vehicle ${vehicle.vehicleNumber}: $address",
               );
+
+              // TODO: Update the vehicle in Realm with the new address
+              // This would require injecting the realm service or updating the vehicle data
+              // For now, we just log the address
             }
           } catch (e) {
             CustomLog.error(
