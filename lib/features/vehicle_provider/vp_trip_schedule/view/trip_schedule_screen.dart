@@ -428,7 +428,23 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
               return SearchableDropdownMenuItem<DriverDetails>(
                 value: driver,
                 label: "${driver.name}$statusLabel",
-                child: Text("${driver.name}$statusLabel"),
+                child:Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(driver.name),
+                        if (driver.activeStatus
+                                ?.trim()
+                                .toLowerCase() ==
+                            "inactive")
+                          Text(
+                            context.appText.onanotherTrip,
+                            style: const TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                            ),
+                          ),
+                      ],
+                    ),
               );
             }).toList();
           },

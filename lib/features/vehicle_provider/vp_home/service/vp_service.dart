@@ -44,7 +44,7 @@ class VpHomeService {
     try {
       // Base URL
       String url =
-        "${ApiUrls.vehicleDetails}$userId?page=$page&limit=$pageSize";
+        "${ApiUrls.vehicleDetails}$userId?page=1&limit=5";
 
       // Append search if provided
       if (search != null && search.trim().isNotEmpty) {

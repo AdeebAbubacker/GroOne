@@ -1,29 +1,37 @@
 class VehicleListResponse {
-  VehicleListResponse({
+    VehicleListResponse({
+        required this.data,
+        required this.total,
+        required this.pageMeta,
+    });
 
-    required this.message,
-    required this.data,
-  });
+    final List<VehicleDetail> data;
+    final int total;
+    final PageMeta? pageMeta;
 
+    VehicleListResponse copyWith({
+        List<VehicleDetail>? data,
+        int? total,
+        PageMeta? pageMeta,
+    }) {
+        return VehicleListResponse(
+            data: data ?? this.data,
+            total: total ?? this.total,
+            pageMeta: pageMeta ?? this.pageMeta,
+        );
+    }
 
-  final String message;
-  final List<VehicleDetail> data;
-
-  factory VehicleListResponse.fromJson(Map<String, dynamic> json){
-    return VehicleListResponse(
-
-      message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<VehicleDetail>.from(json["data"]!.map((x) => VehicleDetail.fromJson(x))),
-    );
-  }
-
-  Map<String, dynamic> toJson() => {
-
-    "message": message,
-    "data": data.map((x) => x.toJson()).toList(),
-  };
+    factory VehicleListResponse.fromJson(Map<String, dynamic> json){ 
+        return VehicleListResponse(
+            data: json["data"] == null ? [] : List<VehicleDetail>.from(json["data"]!.map((x) => VehicleDetail.fromJson(x))),
+            total: json["total"] ?? 0,
+            pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
+        );
+    }
 
 }
+
+
 
 class VehicleDetail {
   VehicleDetail({
@@ -107,3 +115,47 @@ class TruckType {
         "subType": subType,
       };
 }
+
+class PageMeta {
+    PageMeta({
+        required this.page,
+        required this.pageCount,
+        required this.nextPage,
+        required this.pageSize,
+        required this.total,
+    });
+
+    final int page;
+    final int pageCount;
+    final dynamic nextPage;
+    final int pageSize;
+    final int total;
+
+    PageMeta copyWith({
+        int? page,
+        int? pageCount,
+        dynamic? nextPage,
+        int? pageSize,
+        int? total,
+    }) {
+        return PageMeta(
+            page: page ?? this.page,
+            pageCount: pageCount ?? this.pageCount,
+            nextPage: nextPage ?? this.nextPage,
+            pageSize: pageSize ?? this.pageSize,
+            total: total ?? this.total,
+        );
+    }
+
+    factory PageMeta.fromJson(Map<String, dynamic> json){ 
+        return PageMeta(
+            page: json["page"] ?? 0,
+            pageCount: json["pageCount"] ?? 0,
+            nextPage: json["nextPage"],
+            pageSize: json["pageSize"] ?? 0,
+            total: json["total"] ?? 0,
+        );
+    }
+
+}
+

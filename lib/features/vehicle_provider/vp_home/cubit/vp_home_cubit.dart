@@ -73,22 +73,72 @@ Future<void> fetchDrivers({
 
 
   /// Fetch vehicle list
-  Future<void> fetchVehicles({String? search}) async {
+  // Future<void> fetchVehicles({String? search}) async {
+  //   emit(state.copyWith(vehicleUIState: UIState.loading()));
+
+  //   final userId = await _userInformationRepository.getUserID();
+
+  //   final result = await _vHomeRepository.getVehicleDetails(
+  //     userId: userId ?? '',
+  //     search: search,
+  //   );
+
+  //   if (result is Success<VehicleListResponse>) {
+  //     emit(state.copyWith(vehicleUIState: UIState.success(result.value)));
+  //   } else if (result is Error<VehicleListResponse>) {
+  //     emit(state.copyWith(vehicleUIState: UIState.error(result.type)));
+  //   }
+  // }
+ int _vehicleCurrentPage = 1;
+bool _vehicleIsLastPage = false;
+ Future<void> fetchVehicles({
+  String? search,
+  bool loadMore = false,
+}) async {
+  if (_vehicleIsLastPage && loadMore) return;
+
+  if (!loadMore) {
+    _vehicleCurrentPage = 1;
+    _vehicleIsLastPage = false;
     emit(state.copyWith(vehicleUIState: UIState.loading()));
-
-    final userId = await _userInformationRepository.getUserID();
-
-    final result = await _vHomeRepository.getVehicleDetails(
-      userId: userId ?? '',
-      search: search,
-    );
-
-    if (result is Success<VehicleListResponse>) {
-      emit(state.copyWith(vehicleUIState: UIState.success(result.value)));
-    } else if (result is Error<VehicleListResponse>) {
-      emit(state.copyWith(vehicleUIState: UIState.error(result.type)));
-    }
+  } else {
+    _vehicleCurrentPage++;
   }
+
+  final userId = await _userInformationRepository.getUserID();
+
+  final result = await _vHomeRepository.getVehicleDetails(
+    userId: userId ?? '',
+    search: search,
+    page: _vehicleCurrentPage,
+    limit: 10,
+  );
+
+  if (result is Success<VehicleListResponse>) {
+    final newVehicles = result.value.data;
+    final totalPages = result.value.pageMeta?.pageCount ?? 1; // ✅ safe default
+
+    if (loadMore) {
+      final existing = state.vehicleUIState?.data?.data ?? [];
+      emit(state.copyWith(
+        vehicleUIState: UIState.success(
+          VehicleListResponse(
+            data: [...existing, ...newVehicles],
+            total: result.value.total,
+            pageMeta: result.value.pageMeta,
+          ),
+        ),
+      ));
+    } else {
+      emit(state.copyWith(vehicleUIState: UIState.success(result.value)));
+    }
+
+    // ✅ safe comparison
+    _vehicleIsLastPage = _vehicleCurrentPage >= totalPages;
+  } else if (result is Error<VehicleListResponse>) {
+    emit(state.copyWith(vehicleUIState: UIState.error(result.type)));
+  }
+}
 
 
 }
