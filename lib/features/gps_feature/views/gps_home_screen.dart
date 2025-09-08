@@ -470,12 +470,12 @@ class _GpsHomeContent extends StatelessWidget {
       ),
     ];
     return MemoryEfficientGridView(
-      children: menuItems.map((item) => _buildMenuCard(item)).toList(),
       crossAxisCount: 2,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
       childAspectRatio: 1.5,
       shrinkWrap: true,
+      children: menuItems.map((item) => _buildMenuCard(item)).toList(),
     );
   }
 

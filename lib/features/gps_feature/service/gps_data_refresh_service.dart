@@ -98,6 +98,16 @@ class GpsDataRefreshService {
     }
   }
 
+  /// Restart refresh service after authentication is restored
+  void restartAfterAuthRestore() {
+    CustomLog.info(
+      this,
+      "Restarting GPS data refresh after authentication restore",
+    );
+    _stopRefresh();
+    startRefresh(_currentScreenType);
+  }
+
   /// Stop the data refresh
   void stopRefresh() {
     _stopRefresh();
@@ -129,6 +139,12 @@ class GpsDataRefreshService {
         "Performing GPS data refresh for $_currentScreenType",
       );
 
+      // Check if GPS service is properly initialized
+      if (!_isGpsServiceInitialized()) {
+        CustomLog.debug(this, "GPS service not initialized, skipping refresh");
+        return;
+      }
+
       // Use timeout to prevent hanging operations
       await Future.any([
         _performRefreshOperations(),
@@ -144,6 +160,25 @@ class GpsDataRefreshService {
     } catch (e) {
       CustomLog.error(this, "Error during GPS data refresh", e);
       // Don't rethrow to prevent service from stopping
+    }
+  }
+
+  /// Check if GPS service is properly initialized
+  bool _isGpsServiceInitialized() {
+    try {
+      // Check if we can access the cubits without errors
+      final gpsCubit = _gpsLoginCubitInstance;
+
+      // Check if GPS service has valid authentication
+      if (!gpsCubit.hasValidAuth) {
+        CustomLog.debug(this, "GPS service has no valid authentication");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      CustomLog.error(this, "GPS service not properly initialized", e);
+      return false;
     }
   }
 
@@ -175,6 +210,19 @@ class GpsDataRefreshService {
       futures.map(
         (future) => future.catchError((e) {
           CustomLog.error(this, "Individual refresh operation failed", e);
+
+          // If it's an authentication error, stop the refresh service
+          if (e.toString().contains('401') ||
+              e.toString().contains('Unauthorized') ||
+              e.toString().contains('InvalidToken') ||
+              e.toString().contains('UnauthenticatedError')) {
+            CustomLog.debug(
+              this,
+              "Authentication error detected, stopping refresh service",
+            );
+            _stopRefresh();
+          }
+
           return null; // Continue with other operations
         }),
       ),
@@ -187,6 +235,15 @@ class GpsDataRefreshService {
       this,
       "Refresh completed: $successCount/${futures.length} operations successful",
     );
+
+    // If all operations failed, stop the refresh service to prevent continuous failures
+    if (successCount == 0 && futures.isNotEmpty) {
+      CustomLog.debug(
+        this,
+        "All refresh operations failed, stopping refresh service",
+      );
+      _stopRefresh();
+    }
   }
 
   /// Check if refresh is currently active

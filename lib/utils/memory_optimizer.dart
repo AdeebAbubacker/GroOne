@@ -226,6 +226,7 @@ class MemoryEfficientGridView extends StatelessWidget {
       controller: controller,
       padding: padding,
       shrinkWrap: shrinkWrap,
+      physics: const NeverScrollableScrollPhysics(),
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: crossAxisCount,
         crossAxisSpacing: crossAxisSpacing,
