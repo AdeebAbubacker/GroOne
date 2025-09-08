@@ -55,3 +55,5 @@ app.*.map.json
 /lib/l10n/app_localizations_ta.dart
 /lib/l10n/extensions/
 /.vscode/
+*kiro*
+.cursor/rules/prompt-rewriting.mdc

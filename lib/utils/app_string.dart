@@ -40,8 +40,7 @@ class PreferenceKey {
   final String selectedLanguage = "selected_language";
   final String iskycAdarWebview = "iskycAdarWebview";
   final String customerSeriesId = "customerSeriesId";
-
-
+  final String gpsToken = "gpsToken";
 
   /// Aadhar KYC
   final String aadharVerified = "aadharVerified";
@@ -56,7 +55,6 @@ class PreferenceKey {
   final String isPanNumberVerified = "isPanNumberVerified";
   final String isTanNumberVerified = "isTanNumberVerified";
 
-
   final String panDocUrl = "panDocUrl";
   final String tanDocUrl = "tanDocUrl";
   final String gstDocUrl = "gstDocUrl";
@@ -64,9 +62,4 @@ class PreferenceKey {
   final String panDocId = "panDocId";
   final String tanDocID = "tanDocID";
   final String gstDocID = "gstDocID";
-
-
-
-
-
 }
