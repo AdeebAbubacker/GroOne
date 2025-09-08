@@ -7,15 +7,17 @@ import 'package:gro_one_app/core/app_initializer.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/helper/gps_session_manager.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
 import 'package:gro_one_app/l10n/l10n.dart';
 import 'package:gro_one_app/routing/app_routes.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 import 'package:gro_one_app/service/pushNotification/notification_service.dart';
 import 'package:gro_one_app/utils/app_global_variables.dart';
+import 'package:gro_one_app/utils/app_performance_manager.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_theme_style.dart';
-import 'package:gro_one_app/utils/error_boundary.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/memory_optimizer.dart';
 import 'package:gro_one_app/utils/performance_monitor.dart';
 
 import 'core/localization_bloc/localization_bloc.dart';
@@ -71,6 +73,12 @@ void main() async {
 
     await NotificationService().init(navigatorKey, securedSharedPrefs);
 
+    // Initialize performance manager
+    AppPerformanceManager().initialize();
+
+    // Initialize memory optimizer
+    MemoryOptimizer().initialize();
+
     // Stop performance monitoring and log results
     PerformanceMonitor.stopTimer('app_initialization');
     PerformanceMonitor.logPerformanceSummary();
@@ -122,7 +130,6 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
   /// Handle app lifecycle changes
   @override
   Future<void> didChangeAppLifecycleState(AppLifecycleState state) async {
-
     super.didChangeAppLifecycleState(state);
 
     switch (state) {
@@ -133,29 +140,39 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
         NotificationService().clearBadgeCount();
         await HasInternetConnection().checkConnectivity();
 
+        // Resume GPS data refresh
+        GpsDataRefreshService().resumeRefresh();
+
         break;
       case AppLifecycleState.paused:
         // App went to background
         AppLifecycleMonitor.endLifecycleEvent('app_foreground');
         AppLifecycleMonitor.startLifecycleEvent('app_background');
+
+        // Pause GPS data refresh to save battery and prevent ANR
+        GpsDataRefreshService().pauseRefresh();
         break;
       case AppLifecycleState.detached:
         // App is being terminated
         AppLifecycleMonitor.endLifecycleEvent('app_foreground');
         AppLifecycleMonitor.endLifecycleEvent('app_background');
+
+        // Stop GPS data refresh completely
+        GpsDataRefreshService().stopRefresh();
         break;
       case AppLifecycleState.inactive:
-        // App is inactive
+        // App is inactive - pause refresh to save resources
+        GpsDataRefreshService().pauseRefresh();
         break;
       case AppLifecycleState.hidden:
-        // App is hidden (newer Flutter versions)
+        // App is hidden (newer Flutter versions) - pause refresh
+        GpsDataRefreshService().pauseRefresh();
         break;
     }
   }
 
   /// Initialize app functions
   initFun() => frameCallback(() async {
-
     try {
       // Check internet connectivity
       await HasInternetConnection().checkConnectivity();
@@ -200,9 +217,10 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
     // Lock orientation to portrait
     SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 
-    return ErrorBoundary(
+    return EnhancedErrorBoundary(
       onError: () {
         debugPrint('🚨 Error caught in main app');
+        AppPerformanceManager().logError('Main app error');
       },
       child: BlocBuilder<LocaleBloc, LocaleState>(
         builder: (context, state) {
