@@ -360,9 +360,7 @@ class _MasterScreenState extends State<MasterScreen>
                               insurancePolicyNumber.text =
                                   insurancePolicyNo.toString();
                             }
-                            final capacity =
-                                vehicleData['vehicle_gross_weight'] ??
-                                vehicleData['tonnage'];
+                            final capacity = vehicleData['tonnage'];
                             if (capacity != null) {
                               RegExp(
                                 r'\d+',

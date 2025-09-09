@@ -384,9 +384,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                               insurancePolicyNumber.text =
                                   insurancePolicyNo.toString();
                             }
-                            final capacity =
-                                vehicleData['vehicle_gross_weight'] ??
-                                vehicleData['tonnage'];
+                            final capacity = vehicleData['tonnage'];
                             if (capacity != null) {
                               RegExp(r'\d+').stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
@@ -1049,9 +1047,7 @@ class AddVehicleDialog {
                               insurancePolicyNumber.text =
                                   insurancePolicyNo.toString();
                             }
-                            final capacity =
-                                vehicleData['vehicle_gross_weight'] ??
-                                vehicleData['tonnage'];
+                            final capacity = vehicleData['tonnage'];
                             if (capacity != null) {
                               RegExp(r'\d+').stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
