@@ -745,8 +745,6 @@ void _registerDeferredBlocs() {
   locator.registerLazySingleton(
     () => GpsKycCheckCubit(locator<GpsOrderApiRepository>()),
   );
-  locator.registerLazySingleton(() => VpHomeCubit(locator<VpHomeRepository>(),
-      locator<UserInformationRepository>(),));
 
   // Verify GPS cubits are registered
   try {
