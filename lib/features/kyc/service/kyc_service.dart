@@ -350,16 +350,18 @@ class KycService {
 
     /// Get State Service
     Future<Result<StateModel>> fetchStateData({
-      String? filter,
-      int? page,
-      int? pageSize = 10,
+      String filter = '',
+      int page = 1,
     }) async {
       
       try {
-     final url = (filter != null && filter.trim().isNotEmpty)
-        ? '${ApiUrls.getState}?search=$filter'
-        : '${ApiUrls.getState}?page=$page&limit=$pageSize';
+        final queryParams = {
+          if (filter.trim().isNotEmpty) 'search': filter,
+        };
 
+        final url = Uri.parse(ApiUrls.getState)
+            .replace(queryParameters: queryParams)
+            .toString();
 
         final result = await _apiService.get(url);
 
@@ -378,19 +380,10 @@ class KycService {
 
 
    /// Get City Service
-  Future<Result<CityModel>> fetchCityData(String stateName, {String? filter, int? page, int? limit}) async {
+  Future<Result<CityModel>> fetchCityData(String stateName, {String filter = ''}) async {
     try {
-       // Base URL with required params
-    String url = '${ApiUrls.getCity}?state=${stateName}&page=${page}&limit=${limit}';
-
-    // Add search if provided
-    if (filter != null && filter.trim().isNotEmpty) {
-      url = '$url&search=$filter';
-    }
-
-    final result = await _apiService.get(url);
-      // final url = ApiUrls.getCity;
-      // final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter, 'page' : page,'limit' :limit});
+      final url = ApiUrls.getCity;
+      final result = await _apiService.get(url, queryParams: {"state" : stateName, 'search' : filter,});
       if (result is Success) {
         final data = CityModel.fromJson(result.value);
         return Success(data);

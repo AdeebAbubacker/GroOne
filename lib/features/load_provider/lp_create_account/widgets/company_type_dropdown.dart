@@ -1,19 +1,19 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
+import 'package:gro_one_app/features/load_provider/lp_create_account/model/lp_company_type_model.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
-class VpCompanyTypeSearchableDropdown extends StatelessWidget {
+class CompanyTypeSearchableDropdown extends StatelessWidget {
   final String? selectedCompanyTypeId;
   final ValueChanged<String?> onCompanyTypeChanged;
-  final List<VpCompanyTypeModel> companyTypeList;
+  final List<LpCompanyTypeModel> companyTypeList;
   final String labelText;
   final String hintText;
   final bool mandatoryStar;
 
-  const VpCompanyTypeSearchableDropdown({
+  const CompanyTypeSearchableDropdown({
     super.key,
     required this.selectedCompanyTypeId,
     required this.onCompanyTypeChanged,

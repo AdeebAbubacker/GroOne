@@ -31,8 +31,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/tracking_dista
 import 'package:gro_one_app/features/load_provider/lp_loads/model/trip_statement_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/trip_tracking/helper/trip_tracking_helper.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart'
-    show DamageReport;
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' show DamageReport;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/view_document_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -46,12 +45,11 @@ part 'lp_load_state.dart';
 
 class LpLoadCubit extends BaseCubit<LpLoadState> {
   final LpLoadRepository _repository;
-  final LpLoadPaginationController paginationController =
-      LpLoadPaginationController();
+  final LpLoadPaginationController paginationController = LpLoadPaginationController();
   final LoadDetailsRepository _loadDetailsRepository;
 
-  LpLoadCubit(this._repository, this._loadDetailsRepository)
-    : super(LpLoadState());
+
+  LpLoadCubit(this._repository, this._loadDetailsRepository) : super(LpLoadState());
 
   // Updates the UI state related to loading LP loads.
   void _setLoadUIState(UIState<LpLoadResponse>? uiState) {
@@ -59,11 +57,9 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Fetches the LP loads filtered by the given [type].
-  Future<void> getLpLoadsByType({
-    required LoadListApiRequest loadListApiRequest,
-    bool isNextPage = false,
-  }) async {
+  Future<void> getLpLoadsByType({required LoadListApiRequest loadListApiRequest, bool isNextPage = false,}) async {
     // If it's not next page fetch, show loader state
+
 
     if (!isNextPage) {
       _setLoadUIState(UIState.loading());
@@ -75,18 +71,24 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       final newData = result.value;
 
       // Get existing data if this is a next page fetch
-      final existingData =
-          isNextPage ? (state.lpLoadResponse?.data?.data ?? []) : [];
+      final existingData = isNextPage
+          ? (state.lpLoadResponse?.data?.data ?? [])
+          : [];
 
       final newItems = newData.data;
 
       final List<LpLoadItem> combinedItems = [...existingData, ...newItems];
 
+
       // Create new data object with combined items
-      final updatedLoadData = newData.copyWith(data: combinedItems);
+      final updatedLoadData = newData.copyWith(
+        data: combinedItems,
+      );
 
       // Create new response with updated load data
-      final combinedResponse = newData.copyWith(data: updatedLoadData.data);
+      final combinedResponse = newData.copyWith(
+        data: updatedLoadData.data,
+      );
 
       _setLoadUIState(UIState.success(combinedResponse));
 
@@ -101,7 +103,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
   // Updates the UI state related to loading LP loads by ID.
   void _setLoadByIdUIState(UIState<LoadGetByIdResponse>? uiState) {
-    emit(state.copyWith(lpLoadById: uiState));
+    emit(state.copyWith(lpLoadById: uiState,));
   }
 
   // Fetches the LP loads filtered by the given [type].
@@ -114,6 +116,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setLoadByIdUIState(UIState.success(result.value));
       await _handleTrackingBasedOnStatus(result.value);
       await getAllDamagesImages();
+
     } else if (result is Error) {
       _setLoadByIdUIState(UIState.error(result.type));
     }
@@ -121,8 +124,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
   Future getAllDamagesImages() async {
     List<DamageReport> damageListData = List.from(
-      state.lpLoadById?.data?.data?.damageShortage ?? [],
-    );
+        state.lpLoadById?.data?.data?.damageShortage ?? []);
 
     List<String> imageList = [];
     for (int i = 0; i < (damageListData.length); i++) {
@@ -139,18 +141,16 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   Future<ViewDocumentResponse?> fetchDocumentById(String documentId) async {
-    return _loadDetailsRepository
-        .viewDocument(documentId: documentId)
-        .then(
-          (result) =>
-              (result is Success<ViewDocumentResponse>) ? result.value : null,
-        );
+    return _loadDetailsRepository.viewDocument(
+      documentId: documentId,
+    ).then((result) =>
+    (result is Success<ViewDocumentResponse>)
+        ? result.value
+        : null);
   }
 
   Future<void> _handleTrackingBasedOnStatus(LoadGetByIdResponse data) async {
-    final status = LpHomeHelper.getLoadStatusFromString(
-      data.data?.loadStatusDetails?.loadStatus,
-    );
+    final status = LpHomeHelper.getLoadStatusFromString(data.data?.loadStatusDetails?.loadStatus);
     final route = data.data?.loadRoute;
 
     if (status != null && route != null) {
@@ -186,7 +186,8 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     }
   }
 
-  String getDistance(String pickUpLatLong, dropLatLong) {
+
+  String getDistance(String pickUpLatLong,dropLatLong){
     final pickupLatLng = TripTrackingHelper.getLatLngFromString(pickUpLatLong);
     final dropLatLng = TripTrackingHelper.getLatLngFromString(dropLatLong);
     double distanceInMeters = Geolocator.distanceBetween(
@@ -239,63 +240,22 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     emit(state.copyWith(selectedTabIndex: index));
   }
 
+
   // Updates the UI state related to load truck.
   void _setTruckTypeState(UIState<List<LoadTruckTypeListModel>>? uiState) {
     emit(state.copyWith(lpLoadTruckTypes: uiState));
   }
 
-  int _truckTypeCurrentPage = 1;
-  bool _truckTypeIsLastPage = false;
-  bool _truckTypeIsLoadingMore = false;
   // Fetches the LP load truck Details.
+  Future<void> getTruckType() async {
+    _setLoadUIState(UIState.loading());
 
-  Future<void> getTruckType({
-    bool isLoading = true,
-    bool loadMore = false,
-  }) async {
-    if (_truckTypeIsLoadingMore && loadMore) return;
+    Result result = await _repository.fetchTruckTypeList();
 
-    if (!loadMore) {
-      _truckTypeIsLastPage = false;
-    } else if (_truckTypeIsLastPage) {
-      return;
-    }
-
-    if (loadMore) {
-      _truckTypeIsLoadingMore = true;
-      _truckTypeCurrentPage++;
-    } else {
-      _truckTypeCurrentPage = 1;
-      _truckTypeIsLastPage = false;
-      if (isLoading) _setTruckTypeState(UIState.loading());
-    }
-
-    try {
-      final result = await _repository.fetchTruckTypeList(
-        limit: 10,
-        page: _truckTypeCurrentPage,
-      );
-
-      if (result is Success<List<LoadTruckTypeListModel>>) {
-        final newList = result.value;
-
-        if (loadMore) {
-          final existing =
-              state.lpLoadTruckTypes?.data ?? <LoadTruckTypeListModel>[];
-          final combined = [...existing, ...newList];
-          _setTruckTypeState(UIState.success(combined));
-        } else {
-          _setTruckTypeState(UIState.success(newList));
-        }
-
-        // Check if last page
-        final totalPages = (result.value.length / 10).ceil();
-        _truckTypeIsLastPage = _truckTypeCurrentPage >= totalPages;
-      } else if (result is Error<List<LoadTruckTypeListModel>>) {
-        _setTruckTypeState(UIState.error(result.type));
-      }
-    } finally {
-      _truckTypeIsLoadingMore = false;
+    if (result is Success<List<LoadTruckTypeListModel>>) {
+      _setTruckTypeState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setTruckTypeState(UIState.error(result.type));
     }
   }
 
@@ -305,65 +265,15 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Fetches the LP load route Details.
+  Future<void> getRouteDetails() async {
+    _setLoadUIState(UIState.loading());
 
-  int _routesCurrentPage = 1;
-  bool _routesIsLastPage = false;
-  bool _routesIsLoadingMore = false;
-  Future<void> getRouteDetails({
-    bool isLoading = true,
-    String? search,
-    bool loadMore = false,
-  }) async {
-    if (_routesIsLoadingMore && loadMore) return;
+    Result result = await _repository.fetchRouteList();
 
-    if (!loadMore) {
-      _routesIsLastPage = false;
-    } else if (_routesIsLastPage) {
-      return;
-    }
-
-    if (loadMore) {
-      _routesIsLoadingMore = true;
-      _routesCurrentPage++;
-    } else {
-      _routesCurrentPage = 1;
-      _routesIsLastPage = false;
-      if (isLoading) _setRouteDetailsState(UIState.loading());
-    }
-
-    try {
-      final result = await _repository.fetchRouteList(
-        search: search,
-        limit: 10,
-        page: _routesCurrentPage,
-      );
-
-      if (result is Success<LpLoadRouteResponse>) {
-        final newList = result.value.data?.routeList ?? <RouteList>[];
-
-        if (loadMore) {
-          final existing =
-              state.lpLoadRouteDetails?.data?.data?.routeList ?? <RouteList>[];
-          final combined = [...existing, ...newList];
-
-          // Create a new Data object with combined list
-          final newData = result.value.data?.copyWith(routeList: combined);
-
-          _setRouteDetailsState(
-            UIState.success(result.value.copyWith(data: newData)),
-          );
-        } else {
-          _setRouteDetailsState(UIState.success(result.value));
-        }
-
-        // Check if last page
-        final totalPages = ((result.value.data?.total ?? 0) / (10)).ceil();
-        _routesIsLastPage = _routesCurrentPage >= totalPages;
-      } else if (result is Error<LpLoadRouteResponse>) {
-        _setRouteDetailsState(UIState.error(result.type));
-      }
-    } finally {
-      _routesIsLoadingMore = false;
+    if (result is Success<LpLoadRouteResponse>) {
+      _setRouteDetailsState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setRouteDetailsState(UIState.error(result.type));
     }
   }
 
@@ -421,6 +331,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     }
   }
 
+
   // Updates the UI state related to lp load verify Otp.
   void _setCreditCheckState(UIState<CreditCheckApiResponse>? uiState) {
     emit(state.copyWith(lpCreditCheck: uiState));
@@ -445,16 +356,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Credit check
-  Future<void> updateCreditCheck({
-    required String creditLimit,
-    required String creditUsed,
-  }) async {
+  Future<void> updateCreditCheck({required String creditLimit, required String creditUsed}) async {
     _setCreditUpdateState(UIState.loading());
 
-    Result result = await _repository.updateCreditCheck(
-      creditLimit: creditLimit,
-      creditUsed: creditUsed,
-    );
+    Result result = await _repository.updateCreditCheck(creditLimit: creditLimit, creditUsed: creditUsed);
 
     if (result is Success<LpLoadCreditUpdateResponse>) {
       _setCreditUpdateState(UIState.success(result.value));
@@ -489,41 +394,32 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     if (result is Success<LpLoadAgreeResponse>) {
       final agreeData = result.value;
       final defaultAdvance = agreeData.advance.firstWhere(
-        (item) => item.percentage == '90.00',
+            (item) => item.percentage == '90.00',
         orElse: () => agreeData.advance.first,
       );
 
-      emit(
-        state.copyWith(
-          lpLoadAgree: UIState.success(result.value),
-          selectedAdvance: defaultAdvance,
-          selectedPercentageId: defaultAdvance.percentageId,
-        ),
-      );
+      emit(state.copyWith(
+        lpLoadAgree: UIState.success(result.value),
+        selectedAdvance: defaultAdvance,
+        selectedPercentageId: defaultAdvance.percentageId,
+      ));
       _setLoadAgreeState(UIState.success(result.value));
     } else if (result is Error) {
       _setLoadAgreeState(UIState.error(result.type));
     }
   }
 
+
   // Updates the UI state related to lp load verify advance.
-  void _setLoadVerifyAdvanceState(
-    UIState<LpLoadVerifyAdvanceResponse>? uiState,
-  ) {
+  void _setLoadVerifyAdvanceState(UIState<LpLoadVerifyAdvanceResponse>? uiState) {
     emit(state.copyWith(lpLoadVerifyAdvance: uiState));
   }
 
   // Lp load Verify advance
-  Future<void> verifyAdvance({
-    required String loadId,
-    required String percentageId,
-  }) async {
+  Future<void> verifyAdvance({required String loadId, required String percentageId}) async {
     _setLoadVerifyAdvanceState(UIState.loading());
 
-    Result result = await _repository.verifyAdvance(
-      loadId: loadId,
-      percentageId: percentageId,
-    );
+    Result result = await _repository.verifyAdvance(loadId: loadId, percentageId: percentageId);
 
     if (result is Success<LpLoadVerifyAdvanceResponse>) {
       _setLoadVerifyAdvanceState(UIState.success(result.value));
@@ -533,12 +429,10 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   void selectAdvance(Advance advance) {
-    emit(
-      state.copyWith(
-        selectedAdvance: advance,
-        selectedPercentageId: advance.percentageId,
-      ),
-    );
+    emit(state.copyWith(
+      selectedAdvance: advance,
+      selectedPercentageId: advance.percentageId,
+    ));
   }
 
   // Updates the UI state related to lp load update feedback.
@@ -547,24 +441,20 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Lp load update feedback
-  Future<void> updateFeedback({
-    required String loadId,
-    required String feedback,
-  }) async {
+  Future<void> updateFeedback({required String loadId, required String feedback}) async {
     _setLoadFeedbackState(UIState.loading());
 
-    Result result = await _repository.updateFeedback(
-      loadId: loadId,
-      feedback: feedback,
-    );
+    Result result = await _repository.updateFeedback(loadId: loadId, feedback: feedback);
 
     if (result is Success<LpLoadFeedbackResponse>) {
       emit(state.copyWith(isFeedbackAdded: true));
       _setLoadFeedbackState(UIState.success(result.value));
       ToastMessages.success(message: result.value.message);
+
     } else if (result is Error) {
       _setLoadFeedbackState(UIState.error(result.type));
     }
+
   }
 
   // Updates the UI state related to Document by ID.
@@ -578,11 +468,13 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
     Result result = await _repository.getDocumentById(docId: docId);
 
+
     if (result is Success<DocumentDetails>) {
       _setDocumentByIdState(UIState.success(result.value));
     } else if (result is Error) {
       _setDocumentByIdState(UIState.error(result.type));
     }
+
   }
 
   // Updates the UI state related to tracking distance.
@@ -591,9 +483,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Lp load tracking distance
-  Future<void> getTrackingDistance({
-    required TrackingDistanceApiRequest request,
-  }) async {
+  Future<void> getTrackingDistance({required TrackingDistanceApiRequest request}) async {
     _setTrackingDistanceState(UIState.loading());
 
     Result result = await _repository.getTrackingDistance(request: request);
@@ -605,66 +495,59 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       _setTrackingDistanceState(UIState.error(result.type));
     }
   }
+ 
 
+  
   // Adds a consignee to the load.
   void _setaddConsigneeState(UIState<ConsigneAddedSuccessModel>? uiState) {
     emit(state.copyWith(lpAddConsignee: uiState));
   }
 
   // Create New consignee to a load
-  Future<void> addConsignee({
-    required AddConsigneeApiRequest addConsigneeReq,
-  }) async {
+  Future<void> addConsignee({required AddConsigneeApiRequest addConsigneeReq}) async {
     _setaddConsigneeState(UIState.loading());
 
-    Result result = await _repository.addConsignee(
-      addConsigneeReq: addConsigneeReq,
-    );
+    Result result = await _repository.addConsignee(addConsigneeReq: addConsigneeReq);
 
     if (result is Success<ConsigneAddedSuccessModel>) {
       _setaddConsigneeState(UIState.success(result.value));
     } else if (result is Error) {
       _setaddConsigneeState(UIState.error(result.type));
-    }
+    }    
   }
 
-  // Updates consignee to the load.
+   // Updates consignee to the load.
   void _updateConsigneeState(UIState<ConsigneAddedSuccessModel>? uiState) {
     emit(state.copyWith(lpUpdateConsignee: uiState));
   }
 
+  
   // Updates Excisting consignee to a load
-  Future<void> updateConsignee({
-    required UpdateConsigneeApiRequest updateConsigneeReq,
-    required String consigneeId,
-  }) async {
+  Future<void> updateConsignee({required UpdateConsigneeApiRequest updateConsigneeReq,required String consigneeId}) async {
     _updateConsigneeState(UIState.loading());
 
-    Result result = await _repository.updateConsignee(
-      updateConsigneeReq: updateConsigneeReq,
-      consigneeId: consigneeId,
-    );
+    Result result = await _repository.updateConsignee(updateConsigneeReq: updateConsigneeReq,consigneeId: consigneeId);
 
     if (result is Success<ConsigneAddedSuccessModel>) {
       _updateConsigneeState(UIState.success(result.value));
     } else if (result is Error) {
       _updateConsigneeState(UIState.error(result.type));
-    }
+    }    
   }
 
-  // Initiate payment
+     // Initiate payment
   void setCustomerPaymentResult(UIState<OrderAddedSuccess>? uiState) {
     emit(state.copyWith(lpAddCustomerPaymentOption: uiState));
   }
 
   // Initiate Payment for created Order
   Future<void> initaitepayment({
-    required InitiatePaymentRequest initiatePaymentRequest,
+  required InitiatePaymentRequest initiatePaymentRequest,
   }) async {
     setCustomerPaymentResult(UIState.loading());
 
-    Result result = await _repository.initiatePayment(
-      initiatePaymentRequest: initiatePaymentRequest,
+    Result result = await _repository.initiatePayment(   
+    initiatePaymentRequest: initiatePaymentRequest,
     );
 
     if (result is Success<OrderAddedSuccess>) {
@@ -674,41 +557,40 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     }
   }
 
-  // Create Order
-  void _setCreateOrderResult(UIState<LpCreateOrderResponse>? uiState) {
-    emit(state.copyWith(lpCreateOrder: uiState));
+// Create Order
+void _setCreateOrderResult(UIState<LpCreateOrderResponse>? uiState) {
+  emit(state.copyWith(lpCreateOrder: uiState));
+}
+
+// Craete order for a particular load
+Future<void> createOrder({
+  required String loadId,
+  required CreateOrderIdRequest createOrderIdRequest,
+}) async {
+  _setCreateOrderResult(UIState.loading());
+
+  Result result = await _repository.createOrder(
+    loadId: loadId,
+    createOrderIdRequest: createOrderIdRequest,
+  );
+
+  if (result is Success<LpCreateOrderResponse>) {
+    _setCreateOrderResult(UIState.success(result.value));
+  } else if (result is Error) {
+    _setCreateOrderResult(UIState.error(result.type));
   }
+}
 
-  // Craete order for a particular load
-  Future<void> createOrder({
-    required String loadId,
-    required CreateOrderIdRequest createOrderIdRequest,
-  }) async {
-    _setCreateOrderResult(UIState.loading());
-
-    Result result = await _repository.createOrder(
-      loadId: loadId,
-      createOrderIdRequest: createOrderIdRequest,
-    );
-
-    if (result is Success<LpCreateOrderResponse>) {
-      _setCreateOrderResult(UIState.success(result.value));
-    } else if (result is Error) {
-      _setCreateOrderResult(UIState.error(result.type));
-    }
-  }
-
+ 
   void updateFeedbackText(String text) {
     final currentLoadById = state.lpLoadById?.data?.data;
     if (currentLoadById != null) {
       final updatedLoadData = currentLoadById.copyWith(notes: text);
-      emit(
-        state.copyWith(
-          lpLoadById: UIState.success(
-            LoadGetByIdResponse(data: updatedLoadData, message: ''),
-          ),
+      emit(state.copyWith(
+        lpLoadById: UIState.success(
+          LoadGetByIdResponse(data: updatedLoadData, message: ''),
         ),
-      );
+      ));
     }
   }
 
@@ -718,10 +600,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
     emit(state.copyWith(downloadedFiles: updatedDownloads));
   }
 
-  Future<void> downloadAndOpenDocument(
-    String downloadKey,
-    String docUrl,
-  ) async {
+  Future<void> downloadAndOpenDocument(String downloadKey, String docUrl) async {
     final uri = Uri.parse(docUrl);
     final fileName = path.basename(uri.path);
     final directory = await getApplicationDocumentsDirectory();
@@ -738,10 +617,8 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       await OpenFilex.open(filePath);
     } catch (e) {
       setDownloadingKey('');
-      if (appContext.mounted) {
-        ToastMessages.error(
-          message: appContext.appText.failedToDownloadDocuments,
-        );
+      if(appContext.mounted) {
+        ToastMessages.error(message: appContext.appText.failedToDownloadDocuments);
       }
     }
   }
@@ -749,6 +626,8 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   void setDownloadingKey(String? key) {
     emit(state.copyWith(downloadingKey: key));
   }
+
+
 }
 
 class LpLoadPaginationController {
@@ -762,7 +641,7 @@ class LpLoadPaginationController {
     isFetchingMore = false;
   }
 
-  void updatePageMeta(LpPageMeta pageMeta) {
+  void updatePageMeta(PageMeta pageMeta) {
     currentPage = pageMeta.page;
     totalPages = pageMeta.pageCount;
   }

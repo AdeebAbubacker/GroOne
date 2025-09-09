@@ -67,17 +67,17 @@ class  LpLoadRepository {
     }
   }
 
-  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeList({int? page, int? limit}) async {
+  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeList() async {
     try {
-      return service.fetchTruckTypeList(page: page ?? 1,pageSize: limit ?? 10);
+      return service.fetchTruckTypeList();
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 
-  Future<Result<LpLoadRouteResponse>> fetchRouteList({int? page, int? limit,String? search}) async {
+  Future<Result<LpLoadRouteResponse>> fetchRouteList() async {
     try {
-      return service.fetchRouteList(page: page ?? 1,pageSize: limit ?? 10,search: search);
+      return service.fetchRouteList();
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

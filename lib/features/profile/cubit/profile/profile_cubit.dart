@@ -842,7 +842,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
 
       if (result is Success<TicketResponse>) {
         final newResponse = result.value;
-        final newTickets = newResponse.data;
+        final newTickets = newResponse.data ?? [];
 
         if (loadMore) {
           final existing = state.ticketState?.data?.data ?? [];

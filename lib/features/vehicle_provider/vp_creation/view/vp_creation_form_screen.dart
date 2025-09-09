@@ -430,62 +430,44 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         20.height,
         
          // Company Type
-          BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
-  bloc: vpCreationCubit,
-  listener: (context, state) {
-    final status = state.companyTypeUIState?.status;
-    if (status == Status.ERROR) {
-      final error = state.companyTypeUIState?.errorType;
-      ToastMessages.error(
-        message: getErrorMsg(errorType: error ?? GenericError()),
-      );
-    }
-  },
-  builder: (context, state) {
-    final status = state.companyTypeUIState?.status;
-    final isSuccess = status == Status.SUCCESS;
+            BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
+            bloc: vpCreationCubit,
+            listener: (context, state) {
+              final status = state.companyTypeUIState?.status;
+              if (status == Status.ERROR) {
+                final error = state.companyTypeUIState?.errorType;
+                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+              }
+            },
+            builder: (context, state) {
+              final status = state.companyTypeUIState?.status;
+              final isSuccess = status == Status.SUCCESS;
+              final data = state.companyTypeUIState?.data;
 
-    if (isSuccess) {
-      return Column(
-        children: [
-          VpCompanyTypeSearchableDropdown(
-          key: AppKeys.ddl('company_type'),
-          selectedCompanyTypeId: companyTypeDropDownValue,
-          onCompanyTypeChanged: (newVal) {
-            if (!mounted) return;
-            setState(() {
-              companyTypeDropDownValue = newVal;
-            });
-          },
-          fetchCompanyTypes: (page, searchKey) async {
-            // Use the already fetched company types
-            final companyList = vpCreationCubit.state.companyTypeUIState?.data ?? [];
-
-            // Optional: filter by search key
-            final filtered = searchKey == null || searchKey.isEmpty
-                ? companyList
-                : companyList
-                    .where((c) =>
-                        c.companyType.toLowerCase().contains(searchKey.toLowerCase()))
-                    .toList();
-
-            return filtered;
-          },
-          labelText: context.appText.companyType,
-          hintText: context.appText.selectCompanyType,
-          mandatoryStar: true,
-        ),
-
-          20.height,
-        ],
-      );
-    } else {
-      // Loading or initial empty state
-      return const SizedBox();
-    }
-  },
-),
-
+              if (isSuccess && data != null) {
+                return Column(
+                  children: [
+                    VpCompanyTypeSearchableDropdown(
+                      key: AppKeys.ddl('company_type'),
+                      selectedCompanyTypeId: companyTypeDropDownValue,
+                      onCompanyTypeChanged: (newVal) {
+                        setState(() {
+                          companyTypeDropDownValue = newVal;
+                        });
+                      },
+                      companyTypeList: data,
+                      labelText: context.appText.companyType,
+                      hintText: context.appText.selectCompanyType,
+                      mandatoryStar: true,
+                    ),
+                    20.height,
+                  ],
+                );
+              } else {
+                return const SizedBox();
+              }
+            },
+          ),
 
         // TrucK Type
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
