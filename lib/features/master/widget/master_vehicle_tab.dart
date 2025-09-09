@@ -13,8 +13,6 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/ka
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/features/master/helper/date_helper.dart';
 import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/master/widget/master_vehicle_widget.dart';
@@ -81,14 +79,14 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
   String? fcExpiryDate;
   String? pucExpiryDate;
   String? registrationDate;
-
+  
   @override
-  void initState() {
+    void initState() {
     super.initState();
     initFunction();
   }
 
-  void initFunction() => frameCallback(() async {
+    void initFunction() => frameCallback(() async {
     await profileCubit.fetchVehicle();
     await vpCreationCubit.fetchTruckType();
     await lpHomeCubit.fetchLoadWeight();
@@ -106,7 +104,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
             vehicleSearchDebounce = Timer(
               const Duration(milliseconds: 300),
               () {
-                profileCubit.fetchVehicle(isLoading: false, search: query);
+                profileCubit.fetchVehicle(isLoading: false,search: query);
               },
             );
           },
@@ -158,47 +156,42 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       .toList();
               final isSearching = vehicleSearchController.text.isNotEmpty;
 
+
               if (filteredVehicleList.isEmpty) {
                 return RefreshIndicator(
                   onRefresh: () async {
                     context.read<ProfileCubit>().fetchVehicle(isLoading: true);
                   },
-                  child:
-                      isSearching
-                          ? Text(context.appText.noSearchResults).center()
-                          : ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
+                  child: isSearching ? Text(context.appText.noSearchResults).center() :  ListView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.5,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.5,
-                                child: Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SvgPicture.asset(
-                                        AppImage.svg.noSearchFound,
-                                        height: 120,
-                                      ),
-                                      20.height,
-                                      Text(
-                                        context.appText.noVehiclesFound,
-                                        style: AppTextStyle.h5,
-                                      ),
-                                      10.height,
-                                      Text(
-                                        context
-                                            .appText
-                                            .startByAddingANewVehicle,
-                                        style: AppTextStyle.body3,
-                                      ),
-                                    ],
-                                  ),
-                                ),
+                              SvgPicture.asset(
+                                AppImage.svg.noSearchFound,
+                                height: 120,
+                              ),
+                              20.height,
+                              Text(
+                                context.appText.noVehiclesFound,
+                                style: AppTextStyle.h5,
+                              ),
+                              10.height,
+                              Text(
+                                context.appText.startByAddingANewVehicle,
+                                style: AppTextStyle.body3,
                               ),
                             ],
                           ),
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               }
 
@@ -285,6 +278,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
     bool isVehicleVerified = vehcile != null;
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
+    bool isVehicleActive = vehcile != null ? (vehcile.status == 1) : true;
     final truckNumberController = TextEditingController(
       text: vehcile?.truckNo ?? '',
     );
@@ -334,6 +328,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
+
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -387,9 +382,13 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                 vehicleData['vehicle_gross_weight'] ??
                                 vehicleData['tonnage'];
                             if (capacity != null) {
-                              RegExp(r'\d+').stringMatch(capacity.toString());
+                              RegExp(
+                                r'\d+',
+                              ).stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
 
+                              isVehicleActive =
+                                  vehicleData['status'] == 1 ? true : false;
                               final truckTypeList =
                                   context
                                       .read<VpCreateAccountCubit>()
@@ -471,12 +470,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
-                        textStyle:
-                            (registrationDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                        textStyle: (registrationDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                       ),
                     ),
 
@@ -491,70 +487,71 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       mandatoryStar: true,
                     ),
                     16.height,
+                    Text(context.appText.truckType, style: AppTextStyle.body3),
+                    5.height,
                     // TrucK Type
                     BlocBuilder<VpCreateAccountCubit, VpCreateAccountState>(
                       builder: (context, state) {
-                        final uiState = state.truckTypeUIState;
-                        final truckTypeList = uiState?.data ?? [];
+                        final truckTypeUIState = state.truckTypeUIState;
 
-                        return VehicleTypeSearchableDropdown(
-                          labelText: context.appText.vehicleType,
-                          hintText: context.appText.selectVehicleType,
-                          fetchVehicleTypes: () async {
-                            await context
-                                .read<VpCreateAccountCubit>()
-                                .fetchTruckType();
-                            return context
-                                    .read<VpCreateAccountCubit>()
-                                    .state
-                                    .truckTypeUIState
-                                    ?.data ??
-                                [];
-                          },
-                          selectedVehicleType: truckTypeList.firstWhereOrNull(
-                            (t) => t.id.toString() == selectedTruckType,
+                        if (truckTypeUIState == null ||
+                            truckTypeUIState.status == Status.LOADING) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (truckTypeUIState.status == Status.ERROR) {
+                          return const Text("Error loading truck types");
+                        }
+
+                        final uiState = state.truckTypeUIState?.data;
+                        final truckTypes = uiState ?? [];
+                        final truckTypeLabels =
+                            truckTypes
+                                .map((e) => '${e.type} - ${e.subType}')
+                                .toList();
+                        final truckTypeLabelMap = Map.fromEntries(
+                          truckTypes.map(
+                            (e) => MapEntry('${e.type} - ${e.subType}', e),
                           ),
-                          onChanged: (TruckTypeModel? value) {
-                            setState(() {
-                              selectedTruckType = value;
-                            });
+                        );
+
+                        return SearchableDropdown(
+                          hintText: context.appText.selectTruckType,
+                          items: truckTypeLabels,
+                          selectedItem:
+                              selectedTruckType == null
+                                  ? null
+                                  : '${selectedTruckType!.type} - ${selectedTruckType!.subType}',
+                          onChanged: (value) {
+                            selectedTruckType = truckTypeLabelMap[value];
+                            setState(() {});
                           },
-                          mandatoryStar: false,
                         );
                       },
                     ),
                     16.height,
+                    Text(context.appText.capacity, style: AppTextStyle.body3),
+                    5.height,
                     BlocBuilder<LPHomeCubit, LPHomeState>(
                       builder: (context, state) {
                         final uiState = state.loadWeightUIState;
                         final weights = uiState?.data ?? [];
+                        final weightLabels =
+                            weights.map((e) => '${e.value} Ton').toList();
 
-                        return LoadWeightSearchableDropdown(
-                          labelText: context.appText.capacity,
-                          hintText:
-                              '${context.appText.select} ${context.appText.capacity}',
-                          selectedWeight: weights.firstWhereOrNull(
-                            (w) => w.id == selectedWeightDropDownValue,
-                          ),
-                          fetchWeights: (page, searchKey) async {
-                            await context.read<LPHomeCubit>().fetchLoadWeight();
-                            return context
-                                    .read<LPHomeCubit>()
-                                    .state
-                                    .loadWeightUIState
-                                    ?.data ??
-                                [];
-                          },
-                          onChanged: (LoadWeightModel? value) {
-                            setState(() {
-                              selectedWeightDropDownValue =
-                                  value?.value.toString();
-                            });
+                        return SearchableDropdown(
+                          hintText: '${context.appText.select} ${context.appText.capacity}',
+                          items: weightLabels,
+                          selectedItem: selectedWeightDropDownValue,
+                          onChanged: (value) {
+                            selectedWeightDropDownValue = value;
+                            setState(() {});
                           },
                         );
                       },
                     ),
-
                     16.height,
                     //Insurance policy number
                     AppTextField(
@@ -593,12 +590,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
-                        textStyle:
-                            (insuranceValidityDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                        textStyle: (insuranceValidityDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                       ),
                     ),
                     16.height,
@@ -645,12 +639,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             fcExpiryDate ?? 'FC Expiry Date',
                             fillColor: Colors.white,
                             mandatoryStar: true,
-                            textStyle:
-                                (fcExpiryDate ?? "").isEmpty
-                                    ? AppTextStyle.textFieldHint
-                                    : AppTextStyle.textFiled.copyWith(
-                                      color: AppColors.primaryTextColor,
-                                    ),
+                             textStyle: (fcExpiryDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                           ),
                         );
                       },
@@ -685,13 +676,34 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             : pucExpiryDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
-                        textStyle:
-                            (pucExpiryDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                        textStyle: (pucExpiryDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                       ),
+                    ),
+
+                    16.height,
+
+                    /// Active Switch
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(context.appText.active),
+                        Switch(
+                          value: isVehicleActive,
+                          onChanged: (val) {
+                            setState(() => isVehicleActive = val);
+                            if (vehcile != null) {
+                              profileCubit.deleteVehicle(
+                                vehicleId: vehcile.vehicleId,
+                                request: DeleteVehicleRequest(
+                                  status: val ? 1 : 2,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ],
                     ),
                     20.height,
                   ],
@@ -715,25 +727,19 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                 return;
               }
               if (owenerNameController.text.isEmpty) {
-                ToastMessages.alert(message: context.appText.ownerNameRequired);
+                ToastMessages.alert(message:  context.appText.ownerNameRequired,);
                 return;
               }
               if (fcExpiryDate == null || fcExpiryDate!.isEmpty) {
-                ToastMessages.alert(
-                  message: context.appText.fcExpiryDateRequired,
-                );
+                ToastMessages.alert(message: context.appText.fcExpiryDateRequired);
                 return;
               }
               if (registrationDate == null || registrationDate!.isEmpty) {
-                ToastMessages.alert(
-                  message: context.appText.registrationDateRequired,
-                );
+                ToastMessages.alert(message: context.appText.registrationDateRequired);
                 return;
               }
               if (pucExpiryDate == null || pucExpiryDate!.isEmpty) {
-                ToastMessages.alert(
-                  message: context.appText.pucExpiryDateRequired,
-                );
+                ToastMessages.alert(message: context.appText.pucExpiryDateRequired);
                 return;
               }
               if (insuranceValidityDate == null ||
@@ -752,20 +758,18 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
               if (formKey.currentState!.validate()) {
                 final request = VehicleRequest(
                   customerId: profileCubit.userId ?? "",
-                  truckNo: cleanVehicleNumber(
-                    truckNumberController.text.trim(),
-                  ),
-                  tonnage: '${selectedWeightDropDownValue}T',
+                  truckNo: cleanVehicleNumber(truckNumberController.text.trim()),
+                  tonnage: selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
                   ownerName: owenerNameController.text,
                   fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                   insurancePolicyNumber: insurancePolicyNumber.text,
                   pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
-                  registrationDate: convertToYMD(registrationDate.toString()),
-                  insuranceValidityDate: convertToYMD(
-                    insuranceValidityDate.toString(),
-                  ),
+                  registrationDate:
+                      convertToYMD(registrationDate.toString()),
+                  insuranceValidityDate:
+                      convertToYMD(insuranceValidityDate.toString()),
                 );
 
                 if (isEdit) {
@@ -773,19 +777,16 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                     vehicleId: vehcile.vehicleId,
                     request: VehicleRequest(
                       customerId: profileCubit.userId ?? "",
-                      truckNo: cleanVehicleNumber(
-                        truckNumberController.text.trim(),
-                      ),
-                      tonnage: '${selectedWeightDropDownValue}T',
+                      truckNo: cleanVehicleNumber(truckNumberController.text.trim()),
+                      tonnage: selectedWeightDropDownValue,
                       truckTypeId: selectedTruckType?.id ?? 1,
                       fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
-                      insuranceValidityDate: convertToYMD(
-                        insuranceValidityDate.toString(),
-                      ),
-                      pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
-                      registrationDate: convertToYMD(
-                        registrationDate.toString(),
-                      ),
+                      insuranceValidityDate:
+                          convertToYMD(insuranceValidityDate.toString()),
+                      pucExpiryDate:
+                          convertToYMD(pucExpiryDate.toString()),
+                      registrationDate:
+                          convertToYMD(registrationDate.toString()),
                       insurancePolicyNumber: insurancePolicyNumber.text,
                       ownerName: owenerNameController.text,
                       modelNumber: truckMakeModelController.text,
@@ -806,10 +807,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             ? context.appText.vehicleUpdatedSuccessfully
                             : context.appText.vehicleAddedSuccessfully,
                   );
-                  analyticsHelper.logEvent(
-                    AnalyticEventName.ADD_VEHICLE,
-                    request.toJson(),
-                  );
+                  analyticsHelper.logEvent(AnalyticEventName.ADD_VEHICLE,request.toJson()); 
                 } else {
                   ToastMessages.error(
                     message: getErrorMsg(
@@ -828,6 +826,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
       ),
     );
   }
+
+
 
   /// Delete Popup
   void showDeletePopUp({
@@ -887,15 +887,15 @@ Widget buildVehicleVerificationFieldWidget({
       final isVerified = verificationState.status == Status.SUCCESS;
 
       return AppTextField(
-        onChanged: (value) {
-          final verificationState =
-              context.read<MastersCubit>().state.vehicleVerification;
-          if (verificationState.status == Status.SUCCESS) {
-            // Reset verification if user edits
-            context.read<MastersCubit>().resetVehicleVerification();
-            onVerificationResult(false, null);
-          }
-        },
+            onChanged: (value) {
+      
+      final verificationState = context.read<MastersCubit>().state.vehicleVerification;
+      if (verificationState.status == Status.SUCCESS) {
+        // Reset verification if user edits
+        context.read<MastersCubit>().resetVehicleVerification();
+        onVerificationResult(false, null);
+      }
+    },
 
         controller: vehicleNoController,
         mandatoryStar: true,
@@ -912,9 +912,10 @@ Widget buildVehicleVerificationFieldWidget({
           FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
           UpperCaseTextFormatter(),
           LengthLimitingTextInputFormatter(19),
-          VehicleNumberInputFormatter(),
+           VehicleNumberInputFormatter(),
         ],
 
+   
         decoration: commonInputDecoration(
           suffixIcon:
               verificationState.status == Status.LOADING
@@ -942,9 +943,7 @@ Widget buildVehicleVerificationFieldWidget({
 
                       final result = await context
                           .read<MastersCubit>()
-                          .fetchAndVerifyVehicle(
-                            cleanVehicleNumber(vehicleNumber),
-                          );
+                          .fetchAndVerifyVehicle(cleanVehicleNumber(vehicleNumber),);
 
                       if (result is Success<Map<String, dynamic>>) {
                         if (!context.mounted) return;
@@ -956,7 +955,7 @@ Widget buildVehicleVerificationFieldWidget({
                           result.value,
                         ); // Pass data back
                       } else {
-                        if (!context.mounted) return;
+                       if (!context.mounted) return; 
                         ToastMessages.alert(
                           message: context.appText.vehicleVerificationFailed,
                         );
@@ -989,22 +988,24 @@ class AddVehicleDialog {
     final truckMakeModelController = TextEditingController();
     final owenerNameController = TextEditingController();
     final insurancePolicyNumber = TextEditingController();
-    final vpCreationCubit = locator<VpCreateAccountCubit>();
-    final lphomeCubit = locator<LPHomeCubit>();
-
-    vpCreationCubit.fetchTruckType();
-    lphomeCubit.fetchLoadWeight();
+     final vpCreationCubit = locator<VpCreateAccountCubit>();
+     final lphomeCubit = locator<LPHomeCubit>();
+     
+     vpCreationCubit.fetchTruckType();
+     lphomeCubit.fetchLoadWeight();
     String? registrationDate;
     String? insuranceValidityDate;
     String? fcExpiryDate;
     String? pucExpiryDate;
     String? selectedWeightDropDownValue;
     TruckTypeModel? selectedTruckType;
+    bool isVehicleActive = true;
     MasterDialogueWidget.show(
       dismissible: true,
       context,
       child: StatefulBuilder(
         builder: (context, setState) {
+          
           return MasterCommonDialogView(
             hideCloseButton: true,
             showYesNoButtonButtons: true,
@@ -1052,7 +1053,9 @@ class AddVehicleDialog {
                                 vehicleData['vehicle_gross_weight'] ??
                                 vehicleData['tonnage'];
                             if (capacity != null) {
-                              RegExp(r'\d+').stringMatch(capacity.toString());
+                              RegExp(
+                                r'\d+',
+                              ).stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
 
                               final truckTypeList =
@@ -1130,18 +1133,15 @@ class AddVehicleDialog {
                         }
                       },
                       child: buildReadOnlyField(
-                        context.appText.registrationDate,
+                         context.appText.registrationDate,
                         (registrationDate?.isEmpty ?? true)
                             ? 'Registartion Date'
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
-                        textStyle:
-                            (registrationDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                        textStyle: (registrationDate ?? "").isEmpty
+                            ? AppTextStyle.textFieldHint
+                            : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                       ),
                     ),
 
@@ -1258,12 +1258,9 @@ class AddVehicleDialog {
                             ? 'Insurance Validity Date'
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
-                        textStyle:
-                            (insuranceValidityDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                        textStyle: (insuranceValidityDate ?? "").isEmpty
+                            ? AppTextStyle.textFieldHint
+                            : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                         mandatoryStar: true,
                       ),
                     ),
@@ -1307,15 +1304,12 @@ class AddVehicleDialog {
                             }
                           },
                           child: buildReadOnlyField(
-                            context.appText.fcExpiryDate,
+                           context.appText.fcExpiryDate,
                             fcExpiryDate ?? 'FC Expiry Date',
                             fillColor: Colors.white,
-                            textStyle:
-                                (fcExpiryDate ?? "").isEmpty
-                                    ? AppTextStyle.textFieldHint
-                                    : AppTextStyle.textFiled.copyWith(
-                                      color: AppColors.primaryTextColor,
-                                    ),
+                            textStyle: (fcExpiryDate ?? "").isEmpty
+                            ? AppTextStyle.textFieldHint
+                            : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                             mandatoryStar: true,
                           ),
                         );
@@ -1350,14 +1344,27 @@ class AddVehicleDialog {
                             ? 'PUC Expiry Date'
                             : pucExpiryDate!,
                         fillColor: Colors.white,
-                        textStyle:
-                            (pucExpiryDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                        textStyle: (pucExpiryDate ?? "").isEmpty
+                      ? AppTextStyle.textFieldHint
+                      : AppTextStyle.textFiled.copyWith(color: AppColors.primaryTextColor),
                         mandatoryStar: true,
                       ),
+                    ),
+
+                    16.height,
+
+                    /// Active Switch
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(context.appText.active),
+                        Switch(
+                          value: isVehicleActive,
+                          onChanged: (val) {
+                            setState(() => isVehicleActive = val);
+                          },
+                        ),
+                      ],
                     ),
                     20.height,
                   ],
@@ -1365,7 +1372,7 @@ class AddVehicleDialog {
               ),
             ),
             onClickYesButton: () async {
-              final String? validation = Validator.fieldRequired(
+               final String? validation = Validator.fieldRequired(
                 truckNumberController.text.trim(),
                 fieldName: 'Vehicle Reg No',
               );
@@ -1384,21 +1391,15 @@ class AddVehicleDialog {
                 return;
               }
               if (fcExpiryDate == null || fcExpiryDate!.isEmpty) {
-                ToastMessages.alert(
-                  message: context.appText.fcExpiryDateRequired,
-                );
+                ToastMessages.alert(message: context.appText.fcExpiryDateRequired);
                 return;
               }
               if (registrationDate == null || registrationDate!.isEmpty) {
-                ToastMessages.alert(
-                  message: context.appText.registrationDateRequired,
-                );
+                ToastMessages.alert(message: context.appText.registrationDateRequired);
                 return;
               }
               if (pucExpiryDate == null || pucExpiryDate!.isEmpty) {
-                ToastMessages.alert(
-                  message: context.appText.pucExpiryDateRequired,
-                );
+                ToastMessages.alert(message: context.appText.pucExpiryDateRequired);
                 return;
               }
               if (insuranceValidityDate == null ||
@@ -1417,9 +1418,7 @@ class AddVehicleDialog {
               if (formKey.currentState!.validate()) {
                 final request = VehicleRequest(
                   customerId: context.read<ProfileCubit>().userId ?? "",
-                  truckNo: cleanVehicleNumber(
-                    truckNumberController.text.trim(),
-                  ),
+                  truckNo: cleanVehicleNumber(truckNumberController.text.trim()),
                   tonnage: selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
@@ -1427,10 +1426,10 @@ class AddVehicleDialog {
                   fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                   insurancePolicyNumber: insurancePolicyNumber.text,
                   pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
-                  registrationDate: convertToYMD(registrationDate.toString()),
-                  insuranceValidityDate: convertToYMD(
-                    insuranceValidityDate.toString(),
-                  ),
+                  registrationDate:
+                      convertToYMD(registrationDate.toString()),
+                  insuranceValidityDate:
+                      convertToYMD(insuranceValidityDate.toString()),
                 );
                 await context.read<ProfileCubit>().createVehicle(
                   request: request,

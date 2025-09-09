@@ -9,13 +9,13 @@ class LpLoadResponse {
 
   final List<LpLoadItem> data;
   final int total;
-  final LpPageMeta? pageMeta;
+  final PageMeta? pageMeta;
   final String? message;
 
   LpLoadResponse copyWith({
     List<LpLoadItem>? data,
     int? total,
-    LpPageMeta? pageMeta,
+    PageMeta? pageMeta,
     String? message,
   }) {
     return LpLoadResponse(
@@ -35,7 +35,7 @@ class LpLoadResponse {
             ? []
             : List<LpLoadItem>.from(inner["data"].map((x) => LpLoadItem.fromJson(x))),
         total: inner["total"] ?? 0,
-        pageMeta: inner["pageMeta"] == null ? null : LpPageMeta.fromJson(inner["pageMeta"]),
+        pageMeta: inner["pageMeta"] == null ? null : PageMeta.fromJson(inner["pageMeta"]),
         message: json["message"],
       );
     }
@@ -47,7 +47,7 @@ class LpLoadResponse {
             ? []
             : List<LpLoadItem>.from(json["data"].map((x) => LpLoadItem.fromJson(x))),
         total: json["total"] ?? 0,
-        pageMeta: json["pageMeta"] == null ? null : LpPageMeta.fromJson(json["pageMeta"]),
+        pageMeta: json["pageMeta"] == null ? null : PageMeta.fromJson(json["pageMeta"]),
         message: json["message"],
       );
     }
@@ -759,8 +759,8 @@ class Vehicle {
 }
 
 
-class LpPageMeta {
-  LpPageMeta({
+class PageMeta {
+  PageMeta({
     required this.page,
     required this.pageCount,
     required this.nextPage,
@@ -774,14 +774,14 @@ class LpPageMeta {
   final int pageSize;
   final int total;
 
-  LpPageMeta copyWith({
+  PageMeta copyWith({
     int? page,
     int? pageCount,
     dynamic nextPage,
     int? pageSize,
     int? total,
   }) {
-    return LpPageMeta(
+    return PageMeta(
       page: page ?? this.page,
       pageCount: pageCount ?? this.pageCount,
       nextPage: nextPage ?? this.nextPage,
@@ -790,8 +790,8 @@ class LpPageMeta {
     );
   }
 
-  factory LpPageMeta.fromJson(Map<String, dynamic> json){
-    return LpPageMeta(
+  factory PageMeta.fromJson(Map<String, dynamic> json){
+    return PageMeta(
       page: int.tryParse(json["page"].toString()) ?? 0,
       pageCount: json["pageCount"] ?? 0,
       nextPage: json["nextPage"],

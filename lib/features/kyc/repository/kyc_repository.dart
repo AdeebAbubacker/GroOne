@@ -212,9 +212,9 @@ class KycRepository {
 
 
   /// Get State Repo
-  Future<Result<StateModel>> getStateData({String? filter,int? page, int? limit}) async {
+  Future<Result<StateModel>> getStateData({String filter = ''}) async {
     try {
-      return await _service.fetchStateData(filter: filter,page: page,pageSize: limit);
+      return await _service.fetchStateData(filter: filter);
     } catch (e) {
       CustomLog.error(this, "Failed to get state data", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -223,9 +223,9 @@ class KycRepository {
 
 
   /// Get City Repo
-  Future<Result<CityModel>> getCityData(String stateName, {String? filter,int? page, int? limit}) async {
+  Future<Result<CityModel>> getCityData(String stateName, {String filter = ''}) async {
     try {
-      return await _service.fetchCityData(stateName, filter: filter,limit: limit,page: page);
+      return await _service.fetchCityData(stateName, filter: filter);
     } catch (e) {
       CustomLog.error(this, "Failed to get city data", e);
       return Error(ErrorWithMessage(message: e.toString()));

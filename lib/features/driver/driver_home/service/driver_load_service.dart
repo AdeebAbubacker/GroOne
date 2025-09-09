@@ -16,7 +16,6 @@ class DriverLoadService {
     String search = "",
     int? truckTypeId,
     int? commodityTypeId,
-    int? laneId,
     bool forceRefresh = false,
     int page = 1,
     int limit = 20,
@@ -35,9 +34,6 @@ class DriverLoadService {
       }
       if (commodityTypeId != null) {
         url += "&commodityId=$commodityTypeId";
-      }
-      if (laneId != null) {
-        url += "&laneId=$laneId";
       }
       final response = await _apiService.get(url, forceRefresh: forceRefresh);
 
