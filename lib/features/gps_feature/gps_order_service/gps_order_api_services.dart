@@ -25,8 +25,8 @@ class GpsOrderApiService {
 
   /// Upload GPS Documents
   Future<Result<GpsDocumentUploadResponse>> uploadGpsDocuments(
-      GpsDocumentUploadApiRequest request,
-      ) async {
+    GpsDocumentUploadApiRequest request,
+  ) async {
     try {
       final url = ApiUrls.gpsDocumentUpload;
       CustomLog.debug(this, "GPS Document Upload URL: $url");
@@ -36,7 +36,7 @@ class GpsOrderApiService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => GpsDocumentUploadResponse.fromJson(data),
+          (data) => GpsDocumentUploadResponse.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -50,7 +50,9 @@ class GpsOrderApiService {
   }
 
   /// Check GPS KYC Documents
-  Future<Result<GpsKycCheckResponseModel>> checkKycDocuments(String customerId) async {
+  Future<Result<GpsKycCheckResponseModel>> checkKycDocuments(
+    String customerId,
+  ) async {
     try {
       final url = ApiUrls.gpsKycCheck(customerId);
       CustomLog.debug(this, "GPS KYC Check URL: $url");
@@ -96,23 +98,20 @@ class GpsOrderApiService {
 
   /// Upload GPS KYC Documents (new API)
   Future<Result<GpsKycUploadResponseModel>> uploadKycDocuments(
-      GpsKycUploadRequest request,
-      String customerId,
-      ) async {
+    GpsKycUploadRequest request,
+    String customerId,
+  ) async {
     try {
       final url = ApiUrls.gpsKycUpload(customerId);
       CustomLog.debug(this, "GPS KYC Upload URL: $url");
       CustomLog.debug(this, "GPS KYC Upload Request: ${request.toJson()}");
-      
+
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
         try {
           final response = GpsKycUploadResponseModel.fromJson(result.value);
-          CustomLog.debug(
-            this,
-            "GPS KYC Upload Response: ${response.message}",
-          );
+          CustomLog.debug(this, "GPS KYC Upload Response: ${response.message}");
           return Success(response);
         } catch (e) {
           CustomLog.error(this, "Error parsing GPS KYC upload response", e);
@@ -131,13 +130,19 @@ class GpsOrderApiService {
 
   /// Upload GPS Documents Multipart
   Future<Result<GpsDocumentUploadResponse>> uploadGpsDocumentsMultipart(
-      GpsDocumentUploadMultipartApiRequest request,
-      ) async {
+    GpsDocumentUploadMultipartApiRequest request,
+  ) async {
     try {
       final url = ApiUrls.gpsDocumentUpload;
       CustomLog.debug(this, "GPS Document Upload Multipart URL: $url");
-      CustomLog.debug(this, "GPS Document Upload Multipart Request Fields: ${request.getFormFields()}");
-      CustomLog.debug(this, "GPS Document Upload Multipart Request Files: ${request.getFiles().keys.toList()}");
+      CustomLog.debug(
+        this,
+        "GPS Document Upload Multipart Request Fields: ${request.getFormFields()}",
+      );
+      CustomLog.debug(
+        this,
+        "GPS Document Upload Multipart Request Files: ${request.getFiles().keys.toList()}",
+      );
 
       // Get form fields (string data)
       final fields = request.getFormFields();
@@ -228,7 +233,7 @@ class GpsOrderApiService {
         data: formData,
         options: Options(
           headers: headers,
-          sendTimeout: const Duration(milliseconds: 30 ),
+          sendTimeout: const Duration(milliseconds: 30),
           receiveTimeout: const Duration(milliseconds: 30),
         ),
       );
@@ -246,13 +251,21 @@ class GpsOrderApiService {
         } else if (responseData is String) {
           // If response is a string, create a success response
           return Success(
-            GpsDocumentUploadResponse(success: true, message: response.data, data: null),
+            GpsDocumentUploadResponse(
+              success: true,
+              message: response.data,
+              data: null,
+            ),
           );
         } else {
           return Error(DeserializationError());
         }
       } else {
-        return Error(ErrorWithMessage(message: 'Upload failed with status: ${response.statusCode}'));
+        return Error(
+          ErrorWithMessage(
+            message: 'Upload failed with status: ${response.statusCode}',
+          ),
+        );
       }
     } catch (e) {
       CustomLog.error(this, "Error uploading GPS documents", e);
@@ -264,23 +277,30 @@ class GpsOrderApiService {
 
   /// Send Aadhaar OTP
   Future<Result<GpsAadhaarSendOtpResponse>> sendAadhaarOtp(
-      GpsAadhaarSendOtpRequest request,
-      ) async {
+    GpsAadhaarSendOtpRequest request,
+  ) async {
     try {
       // Aadhaar OTP doesn't require authentication token
       final url = ApiUrls.aadhaarSendOtp;
       CustomLog.debug(this, "🔐 GPS Aadhaar Send OTP - URL: $url");
-      CustomLog.debug(this, "🔐 GPS Aadhaar Send OTP - Request: ${request.toJson()}");
+      CustomLog.debug(
+        this,
+        "🔐 GPS Aadhaar Send OTP - Request: ${request.toJson()}",
+      );
 
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => GpsAadhaarSendOtpResponse.fromJson(data),
+          (data) => GpsAadhaarSendOtpResponse.fromJson(data),
         );
       } else if (result is Error) {
-        CustomLog.error(this, "🔐 GPS Aadhaar Send OTP failed: ${result.type}", null);
+        CustomLog.error(
+          this,
+          "🔐 GPS Aadhaar Send OTP failed: ${result.type}",
+          null,
+        );
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -293,23 +313,30 @@ class GpsOrderApiService {
 
   /// Verify Aadhaar OTP
   Future<Result<GpsAadhaarVerifyOtpResponse>> verifyAadhaarOtp(
-      GpsAadhaarVerifyOtpRequest request,
-      ) async {
+    GpsAadhaarVerifyOtpRequest request,
+  ) async {
     try {
       // Aadhaar OTP verification doesn't require authentication token
       final url = ApiUrls.aadhaarVerifyOtp;
       CustomLog.debug(this, "🔐 GPS Aadhaar Verify OTP - URL: $url");
-      CustomLog.debug(this, "🔐 GPS Aadhaar Verify OTP - Request: ${request.toJson()}");
+      CustomLog.debug(
+        this,
+        "🔐 GPS Aadhaar Verify OTP - Request: ${request.toJson()}",
+      );
 
       final result = await _apiService.post(url, body: request.toJson());
 
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => GpsAadhaarVerifyOtpResponse.fromJson(data),
+          (data) => GpsAadhaarVerifyOtpResponse.fromJson(data),
         );
       } else if (result is Error) {
-        CustomLog.error(this, "🔐 GPS Aadhaar Verify OTP failed: ${result.type}", null);
+        CustomLog.error(
+          this,
+          "🔐 GPS Aadhaar Verify OTP failed: ${result.type}",
+          null,
+        );
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -322,13 +349,16 @@ class GpsOrderApiService {
 
   /// Verify PAN
   Future<Result<GpsPanVerificationResponse>> verifyPan(
-      GpsPanVerificationRequest request,
-      ) async {
+    GpsPanVerificationRequest request,
+  ) async {
     try {
       // PAN verification doesn't require authentication token
       final url = ApiUrls.panVerification;
       CustomLog.debug(this, "🔐 GPS PAN Verification - URL: $url");
-      CustomLog.debug(this, "🔐 GPS PAN Verification - Request: ${request.toJson()}");
+      CustomLog.debug(
+        this,
+        "🔐 GPS PAN Verification - Request: ${request.toJson()}",
+      );
 
       // Custom headers for the new PAN verification API
       final customHeaders = {
@@ -338,15 +368,23 @@ class GpsOrderApiService {
         'Content-Type': 'application/json',
       };
 
-      final result = await _apiService.post(url, body: request.toJson(), customHeaders: customHeaders);
+      final result = await _apiService.post(
+        url,
+        body: request.toJson(),
+        customHeaders: customHeaders,
+      );
 
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => GpsPanVerificationResponse.fromJson(data),
+          (data) => GpsPanVerificationResponse.fromJson(data),
         );
       } else if (result is Error) {
-        CustomLog.error(this, "🔐 GPS PAN Verification failed: ${result.type}", null);
+        CustomLog.error(
+          this,
+          "🔐 GPS PAN Verification failed: ${result.type}",
+          null,
+        );
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -359,8 +397,8 @@ class GpsOrderApiService {
 
   /// Fetch GPS Product List
   Future<Result<GpsProductListResponse>> fetchGpsProducts(
-      GpsProductListRequest request,
-      ) async {
+    GpsProductListRequest request,
+  ) async {
     try {
       final url = ApiUrls.gpsProductList;
       final queryParams = request.toJson();
@@ -369,7 +407,7 @@ class GpsOrderApiService {
       if (result is Success) {
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => GpsProductListResponse.fromJson(data),
+          (data) => GpsProductListResponse.fromJson(data),
         );
       } else if (result is Error) {
         return Error(result.type);
@@ -384,14 +422,11 @@ class GpsOrderApiService {
 
   /// Fetch GPS Addresses
   Future<Result<GpsAddressListResponse>> fetchGpsAddresses(
-      GpsAddressListRequest request,
-      ) async {
+    GpsAddressListRequest request,
+  ) async {
     try {
       final url = '${ApiUrls.gpsAddressList}/${request.customerId}';
-      final queryParams = {
-        'limit': request.limit,
-        'page': request.page,
-      };
+      final queryParams = {'limit': request.limit, 'page': request.page};
       final result = await _apiService.get(url, queryParams: queryParams);
 
       if (result is Success) {
@@ -401,16 +436,23 @@ class GpsOrderApiService {
 
         if (responseData is Map<String, dynamic>) {
           // Check if response has data array (actual API format)
-          if (responseData.containsKey('data') && responseData['data'] is List) {
+          if (responseData.containsKey('data') &&
+              responseData['data'] is List) {
             final addresses = responseData['data'] as List;
             final pageMeta = responseData['pageMeta'] as Map<String, dynamic>?;
 
             // Convert addresses to GpsAddress objects
-            final gpsAddresses = addresses.map((addressJson) {
-              return GpsAddress.fromJson(addressJson as Map<String, dynamic>);
-            }).toList();
+            final gpsAddresses =
+                addresses.map((addressJson) {
+                  return GpsAddress.fromJson(
+                    addressJson as Map<String, dynamic>,
+                  );
+                }).toList();
 
-            CustomLog.debug(this, "GPS Fetch Addresses - Total addresses: ${gpsAddresses.length}");
+            CustomLog.debug(
+              this,
+              "GPS Fetch Addresses - Total addresses: ${gpsAddresses.length}",
+            );
 
             // Create GpsAddressListData
             final meta = GpsAddressListMeta(
@@ -434,26 +476,43 @@ class GpsOrderApiService {
 
             CustomLog.debug(this, "GPS Fetch Addresses Success: $response");
             return Success(response);
-          } else if (responseData.containsKey('success') || responseData.containsKey('status')) {
+          } else if (responseData.containsKey('success') ||
+              responseData.containsKey('status')) {
             // Handle wrapped response format
             return await _apiService.getResponseStatus(
               result.value,
-                  (data) => GpsAddressListResponse.fromJson(data),
+              (data) => GpsAddressListResponse.fromJson(data),
             );
           } else {
             // Unknown response format, return empty list
-            CustomLog.error(this, "GPS Fetch Addresses - Unknown response format", null);
+            CustomLog.error(
+              this,
+              "GPS Fetch Addresses - Unknown response format",
+              null,
+            );
             return Error(DeserializationError());
           }
         } else {
-          CustomLog.error(this, "GPS Fetch Addresses - Invalid response format", null);
+          CustomLog.error(
+            this,
+            "GPS Fetch Addresses - Invalid response format",
+            null,
+          );
           return Error(DeserializationError());
         }
       } else if (result is Error) {
-        CustomLog.error(this, "GPS Fetch Addresses failed: ${result.type}", null);
+        CustomLog.error(
+          this,
+          "GPS Fetch Addresses failed: ${result.type}",
+          null,
+        );
         return Error(result.type);
       } else {
-        CustomLog.error(this, "GPS Fetch Addresses - Unknown result type", null);
+        CustomLog.error(
+          this,
+          "GPS Fetch Addresses - Unknown result type",
+          null,
+        );
         return Error(GenericError());
       }
     } catch (e) {
@@ -464,8 +523,8 @@ class GpsOrderApiService {
 
   /// Add GPS Address
   Future<Result<GpsAddAddressResponse>> addGpsAddress(
-      GpsAddAddressRequest request,
-      ) async {
+    GpsAddAddressRequest request,
+  ) async {
     try {
       final url = ApiUrls.gpsAddressList;
       final result = await _apiService.post(url, body: request.toJson());
@@ -477,25 +536,38 @@ class GpsOrderApiService {
 
         if (responseData is Map<String, dynamic>) {
           // Check if response contains address data directly
-          if (responseData.containsKey('preferedAddressId') || responseData.containsKey('customerId')) {
+          if (responseData.containsKey('preferedAddressId') ||
+              responseData.containsKey('customerId')) {
             // This is the address data returned directly from API
-            final addressResponse = GpsAddAddressResponse.fromJson(responseData);
+            final addressResponse = GpsAddAddressResponse.fromJson(
+              responseData,
+            );
             CustomLog.debug(this, "GPS Add Address Success: $addressResponse");
             return Success(addressResponse);
-          } else if (responseData.containsKey('success') || responseData.containsKey('status')) {
+          } else if (responseData.containsKey('success') ||
+              responseData.containsKey('status')) {
             // This is a wrapped response with success/status fields
             return await _apiService.getResponseStatus(
               result.value,
-                  (data) => GpsAddAddressResponse.fromJson(data),
+              (data) => GpsAddAddressResponse.fromJson(data),
             );
           } else {
             // Unknown response format, treat as success with direct data
-            final addressResponse = GpsAddAddressResponse.fromJson(responseData);
-            CustomLog.debug(this, "GPS Add Address Success (unknown format): $addressResponse");
+            final addressResponse = GpsAddAddressResponse.fromJson(
+              responseData,
+            );
+            CustomLog.debug(
+              this,
+              "GPS Add Address Success (unknown format): $addressResponse",
+            );
             return Success(addressResponse);
           }
         } else {
-          CustomLog.error(this, "GPS Add Address - Invalid response format", null);
+          CustomLog.error(
+            this,
+            "GPS Add Address - Invalid response format",
+            null,
+          );
           return Error(DeserializationError());
         }
       } else if (result is Error) {
@@ -525,7 +597,7 @@ class GpsOrderApiService {
         CustomLog.debug(this, "GPS Create Order - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
-              (data) {}, // For void return
+          (data) {}, // For void return
         );
       } else if (result is Error) {
         CustomLog.error(this, "GPS Create Order failed: ${result.type}", null);
@@ -541,7 +613,9 @@ class GpsOrderApiService {
   }
 
   /// Get GPS Order Summary
-  Future<Result<GpsOrderSummaryResponse>> getGpsOrderSummary(GpsOrderSummaryRequest request) async {
+  Future<Result<GpsOrderSummaryResponse>> getGpsOrderSummary(
+    GpsOrderSummaryRequest request,
+  ) async {
     try {
       CustomLog.debug(this, "GPS Order Summary - Request: ${request.toJson()}");
 
@@ -554,7 +628,7 @@ class GpsOrderApiService {
         CustomLog.debug(this, "GPS Order Summary - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => GpsOrderSummaryResponse.fromJson(data),
+          (data) => GpsOrderSummaryResponse.fromJson(data),
         );
       } else if (result is Error) {
         CustomLog.error(this, "GPS Order Summary failed: ${result.type}", null);
@@ -576,13 +650,16 @@ class GpsOrderApiService {
     int limit = 10,
   }) async {
     try {
-      CustomLog.debug(this, "GPS Customer Orders List - Request: customerId=$customerId, page=$page, limit=$limit");
+      CustomLog.debug(
+        this,
+        "GPS Customer Orders List - Request: customerId=$customerId, page=$page, limit=$limit",
+      );
 
       final queryParameters = {
         'customerId': customerId,
         'page': page.toString(),
         'limit': limit.toString(),
-        'fleetProductId' : "1"
+        'fleetProductId': "1",
       };
 
       final result = await _apiService.get(
@@ -592,16 +669,27 @@ class GpsOrderApiService {
 
       if (result is Success) {
         log(result.value.toString());
-        CustomLog.debug(this, "GPS Customer Orders List - Response: ${result.value}");
+        CustomLog.debug(
+          this,
+          "GPS Customer Orders List - Response: ${result.value}",
+        );
         return await _apiService.getResponseStatus(
           result.value,
-              (data) => GpsOrderListResponse.fromJson(data),
+          (data) => GpsOrderListResponse.fromJson(data),
         );
       } else if (result is Error) {
-        CustomLog.error(this, "GPS Customer Orders List failed: ${result.type}", null);
+        CustomLog.error(
+          this,
+          "GPS Customer Orders List failed: ${result.type}",
+          null,
+        );
         return Error(result.type);
       } else {
-        CustomLog.error(this, "GPS Customer Orders List - Unknown result type", null);
+        CustomLog.error(
+          this,
+          "GPS Customer Orders List - Unknown result type",
+          null,
+        );
         return Error(GenericError());
       }
     } catch (e) {
@@ -625,7 +713,9 @@ class GpsOrderApiService {
       };
 
       // Construct URL with query parameters
-      final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
+      final uri = Uri.parse(
+        ApiUrls.getAllUsers,
+      ).replace(queryParameters: queryParams);
 
       CustomLog.debug(this, "GPS Fetch Users - URL: $uri");
 
@@ -633,12 +723,20 @@ class GpsOrderApiService {
 
       if (response is Success) {
         CustomLog.debug(this, "Users API raw response: ${response.value}");
-        CustomLog.debug(this, "Users API response type: ${response.value.runtimeType}");
-        
+        CustomLog.debug(
+          this,
+          "Users API response type: ${response.value.runtimeType}",
+        );
+
         try {
           // The API response is directly the data structure, not wrapped in success/status
-          final userListResponse = KavachUserListResponse.fromJson(response.value);
-          CustomLog.debug(this, "Successfully parsed user list response with ${userListResponse.data.length} users");
+          final userListResponse = KavachUserListResponse.fromJson(
+            response.value,
+          );
+          CustomLog.debug(
+            this,
+            "Successfully parsed user list response with ${userListResponse.data.length} users",
+          );
           return Success(userListResponse.data);
         } catch (e) {
           CustomLog.error(this, "Failed to parse users data", e);
@@ -654,28 +752,35 @@ class GpsOrderApiService {
   }
 
   /// Fetches available stock for a specific GPS product
-  Future<Result<int>> fetchAvailableStock({
-    required String productId,
-  }) async {
+  Future<Result<int>> fetchAvailableStock({required String productId}) async {
     try {
       // For now, use the same endpoint as Kavach but with fleetProductId=1 for GPS
-      final response = await _apiService.get('${ApiUrls.kavachAvailableStock}?productId=$productId&teamId=1');
+      final response = await _apiService.get(
+        '${ApiUrls.kavachAvailableStock}?productId=$productId&teamId=1',
+      );
 
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => int.tryParse(data['data']['availableStock'].toString()) ?? 0,
+          (data) =>
+              int.tryParse(data['data']['availableStock'].toString()) ?? 0,
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
       }
     } catch (e) {
-      CustomLog.error(this, "Failed to fetch available stock for GPS product", e);
+      CustomLog.error(
+        this,
+        "Failed to fetch available stock for GPS product",
+        e,
+      );
       return Error(DeserializationError());
     }
   }
 
-  Future<Result<OrderAddedSuccess>> initiatePayment(KavachInitiatePaymentRequest request) async {
+  Future<Result<OrderAddedSuccess>> initiatePayment(
+    KavachInitiatePaymentRequest request,
+  ) async {
     try {
       final response = await _apiService.post(
         ApiUrls.fleetPayment,
@@ -715,7 +820,9 @@ class GpsOrderApiService {
   }
 
   /// Check GPS Payment/Order Status
-  Future<Result<PaymentStatusResponse>> checkPaymentStatus(String requestId) async {
+  Future<Result<PaymentStatusResponse>> checkPaymentStatus(
+    String requestId,
+  ) async {
     try {
       final response = await _apiService.post(
         '${ApiUrls.fleetPaymentStatus}/$requestId',
@@ -737,7 +844,4 @@ class GpsOrderApiService {
       return Error(DeserializationError());
     }
   }
-
-
-
 }

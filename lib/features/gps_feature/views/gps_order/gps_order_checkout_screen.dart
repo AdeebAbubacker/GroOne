@@ -80,6 +80,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   late Map<String, int> _quantities;
   late List<GpsProduct> _products;
   bool shippingSameAsBilling = false;
+  int changeBillingAddressesIndex = 0;
   late Map<String, int> _availableStocks;
   TextEditingController referralCodeController = TextEditingController();
   TextEditingController shippingPersonInChargeController =
@@ -87,6 +88,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   TextEditingController shippingPersonContactNoController =
       TextEditingController();
   final formKeyCheckout = GlobalKey<FormState>();
+  int changeBillingIndex = 0;
+  int changeShippingIndex = 0;
 
   // Store previous shipping address for restoration
   KavachAddressModel? _previousShippingAddress;
@@ -299,6 +302,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
 
   // Helper function to get current selected addresses from cubits
   KavachAddressModel? _getCurrentShippingAddress() {
+    changeBillingIndex = 0;
     final shippingState = gpsShippingAddressCubit.state;
     if (shippingState is GpsShippingAddressSelected) {
       return shippingState.selectedAddress;
@@ -307,6 +311,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   }
 
   KavachAddressModel? _getCurrentBillingAddress() {
+    changeShippingIndex = 0;
     final billingState = gpsBillingAddressCubit.state;
     if (billingState is GpsBillingAddressSelected) {
       return billingState.selectedAddress;
@@ -592,10 +597,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                               return addressWidget(
                                 address: address,
                                 onChangeTap: () {
+                                  changeShippingIndex += 1;
                                   commonBottomSheetWithBGBlur(
                                     context: context,
                                     screen:
                                         kavach_billing.KavachBillingAddressListScreen(
+                                          changeShippingIndex:
+                                              changeShippingIndex,
                                           feature:
                                               kavach_billing
                                                   .AddressListFeature
@@ -627,10 +635,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                   ),
                                 ),
                                 onTextFieldTap: () {
+                                  changeShippingIndex += 1;
                                   commonBottomSheetWithBGBlur(
                                     context: context,
                                     screen:
                                         kavach_billing.KavachBillingAddressListScreen(
+                                          changeShippingIndex:
+                                              changeShippingIndex,
                                           feature:
                                               kavach_billing
                                                   .AddressListFeature
@@ -668,10 +679,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                   ),
                                 ),
                                 onTextFieldTap: () {
+                                  changeShippingIndex += 1;
                                   commonBottomSheetWithBGBlur(
                                     context: context,
                                     screen:
                                         kavach_billing.KavachBillingAddressListScreen(
+                                          changeShippingIndex:
+                                              changeShippingIndex,
                                           feature:
                                               kavach_billing
                                                   .AddressListFeature
@@ -758,10 +772,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                       ),
                                     ),
                                     onTextFieldTap: () {
+                                      changeShippingIndex += 1;
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen:
                                             kavach_billing.KavachBillingAddressListScreen(
+                                              changeShippingIndex:
+                                                  changeShippingIndex,
                                               feature:
                                                   kavach_billing
                                                       .AddressListFeature
@@ -806,10 +823,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                     ),
                                   ),
                                   onTextFieldTap: () {
+                                    changeShippingIndex += 1;
                                     commonBottomSheetWithBGBlur(
                                       context: context,
                                       screen:
                                           kavach_billing.KavachBillingAddressListScreen(
+                                            changeShippingIndex:
+                                                changeShippingIndex,
                                             feature:
                                                 kavach_billing
                                                     .AddressListFeature
@@ -873,10 +893,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                     child: addressWidget(
                                       address: address,
                                       onChangeTap: () {
+                                        changeBillingIndex += 1;
                                         commonBottomSheetWithBGBlur(
                                           context: context,
                                           screen:
                                               kavach_shipping.KavachShippingAddressListScreen(
+                                                changeBillingIndex:
+                                                    changeBillingIndex,
                                                 feature:
                                                     kavach_shipping
                                                         .AddressListFeature
@@ -940,10 +963,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                         ),
                                       ),
                                       onTextFieldTap: () {
+                                        changeBillingIndex += 1;
                                         commonBottomSheetWithBGBlur(
                                           context: context,
                                           screen:
                                               kavach_shipping.KavachShippingAddressListScreen(
+                                                changeBillingIndex:
+                                                    changeBillingIndex,
                                                 feature:
                                                     kavach_shipping
                                                         .AddressListFeature
@@ -1004,10 +1030,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                         ),
                                       ),
                                       onTextFieldTap: () {
+                                        changeBillingIndex += 1;
                                         commonBottomSheetWithBGBlur(
                                           context: context,
                                           screen:
                                               kavach_shipping.KavachShippingAddressListScreen(
+                                                changeBillingIndex:
+                                                    changeBillingIndex,
                                                 feature:
                                                     kavach_shipping
                                                         .AddressListFeature
@@ -1110,10 +1139,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                         ),
                                       ),
                                       onTextFieldTap: () {
+                                        changeBillingIndex += 1;
                                         commonBottomSheetWithBGBlur(
                                           context: context,
                                           screen:
                                               kavach_shipping.KavachShippingAddressListScreen(
+                                                changeBillingIndex:
+                                                    changeBillingIndex,
                                                 feature:
                                                     kavach_shipping
                                                         .AddressListFeature
@@ -1176,10 +1208,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                       ),
                                     ),
                                     onTextFieldTap: () {
+                                      changeBillingIndex += 1;
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen:
                                             kavach_shipping.KavachShippingAddressListScreen(
+                                              changeBillingIndex:
+                                                  changeBillingIndex,
                                               feature:
                                                   kavach_shipping
                                                       .AddressListFeature

@@ -31,6 +31,7 @@ import 'package:gro_one_app/features/fastag/service/fastag_service.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_cubit/gps_notification_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
@@ -202,7 +203,10 @@ void _registerCriticalServices() {
 /// Register core services needed for basic functionality
 void _registerCoreServices() {
   locator.registerLazySingleton(
-    () => SplashService(locator<SecuredSharedPreferences>(), locator<ApiService>()),
+    () => SplashService(
+      locator<SecuredSharedPreferences>(),
+      locator<ApiService>(),
+    ),
   );
   locator.registerLazySingleton(() => NotificationService());
   locator.registerLazySingleton(() => LocationService());
@@ -447,12 +451,10 @@ void _registerBasicBlocs() {
     () => LpHomeBloc(locator<UserInformationRepository>()),
   );
   locator.registerLazySingleton(
-    () => LoadFilterCubit(
-        locator<VpLoadRepository>(),
-      ),
-    );
-    locator.registerLazySingleton(
-      () => LoadPostingBloc(
+    () => LoadFilterCubit(locator<VpLoadRepository>()),
+  );
+  locator.registerLazySingleton(
+    () => LoadPostingBloc(
       locator<UserInformationRepository>(),
       locator<LpHomeRepository>(),
     ),
@@ -510,7 +512,11 @@ void _registerBasicBlocs() {
     ),
   );
   locator.registerLazySingleton(
-    () => KavachOrderListBloc(locator<KavachRepository>()),
+    () => KavachOrderListBloc(
+      locator<KavachRepository>(),
+      locator<GpsOrderApiRepository>(),
+      locator<UserInformationRepository>(),
+    ),
   );
   locator.registerLazySingleton(() => VpLoadCubit(locator<VpLoadRepository>()));
   locator.registerLazySingleton(
@@ -631,7 +637,7 @@ void _registerBasicBlocs() {
   );
   locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
   locator.registerLazySingleton(
-    () => MastersCubit(locator<ProfileRepository>(),locator<KycRepository>()),
+    () => MastersCubit(locator<ProfileRepository>(), locator<KycRepository>()),
   );
 
   // AI Chat dependencies
@@ -732,6 +738,9 @@ void _registerDeferredBlocs() {
   locator.registerLazySingleton(() => VehicleDetailCubit());
   locator.registerLazySingleton(
     () => PathReplayCubit(locator<PathReplayRepository>()),
+  );
+  locator.registerLazySingleton(
+    () => GpsKycCheckCubit(locator<GpsOrderApiRepository>()),
   );
 
   // Verify GPS cubits are registered

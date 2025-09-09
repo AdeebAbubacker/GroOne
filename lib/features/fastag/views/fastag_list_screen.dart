@@ -143,11 +143,11 @@ class _FastagListScreenState extends State<FastagListScreen> {
     switch (statusCode) {
       case 1:
       // return "Active";
-        return "Under Issuance";
+        return context.appText.underIssuance;
       case 2:
-        return "Low Balance";
+        return context.appText.lowBalance;
       default:
-        return "Under Issuance";
+        return context.appText.underIssuance;
     }
   }
 

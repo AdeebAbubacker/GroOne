@@ -66,11 +66,15 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
 class VehicleMapScreen extends StatelessWidget {
   final List<GpsCombinedVehicleData> vehicles;
   final GpsCombinedVehicleData? initialSelectedVehicle;
+  final String? sbMatricContent;
+  final String? listViewText;
 
   const VehicleMapScreen({
     super.key,
     required this.vehicles,
     this.initialSelectedVehicle,
+    this.sbMatricContent,
+    this.listViewText,
   });
 
   @override
@@ -80,6 +84,8 @@ class VehicleMapScreen extends StatelessWidget {
       child: _VehicleMapContent(
         vehicles: vehicles,
         initialSelectedVehicle: initialSelectedVehicle,
+        sbMatricContent: sbMatricContent,
+        listViewText: listViewText,
       ),
     );
   }
@@ -88,10 +94,14 @@ class VehicleMapScreen extends StatelessWidget {
 class _VehicleMapContent extends StatelessWidget {
   final List<GpsCombinedVehicleData> vehicles;
   final GpsCombinedVehicleData? initialSelectedVehicle;
+  final String? sbMatricContent;
+  final String? listViewText;
 
   const _VehicleMapContent({
     required this.vehicles,
     this.initialSelectedVehicle,
+    this.sbMatricContent,
+    this.listViewText,
   });
 
   Future<Map<String, bool>> _loadGeofenceToggles() async {
@@ -121,6 +131,7 @@ class _VehicleMapContent extends StatelessWidget {
   Future<Set<Marker>> _createVehicleMarkers(
     List<GpsCombinedVehicleData> vehicles,
     BuildContext context,
+    String sbMatricContent,
   ) async {
     final markers = <Marker>{};
     for (final vehicle in vehicles) {
@@ -168,7 +179,11 @@ class _VehicleMapContent extends StatelessWidget {
         builder: (context, selectedVehicle) {
           final isSingleVehicle = vehicles.length == 1;
           return FutureBuilder<Set<Marker>>(
-            future: _createVehicleMarkers(vehicles, context),
+            future: _createVehicleMarkers(
+              vehicles,
+              context,
+              sbMatricContent ?? '',
+            ),
             builder: (context, markerSnapshot) {
               final markers = markerSnapshot.data ?? <Marker>{};
               final initialCameraPosition = () {
@@ -254,9 +269,8 @@ class _VehicleMapContent extends StatelessWidget {
                                             ),
                                             center: geofence.center!,
                                             radius: geofence.radius!,
-                                            fillColor: const Color(
-                                              0x330000FF,
-                                            ), // Blue with 20% opacity
+                                            fillColor: const Color(0x330000FF),
+                                            // Blue with 20% opacity
                                             strokeColor: Colors.blue,
                                             strokeWidth: 2,
                                           ),
@@ -271,9 +285,8 @@ class _VehicleMapContent extends StatelessWidget {
                                               "geofence_polygon_${geofence.id}",
                                             ),
                                             points: geofence.polygonPoints!,
-                                            fillColor: const Color(
-                                              0x3300FF00,
-                                            ), // Green with 20% opacity
+                                            fillColor: const Color(0x3300FF00),
+                                            // Green with 20% opacity
                                             strokeColor: Colors.green,
                                             strokeWidth: 2,
                                           ),
@@ -385,7 +398,7 @@ class _VehicleMapContent extends StatelessWidget {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Text(
-                                    'SB Matric School',
+                                    sbMatricContent ?? 'SB Matric school',
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w600,
@@ -409,8 +422,8 @@ class _VehicleMapContent extends StatelessWidget {
                               elevation: 4,
                             ),
                             icon: Icon(Icons.list, color: Colors.blue),
-                            label: const Text(
-                              'List View',
+                            label: Text(
+                              listViewText ?? 'List View',
                               style: TextStyle(
                                 color: Colors.blue,
                                 fontWeight: FontWeight.w600,
@@ -606,6 +619,7 @@ class _VehicleMapContent extends StatelessWidget {
 
 class _VehicleInfoOverlayCard extends StatelessWidget {
   final GpsCombinedVehicleData vehicle;
+
   const _VehicleInfoOverlayCard({required this.vehicle});
 
   @override
@@ -904,6 +918,7 @@ extension _CapitalizeExtension on String {
 class _StatusChip extends StatelessWidget {
   final String label;
   final Color color;
+
   const _StatusChip({required this.label, required this.color});
 
   @override
@@ -930,6 +945,7 @@ class _StatusChip extends StatelessWidget {
 class _VehicleBottomCard extends StatelessWidget {
   final GpsCombinedVehicleData vehicle;
   final ScrollController? scrollController;
+
   const _VehicleBottomCard({required this.vehicle, this.scrollController});
 
   String _formatDuration(int? seconds) {
@@ -2257,6 +2273,7 @@ class _InfoRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+
   const _InfoRow({
     required this.icon,
     required this.label,
@@ -2300,6 +2317,7 @@ class _InfoWindowDetailRow extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
+
   const _InfoWindowDetailRow({
     required this.icon,
     required this.label,
@@ -2343,6 +2361,7 @@ class _ActionButton extends StatelessWidget {
   final IconData icon;
   final Color iconColor;
   final VoidCallback onTap;
+
   const _ActionButton({
     required this.label,
     required this.icon,
@@ -2400,6 +2419,7 @@ class _StatusIconText extends StatelessWidget {
   final String label;
   final String value;
   final Color valueColor;
+
   const _StatusIconText({
     required this.icon,
     required this.iconColor,

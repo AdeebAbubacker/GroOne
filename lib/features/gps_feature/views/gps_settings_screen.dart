@@ -272,7 +272,10 @@ class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
                   },
                 ),
                 SwitchListTile(
-                  title: Text('Show Geofence on Map', style: AppTextStyle.h5),
+                  title: Text(
+                    context.appText.showGeofenceOnMap,
+                    style: AppTextStyle.h5,
+                  ),
                   value: _showGeofenceOnMap,
                   onChanged: (val) async {
                     setState(() => _showGeofenceOnMap = val);
@@ -298,7 +301,7 @@ class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
                       ),
                       Expanded(
                         child: Text(
-                          "Default",
+                          context.appText.defaultAppSettings,
                           style: AppTextStyle.h5GreyColor,
                           textAlign: TextAlign.right,
                         ),
@@ -320,7 +323,7 @@ class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
                       ),
                       Expanded(
                         child: Text(
-                          "Default",
+                          context.appText.defaultAppSettings,
                           style: AppTextStyle.h5GreyColor,
                           textAlign: TextAlign.right,
                         ),

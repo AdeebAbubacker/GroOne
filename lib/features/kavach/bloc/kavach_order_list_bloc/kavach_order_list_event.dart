@@ -9,11 +9,15 @@ class FetchKavachOrderList extends KavachOrderListEvent {
   final int? status;
   final bool forceRefresh;
 
-  FetchKavachOrderList({this.isRefresh = false, this.forceRefresh = false, this.status});
+  FetchKavachOrderList({
+    this.isRefresh = false,
+    this.forceRefresh = false,
+    this.status,
+  });
 }
-
 
 class DownloadInvoiceEvent extends KavachOrderListEvent {
   final String orderId;
+
   DownloadInvoiceEvent(this.orderId);
 }

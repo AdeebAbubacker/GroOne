@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_choose_your_preference_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -42,19 +43,23 @@ import '../../gps_order_repo/gps_order_api_repository.dart';
 import 'gps_models_screen.dart';
 
 class GpsUploadDocumentScreen extends StatelessWidget {
-  const GpsUploadDocumentScreen({super.key});
+  bool fromKavachScreen;
+
+  GpsUploadDocumentScreen({super.key, this.fromKavachScreen = false});
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (_) => GpsUploadDocumentCubit(locator<GpsOrderApiRepository>()),
-      child: const _GpsUploadDocumentContent(),
+      child: _GpsUploadDocumentContent(fromKavachScreen),
     );
   }
 }
 
 class _GpsUploadDocumentContent extends StatefulWidget {
-  const _GpsUploadDocumentContent();
+  bool fromKavachScreen;
+
+  _GpsUploadDocumentContent(this.fromKavachScreen);
 
   @override
   State<_GpsUploadDocumentContent> createState() =>
@@ -69,9 +74,11 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
   final profileCubit = locator<ProfileCubit>();
 
   final panNoController = TextEditingController();
+
   // Only PAN document list
   List<Map<String, dynamic>> panDocList = [];
   final _formKey = GlobalKey<FormState>();
+  bool panNoVerified = false;
 
   @override
   void dispose() {
@@ -87,7 +94,15 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         message: context.appText.kycDocumentsUploadedSuccessfully,
         onContinue: () {
           Navigator.of(context).pop();
-          Navigator.of(context).pushReplacement(commonRoute(GpsModelsScreen()));
+          if (widget.fromKavachScreen) {
+            Navigator.of(
+              context,
+            ).pushReplacement(commonRoute(KavachChooseYourPreferenceScreen()));
+          } else {
+            Navigator.of(
+              context,
+            ).pushReplacement(commonRoute(GpsModelsScreen()));
+          }
         },
       ),
     );
@@ -96,10 +111,14 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<GpsUploadDocumentCubit>();
-    Future<void> checkKycVerification(AadharVerificationData? aadharVerificationData) async {
+    Future<void> checkKycVerification(
+      AadharVerificationData? aadharVerificationData,
+    ) async {
       String? statusVerified = aadharVerificationData?.status;
       if (statusVerified == "VERIFIED") {
-        final pdfPath = await KycHelper.saveBase64PdfToFile(aadharVerificationData?.dataPdf ?? "");
+        final pdfPath = await KycHelper.saveBase64PdfToFile(
+          aadharVerificationData?.dataPdf ?? "",
+        );
         await cubit.uploadAadhaarPdfFile(File(pdfPath));
 
         cubit.setAadhaar(aadharNoController.text);
@@ -131,7 +150,12 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
+              Navigator.of(context).push(
+                commonRoute(
+                  LpSupport(showBackButton: true, ticketTag: TicketTags.GPS),
+                  isForward: true,
+                ),
+              );
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -149,77 +173,77 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     // Aadhaar Card Section
-                    _buildLabelWithInfoIcon(
-                      context,
-                      context.appText.aadhaarCard,
-                      isMandatory: true,
-                      isVerified: state.isAadhaarVerified,
-                    ),
-                    10.height,
-                    BlocListener<KycCubit, KycState>(
-                      listenWhen: (prev, curr) =>
-                      prev.kycInitResponse != curr.kycInitResponse ||
-                          prev.aadharVerificationState != curr.aadharVerificationState,
-                      listener: (context, state) async {
-                        final initState = state.kycInitResponse;
-                        if (initState?.status == Status.SUCCESS) {
-                          await checkVerification(initState?.data);
-                        }
-
-                        final verifyState = state.aadharVerificationState;
-                        if (verifyState?.status == Status.SUCCESS) {
-                          await checkKycVerification(verifyState?.data?.data);
-                        }
-                        if (initState?.status == Status.ERROR) {
-                          if (!context.mounted) return;
-                          ToastMessages.error(message: context.appText.errorMessage);
-                        }
-                      },
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Aadhaar Text Field
-                          AppTextField(
-                            controller: aadharNoController,
-                            hintText: context.appText.enter12DigitAadhaar,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                            validator: (value) => cubit.getAadhaarValidationError(value ?? ''),
-                            onChanged: (value) {
-                              cubit.setAadhaar(value);
-                              cubit.validateAadhaar(value);
-                            },
-                            keyboardType: TextInputType.number,
-                            maxLength: 12,
-                          ),
-                          15.height,
-
-                          // Aadhaar Verify Button
-                          AppButton(
-                            onPressed: (state.isAadhaarValid && !state.isAadhaarVerified)
-                                ? () async {
-                              final request = KycInitRequest(aadharNumber: aadharNoController.text);
-                              await kycBloc.sendKycRequest(request);
-                            }
-                                : () {},
-                            title: state.isAadhaarVerified ? context.appText.verified : context.appText.verifyAadhaar,
-                            textStyle: state.isAadhaarValid && !state.isAadhaarVerified
-                                ? AppTextStyle.h5PrimaryColor
-                                : AppTextStyle.h5WhiteColor,
-                            style: (state.isAadhaarValid && !state.isAadhaarVerified)
-                                ? AppButtonStyle.outlineAndFilled
-                                : AppButtonStyle.disableButton,
-                          ),
-                        ],
-                      ),
-                    ),
-                    45.height,
+                    // _buildLabelWithInfoIcon(
+                    //   context,
+                    //   context.appText.aadhaarCard,
+                    //   isMandatory: true,
+                    //   isVerified: state.isAadhaarVerified,
+                    // ),
+                    // 10.height,
+                    // BlocListener<KycCubit, KycState>(
+                    //   listenWhen: (prev, curr) =>
+                    //   prev.kycInitResponse != curr.kycInitResponse ||
+                    //       prev.aadharVerificationState != curr.aadharVerificationState,
+                    //   listener: (context, state) async {
+                    //     final initState = state.kycInitResponse;
+                    //     if (initState?.status == Status.SUCCESS) {
+                    //       await checkVerification(initState?.data);
+                    //     }
+                    //
+                    //     final verifyState = state.aadharVerificationState;
+                    //     if (verifyState?.status == Status.SUCCESS) {
+                    //       await checkKycVerification(verifyState?.data?.data);
+                    //     }
+                    //     if (initState?.status == Status.ERROR) {
+                    //       if (!context.mounted) return;
+                    //       ToastMessages.error(message: context.appText.errorMessage);
+                    //     }
+                    //   },
+                    //   child: Column(
+                    //     crossAxisAlignment: CrossAxisAlignment.start,
+                    //     children: [
+                    //       // Aadhaar Text Field
+                    //       AppTextField(
+                    //         controller: aadharNoController,
+                    //         hintText: context.appText.enter12DigitAadhaar,
+                    //         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    //         validator: (value) => cubit.getAadhaarValidationError(value ?? ''),
+                    //         onChanged: (value) {
+                    //           cubit.setAadhaar(value);
+                    //           cubit.validateAadhaar(value);
+                    //         },
+                    //         keyboardType: TextInputType.number,
+                    //         maxLength: 12,
+                    //       ),
+                    //       15.height,
+                    //
+                    //       // Aadhaar Verify Button
+                    //       AppButton(
+                    //         onPressed: (state.isAadhaarValid && !state.isAadhaarVerified)
+                    //             ? () async {
+                    //           final request = KycInitRequest(aadharNumber: aadharNoController.text);
+                    //           await kycBloc.sendKycRequest(request);
+                    //         }
+                    //             : () {},
+                    //         title: state.isAadhaarVerified ? context.appText.verified : context.appText.verifyAadhaar,
+                    //         textStyle: state.isAadhaarValid && !state.isAadhaarVerified
+                    //             ? AppTextStyle.h5PrimaryColor
+                    //             : AppTextStyle.h5WhiteColor,
+                    //         style: (state.isAadhaarValid && !state.isAadhaarVerified)
+                    //             ? AppButtonStyle.outlineAndFilled
+                    //             : AppButtonStyle.disableButton,
+                    //       ),
+                    //     ],
+                    //   ),
+                    // ),
+                    // 45.height,
 
                     // PAN Card Section
                     _buildLabelWithInfoIcon(
                       context,
-                      "${context.appText.pan} (Optional)",
+                      context.appText.pan,
                       isMandatory: false, // PAN is optional
-                      isVerified: state.isPanVerified,
+                      isVerified: panNoVerified,
                     ),
 
                     // _buildLabelWithInfoIcon(context, 'PAN (Optional)', isMandatory: true, isVerified: state.isPanVerified),
@@ -231,8 +255,11 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                       validator:
                           (value) => cubit.getPanValidationError(value ?? ''),
                       onChanged: (value) {
+                        state.isPanVerified = false;
                         cubit.setPan(value);
                         cubit.validatePan(value);
+                        panNoVerified = false;
+                        setState(() {});
                       },
                     ),
                     10.height,
@@ -269,6 +296,9 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                     UploadAttachmentFiles(
                       multiFilesList: panDocList,
                       isSingleFile: true,
+                      onDelete: (v) {
+                        setState(() {});
+                      },
                       thenUploadFileToSever: () {
                         // Trigger rebuild when documents are added/removed
                         setState(() {});
@@ -306,16 +336,19 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
         },
         builder: (context, state) {
           final bool isLoading = state.uploadKycState?.status == Status.LOADING;
-          final bool isFormValid =
-              state.isAadhaarVerified; // Only Aadhaar verification is required, PAN is optional
-
-
-
+          // final bool isFormValid =
+          //     state.isAadhaarVerified; // Only Aadhaar verification is required, PAN is optional
+          panNoVerified =
+              state.isPanVerified; // As per change request PAN is required
           return AppButton(
             onPressed:
-                (!isLoading && isFormValid)
+                (!isLoading &&
+                        panNoVerified &&
+                        panDocList.isNotEmpty &&
+                        panDocList[0]['fileName'] != null &&
+                        panDocList[0]['fileName'].isNotEmpty)
                     ? () {
-                      cubit.markFormSubmitted();
+                      // cubit.markFormSubmitted();
                       if (_formKey.currentState!.validate()) {
                         // Update the cubit with all document lists
                         cubit.updatePanDocuments(panDocList);
@@ -328,11 +361,18 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                         );
                       }
                     }
-                    : () {},
+                    : () {
+                      ToastMessages.alert(
+                        message: context.appText.pleaseFillAllRequiredFields,
+                      );
+                    },
             title: context.appText.submit,
             isLoading: isLoading,
             style:
-                isFormValid
+                panNoVerified &&
+                        panDocList.isNotEmpty &&
+                        panDocList[0]['fileName'] != null &&
+                        panDocList[0]['fileName'].isNotEmpty
                     ? AppButtonStyle.primary
                     : AppButtonStyle.disableButton,
           ).paddingOnly(bottom: 44, right: 20, left: 20, top: 15);
