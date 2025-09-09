@@ -122,13 +122,9 @@ class LpLoadService {
     }
   }
 
-  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeList({
-    int page = 1,
-    int pageSize = 10,
-  }) async {
+  Future<Result<List<LoadTruckTypeListModel>>> fetchTruckTypeList() async {
     try {
-      final url =
-          "${ApiUrls.loadTruckType}?page=$page&limit=$pageSize";
+      final url = ApiUrls.loadTruckType;
       final response = await _apiService.get(url);
       if (response is Success) {
         final List<dynamic> list = response.value;
@@ -144,15 +140,9 @@ class LpLoadService {
     }
   }
 
-  Future<Result<LpLoadRouteResponse>> fetchRouteList({int page = 1,
-    int pageSize = 10,String? search}) async {
+  Future<Result<LpLoadRouteResponse>> fetchRouteList() async {
     try {
-      String url =
-          "${ApiUrls.lpLoadRoute}?page=$page&limit=$pageSize";
-       if (search != null && search.trim().isNotEmpty) {
-      url = "$url&search=$search";
-    }    
-
+      final url = ApiUrls.lpLoadRoute;
       final response = await _apiService.get(url);
       if (response is Success) {
         final loads = LpLoadRouteResponse.fromJson(response.value);

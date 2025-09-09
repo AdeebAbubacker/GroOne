@@ -1,21 +1,21 @@
 
 
 import 'package:flutter/material.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 
-class VpCompanyTypeSearchableDropdown extends StatelessWidget {
-  final String? selectedCompanyTypeId;
+class CommodityTypeDropdown extends StatelessWidget {
+  final String? selectedCommodityTypeId;
   final ValueChanged<String?> onCompanyTypeChanged;
-  final List<VpCompanyTypeModel> companyTypeList;
+  final List<LoadCommodityListModel> companyTypeList;
   final String labelText;
   final String hintText;
   final bool mandatoryStar;
 
-  const VpCompanyTypeSearchableDropdown({
+  const CommodityTypeDropdown({
     super.key,
-    required this.selectedCompanyTypeId,
+    required this.selectedCommodityTypeId,
     required this.onCompanyTypeChanged,
     required this.companyTypeList,
     required this.labelText,
@@ -25,16 +25,15 @@ class VpCompanyTypeSearchableDropdown extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final companyTypeNames = companyTypeList.map((e) => e.companyType.toString()).toList();
+    final companyTypeNames = companyTypeList.map((e) => e.name.toString()).toList();
 
-    final selectedItem = selectedCompanyTypeId != null
+    final selectedItem = selectedCommodityTypeId != null
         ? companyTypeList.firstWhere(
-            (e) => e.id.toString() == selectedCompanyTypeId,
-          ).companyType.toString()
+            (e) => e.id.toString() == selectedCommodityTypeId,
+          ).name.toString()
         : null;
 
     return SearchableDropdown(
-      key: key,
       labelText: labelText,
       mandatoryStar: mandatoryStar,
       selectedItem: selectedItem?.isEmpty ?? true ? null : selectedItem,
@@ -43,7 +42,7 @@ class VpCompanyTypeSearchableDropdown extends StatelessWidget {
       onChanged: (String? newCompanyTypeName) {
         if (newCompanyTypeName != null) {
           final selectedCompanyType = companyTypeList.firstWhere(
-            (e) => e.companyType.toString() == newCompanyTypeName,
+            (e) => e.name.toString() == newCompanyTypeName,
           );
           onCompanyTypeChanged(selectedCompanyType.id.toString());
                 }
@@ -58,7 +57,7 @@ class VpCompanyTypeSearchableDropdown extends StatelessWidget {
           ],
         );
       },
-      emptyBuilder: (context, _) => Center(child: Text("No company types found")),
+      emptyBuilder: (context, _) => Center(child: Text("No commodities types found")),
     );
   }
 }

@@ -42,7 +42,6 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
       emit(VpMyLoadListLoading());
       Result result = await _vHomeRepository.getVehicleDetails(
         userId: event.userId,
-        search: event.search,
       );
 
       if (result is Success<VehicleListResponse>) {
@@ -58,7 +57,6 @@ class VpHomeBloc extends Bloc<VpHomeEvent, VpHomeState> {
       emit(VpMyLoadListLoading());
       Result result = await _vHomeRepository.getDriverDetails(
         userId: event.userId,
-        search: event.search,
       );
 
       if (result is Success<DriverListResponse>) {

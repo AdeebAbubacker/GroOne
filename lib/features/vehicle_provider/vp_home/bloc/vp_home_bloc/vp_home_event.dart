@@ -7,26 +7,20 @@ class VpMyLoadListRequested extends VpHomeEvent {
   VpMyLoadListRequested();
 }
 
+
 class VpVehicleListRequested extends VpHomeEvent {
   final String userId;
-  String? search;
-  VpVehicleListRequested({required this.userId, this.search});
+  VpVehicleListRequested({required this.userId});
 }
 
 class VpDriverDetailsRequested extends VpHomeEvent {
   final String userId;
-  String? search;
-  final bool loadMore;
-  final int limit;
-  VpDriverDetailsRequested({
-    required this.userId,
-    this.search,
-    this.loadMore = false,
-    this.limit = 10,
-  });
+  VpDriverDetailsRequested({required this.userId});
 }
 
 class ScheduleTripRequested extends VpHomeEvent {
   final ScheduleTripRequest apiRequest;
   ScheduleTripRequested({required this.apiRequest});
 }
+
+
