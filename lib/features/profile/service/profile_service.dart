@@ -858,9 +858,12 @@ Future<Result<FaqResponse>> fetchFaq({
   }
 
   /// fetch blood groups
-  Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups() async {
+  Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups({String? search}) async {
     try {
-      final url = ApiUrls.getBloodGroup;
+      String url = ApiUrls.getBloodGroup;
+      if (search != null && search.trim().isNotEmpty) {
+      url += "&search=${Uri.encodeComponent(search.trim())}";
+      }
       final response = await _apiService.get(url);
 
       if (response is Success) {
