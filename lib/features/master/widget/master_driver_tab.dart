@@ -640,27 +640,16 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                   16.height,
                   LicenseCategoryDropdown(
                     selectedCategory:
-                        selectedLicenseObj, // this should be of type LicenseCategoryResponseModel?
+                        selectedLicenseObj, 
                     onChanged: (LicenseCategoryResponseModel? category) {
                       setState(() {
-                        selectedLicenseObj = category; // keep the full object
-                        // optional: for display
+                        selectedLicenseObj = category; 
                         selectedLicneseId =
-                            category?.id; // store the ID if needed
+                            category?.id;
                       });
                     },
                   ),
-
                   16.height,
-                  // BloodCategoryDropdown(
-                  //   selected: selectedBloodGroup,
-                  //   onChanged: (BloodGroupResponseModel? category) {
-                  //     setState(() {
-                  //       selectedBloodGroup = category?.groupName;
-                  //       selectedBloodId = category?.id;
-                  //     });
-                  //   },
-                  // ),
                   BloodCategoryDropdown(
                     selectedCategory: selectedBloodObj,
                     onChanged: (BloodGroupResponseModel? category) {
