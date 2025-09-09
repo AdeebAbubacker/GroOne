@@ -62,7 +62,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
           }
 
           if (uiState.status == Status.ERROR) {
-            return genericErrorWidget(error: uiState.errorType);
+            return genericErrorWidget(error: uiState.errorType,onRefresh: () async {  initFunction(); });
           }
 
           final TripDetails? tripDetails = uiState.data?.data;

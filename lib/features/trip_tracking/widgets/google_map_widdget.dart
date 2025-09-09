@@ -44,6 +44,8 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
   final List<LatLng> _polylineCoordinates = [];
   final Set<Polyline> _polylines = {};
 
+  bool _initialRouteFetched = false;
+
 
   @override
   void initState() {
@@ -124,53 +126,138 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
 
     // Set polylines
     _polylines.clear();
+    // if (widget.driverLat != null && widget.driverLong != null) {
+    //   final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
+    //
+    //   int closestIndex = 0;
+    //   double minDistance = double.infinity;
+    //
+    //   for (int i = 0; i < _polylineCoordinates.length; i++) {
+    //     final p = _polylineCoordinates[i];
+    //     double distance = Geolocator.distanceBetween(
+    //       driverLatLng.latitude,
+    //       driverLatLng.longitude,
+    //       p.latitude,
+    //       p.longitude,
+    //     );
+    //     if (distance < minDistance) {
+    //       minDistance = distance;
+    //       closestIndex = i;
+    //     }
+    //   }
+    //
+    //   // Segment route into completed and remaining
+    //   final List<LatLng> greenSegment = _polylineCoordinates.sublist(0, closestIndex + 1);
+    //   final List<LatLng> blueSegment = _polylineCoordinates.sublist(closestIndex);
+    //
+    //   _polylines.add(Polyline(
+    //     polylineId: PolylineId(navigatorKey.currentState!.context.appText.completed),
+    //     color: Colors.green,
+    //     width: 5,
+    //     points: greenSegment,
+    //   ));
+    //
+    //   _polylines.add(Polyline(
+    //     polylineId: PolylineId(navigatorKey.currentState!.context.appText.remainingDistance),
+    //     color: AppColors.primaryColor.withValues(alpha: 0.7),
+    //     width: 5,
+    //     points: blueSegment,
+    //   ));
+    //
+    //   // 🧭 Rotate the marker
+    //   int nextIndex = min(closestIndex + 1, _polylineCoordinates.length - 1);
+    //   if (closestIndex == nextIndex && closestIndex > 0) {
+    //     nextIndex = closestIndex - 1;
+    //   }
+    //
+    //
+    //   final bearing = (calculateBearing(driverLatLng, _polylineCoordinates[nextIndex]) - 90) % 360;
+    //
+    //
+    //
+    //   _markers.value.add(
+    //     Marker(
+    //       markerId: MarkerId(navigatorKey.currentState!.context.appText.driver),
+    //       position: driverLatLng,
+    //       icon: driverIcon,
+    //       rotation: bearing,
+    //       flat: true,
+    //       anchor: const Offset(0.5, 0.5),
+    //       infoWindow:  InfoWindow(title: navigatorKey.currentState!.context.appText.driverLocation),
+    //     ),
+    //   );
+    // }
+
     if (widget.driverLat != null && widget.driverLong != null) {
+      final pickupLatLng = TripTrackingHelper.getLatLngFromString(widget.pickUpLatLong ?? "0,0");
+      final dropLatLng = TripTrackingHelper.getLatLngFromString(widget.dropLatLong ?? "0,0");
       final driverLatLng = LatLng(widget.driverLat!, widget.driverLong!);
 
-      int closestIndex = 0;
-      double minDistance = double.infinity;
+      // 1️⃣ Route from pickup → driver
+      await fetchRoute(origin: pickupLatLng, destination: driverLatLng);
 
-      for (int i = 0; i < _polylineCoordinates.length; i++) {
-        final p = _polylineCoordinates[i];
-        double distance = Geolocator.distanceBetween(
-          driverLatLng.latitude,
-          driverLatLng.longitude,
-          p.latitude,
-          p.longitude,
-        );
-        if (distance < minDistance) {
-          minDistance = distance;
-          closestIndex = i;
+      final pickupToDriverPolyline = PolylinePoints().decodePolyline(
+        vpDetailsCubit.state.directionApiResponse?.data?.routes.first.overviewPolyline.points ?? "",
+      ).map((p) => LatLng(p.latitude, p.longitude)).toList();
+
+      _polylines.add(
+        Polyline(
+          polylineId: const PolylineId("pickup_to_driver"),
+          // color: Colors.orange,
+          color: Colors.green,
+          width: 5,
+          points: pickupToDriverPolyline,
+        ),
+      );
+
+      // 2️⃣ Route from driver → drop
+      await fetchRoute(origin: driverLatLng, destination: dropLatLng);
+
+      final driverToDropPolyline = PolylinePoints().decodePolyline(
+        vpDetailsCubit.state.directionApiResponse?.data?.routes.first.overviewPolyline.points ?? "",
+      ).map((p) => LatLng(p.latitude, p.longitude)).toList();
+
+      _polylines.add(
+        Polyline(
+          polylineId: const PolylineId("driver_to_drop"),
+          // color: AppColors.primaryColor,
+          color: AppColors.primaryColor.withValues(alpha: 0.7),
+          width: 5,
+          points: driverToDropPolyline,
+        ),
+      );
+
+      double bearing = 0;
+
+      if (driverToDropPolyline.length > 1) {
+        // 1️⃣ Find closest point on polyline
+        int closestIndex = 0;
+        double minDistance = double.infinity;
+
+        for (int i = 0; i < driverToDropPolyline.length; i++) {
+          double distance = Geolocator.distanceBetween(
+            driverLatLng.latitude,
+            driverLatLng.longitude,
+            driverToDropPolyline[i].latitude,
+            driverToDropPolyline[i].longitude,
+          );
+          if (distance < minDistance) {
+            minDistance = distance;
+            closestIndex = i;
+          }
         }
+
+        // 2️⃣ Take next point in route
+        int nextIndex = (closestIndex + 1 < driverToDropPolyline.length)
+            ? closestIndex + 1
+            : closestIndex;
+
+        // 3️⃣ Calculate bearing
+        bearing = calculateBearing(
+          driverLatLng,
+          driverToDropPolyline[nextIndex],
+        );
       }
-
-      // Segment route into completed and remaining
-      final List<LatLng> greenSegment = _polylineCoordinates.sublist(0, closestIndex + 1);
-      final List<LatLng> blueSegment = _polylineCoordinates.sublist(closestIndex);
-
-      _polylines.add(Polyline(
-        polylineId: PolylineId(navigatorKey.currentState!.context.appText.completed),
-        color: Colors.green,
-        width: 5,
-        points: greenSegment,
-      ));
-
-      _polylines.add(Polyline(
-        polylineId: PolylineId(navigatorKey.currentState!.context.appText.remainingDistance),
-        color: AppColors.primaryColor.withValues(alpha: 0.7),
-        width: 5,
-        points: blueSegment,
-      ));
-
-      // 🧭 Rotate the marker
-      int nextIndex = min(closestIndex + 1, _polylineCoordinates.length - 1);
-      if (closestIndex == nextIndex && closestIndex > 0) {
-        nextIndex = closestIndex - 1;
-      }
-
-
-      final bearing = (calculateBearing(driverLatLng, _polylineCoordinates[nextIndex]) - 90) % 360;
-
 
 
       _markers.value.add(
@@ -178,13 +265,15 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
           markerId: MarkerId(navigatorKey.currentState!.context.appText.driver),
           position: driverLatLng,
           icon: driverIcon,
-          rotation: bearing,
+          rotation: (bearing - 90) % 360,
           flat: true,
           anchor: const Offset(0.5, 0.5),
           infoWindow:  InfoWindow(title: navigatorKey.currentState!.context.appText.driverLocation),
         ),
       );
-    } else {
+    }
+
+    else {
       _polylines.add(Polyline(
         polylineId: PolylineId(navigatorKey.currentState!.context.appText.route),
         color: AppColors.primaryColor.withOpacity(0.7),
@@ -243,6 +332,18 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
 
   }
 
+  Future<void> fetchRoute({
+    required LatLng origin,
+    required LatLng destination,
+  }) async {
+    await vpDetailsCubit.getMapRouting(
+      pickUpLat: origin.latitude.toString(),
+      pickUpLong: origin.longitude.toString(),
+      dropLat: destination.latitude.toString(),
+      dropLong: destination.longitude.toString(),
+    );
+  }
+
 
 
   @override
@@ -253,11 +354,16 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
   Widget buildGoogleMapWidget(){
     return BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
       builder:(context, state)  {
-        if(state.directionApiResponse?.status==Status.SUCCESS){
-          if((state.directionApiResponse?.data?.routes??[]).isNotEmpty){
+        if (!_initialRouteFetched &&
+            state.directionApiResponse?.status == Status.SUCCESS &&
+            (state.directionApiResponse?.data?.routes ?? []).isNotEmpty) {
 
-            setMapMarkers(addMarker: false,points: state.directionApiResponse?.data?.routes.first.overviewPolyline.points);
-          }
+          _initialRouteFetched = true;
+
+          setMapMarkers(
+            addMarker: false,
+            points: state.directionApiResponse?.data?.routes.first.overviewPolyline.points,
+          );
         }
         return ValueListenableBuilder(
           valueListenable: _markers,

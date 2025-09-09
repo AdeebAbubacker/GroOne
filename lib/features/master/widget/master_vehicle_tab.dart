@@ -13,6 +13,8 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_vehicle_bloc/ka
 import 'package:gro_one_app/features/kyc/cubit/kyc_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/features/master/helper/date_helper.dart';
 import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/master/widget/master_vehicle_widget.dart';
@@ -91,7 +93,6 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
     await vpCreationCubit.fetchTruckType();
     await lpHomeCubit.fetchLoadWeight();
   });
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -284,7 +285,6 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
     bool isVehicleVerified = vehcile != null;
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
-    bool isVehicleActive = vehcile != null ? (vehcile.status == 1) : true;
     final truckNumberController = TextEditingController(
       text: vehcile?.truckNo ?? '',
     );
@@ -390,8 +390,6 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                               RegExp(r'\d+').stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
 
-                              isVehicleActive =
-                                  vehicleData['status'] == 1 ? true : false;
                               final truckTypeList =
                                   context
                                       .read<VpCreateAccountCubit>()
@@ -493,72 +491,70 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       mandatoryStar: true,
                     ),
                     16.height,
-                    Text(context.appText.truckType, style: AppTextStyle.body3),
-                    5.height,
                     // TrucK Type
                     BlocBuilder<VpCreateAccountCubit, VpCreateAccountState>(
                       builder: (context, state) {
-                        final truckTypeUIState = state.truckTypeUIState;
+                        final uiState = state.truckTypeUIState;
+                        final truckTypeList = uiState?.data ?? [];
 
-                        if (truckTypeUIState == null ||
-                            truckTypeUIState.status == Status.LOADING) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-
-                        if (truckTypeUIState.status == Status.ERROR) {
-                          return const Text("Error loading truck types");
-                        }
-
-                        final uiState = state.truckTypeUIState?.data;
-                        final truckTypes = uiState ?? [];
-                        final truckTypeLabels =
-                            truckTypes
-                                .map((e) => '${e.type} - ${e.subType}')
-                                .toList();
-                        final truckTypeLabelMap = Map.fromEntries(
-                          truckTypes.map(
-                            (e) => MapEntry('${e.type} - ${e.subType}', e),
-                          ),
-                        );
-
-                        return SearchableDropdown(
-                          hintText: context.appText.selectTruckType,
-                          items: truckTypeLabels,
-                          selectedItem:
-                              selectedTruckType == null
-                                  ? null
-                                  : '${selectedTruckType!.type} - ${selectedTruckType!.subType}',
-                          onChanged: (value) {
-                            selectedTruckType = truckTypeLabelMap[value];
-                            setState(() {});
+                        return VehicleTypeSearchableDropdown(
+                          labelText: context.appText.vehicleType,
+                          hintText: context.appText.selectVehicleType,
+                          fetchVehicleTypes: () async {
+                            await context
+                                .read<VpCreateAccountCubit>()
+                                .fetchTruckType();
+                            return context
+                                    .read<VpCreateAccountCubit>()
+                                    .state
+                                    .truckTypeUIState
+                                    ?.data ??
+                                [];
                           },
+                          selectedVehicleType: truckTypeList.firstWhereOrNull(
+                            (t) => t.id.toString() == selectedTruckType,
+                          ),
+                          onChanged: (TruckTypeModel? value) {
+                            setState(() {
+                              selectedTruckType = value;
+                            });
+                          },
+                          mandatoryStar: false,
                         );
                       },
                     ),
                     16.height,
-                    Text(context.appText.capacity, style: AppTextStyle.body3),
-                    5.height,
                     BlocBuilder<LPHomeCubit, LPHomeState>(
                       builder: (context, state) {
                         final uiState = state.loadWeightUIState;
                         final weights = uiState?.data ?? [];
-                        final weightLabels =
-                            weights.map((e) => '${e.value} Ton').toList();
 
-                        return SearchableDropdown(
+                        return LoadWeightSearchableDropdown(
+                          labelText: context.appText.capacity,
                           hintText:
                               '${context.appText.select} ${context.appText.capacity}',
-                          items: weightLabels,
-                          selectedItem: selectedWeightDropDownValue,
-                          onChanged: (value) {
-                            selectedWeightDropDownValue = value;
-                            setState(() {});
+                          selectedWeight: weights.firstWhereOrNull(
+                            (w) => w.id == selectedWeightDropDownValue,
+                          ),
+                          fetchWeights: (page, searchKey) async {
+                            await context.read<LPHomeCubit>().fetchLoadWeight();
+                            return context
+                                    .read<LPHomeCubit>()
+                                    .state
+                                    .loadWeightUIState
+                                    ?.data ??
+                                [];
+                          },
+                          onChanged: (LoadWeightModel? value) {
+                            setState(() {
+                              selectedWeightDropDownValue =
+                                  value?.value.toString();
+                            });
                           },
                         );
                       },
                     ),
+
                     16.height,
                     //Insurance policy number
                     AppTextField(
@@ -697,30 +693,6 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                 ),
                       ),
                     ),
-
-                    16.height,
-
-                    /// Active Switch
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(context.appText.active),
-                        Switch(
-                          value: isVehicleActive,
-                          onChanged: (val) {
-                            setState(() => isVehicleActive = val);
-                            if (vehcile != null) {
-                              profileCubit.deleteVehicle(
-                                vehicleId: vehcile.vehicleId,
-                                request: DeleteVehicleRequest(
-                                  status: val ? 1 : 2,
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ],
-                    ),
                     20.height,
                   ],
                 ),
@@ -783,7 +755,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                   truckNo: cleanVehicleNumber(
                     truckNumberController.text.trim(),
                   ),
-                  tonnage: selectedWeightDropDownValue,
+                  tonnage: '${selectedWeightDropDownValue}T',
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
                   ownerName: owenerNameController.text,
@@ -804,7 +776,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       truckNo: cleanVehicleNumber(
                         truckNumberController.text.trim(),
                       ),
-                      tonnage: selectedWeightDropDownValue,
+                      tonnage: '${selectedWeightDropDownValue}T',
                       truckTypeId: selectedTruckType?.id ?? 1,
                       fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                       insuranceValidityDate: convertToYMD(
@@ -928,7 +900,7 @@ Widget buildVehicleVerificationFieldWidget({
         controller: vehicleNoController,
         mandatoryStar: true,
         maxLength: 15,
-        labelText: context.appText.vehicleRegNo,
+        labelText: "Vehicle Reg No",
 
         textCapitalization: TextCapitalization.characters,
         validator:
@@ -993,7 +965,7 @@ Widget buildVehicleVerificationFieldWidget({
                     },
 
                     child: Text(
-                      context.appText.vehicleVerify,
+                      "Verify",
                       style: AppTextStyle.body3.copyWith(
                         color: AppColors.primaryColor,
                         decoration: TextDecoration.underline,
@@ -1028,7 +1000,6 @@ class AddVehicleDialog {
     String? pucExpiryDate;
     String? selectedWeightDropDownValue;
     TruckTypeModel? selectedTruckType;
-    bool isVehicleActive = true;
     MasterDialogueWidget.show(
       dismissible: true,
       context,
@@ -1284,7 +1255,7 @@ class AddVehicleDialog {
                       child: buildReadOnlyField(
                         context.appText.insuranceValidityDate,
                         (insuranceValidityDate?.isEmpty ?? true)
-                            ? context.appText.insuranceValidityDate
+                            ? 'Insurance Validity Date'
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         textStyle:
@@ -1337,7 +1308,7 @@ class AddVehicleDialog {
                           },
                           child: buildReadOnlyField(
                             context.appText.fcExpiryDate,
-                            fcExpiryDate ?? context.appText.fcExpiryDate,
+                            fcExpiryDate ?? 'FC Expiry Date',
                             fillColor: Colors.white,
                             textStyle:
                                 (fcExpiryDate ?? "").isEmpty
@@ -1376,7 +1347,7 @@ class AddVehicleDialog {
                       child: buildReadOnlyField(
                         context.appText.pucExpiryDate,
                         (pucExpiryDate?.isEmpty ?? true)
-                            ? context.appText.pucExpiryDate
+                            ? 'PUC Expiry Date'
                             : pucExpiryDate!,
                         fillColor: Colors.white,
                         textStyle:
@@ -1387,22 +1358,6 @@ class AddVehicleDialog {
                                 ),
                         mandatoryStar: true,
                       ),
-                    ),
-
-                    16.height,
-
-                    /// Active Switch
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(context.appText.active),
-                        Switch(
-                          value: isVehicleActive,
-                          onChanged: (val) {
-                            setState(() => isVehicleActive = val);
-                          },
-                        ),
-                      ],
                     ),
                     20.height,
                   ],

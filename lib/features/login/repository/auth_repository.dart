@@ -295,7 +295,7 @@ class AuthRepository {
     await _securedSharedPref.saveBoolean(AppString.sessionKey.aadharVerified, false);
 
     await _notificationService.clearBadgeCount();
-    await _notificationService.clearFcmToken();
+    // await _notificationService.clearFcmToken();
     clearAllBusinessDocs();
   }
 

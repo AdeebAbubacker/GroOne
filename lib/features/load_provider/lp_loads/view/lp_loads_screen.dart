@@ -1,5 +1,5 @@
 import 'dart:async';
-
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
@@ -198,16 +198,22 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 final truckTypes = uiState?.data ?? [];
 
                 return TruckTypeSearchableDropdown(
-                  selectedTruckTypeId: selectedTruckTypeId?.toString(),
-                  onTruckTypeChanged: (String? idString) {
+                  selectedTruckType: truckTypes.firstWhereOrNull(
+                    (e) => e.id == selectedTruckTypeId,
+                  ), // preselect
+                  labelText: "Truck Type",
+                  hintText: "Select Truck Type",
+                  fetchTruckTypes: (page, searchKey) async {
+                    await lpLoadLocator.getTruckType(loadMore: page > 1);
+                    return lpLoadLocator.state.lpLoadTruckTypes?.data ?? [];
+                  },
+                  onChanged: (selectedTruck) {
                     setState(() {
-                      selectedTruckTypeId =
-                          idString != null ? int.tryParse(idString) : null;
+                      truckTypeDropDownValue =
+                          "${selectedTruck?.type} Truck - ${selectedTruck?.subType}";
+                      selectedTruckTypeId = selectedTruck?.id;
                     });
                   },
-                  truckTypeList: truckTypes,
-                  labelText: context.appText.truckType,
-                  hintText: context.appText.searchTruckTypes,
                 );
               },
             ),
@@ -220,13 +226,29 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 return RouteSearchableDropdown(
                   labelText: context.appText.route,
                   hintText: context.appText.searchRoutes,
-                  routeList: routeList,
-                  selectedRouteStatus: routeDropDownValue,
-                  onRouteChanged: (RouteList? value) {
-                    routeDropDownValue = value?.masterLaneId.toString();
-                    selectedRoute = value?.masterLaneId;
-                    setState(() {});
+                  fetchRoutes: (page, searchKey) async {
+                    await lpLoadLocator.getRouteDetails(
+                      search: searchKey,
+                      loadMore: page > 1, 
+                    );
+                    return lpLoadLocator
+                            .state
+                            .lpLoadRouteDetails
+                            ?.data
+                            ?.data
+                            ?.routeList ??
+                        [];
                   },
+                  selectedRoute: routeList.firstWhereOrNull(
+                    (r) => r.masterLaneId == selectedRoute,
+                  ),
+                  onChanged: (RouteList? value) {
+                    setState(() {
+                      routeDropDownValue = value?.status.toString();
+                      selectedRoute = value?.masterLaneId;
+                    });
+                  },
+                  mandatoryStar: false,
                 );
               },
             ),
@@ -266,7 +288,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
               laneId: selectedRoute,
               truckTypeId: selectedTruckTypeId?.toString(),
-              loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
+              loadPostDate:
+                  loadPostedDateController.text.isEmpty
+                      ? null
+                      : loadPostedDateController.text,
             ),
           );
         },
@@ -301,7 +326,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         page: 1,
         laneId: selectedRoute,
         truckTypeId: selectedTruckTypeId?.toString(),
-        loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
+        loadPostDate:
+            loadPostedDateController.text.isEmpty
+                ? null
+                : loadPostedDateController.text,
       ),
     );
   }
@@ -515,9 +543,14 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                     child: GestureDetector(
                       onTap: () {
                         final extra = {"loadId": loadItem.loadId};
-                        context.push(AppRouteName.lpLoadsLocationDetails, extra: extra).then((value) {
-                          _onPullToRefresh();
-                        });
+                        context
+                            .push(
+                              AppRouteName.lpLoadsLocationDetails,
+                              extra: extra,
+                            )
+                            .then((value) {
+                              _onPullToRefresh();
+                            });
                       },
                       child: LPLoadListBodyWidget(
                         loadItem: loadItem,

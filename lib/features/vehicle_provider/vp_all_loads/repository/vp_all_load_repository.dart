@@ -40,9 +40,9 @@ class VpLoadRepository {
   }
 
   /// Get Truck Type Repo
-  Future<Result<List<TruckTypeModel>>> getTruckTypeData() async {
+  Future<Result<List<TruckTypeModel>>> getTruckTypeData({String? search}) async {
     try {
-      return await service.fetchTruckTypeData();
+      return await service.fetchTruckTypeData(search: search);
     } catch (e) {
       CustomLog.error(this, "Failed to request get truck type data", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -62,9 +62,9 @@ class VpLoadRepository {
 
 
   /// Get Load Commodity data Repo
-  Future<Result<List<LoadCommodityListModel>>> getLoadCommodityData() async {
+  Future<Result<List<LoadCommodityListModel>>> getLoadCommodityData({String? search}) async {
     try {
-      return await service.fetchLoadCommodityData();
+      return await service.fetchLoadCommodityData(search: search);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
