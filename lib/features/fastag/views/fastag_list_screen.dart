@@ -39,8 +39,10 @@ class _FastagListScreenState extends State<FastagListScreen> {
   @override
   Widget build(BuildContext context) {
     return BlocListener<FastagCubit, FastagState>(
-      listenWhen: (previous, current) =>
-      current.shouldNavigateToBuyFastag && !previous.shouldNavigateToBuyFastag,
+      listenWhen:
+          (previous, current) =>
+              current.shouldNavigateToBuyFastag &&
+              !previous.shouldNavigateToBuyFastag,
       listener: (context, state) {
         Navigator.pushReplacement(
           context,
@@ -90,12 +92,14 @@ class _FastagListScreenState extends State<FastagListScreen> {
                       return const Center(child: CircularProgressIndicator());
                     }
                     if (state.fastagListUIState.status == Status.ERROR) {
-                      return  Center(child: Text(context.appText.failedToLoadData));
+                      return Center(
+                        child: Text(context.appText.failedToLoadData),
+                      );
                     }
 
                     if (state.fastagListUIState.data == null ||
                         (state.fastagListUIState.data!.data.isEmpty)) {
-                      return  Center(child: Text(context.appText.noData));
+                      return Center(child: Text(context.appText.noData));
                     }
 
                     final items = state.fastagListUIState.data!.data;
@@ -142,7 +146,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
   String _mapStatus(int statusCode) {
     switch (statusCode) {
       case 1:
-      // return "Active";
+        // return "Active";
         return context.appText.underIssuance;
       case 2:
         return context.appText.lowBalance;
@@ -154,7 +158,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
   Color _mapStatusColor(int statusCode) {
     switch (statusCode) {
       case 1:
-      // return Colors.green;
+        // return Colors.green;
         return Colors.grey;
       case 2:
         return Colors.red;
@@ -232,11 +236,14 @@ class _FastagListScreenState extends State<FastagListScreen> {
           4.height,
 
           // Balance Section
-          if (status != 'Under Issuance')
+          if (status != context.appText.underIssuance)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Current Balance', style: AppTextStyle.body3GreyColor),
+                Text(
+                  context.appText.currentBalance,
+                  style: AppTextStyle.body3GreyColor,
+                ),
 
                 Row(
                   children: [
@@ -246,9 +253,9 @@ class _FastagListScreenState extends State<FastagListScreen> {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color:
-                        status == 'Under Issuance'
-                            ? Colors.grey
-                            : AppColors.primaryColor,
+                            status == context.appText.underIssuance
+                                ? Colors.grey
+                                : AppColors.primaryColor,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -265,7 +272,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
                           commonRoute(FastagRechargeScreen()),
                         );
                       },
-                      title: 'Recharge',
+                      title: context.appText.recharge,
                       style: AppButtonStyle.primary,
                     ).expand(),
                   ],
@@ -273,13 +280,13 @@ class _FastagListScreenState extends State<FastagListScreen> {
                 2.height,
                 // Last Updated
                 Text(
-                  'Last Updated $lastUpdated',
+                  '${context.appText.lastUpdated} $lastUpdated',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
 
-          if (status == 'Under Issuance')
+          if (status == context.appText.underIssuance)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

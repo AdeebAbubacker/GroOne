@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -26,32 +27,32 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
           children: [
             // App Bar
             _buildAppBar(),
-            
+
             // Main Content
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   children: [
                     // FASTag Account Summary Card
-                    _buildAccountSummaryCard(),
-                    
+                    _buildAccountSummaryCard(context),
+
                     const SizedBox(height: 16),
-                    
+
                     // Transaction History Section
                     _buildTransactionHistorySection(),
-                    
+
                     const SizedBox(height: 16),
-                    
+
                     // Transaction List
                     _buildTransactionList(),
-                  
-                    
+
+
                     const SizedBox(height: 10), // Space for popup
                   ],
                 ),
               ),
             ),
-            
+
             // Download Transactions Popup
             if (_showDownloadPopup) _buildDownloadPopup(),
           ],
@@ -67,7 +68,7 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
     );
   }
 
-  Widget _buildAccountSummaryCard() {
+  Widget _buildAccountSummaryCard(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.all(12),
@@ -93,9 +94,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
               color: Colors.grey,
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Vehicle Information Row
           Row(
             children: [
@@ -118,9 +119,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                   ),
                 ),
               ),
-              
+
               const SizedBox(width: 8),
-              
+
               // Vehicle Number
               const Text(
                 'TN12 BD 1234',
@@ -130,9 +131,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                   color: Colors.black,
                 ),
               ),
-              
+
               const SizedBox(width: 8),
-              
+
               // Status Pill
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -151,28 +152,28 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
 
           Divider(color: AppColors.greyTextColor, height: 1,),
           const SizedBox(height: 4),
-          
+
           // Balance Section
           Row(
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Current Balance',
+                    Text(
+                    context.appText.currentBalance,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey,
                     ),
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   Row(
                     children: [
                       const Text(
@@ -183,9 +184,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                           color: AppColors.primaryColor,
                         ),
                       ),
-                      
+
                       const SizedBox(width: 8),
-                      
+
                       const Icon(
                         Icons.refresh,
                         size: 16,
@@ -193,9 +194,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                       ),
                     ],
                   ),
-                  
+
                   const SizedBox(height: 4),
-                  
+
                   const Text(
                     'Last Updated 21 May 2025, 7.30 AM',
                     style: TextStyle(
@@ -205,9 +206,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                   ),
                 ],
               ),
-              
+
               const Spacer(),
-              
+
               // Recharge Button
               SizedBox(
                 width: 120,
@@ -245,9 +246,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
               color: Colors.black,
             ),
           ),
-          
+
           const Spacer(),
-          
+
           // Download Button
           GestureDetector(
             onTap: () {
@@ -265,9 +266,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                
+
                 const SizedBox(width: 4),
-                
+
                 const Icon(
                   Icons.download,
                   size: 16,
@@ -360,22 +361,22 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: transaction['icon'] == Icons.local_hospital 
+              color: transaction['icon'] == Icons.local_hospital
                   ? AppColors.primaryColor.withValues(alpha: 0.1)
                   : Colors.green.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
               transaction['icon'] as IconData,
-              color: transaction['icon'] == Icons.local_hospital 
+              color: transaction['icon'] == Icons.local_hospital
                   ? AppColors.primaryColor
                   : Colors.green,
               size: 20,
             ),
           ),
-          
+
           const SizedBox(width: 12),
-          
+
           // Transaction Details
           Expanded(
             child: Column(
@@ -389,9 +390,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                     color: Colors.black,
                   ),
                 ),
-                
+
                 const SizedBox(height: 2),
-                
+
                 Text(
                   transaction['transactionId'] as String,
                   style: const TextStyle(
@@ -402,7 +403,7 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
               ],
             ),
           ),
-          
+
           // Amount and Date
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -415,9 +416,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                   color: transaction['amountColor'] as Color,
                 ),
               ),
-              
+
               const SizedBox(height: 2),
-              
+
               Text(
                 transaction['date'] as String,
                 style: const TextStyle(
@@ -466,9 +467,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                     color: Colors.black,
                   ),
                 ),
-                
+
                 const Spacer(),
-                
+
                 // Close Button
                 GestureDetector(
                   onTap: () {
@@ -484,19 +485,19 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                 ),
               ],
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // From Date
             _buildDateField('From Date', '15/04/2022'),
-            
+
             const SizedBox(height: 12),
-            
+
             // To Date
             _buildDateField('To Date', '15/04/2022'),
-            
+
             const SizedBox(height: 16),
-            
+
             // Download Button
             AppButton(
               onPressed: () {
@@ -526,9 +527,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
             color: Colors.black,
           ),
         ),
-        
+
         const SizedBox(height: 8),
-        
+
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
@@ -545,9 +546,9 @@ class _FastagDetailScreenState extends State<FastagDetailScreen> {
                   color: Colors.black,
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               const Icon(
                 Icons.calendar_today,
                 size: 16,
