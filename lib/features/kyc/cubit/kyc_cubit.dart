@@ -82,7 +82,7 @@ class KycCubit extends BaseCubit<KycState> {
     if (!loadMore) {
       _stateIsLastPage = false;
     } else if (_stateIsLastPage) {
-      return; // no more pages
+      return;
     }
 
     if (loadMore) {
@@ -116,7 +116,7 @@ class KycCubit extends BaseCubit<KycState> {
           _setStateUIState(UIState.success(newList));
         }
 
-        // ✅ Check if last page (only for non-search)
+        // Check if last page 
         if (search == null || search.trim().isEmpty) {
           final totalPages = ((result.value.total) / (10)).ceil();
           _stateIsLastPage = _stateCurrentPage >= totalPages;

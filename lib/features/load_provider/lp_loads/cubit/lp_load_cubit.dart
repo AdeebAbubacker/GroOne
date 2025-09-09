@@ -762,7 +762,7 @@ class LpLoadPaginationController {
     isFetchingMore = false;
   }
 
-  void updatePageMeta(PageMeta pageMeta) {
+  void updatePageMeta(LpPageMeta pageMeta) {
     currentPage = pageMeta.page;
     totalPages = pageMeta.pageCount;
   }
