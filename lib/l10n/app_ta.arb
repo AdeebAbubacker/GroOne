@@ -1281,5 +1281,18 @@
   "noResultsFound":"முடிவுகள் எதுவும் இல்லை",
   "vehicleVerify":"சரிபார்க்கவும்",
   "underIssuance":"வெளியீடு செய்யப்படும் நிலையில்",
-  "defaultAppSettings":"இயல்புநிலை"
+  "defaultAppSettings":"இயல்புநிலை",
+  "stops":"நிறுத்தங்கள்",
+  "trips":"பயணங்கள்",
+  "daily":"தினசரி",
+  "dailyKm":"தினசரி கி.மீ",
+  "reachability":"திரும்பப் பெறும் தன்மை",
+  "safetyCount":"பாதுகாப்பு எண்ணிக்கை",
+  "distance":"தூரம்",
+  "avgSpeed":"சராசரி வேகம்",
+  "engineOn":"என்ஜின் ஆன்",
+  "idleTime":"செயலற்ற நேரம்",
+  "colorCode":"வண்ண குறியீடு"
+
+
 }

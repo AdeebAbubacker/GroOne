@@ -256,12 +256,17 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
               15.height,
               // Report type selection
               SearchableDropdown(
-                selectedItem: state.selectedReportType.displayName,
-                items: ReportType.values.map((r) => r.displayName).toList(),
+                selectedItem: state.selectedReportType.getReportTypeName(
+                  context,
+                ),
+                items:
+                    ReportType.values
+                        .map((r) => r.getReportTypeName(context))
+                        .toList(),
                 hintText: context.appText.selectReportType,
                 onChanged: (selectedDisplayName) {
                   final selectedType = ReportType.values.firstWhere(
-                    (r) => r.displayName == selectedDisplayName,
+                    (r) => r.getReportTypeName(context) == selectedDisplayName,
                     orElse: () => ReportType.values.first,
                   );
                   context.read<GpsReportCubit>().selectReportType(selectedType);
@@ -609,6 +614,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
       child: TripReportCard(
         report: tripReport,
         addressResponse: addressResponse,
+        context: context,
       ),
     );
   }
@@ -627,6 +633,7 @@ class _GpsReportScreenState extends State<GpsReportScreen> {
       child: SummaryReportCard(
         report: summaryReport,
         addressResponse: summaryAddressResponse,
+        context: context,
       ),
     );
   }

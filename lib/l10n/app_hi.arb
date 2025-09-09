@@ -1282,7 +1282,20 @@
   "onanotherTrip": "किसी और यात्रा पर",
   "ticket": "टिकट",
   "forAnyQueriesContactSupportTeam": "किसी भी अन्य प्रश्न के लिए कृपया समर्थन टीम से संपर्क करें।",
-  "onAnotherTrip": "दूसरी यात्रा पर"
+  "onAnotherTrip": "दूसरी यात्रा पर",
+  "stops":"स्टॉप्स",
+  "trips":"ट्रिप्स",
+  "daily":"दैनिक",
+  "dailyKm":"दैनिक किमी",
+  "reachability":"गम्यता",
+  "safetyCount":"सुरक्षा गिनती",
+  "distance":"दूरी",
+  "avgSpeed":"औसत रफ़्तार",
+  "engineOn":"इंजन चालू",
+  "idleTime":"बेकार का समय",
+  "colorCode":"रंग कोड"
+
+
 
 
 }

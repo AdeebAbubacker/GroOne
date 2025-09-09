@@ -16,14 +16,31 @@ enum ReportType {
   final String displayName;
 }
 
+extension ReportTypeExtension on ReportType {
+  String getReportTypeName(BuildContext context) {
+    switch (this) {
+      case ReportType.stops:
+        return context.appText.stops;
+      case ReportType.trips:
+        return context.appText.trips;
+      case ReportType.daily:
+        return context.appText.daily;
+      case ReportType.dailyKm:
+        return context.appText.dailyKm;
+      case ReportType.reachability:
+        return context.appText.reachability;
+    }
+  }
+}
+
 class GpsReportState extends Equatable {
   // Date selection state
   final DateTime fromDate;
   final DateTime toDate;
-  
+
   // Vehicle selection state
   final GpsCombinedVehicleData? selectedVehicle;
-  
+
   // Report type selection state
   final ReportType selectedReportType;
 
@@ -43,15 +60,18 @@ class GpsReportState extends Equatable {
 
   // State for stop addresses
   final GpsDataStatus stopAddressStatus;
-  final Map<String, StopAddressResponse> stopAddresses; // Stop ID -> Address mapping
+  final Map<String, StopAddressResponse>
+  stopAddresses; // Stop ID -> Address mapping
 
   // State for summary addresses
   final GpsDataStatus summaryAddressStatus;
-  final Map<String, SummaryAddressResponse> summaryAddresses; // Summary ID -> Address mapping
+  final Map<String, SummaryAddressResponse>
+  summaryAddresses; // Summary ID -> Address mapping
 
   // State for reachability addresses
   final GpsDataStatus reachabilityAddressStatus;
-  final Map<String, ReachabilityAddressResponse> reachabilityAddresses; // Reachability ID -> Address mapping
+  final Map<String, ReachabilityAddressResponse>
+  reachabilityAddresses; // Reachability ID -> Address mapping
 
   // General error message for the screen
   final String? errorMessage;
@@ -126,31 +146,33 @@ class GpsReportState extends Equatable {
       stopAddresses: stopAddresses ?? this.stopAddresses,
       summaryAddressStatus: summaryAddressStatus ?? this.summaryAddressStatus,
       summaryAddresses: summaryAddresses ?? this.summaryAddresses,
-      reachabilityAddressStatus: reachabilityAddressStatus ?? this.reachabilityAddressStatus,
-      reachabilityAddresses: reachabilityAddresses ?? this.reachabilityAddresses,
+      reachabilityAddressStatus:
+          reachabilityAddressStatus ?? this.reachabilityAddressStatus,
+      reachabilityAddresses:
+          reachabilityAddresses ?? this.reachabilityAddresses,
       errorMessage: errorMessage ?? this.errorMessage,
     );
   }
 
   @override
   List<Object?> get props => [
-        fromDate,
-        toDate,
-        selectedVehicle,
-        selectedReportType,
-        vehicleStatus,
-        vehicles,
-        reportStatus,
-        reports,
-        currentReportType,
-        addressStatus,
-        addresses,
-        stopAddressStatus,
-        stopAddresses,
-        summaryAddressStatus,
-        summaryAddresses,
-        reachabilityAddressStatus,
-        reachabilityAddresses,
-        errorMessage,
-      ];
+    fromDate,
+    toDate,
+    selectedVehicle,
+    selectedReportType,
+    vehicleStatus,
+    vehicles,
+    reportStatus,
+    reports,
+    currentReportType,
+    addressStatus,
+    addresses,
+    stopAddressStatus,
+    stopAddresses,
+    summaryAddressStatus,
+    summaryAddresses,
+    reachabilityAddressStatus,
+    reachabilityAddresses,
+    errorMessage,
+  ];
 }
