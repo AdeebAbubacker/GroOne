@@ -12,13 +12,17 @@ import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_
 import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/api_request/lp_loads_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -28,7 +32,6 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
-import 'package:gro_one_app/utils/app_searchabledropdown.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
@@ -40,6 +43,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:collection/collection.dart';
 
 class DriverHomeScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -74,8 +78,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   late VpLoadCubit vpLoadBloc;
   List<LoadStatusResponse> tabLabels = [];
   late TabController _tabController;
-  final documentTypeCubit=locator<DocumentTypeCubit>();
-
+  final documentTypeCubit = locator<DocumentTypeCubit>();
 
   @override
   void initState() {
@@ -90,15 +93,15 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     // Listen for load status loaded to update tabs
     vpLoadBloc.stream.listen((state) {
       if (!mounted) return;
-      final loadStatusState=  state.statuses;
-      Status? status=  loadStatusState?.status;
+      final loadStatusState = state.statuses;
+      Status? status = loadStatusState?.status;
       if (status == Status.SUCCESS) {
-        List<LoadStatusResponse> loadStatusResponse= loadStatusState?.data??[];
-
+        List<LoadStatusResponse> loadStatusResponse =
+            loadStatusState?.data ?? [];
 
         // Filter statuses to exclude 2nd and 3rd items (Available and Confirmed)
         final filteredStatuses =
-        loadStatusResponse.where((status) {
+            loadStatusResponse.where((status) {
               final index = loadStatusResponse.indexOf(status);
               return index != 1 && index != 2;
             }).toList();
@@ -152,9 +155,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     _callDocumentListingAPi();
   }
 
-
-
-  _callDocumentListingAPi(){
+  _callDocumentListingAPi() {
     documentTypeCubit.getDocumentTypeList();
   }
 
@@ -218,95 +219,107 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               style: AppTextStyle.body1.copyWith(fontSize: 20),
             ),
             10.height,
-            Text(context.appText.truckType, style: AppTextStyle.body3),
-            5.height,
-            BlocBuilder<LpLoadCubit, LpLoadState>(
+            BlocBuilder<LoadFilterCubit, LoadFilterState>(
               builder: (context, state) {
-                final uiState = state.lpLoadTruckTypes;
-                final truckTypes = uiState?.data ?? [];
+                final uiState = state.truckTypeUIState;
+                final truckTypeList = uiState?.data ?? [];
 
-                // Prepare the labels and mapping
-                final truckTypeLabels =
-                    truckTypes
-                        .map((e) => '${e.type} Truck - ${e.subType}')
-                        .toList();
-                final truckTypeLabelIdMap = Map.fromEntries(
-                  truckTypes.map(
-                    (e) => MapEntry('${e.type} Truck - ${e.subType}', e.id),
-                  ),
-                );
-
-                return SearchableDropdown(
-                  hintText: context.appText.selectTruckType,
-                  items: truckTypeLabels,
-                  selectedItem: truckTypeDropDownValue,
-                  onChanged: (value) {
-                    truckTypeDropDownValue = value;
-                    selectedTruckTypeId = truckTypeLabelIdMap[value];
-                    setState(() {});
+                return VehicleTypeSearchableDropdown(
+                  labelText: context.appText.vehicleType,
+                  hintText: context.appText.selectVehicleType,
+                  fetchVehicleTypes: () async {
+                    await context.read<LoadFilterCubit>().getAllVehicleType();
+                    return context
+                            .read<LoadFilterCubit>()
+                            .state
+                            .truckTypeUIState
+                            ?.data ??
+                        [];
                   },
+                  selectedVehicleType: truckTypeList.firstWhereOrNull(
+                    (t) => t.id.toString() == truckTypeDropDownValue,
+                  ),
+                  onChanged: (TruckTypeModel? value) {
+                    setState(() {
+                      truckTypeDropDownValue = value?.id.toString();
+                      selectedTruckTypeId = value?.id;
+                    });
+                  },
+                  mandatoryStar: false,
                 );
               },
             ),
 
             15.height,
+
             BlocBuilder<LpLoadCubit, LpLoadState>(
               builder: (context, state) {
                 final uiState = state.lpLoadRouteDetails;
                 final routeList = uiState?.data?.data?.routeList ?? [];
 
                 return RouteSearchableDropdown(
-                  labelText: context.appText.routes,
-                  hintText: '${context.appText.select} ${context.appText.route}',
-                  routeList: routeList,
-                  selectedRouteStatus: routeDropDownValue,
-                  onRouteChanged: (RouteList? value) {
-                    routeDropDownValue = value?.masterLaneId.toString();
-                    selectedRoute = value?.masterLaneId;
-                    setState(() {});
+                  labelText: context.appText.route,
+                  hintText: context.appText.searchRoutes,
+                  fetchRoutes: (page, searchKey) async {
+                    await lpLoadLocator.getRouteDetails(
+                      search: searchKey,
+                      loadMore: page > 1, 
+                    );
+                    return lpLoadLocator
+                            .state
+                            .lpLoadRouteDetails
+                            ?.data
+                            ?.data
+                            ?.routeList ??
+                        [];
                   },
+
+                  selectedRoute: routeList.firstWhereOrNull(
+                    (r) => r.masterLaneId == selectedRoute,
+                  ),
+                  onChanged: (RouteList? value) {
+                    setState(() {
+                      routeDropDownValue = value?.status.toString();
+                      selectedRoute = value?.masterLaneId;
+                    });
+                  },
+                  mandatoryStar: false, 
                 );
               },
             ),
             15.height,
-            BlocBuilder<LoadCommodityBloc, LoadCommodityState>(
+            BlocBuilder<LoadFilterCubit, LoadFilterState>(
               builder: (context, state) {
-                if (state is LoadCommodityLoading) {
-                  return const Center(child: CircularProgressIndicator());
-                }
+                final uiState = state.commodityResponseUIState;
+                final loadTypeList = uiState?.data ?? [];
 
-                if (state is LoadCommoditySuccess) {
-                  final commodities = state.commodityListModel;
-                  final commodityNames =
-                      commodities.map((e) => e.name).toList();
-                  final commodityNameIdMap = {
-                    for (var e in commodities) e.name: e.id,
-                  };
+                return LoadTypeSearchableDropdown(
+                  labelText: context.appText.loadType,
+                  hintText: context.appText.selectRoadType,
 
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        context.appText.commodity,
-                        style: AppTextStyle.body3,
-                      ),
-                      5.height,
-                      SearchableDropdown(
-                        items: commodityNames,
-                        selectedItem: selectedCommodity,
-                        onChanged: (value) {
-                          selectedCommodity = value;
-                          selectedCommodityId = commodityNameIdMap[value];
-                          setState(() {});
-                        },
+                  fetchLoadTypes: (page, searchKey) async {
+                    await context
+                        .read<LoadFilterCubit>()
+                        .getAllCommodityState();
+                    return context
+                            .read<LoadFilterCubit>()
+                            .state
+                            .commodityResponseUIState
+                            ?.data ??
+                        [];
+                  },
 
-                        hintText: '${context.appText.select} ${context.appText.commodity}' ,
-                      ),
-                    ],
-                  );
-                }
+                  selectedLoadType: loadTypeList.firstWhereOrNull(
+                    (t) => t.id.toString() == selectedCommodity,
+                  ),
 
-                return const SizedBox();
+                  onChanged: (LoadCommodityListModel? value) {
+                    setState(() {
+                      selectedCommodity = value?.id.toString();
+                      selectedCommodityId = value?.id;
+                    });
+                  },
+                );
               },
             ),
           ],
@@ -582,14 +595,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                 if (_tabController.index == index) {}
               }
             },
-            child: buildDriverLoadTab(index,tabLabels[index].id, searchController.text),
+            child: buildDriverLoadTab(
+              index,
+              tabLabels[index].id,
+              searchController.text,
+            ),
           );
         }),
       ),
     );
   }
 
-  Widget buildDriverLoadTab(int tabIndex,int loadStatus, String search) {
+  Widget buildDriverLoadTab(int tabIndex, int loadStatus, String search) {
     return RefreshIndicator(
       onRefresh:
           () async => _loadDataByTab(index: tabIndex, forceRefresh: true),
@@ -600,7 +617,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             ToastMessages.success(message: state.result.message);
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           } else if (state is DriverLoadStatusChangeFailed) {
-            ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
+            ToastMessages.error(
+              message: getErrorMsg(errorType: state.errorType),
+            );
             _loadDataByTab(index: tabIndex, forceRefresh: true);
           }
         },
@@ -615,18 +634,18 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             }
             return NotificationListener<ScrollNotification>(
               onNotification: (scrollInfo) {
-                    if (scrollInfo.metrics.pixels ==
-                        scrollInfo.metrics.maxScrollExtent) {
-                    driverLoadBloc.add(
-                  FetchDriverLoads(
-                    loadMore: true,
-                    loadStatus: loadStatus,
-                    search: search
-                  ),
-                );
-                    }
-                    return false;
-                  },
+                if (scrollInfo.metrics.pixels ==
+                    scrollInfo.metrics.maxScrollExtent) {
+                  driverLoadBloc.add(
+                    FetchDriverLoads(
+                      loadMore: true,
+                      loadStatus: loadStatus,
+                      search: search,
+                    ),
+                  );
+                }
+                return false;
+              },
               child: ListView.builder(
                 padding: EdgeInsets.all(commonSafeAreaPadding),
                 itemCount: state.loads.data.length,
@@ -640,7 +659,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                         Navigator.push(
                           context,
                           commonRoute(
-                            DriverLoadsLocationDetailsScreen(loadId: load.loadId),
+                            DriverLoadsLocationDetailsScreen(
+                              loadId: load.loadId,
+                            ),
                           ),
                         );
                       } else if (currentStatus <= 7) {
@@ -669,5 +690,3 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     );
   }
 }
-
-
