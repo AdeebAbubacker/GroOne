@@ -121,7 +121,7 @@ class KycCubit extends BaseCubit<KycState> {
           final totalPages = ((result.value.total) / (10)).ceil();
           _stateIsLastPage = _stateCurrentPage >= totalPages;
         } else {
-          _stateIsLastPage = true; // search returns full list
+          _stateIsLastPage = true; 
         }
       }
 

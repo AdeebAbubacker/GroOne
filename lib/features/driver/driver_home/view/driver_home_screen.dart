@@ -263,7 +263,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   fetchRoutes: (page, searchKey) async {
                     await lpLoadLocator.getRouteDetails(
                       search: searchKey,
-                      loadMore: page > 1, // loadMore only after page 1
+                      loadMore: page > 1, 
                     );
                     return lpLoadLocator
                             .state
@@ -283,7 +283,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       selectedRoute = value?.masterLaneId;
                     });
                   },
-                  mandatoryStar: false, // optional
+                  mandatoryStar: false, 
                 );
               },
             ),

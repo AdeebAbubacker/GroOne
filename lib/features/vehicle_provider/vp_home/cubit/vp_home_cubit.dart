@@ -62,7 +62,7 @@ class VpHomeCubit extends BaseCubit<VpsHomeState> {
         emit(state.copyWith(driverUIState: UIState.success(result.value)));
       }
 
-      // ✅ Stop fetching when last page reached
+      //Stop fetching when last page reached
       _driverIsLastPage = _driverCurrentPage >= totalPages;
     } else if (result is Error<DriverListResponse>) {
       emit(state.copyWith(driverUIState: UIState.error(result.type)));
@@ -115,7 +115,6 @@ class VpHomeCubit extends BaseCubit<VpsHomeState> {
         emit(state.copyWith(vehicleUIState: UIState.success(result.value)));
       }
 
-      // ✅ safe comparison
       _vehicleIsLastPage = _vehicleCurrentPage >= totalPages;
     } else if (result is Error<VehicleListResponse>) {
       emit(state.copyWith(vehicleUIState: UIState.error(result.type)));

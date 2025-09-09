@@ -245,7 +245,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                                   context
                                       .appText
                                       .primaryAddressUpdatedSuccessfully,
-                            ); // optional toast
+                            ); 
                             profileCubit.fetchAddress(
                               isLoading: true,
                             ); // silent refresh

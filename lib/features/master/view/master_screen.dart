@@ -339,7 +339,7 @@ class _MasterScreenState extends State<MasterScreen>
                         setState(() {
                           isVehicleVerified = isVerified;
 
-                          // ✅ If data came from API, autofill fields
+                          // If data came from API, autofill fields
                           if (vehicleData != null) {
                             final makeModel =
                                 vehicleData['vehicle_make_model'] ??
