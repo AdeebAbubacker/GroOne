@@ -77,8 +77,8 @@ class RouteList {
     final int status;
     final DateTime? createdAt;
     final dynamic deletedAt;
-    final Location? fromLocation;
-    final Location? toLocation;
+    final LpLocation? fromLocation;
+    final LpLocation? toLocation;
 
     RouteList copyWith({
         int? masterLaneId,
@@ -87,8 +87,8 @@ class RouteList {
         int? status,
         DateTime? createdAt,
         dynamic deletedAt,
-        Location? fromLocation,
-        Location? toLocation,
+        LpLocation? fromLocation,
+        LpLocation? toLocation,
     }) {
         return RouteList(
             masterLaneId: masterLaneId ?? this.masterLaneId,
@@ -110,15 +110,15 @@ class RouteList {
             status: json["status"] ?? 0,
             createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
             deletedAt: json["deletedAt"],
-            fromLocation: json["fromLocation"] == null ? null : Location.fromJson(json["fromLocation"]),
-            toLocation: json["toLocation"] == null ? null : Location.fromJson(json["toLocation"]),
+            fromLocation: json["fromLocation"] == null ? null : LpLocation.fromJson(json["fromLocation"]),
+            toLocation: json["toLocation"] == null ? null : LpLocation.fromJson(json["toLocation"]),
         );
     }
 
 }
 
-class Location {
-    Location({
+class LpLocation {
+    LpLocation({
         required this.id,
         required this.name,
         required this.slug,
@@ -136,7 +136,7 @@ class Location {
     final DateTime? createdAt;
     final dynamic deletedAt;
 
-    Location copyWith({
+    LpLocation copyWith({
         int? id,
         String? name,
         String? slug,
@@ -145,7 +145,7 @@ class Location {
         DateTime? createdAt,
         dynamic deletedAt,
     }) {
-        return Location(
+        return LpLocation(
             id: id ?? this.id,
             name: name ?? this.name,
             slug: slug ?? this.slug,
@@ -156,8 +156,8 @@ class Location {
         );
     }
 
-    factory Location.fromJson(Map<String, dynamic> json){ 
-        return Location(
+    factory LpLocation.fromJson(Map<String, dynamic> json){ 
+        return LpLocation(
             id: json["id"] ?? 0,
             name: json["name"] ?? "",
             slug: json["slug"] ?? "",
