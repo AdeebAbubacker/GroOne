@@ -285,7 +285,6 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
     bool isVehicleVerified = vehcile != null;
     final formKey = GlobalKey<FormState>();
     final isEdit = vehcile != null;
-    bool isVehicleActive = vehcile != null ? (vehcile.status == 1) : true;
     final truckNumberController = TextEditingController(
       text: vehcile?.truckNo ?? '',
     );
@@ -391,8 +390,6 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                               RegExp(r'\d+').stringMatch(capacity.toString());
                               selectedWeightDropDownValue = capacity;
 
-                              isVehicleActive =
-                                  vehicleData['status'] == 1 ? true : false;
                               final truckTypeList =
                                   context
                                       .read<VpCreateAccountCubit>()
@@ -695,30 +692,6 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                   color: AppColors.primaryTextColor,
                                 ),
                       ),
-                    ),
-
-                    16.height,
-
-                    /// Active Switch
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(context.appText.active),
-                        Switch(
-                          value: isVehicleActive,
-                          onChanged: (val) {
-                            setState(() => isVehicleActive = val);
-                            if (vehcile != null) {
-                              profileCubit.deleteVehicle(
-                                vehicleId: vehcile.vehicleId,
-                                request: DeleteVehicleRequest(
-                                  status: val ? 1 : 2,
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ],
                     ),
                     20.height,
                   ],
@@ -1027,7 +1000,6 @@ class AddVehicleDialog {
     String? pucExpiryDate;
     String? selectedWeightDropDownValue;
     TruckTypeModel? selectedTruckType;
-    bool isVehicleActive = true;
     MasterDialogueWidget.show(
       dismissible: true,
       context,
@@ -1386,22 +1358,6 @@ class AddVehicleDialog {
                                 ),
                         mandatoryStar: true,
                       ),
-                    ),
-
-                    16.height,
-
-                    /// Active Switch
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(context.appText.active),
-                        Switch(
-                          value: isVehicleActive,
-                          onChanged: (val) {
-                            setState(() => isVehicleActive = val);
-                          },
-                        ),
-                      ],
                     ),
                     20.height,
                   ],

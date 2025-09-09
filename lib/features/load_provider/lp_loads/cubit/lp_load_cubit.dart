@@ -238,74 +238,66 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   void updateSelectedTabIndex(int index) {
     emit(state.copyWith(selectedTabIndex: index));
   }
-  
+
   // Updates the UI state related to load truck.
   void _setTruckTypeState(UIState<List<LoadTruckTypeListModel>>? uiState) {
     emit(state.copyWith(lpLoadTruckTypes: uiState));
   }
-  
-int _truckTypeCurrentPage = 1;
-bool _truckTypeIsLastPage = false;
-bool _truckTypeIsLoadingMore = false;
+
+  int _truckTypeCurrentPage = 1;
+  bool _truckTypeIsLastPage = false;
+  bool _truckTypeIsLoadingMore = false;
   // Fetches the LP load truck Details.
-  // Future<void> getTruckType() async {
-  //   _setLoadUIState(UIState.loading());
 
-  //   Result result = await _repository.fetchTruckTypeList();
+  Future<void> getTruckType({
+    bool isLoading = true,
+    bool loadMore = false,
+  }) async {
+    if (_truckTypeIsLoadingMore && loadMore) return;
 
-  //   if (result is Success<List<LoadTruckTypeListModel>>) {
-  //     _setTruckTypeState(UIState.success(result.value));
-  //   } else if (result is Error) {
-  //     _setTruckTypeState(UIState.error(result.type));
-  //   }
-  // }
-  // Fetch truck type list with pagination
-Future<void> getTruckType({bool isLoading = true, bool loadMore = false}) async {
-  if (_truckTypeIsLoadingMore && loadMore) return;
-
-  if (!loadMore) {
-    _truckTypeIsLastPage = false;
-  } else if (_truckTypeIsLastPage) {
-    return;
-  }
-
-  if (loadMore) {
-    _truckTypeIsLoadingMore = true;
-    _truckTypeCurrentPage++;
-  } else {
-    _truckTypeCurrentPage = 1;
-    _truckTypeIsLastPage = false;
-    if (isLoading) _setTruckTypeState(UIState.loading());
-  }
-
-  try {
-    final result = await _repository.fetchTruckTypeList(
-      limit: 10,
-      page: _truckTypeCurrentPage,
-    );
-
-    if (result is Success<List<LoadTruckTypeListModel>>) {
-      final newList = result.value;
-
-      if (loadMore) {
-        final existing =
-            state.lpLoadTruckTypes?.data ?? <LoadTruckTypeListModel>[];
-        final combined = [...existing, ...newList];
-        _setTruckTypeState(UIState.success(combined));
-      } else {
-        _setTruckTypeState(UIState.success(newList));
-      }
-
-      // Check if last page
-      final totalPages = (result.value.length / 10).ceil();
-      _truckTypeIsLastPage = _truckTypeCurrentPage >= totalPages;
-    } else if (result is Error<List<LoadTruckTypeListModel>>) {
-      _setTruckTypeState(UIState.error(result.type));
+    if (!loadMore) {
+      _truckTypeIsLastPage = false;
+    } else if (_truckTypeIsLastPage) {
+      return;
     }
-  } finally {
-    _truckTypeIsLoadingMore = false;
+
+    if (loadMore) {
+      _truckTypeIsLoadingMore = true;
+      _truckTypeCurrentPage++;
+    } else {
+      _truckTypeCurrentPage = 1;
+      _truckTypeIsLastPage = false;
+      if (isLoading) _setTruckTypeState(UIState.loading());
+    }
+
+    try {
+      final result = await _repository.fetchTruckTypeList(
+        limit: 10,
+        page: _truckTypeCurrentPage,
+      );
+
+      if (result is Success<List<LoadTruckTypeListModel>>) {
+        final newList = result.value;
+
+        if (loadMore) {
+          final existing =
+              state.lpLoadTruckTypes?.data ?? <LoadTruckTypeListModel>[];
+          final combined = [...existing, ...newList];
+          _setTruckTypeState(UIState.success(combined));
+        } else {
+          _setTruckTypeState(UIState.success(newList));
+        }
+
+        // Check if last page
+        final totalPages = (result.value.length / 10).ceil();
+        _truckTypeIsLastPage = _truckTypeCurrentPage >= totalPages;
+      } else if (result is Error<List<LoadTruckTypeListModel>>) {
+        _setTruckTypeState(UIState.error(result.type));
+      }
+    } finally {
+      _truckTypeIsLoadingMore = false;
+    }
   }
-}
 
   // Updates the UI state related to load truck.
   void _setRouteDetailsState(UIState<LpLoadRouteResponse>? uiState) {

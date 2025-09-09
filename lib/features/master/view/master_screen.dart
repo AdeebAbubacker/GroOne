@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -604,9 +603,9 @@ class _MasterScreenState extends State<MasterScreen>
                       onTap: () async {
                         final DateTime? pickedDate = await showDatePicker(
                           context: context,
-                          initialDate: DateTime.now(), // default current date
-                          firstDate: DateTime.now(), // prevent past dates
-                          lastDate: DateTime(2100), // far in the future
+                          initialDate: DateTime.now(), 
+                          firstDate: DateTime.now(), 
+                          lastDate: DateTime(2100), 
                         );
 
                         if (pickedDate != null) {
@@ -795,92 +794,6 @@ Widget buildReadOnlyField(
   );
 }
 
-// /// State Dropdown
-// class StateDropdown extends StatelessWidget {
-//   final String? selected;
-//   final ValueChanged<String?> onStateChanged;
-
-//   const StateDropdown({
-//     super.key,
-//     required this.selected,
-//     required this.onStateChanged,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final stateUI = context.watch<KycCubit>().state.stateUIState;
-//     final stateList = stateUI?.data?.map((e) => e.name).toList() ?? [];
-
-//     return SearchableDropdown(
-//       labelText: context.appText.state,
-//       mandatoryStar: true,
-//       selectedItem: selected,
-//       items: stateList,
-//       hintText: context.appText.selectState,
-//       onChanged: (String? newValue) {
-//         if (newValue != null) {
-//           // 1️⃣ Update parent state
-//           onStateChanged(newValue);
-
-//           // 2️⃣ Trigger city list fetch immediately (like in KYC)
-//           context.read<KycCubit>().fetchCityList(newValue);
-//         }
-//       },
-//       dropdownBuilder: (context, selectedItem) {
-//         if (selectedItem == null || selectedItem.isEmpty) {
-//           return const SizedBox.shrink();
-//         }
-//         return Row(children: [Text(selectedItem)]);
-//       },
-//       emptyBuilder:
-//           (context, _) => const Center(child: Text("No states found")),
-//     );
-//   }
-// }
-
-// /// City Dropdwon
-// class CityDropdown extends StatelessWidget {
-//   final String? selected;
-//   final bool isStateSelected;
-//   final ValueChanged<String?> onCityChanged;
-
-//   const CityDropdown({
-//     super.key,
-//     required this.selected,
-//     required this.isStateSelected,
-//     required this.onCityChanged,
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     final cityUI = context.watch<KycCubit>().state.cityUIState;
-//     final cityList = cityUI?.data?.map((e) => e.city).toList() ?? [];
-
-//     return AbsorbPointer(
-//       absorbing: !isStateSelected,
-//       child: SearchableDropdown(
-//         labelText: context.appText.city,
-//         mandatoryStar: true,
-//         selectedItem: selected,
-//         items: cityList,
-//         hintText: context.appText.selectCity,
-//         onChanged: (String? newValue) {
-//           if (newValue != null) {
-//             onCityChanged(newValue);
-//           }
-//         },
-//         dropdownBuilder: (context, selectedItem) {
-//           if (selectedItem == null || selectedItem.isEmpty) {
-//             return const SizedBox.shrink();
-//           }
-//           return Row(children: [Text(selectedItem)]);
-//         },
-//         emptyBuilder:
-//             (context, _) => const Center(child: Text("No cities found")),
-//       ),
-//     );
-//   }
-// }
 
 String? formatApiDateForVehicleVahan(String? apiDate) {
   if (apiDate == null || apiDate.isEmpty) return null;
