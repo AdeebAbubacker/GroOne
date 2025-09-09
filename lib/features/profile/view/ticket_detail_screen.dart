@@ -59,8 +59,10 @@ class _TicketDetailsScreenState extends State<TicketDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     var width = MediaQuery.of(context).size.width;
-    return Scaffold(
-      appBar: AppBar(title: Text(" ${context.appText.ticket} ${widget.ticketNo}")),
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: AppBar(title: Text(" ${context.appText.ticket} ${widget.ticketNo}")),
 
       body: RefreshIndicator(
         onRefresh: () => fetchMessages(),
@@ -275,6 +277,7 @@ class _TicketDetailsScreenState extends State<TicketDetailsScreen> {
           ],
         ),
       ),
+      )
     );
   }
 
