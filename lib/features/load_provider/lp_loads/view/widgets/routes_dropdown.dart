@@ -136,8 +136,10 @@ class _VehicleTypeSearchableDropdownState
           children: [
             Text(widget.labelText, style: AppTextStyle.textFiled),
             if (widget.mandatoryStar)
-              Text(" *",
-                  style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+              Text(
+                " *",
+                style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+              ),
           ],
         ),
         const SizedBox(height: 6),
@@ -151,15 +153,17 @@ class _VehicleTypeSearchableDropdownState
             hintText: Text(widget.hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
 
-            initialValue: widget.selectedVehicleType != null
-                ? SearchableDropdownMenuItem<TruckTypeModel>(
-                    value: widget.selectedVehicleType!,
-                    label:
+            initialValue:
+                widget.selectedVehicleType != null
+                    ? SearchableDropdownMenuItem<TruckTypeModel>(
+                      value: widget.selectedVehicleType!,
+                      label:
+                          "${widget.selectedVehicleType?.type ?? ''} ${widget.selectedVehicleType?.subType ?? ''}",
+                      child: Text(
                         "${widget.selectedVehicleType?.type ?? ''} ${widget.selectedVehicleType?.subType ?? ''}",
-                    child: Text(
-                        "${widget.selectedVehicleType?.type ?? ''} ${widget.selectedVehicleType?.subType ?? ''}"),
-                  )
-                : null,
+                      ),
+                    )
+                    : null,
 
             paginatedRequest: (int page, String? searchKey) async {
               final allVehicleTypes = await _getVehicleTypes();
@@ -169,17 +173,16 @@ class _VehicleTypeSearchableDropdownState
                   (searchKey == null || searchKey.isEmpty)
                       ? allVehicleTypes
                       : allVehicleTypes.where((v) {
-                          final fullName =
-                              "${v.type ?? ''} ${v.subType ?? ''}".toLowerCase();
-                          return fullName.contains(searchKey.toLowerCase());
-                        }).toList();
+                        final fullName =
+                            "${v.type ?? ''} ${v.subType ?? ''}".toLowerCase();
+                        return fullName.contains(searchKey.toLowerCase());
+                      }).toList();
 
               return filteredVehicleTypes.map((vehicle) {
                 return SearchableDropdownMenuItem<TruckTypeModel>(
                   value: vehicle,
                   label: "${vehicle.type ?? ''} ${vehicle.subType ?? ''}",
-                  child:
-                      Text("${vehicle.type ?? ''} ${vehicle.subType ?? ''}"),
+                  child: Text("${vehicle.type ?? ''} ${vehicle.subType ?? ''}"),
                 );
               }).toList();
             },
@@ -253,8 +256,19 @@ class LoadTypeSearchableDropdown extends StatelessWidget {
 
             /// fetch paginated items
             paginatedRequest: (int page, String? searchKey) async {
-              final loadTypes = await fetchLoadTypes(page, searchKey);
-              return loadTypes.map((type) {
+              final loadTypes = await fetchLoadTypes(page, null);
+              final filteredLoadTypes =
+                  (searchKey == null || searchKey.isEmpty)
+                      ? loadTypes
+                      : loadTypes
+                          .where(
+                            (type) => (type.name).toLowerCase().contains(
+                              searchKey.toLowerCase(),
+                            ),
+                          )
+                          .toList();
+
+              return filteredLoadTypes.map((type) {
                 return SearchableDropdownMenuItem<LoadCommodityListModel>(
                   value: type,
                   label: type.name,
@@ -262,7 +276,6 @@ class LoadTypeSearchableDropdown extends StatelessWidget {
                 );
               }).toList();
             },
-
             onChanged: onChanged,
           ),
         ),
@@ -330,7 +343,7 @@ class LoadWeightSearchableDropdown extends StatelessWidget {
             /// fetch items with pagination
             paginatedRequest: (int page, String? searchKey) async {
               // Fetch all weights once
-              final weights = await fetchWeights(1, null); // fetch all weights
+              final weights = await fetchWeights(page, searchKey); 
 
               // Apply local search
               final filteredWeights =
