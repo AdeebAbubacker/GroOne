@@ -93,6 +93,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
     await vpCreationCubit.fetchTruckType();
     await lpHomeCubit.fetchLoadWeight();
   });
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -1187,6 +1188,7 @@ class AddVehicleDialog {
                         );
 
                         return SearchableDropdown(
+                          noResultsFoundText: context.appText.noResultsFound,
                           hintText: context.appText.truckType,
                           items: truckTypeLabels,
                           selectedItem:
@@ -1211,6 +1213,7 @@ class AddVehicleDialog {
                             weights.map((e) => '${e.value} Ton').toList();
 
                         return SearchableDropdown(
+                          noResultsFoundText: context.appText.noResultsFound,
                           hintText: context.appText.capacity,
                           items: weightLabels,
                           selectedItem: selectedWeightDropDownValue,
