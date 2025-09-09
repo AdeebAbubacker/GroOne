@@ -54,7 +54,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   int? selectedTruckTypeId;
   String? routeDropDownValue;
   int? selectedRoute;
-  final ScrollController _tabScrollController = ScrollController();
   final ScrollController _listController = ScrollController();
   int page = 1;
   late LpLoadPaginationController paginationController;
@@ -84,9 +83,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       initialIndex: lpLoadLocator.state.selectedTabIndex,
     )..addListener(_handleTabChange);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _tabScrollController.jumpTo(50);
-    });
+    // Removed unused _tabScrollController.jumpTo(50) call
+    // The _tabScrollController is not attached to any scrollable widget
 
     lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
     lpLoadLocator.getTruckType();
@@ -145,12 +143,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void _scrollToSelectedTab(int index) {
-    final double offset = index == 0 ? 50 : (100 * index) - 15;
-    _tabScrollController.animateTo(
-      offset,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeInOut,
-    );
+    // Tab scrolling is handled by the TabController itself
+    // No additional scroll controller needed for the TabBar
   }
 
   void _onSearchChanged(String query) {
@@ -266,7 +260,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
               loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
               laneId: selectedRoute,
               truckTypeId: selectedTruckTypeId?.toString(),
-              loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
+              loadPostDate:
+                  loadPostedDateController.text.isEmpty
+                      ? null
+                      : loadPostedDateController.text,
             ),
           );
         },
@@ -301,7 +298,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         page: 1,
         laneId: selectedRoute,
         truckTypeId: selectedTruckTypeId?.toString(),
-        loadPostDate: loadPostedDateController.text.isEmpty ? null : loadPostedDateController.text,
+        loadPostDate:
+            loadPostedDateController.text.isEmpty
+                ? null
+                : loadPostedDateController.text,
       ),
     );
   }
@@ -515,9 +515,14 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                     child: GestureDetector(
                       onTap: () {
                         final extra = {"loadId": loadItem.loadId};
-                        context.push(AppRouteName.lpLoadsLocationDetails, extra: extra).then((value) {
-                          _onPullToRefresh();
-                        });
+                        context
+                            .push(
+                              AppRouteName.lpLoadsLocationDetails,
+                              extra: extra,
+                            )
+                            .then((value) {
+                              _onPullToRefresh();
+                            });
                       },
                       child: LPLoadListBodyWidget(
                         loadItem: loadItem,
