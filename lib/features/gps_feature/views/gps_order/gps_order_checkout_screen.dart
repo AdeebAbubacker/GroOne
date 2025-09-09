@@ -1,20 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import '../../../kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
-import '../../../login/repository/user_information_repository.dart';
-import '../../../profile/view/support_screen.dart';
-import '../../../profile/view/widgets/add_new_support_ticket.dart';
-import '../../cubit/gps_order_cubit_folder/gps_order_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+
+import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
+import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
+import '../../../../features/kavach/view/widgets/product_counter.dart';
+import '../../../../features/kavach/view/widgets/vehicle_selection_field.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_check_box.dart';
@@ -25,19 +27,20 @@ import '../../../../utils/app_text_style.dart';
 import '../../../../utils/common_widgets.dart';
 import '../../../../utils/constant_variables.dart';
 import '../../../../utils/validator.dart';
-import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
-import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
-import '../../models/gps_document_models.dart';
-import '../../gps_order_repo/gps_order_api_repository.dart';
+import '../../../kavach/helper/kavach_helper.dart';
+import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_billing_address_list_screen.dart'
     as kavach_billing;
 import '../../../kavach/view/kavach_shipping_address_list_screen.dart'
     as kavach_shipping;
-import 'gps_order_summary_screen.dart';
-import '../../../../features/kavach/view/widgets/product_counter.dart';
+import '../../../login/repository/user_information_repository.dart';
+import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
+import '../../cubit/gps_order_cubit_folder/gps_order_cubit.dart';
+import '../../gps_order_repo/gps_order_api_repository.dart';
+import '../../models/gps_document_models.dart';
 import '../widgets/referral_autocomplete_textfield.dart';
-import '../../../../features/kavach/view/widgets/vehicle_selection_field.dart';
-import '../../../kavach/model/kavach_address_model.dart';
+import 'gps_order_summary_screen.dart';
 
 class GpsOrderCheckoutScreen extends StatefulWidget {
   final List<GpsProduct> products;
@@ -76,6 +79,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   late final GpsOrderCubit gpsOrderCubit;
   final profileCubit = locator<ProfileCubit>();
   final userInfoRepo = locator<UserInformationRepository>();
+
+  // Stream subscription for memory leak prevention
+  StreamSubscription<dynamic>? _shippingAddressSubscription;
 
   late Map<String, int> _quantities;
   late List<GpsProduct> _products;
@@ -203,8 +209,12 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
     });
 
     // Listen to shipping address changes to update stored previous address
-    gpsShippingAddressCubit.stream.listen((state) {
-      if (state is GpsShippingAddressSelected && !shippingSameAsBilling) {
+    _shippingAddressSubscription = gpsShippingAddressCubit.stream.listen((
+      state,
+    ) {
+      if (mounted &&
+          state is GpsShippingAddressSelected &&
+          !shippingSameAsBilling) {
         // Update stored previous address when user manually selects a shipping address
         _previousShippingAddress = state.selectedAddress;
       }
@@ -237,6 +247,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _shippingAddressSubscription?.cancel();
     referralCodeController.dispose();
     shippingPersonInChargeController.dispose();
     shippingPersonContactNoController.dispose();

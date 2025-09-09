@@ -1277,7 +1277,11 @@
   "noResultsFound":"कोई परिणाम नहीं मिला",
   "vehicleVerify":"सत्यापित करें",
   "underIssuance":"अंडर इश्यूअन्स",
-  "defaultAppSettings":"डिफ़ॉल्ट"
+  "defaultAppSettings":"डिफ़ॉल्ट",
+  "kycInProgressText": "KYC प्रगति पर",
+  "ticket": "टिकट",
+  "forAnyQueriesContactSupportTeam": "किसी भी अन्य प्रश्न के लिए कृपया समर्थन टीम से संपर्क करें।",
+  "onAnotherTrip": "दूसरी यात्रा पर"
 
 
 }

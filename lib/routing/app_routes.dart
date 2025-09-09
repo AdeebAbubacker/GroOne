@@ -18,6 +18,7 @@ import 'package:gro_one_app/features/gps_feature/views/vehicle_map_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/recent_route_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/lp_load_trip_statement.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_loads_validate_memo.dart';
@@ -375,10 +376,10 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.myAccount,
         pageBuilder: (BuildContext context, GoRouterState state) {
-          final data = state.extra as Map<String, dynamic>;
-          final Customer customerDetail = data["customerDetail"];
-          final BankDetails bankDetails = data["bankDetails"];
-          final KycDoc kycDoc = data["kycDoc"];
+          final data = state.extra as Map<String, dynamic>? ?? {};
+          final CustomerDataResponse? customerDetail = data["customerDetail"] as CustomerDataResponse?;
+          final BankDetails? bankDetails = data["bankDetails"] as BankDetails?;
+          final KycDoc? kycDoc = data["kycDoc"] as KycDoc?;
 
           return buildTransitionPage(
             state: state,
@@ -556,6 +557,23 @@ class AppRoutes {
           );
         },
       ),
+
+
+      GoRoute(
+        path: AppRouteName.lpSelectAddressScreen,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final String title = data['title'];
+          final String address = data['address'] ?? '';
+          final String location = data['location'] ?? '';
+          return buildTransitionPage(
+            state: state,
+            child: LPSelectAddressScreen(title: title, address: address, location: location),
+            isForward: true
+          );
+        },
+      ),
+
     ],
   );
 }

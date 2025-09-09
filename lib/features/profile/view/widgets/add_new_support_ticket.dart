@@ -113,6 +113,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                   controller: titleController,
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                    LengthLimitingTextInputFormatter(50),
                   ],
                   validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.title),
                 ),
@@ -122,6 +123,9 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                   labelText: context.appText.description,
                   controller: descriptionController,
                   validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.description),
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(240),
+                  ],
                 ),
                 12.height,
 

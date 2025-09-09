@@ -169,7 +169,7 @@ Future<void> _loadEnvironmentVariables() async {
       /// uat environment
       fileName: "assets/env/.env.uat"
       /// dev environment
-      // fileName: "assets/env/.env.dev"
+      // fileName: "assets/env/.env.dev",
       /// prod environment
       // fileName: "assets/env/.env.production",
     );

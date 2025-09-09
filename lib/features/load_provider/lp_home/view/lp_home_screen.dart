@@ -357,11 +357,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   //
   void navigateToLPSelectAddressScreen(state) {
-    Navigator.of(context).push(commonRoute(LPSelectAddressScreen(
-        title: context.appText.pickupPoint,
-        address: state.pickup?.data?.address,
-        location: state.pickup?.data?.location), isForward: true))
-        .then((onValue) async {
+    final extra = {'title' : context.appText.pickupPoint, 'address': state.pickup?.data?.address, 'location': state.pickup?.data?.location};
+    context.push(AppRouteName.lpSelectAddressScreen, extra: extra).then((onValue) async {
       if (onValue != null && onValue == true) {
         await fetchRateDiscovery();
       }
@@ -727,7 +724,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                           heading: context.appText.destination,
                           subHeading: destinationLocation ?? context.appText.selectDestination,
                           onClick: () async {
-                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.selectDestinationTitle, address: state.destination!.data?.address, location: state.destination!.data?.location), isForward: true)).then((onValue) async {
+                              final extra = {'title' : context.appText.selectDestinationTitle, 'address': state.destination!.data?.address, 'location': state.destination!.data?.location};
+                            context.push(AppRouteName.lpSelectAddressScreen, extra: extra).then((onValue) async {
                               if(onValue != null && onValue == true){
                                 await fetchRateDiscovery();
                               } else {

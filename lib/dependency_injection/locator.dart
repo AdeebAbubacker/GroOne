@@ -578,6 +578,7 @@ void _registerBasicBlocs() {
     () => ProfileCubit(
       locator<ProfileRepository>(),
       locator<LpHomeRepository>(),
+      locator<LpLoadRepository>(),
       locator<KavachRepository>(),
     ),
   );
@@ -687,6 +688,7 @@ void _registerDeferredRepositories() {
       locator<GpsLoginService>(),
       locator<GpsRealmService>(),
       locator<HasInternetConnection>(),
+      locator<UserInformationRepository>(),
     ),
   );
   locator.registerLazySingleton(

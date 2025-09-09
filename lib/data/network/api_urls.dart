@@ -137,6 +137,7 @@ class ApiUrls {
   static final String lpCreateOrderBase = "$_paymentBrokerBase/order/pay";
   static final String  podCenter = "$_baseUrl$_loadDiscovery$_path$_v1$_load/podCenterList";
   static final String  lpLoadTripDetails = "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
+  static final String  getLocationAddress = "$_baseUrl$_rateDiscovery$_path$_v1$_map/place-id-from-latlng";
 
   /// Load
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
@@ -277,6 +278,7 @@ class ApiUrls {
   static final String deleteVehicle = "$_baseUrl$_customer$_path$_v1/vehicle/status/";
   static final String driverListUrl = "$_baseUrl$_customer$_path$_v1/drivers";
   static final String getTicketList = "$_baseUrl$_customer$_path$_v1/support-ticket/";
+  static final String getTicketMessages = "$_baseUrl$_customer$_path$_v1/support-ticket/";
   static final String createTicket = "$_baseUrl$_customer$_path$_v1/support-ticket/";
   static final String createVehicle = "$_baseUrl$_customer$_path$_v1/vehicle";
   static final String getFaq = "$_baseUrl$_customer$_path$_v1/metadata/support-faq";

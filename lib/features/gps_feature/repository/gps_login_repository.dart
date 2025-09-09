@@ -1,4 +1,5 @@
 import 'package:gro_one_app/data/model/result.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/service/has_internet_connection.dart';
 
@@ -20,11 +21,13 @@ class GpsLoginRepository {
   final GpsLoginService _gpsLoginService;
   final GpsRealmService _realmService;
   final HasInternetConnection _internetConnection;
+  final UserInformationRepository _userInformationRepository;
 
   GpsLoginRepository(
     this._gpsLoginService,
     this._realmService,
     this._internetConnection,
+    this._userInformationRepository,
   );
 
   Future<bool> _checkInternetConnection() async {
@@ -126,6 +129,11 @@ class GpsLoginRepository {
   /// Get stored login response from Realm
   Future<GpsLoginResponseModel?> getStoredLoginResponse() async {
     return await _realmService.getLoginResponse();
+  }
+
+  /// Get stored GPS token from secure storage
+  Future<String?> getStoredGpsToken() async {
+    return await _userInformationRepository.getGpsToken();
   }
 
   /// Save vehicle data to Realm
@@ -297,7 +305,7 @@ class GpsLoginRepository {
     }
   }
 
-  /// Fetch addresses for vehicles and update realm data
+  /// Fetch addresses for vehicles and update realm data with performance optimization
   Future<void> fetchAndUpdateAddresses(
     List<GpsCombinedVehicleData> vehicles,
   ) async {
@@ -309,37 +317,68 @@ class GpsLoginRepository {
         return; // Skip address fetching if offline
       }
 
-      for (final vehicle in vehicles) {
-        if (vehicle.address == null &&
-            vehicle.location != null &&
-            vehicle.location!.contains(',')) {
-          try {
-            final parts = vehicle.location!.split(',');
-            final lat = double.tryParse(parts[0].trim());
-            final lng = double.tryParse(parts[1].trim());
+      // Filter vehicles that need address fetching
+      final vehiclesNeedingAddress =
+          vehicles
+              .where(
+                (vehicle) =>
+                    vehicle.address == null &&
+                    vehicle.location != null &&
+                    vehicle.location!.contains(','),
+              )
+              .toList();
 
-            if (lat != null && lng != null) {
-              final address = await MapHelper.getAddressFromLatLngDoubles(
-                lat,
-                lng,
-              );
+      if (vehiclesNeedingAddress.isEmpty) {
+        return; // No vehicles need address fetching
+      }
 
-              // Create updated vehicle with address
-              final updatedVehicle = vehicle.copyWith(address: address);
+      // Process addresses in batches to prevent blocking main thread
+      const batchSize = 3;
+      for (int i = 0; i < vehiclesNeedingAddress.length; i += batchSize) {
+        final batch = vehiclesNeedingAddress.skip(i).take(batchSize).toList();
 
-              // Update in realm
-              await _realmService.updateVehicleData(updatedVehicle);
-            }
-          } catch (e) {
-            // Log error but continue with other vehicles
-            print(
-              "Failed to fetch address for vehicle ${vehicle.vehicleNumber}: $e",
-            );
-          }
+        // Process batch concurrently with timeout
+        await Future.wait(
+          batch.map((vehicle) => _fetchAddressForVehicle(vehicle)),
+          eagerError: false, // Continue even if some fail
+        );
+
+        // Small delay between batches to yield control to main thread
+        if (i + batchSize < vehiclesNeedingAddress.length) {
+          await Future.delayed(const Duration(milliseconds: 100));
         }
       }
     } catch (e) {
       print("Error in fetchAndUpdateAddresses: $e");
+    }
+  }
+
+  /// Fetch address for a single vehicle with error handling and timeout
+  Future<void> _fetchAddressForVehicle(GpsCombinedVehicleData vehicle) async {
+    try {
+      final parts = vehicle.location!.split(',');
+      final lat = double.tryParse(parts[0].trim());
+      final lng = double.tryParse(parts[1].trim());
+
+      if (lat != null && lng != null) {
+        // Add timeout to prevent hanging
+        final address = await Future.any([
+          MapHelper.getAddressFromLatLngDoubles(lat, lng),
+          Future.delayed(
+            const Duration(seconds: 5),
+            () => 'Address not available',
+          ),
+        ]);
+
+        // Create updated vehicle with address
+        final updatedVehicle = vehicle.copyWith(address: address);
+
+        // Update in realm
+        await _realmService.updateVehicleData(updatedVehicle);
+      }
+    } catch (e) {
+      // Log error but continue with other vehicles
+      print("Failed to fetch address for vehicle ${vehicle.vehicleNumber}: $e");
     }
   }
 

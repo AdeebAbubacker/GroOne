@@ -18,6 +18,8 @@ class SearchableDropdown extends StatelessWidget {
   final TextStyle? labelTextStyle;
   final DropdownSearchBuilder<String>? dropdownBuilder;
   final Widget Function(BuildContext, String)? emptyBuilder;
+  final DropdownSearchPopupItemBuilder<String>? popupItemBuilder;
+
 
   const SearchableDropdown({
     super.key,
@@ -32,6 +34,7 @@ class SearchableDropdown extends StatelessWidget {
     this.noResultsFoundText,
     this.mandatoryStar = false,
     this.labelTextStyle,
+    this.popupItemBuilder,
   });
 
   @override
@@ -85,19 +88,18 @@ class SearchableDropdown extends StatelessWidget {
             ),
             menuProps: MenuProps(backgroundColor: AppColors.white),
             searchFieldProps: TextFieldProps(
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search, color: Colors.grey),
-                hintText: "${context.appText.search}...",
-                hintStyle: AppTextStyle.bodyGreyColor.copyWith(
-                  color: AppColors.greyTextColor,
-                  fontWeight: FontWeight.w500,
-                  fontSize: 16,
-                ),
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
+
+            decoration: InputDecoration(
+              prefixIcon: const Icon(Icons.search, color: Colors.grey),
+              hintText: "${context.appText.search}...",
+              hintStyle: AppTextStyle.bodyGreyColor.copyWith(color: AppColors.greyTextColor, fontWeight: FontWeight.w500, fontSize: 16),
+              border: const OutlineInputBorder(),
+              isDense: true,
             ),
           ),
+         itemBuilder: popupItemBuilder,
+          ),
+
           decoratorProps: DropDownDecoratorProps(
             decoration: commonInputDecoration(hintText: hintText),
           ),

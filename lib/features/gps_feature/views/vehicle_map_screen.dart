@@ -999,12 +999,20 @@ class _VehicleBottomCardContent extends StatefulWidget {
 
 class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
   bool _expanded = false;
+  GpsInfoWindowDetailsCubit? _infoWindowDetailsCubit;
 
   @override
   void initState() {
     super.initState();
     // Call API when widget is first created
     _loadInfoWindowDetails();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Store cubit reference safely
+    _infoWindowDetailsCubit = context.read<GpsInfoWindowDetailsCubit>();
   }
 
   @override
@@ -1018,7 +1026,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
 
   void _loadInfoWindowDetails() {
     if (widget.vehicle.deviceId != null) {
-      context.read<GpsInfoWindowDetailsCubit>().getInfoWindowDetails(
+      _infoWindowDetailsCubit?.getInfoWindowDetails(
         widget.vehicle.deviceId.toString(),
       );
     }
@@ -1026,8 +1034,8 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
 
   @override
   void dispose() {
-    // Reset cubit state when widget is disposed
-    context.read<GpsInfoWindowDetailsCubit>().resetState();
+    // Reset cubit state when widget is disposed - use stored reference
+    _infoWindowDetailsCubit?.resetState();
     super.dispose();
   }
 

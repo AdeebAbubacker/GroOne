@@ -69,6 +69,11 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
         }
       },
       builder: (context, state) {
+        Status? status=state.prefLaneUIState?.status;
+
+        if(status==Status.LOADING){
+          return Center(child: CircularProgressIndicator.adaptive());
+        }
         if (state.prefLaneUIState?.data?.data != null &&
             state.prefLaneUIState!.data!.data!.items.isNotEmpty) {
           final preferredLaneItems =
@@ -79,6 +84,7 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
           } else {
             selectedPrefLanesTypeList = [];
           }
+
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
