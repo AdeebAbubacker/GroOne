@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart'
 import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en_dhan_services.dart';
+import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -18,7 +19,9 @@ class EnDhanRepository {
   EnDhanRepository(this._enDhanService);
 
   /// Check KYC Documents Repository
-  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(String customerId) async {
+  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(
+    String customerId,
+  ) async {
     try {
       return await _enDhanService.checkKycDocuments(customerId);
     } catch (e) {
@@ -123,7 +126,10 @@ class EnDhanRepository {
     String customerId,
   ) async {
     try {
-      return await _enDhanService.uploadKycDocumentsMultipart(request, customerId);
+      return await _enDhanService.uploadKycDocumentsMultipart(
+        request,
+        customerId,
+      );
     } catch (e) {
       CustomLog.error(this, "Error uploading KYC documents", e);
       return Error(GenericError());
@@ -131,7 +137,8 @@ class EnDhanRepository {
   }
 
   /// Fetch Card Balance Repository
-  Future<Result<api_models.EnDhanCardBalanceResponse>> fetchCardBalance() async {
+  Future<Result<api_models.EnDhanCardBalanceResponse>>
+  fetchCardBalance() async {
     try {
       final result = await _enDhanService.fetchCardBalance();
       return result;
@@ -242,4 +249,13 @@ class EnDhanRepository {
     }
   }
 
+  /// Repository - verify pincode
+  Future<Result<FleetPincodeVerifyModel>> verifyPincode(String pincode) async {
+    try {
+      return await _enDhanService.verifyPincode(pincode: pincode);
+    } catch (e) {
+      CustomLog.error(this, "Failed to check Endhan server status", e);
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 }
