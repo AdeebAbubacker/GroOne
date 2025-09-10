@@ -1,12 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../data/model/result.dart';
 import '../../../data/ui_state/status.dart';
@@ -449,11 +452,10 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    message.message,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      color: Colors.white,
+                  GestureDetector(
+                    onLongPress: () => _showMessageOptions(message),
+                    child: RichText(
+                      text: _buildTextSpanWithLinksForUser(message.message),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -493,13 +495,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   if (isVoice)
                     _buildVoiceMessage(message.message)
                   else
-                    Text(
-                      message.message,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.black,
-                      ),
-                    ),
+                    _buildRichTextMessage(message.message, message),
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1108,6 +1104,8 @@ class _ChatScreenState extends State<ChatScreen> {
                               state.recordedAudioPath != null ||
                               isWaitingForResponse;
                       return TextField(
+                        minLines: 1,
+                        maxLines: 3,
                         controller: _textController,
                         enabled: !isDisabled,
                         // Disable when recording, preview, or waiting for response
@@ -1780,6 +1778,241 @@ class _ChatScreenState extends State<ChatScreen> {
       },
     );
   }
+
+  /// Build rich text with clickable links and copy functionality
+  Widget _buildRichTextMessage(String text, ChatMessage message) {
+    return GestureDetector(
+      onLongPress: () => _showMessageOptions(message),
+      child: RichText(
+        text: _buildTextSpanWithLinks(text),
+      ),
+    );
+  }
+
+  /// Build TextSpan with clickable links for user messages (white text)
+  TextSpan _buildTextSpanWithLinksForUser(String text) {
+    final urlPattern = RegExp(
+      r'https?://[^\s<>"{}|\\^`\[\]]+',
+      caseSensitive: false,
+    );
+    
+    final matches = urlPattern.allMatches(text);
+    if (matches.isEmpty) {
+      return TextSpan(
+        text: text,
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+        ),
+      );
+    }
+
+    List<TextSpan> spans = [];
+    int lastIndex = 0;
+
+    for (final match in matches) {
+      // Add text before the URL
+      if (match.start > lastIndex) {
+        spans.add(TextSpan(
+          text: text.substring(lastIndex, match.start),
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+          ),
+        ));
+      }
+
+      // Add the clickable URL
+      final url = match.group(0)!;
+      spans.add(TextSpan(
+        text: url,
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+          decoration: TextDecoration.underline,
+          decorationColor: Colors.white,
+        ),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () => _launchUrl(url),
+      ));
+
+      lastIndex = match.end;
+    }
+
+    // Add remaining text after the last URL
+    if (lastIndex < text.length) {
+      spans.add(TextSpan(
+        text: text.substring(lastIndex),
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.white,
+        ),
+      ));
+    }
+
+    return TextSpan(children: spans);
+  }
+
+  /// Build TextSpan with clickable links for AI messages (black text)
+  TextSpan _buildTextSpanWithLinks(String text) {
+    final urlPattern = RegExp(
+      r'https?://[^\s<>"{}|\\^`\[\]]+',
+      caseSensitive: false,
+    );
+    
+    final matches = urlPattern.allMatches(text);
+    if (matches.isEmpty) {
+      return TextSpan(
+        text: text,
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.black,
+        ),
+      );
+    }
+
+    List<TextSpan> spans = [];
+    int lastIndex = 0;
+
+    for (final match in matches) {
+      // Add text before the URL
+      if (match.start > lastIndex) {
+        spans.add(TextSpan(
+          text: text.substring(lastIndex, match.start),
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.black,
+          ),
+        ));
+      }
+
+      // Add the clickable URL
+      final url = match.group(0)!;
+      spans.add(TextSpan(
+        text: url,
+        style: TextStyle(
+          fontSize: 16,
+          color: AppColors.primaryColor,
+          decoration: TextDecoration.underline,
+          decorationColor: AppColors.primaryColor,
+        ),
+        recognizer: TapGestureRecognizer()
+          ..onTap = () => _launchUrl(url),
+      ));
+
+      lastIndex = match.end;
+    }
+
+    // Add remaining text after the last URL
+    if (lastIndex < text.length) {
+      spans.add(TextSpan(
+        text: text.substring(lastIndex),
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.black,
+        ),
+      ));
+    }
+
+    return TextSpan(children: spans);
+  }
+
+  /// Launch URL in browser
+  Future<void> _launchUrl(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        _showErrorSnackBar('Could not launch URL: $url');
+      }
+    } catch (e) {
+      _showErrorSnackBar('Error launching URL: $e');
+    }
+  }
+
+  /// Show message options (copy, etc.)
+  void _showMessageOptions(ChatMessage message) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            const SizedBox(height: 20),
+            ListTile(
+              leading: Icon(Icons.copy, color: AppColors.primaryColor),
+              title: const Text('Copy Text'),
+              onTap: () {
+                _copyToClipboard(message.message);
+                Navigator.pop(context);
+              },
+            ),
+            if (!message.isUser && message.messageType != MessageType.voice) ...[
+              ListTile(
+                leading: Icon(Icons.volume_up, color: AppColors.primaryColor),
+                title: const Text('Play Audio'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _playTextToSpeech(message);
+                },
+              ),
+              if (!message.reported)
+                ListTile(
+                  leading: Icon(Icons.thumb_down_off_alt_outlined, color: AppColors.grayColor),
+                  title: const Text('Report Message'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _showReportConfirmationDialog(message.id);
+                  },
+                ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// Copy text to clipboard
+  Future<void> _copyToClipboard(String text) async {
+    await Clipboard.setData(ClipboardData(text: text));
+    _showSuccessSnackBar('Text copied to clipboard');
+  }
+
+  /// Show success snackbar
+  void _showSuccessSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: AppColors.primaryColor,
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  /// Show error snackbar
+  void _showErrorSnackBar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
 }
 
 class _ReportFeedbackDialog extends StatefulWidget {
@@ -2019,6 +2252,7 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
       ),
     );
   }
+
 }
 
 
