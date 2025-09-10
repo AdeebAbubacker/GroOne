@@ -287,18 +287,18 @@ class _EndhanCreateCardCustomerInfoScreenState
                                       state.title.isNotEmpty
                                           ? state.title
                                           : 'Mr',
-                                  dropDownList: const [
+                                  dropDownList: [
                                     DropdownMenuItem(
                                       value: 'Mr',
-                                      child: Text('Mr'),
+                                      child: Text(context.appText.mr),
                                     ),
                                     DropdownMenuItem(
                                       value: 'Ms',
-                                      child: Text('Ms'),
+                                      child: Text(context.appText.ms),
                                     ),
                                     DropdownMenuItem(
                                       value: 'Mrs',
-                                      child: Text('Mrs'),
+                                      child: Text(context.appText.mrs),
                                     ),
                                   ],
                                   onChanged: (val) {
@@ -371,6 +371,7 @@ class _EndhanCreateCardCustomerInfoScreenState
                           ),
                           16.height,
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.panNumber} *',
                             hintText: 'ABCDE1234F',
                             controller: panController,
@@ -447,6 +448,7 @@ class _EndhanCreateCardCustomerInfoScreenState
                           16.height,
                           //pincode feild
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.pinCode} *',
                             hintText: context.appText.enterPinCode,
                             controller: pincodeController,
@@ -556,6 +558,7 @@ class _EndhanCreateCardCustomerInfoScreenState
                           ),
                           16.height,
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.addressLine1} *',
                             hintText: context.appText.enter,
                             controller: address1Controller,
@@ -568,6 +571,7 @@ class _EndhanCreateCardCustomerInfoScreenState
                           ),
                           16.height,
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.addressLine2} *',
                             hintText: context.appText.enter,
                             controller: address2Controller,
@@ -655,6 +659,7 @@ class _EndhanCreateCardCustomerInfoScreenState
 
                           16.height,
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.cityName} *',
                             hintText: context.appText.enterCityName,
                             controller: cityNameController,
@@ -1040,6 +1045,7 @@ class _EnDhanReferralAutoCompleteTextFieldState
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppTextField(
+            enableInteractiveSelection: true,
             labelText: widget.labelText,
             controller: widget.controller,
             validator: widget.validator,

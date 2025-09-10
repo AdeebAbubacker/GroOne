@@ -899,7 +899,7 @@ Widget buildVehicleVerificationFieldWidget({
         controller: vehicleNoController,
         mandatoryStar: true,
         maxLength: 15,
-        labelText: "Vehicle Reg No",
+        labelText: context.appText.vehicleRegNo,
 
         textCapitalization: TextCapitalization.characters,
         validator:
@@ -964,7 +964,7 @@ Widget buildVehicleVerificationFieldWidget({
                     },
 
                     child: Text(
-                      "Verify",
+                      context.appText.verify,
                       style: AppTextStyle.body3.copyWith(
                         color: AppColors.primaryColor,
                         decoration: TextDecoration.underline,
@@ -1129,7 +1129,7 @@ class AddVehicleDialog {
                       child: buildReadOnlyField(
                         context.appText.registrationDate,
                         (registrationDate?.isEmpty ?? true)
-                            ? 'Registartion Date'
+                            ? context.appText.registrationDate
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
@@ -1254,7 +1254,7 @@ class AddVehicleDialog {
                       child: buildReadOnlyField(
                         context.appText.insuranceValidityDate,
                         (insuranceValidityDate?.isEmpty ?? true)
-                            ? 'Insurance Validity Date'
+                            ? context.appText.insuranceValidityDate
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         textStyle:
@@ -1307,7 +1307,7 @@ class AddVehicleDialog {
                           },
                           child: buildReadOnlyField(
                             context.appText.fcExpiryDate,
-                            fcExpiryDate ?? 'FC Expiry Date',
+                            fcExpiryDate ?? context.appText.fcExpiryDate,
                             fillColor: Colors.white,
                             textStyle:
                                 (fcExpiryDate ?? "").isEmpty
@@ -1346,7 +1346,7 @@ class AddVehicleDialog {
                       child: buildReadOnlyField(
                         context.appText.pucExpiryDate,
                         (pucExpiryDate?.isEmpty ?? true)
-                            ? 'PUC Expiry Date'
+                            ? context.appText.pucExpiryDate
                             : pucExpiryDate!,
                         fillColor: Colors.white,
                         textStyle:

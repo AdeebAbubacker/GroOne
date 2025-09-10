@@ -205,7 +205,10 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('${context.appText.currentBalance} ', style: AppTextStyle.body3GreyColor),
+                Text(
+                  '${context.appText.currentBalance} ',
+                  style: AppTextStyle.body3GreyColor,
+                ),
 
                 Row(
                   children: [

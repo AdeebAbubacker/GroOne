@@ -884,6 +884,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       ),
                       10.height,
                       AppTextField(
+                        enableInteractiveSelection: true,
                         controller: shippingPersonInChargeController,
                         decoration: kavachInputDecoration(
                           hintText: context.appText.personInCharge,
@@ -918,6 +919,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                       ),
                       10.height,
                       AppTextField(
+                        enableInteractiveSelection: true,
                         controller: shippingPersonContactNoController,
                         decoration: kavachInputDecoration(
                           hintText: context.appText.contactNo,
