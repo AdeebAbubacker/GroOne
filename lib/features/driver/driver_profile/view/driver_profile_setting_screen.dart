@@ -224,10 +224,14 @@ class _DriverProfileSettingScreenState
                                             .selectedIndexNotifier
                                             .value = 0;
                                         disposeFunction();
-                                        context.pushReplacement(
-                                          AppRouteName.login,
-                                          extra: {"showBackButton": false},
-                                        );
+                                        // context.pushReplacement(
+                                        //   AppRouteName.login,
+                                        //   extra: {"showBackButton": false},
+                                        // );
+                                        context.go(
+                                        AppRouteName.login,
+                                        extra: {"showBackButton": false},
+                                      );
                                       }
 
                                       if (status == Status.ERROR) {

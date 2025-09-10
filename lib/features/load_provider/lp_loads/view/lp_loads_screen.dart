@@ -84,9 +84,9 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
       initialIndex: lpLoadLocator.state.selectedTabIndex,
     )..addListener(_handleTabChange);
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _tabScrollController.jumpTo(50);
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   _tabScrollController.jumpTo(50);
+    // });
 
     lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
     lpLoadLocator.getTruckType();
