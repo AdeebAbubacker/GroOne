@@ -259,11 +259,31 @@ class _ChatScreenState extends State<ChatScreen> {
     );
   }
   Widget _buildChatLimit() {
-    return BlocBuilder<ChatCubit, ChatState>(
-      builder: (context, state) {
-        // Show 0/0 initially until data is loaded from API
-        final todaysCount = state.todaysChatCount;
-        final dailyLimit = state.dailyChatLimit;
+    return BlocListener<ChatCubit, ChatState>(
+      listenWhen: (previous, current) {
+        final changed = previous.todaysChatCount != current.todaysChatCount || 
+                       previous.dailyChatLimit != current.dailyChatLimit;
+        if (changed) {
+          print('🎨 BlocListener detected chat limit change - Previous: ${previous.todaysChatCount}/${previous.dailyChatLimit}, Current: ${current.todaysChatCount}/${current.dailyChatLimit}');
+        }
+        return changed;
+      },
+      listener: (context, state) {
+        print('🎨 BlocListener triggered - Chat limits updated: ${state.todaysChatCount}/${state.dailyChatLimit}');
+      },
+      child: BlocBuilder<ChatCubit, ChatState>(
+        buildWhen: (previous, current) {
+          final shouldRebuild = previous.todaysChatCount != current.todaysChatCount || 
+                                previous.dailyChatLimit != current.dailyChatLimit;
+          print('🎨 BlocBuilder buildWhen - Should rebuild: $shouldRebuild');
+          return shouldRebuild;
+        },
+        builder: (context, state) {
+          // Show 0/0 initially until data is loaded from API
+          final todaysCount = state.todaysChatCount;
+          final dailyLimit = state.dailyChatLimit;
+          
+          print('🎨 UI Building chat limit - Today: $todaysCount, Daily: $dailyLimit');
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 6.0),
@@ -308,7 +328,8 @@ class _ChatScreenState extends State<ChatScreen> {
             ],
           ),
         );
-      },
+        },
+      ),
     );
   }
 
