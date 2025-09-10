@@ -3,13 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
-import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
-import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_switch_toggle.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/log_out_dialogue_ui.dart';
@@ -204,16 +201,10 @@ class _DriverProfileSettingScreenState
                                   text: setting.label,
                                   onTap: () {
                                     if (setting.key == 'privacy_policy') {
-                                      Navigator.push(
-                                        context,
-                                        commonRoute(PrivacyPolicyScreen()),
-                                      );
+                                      context.push(AppRouteName.privacyPolicy); 
                                     } else if (setting.key ==
                                         'terms_conditions') {
-                                      Navigator.push(
-                                        context,
-                                        commonRoute(TermsAndConditionsScreen()),
-                                      );
+                                      context.push(AppRouteName.termsAndConditions);
                                     }
                                   },
                                 ).paddingSymmetric(vertical: 20),
@@ -337,17 +328,13 @@ class _DriverProfileSettingScreenState
           icon: AppIcons.svg.tAndCDoc,
           text: context.appText.termsAndConditions.capitalizeFirst,
           onTap:
-              () => Navigator.push(
-                context,
-                commonRoute(TermsAndConditionsScreen()),
-              ),
+              () => context.push(AppRouteName.termsAndConditions),
         ).paddingSymmetric(vertical: 20),
         linkTile(
           context,
           icon: AppIcons.svg.privacyLock,
           text: context.appText.privacyPolicy,
-          onTap:
-              () => Navigator.push(context, commonRoute(PrivacyPolicyScreen())),
+          onTap: () => context.push(AppRouteName.privacyPolicy),
         ),
       ],
     );
