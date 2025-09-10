@@ -195,7 +195,6 @@ class _DriverProfileScreenState extends BaseState<DriverProfileScreen> {
 
               if (status == Status.SUCCESS) {
                 disposeFunction();
-              //  context.pushReplacement(AppRouteName.login, extra: {"showBackButton":false});
               context.go(
               AppRouteName.login,
               extra: {"showBackButton": false},
