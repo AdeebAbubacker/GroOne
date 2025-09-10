@@ -99,7 +99,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
         Navigator.pop(context);
         return;
       }
-      
+
       // If we can't pop, try to navigate to the appropriate dashboard
       _getUserRoleAndNavigate();
     } catch (e) {
@@ -141,7 +141,8 @@ class _GpsOrderBenefitsAndOrderListScreenState
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false, // disables default pop, same as returning false in onWillPop
+      canPop: false,
+      // disables default pop, same as returning false in onWillPop
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
           // Use the same navigation logic as the back button
@@ -215,7 +216,13 @@ class _GpsOrderBenefitsAndOrderListScreenState
             // Scenario 1: KYC not done or no documents - Show benefits screen
             if (state.kycCheckState?.status == Status.SUCCESS &&
                 (state.hasKycDocuments == false || state.kycData == null)) {
-              return _buildBenefitsScreen(context, navigateToUploadDocument: true);
+              return _buildBenefitsScreen(
+                context,
+                navigateToUploadDocument:
+                    state.kycData != null &&
+                    state.kycData!['documents'] != null &&
+                    state.kycData!['documents']['panDocLink'] == null,
+              );
             }
 
             // Scenario 2 & 3: KYC done and has documents - Check order list
@@ -243,7 +250,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
   }
 
   // Build benefits screen with GPS title and support icon only
-  Widget _buildBenefitsScreen(BuildContext context, {bool navigateToUploadDocument = false}) {
+  Widget _buildBenefitsScreen(
+    BuildContext context, {
+    bool navigateToUploadDocument = false,
+  }) {
     return Scaffold(
       backgroundColor: AppColors.blackishWhite,
       appBar: CommonAppBar(
@@ -254,7 +264,12 @@ class _GpsOrderBenefitsAndOrderListScreenState
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,  ticketTag: TicketTags.GPS,), isForward: true));
+              Navigator.of(context).push(
+                commonRoute(
+                  LpSupport(showBackButton: true, ticketTag: TicketTags.GPS),
+                  isForward: true,
+                ),
+              );
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -262,7 +277,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
           4.width,
         ],
       ),
-      body: gpsBenifitsWidget(context, navigateToUploadDocument: navigateToUploadDocument),
+      body: gpsBenifitsWidget(
+        context,
+        navigateToUploadDocument: navigateToUploadDocument,
+      ),
     );
   }
 
@@ -297,7 +315,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
             return Scaffold(
               backgroundColor: AppColors.blackishWhite,
               appBar: CommonAppBar(
-                title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+                title: Text(
+                  context.appText.gpsModel,
+                  style: AppTextStyle.appBar,
+                ),
                 centreTile: false,
                 isLeading: true,
                 onLeadingTap: _handleBackNavigation,
@@ -311,7 +332,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
             return Scaffold(
               backgroundColor: AppColors.blackishWhite,
               appBar: CommonAppBar(
-                title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+                title: Text(
+                  context.appText.gpsModel,
+                  style: AppTextStyle.appBar,
+                ),
                 centreTile: false,
                 isLeading: true,
                 onLeadingTap: _handleBackNavigation,
@@ -320,7 +344,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(context.appText.failedToLoadOrders, style: AppTextStyle.h5),
+                    Text(
+                      context.appText.failedToLoadOrders,
+                      style: AppTextStyle.h5,
+                    ),
                     Text(state.message, style: AppTextStyle.body3),
                     20.height,
                     AppButton(
@@ -354,7 +381,15 @@ class _GpsOrderBenefitsAndOrderListScreenState
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSupport(
+                              showBackButton: true,
+                              ticketTag: TicketTags.GPS,
+                            ),
+                            isForward: true,
+                          ),
+                        );
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -362,21 +397,29 @@ class _GpsOrderBenefitsAndOrderListScreenState
                     4.width,
                   ],
                 ),
-                body: gpsBenifitsWidget(context, navigateToUploadDocument: false),
+                body: gpsBenifitsWidget(
+                  context,
+                  navigateToUploadDocument: false,
+                ),
               );
             } else {
               // Scenario 3: KYC done and has orders - show order list with GPS Model title
               return Scaffold(
                 backgroundColor: AppColors.blackishWhite,
                 appBar: CommonAppBar(
-                  title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+                  title: Text(
+                    context.appText.gpsModel,
+                    style: AppTextStyle.appBar,
+                  ),
                   centreTile: false,
                   isLeading: true,
                   onLeadingTap: _handleBackNavigation,
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(GpsModelsScreen()));
+                        Navigator.of(
+                          context,
+                        ).push(commonRoute(GpsModelsScreen()));
                       },
                       icon: Icon(Icons.add, color: Colors.white),
                       style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -384,7 +427,15 @@ class _GpsOrderBenefitsAndOrderListScreenState
                     4.width,
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSupport(
+                              showBackButton: true,
+                              ticketTag: TicketTags.GPS,
+                            ),
+                            isForward: true,
+                          ),
+                        );
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -394,9 +445,11 @@ class _GpsOrderBenefitsAndOrderListScreenState
                       key: menuKey,
                       onPressed: () async {
                         final RenderBox button =
-                            menuKey.currentContext!.findRenderObject() as RenderBox;
+                            menuKey.currentContext!.findRenderObject()
+                                as RenderBox;
                         final RenderBox overlay =
-                            Overlay.of(context).context.findRenderObject() as RenderBox;
+                            Overlay.of(context).context.findRenderObject()
+                                as RenderBox;
                         final Offset position = button.localToGlobal(
                           Offset.zero,
                           ancestor: overlay,
@@ -432,7 +485,12 @@ class _GpsOrderBenefitsAndOrderListScreenState
                           if (!context.mounted) return;
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => KavachTransactionsScreen(fleetProductId: 1)),
+                            MaterialPageRoute(
+                              builder:
+                                  (_) => KavachTransactionsScreen(
+                                    fleetProductId: 1,
+                                  ),
+                            ),
                           );
                         }
                       },
@@ -463,10 +521,11 @@ class _GpsOrderBenefitsAndOrderListScreenState
     );
   }
 
-
-
   // --- Benefits Section (unchanged) ---
-  Widget gpsBenifitsWidget(BuildContext context, {bool navigateToUploadDocument = false}) {
+  Widget gpsBenifitsWidget(
+    BuildContext context, {
+    bool navigateToUploadDocument = false,
+  }) {
     return Column(
       children: [
         Expanded(
@@ -476,7 +535,8 @@ class _GpsOrderBenefitsAndOrderListScreenState
                 buildGpsProductImageWidget(context),
                 20.height,
                 buildGpsBenefitsDetailsWidget(context),
-                buildGroBannerImageWidget(),
+                // Removed as per change request
+                // buildGroBannerImageWidget(),
               ],
             ),
           ),
@@ -487,7 +547,22 @@ class _GpsOrderBenefitsAndOrderListScreenState
           onPressed: () {
             if (navigateToUploadDocument) {
               // Scenario 1: KYC not done - navigate to upload document
-              Navigator.push(context, commonRoute(GpsUploadDocumentScreen()));
+              Navigator.push(
+                context,
+                commonRoute(GpsUploadDocumentScreen()),
+              ).then((v) {
+                if (!context.mounted) return;
+                Future.microtask(() {
+                  if (mounted) {
+                    if (customerId != null) {
+                      if (!context.mounted) return;
+                      context.read<GpsKycCheckCubit>().checkKycDocuments(
+                        customerId!,
+                      );
+                    }
+                  }
+                });
+              });
             } else {
               // Scenario 2: KYC done but no orders - navigate to GPS model screen
               Navigator.push(context, commonRoute(GpsModelsScreen()));
@@ -523,7 +598,9 @@ class _GpsOrderBenefitsAndOrderListScreenState
             5.height,
             Text(
               subtitle,
-              style: AppTextStyle.body3.copyWith(color: AppColors.textGreyColor),
+              style: AppTextStyle.body3.copyWith(
+                color: AppColors.textGreyColor,
+              ),
             ),
           ],
         ),
@@ -574,8 +651,6 @@ class _GpsOrderBenefitsAndOrderListScreenState
       fit: BoxFit.cover,
     );
   }
-
-
 }
 
 // Separate widget for order list with tabs to avoid full screen refresh
@@ -614,7 +689,9 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
         selectedTab == 0
             ? widget.orders
             : widget.orders
-                .where((order) => order.currentStatus == statusKeys[selectedTab])
+                .where(
+                  (order) => order.currentStatus == statusKeys[selectedTab],
+                )
                 .toList();
 
     return Column(
@@ -661,7 +738,10 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
           child:
               filteredOrders.isEmpty
                   ? Center(
-                    child: Text(context.appText.noOrdersFound, style: AppTextStyle.h5),
+                    child: Text(
+                      context.appText.noOrdersFound,
+                      style: AppTextStyle.h5,
+                    ),
                   )
                   : ListView.separated(
                     padding: const EdgeInsets.symmetric(
@@ -732,8 +812,12 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    Navigator.of(context).push(commonRoute(GpsOrderDetailScreen(order: order,)));
-                                  }, 
+                                    Navigator.of(context).push(
+                                      commonRoute(
+                                        GpsOrderDetailScreen(order: order),
+                                      ),
+                                    );
+                                  },
                                   child: Text(
                                     context.appText.viewDetails,
                                     style: AppTextStyle.primaryColor16w400,

@@ -337,8 +337,9 @@ class LoadDetailsWidget extends StatelessWidget {
                               20.height,
                               _buildAdableSectionHeader(
                                 context: context,
-                                showAddButton:   state.loadStatus != LoadStatus.completed &&
-                                    loadDetails?.loadSettlement == null,
+                                showAddButton:true,
+                                // state.loadStatus != LoadStatus.completed &&
+                                //     loadDetails?.loadSettlement == null,
                                 title: context.appText.settlement,
                                 onAdd: () async {
                                   await Navigator.push(
@@ -772,12 +773,16 @@ class LoadDetailsWidget extends StatelessWidget {
                   padding: 0,
                   price: 0,
                   loadId: "",
-                  enable: cubit.isNextProcessButtonEnabled(
+                  enable:
+                  cubit.isNextProcessButtonEnabled(
                     isAgreed:loadDetails?.isAgreed==1 ,
                     documentEntity: state.tripDocumentList ?? [],
                     driverConsent: loadDetails?.driverConsent ?? 0,
                     loadStatus: state.loadStatus,
                     memo: loadDetails?.loadMemo,
+                    // isDocumentApproved: loadDetails?.loadApproval?.documentApproved??false,
+                    // isPodApproved: loadDetails?.loadApproval?.podApproved
+
                   ),
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
@@ -1126,11 +1131,19 @@ Widget _buildDetailWidget({required String text1, required String text2}) {
         text1,
         style: AppTextStyle.body2.copyWith(color: AppColors.textBlackColor),
       ),
-      Text(
-        text2,
-        style: AppTextStyle.body2.copyWith(
-          fontWeight: FontWeight.w500,
-          color: AppColors.primaryColor,
+      30.width,
+      Flexible(
+        child: Tooltip(
+          message: text2,
+          child: Text(
+            text2,
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.ellipsis,
+            style: AppTextStyle.body2.copyWith(
+              fontWeight: FontWeight.w500,
+              color: AppColors.primaryColor,
+            ),
+          ),
         ),
       ),
     ],

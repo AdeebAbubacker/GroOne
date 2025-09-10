@@ -20,6 +20,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:pinput/pinput.dart';
 
@@ -154,6 +155,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         final bool isLoading = state.verifyOtpState?.status == Status.LOADING;
         final bool isCodeLengthValid = state.otpCode.length == 4;
         return AppButton(
+          key: AppKeys.btn('verify_code'),
           title: context.appText.verifyCode,
           isLoading: isLoading,
           style: isCodeLengthValid ? AppButtonStyle.primary : AppButtonStyle.disableButton,
@@ -186,6 +188,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
         final bool isLoading = state.resendOtpState?.status == Status.LOADING;
         final bool resendButtonEnabled = state.isResendButtonEnabled;
         return AppButton(
+          key: AppKeys.btn('resend_code'),
           style: resendButtonEnabled ?  AppButtonStyle.disableOutline : AppButtonStyle.outline,
           richTextWidget: !state.isResendButtonEnabled
               ? Text((isLoading ? "${context.appText.loading}.." : context.appText.resend), style: resendButtonEnabled ? AppTextStyle.buttonDisableColorTextColor : AppTextStyle.buttonPrimaryColorTextColor)
@@ -213,6 +216,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
       bloc: cubit,
       builder: (context, state) {
         return Pinput(
+          key: AppKeys.txt('otp'),
           defaultPinTheme: defaultPinTheme,
           focusedPinTheme: focusedPinTheme,
           submittedPinTheme: submittedPinTheme,

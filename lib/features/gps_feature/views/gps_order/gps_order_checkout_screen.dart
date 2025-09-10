@@ -1,20 +1,22 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
-import '../../../kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
-import '../../../login/repository/user_information_repository.dart';
-import '../../../profile/view/support_screen.dart';
-import '../../../profile/view/widgets/add_new_support_ticket.dart';
-import '../../cubit/gps_order_cubit_folder/gps_order_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+
+import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
+import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
+import '../../../../features/kavach/view/widgets/product_counter.dart';
+import '../../../../features/kavach/view/widgets/vehicle_selection_field.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_button.dart';
 import '../../../../utils/app_check_box.dart';
@@ -25,24 +27,26 @@ import '../../../../utils/app_text_style.dart';
 import '../../../../utils/common_widgets.dart';
 import '../../../../utils/constant_variables.dart';
 import '../../../../utils/validator.dart';
-import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
-import '../../../../features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
-import '../../models/gps_document_models.dart';
-import '../../gps_order_repo/gps_order_api_repository.dart';
+import '../../../kavach/helper/kavach_helper.dart';
+import '../../../kavach/model/kavach_address_model.dart';
 import '../../../kavach/view/kavach_billing_address_list_screen.dart'
     as kavach_billing;
 import '../../../kavach/view/kavach_shipping_address_list_screen.dart'
     as kavach_shipping;
-import 'gps_order_summary_screen.dart';
-import '../../../../features/kavach/view/widgets/product_counter.dart';
+import '../../../login/repository/user_information_repository.dart';
+import '../../../profile/view/support_screen.dart';
+import '../../../profile/view/widgets/add_new_support_ticket.dart';
+import '../../cubit/gps_order_cubit_folder/gps_order_cubit.dart';
+import '../../gps_order_repo/gps_order_api_repository.dart';
+import '../../models/gps_document_models.dart';
 import '../widgets/referral_autocomplete_textfield.dart';
-import '../../../../features/kavach/view/widgets/vehicle_selection_field.dart';
-import '../../../kavach/model/kavach_address_model.dart';
+import 'gps_order_summary_screen.dart';
 
 class GpsOrderCheckoutScreen extends StatefulWidget {
   final List<GpsProduct> products;
   final Map<String, int> quantities;
   final Map<String, List<String>>? previousVehicleSelection;
+  final Map<String, List<bool>>? vehicleStatus;
   final String? previousReferralCode;
   final bool? previousShippingSameAsBilling;
   final String? previousShippingPersonInCharge;
@@ -53,6 +57,7 @@ class GpsOrderCheckoutScreen extends StatefulWidget {
     required this.products,
     required this.quantities,
     this.previousVehicleSelection,
+    this.vehicleStatus,
     this.previousReferralCode,
     this.previousShippingSameAsBilling,
     this.previousShippingPersonInCharge,
@@ -68,15 +73,20 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   Map<String, List<TextEditingController>> vehicleControllersPerProduct = {};
   Map<String, List<bool>> vehicleVerificationStatusPerProduct =
       {}; // Track verification status
+  Map<String, List<bool>> vehicleStatusList = {}; // Track verification status
   late final GpsShippingAddressCubit gpsShippingAddressCubit;
   late final GpsBillingAddressCubit gpsBillingAddressCubit;
   late final GpsOrderCubit gpsOrderCubit;
   final profileCubit = locator<ProfileCubit>();
   final userInfoRepo = locator<UserInformationRepository>();
 
+  // Stream subscription for memory leak prevention
+  StreamSubscription<dynamic>? _shippingAddressSubscription;
+
   late Map<String, int> _quantities;
   late List<GpsProduct> _products;
   bool shippingSameAsBilling = false;
+  int changeBillingAddressesIndex = 0;
   late Map<String, int> _availableStocks;
   TextEditingController referralCodeController = TextEditingController();
   TextEditingController shippingPersonInChargeController =
@@ -84,6 +94,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   TextEditingController shippingPersonContactNoController =
       TextEditingController();
   final formKeyCheckout = GlobalKey<FormState>();
+  int changeBillingIndex = 0;
+  int changeShippingIndex = 0;
 
   // Store previous shipping address for restoration
   KavachAddressModel? _previousShippingAddress;
@@ -94,6 +106,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
     WidgetsBinding.instance.addObserver(this);
     _quantities = Map<String, int>.from(widget.quantities);
     _products = List<GpsProduct>.from(widget.products);
+    if (widget.vehicleStatus != null) {
+      vehicleStatusList = widget.vehicleStatus!;
+    }
     _availableStocks = {};
 
     for (var product in _products) {
@@ -160,7 +175,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
       // Initialize verification status - vehicles from previous selection are considered verified
       final verificationStatus = List<bool>.generate(qty, (index) {
         if (index < previousControllers.length &&
-            previousControllers[index].isNotEmpty) {
+            previousControllers[index].isNotEmpty &&
+            vehicleStatusList[product.id] != null &&
+            vehicleStatusList[product.id]![index]) {
           return true; // Previously selected vehicles are verified
         } else {
           return false;
@@ -192,8 +209,12 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
     });
 
     // Listen to shipping address changes to update stored previous address
-    gpsShippingAddressCubit.stream.listen((state) {
-      if (state is GpsShippingAddressSelected && !shippingSameAsBilling) {
+    _shippingAddressSubscription = gpsShippingAddressCubit.stream.listen((
+      state,
+    ) {
+      if (mounted &&
+          state is GpsShippingAddressSelected &&
+          !shippingSameAsBilling) {
         // Update stored previous address when user manually selects a shipping address
         _previousShippingAddress = state.selectedAddress;
       }
@@ -226,6 +247,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _shippingAddressSubscription?.cancel();
     referralCodeController.dispose();
     shippingPersonInChargeController.dispose();
     shippingPersonContactNoController.dispose();
@@ -291,6 +313,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
 
   // Helper function to get current selected addresses from cubits
   KavachAddressModel? _getCurrentShippingAddress() {
+    changeBillingIndex = 0;
     final shippingState = gpsShippingAddressCubit.state;
     if (shippingState is GpsShippingAddressSelected) {
       return shippingState.selectedAddress;
@@ -299,6 +322,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   }
 
   KavachAddressModel? _getCurrentBillingAddress() {
+    changeShippingIndex = 0;
     final billingState = gpsBillingAddressCubit.state;
     if (billingState is GpsBillingAddressSelected) {
       return billingState.selectedAddress;
@@ -424,6 +448,12 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                   value.map((controller) => controller.text.trim()).toList(),
                 ),
               ),
+              'vehicleStatus': vehicleVerificationStatusPerProduct.map(
+                (key, value) => MapEntry(
+                  key,
+                  value.map((controller) => controller).toList(),
+                ),
+              ),
               'referralCode': referralCodeController.text.trim(),
               'shippingSameAsBilling': shippingSameAsBilling,
               'shippingPersonInCharge':
@@ -442,7 +472,10 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
           AppIconButton(
             onPressed: () {
               Navigator.of(context).push(
-                commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true),
+                commonRoute(
+                  LpSupport(showBackButton: true, ticketTag: TicketTags.GPS),
+                  isForward: true,
+                ),
               );
             },
             icon: AppIcons.svg.filledSupport,
@@ -524,6 +557,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                 .toList(),
                           ),
                         ),
+                        'vehicleStatus': vehicleVerificationStatusPerProduct
+                            .map(
+                              (key, value) => MapEntry(
+                                key,
+                                value.map((controller) => controller).toList(),
+                              ),
+                            ),
                         'referralCode': referralCodeController.text.trim(),
                         'shippingSameAsBilling': shippingSameAsBilling,
                         'shippingPersonInCharge':
@@ -568,10 +608,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                               return addressWidget(
                                 address: address,
                                 onChangeTap: () {
+                                  changeShippingIndex += 1;
                                   commonBottomSheetWithBGBlur(
                                     context: context,
                                     screen:
                                         kavach_billing.KavachBillingAddressListScreen(
+                                          changeShippingIndex:
+                                              changeShippingIndex,
                                           feature:
                                               kavach_billing
                                                   .AddressListFeature
@@ -603,10 +646,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                   ),
                                 ),
                                 onTextFieldTap: () {
+                                  changeShippingIndex += 1;
                                   commonBottomSheetWithBGBlur(
                                     context: context,
                                     screen:
                                         kavach_billing.KavachBillingAddressListScreen(
+                                          changeShippingIndex:
+                                              changeShippingIndex,
                                           feature:
                                               kavach_billing
                                                   .AddressListFeature
@@ -644,10 +690,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                   ),
                                 ),
                                 onTextFieldTap: () {
+                                  changeShippingIndex += 1;
                                   commonBottomSheetWithBGBlur(
                                     context: context,
                                     screen:
                                         kavach_billing.KavachBillingAddressListScreen(
+                                          changeShippingIndex:
+                                              changeShippingIndex,
                                           feature:
                                               kavach_billing
                                                   .AddressListFeature
@@ -734,10 +783,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                       ),
                                     ),
                                     onTextFieldTap: () {
+                                      changeShippingIndex += 1;
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen:
                                             kavach_billing.KavachBillingAddressListScreen(
+                                              changeShippingIndex:
+                                                  changeShippingIndex,
                                               feature:
                                                   kavach_billing
                                                       .AddressListFeature
@@ -782,10 +834,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                     ),
                                   ),
                                   onTextFieldTap: () {
+                                    changeShippingIndex += 1;
                                     commonBottomSheetWithBGBlur(
                                       context: context,
                                       screen:
                                           kavach_billing.KavachBillingAddressListScreen(
+                                            changeShippingIndex:
+                                                changeShippingIndex,
                                             feature:
                                                 kavach_billing
                                                     .AddressListFeature
@@ -849,10 +904,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                     child: addressWidget(
                                       address: address,
                                       onChangeTap: () {
+                                        changeBillingIndex += 1;
                                         commonBottomSheetWithBGBlur(
                                           context: context,
                                           screen:
                                               kavach_shipping.KavachShippingAddressListScreen(
+                                                changeBillingIndex:
+                                                    changeBillingIndex,
                                                 feature:
                                                     kavach_shipping
                                                         .AddressListFeature
@@ -916,10 +974,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                         ),
                                       ),
                                       onTextFieldTap: () {
+                                        changeBillingIndex += 1;
                                         commonBottomSheetWithBGBlur(
                                           context: context,
                                           screen:
                                               kavach_shipping.KavachShippingAddressListScreen(
+                                                changeBillingIndex:
+                                                    changeBillingIndex,
                                                 feature:
                                                     kavach_shipping
                                                         .AddressListFeature
@@ -980,10 +1041,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                         ),
                                       ),
                                       onTextFieldTap: () {
+                                        changeBillingIndex += 1;
                                         commonBottomSheetWithBGBlur(
                                           context: context,
                                           screen:
                                               kavach_shipping.KavachShippingAddressListScreen(
+                                                changeBillingIndex:
+                                                    changeBillingIndex,
                                                 feature:
                                                     kavach_shipping
                                                         .AddressListFeature
@@ -1086,10 +1150,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                         ),
                                       ),
                                       onTextFieldTap: () {
+                                        changeBillingIndex += 1;
                                         commonBottomSheetWithBGBlur(
                                           context: context,
                                           screen:
                                               kavach_shipping.KavachShippingAddressListScreen(
+                                                changeBillingIndex:
+                                                    changeBillingIndex,
                                                 feature:
                                                     kavach_shipping
                                                         .AddressListFeature
@@ -1152,10 +1219,13 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                                       ),
                                     ),
                                     onTextFieldTap: () {
+                                      changeBillingIndex += 1;
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen:
                                             kavach_shipping.KavachShippingAddressListScreen(
+                                              changeBillingIndex:
+                                                  changeBillingIndex,
                                               feature:
                                                   kavach_shipping
                                                       .AddressListFeature
@@ -1188,6 +1258,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                       ),
                       10.height,
                       AppTextField(
+                        enableInteractiveSelection: true,
                         controller: shippingPersonInChargeController,
                         decoration: kavachInputDecoration(
                           hintText: context.appText.personInCharge,
@@ -1222,6 +1293,7 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
                       ),
                       10.height,
                       AppTextField(
+                        enableInteractiveSelection: true,
                         controller: shippingPersonContactNoController,
                         decoration: kavachInputDecoration(
                           hintText: context.appText.contactNo,
@@ -1458,6 +1530,22 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
             }
           }
         });
+        List<bool> verificationStatusVal = [];
+        for (var product in _products) {
+          final qty = _quantities[product.id] ?? 0;
+          verificationStatusVal = List<bool>.generate(qty, (index) {
+            if (vehicleVerificationStatusPerProduct[product.id] != null &&
+                vehicleVerificationStatusPerProduct[product.id]![index]) {
+              return true;
+            } else {
+              return false;
+            }
+          });
+        }
+        if (verificationStatusVal.contains(false)) {
+          ToastMessages.alert(message: 'Please verify all vehicles');
+          return;
+        }
 
         if (duplicateVehicles.isNotEmpty) {
           final uniqueDuplicates = duplicateVehicles.toSet().toList();

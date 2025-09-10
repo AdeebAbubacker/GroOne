@@ -1,5 +1,6 @@
 // lib/features/gps_feature/widgets/summary_report_card.dart
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:intl/intl.dart';
 
 import '../../../utils/app_colors.dart';
@@ -10,11 +11,13 @@ import 'address_skeleton.dart';
 class SummaryReportCard extends StatelessWidget {
   final SummaryReport report;
   final SummaryAddressResponse? addressResponse;
-  
+  final BuildContext context;
+
   const SummaryReportCard({
-    Key? key, 
+    Key? key,
     required this.report,
     this.addressResponse,
+    required this.context,
   }) : super(key: key);
 
   String _formatDateTime(String dateTimeString) {
@@ -43,7 +46,11 @@ class SummaryReportCard extends StatelessWidget {
 
   String _calculateTotalViolations() {
     // Sum of all safety violations similar to trip report
-    int sum = report.harshBraking + report.harshCornering + report.harshAcceleration + report.overSpeed;
+    int sum =
+        report.harshBraking +
+        report.harshCornering +
+        report.harshAcceleration +
+        report.overSpeed;
     return sum.toString();
   }
 
@@ -55,7 +62,7 @@ class SummaryReportCard extends StatelessWidget {
   /// - else: White
   Color _getSafetyScoreColor() {
     final safetyScore = report.safetyScore;
-    
+
     if (safetyScore <= 7.5) {
       return AppColors.appRedColor; // Red
     } else if (safetyScore >= 8.75) {
@@ -70,30 +77,31 @@ class SummaryReportCard extends StatelessWidget {
   String _getDisplayAddress({required bool isStart}) {
     // If we have real addresses from reverse geocoding, use them
     if (addressResponse != null) {
-      final realAddress = isStart ? addressResponse!.startAddress : addressResponse!.endAddress;
+      final realAddress =
+          isStart ? addressResponse!.startAddress : addressResponse!.endAddress;
       if (realAddress != "No Address") {
         return realAddress;
       }
     }
-    
+
     // Fallback to formatted coordinates from the report
     final rawAddress = isStart ? report.startAddress : report.endAddress;
-    
+
     if (rawAddress.contains(',')) {
       final parts = rawAddress.split(',');
       if (parts.length == 2) {
         final lat = double.tryParse(parts[0].trim()) ?? 0.0;
         final lng = double.tryParse(parts[1].trim()) ?? 0.0;
-        
+
         // If coordinates are 0,0 (invalid GPS), show dash
         if (lat == 0.0 && lng == 0.0) {
           return "-";
         }
-        
+
         return "Lat: ${lat.toStringAsFixed(6)}\nLng: ${lng.toStringAsFixed(6)}";
       }
     }
-    
+
     return rawAddress;
   }
 
@@ -120,11 +128,11 @@ class SummaryReportCard extends StatelessWidget {
           // Header Section
           _buildHeaderSection(),
           const SizedBox(height: 20),
-          
+
           // Location Timeline Section
           _buildLocationTimelineSection(),
           const SizedBox(height: 20),
-          
+
           // Metrics Grid Section
           _buildMetricsGridSection(),
         ],
@@ -151,7 +159,7 @@ class SummaryReportCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              '${_calculateTotalViolations()} Safety count',
+              '${_calculateTotalViolations()} ${context.appText.safetyCount}',
               style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF4CAF50),
@@ -160,13 +168,13 @@ class SummaryReportCard extends StatelessWidget {
             ),
           ],
         ),
-        
+
         // Right side - Color Code
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const Text(
-              'Color Code',
+            Text(
+              context.appText.colorCode,
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
@@ -240,7 +248,7 @@ class SummaryReportCard extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 8),
-        
+
         // Address and time
         Expanded(
           child: Column(
@@ -282,7 +290,7 @@ class SummaryReportCard extends StatelessWidget {
                 icon: Icons.place,
                 iconColor: const Color(0xFF2196F3),
                 value: '${_formatDecimal(report.distance)} Kms',
-                label: 'Distance',
+                label: context.appText.distance,
               ),
             ),
             const SizedBox(width: 12),
@@ -291,13 +299,13 @@ class SummaryReportCard extends StatelessWidget {
                 icon: Icons.speed,
                 iconColor: const Color(0xFF2196F3),
                 value: '${report.avgSpeed} Km/hr',
-                label: 'Avg. Speed',
+                label: context.appText.avgSpeed,
               ),
             ),
           ],
         ),
         const SizedBox(height: 12),
-        
+
         // Second row - Engine ON and Idle Time
         Row(
           children: [
@@ -306,7 +314,7 @@ class SummaryReportCard extends StatelessWidget {
                 icon: Icons.access_time,
                 iconColor: const Color(0xFF2196F3),
                 value: report.engineTime,
-                label: 'Engine ON',
+                label: context.appText.engineOn,
               ),
             ),
             const SizedBox(width: 12),
@@ -315,7 +323,7 @@ class SummaryReportCard extends StatelessWidget {
                 icon: Icons.warning_amber_outlined,
                 iconColor: const Color(0xFF2196F3),
                 value: report.idleTime,
-                label: 'Idle Time',
+                label: context.appText.idleTime,
               ),
             ),
           ],
@@ -341,7 +349,7 @@ class SummaryReportCard extends StatelessWidget {
           // Icon
           Icon(icon, color: iconColor, size: 24),
           const SizedBox(width: 12),
-          
+
           // Value and Label
           Expanded(
             child: Column(

@@ -159,12 +159,73 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
     await loginAndFetchAllData();
   }
 
-  /// Refresh all data - resets state and reinitializes
+  /// Refresh all data - uses existing token if available, otherwise re-login
   Future<void> refreshData() async {
-    resetState();
-    await initializeGpsFeature();
+    try {
+      // Check if we already have valid data and don't need refresh
+      if (_hasLoadedData && _authToken?.isNotEmpty == true) {
+        print("Data already loaded, skipping refresh");
+        return;
+      }
+
+      // First try to get stored token from secure storage
+      final storedGpsToken = await _repository.getStoredGpsToken();
+
+      if (storedGpsToken != null) {
+        // Use existing token for refresh
+        _authToken = storedGpsToken;
+        AppConstants.token = _authToken;
+
+        // Try to refresh data with existing token
+        final vehicleDataResult = await _repository.getAllVehicleData(
+          _authToken,
+        );
+
+        if (vehicleDataResult is Success<List<GpsCombinedVehicleData>>) {
+          // Success with existing token
+          _setDataFetchUIState(UIState.success("Data refreshed successfully"));
+          _hasLoadedData = true;
+          return;
+        }
+
+        // If refresh with existing token failed, try Realm fallback
+        final storedLoginResponse = await _repository.getStoredLoginResponse();
+        if (storedLoginResponse?.token != null) {
+          _authToken = storedLoginResponse!.token;
+          AppConstants.token = _authToken;
+
+          final vehicleDataResult2 = await _repository.getAllVehicleData(
+            _authToken,
+          );
+
+          if (vehicleDataResult2 is Success<List<GpsCombinedVehicleData>>) {
+            _setDataFetchUIState(
+              UIState.success("Data refreshed successfully"),
+            );
+            _hasLoadedData = true;
+            return;
+          }
+        }
+      }
+
+      // Fallback: Full re-login if no token or refresh failed
+      print("No valid token found, performing full re-login");
+      resetState();
+      await initializeGpsFeature();
+    } catch (e) {
+      print("Error during data refresh: $e");
+      // If anything fails, fall back to full re-login
+      resetState();
+      await initializeGpsFeature();
+    }
   }
 
   /// Check if data has been loaded
   bool get hasLoadedData => _hasLoadedData;
+
+  /// Check if GPS service has valid authentication
+  bool get hasValidAuth => _authToken?.isNotEmpty == true;
+
+  /// Get current authentication token
+  String? get authToken => _authToken;
 }

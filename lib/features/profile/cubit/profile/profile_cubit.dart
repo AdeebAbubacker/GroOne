@@ -11,10 +11,12 @@ import 'package:gro_one_app/features/kyc/api_request/create_document_api_request
 import 'package:gro_one_app/features/kyc/model/create_document_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
+import 'package:gro_one_app/features/profile/model/ticket_message_response.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/api_request/address_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
@@ -40,6 +42,7 @@ import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import '../../../load_provider/lp_loads/model/lp_load_get_by_id_response.dart' hide CustomerAddress;
 part 'profile_state.dart';
 
 enum TicketStatus { pending, completed }
@@ -47,12 +50,10 @@ enum TicketStatus { pending, completed }
 class ProfileCubit extends BaseCubit<ProfileState> {
   final ProfileRepository _repo;
   final LpHomeRepository _lpHomeRepository;
+  final LpLoadRepository _lpLoadRepository;
   final KavachRepository kavachRepository;
-  ProfileCubit(
-    this._repo,
-    this._lpHomeRepository,
-    this.kavachRepository,
-  ) : super(ProfileState());
+  ProfileCubit(this._repo, this._lpHomeRepository, this._lpLoadRepository, this.kavachRepository)
+    : super(ProfileState());
 
   // Save Has Blue ID
   Future<void> saveHasShowBluePopup(bool value) async {
@@ -204,65 +205,67 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   }
 
   // Fetch address from api call
-  void _setFetchAddressUIState(UIState<PaginatedAddressList>? uiState,int currentPage) {
-    emit(state.copyWith(
-        currentPage: currentPage,
-        addressState: uiState));
+  void _setFetchAddressUIState(
+    UIState<PaginatedAddressList>? uiState,
+    int currentPage,
+  ) {
+    emit(state.copyWith(currentPage: currentPage, addressState: uiState));
   }
 
-  Future<void> fetchAddress({bool isLoading = true, String? search,bool isInit=true}) async {
-
+  Future<void> fetchAddress({
+    bool isLoading = true,
+    String? search,
+    bool isInit = true,
+  }) async {
     if (isInit || isLoading) {
-      if (isLoading) _setFetchAddressUIState(UIState.loading(),1);
+      if (isLoading) _setFetchAddressUIState(UIState.loading(), 1);
     }
-
 
     userId = await _repo.getUserId();
 
-    final oldAddressData=state.addressState?.data?.addresses??[];
-    final totalRecords=state.addressState?.data?.total??0;
+    final oldAddressData = state.addressState?.data?.addresses ?? [];
+    final totalRecords = state.addressState?.data?.total ?? 0;
 
-    if(oldAddressData.isNotEmpty){
-      if ((totalRecords) <= ((state.currentPage??0) - 1) * 10 &&  oldAddressData.length>=totalRecords) {
+    if (oldAddressData.isNotEmpty) {
+      if ((totalRecords) <= ((state.currentPage ?? 0) - 1) * 10 &&
+          oldAddressData.length >= totalRecords) {
         return; // stop calling API
       }
-
     }
-
-
 
     dynamic result = await _repo.fetchAddress(
       userId: userId ?? '',
       search: search,
-      currentPage: state.currentPage
+      currentPage: state.currentPage,
     );
     if (result is Success<PaginatedAddressList>) {
-      final fetchedAddressData=result.value;
-      final oldObject=state.addressState?.data;
+      final fetchedAddressData = result.value;
+      final oldObject = state.addressState?.data;
 
-      List<CustomerAddress> newModifiedList=[
-        ...oldObject?.addresses??[],
-        ...fetchedAddressData.addresses
+      List<CustomerAddress> newModifiedList = [
+        ...oldObject?.addresses ?? [],
+        ...fetchedAddressData.addresses,
       ];
 
       PaginatedAddressList modifiedData;
-      if(oldObject!=null){
-        modifiedData  =oldObject.copyWith(
-          addresses: newModifiedList,
-        );
-      }else{
-        modifiedData=fetchedAddressData;
+      if (oldObject != null) {
+        modifiedData = oldObject.copyWith(addresses: newModifiedList);
+      } else {
+        modifiedData = fetchedAddressData;
       }
 
-      _setFetchAddressUIState(UIState.success(modifiedData),(state.currentPage??0)+1);
+      _setFetchAddressUIState(
+        UIState.success(modifiedData),
+        (state.currentPage ?? 0) + 1,
+      );
     }
     if (result is Error) {
-      _setFetchAddressUIState(UIState.error(result.type),state.currentPage??0);
+      _setFetchAddressUIState(
+        UIState.error(result.type),
+        state.currentPage ?? 0,
+      );
     }
   }
-
-
-
 
   // Fetch address from api call
   void _setPrimaryAddressUIState(UIState<SetPrimaryAddressResponse>? uiState) {
@@ -322,7 +325,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Success) {
       fetchAddress(isLoading: false);
     } else if (result is Error) {
-      _setFetchAddressUIState(UIState.error(result.type),0);
+      _setFetchAddressUIState(UIState.error(result.type), 0);
     }
     return result;
   }
@@ -654,7 +657,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Success) {
       fetchCustomerSettings();
     } else if (result is Error) {
-      _setFetchAddressUIState(UIState.error(result.type),0);
+      _setFetchAddressUIState(UIState.error(result.type), 0);
     }
     return result;
   }
@@ -688,15 +691,66 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(faqUIState: uiState));
   }
 
-  Future<void> fetchFaq({String search = '', bool isLoading = true}) async {
-    if (isLoading) _setFetchFaqUIState(UIState.loading());
+  // FAQ pagination variables
+  int _faqCurrentPage = 1;
+  bool _faqIsLastPage = false;
+  bool _faqIsLoadingMore = false;
 
-    dynamic result = await _repo.fetchFaq(search: search);
-    if (result is Success<FaqResponse>) {
-      _setFetchFaqUIState(UIState.success(result.value));
+  Future<void> fetchFaq({
+    bool isLoading = true,
+    String? search,
+    bool loadMore = false,
+    int limit = 10,
+  }) async {
+    // Prevent multiple parallel calls for load more
+    if (_faqIsLoadingMore && loadMore) return;
+
+    // Reset when fresh load
+    if (!loadMore) {
+      _faqIsLastPage = false;
+    } else if (_faqIsLastPage) {
+      return;
     }
-    if (result is Error) {
-      _setFetchFaqUIState(UIState.error(result.type));
+
+    if (loadMore) {
+      _faqIsLoadingMore = true;
+      _faqCurrentPage++;
+    } else {
+      _faqCurrentPage = 1;
+      _faqIsLastPage = false;
+      if (isLoading) _setFetchFaqUIState(UIState.loading());
+    }
+
+    try {
+      final result = await _repo.fetchFaq(
+        search: search,
+        page: _faqCurrentPage,
+        limit: limit,
+      );
+
+      if (result is Success<FaqResponse>) {
+        final newFaqResponse = result.value;
+        final newFaqList = newFaqResponse.data?.data ?? [];
+
+        if (loadMore) {
+          final existing = state.faqUIState?.data?.data?.data ?? [];
+          final combined = [...existing, ...newFaqList];
+
+          final updatedData = newFaqResponse.data?.copyWith(data: combined);
+
+          _setFetchFaqUIState(
+            UIState.success(newFaqResponse.copyWith(data: updatedData)),
+          );
+        } else {
+          _setFetchFaqUIState(UIState.success(newFaqResponse));
+        }
+
+        _faqIsLastPage = newFaqResponse.data?.pageMeta?.nextPage == null;
+      } else if (result is Error<FaqResponse>) {
+        _setFetchFaqUIState(UIState.error(result.type));
+      }
+    } finally {
+      _faqIsLoadingMore = false;
     }
   }
 
@@ -748,22 +802,64 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(ticketState: uiState));
   }
 
-  Future<void> fetchTickets({
-    bool isLoading = true,
-    required TicketRequest request,
-  }) async {
-    if (isLoading) _setTicketsUIState(UIState.loading());
-    userId = await _repo.getUserId();
+  // Tickets pagination variables
+  int _ticketCurrentPage = 1;
+  bool _ticketIsLastPage = false;
+  bool _ticketIsLoadingMore = false;
 
-    dynamic result = await _repo.fetchTickets(
-      userId: userId ?? '',
-      request: request,
-    );
-    if (result is Success<TicketResponse>) {
-      _setTicketsUIState(UIState.success(result.value));
+  Future<void> fetchTickets({
+    required TicketRequest request,
+    bool isLoading = true,
+    bool loadMore = false,
+    int limit = 10,
+  }) async {
+    // Prevent multiple parallel calls when loading more
+    if (_ticketIsLoadingMore && loadMore) return;
+
+    // Reset when fresh load
+    if (!loadMore) {
+      _ticketIsLastPage = false;
+    } else if (_ticketIsLastPage) {
+      return;
     }
-    if (result is Error) {
-      _setTicketsUIState(UIState.error(result.type));
+
+    if (loadMore) {
+      _ticketIsLoadingMore = true;
+      _ticketCurrentPage++;
+    } else {
+      _ticketCurrentPage = 1;
+      _ticketIsLastPage = false;
+      if (isLoading) _setTicketsUIState(UIState.loading());
+    }
+
+    try {
+      userId = await _repo.getUserId();
+
+      final result = await _repo.fetchTickets(
+        userId: userId ?? '',
+        request: request.copyWith(page: _ticketCurrentPage, limit: limit),
+      );
+
+      if (result is Success<TicketResponse>) {
+        final newResponse = result.value;
+        final newTickets = newResponse.data;
+
+        if (loadMore) {
+          final existing = state.ticketState?.data?.data ?? [];
+          final combined = [...existing, ...newTickets];
+
+          _setTicketsUIState(
+            UIState.success(newResponse.copyWith(data: combined)),
+          );
+        } else {
+          _setTicketsUIState(UIState.success(newResponse));
+        }
+        _ticketIsLastPage = newResponse.pageMeta?.nextPage == null;
+      } else if (result is Error<TicketResponse>) {
+        _setTicketsUIState(UIState.error(result.type));
+      }
+    } finally {
+      _ticketIsLoadingMore = false;
     }
   }
 
@@ -786,6 +882,47 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Error) {
       _setCreateTicketsUIState(UIState.error(result.type));
     }
+  }
+
+  // create ticket from api call
+  void _setTicketMessageUIState(UIState<List<TicketMessageResponse>>? uiState) {
+    emit(state.copyWith(ticketMessageState: uiState));
+  }
+
+  Future<void> fetchTicketMessages({required String ticketId, String? docId}) async {
+    _setTicketMessageUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchTicketMessages(ticketId: ticketId);
+    if (result is Success<List<TicketMessageResponse>>) {
+      _setTicketMessageUIState(UIState.success(result.value));
+      fetchTickets(request: TicketRequest());
+      if(docId != '') {
+        getDocumentById(docId: docId ?? '');
+      }
+    }
+    if (result is Error) {
+      _setTicketMessageUIState(UIState.error(result.type));
+    }
+  }
+
+  // Updates the UI state related to Document by ID.
+  void _setDocumentByIdState(UIState<DocumentDetails>? uiState) {
+    emit(state.copyWith(documentById: uiState));
+  }
+
+  // load Document by ID
+  Future<void> getDocumentById({required String docId}) async {
+    _setDocumentByIdState(UIState.loading());
+
+    Result result = await _lpLoadRepository.getDocumentById(docId: docId);
+
+    if (result is Success<DocumentDetails>) {
+      _setDocumentByIdState(UIState.success(result.value));
+    } else if (result is Error) {
+      _setDocumentByIdState(UIState.error(result.type));
+    }
+
   }
 
   void updateTempTicketStatus(TicketStatus? status) {

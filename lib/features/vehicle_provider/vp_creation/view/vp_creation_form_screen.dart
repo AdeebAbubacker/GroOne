@@ -38,6 +38,7 @@ import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/remove_space_inpur_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -148,6 +149,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
   Future<void> vpCreationApiCall(VpCreateAccountState state) async {
     if (formKey.currentState!.validate()) {
       FocusManager.instance.primaryFocus?.unfocus();
+
       if (uploadedRcFile == null) {
         ToastMessages.alert(message: context.appText.rcDocumentRequiredError);
         return;
@@ -245,7 +247,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       children: [
         // Name
         AppTextField(
-
+          key: AppKeys.txt('full_name'),
           validator: (value) => Validator.fieldRequired(value),
           controller: nameTextController,
           labelText: context.appText.fullName,
@@ -262,6 +264,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Phone Number
         AppTextField(
+          key: AppKeys.txt('mobile_number'),
           readOnly: true,
           validator: (value) => Validator.phone(value),
           controller: mobileNumberTextController,
@@ -293,6 +296,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Pin code Truck
         AppTextField(
+          key: AppKeys.txt('pincode'),
           validator: (value) => Validator.pincode(value),
           controller: pinCodeTextController,
           labelText: context.appText.pinCode,
@@ -340,6 +344,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       },
       builder: (context, state) {
         return AppTextField(
+          key: AppKeys.txt('email'),
           validator: (value) => Validator.fieldRequired(value),
           controller: emailTextController,
           labelText: context.appText.email,
@@ -410,6 +415,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Company Name
         AppTextField(
+          key: AppKeys.txt('company_name'),
           inputFormatters: [
             NoLeadingSpaceFormatter(),
             LengthLimitingTextInputFormatter(50),
@@ -424,43 +430,62 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         20.height,
         
          // Company Type
-            BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
-            bloc: vpCreationCubit,
-            listener: (context, state) {
-              final status = state.companyTypeUIState?.status;
-              if (status == Status.ERROR) {
-                final error = state.companyTypeUIState?.errorType;
-                ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
-              }
-            },
-            builder: (context, state) {
-              final status = state.companyTypeUIState?.status;
-              final isSuccess = status == Status.SUCCESS;
-              final data = state.companyTypeUIState?.data;
+          BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
+  bloc: vpCreationCubit,
+  listener: (context, state) {
+    final status = state.companyTypeUIState?.status;
+    if (status == Status.ERROR) {
+      final error = state.companyTypeUIState?.errorType;
+      ToastMessages.error(
+        message: getErrorMsg(errorType: error ?? GenericError()),
+      );
+    }
+  },
+  builder: (context, state) {
+    final status = state.companyTypeUIState?.status;
+    final isSuccess = status == Status.SUCCESS;
 
-              if (isSuccess && data != null) {
-                return Column(
-                  children: [
-                    VpCompanyTypeSearchableDropdown(
-                      selectedCompanyTypeId: companyTypeDropDownValue,
-                      onCompanyTypeChanged: (newVal) {
-                        setState(() {
-                          companyTypeDropDownValue = newVal;
-                        });
-                      },
-                      companyTypeList: data,
-                      labelText: context.appText.companyType,
-                      hintText: context.appText.selectCompanyType,
-                      mandatoryStar: true,
-                    ),
-                    20.height,
-                  ],
-                );
-              } else {
-                return const SizedBox();
-              }
-            },
-          ),
+    if (isSuccess) {
+      return Column(
+        children: [
+          VpCompanyTypeSearchableDropdown(
+          key: AppKeys.ddl('company_type'),
+          selectedCompanyTypeId: companyTypeDropDownValue,
+          onCompanyTypeChanged: (newVal) {
+            if (!mounted) return;
+            setState(() {
+              companyTypeDropDownValue = newVal;
+            });
+          },
+          fetchCompanyTypes: (page, searchKey) async {
+            // Use the already fetched company types
+            final companyList = vpCreationCubit.state.companyTypeUIState?.data ?? [];
+
+            // Optional: filter by search key
+            final filtered = searchKey == null || searchKey.isEmpty
+                ? companyList
+                : companyList
+                    .where((c) =>
+                        c.companyType.toLowerCase().contains(searchKey.toLowerCase()))
+                    .toList();
+
+            return filtered;
+          },
+          labelText: context.appText.companyType,
+          hintText: context.appText.selectCompanyType,
+          mandatoryStar: true,
+        ),
+
+          20.height,
+        ],
+      );
+    } else {
+      // Loading or initial empty state
+      return const SizedBox();
+    }
+  },
+),
+
 
         // TrucK Type
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
@@ -484,6 +509,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               return Column(
                 children: [
                   AppMultiSelectionDropdown<int>(
+                    key: AppKeys.ddl('truck_type'),
                     labelText: context.appText.truckType,
                     hintText: context.appText.selectTruckType,
                     controller: truckTypeController,
@@ -547,7 +573,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                 state.prefLaneUIState!.data!.data!.items.isNotEmpty) {
               final preferredLaneItems = state.selectedPreferLanes;
               if((preferredLaneItems??[]).isNotEmpty){
-                selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId,).toList()??[];
+                selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId??0,).toList()??[];
               }else{
                 selectedPrefLanesTypeList=[];
               }
@@ -567,7 +593,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                   GestureDetector(
                     onTap: () async {
                     await  Navigator.push(context, commonRoute(PreferLensScreen()));
-
                     },
                     child: Container(
                       padding: EdgeInsets.only(
@@ -635,6 +660,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Owned Trucks
         AppCountSelector(
+          key: AppKeys.cnt('owned_trucks'),
           label: context.appText.ownedTrucks,
           controller: ownedTruckTextController,
           isMandatory: true,
@@ -642,6 +668,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
 
         // Attached Trucks
         AppCountSelector(
+          key: AppKeys.cnt('attached_trucks'),
           label: context.appText.attachedTrucks,
           controller: attachedTruckTextController,
         ),
@@ -694,11 +721,15 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
             final isLoading =
                 state.uploadRcFileUIState?.status == Status.LOADING;
             return UploadAttachmentFiles(
+              onDelete: (p0) {
+                uploadedRcFile=null;
+              },
               allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               multiFilesList: multiFilesList,
               title: context.appText.uploadRC,
               isMandatory: true,
               isSingleFile: true,
+
               isLoading: isLoading,
               thenUploadFileToSever: () {
                 if (multiFilesList.isNotEmpty) {
@@ -708,6 +739,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                   );
                 }
               },
+
             );
           },
         ),
@@ -741,6 +773,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         final isLoading =
             state.createAccountUIState?.status == Status.LOADING;
         return AppButton(
+          key: AppKeys.btn('submit'),
           title: context.appText.submit,
           isLoading: isLoading,
           onPressed:

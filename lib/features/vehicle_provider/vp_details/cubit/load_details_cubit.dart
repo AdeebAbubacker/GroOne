@@ -101,7 +101,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
   Future<void> getLoadDetails(String loadId) async {
     emit(state.copyWith(
-
         loadDetailsUIState: UIState.loading()));
     Result result = await _loadDetailsRepository.fetchLoadDetails(
         loadId.toString());
@@ -168,6 +167,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
           destLat: double.tryParse(drop.first) ?? 0.0,
           destLong: double.tryParse(drop.last) ?? 0.0,
         );
+
       } else {
 
         request = TrackingDistanceApiRequest(
@@ -612,6 +612,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
 
     setTripDocuments(List<LoadDocument>? loadDocument) {
     List<DocumentEntity> documentList = List.from(state.tripDocumentList ?? []);
+
       for (DocumentEntity item in documentList) {
         /// find load item for api response set into local document entity
         item.loadDocument=filterLoadDocumentById(loadDocument,item);
@@ -640,7 +641,7 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
       case LoadStatus.assigned:
         return (checkMemo??true) ? memo!=null && (isAgreed??false):true;
         case LoadStatus.loading:
-          return  checkIsDocumentUploaded(documentEntity);
+          return  checkIsDocumentUploaded(documentEntity) ;
       case LoadStatus.unloading:
         return checkIsDocumentUploaded(documentEntity);
       default:

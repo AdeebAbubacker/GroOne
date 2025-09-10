@@ -39,6 +39,7 @@ import '../../models/gps_vehicle_models.dart';
 // --- GPS Vehicle List Screen ---
 class GpsVehicleSelectionScreen extends StatefulWidget {
   final String? currentlySelectedVehicle;
+
   const GpsVehicleSelectionScreen({super.key, this.currentlySelectedVehicle});
 
   @override
@@ -291,11 +292,13 @@ class _GpsVehicleSelectionScreenState extends State<GpsVehicleSelectionScreen> {
 class AddGpsVehicleForm extends StatefulWidget {
   final VoidCallback onVehicleAdded;
   final GpsVehicleCubit vehicleCubit;
+
   const AddGpsVehicleForm({
     required this.onVehicleAdded,
     required this.vehicleCubit,
     super.key,
   });
+
   @override
   State<AddGpsVehicleForm> createState() => _AddGpsVehicleFormState();
 }
@@ -397,6 +400,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                       isVerified = true;
                     }
                     return AppTextField(
+                      enableInteractiveSelection: true,
                       controller: truckNumberController,
                       mandatoryStar: true,
                       maxLength: 15,
@@ -465,6 +469,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                 ),
                 10.height,
                 AppTextField(
+                  enableInteractiveSelection: true,
                   controller: truckMakeModelController,
                   mandatoryStar: true,
                   maxLength: 20,
@@ -481,6 +486,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                 ),
                 10.height,
                 AppTextField(
+                  enableInteractiveSelection: true,
                   controller: licenseNumberController,
                   labelText: context.appText.licenseNumber,
                   maxLength: 16,
@@ -610,6 +616,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                 ),
                 10.height,
                 AppTextField(
+                  enableInteractiveSelection: true,
                   controller: capacityController,
                   labelText: context.appText.capacity,
                   mandatoryStar: true,

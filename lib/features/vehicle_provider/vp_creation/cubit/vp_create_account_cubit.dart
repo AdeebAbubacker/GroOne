@@ -3,6 +3,7 @@ import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/VpCompanyTypeModel.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
@@ -114,28 +115,49 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
 
 
 
+  void clearSelectedLanes(){
+    emit(state.copyWith(
+      selectedPreferLanes: []
+    ));
+  }
+
+
+
+
+
 
   /// auto select lanes
-  void autoSelectLanes(List<int> selectedLanes){
+  void autoSelectLanes(List<LaneDetailsResponse> laneDetails){
     List<Item> items= state.prefLaneUIState?.data?.data?.items??[];
     List<Item> modifiedList=List.from(items);
     List<Item> selectedList=[];
+
     if(items.isNotEmpty){
-      for(var preselectLanes in selectedLanes){
-        Item getLanesItem=  items.firstWhere((element) => element.masterLaneId==preselectLanes).copyWith(
-          isSelected: true
-        );
-        int index=items.indexWhere((element) => element.masterLaneId==preselectLanes);
-        selectedList.add(getLanesItem);
-        modifiedList[index]=getLanesItem;
+      for(var preselectLanes in laneDetails){
+       try{
+         Item getLanesItem=  items.firstWhere((element) => element.masterLaneId==preselectLanes.masterLaneId).copyWith(
+             isSelected: true
+         );
+         int index=items.indexWhere((element) => element.masterLaneId==preselectLanes.masterLaneId);
+
+         modifiedList[index]=getLanesItem;
+       }catch(E){}
+
+       List split=preselectLanes.lane?.split("-")??[];
+       selectedList.add(Item(
+         masterLaneId: preselectLanes.masterLaneId,
+         fromLocation: Location(
+           name: split.first
+         ),
+         toLocation: Location(
+             name: (split.length)>1 ? split[1]:""
+         ),
+       ));
       }
       TruckPrefLaneModel lanesModel=state.prefLaneUIState!.data!;
       final newLanesModel=lanesModel.copyWith(
-
-          data: lanesModel.data?.copyWith(
-
-              items:modifiedList
-          )
+            data: lanesModel.data?.copyWith(
+              items:modifiedList)
       );
 
       emit(state.copyWith(
@@ -174,19 +196,23 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
     List<Item> preferLanes=List.from(state.prefLaneUIState?.data?.data?.items??[]);
     List<Item> selectedList=List.from(state.selectedPreferLanes??[]);
     listIndex=preferLanes.indexWhere((element) => element.masterLaneId==id);
-    Item lanesItem=  preferLanes[listIndex];
+    Item? lanesItem= listIndex>=0 ? preferLanes[listIndex]:null;
     selectedListIndex=selectedList.indexWhere((element) => element.masterLaneId==id);
-
     if(preferLanes.isNotEmpty){
-      final selectedLanesItem=lanesItem.copyWith(
-      isSelected: selected
-      );
-      preferLanes[listIndex]=selectedLanesItem;
-      if(selectedLanesItem.isSelected==true){
+      Item? selectedLanesItem;
+      if(lanesItem!=null){
+        selectedLanesItem =lanesItem.copyWith(
+            isSelected: selected
+        );
+        preferLanes[listIndex]=selectedLanesItem;
+      }
+
+      if (selectedLanesItem!=null &&  selectedLanesItem.isSelected==true){
         selectedList.add(selectedLanesItem);
-      }else{
+      } else{
         selectedList.removeAt(selectedListIndex);
       }
+
       emit(state.copyWith(
           selectedPreferLanes: selectedList,
           prefLaneUIState: UIState.success(TruckPrefLaneModel(data: state.prefLaneUIState?.data?.data?.copyWith(
@@ -208,6 +234,7 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
       truckTypeUIState: resetUIState<List<TruckTypeModel>>(state.truckTypeUIState),
       prefLaneUIState: resetUIState<TruckPrefLaneModel>(state.prefLaneUIState),
       uploadRcFileUIState: resetUIState<UploadRcTruckFileModel>(state.uploadRcFileUIState),
+      selectedPreferLanes: []
     ));
   }
 

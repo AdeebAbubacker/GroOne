@@ -166,8 +166,12 @@ Future<void> _initializeSequentially(Stopwatch stopwatch) async {
 Future<void> _loadEnvironmentVariables() async {
   try {
     await dotenv.load(
-      fileName:
-          kDebugMode ? "assets/env/.env.dev" : "assets/env/.env.production",
+      /// uat environment
+      fileName: "assets/env/.env.uat"
+      /// dev environment
+      // fileName: "assets/env/.env.dev",
+      /// prod environment
+      // fileName: "assets/env/.env.production",
     );
     debugPrint("✅ Environment variables loaded successfully");
   } catch (e) {

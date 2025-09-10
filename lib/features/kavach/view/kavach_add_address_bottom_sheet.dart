@@ -86,12 +86,13 @@ class _KavachAddAddressBottomSheetState
         stateController.text = place.administrativeArea ?? '';
         pinCodeController.text = place.postalCode ?? '';
       });
-    }else if (placemarkResult is Error) {
+    } else if (placemarkResult is Error) {
       final error = placemarkResult as Error;
       if (!mounted) return;
-      final errorMessage = error.type is ErrorWithMessage
-          ? (error.type as ErrorWithMessage).message
-          : context.appText.failedToGetLocation;
+      final errorMessage =
+          error.type is ErrorWithMessage
+              ? (error.type as ErrorWithMessage).message
+              : context.appText.failedToGetLocation;
       ToastMessages.error(message: errorMessage);
     }
   }
@@ -132,7 +133,8 @@ class _KavachAddAddressBottomSheetState
           state: stateController.text.trim(),
           pincode: pinCodeController.text.trim(),
           isDefault: true,
-          addrType: widget.addrType.toString(), // Convert int to string
+          addrType: widget.addrType.toString(),
+          // Convert int to string
           country: "India",
           gstIn: gstNoController.text.trim(),
         );
@@ -149,9 +151,10 @@ class _KavachAddAddressBottomSheetState
             widget.onAddressAdded!();
           }
         } else if (result is Error<GpsAddAddressResponse>) {
-          final errorMessage = result.type is ErrorWithMessage
-              ? (result.type as ErrorWithMessage).message
-              : context.appText.failedToAddAddress;
+          final errorMessage =
+              result.type is ErrorWithMessage
+                  ? (result.type as ErrorWithMessage).message
+                  : context.appText.failedToAddAddress;
           ToastMessages.error(message: errorMessage);
         }
       } catch (e) {
@@ -164,43 +167,52 @@ class _KavachAddAddressBottomSheetState
   Widget build(BuildContext context) {
     return SafeArea(
       child: AppBottomSheetBody(
-      title: widget.title,
-      hideDivider: false,
-      body: widget.feature == AddressFeature.kavach
-          ? BlocListener<KavachCheckoutAddAddressBloc, KavachCheckoutAddAddressState>(
-              listener: (context, state) {
-                if (state is KavachCheckoutAddressAdded) {
-                  Navigator.of(context).pop();
-                  ToastMessages.success(message: context.appText.addressAddedSuccess);
+        title: widget.title,
+        hideDivider: false,
+        body:
+            widget.feature == AddressFeature.kavach
+                ? BlocListener<
+                  KavachCheckoutAddAddressBloc,
+                  KavachCheckoutAddAddressState
+                >(
+                  listener: (context, state) {
+                    if (state is KavachCheckoutAddressAdded) {
+                      Navigator.of(context).pop();
+                      ToastMessages.success(
+                        message: context.appText.addressAddedSuccess,
+                      );
 
-                  Future.delayed(const Duration(milliseconds: 300), () {
-                    if (!context.mounted) return;
+                      Future.delayed(const Duration(milliseconds: 300), () {
+                        if (!context.mounted) return;
 
-                    // ✅ Always refresh both lists
-                    context.read<KavachCheckoutBillingAddressBloc>()
-                        .add(FetchKavachBillingAddresses());
-                    context.read<KavachCheckoutShippingAddressBloc>()
-                        .add(FetchKavachShippingAddresses());
+                        // ✅ Always refresh both lists
+                        context.read<KavachCheckoutBillingAddressBloc>().add(
+                          FetchKavachBillingAddresses(),
+                        );
+                        context.read<KavachCheckoutShippingAddressBloc>().add(
+                          FetchKavachShippingAddresses(),
+                        );
 
-                    // ✅ Auto-select only in the list where the address was added
-                    if (widget.addrType == 2) {
-                      context.read<KavachCheckoutBillingAddressBloc>()
-                          .add(SelectKavachBillingAddress(state.address));
-                    } else if (widget.addrType == 1) {
-                      context.read<KavachCheckoutShippingAddressBloc>()
-                          .add(SelectKavachShippingAddress(state.address));
+                        // ✅ Auto-select only in the list where the address was added
+                        if (widget.addrType == 2) {
+                          context.read<KavachCheckoutBillingAddressBloc>().add(
+                            SelectKavachBillingAddress(state.address),
+                          );
+                        } else if (widget.addrType == 1) {
+                          context.read<KavachCheckoutShippingAddressBloc>().add(
+                            SelectKavachShippingAddress(state.address),
+                          );
+                        }
+                      });
+                    } else if (state is KavachCheckoutAddressError) {
+                      ToastMessages.error(message: state.error);
                     }
-                  });
-                }
-                else if (state is KavachCheckoutAddressError) {
-                  ToastMessages.error(message: state.error);
-                }
-              },
-              child: _buildBody(context: context),
-            )
-          : _buildBody(context: context),
-    )
- );
+                  },
+                  child: _buildBody(context: context),
+                )
+                : _buildBody(context: context),
+      ),
+    );
   }
 
   Widget _buildBody({required BuildContext context}) {
@@ -220,62 +232,86 @@ class _KavachAddAddressBottomSheetState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               AppTextField(
+                enableInteractiveSelection: true,
                 mandatoryStar: true,
                 controller: addressNameController,
                 labelText: context.appText.addressName,
                 maxLength: 50,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,./#-]')),
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'[a-zA-Z0-9\s,./#-]'),
+                  ),
                 ],
-                validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
+                validator:
+                    (value) => Validator.fieldRequired(
+                      value,
+                      fieldName: context.appText.addressName,
+                    ),
               ),
               10.height,
               AppTextField(
+                enableInteractiveSelection: true,
                 mandatoryStar: true,
                 controller: addressController,
                 labelText: context.appText.address,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z0-9\s,./#-]')),
+                  FilteringTextInputFormatter.allow(
+                    RegExp(r'[a-zA-Z0-9\s,./#-]'),
+                  ),
                 ],
                 maxLength: 200,
-                validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.address),
+                validator:
+                    (value) => Validator.fieldRequired(
+                      value,
+                      fieldName: context.appText.address,
+                    ),
               ),
               10.height,
               AppTextField(
+                enableInteractiveSelection: true,
                 mandatoryStar: true,
                 controller: cityController,
                 labelText: context.appText.city,
                 maxLength: 20,
-                validator: (value) => Validator.alphabetsOnly(value,fieldName: context.appText.city),
+                validator:
+                    (value) => Validator.alphabetsOnly(
+                      value,
+                      fieldName: context.appText.city,
+                    ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
                 ],
               ),
               10.height,
               AppTextField(
+                enableInteractiveSelection: true,
                 mandatoryStar: true,
                 controller: stateController,
                 labelText: context.appText.state,
                 maxLength: 20,
-                validator: (value) => Validator.alphabetsOnly(value,fieldName: context.appText.state),
+                validator:
+                    (value) => Validator.alphabetsOnly(
+                      value,
+                      fieldName: context.appText.state,
+                    ),
                 inputFormatters: [
                   FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
                 ],
               ),
               10.height,
               AppTextField(
+                enableInteractiveSelection: true,
                 mandatoryStar: true,
                 controller: pinCodeController,
                 labelText: context.appText.pincode,
                 maxLength: 6,
                 keyboardType: TextInputType.number,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 validator: (value) => Validator.pincode(value),
               ),
               10.height,
               AppTextField(
+                enableInteractiveSelection: true,
                 controller: gstNoController,
                 maxLength: 15,
                 labelText:

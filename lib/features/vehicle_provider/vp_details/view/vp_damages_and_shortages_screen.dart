@@ -511,6 +511,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
         return UploadAttachmentFiles(
           isdocSupportWithoutPdf: false,
           title: context.appText.productPhoto,
+          isMandatory: true,
           multiFilesList: multiFilesList,
           isMultipleSelectionFile: false,
           isSingleFile: false,

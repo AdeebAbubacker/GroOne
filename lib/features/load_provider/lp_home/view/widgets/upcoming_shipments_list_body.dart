@@ -186,9 +186,11 @@ class _UpcomingShipmentsListBodyState extends State<UpcomingShipmentsListBody> {
             20.height,
 
             Container(
+              width: double.infinity,
               decoration: commonContainerDecoration(color: AppColors.lightBlueColor, borderRadius: BorderRadius.circular(5)),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 20,
                 children: [
                   Text(context.appText.agreedPrice, style: AppTextStyle.body1Normal),
                   Text(

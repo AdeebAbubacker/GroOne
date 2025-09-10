@@ -1,3 +1,5 @@
+import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
+
 import '../../model/kavach_order_list_model.dart';
 
 abstract class KavachOrderListState {}
@@ -8,17 +10,20 @@ class KavachOrderListLoading extends KavachOrderListState {}
 
 class KavachOrderListLoaded extends KavachOrderListState {
   final List<KavachOrderListOrderItem> orders;
+  final bool? kycStatusUpdated;
   final bool hasReachedMax;
   final int page;
 
   KavachOrderListLoaded({
     required this.orders,
+    this.kycStatusUpdated,
     required this.hasReachedMax,
     required this.page,
   });
 
   KavachOrderListLoaded copyWith({
     List<KavachOrderListOrderItem>? orders,
+    List<GpsKycCheckResponseModel>? kycModelData,
     bool? hasReachedMax,
     int? page,
   }) {
@@ -26,6 +31,7 @@ class KavachOrderListLoaded extends KavachOrderListState {
       orders: orders ?? this.orders,
       hasReachedMax: hasReachedMax ?? this.hasReachedMax,
       page: page ?? this.page,
+      kycStatusUpdated: kycStatusUpdated ?? this.kycStatusUpdated,
     );
   }
 }
@@ -40,5 +46,6 @@ class InvoiceDownloading extends KavachOrderListState {}
 
 class InvoiceDownloaded extends KavachOrderListState {
   final String url;
+
   InvoiceDownloaded(this.url);
 }

@@ -255,6 +255,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
               ],
             ),
             AppSearchBar(
+              hintText: context.appText.search,
               searchController: searchController,
               onChanged: (text) {
                 setState(() {});

@@ -35,15 +35,18 @@ class EndhanCreateCardCustomerInfoScreen extends StatefulWidget {
   const EndhanCreateCardCustomerInfoScreen({super.key});
 
   @override
-  State<EndhanCreateCardCustomerInfoScreen> createState() => _EndhanCreateCardCustomerInfoScreenState();
+  State<EndhanCreateCardCustomerInfoScreen> createState() =>
+      _EndhanCreateCardCustomerInfoScreenState();
 }
 
-class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCustomerInfoScreen> {
+class _EndhanCreateCardCustomerInfoScreenState
+    extends State<EndhanCreateCardCustomerInfoScreen> {
   final referralCodeController = TextEditingController();
   final zonalOfficeController = TextEditingController();
   final regionalOfficeController = TextEditingController();
   final stateController = TextEditingController();
   final districtController = TextEditingController();
+
   // Email controller removed since field is now read-only
   final panController = TextEditingController(); // Add PAN controller
   final nameController = TextEditingController(); // Add PAN controller
@@ -74,7 +77,9 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     // PAN sync removed since field is now read-only
     cubit.setAddress1(address1Controller.text);
     cubit.setAddress2(address2Controller.text);
-    cubit.setCommunicationCityName(cityNameController.text.trim().replaceAll(multipleSpacesRegex, ' '));
+    cubit.setCommunicationCityName(
+      cityNameController.text.trim().replaceAll(multipleSpacesRegex, ' '),
+    );
     cubit.setPincode(pincodeController.text);
     cubit.setReferralCode(referralCodeController.text);
   }
@@ -82,28 +87,29 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
   /// Add listeners to all controllers to sync with cubit state
   void _addControllerListeners() {
     final cubit = locator<EnDhanCubit>();
-    
+
     referralCodeController.addListener(() {
       cubit.setReferralCode(referralCodeController.text);
     });
-    
+
     // Email controller listener removed since field is now read-only
-    
+
     // PAN controller listener removed since field is now read-only
-    
+
     address1Controller.addListener(() {
       cubit.setAddress1(address1Controller.text);
     });
-    
     address2Controller.addListener(() {
       cubit.setAddress2(address2Controller.text);
     });
-    
     cityNameController.addListener(() {
-      final cleanedValue = cityNameController.text.trim().replaceAll(multipleSpacesRegex, ' ');
+      final cleanedValue = cityNameController.text.trim().replaceAll(
+        multipleSpacesRegex,
+        ' ',
+      );
       cubit.setCommunicationCityName(cleanedValue);
     });
-    
+
     // Remove pincode listener to avoid circular updates causing cursor jumping
   }
 
@@ -120,28 +126,25 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
     final userInfoRepo = locator<UserInformationRepository>();
     final formKey = GlobalKey<FormState>();
 
-
-
     // Initialize data when widget is first built
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       // Only reset form data if it's completely empty (first time loading)
       // Don't reset if user is coming back from card info screen
-      if (cubit.state.customerName.isEmpty && 
-          cubit.state.mobile.isEmpty && 
+      if (cubit.state.customerName.isEmpty &&
+          cubit.state.mobile.isEmpty &&
           cubit.state.address1.isEmpty &&
           cubit.state.email.isEmpty &&
           cubit.state.pan.isEmpty) {
         cubit.resetFormData();
-      } else {
-      }
+      } else {}
 
       // Fetch master data when screen loads
       cubit.fetchStates();
       cubit.fetchZonalOffices();
-      
+
       // Check KYC documents to get PAN data if available
       await cubit.checkKycDocuments();
-      
+
       // Auto-populate PAN from KYC data if available and not already set
       if (cubit.state.kycData?.document?.pan != null &&
           cubit.state.kycData!.document!.pan!.isNotEmpty &&
@@ -153,37 +156,40 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       String? username = await userInfoRepo.getUsername();
       String? mobileNumber = await userInfoRepo.getUserMobileNumber();
       String? emailID = await userInfoRepo.getUserEmail();
-      
+
       // If username is not in session, fetch from profile
       if (username == null || username.isEmpty) {
-        
         // Fetch profile data
         await profileCubit.fetchProfileDetail();
-        
+
         // Get username from profile state
         final profileState = profileCubit.state;
-        if (profileState.profileDetailUIState?.data?.customer?.customerName != null) {
-          username = profileState.profileDetailUIState!.data!.customer!.customerName;
-          mobileNumber = profileState.profileDetailUIState!.data!.customer!.mobileNumber;
+        if (profileState.profileDetailUIState?.data?.customer?.customerName !=
+            null) {
+          username =
+              profileState.profileDetailUIState!.data!.customer!.customerName;
+          mobileNumber =
+              profileState.profileDetailUIState!.data!.customer!.mobileNumber;
           emailID = profileState.profileDetailUIState!.data!.customer!.emailId;
         }
-      } else {
-      }
-      
+      } else {}
+
       // Set username in cubit if available and not already set
-      if (username != null && username.isNotEmpty && cubit.state.customerName.isEmpty) {
+      if (username != null &&
+          username.isNotEmpty &&
+          cubit.state.customerName.isEmpty) {
         cubit.setCustomerName(username);
       }
       // Set mobile number in cubit if available and not already set
-      if (mobileNumber != null && mobileNumber.isNotEmpty && cubit.state.mobile.isEmpty) {
+      if (mobileNumber != null &&
+          mobileNumber.isNotEmpty &&
+          cubit.state.mobile.isEmpty) {
         cubit.setMobile(mobileNumber);
       }
       // Set email in cubit if available and not already set
       if (emailID != null && emailID.isNotEmpty && cubit.state.email.isEmpty) {
         cubit.setEmail(emailID);
       }
-      
-
 
       address1Controller.text = cubit.state.address1;
       address2Controller.text = cubit.state.address2;
@@ -198,8 +204,8 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
           panController.text = state.pan;
         }
         nameController.text = state.customerName;
-        address1Controller.text = cubit.state.address1;
-        address2Controller.text = cubit.state.address2;
+        updateAddressLineOneControllerValue(cubit);
+        updateAddressLineTwoControllerValue(cubit);
         cityNameController.text = cubit.state.cityName;
         // Don't initialize pincode controller to avoid cursor jumping
         referralCodeController.text = cubit.state.referralCode;
@@ -231,7 +237,15 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             actions: [
                               AppIconButton(
                                 onPressed: () {
-                                  Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,ticketTag: TicketTags.ENDHAN,), isForward: true));
+                                  Navigator.of(context).push(
+                                    commonRoute(
+                                      LpSupport(
+                                        showBackButton: true,
+                                        ticketTag: TicketTags.ENDHAN,
+                                      ),
+                                      isForward: true,
+                                    ),
+                                  );
                                 },
                                 icon: AppIcons.svg.filledSupport,
                                 iconColor: AppColors.primaryColor,
@@ -249,8 +263,6 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                       ),
                     ),
 
-
-                      
                     Form(
                       key: formKey,
                       child: Column(
@@ -260,7 +272,10 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           24.height,
 
                           // Title & Name
-                          Text("${context.appText.titleAndName} *", style: AppTextStyle.body3),
+                          Text(
+                            "${context.appText.titleAndName} *",
+                            style: AppTextStyle.body3,
+                          ),
                           6.height,
                           Row(
                             children: [
@@ -272,18 +287,18 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                       state.title.isNotEmpty
                                           ? state.title
                                           : 'Mr',
-                                  dropDownList: const [
+                                  dropDownList: [
                                     DropdownMenuItem(
                                       value: 'Mr',
-                                      child: Text('Mr'),
+                                      child: Text(context.appText.mr),
                                     ),
                                     DropdownMenuItem(
                                       value: 'Ms',
-                                      child: Text('Ms'),
+                                      child: Text(context.appText.ms),
                                     ),
                                     DropdownMenuItem(
                                       value: 'Mrs',
-                                      child: Text('Mrs'),
+                                      child: Text(context.appText.mrs),
                                     ),
                                   ],
                                   onChanged: (val) {
@@ -296,23 +311,30 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                               10.width,
                               Expanded(
                                 flex: 5,
-                                child: AppTextField(                                  decoration: commonInputDecoration(
+                                child: AppTextField(
+                                  decoration: commonInputDecoration(
                                     hintText: context.appText.enterName,
-                                    fillColor: AppColors.disabledFieldBackgroundColor,
-                                    focusColor: AppColors.disabledFieldBackgroundColor,
+                                    fillColor:
+                                        AppColors.disabledFieldBackgroundColor,
+                                    focusColor:
+                                        AppColors.disabledFieldBackgroundColor,
                                   ),
                                   //labelText: 'Name',
                                   hintText: context.appText.enterName,
                                   // controller: TextEditingController(text: state.customerName),
                                   controller: nameController,
-                                  readOnly: true, // Make the field non-editable
-                                  onChanged: null, // Remove onChanged since field is disabled
+                                  readOnly: true,
+                                  // Make the field non-editable
+                                  onChanged: null,
+                                  // Remove onChanged since field is disabled
                                   validator: (value) {
                                     if (value == null || value.trim().isEmpty) {
                                       return context.appText.nameRequired;
                                     }
                                     if (value.trim().length < 2) {
-                                      return context.appText.nameMustBeAtLeast2Characters;
+                                      return context
+                                          .appText
+                                          .nameMustBeAtLeast2Characters;
                                     }
                                     return null;
                                   },
@@ -324,7 +346,9 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           AppTextField(
                             labelText: '${context.appText.mobileNumber} *',
                             hintText: '+91 9876987654',
-                            controller: TextEditingController(text: state.mobile),
+                            controller: TextEditingController(
+                              text: state.mobile,
+                            ),
                             readOnly: true,
                             keyboardType: TextInputType.phone,
                             // validator: (value) {
@@ -341,24 +365,32 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             decoration: commonInputDecoration(
                               hintText: '+91 9876987654',
                               fillColor: AppColors.disabledFieldBackgroundColor,
-                              focusColor: AppColors.disabledFieldBackgroundColor,
+                              focusColor:
+                                  AppColors.disabledFieldBackgroundColor,
                             ),
                           ),
                           16.height,
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.panNumber} *',
                             hintText: 'ABCDE1234F',
                             controller: panController,
-                            readOnly: state.pan.isNotEmpty, // Read-only if PAN is already present (from KYC or manual entry)
+                            readOnly: state.pan.isNotEmpty,
+                            // Read-only if PAN is already present (from KYC or manual entry)
                             maxLength: 10,
                             textCapitalization: TextCapitalization.characters,
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(panNumberInputRegex),
+                              FilteringTextInputFormatter.allow(
+                                panNumberInputRegex,
+                              ),
                               LengthLimitingTextInputFormatter(10),
                             ],
-                            onChanged: state.pan.isEmpty ? (value) {
-                              cubit.setPan(value);
-                            } : null,
+                            onChanged:
+                                state.pan.isEmpty
+                                    ? (value) {
+                                      cubit.setPan(value);
+                                    }
+                                    : null,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
                                 return context.appText.panNumberRequired;
@@ -374,8 +406,14 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             },
                             decoration: commonInputDecoration(
                               hintText: 'ABCDE1234F',
-                              fillColor: state.pan.isNotEmpty ? AppColors.disabledFieldBackgroundColor : null,
-                              focusColor: state.pan.isNotEmpty ? AppColors.disabledFieldBackgroundColor : null,
+                              fillColor:
+                                  state.pan.isNotEmpty
+                                      ? AppColors.disabledFieldBackgroundColor
+                                      : null,
+                              focusColor:
+                                  state.pan.isNotEmpty
+                                      ? AppColors.disabledFieldBackgroundColor
+                                      : null,
                             ),
                           ),
                           16.height,
@@ -384,7 +422,9 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           AppTextField(
                             labelText: '${context.appText.emailAddress} *',
                             hintText: 'example@email.com',
-                            controller: TextEditingController(text: state.email),
+                            controller: TextEditingController(
+                              text: state.email,
+                            ),
                             readOnly: true,
                             validator: (value) {
                               if (value == null || value.trim().isEmpty) {
@@ -400,19 +440,23 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                             decoration: commonInputDecoration(
                               hintText: 'example@email.com',
                               fillColor: AppColors.disabledFieldBackgroundColor,
-                              focusColor: AppColors.disabledFieldBackgroundColor,
+                              focusColor:
+                                  AppColors.disabledFieldBackgroundColor,
                             ),
                           ),
 
                           16.height,
                           //pincode feild
-                           AppTextField(
+                          AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.pinCode} *',
                             hintText: context.appText.enterPinCode,
                             controller: pincodeController,
                             keyboardType: TextInputType.number,
                             maxLength: 6,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
                             onChanged: (value) {
                               cubit.setPincode(value);
                               // Call API when pincode is 6 digits
@@ -430,69 +474,91 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 return context.appText.valid6DigitPincode;
                               }
                               if (value.trim().length != 6) {
-                                return context.appText.pincodeMustBeExactly6Digits;
+                                return context
+                                    .appText
+                                    .pincodeMustBeExactly6Digits;
                               }
                               return null;
                             },
                           ),
-                          
 
                           16.height,
-                                                     // Zonal Office Dropdown
-                           Builder(
-                             builder: (context) {
-                               return EnhancedDropdownField(
-                                 labelText: '${context.appText.zonalOffice} *',
-                                 hintText: context.appText.selectZonalOffice,
-                                 value: state.selectedZonalOfficeId?.toString(),
-                                 displayText: state.selectedZonalOfficeName,
-                                 options: state.zonalOffices.map((office) => {
-                                   'id': office['id'],
-                                   'name': office['zone_name'],
-                                 }).toList(),
-                                 onChanged: (zoneId) {
-                                   cubit.setSelectedZonalOfficeId(int.parse(zoneId));
-                                   cubit.fetchRegionalOffices(int.parse(zoneId));
-                                   // Clear regional office selection when zonal office changes
-                                   regionalOfficeController.clear();
-                                 },
-                                 isLoading: state.zonalOfficesState?.status == Status.LOADING,
-                                 validator: (value) {
-                                   if (value == null || value.trim().isEmpty) {
-                                     return context.appText.selectZonalOffice;
-                                   }
-                                   return null;
-                                 },
-                               );
-                             },
-                           ),
+                          // Zonal Office Dropdown
+                          Builder(
+                            builder: (context) {
+                              return EnhancedDropdownField(
+                                labelText: '${context.appText.zonalOffice} *',
+                                hintText: context.appText.selectZonalOffice,
+                                value: state.selectedZonalOfficeId?.toString(),
+                                displayText: state.selectedZonalOfficeName,
+                                options:
+                                    state.zonalOffices
+                                        .map(
+                                          (office) => {
+                                            'id': office['id'],
+                                            'name': office['zone_name'],
+                                          },
+                                        )
+                                        .toList(),
+                                onChanged: (zoneId) {
+                                  cubit.setSelectedZonalOfficeId(
+                                    int.parse(zoneId),
+                                  );
+                                  cubit.fetchRegionalOffices(int.parse(zoneId));
+                                  // Clear regional office selection when zonal office changes
+                                  regionalOfficeController.clear();
+                                },
+                                isLoading:
+                                    state.zonalOfficesState?.status ==
+                                    Status.LOADING,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return context.appText.selectZonalOffice;
+                                  }
+                                  return null;
+                                },
+                              );
+                            },
+                          ),
                           16.height,
-                                                     // Regional Office Dropdown
-                           Builder(
-                             builder: (context) {
-                               return EnhancedDropdownField(
-                                 labelText: '${context.appText.regionalOffice} *',
-                                 hintText: context.appText.selectRegionalOffice,
-                                 value: state.selectedRegionalOfficeId?.toString(),
-                                 options: state.regionalOffices.map((office) => {
-                                   'id': office['id'],
-                                   'name': office['region_name'],
-                                 }).toList(),
-                                 onChanged: (regionalId) {
-                                   cubit.setSelectedRegionalOfficeId(int.parse(regionalId));
-                                 },
-                                 isLoading: state.regionalOfficesState?.status == Status.LOADING,
-                                 validator: (value) {
-                                   if (value == null || value.trim().isEmpty) {
-                                     return context.appText.selectRegionalOffice;
-                                   }
-                                   return null;
-                                 },
-                               );
-                             },
-                           ),
+                          // Regional Office Dropdown
+                          Builder(
+                            builder: (context) {
+                              return EnhancedDropdownField(
+                                labelText:
+                                    '${context.appText.regionalOffice} *',
+                                hintText: context.appText.selectRegionalOffice,
+                                value:
+                                    state.selectedRegionalOfficeId?.toString(),
+                                options:
+                                    state.regionalOffices
+                                        .map(
+                                          (office) => {
+                                            'id': office['id'],
+                                            'name': office['region_name'],
+                                          },
+                                        )
+                                        .toList(),
+                                onChanged: (regionalId) {
+                                  cubit.setSelectedRegionalOfficeId(
+                                    int.parse(regionalId),
+                                  );
+                                },
+                                isLoading:
+                                    state.regionalOfficesState?.status ==
+                                    Status.LOADING,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return context.appText.selectRegionalOffice;
+                                  }
+                                  return null;
+                                },
+                              );
+                            },
+                          ),
                           16.height,
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.addressLine1} *',
                             hintText: context.appText.enter,
                             controller: address1Controller,
@@ -505,6 +571,7 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           ),
                           16.height,
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.addressLine2} *',
                             hintText: context.appText.enter,
                             controller: address2Controller,
@@ -517,72 +584,91 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                           ),
                           16.height,
 
-                                                     // State Dropdown
-                           Builder(
-                             builder: (context) {
-                               return EnhancedDropdownField(
-                                 labelText: '${context.appText.state} *',
-                                 hintText: context.appText.selectState,
-                                 value: state.selectedStateId?.toString(),
-                                 displayText: state.selectedStateName,
-                                 options: state.states.map((state) => {
-                                   'id': state['id'],
-                                   'name': state['state_name'],
-                                 }).toList(),
-                                 onChanged: (stateId) {
-                                   cubit.setSelectedStateId(int.parse(stateId));
-                                   cubit.fetchDistricts(int.parse(stateId));
-                                   // Clear district selection when state changes
-                                   districtController.clear();
-                                 },
-                                 isLoading: state.statesState?.status == Status.LOADING,
-                                 validator: (value) {
-                                   if (value == null || value.trim().isEmpty) {
-                                     return context.appText.pleaseSelectState;
-                                   }
-                                   return null;
-                                 },
-                               );
-                             },
-                           ),
-                           16.height,
-                                                       // District Dropdown
-                            Builder(
-                              builder: (context) {
-                                final districtValue = state.selectedDistrictName?.isNotEmpty == true 
-                                    ? state.selectedDistrictName 
-                                    : state.selectedDistrictId?.toString();
-                                return EnhancedDropdownField(
-                                  labelText: '${context.appText.district} *',
-                                  hintText: context.appText.selectDistrict,
-                                  value: districtValue,
-                                  options: state.districts.map((district) => {
-                                    'id': district['id'],
-                                    'name': district['district_name'],
-                                  }).toList(),
-                                  onChanged: (districtId) {
-                                    cubit.setSelectedDistrictId(int.parse(districtId));
-                                  },
-                                  isLoading: state.districtsState?.status == Status.LOADING,
-                                  validator: (value) {
-                                    if (value == null || value.trim().isEmpty) {
-                                      return context.appText.pleaseSelectDistrict;
-                                    }
-                                    return null;
-                                  },
-                                );
-                              },
-                            ),
+                          // State Dropdown
+                          Builder(
+                            builder: (context) {
+                              return EnhancedDropdownField(
+                                labelText: '${context.appText.state} *',
+                                hintText: context.appText.selectState,
+                                value: state.selectedStateId?.toString(),
+                                displayText: state.selectedStateName,
+                                options:
+                                    state.states
+                                        .map(
+                                          (state) => {
+                                            'id': state['id'],
+                                            'name': state['state_name'],
+                                          },
+                                        )
+                                        .toList(),
+                                onChanged: (stateId) {
+                                  cubit.setSelectedStateId(int.parse(stateId));
+                                  cubit.fetchDistricts(int.parse(stateId));
+                                  // Clear district selection when state changes
+                                  districtController.clear();
+                                },
+                                isLoading:
+                                    state.statesState?.status == Status.LOADING,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return context.appText.pleaseSelectState;
+                                  }
+                                  return null;
+                                },
+                              );
+                            },
+                          ),
+                          16.height,
+                          // District Dropdown
+                          Builder(
+                            builder: (context) {
+                              final districtValue =
+                                  state.selectedDistrictName?.isNotEmpty == true
+                                      ? state.selectedDistrictName
+                                      : state.selectedDistrictId?.toString();
+                              return EnhancedDropdownField(
+                                labelText: '${context.appText.district} *',
+                                hintText: context.appText.selectDistrict,
+                                value: districtValue,
+                                options:
+                                    state.districts
+                                        .map(
+                                          (district) => {
+                                            'id': district['id'],
+                                            'name': district['district_name'],
+                                          },
+                                        )
+                                        .toList(),
+                                onChanged: (districtId) {
+                                  cubit.setSelectedDistrictId(
+                                    int.parse(districtId),
+                                  );
+                                },
+                                isLoading:
+                                    state.districtsState?.status ==
+                                    Status.LOADING,
+                                validator: (value) {
+                                  if (value == null || value.trim().isEmpty) {
+                                    return context.appText.pleaseSelectDistrict;
+                                  }
+                                  return null;
+                                },
+                              );
+                            },
+                          ),
 
                           16.height,
                           AppTextField(
+                            enableInteractiveSelection: true,
                             labelText: '${context.appText.cityName} *',
                             hintText: context.appText.enterCityName,
                             controller: cityNameController,
                             maxLength: 50,
                             textCapitalization: TextCapitalization.words,
                             inputFormatters: [
-                              FilteringTextInputFormatter.allow(cityNameInputRegex),
+                              FilteringTextInputFormatter.allow(
+                                cityNameInputRegex,
+                              ),
                               LengthLimitingTextInputFormatter(50),
                             ],
                             validator: (value) {
@@ -590,22 +676,28 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 return context.appText.cityNameRequired;
                               }
                               if (value.trim().length < 2) {
-                                return context.appText.cityNameMustBeAtLeast2Characters;
+                                return context
+                                    .appText
+                                    .cityNameMustBeAtLeast2Characters;
                               }
                               if (value.trim().length > 50) {
-                                return context.appText.cityNameCannotExceed50Characters;
+                                return context
+                                    .appText
+                                    .cityNameCannotExceed50Characters;
                               }
                               // Check if contains only alphabets and spaces
                               final cityRegex = cityNameValidationRegex;
                               if (!cityRegex.hasMatch(value.trim())) {
-                                return context.appText.cityNameCanOnlyContainAlphabetsAndSpaces;
+                                return context
+                                    .appText
+                                    .cityNameCanOnlyContainAlphabetsAndSpaces;
                               }
                               return null;
                             },
                           ),
-                          
+
                           16.height,
-                      
+
                           EnDhanReferralAutoCompleteTextField(
                             controller: referralCodeController,
                             labelText: context.appText.referralCodeOptional,
@@ -647,7 +739,9 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 if (state.selectedStateId == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(context.appText.selectState),
+                                      content: Text(
+                                        context.appText.selectState,
+                                      ),
                                     ),
                                   );
                                   return;
@@ -655,7 +749,9 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
                                 if (state.selectedDistrictId == null) {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(context.appText.selectDistrict),
+                                      content: Text(
+                                        context.appText.selectDistrict,
+                                      ),
                                     ),
                                   );
                                   return;
@@ -684,6 +780,40 @@ class _EndhanCreateCardCustomerInfoScreenState extends State<EndhanCreateCardCus
       },
     );
   }
+
+  updateAddressLineOneControllerValue(EnDhanCubit cubit) {
+    final oldText = address1Controller.text;
+    final newText = cubit.state.address1;
+    if (oldText != newText) {
+      final oldSelection = address1Controller.selection;
+      final baseOffset = oldSelection.baseOffset.clamp(0, newText.length);
+      final extentOffset = oldSelection.extentOffset.clamp(0, newText.length);
+      address1Controller.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection(
+          baseOffset: baseOffset,
+          extentOffset: extentOffset,
+        ),
+      );
+    }
+  }
+
+  updateAddressLineTwoControllerValue(EnDhanCubit cubit) {
+    final oldText = address2Controller.text;
+    final newText = cubit.state.address2;
+    if (oldText != newText) {
+      final oldSelection = address2Controller.selection;
+      final baseOffset = oldSelection.baseOffset.clamp(0, newText.length);
+      final extentOffset = oldSelection.extentOffset.clamp(0, newText.length);
+      address2Controller.value = TextEditingValue(
+        text: newText,
+        selection: TextSelection(
+          baseOffset: baseOffset,
+          extentOffset: extentOffset,
+        ),
+      );
+    }
+  }
 }
 
 /// EnDhan-specific referral autocomplete text field widget
@@ -702,10 +832,12 @@ class EnDhanReferralAutoCompleteTextField extends StatefulWidget {
   });
 
   @override
-  State<EnDhanReferralAutoCompleteTextField> createState() => _EnDhanReferralAutoCompleteTextFieldState();
+  State<EnDhanReferralAutoCompleteTextField> createState() =>
+      _EnDhanReferralAutoCompleteTextFieldState();
 }
 
-class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAutoCompleteTextField> {
+class _EnDhanReferralAutoCompleteTextFieldState
+    extends State<EnDhanReferralAutoCompleteTextField> {
   final List<KavachUserModel> allUsers = [];
   final List<KavachUserModel> filteredUsers = [];
   final LayerLink _layerLink = LayerLink();
@@ -740,10 +872,16 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
     try {
       CustomLog.debug(this, "EnDhan Referral - Starting to fetch users...");
       final result = await _repository.fetchUsers();
-      CustomLog.debug(this, "EnDhan Referral - Fetch result type: ${result.runtimeType}");
-      
+      CustomLog.debug(
+        this,
+        "EnDhan Referral - Fetch result type: ${result.runtimeType}",
+      );
+
       if (result is Success<List<KavachUserModel>>) {
-        CustomLog.debug(this, "EnDhan Referral - Successfully fetched ${result.value.length} users");
+        CustomLog.debug(
+          this,
+          "EnDhan Referral - Successfully fetched ${result.value.length} users",
+        );
         if (mounted) {
           setState(() {
             allUsers.clear();
@@ -753,7 +891,11 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
           });
         }
       } else if (result is Error<List<KavachUserModel>>) {
-        CustomLog.error(this, "EnDhan Referral - Failed to fetch users: ${result.type}", null);
+        CustomLog.error(
+          this,
+          "EnDhan Referral - Failed to fetch users: ${result.type}",
+          null,
+        );
         if (mounted) {
           setState(() {
             hasError = true;
@@ -762,7 +904,11 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
           });
         }
       } else {
-        CustomLog.error(this, "EnDhan Referral - Unknown result type: ${result.runtimeType}", null);
+        CustomLog.error(
+          this,
+          "EnDhan Referral - Unknown result type: ${result.runtimeType}",
+          null,
+        );
         if (mounted) {
           setState(() {
             hasError = true;
@@ -772,7 +918,11 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
         }
       }
     } catch (e) {
-      CustomLog.error(this, "EnDhan Referral - Exception while fetching users", e);
+      CustomLog.error(
+        this,
+        "EnDhan Referral - Exception while fetching users",
+        e,
+      );
       if (mounted) {
         setState(() {
           hasError = true;
@@ -785,15 +935,21 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
 
   void _onChanged() {
     final query = widget.controller.text.toLowerCase();
-    
+
     if (query.isNotEmpty) {
       filteredUsers.clear();
-      filteredUsers.addAll(allUsers
-          .where((user) => 
-              user.userName.toLowerCase().contains(query) ||
-              user.empCode.toLowerCase().contains(query) ||
-              '${user.empCode} ${user.userName}'.toLowerCase().contains(query))
-          .toList());
+      filteredUsers.addAll(
+        allUsers
+            .where(
+              (user) =>
+                  user.userName.toLowerCase().contains(query) ||
+                  user.empCode.toLowerCase().contains(query) ||
+                  '${user.empCode} ${user.userName}'.toLowerCase().contains(
+                    query,
+                  ),
+            )
+            .toList(),
+      );
 
       if (filteredUsers.isNotEmpty) {
         _showOverlay();
@@ -812,64 +968,66 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
   void _showOverlay() {
     _removeOverlay();
     _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        width: MediaQuery.of(context).size.width - 40, // Account for padding
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          offset: const Offset(0, 60),
-          child: Material(
-            elevation: 4,
-            child: Container(
-              constraints: const BoxConstraints(maxHeight: 200),
-              decoration: BoxDecoration(
-                color: AppColors.white,
-                border: Border.all(color: Colors.grey.shade300),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: ListView.builder(
-                padding: EdgeInsets.zero,
-                shrinkWrap: true,
-                itemCount: filteredUsers.length,
-                itemBuilder: (context, index) {
-                  final user = filteredUsers[index];
-                  return ListTile(
-                    dense: true,
-                    title: Row(
-                      children: [
-                        Text(
-                          user.empCode,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            user.userName,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
+      builder:
+          (context) => Positioned(
+            width:
+                MediaQuery.of(context).size.width - 40, // Account for padding
+            child: CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              offset: const Offset(0, 60),
+              child: Material(
+                elevation: 4,
+                child: Container(
+                  constraints: const BoxConstraints(maxHeight: 200),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    border: Border.all(color: Colors.grey.shade300),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: ListView.builder(
+                    padding: EdgeInsets.zero,
+                    shrinkWrap: true,
+                    itemCount: filteredUsers.length,
+                    itemBuilder: (context, index) {
+                      final user = filteredUsers[index];
+                      return ListTile(
+                        dense: true,
+                        title: Row(
+                          children: [
+                            Text(
+                              user.empCode,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                user.userName,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey[600],
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    onTap: () {
-                      // widget.controller.text = "${user.empCode} ${user.userName}";
-                      widget.controller.text = user.empCode;
-                      widget.onSelected(user.empCode);
-                      _removeOverlay();
+                        onTap: () {
+                          // widget.controller.text = "${user.empCode} ${user.userName}";
+                          widget.controller.text = user.empCode;
+                          widget.onSelected(user.empCode);
+                          _removeOverlay();
+                        },
+                      );
                     },
-                  );
-                },
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-      ),
     );
     Overlay.of(context).insert(_overlayEntry!);
   }
@@ -887,6 +1045,7 @@ class _EnDhanReferralAutoCompleteTextFieldState extends State<EnDhanReferralAuto
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppTextField(
+            enableInteractiveSelection: true,
             labelText: widget.labelText,
             controller: widget.controller,
             validator: widget.validator,

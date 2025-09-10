@@ -23,7 +23,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.d
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/commodity_types_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/load_summary_screen.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/lp_select_address_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/truck_type_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/book_shipment_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomplete_kyc_status_widget.dart';
@@ -323,14 +322,18 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   // Kyc Bottom Sheet
   void kycBottomSheet(BuildContext context){
+    var companyId = profileCubit.state.profileDetailUIState?.data?.customer?.companyTypeId;
     commonBottomSheetWithBGBlur(
       screen: KycPendingDialogue(
         onPressed: () {
           context.pop();
-          commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
-            lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
-            );
-          });
+          if(companyId != null && (companyId == 2 || companyId == 1)) {
+            commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
+              lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
+            });
+          } else {
+            commonBottomSheetWithBGBlur(context: context, screen: KycUploadDocumentScreen());
+          }
         },
       ),
       context: context,
@@ -357,11 +360,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   //
   void navigateToLPSelectAddressScreen(state) {
-    Navigator.of(context).push(commonRoute(LPSelectAddressScreen(
-        title: context.appText.pickupPoint,
-        address: state.pickup?.data?.address,
-        location: state.pickup?.data?.location), isForward: true))
-        .then((onValue) async {
+    final extra = {'title' : context.appText.pickupPoint, 'address': state.pickup?.data?.address, 'location': state.pickup?.data?.location};
+    context.push(AppRouteName.lpSelectAddressScreen, extra: extra).then((onValue) async {
       if (onValue != null && onValue == true) {
         await fetchRateDiscovery();
       }
@@ -727,7 +727,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                           heading: context.appText.destination,
                           subHeading: destinationLocation ?? context.appText.selectDestination,
                           onClick: () async {
-                            Navigator.of(context).push(commonRoute(LPSelectAddressScreen(title: context.appText.selectDestinationTitle, address: state.destination!.data?.address, location: state.destination!.data?.location), isForward: true)).then((onValue) async {
+                              final extra = {'title' : context.appText.selectDestinationTitle, 'address': state.destination!.data?.address, 'location': state.destination!.data?.location};
+                            context.push(AppRouteName.lpSelectAddressScreen, extra: extra).then((onValue) async {
                               if(onValue != null && onValue == true){
                                 await fetchRateDiscovery();
                               } else {
@@ -1098,7 +1099,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                     LpBottomNavigation.selectedIndexNotifier.value = 1;
                                   },
                                   style: AppButtonStyle.primaryTextButton,
-                                  child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor),
+                                  child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor, textAlign: TextAlign.center),
                                 ),
 
                               ],

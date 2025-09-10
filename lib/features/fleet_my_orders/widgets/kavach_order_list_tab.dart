@@ -11,7 +11,8 @@ class KavachOrderListTabWidget extends StatefulWidget {
   const KavachOrderListTabWidget({super.key});
 
   @override
-  State<KavachOrderListTabWidget> createState() => _KavachOrderListTabWidgetState();
+  State<KavachOrderListTabWidget> createState() =>
+      _KavachOrderListTabWidgetState();
 }
 
 class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
@@ -26,7 +27,9 @@ class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
     });
 
     // Initial fetch
-    context.read<KavachOrderListBloc>().add(FetchKavachOrderList(isRefresh: true));
+    context.read<KavachOrderListBloc>().add(
+      FetchKavachOrderList(isRefresh: true),
+    );
   }
 
   @override
@@ -34,9 +37,7 @@ class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
     return Column(
       children: [
         _buildSearchBar(context),
-        Expanded(
-          child: _OrdersListViewWithSearch(searchText: _searchText),
-        ),
+        Expanded(child: _OrdersListViewWithSearch(searchText: _searchText)),
       ],
     );
   }
@@ -49,12 +50,13 @@ class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
         decoration: InputDecoration(
           hintText: context.appText.search,
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: _searchText.isNotEmpty
-              ? IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () => _searchController.clear(),
-          )
-              : null,
+          suffixIcon:
+              _searchText.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () => _searchController.clear(),
+                  )
+                  : null,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
@@ -64,20 +66,25 @@ class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
 
 class _OrdersListViewWithSearch extends StatefulWidget {
   final String searchText;
+
   const _OrdersListViewWithSearch({required this.searchText});
 
   @override
-  State<_OrdersListViewWithSearch> createState() => _OrdersListViewWithSearchState();
+  State<_OrdersListViewWithSearch> createState() =>
+      _OrdersListViewWithSearchState();
 }
 
 class _OrdersListViewWithSearchState extends State<_OrdersListViewWithSearch> {
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
+  final filtered = [];
 
   @override
   void initState() {
     super.initState();
-    context.read<KavachOrderListBloc>().add(FetchKavachOrderList(forceRefresh: true));
+    context.read<KavachOrderListBloc>().add(
+      FetchKavachOrderList(forceRefresh: true),
+    );
     _scrollController.addListener(_onScroll);
   }
 
@@ -126,13 +133,16 @@ class _OrdersListViewWithSearchState extends State<_OrdersListViewWithSearch> {
           }
 
           // Apply search filter
-          final filtered = state.orders.where((o) {
-            return o.orderUniqueId.toLowerCase().contains(widget.searchText);
-          }).toList();
+          filtered.addAll(
+            state.orders.where((o) {
+              return o.orderUniqueId.toLowerCase().contains(widget.searchText);
+            }).toList(),
+          );
 
           return ListView.builder(
             controller: _scrollController,
-            itemCount: state.hasReachedMax ? filtered.length : filtered.length + 1,
+            itemCount:
+                state.hasReachedMax ? filtered.length : filtered.length + 1,
             itemBuilder: (context, index) {
               if (index >= filtered.length) {
                 return const Padding(
@@ -150,5 +160,4 @@ class _OrdersListViewWithSearchState extends State<_OrdersListViewWithSearch> {
       },
     );
   }
-
 }

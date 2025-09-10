@@ -244,14 +244,16 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
     return Container(
+      width: double.infinity,
       decoration: commonContainerDecoration(
         color: AppColors.primaryLightColor,
         borderRadius: BorderRadius.circular(commonButtonRadius),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: Wrap(
+        alignment: WrapAlignment.center,
+        spacing: 20,
         children: [
-          Text(context.appText.agreedPrice, style: AppTextStyle.body2),
+          Text(context.appText.agreedPrice, style: AppTextStyle.body1Normal),
           Text(loadPrice, style: AppTextStyle.h4.copyWith(color: AppColors.primaryColor)),
         ],
       ).paddingAll(8),

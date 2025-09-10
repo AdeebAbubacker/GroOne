@@ -100,15 +100,22 @@ class PathReplayCubit extends Cubit<PathReplayState> {
 
   void _animateMarker(LatLng from, LatLng to, {int durationMs = 400}) {
     _markerAnimationTimer?.cancel();
-    const int steps = 20;
+
+    // Increase steps for smoother animation and adjust based on distance
+    final distance = _calculateDistance(from, to);
+    final int baseSteps = 30; // Increased from 20
+    final int steps = (baseSteps + (distance * 10)).clamp(20, 60).toInt();
+
     int currentStep = 0;
     emit(state.copyWith(animatedMarkerPosition: from));
 
     _markerAnimationTimer = Timer.periodic(
-      Duration(milliseconds: durationMs ~/ steps),
+      Duration(milliseconds: (durationMs / steps).round()),
       (timer) {
         currentStep++;
-        final double t = currentStep / steps;
+
+        // Use easing function for smoother movement
+        final double t = _easeInOutCubic(currentStep / steps);
         final double lat = from.latitude + (to.latitude - from.latitude) * t;
         final double lng = from.longitude + (to.longitude - from.longitude) * t;
         emit(state.copyWith(animatedMarkerPosition: LatLng(lat, lng)));
@@ -119,6 +126,35 @@ class PathReplayCubit extends Cubit<PathReplayState> {
         }
       },
     );
+  }
+
+  // Add easing function for smoother animation
+  double _easeInOutCubic(double t) {
+    if (t < 0.5) {
+      return 4 * t * t * t;
+    } else {
+      return 1 - 4 * (1 - t) * (1 - t) * (1 - t);
+    }
+  }
+
+  // Add distance calculation helper
+  double _calculateDistance(LatLng point1, LatLng point2) {
+    const double earthRadius = 6371000; // Earth radius in meters
+
+    final lat1Rad = point1.latitude * math.pi / 180;
+    final lat2Rad = point2.latitude * math.pi / 180;
+    final deltaLatRad = (point2.latitude - point1.latitude) * math.pi / 180;
+    final deltaLngRad = (point2.longitude - point1.longitude) * math.pi / 180;
+
+    final a =
+        math.sin(deltaLatRad / 2) * math.sin(deltaLatRad / 2) +
+        math.cos(lat1Rad) *
+            math.cos(lat2Rad) *
+            math.sin(deltaLngRad / 2) *
+            math.sin(deltaLngRad / 2);
+    final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+
+    return earthRadius * c / 1000; // Return distance in kilometers
   }
 
   void seek(int index) {
@@ -158,9 +194,14 @@ class PathReplayCubit extends Cubit<PathReplayState> {
     });
 
     // Animate marker if index changed
-    if (_lastAnimatedIndex != currentIndex && previousPosition != null) {
+    if (_lastAnimatedIndex != currentIndex) {
       _lastAnimatedIndex = currentIndex;
-      final int durationMs = (400 / state.playbackSpeed).clamp(80, 400).toInt();
+
+      // Better duration calculation for smoother movement
+      // Use 80% of the playback interval to ensure animation completes before next position
+      final playbackInterval = (1000 / state.playbackSpeed);
+      final int durationMs = (playbackInterval * 0.8).clamp(200, 800).toInt();
+
       _animateMarker(
         state.animatedMarkerPosition ?? previousPosition,
         currentPosition,
@@ -188,9 +229,14 @@ class PathReplayCubit extends Cubit<PathReplayState> {
     });
 
     // Animate marker if index changed
-    if (_lastAnimatedIndex != currentIndex && previousPosition != null) {
+    if (_lastAnimatedIndex != currentIndex) {
       _lastAnimatedIndex = currentIndex;
-      final int durationMs = (400 / state.playbackSpeed).clamp(80, 400).toInt();
+
+      // Better duration calculation for smoother movement
+      // Use 80% of the playback interval to ensure animation completes before next position
+      final playbackInterval = (1000 / state.playbackSpeed);
+      final int durationMs = (playbackInterval * 0.8).clamp(200, 800).toInt();
+
       _animateMarker(
         state.animatedMarkerPosition ?? previousPosition,
         currentPosition,
@@ -338,17 +384,22 @@ class PathReplayCubit extends Cubit<PathReplayState> {
 
     emit(state.copyWith(isPlaying: true));
 
-    _playbackTimer = Timer.periodic(
-      Duration(milliseconds: (1000 / state.playbackSpeed).round()),
-      (timer) {
-        if (state.currentIndex < maxIndex) {
-          emit(state.copyWith(currentIndex: state.currentIndex + 1));
-          _updateAddressAndAnimation();
-        } else {
-          pause();
-        }
-      },
-    );
+    // Improved playback timing for smoother movement
+    // Ensure minimum interval for smooth animation at high speeds
+    final baseInterval = (1000 / state.playbackSpeed);
+    final playbackInterval =
+        baseInterval.clamp(100, 2000).round(); // Min 100ms, Max 2s
+
+    _playbackTimer = Timer.periodic(Duration(milliseconds: playbackInterval), (
+      timer,
+    ) {
+      if (state.currentIndex < maxIndex) {
+        emit(state.copyWith(currentIndex: state.currentIndex + 1));
+        _updateAddressAndAnimation();
+      } else {
+        pause();
+      }
+    });
   }
 
   void pause() {

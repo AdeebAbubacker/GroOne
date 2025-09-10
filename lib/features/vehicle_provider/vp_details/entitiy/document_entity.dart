@@ -58,6 +58,7 @@ class DocumentEntity {
 class DocumentDataModel {
   static List<DocumentEntity> documentTypeList=[];
   static DocumentEntity? damageDocumentEntity;
+  static DocumentEntity? supportDocumentEntity;
 
 
   static void setDocumentEntityList(){
@@ -112,11 +113,22 @@ class DocumentDataModel {
     )..loadDocumentTypeId( DocumentFileType.damageAndShortage.documentType);
   }
 
+  static void setSupportDocumentEntity(){
+    supportDocumentEntity=  DocumentEntity(
+      documentTypeId:null,
+      fileType: DocumentFileType.supportTicket.name,
+      title:navigatorKey.currentState?.context.appText.supportTicket,
+      visible: true,
+      documentType: DocumentFileType.supportTicket.documentType
+    )..loadDocumentTypeId( DocumentFileType.supportTicket.documentType);
+  }
+
 }
 
 Future<int> getDocumentTypeId(String name) async {
   final cubit=locator<DocumentTypeCubit>();
   int documentTypeID= await cubit.getDocumentTypeId(name);
+
   return documentTypeID;
 }
 

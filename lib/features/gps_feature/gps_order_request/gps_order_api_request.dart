@@ -62,7 +62,14 @@ class GpsDocumentUploadApiRequest {
 
   @override
   int get hashCode {
-    return aadhar.hashCode ^ customerId.hashCode ^ pan.hashCode ^ panImage.hashCode ^ addressProofFront.hashCode ^ addressProofBack.hashCode ^ identityProofFront.hashCode ^ identityProofBack.hashCode;
+    return aadhar.hashCode ^
+        customerId.hashCode ^
+        pan.hashCode ^
+        panImage.hashCode ^
+        addressProofFront.hashCode ^
+        addressProofBack.hashCode ^
+        identityProofFront.hashCode ^
+        identityProofBack.hashCode;
   }
 }
 
@@ -170,10 +177,7 @@ class GpsAddressListRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return <String, dynamic>{
-      'limit': limit,
-      'page': page,
-    };
+    return <String, dynamic>{'limit': limit, 'page': page};
   }
 
   @override
@@ -188,16 +192,10 @@ class GpsAadhaarSendOtpRequest {
   final String aadhaar;
   final bool force;
 
-  const GpsAadhaarSendOtpRequest({
-    required this.aadhaar,
-    this.force = true,
-  });
+  const GpsAadhaarSendOtpRequest({required this.aadhaar, this.force = true});
 
   Map<String, dynamic> toJson() {
-    return {
-      'aadhaar': aadhaar,
-      'force': force,
-    };
+    return {'aadhaar': aadhaar, 'force': force};
   }
 }
 
@@ -213,11 +211,7 @@ class GpsAadhaarVerifyOtpRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'request_id': requestId,
-      'otp': otp,
-      'aadhaar': aadhaar,
-    };
+    return {'request_id': requestId, 'otp': otp, 'aadhaar': aadhaar};
   }
 }
 
@@ -231,10 +225,7 @@ class GpsPanVerificationRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'pan_number': panNumber,
-      'name': name,
-    };
+    return {'pan_number': panNumber, 'name': name};
   }
 }
 
@@ -322,8 +313,7 @@ class GpsKycCheckModel {
 
     if (data != null && data is Map<String, dynamic>) {
       // Check if document exists in the response (singular 'document', not 'documents')
-      hasDocuments = data.containsKey('document') &&
-          data['document'] != null;
+      hasDocuments = data.containsKey('document') && data['document'] != null;
 
       kycData = data;
     }
@@ -356,10 +346,10 @@ class GpsKycCheckModel {
   @override
   int get hashCode {
     return success.hashCode ^
-    message.hashCode ^
-    data.hashCode ^
-    hasKycDocuments.hashCode ^
-    kycData.hashCode;
+        message.hashCode ^
+        data.hashCode ^
+        hasKycDocuments.hashCode ^
+        kycData.hashCode;
   }
 }
 
@@ -424,9 +414,10 @@ class GpsKycCheckResponseModel {
   factory GpsKycCheckResponseModel.fromJson(Map<String, dynamic> json) {
     return GpsKycCheckResponseModel(
       customerId: json['customerId'] ?? '',
-      documents: json['documents'] != null 
-          ? GpsKycDocuments.fromJson(json['documents']) 
-          : null,
+      documents:
+          json['documents'] != null
+              ? GpsKycDocuments.fromJson(json['documents'])
+              : null,
       isKyc: json['isKyc'] ?? 0,
     );
   }
@@ -435,10 +426,15 @@ class GpsKycCheckResponseModel {
   bool get hasKycDocuments {
     // Check if documents exist AND Aadhaar has a proper number
     // The isKyc flag might not always be reliable, so we focus on actual document existence
-    return documents != null && 
-           documents!.aadhar != null && 
-           documents!.aadhar!.isNotEmpty &&
-           documents!.isAadhar == true;
+    // return documents != null &&
+    //        documents!.aadhar != null &&
+    //        documents!.aadhar!.isNotEmpty &&
+    //        documents!.isAadhar == true;
+
+    // As per change request
+    return documents != null &&
+        documents!.panDocLink != null &&
+        documents!.panDocLink!.isNotEmpty == true;
   }
 
   @override
@@ -507,14 +503,10 @@ class GpsKycDocuments {
 class GpsKycUploadResponseModel {
   final String message;
 
-  const GpsKycUploadResponseModel({
-    required this.message,
-  });
+  const GpsKycUploadResponseModel({required this.message});
 
   factory GpsKycUploadResponseModel.fromJson(Map<String, dynamic> json) {
-    return GpsKycUploadResponseModel(
-      message: json['message'] ?? '',
-    );
+    return GpsKycUploadResponseModel(message: json['message'] ?? '');
   }
 
   @override
@@ -531,9 +523,7 @@ class GpsOrderVehicle {
 
   GpsOrderVehicle({required this.vehicleNumber});
 
-  Map<String, dynamic> toJson() => {
-    "vehicleNumber": vehicleNumber,
-  };
+  Map<String, dynamic> toJson() => {"vehicleNumber": vehicleNumber};
 }
 
 /// GPS Order Item Model
@@ -577,7 +567,7 @@ class GpsCustomerInfo {
     required this.contactNumber,
     required this.blueMembershipId,
     required this.mobileNumber,
-    required this.email
+    required this.email,
   });
 
   Map<String, dynamic> toJson() => {
@@ -665,7 +655,7 @@ class GpsOrderRequest {
   Map<String, dynamic> toJson() {
     final json = {
       "orderSource": orderSource,
-      "customerSeriesId" : customerSeriesId,
+      "customerSeriesId": customerSeriesId,
       "isOrderPaid": isOrderPaid,
       "customerId": customerId,
       "createdEmpUserId": createdEmpUserId,
@@ -681,21 +671,19 @@ class GpsOrderRequest {
       "shippingAddress": shippingAddress.toJson(),
       "orders": orders.map((o) => o.toJson()).toList(),
     };
-    
+
     // Add createdEmpId only if it's not null
     if (createdEmpId != null) {
       json["createdEmpId"] = createdEmpId!;
     }
 
     if (paymentRequestId != null) {
-      json["paymentUid"] = paymentRequestId??'';
+      json["paymentUid"] = paymentRequestId ?? '';
     }
-    
+
     return json;
   }
 }
-
-
 
 // ==================== GPS Order Summary API ====================
 
@@ -771,15 +759,17 @@ class GpsOrderSummaryData {
   final List<GpsOrderSummaryItem> summary;
   final double grandTotal;
 
-  GpsOrderSummaryData({
-    required this.summary,
-    required this.grandTotal,
-  });
+  GpsOrderSummaryData({required this.summary, required this.grandTotal});
 
   factory GpsOrderSummaryData.fromJson(Map<String, dynamic> json) {
-    final summaryList = (json['summary'] as List<dynamic>?)
-        ?.map((item) => GpsOrderSummaryItem.fromJson(item as Map<String, dynamic>))
-        .toList() ?? [];
+    final summaryList =
+        (json['summary'] as List<dynamic>?)
+            ?.map(
+              (item) =>
+                  GpsOrderSummaryItem.fromJson(item as Map<String, dynamic>),
+            )
+            .toList() ??
+        [];
 
     return GpsOrderSummaryData(
       summary: summaryList,
@@ -828,9 +818,7 @@ class GpsOrderSummaryResponse {
 class GpsOrderSummaryRequest {
   final List<GpsOrderSummaryRequestItem> products;
 
-  GpsOrderSummaryRequest({
-    required this.products,
-  });
+  GpsOrderSummaryRequest({required this.products});
 
   Map<String, dynamic> toJson() => {
     'products': products.map((item) => item.toJson()).toList(),
@@ -879,7 +867,6 @@ class GpsOrderApiRequest {
       );
 
       if (result is Success) {
-
         // Handle direct response format (no success/status wrapper)
         if (result.value is Map<String, dynamic>) {
           final response = result.value as Map<String, dynamic>;
@@ -889,7 +876,11 @@ class GpsOrderApiRequest {
             final vehicleResponse = GpsVehicleListResponse.fromJson(response);
             return Success(vehicleResponse);
           } else {
-            return Error(ErrorWithMessage(message: 'Invalid response format - missing required fields'));
+            return Error(
+              ErrorWithMessage(
+                message: 'Invalid response format - missing required fields',
+              ),
+            );
           }
         } else {
           return Error(ErrorWithMessage(message: 'Invalid response format'));
@@ -918,7 +909,8 @@ class GpsOrderApiRequest {
           final response = result.value as Map<String, dynamic>;
 
           // Check if it has vehicle fields
-          if (response.containsKey('vehicleId') || response.containsKey('truckNo')) {
+          if (response.containsKey('vehicleId') ||
+              response.containsKey('truckNo')) {
             // Create a success response wrapper
             final successResponse = GpsAddVehicleResponse(
               success: true,
@@ -927,7 +919,11 @@ class GpsOrderApiRequest {
             );
             return Success(successResponse);
           } else {
-            return Error(ErrorWithMessage(message: 'Invalid response format - missing vehicle data'));
+            return Error(
+              ErrorWithMessage(
+                message: 'Invalid response format - missing vehicle data',
+              ),
+            );
           }
         } else {
           return Error(ErrorWithMessage(message: 'Invalid response format'));
@@ -966,7 +962,11 @@ class GpsOrderApiRequest {
           if (response.containsKey('url') && response.containsKey('filePath')) {
             return Success(GpsDocumentUploadResponse.fromJson(response));
           } else {
-            return Error(ErrorWithMessage(message: 'Invalid response format - missing required fields'));
+            return Error(
+              ErrorWithMessage(
+                message: 'Invalid response format - missing required fields',
+              ),
+            );
           }
         } else {
           return Error(ErrorWithMessage(message: 'Invalid response format'));
@@ -995,10 +995,11 @@ class GpsOrderApiRequest {
           final response = result.value as Map<String, dynamic>;
 
           // If it has success field, use getResponseStatus
-          if (response.containsKey('success') || response.containsKey('status')) {
+          if (response.containsKey('success') ||
+              response.containsKey('status')) {
             return await _apiService.getResponseStatus(
               result.value,
-                  (data) => (data['data'] as List).cast<String>(),
+              (data) => (data['data'] as List).cast<String>(),
             );
           } else {
             // Direct data access if no success/status field
@@ -1007,7 +1008,9 @@ class GpsOrderApiRequest {
               final truckTypes = data.cast<String>();
               return Success(truckTypes);
             } else {
-              return Error(ErrorWithMessage(message: 'No data found in response'));
+              return Error(
+                ErrorWithMessage(message: 'No data found in response'),
+              );
             }
           }
         } else {
@@ -1022,14 +1025,21 @@ class GpsOrderApiRequest {
   }
 
   /// Fetch truck lengths for a specific type
-  Future<Result<List<GpsTruckLengthModel>>> fetchTruckLengths(String type) async {
+  Future<Result<List<GpsTruckLengthModel>>> fetchTruckLengths(
+    String type,
+  ) async {
     try {
-      final result = await _apiService.get('${ApiUrls.kavachTruckSubType}/$type');
+      final result = await _apiService.get(
+        '${ApiUrls.kavachTruckSubType}/$type',
+      );
 
       if (result is Success) {
         // Handle direct array response
         if (result.value is List) {
-          final truckLengths = (result.value as List).map((e) => GpsTruckLengthModel.fromJson(e)).toList();
+          final truckLengths =
+              (result.value as List)
+                  .map((e) => GpsTruckLengthModel.fromJson(e))
+                  .toList();
           return Success(truckLengths);
         }
         // Handle JSON object response
@@ -1037,19 +1047,26 @@ class GpsOrderApiRequest {
           final response = result.value as Map<String, dynamic>;
 
           // If it has success field, use getResponseStatus
-          if (response.containsKey('success') || response.containsKey('status')) {
+          if (response.containsKey('success') ||
+              response.containsKey('status')) {
             return await _apiService.getResponseStatus(
               result.value,
-                  (data) => (data['data'] as List).map((e) => GpsTruckLengthModel.fromJson(e)).toList(),
+              (data) =>
+                  (data['data'] as List)
+                      .map((e) => GpsTruckLengthModel.fromJson(e))
+                      .toList(),
             );
           } else {
             // Direct data access if no success/status field
             final data = response['data'] as List?;
             if (data != null) {
-              final truckLengths = data.map((e) => GpsTruckLengthModel.fromJson(e)).toList();
+              final truckLengths =
+                  data.map((e) => GpsTruckLengthModel.fromJson(e)).toList();
               return Success(truckLengths);
             } else {
-              return Error(ErrorWithMessage(message: 'No data found in response'));
+              return Error(
+                ErrorWithMessage(message: 'No data found in response'),
+              );
             }
           }
         } else {
@@ -1071,7 +1088,10 @@ class GpsOrderApiRequest {
       if (result is Success) {
         // Handle direct array response
         if (result.value is List) {
-          final commodities = (result.value as List).map((e) => GpsCommodityModel.fromJson(e)).toList();
+          final commodities =
+              (result.value as List)
+                  .map((e) => GpsCommodityModel.fromJson(e))
+                  .toList();
           return Success(commodities);
         }
         // Handle JSON object response
@@ -1079,19 +1099,26 @@ class GpsOrderApiRequest {
           final response = result.value as Map<String, dynamic>;
 
           // If it has success field, use getResponseStatus
-          if (response.containsKey('success') || response.containsKey('status')) {
+          if (response.containsKey('success') ||
+              response.containsKey('status')) {
             return await _apiService.getResponseStatus(
               result.value,
-                  (data) => (data['data'] as List).map((e) => GpsCommodityModel.fromJson(e)).toList(),
+              (data) =>
+                  (data['data'] as List)
+                      .map((e) => GpsCommodityModel.fromJson(e))
+                      .toList(),
             );
           } else {
             // Direct data access if no success/status field
             final data = response['data'] as List?;
             if (data != null) {
-              final commodities = data.map((e) => GpsCommodityModel.fromJson(e)).toList();
+              final commodities =
+                  data.map((e) => GpsCommodityModel.fromJson(e)).toList();
               return Success(commodities);
             } else {
-              return Error(ErrorWithMessage(message: 'No data found in response'));
+              return Error(
+                ErrorWithMessage(message: 'No data found in response'),
+              );
             }
           }
         } else {
@@ -1115,12 +1142,10 @@ class GpsOrderApiRequest {
         'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
         'Content-Type': 'application/json',
       };
-      
+
       final result = await _apiService.post(
         'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number',
-        body: {
-          'vehicle_number': vehicleNumber,
-        },
+        body: {'vehicle_number': vehicleNumber},
         customHeaders: customHeaders,
       );
 
@@ -1134,7 +1159,11 @@ class GpsOrderApiRequest {
             final isVerified = response['success'] == true;
             return Success(isVerified);
           } else {
-            return Error(ErrorWithMessage(message: 'Invalid response format - missing success field'));
+            return Error(
+              ErrorWithMessage(
+                message: 'Invalid response format - missing success field',
+              ),
+            );
           }
         } else {
           return Error(ErrorWithMessage(message: 'Invalid response format'));

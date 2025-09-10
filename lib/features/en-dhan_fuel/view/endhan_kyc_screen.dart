@@ -96,6 +96,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
   _EndhanKycScreenContent({
     required this.showPanUpload, // <- make it required or give default
   });
+
   final kycCubit = locator<KycCubit>(); // For KYC flow
   final aadharRequestId = ValueNotifier<String?>(null);
 
@@ -178,7 +179,10 @@ class _EndhanKycScreenContent extends StatelessWidget {
           AppIconButton(
             onPressed: () {
               Navigator.of(context).push(
-                commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true),
+                commonRoute(
+                  LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN),
+                  isForward: true,
+                ),
               );
             },
             icon: AppIcons.svg.filledSupport,
@@ -246,11 +250,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             final requestId =
                                 state.kycInitResponse?.data?.requestId;
                             aadharRequestId.value = requestId;
-                            await checkVerification(
-                              context,
-                              sdkUrl,
-                              requestId,
-                            );
+                            await checkVerification(context, sdkUrl, requestId);
                           }
 
                           if (state.aadharVerificationState?.status ==
@@ -272,6 +272,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                         child: Column(
                           children: [
                             AppTextField(
+                              enableInteractiveSelection: true,
                               readOnly: state.isAadhaarVerified,
                               controller: aadhaarController,
                               hintText: context.appText.enter12DigitAadhaar,
@@ -361,6 +362,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                       10.height,
 
                       AppTextField(
+                        enableInteractiveSelection: true,
                         mandatoryStar: true,
                         hintText: context.appText.enterPanNumber,
                         controller: panController,

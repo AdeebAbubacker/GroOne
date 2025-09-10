@@ -26,6 +26,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:pinput/pinput.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button_style.dart';
@@ -259,6 +260,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
 
                     // Otp Text Field
                     Pinput(
+                      key: AppKeys.txt('otp'),
                       defaultPinTheme: defaultPinTheme,
                       focusedPinTheme: focusedPinTheme,
                       submittedPinTheme: submittedPinTheme,
@@ -282,6 +284,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
 
                     // Verify Button
                     AppButton(
+                      key: AppKeys.btn('verify_code'),
                       title: context.appText.verifyCode,
                       isLoading: isLoading,
                       style: otpString.length == 4 ? AppButtonStyle.primary : AppButtonStyle.disableButton,
@@ -291,6 +294,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
 
                     // Resend OTP Button
                     AppButton(
+                      key: AppKeys.btn('resend_code'),
                       style: _isButtonEnabled ? AppButtonStyle.outline : AppButtonStyle.disableOutline,
                       isLoading: isLoadingResend,
                       richTextWidget:

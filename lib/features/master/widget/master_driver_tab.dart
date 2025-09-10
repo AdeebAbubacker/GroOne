@@ -18,7 +18,6 @@ import 'package:gro_one_app/features/profile/api_request/driver_request.dart';
 import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
-import 'package:gro_one_app/features/profile/helper/master_helper.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/driver_list_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
@@ -43,6 +42,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/enhanced_dispose.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/indian_licesne_fromatter.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/phone_number_input_formatter.dart';
@@ -88,6 +88,19 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
   String? pucExpiryDate;
   String? registrationDate;
   List<dynamic> licenseDoc = [];
+
+  @override
+  void initState() {
+    initFunction();
+    super.initState();
+  }
+
+  void initFunction() => frameCallback(() async {
+    await profileCubit.fetchDriver();
+    await profileCubit.fetchLicenseCategory();
+    await profileCubit.fetchBloodGroup();
+  });
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -325,17 +338,13 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
     );
     int? selectedLicneseId = driver?.licenseCategory;
     int? selectedBloodId = driver?.bloodGroup;
+    BloodGroupResponseModel? selectedBloodObj;
     final emailController = TextEditingController(text: driver?.email ?? "");
     String previousLicenseNo = licenseNumberController.text.trim();
     bool isActive = driver != null ? (driver.driverStatus == 1) : true;
     bool listenerAdded = false;
-    String? selectedLicense;
-    String? selectedBloodGroup;
-    selectedBloodGroup = MasterHelper.mapBloodGroupIdToName(driver?.bloodGroup);
+    LicenseCategoryResponseModel? selectedLicenseObj;
     selectedBloodId = driver?.bloodGroup;
-    selectedLicense = MasterHelper.mapLicenseCategoryIdToName(
-      driver?.licenseCategory,
-    );
     selectedLicneseId = driver?.licenseCategory;
     MasterDialogueWidget.show(
       dismissible: true,
@@ -358,7 +367,6 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
             });
             listenerAdded = true;
           }
-
 
           return MasterCommonDialogView(
             hideCloseButton: true,
@@ -421,10 +429,8 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
 
                           if (bloodMap != null) {
                             selectedBloodId = bloodMap['id'];
-                            selectedBloodGroup = bloodMap['name'];
                           } else {
                             selectedBloodId = null;
-                            selectedBloodGroup = null;
                           }
 
                           // License category
@@ -445,10 +451,8 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
 
                           if (licenseMap != null) {
                             selectedLicneseId = licenseMap['id'];
-                            selectedLicense = licenseMap['name'];
                           } else {
                             selectedLicneseId = null;
-                            selectedLicense = null;
                           }
 
                           // Expiry Date
@@ -635,20 +639,22 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                   ),
                   16.height,
                   LicenseCategoryDropdown(
-                    selected: selectedLicense,
+                    selectedCategory:
+                        selectedLicenseObj, 
                     onChanged: (LicenseCategoryResponseModel? category) {
                       setState(() {
-                        selectedLicense = category?.categoryName;
-                        selectedLicneseId = category?.id;
+                        selectedLicenseObj = category; 
+                        selectedLicneseId =
+                            category?.id;
                       });
                     },
                   ),
                   16.height,
                   BloodCategoryDropdown(
-                    selected: selectedBloodGroup,
+                    selectedCategory: selectedBloodObj,
                     onChanged: (BloodGroupResponseModel? category) {
                       setState(() {
-                        selectedBloodGroup = category?.groupName;
+                        selectedBloodObj = category;
                         selectedBloodId = category?.id;
                       });
                     },
@@ -699,7 +705,9 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
               }
               if (formKey.currentState!.validate()) {
                 if (licenseNumberController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: context.appText.pleaseEnterLicenseNumber,);
+                  ToastMessages.alert(
+                    message: context.appText.pleaseEnterLicenseNumber,
+                  );
                   return;
                 }
 
@@ -709,7 +717,9 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                 }
 
                 if (nameController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: context.appText.pleaseEnterDriverName);
+                  ToastMessages.alert(
+                    message: context.appText.pleaseEnterDriverName,
+                  );
                   return;
                 }
 
@@ -722,7 +732,9 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                 }
 
                 if (mobileController.text.trim().isEmpty) {
-                  ToastMessages.alert(message: context.appText.pleaseEnterMobileNumber);
+                  ToastMessages.alert(
+                    message: context.appText.pleaseEnterMobileNumber,
+                  );
                   return;
                 }
                 if (!formKey.currentState!.validate()) {
@@ -753,8 +765,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                   ),
                   email: emailController.text,
                   licenseNumber: licenseNumberController.text,
-                  licenseExpiryDate:
-                      convertToYMD(licenseExpiryIso.toString()),
+                  licenseExpiryDate: convertToYMD(licenseExpiryIso.toString()),
                   dateOfBirth: convertToYMD(dateOfBirthIso.toString()),
                   licenseCategory: selectedLicneseId,
                   bloodGroup: selectedBloodId,
@@ -780,7 +791,10 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                             ? context.appText.driverUpdatedSuccessfully
                             : context.appText.driverAddedSuccess,
                   );
-                  analyticsHelper.logEvent(AnalyticEventName.ADD_DRIVER,request.toJson()); 
+                  analyticsHelper.logEvent(
+                    AnalyticEventName.ADD_DRIVER,
+                    request.toJson(),
+                  );
                 } else {
                   ToastMessages.error(
                     message: getErrorMsg(
@@ -964,7 +978,10 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                         : isVerified
-                        ? const Icon(Icons.verified, color: AppColors.greenColor)
+                        ? const Icon(
+                          Icons.verified,
+                          color: AppColors.greenColor,
+                        )
                         : SizedBox.shrink(),
               ),
             ),
@@ -1057,7 +1074,8 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                               }
                               if (nameController.text.trim().isEmpty) {
                                 ToastMessages.alert(
-                                  message: context.appText.pleaseEnterDriverName,
+                                  message:
+                                      context.appText.pleaseEnterDriverName,
                                 );
                                 return;
                               }
@@ -1076,13 +1094,14 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                                 if (!context.mounted) return;
                                 ToastMessages.success(
                                   message:
-                                     context.appText.licenseVerifiedSuccess
+                                      context.appText.licenseVerifiedSuccess,
                                 );
                                 onVerificationResult(true, result.value);
                               } else {
                                 if (!context.mounted) return;
                                 ToastMessages.alert(
-                                  message:context.appText.licenseVerificationFailed
+                                  message:
+                                      context.appText.licenseVerificationFailed,
                                 );
                                 onVerificationResult(false, null);
                               }

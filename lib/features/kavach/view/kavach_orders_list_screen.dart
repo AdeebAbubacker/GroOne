@@ -1,8 +1,11 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_upload_document_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_choose_your_preference_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_order_card_widget.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -27,7 +30,9 @@ import '../repository/kavach_repository.dart';
 import 'kavach_transaction_screen.dart';
 
 class KavachOrdersListScreen extends StatefulWidget {
-  const KavachOrdersListScreen({super.key});
+  int? status;
+
+  KavachOrdersListScreen({super.key, this.status});
 
   @override
   State<KavachOrdersListScreen> createState() => _KavachOrdersListScreenState();
@@ -54,7 +59,6 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
@@ -76,7 +80,15 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
+                    Navigator.of(context).push(
+                      commonRoute(
+                        LpSupport(
+                          showBackButton: true,
+                          ticketTag: TicketTags.TANK_LOCK,
+                        ),
+                        isForward: true,
+                      ),
+                    );
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
@@ -87,14 +99,20 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                   offset: Offset(20, 50),
                   onSelected: (value) {
                     if (value == context.appText.transactions) {
-                      Navigator.push(context, commonRoute(KavachTransactionsScreen()));
+                      Navigator.push(
+                        context,
+                        commonRoute(KavachTransactionsScreen()),
+                      );
                     }
                   },
                   itemBuilder: (BuildContext context) {
                     return [
                       PopupMenuItem(
                         value: context.appText.transactions,
-                        child: Text(context.appText.transactions,style: AppTextStyle.h6,),
+                        child: Text(
+                          context.appText.transactions,
+                          style: AppTextStyle.h6,
+                        ),
                       ),
                     ];
                   },
@@ -104,7 +122,9 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
             ),
             body: const Center(child: CircularProgressIndicator()),
           );
-        } else if (state is KavachOrderListLoaded && state.orders.isEmpty) {
+        } else if (state is KavachOrderListLoaded &&
+            (state.orders.isEmpty ||
+                (state.kycStatusUpdated != null && !state.kycStatusUpdated!))) {
           return Scaffold(
             backgroundColor: AppColors.blackishWhite,
             appBar: CommonAppBar(
@@ -113,16 +133,22 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               actions: [
                 AppIconButton(
                   onPressed: () {
-                    Navigator.of(
-                      context,
-                    ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+                    navigateToNextScreen(state);
                   },
                   icon: Icon(Icons.add, color: Colors.white),
                   style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
+                    Navigator.of(context).push(
+                      commonRoute(
+                        LpSupport(
+                          showBackButton: true,
+                          ticketTag: TicketTags.TANK_LOCK,
+                        ),
+                        isForward: true,
+                      ),
+                    );
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
@@ -133,14 +159,20 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                   offset: Offset(20, 50),
                   onSelected: (value) {
                     if (value == context.appText.transactions) {
-                      Navigator.push(context, commonRoute(KavachTransactionsScreen()));
+                      Navigator.push(
+                        context,
+                        commonRoute(KavachTransactionsScreen()),
+                      );
                     }
                   },
                   itemBuilder: (BuildContext context) {
                     return [
                       PopupMenuItem(
                         value: context.appText.transactions,
-                        child: Text(context.appText.transactions,style: AppTextStyle.h6,),
+                        child: Text(
+                          context.appText.transactions,
+                          style: AppTextStyle.h6,
+                        ),
                       ),
                     ];
                   },
@@ -149,7 +181,10 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               ],
             ),
             body: kavachBenifitsWidget(context),
-            bottomNavigationBar: buildGetYourTankLockButtonWidget(),
+            bottomNavigationBar: buildGetYourTankLockButtonWidget(
+              state,
+              context,
+            ),
           );
         } else {
           return Scaffold(
@@ -170,7 +205,15 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 AppIconButton(
                   onPressed: () {
-                    Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
+                    Navigator.of(context).push(
+                      commonRoute(
+                        LpSupport(
+                          showBackButton: true,
+                          ticketTag: TicketTags.TANK_LOCK,
+                        ),
+                        isForward: true,
+                      ),
+                    );
                   },
                   icon: AppIcons.svg.filledSupport,
                   iconColor: AppColors.primaryButtonColor,
@@ -181,14 +224,20 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                   offset: Offset(20, 50),
                   onSelected: (value) {
                     if (value == context.appText.transactions) {
-                      Navigator.push(context, commonRoute(KavachTransactionsScreen()));
+                      Navigator.push(
+                        context,
+                        commonRoute(KavachTransactionsScreen()),
+                      );
                     }
                   },
                   itemBuilder: (BuildContext context) {
                     return [
                       PopupMenuItem(
                         value: context.appText.transactions,
-                        child: Text(context.appText.transactions,style: AppTextStyle.h6,),
+                        child: Text(
+                          context.appText.transactions,
+                          style: AppTextStyle.h6,
+                        ),
                       ),
                     ];
                   },
@@ -196,7 +245,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 5.width,
               ],
             ),
-                        body: Column(
+            body: Column(
               children: [
                 // Tab Bar
                 SingleChildScrollView(
@@ -265,6 +314,28 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     );
   }
 
+  navigateToNextScreen(KavachOrderListLoaded state) {
+    if (state.kycStatusUpdated == false) {
+      Navigator.push(
+        context,
+        commonRoute(GpsUploadDocumentScreen(fromKavachScreen: true)),
+      ).then((v) {
+        if (!mounted) return;
+        context.read<KavachOrderListBloc>().add(
+          FetchKavachOrderList(
+            status: widget.status,
+            forceRefresh: true,
+            isRefresh: true,
+          ),
+        );
+      });
+    } else {
+      Navigator.of(
+        context,
+      ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+    }
+  }
+
   Widget kavachBenifitsWidget(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
@@ -272,21 +343,25 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           buildKavachProductImageWidget(),
           6.height,
           buildKavachBenefitsDetailsWidget(context),
-          buildGroBannerImageWidget(),
+          // Removed as per change request
+          // buildGroBannerImageWidget(),
         ],
       ),
     );
   }
-  Widget buildGetYourTankLockButtonWidget() {
+
+  Widget buildGetYourTankLockButtonWidget(
+    KavachOrderListLoaded state,
+    BuildContext context,
+  ) {
     return AppButton(
       title: context.appText.getYourTankLockNow,
       onPressed: () {
-        Navigator.of(
-          context,
-        ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+        navigateToNextScreen(state);
       },
     ).bottomNavigationPadding();
   }
+
   Widget buildKavachProductImageWidget() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -318,6 +393,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
       ),
     );
   }
+
   Widget buildKavachBenefitsDetailsWidget(BuildContext context) {
     Widget benefitItem(String title, String subtitle) {
       return Padding(
@@ -327,7 +403,12 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           children: [
             Text(title, style: AppTextStyle.h5),
             5.height,
-            Text(subtitle, style: AppTextStyle.body3.copyWith(color: AppColors.textGreyColor)),
+            Text(
+              subtitle,
+              style: AppTextStyle.body3.copyWith(
+                color: AppColors.textGreyColor,
+              ),
+            ),
           ],
         ),
       );
@@ -338,13 +419,34 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
       children: [
         Text(context.appText.benefitsOfKavach, style: AppTextStyle.h4),
         20.height,
-        benefitItem(context.appText.kavachBenefit1Title, context.appText.kavachBenefit1Desc),
-        benefitItem(context.appText.kavachBenefit2Title, context.appText.kavachBenefit2Desc),
-        benefitItem(context.appText.kavachBenefit3Title, context.appText.kavachBenefit3Desc),
-        benefitItem(context.appText.kavachBenefit4Title, context.appText.kavachBenefit4Desc),
-        benefitItem(context.appText.kavachBenefit5Title, context.appText.kavachBenefit5Desc),
-        benefitItem(context.appText.kavachBenefit6Title, context.appText.kavachBenefit6Desc),
-        benefitItem(context.appText.kavachBenefit7Title, context.appText.kavachBenefit7Desc),
+        benefitItem(
+          context.appText.kavachBenefit1Title,
+          context.appText.kavachBenefit1Desc,
+        ),
+        benefitItem(
+          context.appText.kavachBenefit2Title,
+          context.appText.kavachBenefit2Desc,
+        ),
+        benefitItem(
+          context.appText.kavachBenefit3Title,
+          context.appText.kavachBenefit3Desc,
+        ),
+        benefitItem(
+          context.appText.kavachBenefit4Title,
+          context.appText.kavachBenefit4Desc,
+        ),
+        benefitItem(
+          context.appText.kavachBenefit5Title,
+          context.appText.kavachBenefit5Desc,
+        ),
+        benefitItem(
+          context.appText.kavachBenefit6Title,
+          context.appText.kavachBenefit6Desc,
+        ),
+        benefitItem(
+          context.appText.kavachBenefit7Title,
+          context.appText.kavachBenefit7Desc,
+        ),
       ],
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);
   }
@@ -355,8 +457,12 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
 
   Widget _buildTab({int? status}) {
     return BlocProvider(
-      create: (_) => KavachOrderListBloc(locator<KavachRepository>())
-        ..add(FetchKavachOrderList(status: status, isRefresh: true)),
+      create:
+          (_) => KavachOrderListBloc(
+            locator<KavachRepository>(),
+            locator<GpsOrderApiRepository>(),
+            locator<UserInformationRepository>(),
+          )..add(FetchKavachOrderList(status: status, isRefresh: true)),
       child: _OrdersListView(status: status),
     );
   }
@@ -364,6 +470,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
 
 class _OrdersListView extends StatefulWidget {
   final int? status;
+
   const _OrdersListView({this.status});
 
   @override
@@ -378,7 +485,8 @@ class _OrdersListViewState extends State<_OrdersListView> {
   void initState() {
     super.initState();
     context.read<KavachOrderListBloc>().add(
-        FetchKavachOrderList(status: widget.status, forceRefresh: true));
+      FetchKavachOrderList(status: widget.status, forceRefresh: true),
+    );
     _scrollController.addListener(_onScroll);
   }
 
@@ -398,7 +506,6 @@ class _OrdersListViewState extends State<_OrdersListView> {
           !currentState.hasReachedMax) {
         context.read<KavachOrderListBloc>().add(FetchKavachOrderList());
       }
-
     });
   }
 
@@ -423,12 +530,18 @@ class _OrdersListViewState extends State<_OrdersListView> {
         } else if (state is KavachOrderListLoaded) {
           if (state.orders.isEmpty) {
             return Center(
-              child: Text(context.appText.noOrdersFound, style: AppTextStyle.h5),
+              child: Text(
+                context.appText.noOrdersFound,
+                style: AppTextStyle.h5,
+              ),
             );
           }
           return ListView.builder(
             controller: _scrollController,
-            itemCount: state.hasReachedMax ? state.orders.length : state.orders.length + 1,
+            itemCount:
+                state.hasReachedMax
+                    ? state.orders.length
+                    : state.orders.length + 1,
             itemBuilder: (context, index) {
               if (index >= state.orders.length) {
                 return const Padding(

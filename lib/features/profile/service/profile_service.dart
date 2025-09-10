@@ -38,6 +38,7 @@ import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/model/profile_update_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_upload_response.dart';
 import 'package:gro_one_app/features/profile/model/settings_response.dart';
+import 'package:gro_one_app/features/profile/model/ticket_message_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
@@ -679,22 +680,33 @@ class ProfileService {
   }
 
   /// fetch FAQ
-  Future<Result<FaqResponse>> fetchFaq({String search = ''}) async {
-    try {
-      final url = '${ApiUrls.getFaq}?search=$search';
-      final response = await _apiService.get(url);
-      if (response is Success) {
-        final loads = FaqResponse.fromJson(response.value);
-        return Success(loads);
-      } else if (response is Error) {
-        return Error(response.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch (e) {
-      return Error(DeserializationError());
+  /// fetch FAQ
+Future<Result<FaqResponse>> fetchFaq({
+  String? search,
+  int page = 1,
+  int limit = 10,
+}) async {
+  try {
+    String url = '${ApiUrls.getFaq}?page=$page&limit=$limit';
+    if (search != null && search.isNotEmpty) {
+      url += '&search=$search';
     }
+
+    final response = await _apiService.get(url);
+
+    if (response is Success) {
+      final loads = FaqResponse.fromJson(response.value);
+      return Success(loads);
+    } else if (response is Error) {
+      return Error(response.type);
+    } else {
+      return Error(GenericError());
+    }
+  } catch (_) {
+    return Error(DeserializationError());
   }
+}
+
 
   /// fetch Tickets
   Future<Result<TicketResponse>> fetchTickets({
@@ -710,6 +722,29 @@ class ProfileService {
       if (response is Success) {
         final loads = TicketResponse.fromJson(response.value);
         return Success(loads);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// fetch Ticket messages
+  Future<Result<List<TicketMessageResponse>>> fetchTicketMessages({
+    required String ticketId,
+  }) async {
+    try {
+      final url = '${ApiUrls.getTicketMessages}$ticketId/messages';
+      final response = await _apiService.get(url);
+      if (response is Success) {
+        final list =
+        (response.value as List)
+            .map((json) => TicketMessageResponse.fromJson(json))
+            .toList();
+        return Success(list);
       } else if (response is Error) {
         return Error(response.type);
       } else {
@@ -823,9 +858,12 @@ class ProfileService {
   }
 
   /// fetch blood groups
-  Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups() async {
+  Future<Result<List<BloodGroupResponseModel>>> fetchBloodGroups({String? search}) async {
     try {
-      final url = ApiUrls.getBloodGroup;
+      String url = ApiUrls.getBloodGroup;
+      if (search != null && search.trim().isNotEmpty) {
+      url += "&search=${Uri.encodeComponent(search.trim())}";
+      }
       final response = await _apiService.get(url);
 
       if (response is Success) {
