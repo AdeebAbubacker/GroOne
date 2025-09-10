@@ -82,6 +82,32 @@ class GpsDataRefreshService {
     _performDataRefresh();
   }
 
+  /// Pause refresh when app goes to background
+  void pauseRefresh() {
+    if (_isActive) {
+      CustomLog.info(this, "Pausing GPS data refresh due to app background");
+      _stopRefresh();
+    }
+  }
+
+  /// Resume refresh when app comes to foreground
+  void resumeRefresh() {
+    if (!_isActive) {
+      CustomLog.info(this, "Resuming GPS data refresh due to app foreground");
+      startRefresh(_currentScreenType);
+    }
+  }
+
+  /// Restart refresh service after authentication is restored
+  void restartAfterAuthRestore() {
+    CustomLog.info(
+      this,
+      "Restarting GPS data refresh after authentication restore",
+    );
+    _stopRefresh();
+    startRefresh(_currentScreenType);
+  }
+
   /// Stop the data refresh
   void stopRefresh() {
     _stopRefresh();
@@ -105,7 +131,7 @@ class GpsDataRefreshService {
     }
   }
 
-  /// Perform the actual data refresh
+  /// Perform the actual data refresh with error handling and performance optimization
   Future<void> _performDataRefresh() async {
     try {
       CustomLog.debug(
@@ -113,18 +139,110 @@ class GpsDataRefreshService {
         "Performing GPS data refresh for $_currentScreenType",
       );
 
-      // Refresh login data (includes vehicle data, geofences, etc.)
-      await _gpsLoginCubitInstance.refreshData();
+      // Check if GPS service is properly initialized
+      if (!_isGpsServiceInitialized()) {
+        CustomLog.debug(this, "GPS service not initialized, skipping refresh");
+        return;
+      }
 
-      // Refresh vehicle list data
-      await _vehicleListCubitInstance.refreshData();
-
-      // Refresh geofence data
-      await _gpsGeofenceCubitInstance.refreshData();
+      // Use timeout to prevent hanging operations
+      await Future.any([
+        _performRefreshOperations(),
+        Future.delayed(const Duration(seconds: 10), () {
+          throw TimeoutException(
+            'GPS refresh timeout',
+            const Duration(seconds: 10),
+          );
+        }),
+      ]);
 
       CustomLog.debug(this, "GPS data refresh completed successfully");
     } catch (e) {
       CustomLog.error(this, "Error during GPS data refresh", e);
+      // Don't rethrow to prevent service from stopping
+    }
+  }
+
+  /// Check if GPS service is properly initialized
+  bool _isGpsServiceInitialized() {
+    try {
+      // Check if we can access the cubits without errors
+      final gpsCubit = _gpsLoginCubitInstance;
+
+      // Check if GPS service has valid authentication
+      if (!gpsCubit.hasValidAuth) {
+        CustomLog.debug(this, "GPS service has no valid authentication");
+        return false;
+      }
+
+      return true;
+    } catch (e) {
+      CustomLog.error(this, "GPS service not properly initialized", e);
+      return false;
+    }
+  }
+
+  /// Perform refresh operations with proper error handling
+  Future<void> _performRefreshOperations() async {
+    final futures = <Future>[];
+
+    // Only refresh critical data based on screen type
+    switch (_currentScreenType) {
+      case GpsScreenType.map:
+        // For map screen, prioritize vehicle data
+        futures.add(_vehicleListCubitInstance.refreshData());
+        futures.add(_gpsLoginCubitInstance.refreshData());
+        break;
+      case GpsScreenType.home:
+        // For home screen, refresh all data but with lower priority
+        futures.add(_gpsLoginCubitInstance.refreshData());
+        futures.add(_vehicleListCubitInstance.refreshData());
+        futures.add(_gpsGeofenceCubitInstance.refreshData());
+        break;
+      case GpsScreenType.other:
+        // For other screens, only refresh essential data
+        futures.add(_gpsLoginCubitInstance.refreshData());
+        break;
+    }
+
+    // Execute all refresh operations concurrently with error isolation
+    final results = await Future.wait(
+      futures.map(
+        (future) => future.catchError((e) {
+          CustomLog.error(this, "Individual refresh operation failed", e);
+
+          // If it's an authentication error, stop the refresh service
+          if (e.toString().contains('401') ||
+              e.toString().contains('Unauthorized') ||
+              e.toString().contains('InvalidToken') ||
+              e.toString().contains('UnauthenticatedError')) {
+            CustomLog.debug(
+              this,
+              "Authentication error detected, stopping refresh service",
+            );
+            _stopRefresh();
+          }
+
+          return null; // Continue with other operations
+        }),
+      ),
+      eagerError: false, // Don't fail all if one fails
+    );
+
+    // Log results
+    final successCount = results.where((result) => result != null).length;
+    CustomLog.debug(
+      this,
+      "Refresh completed: $successCount/${futures.length} operations successful",
+    );
+
+    // If all operations failed, stop the refresh service to prevent continuous failures
+    if (successCount == 0 && futures.isNotEmpty) {
+      CustomLog.debug(
+        this,
+        "All refresh operations failed, stopping refresh service",
+      );
+      _stopRefresh();
     }
   }
 

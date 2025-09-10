@@ -22,24 +22,25 @@ class VpLoadService {
     int? truckTypeId,
     int? laneId,
     int? page,
-
   }) async {
     try {
       final response = await _apiService.get(
         '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId&search=$search',
         queryParams: {
-          "limit":limit??10,
-          if(type!=2) "type":type,
-          if(commodityId!=null) "commodityId":commodityId,
-          if(truckTypeId!=null) "truckTypeId":truckTypeId,
-          if(laneId!=null) "laneId":laneId,
-          "page":page
+          "limit": limit ?? 10,
+          if (type != 2) "type": type,
+          if (commodityId != null) "commodityId": commodityId,
+          if (truckTypeId != null) "truckTypeId": truckTypeId,
+          if (laneId != null) "laneId": laneId,
+          "page": page,
         },
         forceRefresh: forceRefresh,
       );
 
       if (response is Success) {
-        RecentLoadResponse recentLoadResponse=RecentLoadResponse.fromJson(response.value['data']);
+        RecentLoadResponse recentLoadResponse = RecentLoadResponse.fromJson(
+          response.value['data'],
+        );
         return Success(recentLoadResponse);
       } else if (response is Error) {
         return Error(response.type);
@@ -64,67 +65,30 @@ class VpLoadService {
       } else {
         return Error(GenericError());
       }
-    } catch(e) {
+    } catch (e) {
       return Error(DeserializationError());
     }
   }
 
-  Future<Result<List<TruckTypeModel>>> fetchTruckTypeData() async {
+  Future<Result<List<TruckTypeModel>>> fetchTruckTypeData({
+    String? search,
+  }) async {
     try {
-      final url = ApiUrls.loadTruckType;
+      String url = ApiUrls.loadTruckType;
+      if (search != null && search.trim().isNotEmpty) {
+        url = "$url?search=$search";
+      }
+
       final result = await _apiService.get(url);
       if (result is Success) {
         final data = result.value;
         if (data is List) {
-          final truckType = data.map((e) => TruckTypeModel.fromJson(e)).toList();
+          final truckType =
+              data.map((e) => TruckTypeModel.fromJson(e)).toList();
           return Success(truckType);
         } else {
           return Error(GenericError());
         }
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      return Error(DeserializationError());
-    }
-  }
-
-  // Fetch Truck Pref Lane
-  Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(String? location,{int? currentPage}) async {
-    try {
-      final url = location?.isNotEmpty == true ? "${ApiUrls.truckPrefLane}?search=$location" : ApiUrls.truckPrefLane;
-      final result = await _apiService.get(url,
-          queryParams: {
-            "limit":10,
-            "page":currentPage
-           }
-          );
-      if (result is Success) {
-        final data = TruckPrefLaneModel.fromJson(result.value);
-        return Success(data);
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      return Error(DeserializationError());
-    }
-  }
-
-  Future<Result<List<LoadCommodityListModel>>> fetchLoadCommodityData() async {
-    try {
-      final url = ApiUrls.loadCommodity;
-      final result = await _apiService.get(url);
-
-      if (result is Success) {
-        final List<dynamic> jsonList = result.value;
-        final loads = jsonList
-            .map((e) => LoadCommodityListModel.fromJson(e as Map<String, dynamic>))
-            .toList();
-        return Success(loads);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -135,5 +99,61 @@ class VpLoadService {
     }
   }
 
-}
+  // Fetch Truck Pref Lane
+  Future<Result<TruckPrefLaneModel>> fetchTruckPrefLaneData(
+    String? location, {
+    int? currentPage,
+  }) async {
+    try {
+      final url =
+          location?.isNotEmpty == true
+              ? "${ApiUrls.truckPrefLane}?search=$location"
+              : ApiUrls.truckPrefLane;
+      final result = await _apiService.get(
+        url,
+        queryParams: {"limit": 10, "page": currentPage},
+      );
+      if (result is Success) {
+        final data = TruckPrefLaneModel.fromJson(result.value);
+        return Success(data);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
 
+  Future<Result<List<LoadCommodityListModel>>> fetchLoadCommodityData({
+    String? search,
+  }) async {
+    try {
+      String url = ApiUrls.loadCommodity;
+      if (search != null && search.trim().isNotEmpty) {
+        url = "$url?search=$search";
+      }
+      final result = await _apiService.get(url);
+
+      if (result is Success) {
+        final List<dynamic> jsonList = result.value;
+        final loads =
+            jsonList
+                .map(
+                  (e) => LoadCommodityListModel.fromJson(
+                    e as Map<String, dynamic>,
+                  ),
+                )
+                .toList();
+        return Success(loads);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+}

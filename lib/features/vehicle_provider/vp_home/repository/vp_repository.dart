@@ -29,10 +29,16 @@ class VpHomeRepository {
 
   Future<Result<VehicleListResponse>> getVehicleDetails({
     required String userId,
+    String? search,
+    int? page, 
+    int? limit
   }) async {
     try {
-      return await _vpService.getVehicleDetails(userId: userId);
+      
+      return await _vpService.getVehicleDetails(userId: userId,search: search,page: page,pageSize: limit);
+      
     } catch (e) {
+      print("eror from service ${e}");
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -50,9 +56,12 @@ class VpHomeRepository {
 
   Future<Result<DriverListResponse>> getDriverDetails({
     required String userId,
+    String? search,
+    int? page, 
+    int? limit
   }) async {
     try {
-      return await _vpService.getDriverDetails(userId: userId);
+      return await _vpService.getDriverDetails(userId: userId,search: search,page: page ?? 1,pageSize: limit ?? 10);
     } catch (e) {
       CustomLog.error(this, "Failed to request Login In", e);
       return Error(ErrorWithMessage(message: e.toString()));

@@ -107,6 +107,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/services/vp_det
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_home/cubit/vp_home_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
@@ -202,7 +203,10 @@ void _registerCriticalServices() {
 /// Register core services needed for basic functionality
 void _registerCoreServices() {
   locator.registerLazySingleton(
-    () => SplashService(locator<SecuredSharedPreferences>(), locator<ApiService>()),
+    () => SplashService(
+      locator<SecuredSharedPreferences>(),
+      locator<ApiService>(),
+    ),
   );
   locator.registerLazySingleton(() => NotificationService());
   locator.registerLazySingleton(() => LocationService());
@@ -447,12 +451,10 @@ void _registerBasicBlocs() {
     () => LpHomeBloc(locator<UserInformationRepository>()),
   );
   locator.registerLazySingleton(
-    () => LoadFilterCubit(
-        locator<VpLoadRepository>(),
-      ),
-    );
-    locator.registerLazySingleton(
-      () => LoadPostingBloc(
+    () => LoadFilterCubit(locator<VpLoadRepository>()),
+  );
+  locator.registerLazySingleton(
+    () => LoadPostingBloc(
       locator<UserInformationRepository>(),
       locator<LpHomeRepository>(),
     ),
@@ -632,7 +634,7 @@ void _registerBasicBlocs() {
   );
   locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
   locator.registerLazySingleton(
-    () => MastersCubit(locator<ProfileRepository>(),locator<KycRepository>()),
+    () => MastersCubit(locator<ProfileRepository>(), locator<KycRepository>()),
   );
 
   // AI Chat dependencies
@@ -682,6 +684,7 @@ void _registerDeferredRepositories() {
       locator<GpsLoginService>(),
       locator<GpsRealmService>(),
       locator<HasInternetConnection>(),
+      locator<UserInformationRepository>(),
     ),
   );
   locator.registerLazySingleton(
@@ -734,6 +737,8 @@ void _registerDeferredBlocs() {
   locator.registerLazySingleton(
     () => PathReplayCubit(locator<PathReplayRepository>()),
   );
+  locator.registerLazySingleton(() => VpHomeCubit(locator<VpHomeRepository>(),
+      locator<UserInformationRepository>(),));
 
   // Verify GPS cubits are registered
   try {

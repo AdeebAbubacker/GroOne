@@ -114,10 +114,13 @@ class _VpPodDispatchScreenState extends State<VpPodDispatchScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(title: context.appText.podDispatch),
-      body: _buildBodyWidget(context),
-      bottomNavigationBar: _buildSubmitButtonWidget(),
+    return SafeArea(
+      top: false,
+      child: Scaffold(
+        appBar: CommonAppBar(title: context.appText.podDispatch),
+        body: _buildBodyWidget(context),
+        bottomNavigationBar: _buildSubmitButtonWidget(),
+      ),
     );
   }
 

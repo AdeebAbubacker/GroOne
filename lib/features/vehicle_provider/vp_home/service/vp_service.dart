@@ -17,35 +17,45 @@ class VpHomeService {
   Future<Result<VpMyLoadResponse>> getVpMyLoad({required String userID}) async {
     try {
       final result = await _apiService.get(
-
-          "${ApiUrls.getAllVpLoads}/vp/load",queryParams: {
-            'customerId':userID},forceRefresh: true);
+        "${ApiUrls.getAllVpLoads}/vp/load",
+        queryParams: {'customerId': userID},
+        forceRefresh: true,
+      );
 
       if (result is Success) {
-        final vpMyLoads=VpMyLoadResponse.fromJson(result.value);
+        final vpMyLoads = VpMyLoadResponse.fromJson(result.value);
         return Success(vpMyLoads);
-
       } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
       }
     } catch (e) {
-
       return Error(DeserializationError());
     }
   }
 
   Future<Result<VehicleListResponse>> getVehicleDetails({
     required String userId,
+    String? search,
+    int? page,
+    int? pageSize = 5,
   }) async {
     try {
-      final result = await _apiService.get(ApiUrls.vehicleDetails + userId);
+      // Base URL
+      String url =
+        "${ApiUrls.vehicleDetails}$userId?page=${page}&limit=${pageSize}";
+
+      // Append search if provided
+      if (search != null && search.trim().isNotEmpty) {
+        url = "$url?search=$search";
+      }
+
+      final result = await _apiService.get(url);
 
       if (result is Success) {
-        final vehicleListResponse= VehicleListResponse.fromJson(result.value);
+        final vehicleListResponse = VehicleListResponse.fromJson(result.value);
         return Success(vehicleListResponse);
-
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -58,17 +68,24 @@ class VpHomeService {
 
   Future<Result<DriverListResponse>> getDriverDetails({
     required String userId,
+    String? search,
+    int? page,
+    int? pageSize = 10,
   }) async {
     try {
-      final result = await _apiService.get(
-          ApiUrls.driverDetails,
-            queryParams: {
-            "customerId":userId
+      // Base URL
+      String url =
+          "${ApiUrls.driverDetails}?customerId=$userId&page=$page&limit=$pageSize";
+
+      // Append search if provided
+      if (search != null && search.trim().isNotEmpty) {
+        url = "$url&search=${Uri.encodeComponent(search)}";
       }
-      );
+      final result = await _apiService.get(url);
+
       if (result is Success) {
-        final driverResponse=DriverListResponse.fromJson(result.value);
-        return  Success(driverResponse);
+        final driverResponse = DriverListResponse.fromJson(result.value);
+        return Success(driverResponse);
       } else if (result is Error) {
         return Error(result.type);
       } else {
@@ -83,10 +100,15 @@ class VpHomeService {
     required ScheduleTripRequest apiRequest,
   }) async {
     try {
-      final result = await _apiService.post(ApiUrls.scheduleTrip,body: apiRequest);
+      final result = await _apiService.post(
+        ApiUrls.scheduleTrip,
+        body: apiRequest,
+      );
 
       if (result is Success) {
-        final scheduleTripResponse= ScheduleTripResponse.fromJson(result.value);
+        final scheduleTripResponse = ScheduleTripResponse.fromJson(
+          result.value,
+        );
         return Success(scheduleTripResponse);
       } else if (result is Error) {
         return Error(result.type);
@@ -98,18 +120,18 @@ class VpHomeService {
     }
   }
 
-  Future<Result<VpRecentLoadResponse>> getVpRecentLoads(String customerId) async {
+  Future<Result<VpRecentLoadResponse>> getVpRecentLoads(
+    String customerId,
+  ) async {
     try {
       final result = await _apiService.get(
-
-          '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId',forceRefresh: true,
-      queryParams: {
-            "type":1
-      }
+        '${ApiUrls.getAllVpLoads}/vp/load?customerId=$customerId',
+        forceRefresh: true,
+        queryParams: {"type": 1},
       );
 
       if (result is Success) {
-       final recentLoads= VpRecentLoadResponse.fromJson(result.value);
+        final recentLoads = VpRecentLoadResponse.fromJson(result.value);
         return Success(recentLoads);
       } else if (result is Error) {
         return Error(result.type);
@@ -117,17 +139,20 @@ class VpHomeService {
         return Error(GenericError());
       }
     } catch (e) {
-
       return Error(DeserializationError());
     }
   }
 
-  Future<Result<VpLoadAcceptModel>> fetchVpAcceptLoad({required String userId,required String loadId}) async {
+  Future<Result<VpLoadAcceptModel>> fetchVpAcceptLoad({
+    required String userId,
+    required String loadId,
+  }) async {
     try {
       final result = await _apiService.put(
-          '${ApiUrls.vpAcceptLoad}$userId/$loadId');
+        '${ApiUrls.vpAcceptLoad}$userId/$loadId',
+      );
       if (result is Success) {
-       final vpLoadAccepted= VpLoadAcceptModel.fromJson(result.value);
+        final vpLoadAccepted = VpLoadAcceptModel.fromJson(result.value);
         return Success(vpLoadAccepted);
       } else if (result is Error) {
         return Error(result.type);
@@ -139,25 +164,29 @@ class VpHomeService {
     }
   }
 
-
-  Future<DirectionResponse?>  getDirectionRoute({required String? pickupLat,String? pickupLong,String? destinationLat,String? destinationLong}) async {
-     try {
-       final result = await _apiService.get(
-           ApiUrls.googleDirectionApi,
-           queryParams: {
-              "origin":"${double.tryParse(pickupLat??"0")},${double.tryParse(pickupLong??"0")}",
-             "destination":"${double.tryParse(destinationLat??"0")},${double.tryParse(destinationLong??"0")}",
-           });
-       if (result is Success) {
-         final vpLoadAccepted= DirectionResponse.fromJson(result.value);
-         return vpLoadAccepted;
-       }
-     } catch (e) {
-       return  null;
-     }
-     return null;
+  Future<DirectionResponse?> getDirectionRoute({
+    required String? pickupLat,
+    String? pickupLong,
+    String? destinationLat,
+    String? destinationLong,
+  }) async {
+    try {
+      final result = await _apiService.get(
+        ApiUrls.googleDirectionApi,
+        queryParams: {
+          "origin":
+              "${double.tryParse(pickupLat ?? "0")},${double.tryParse(pickupLong ?? "0")}",
+          "destination":
+              "${double.tryParse(destinationLat ?? "0")},${double.tryParse(destinationLong ?? "0")}",
+        },
+      );
+      if (result is Success) {
+        final vpLoadAccepted = DirectionResponse.fromJson(result.value);
+        return vpLoadAccepted;
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
   }
-
-
-
 }

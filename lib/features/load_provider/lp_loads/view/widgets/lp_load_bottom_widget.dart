@@ -319,14 +319,16 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                       ...[
                         // Agreed Price
                         Container(
+                          width: double.infinity,
                           decoration: commonContainerDecoration(
                             color: AppColors.primaryLightColor,
                             borderRadius: BorderRadius.circular(commonPadding),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          child: Wrap(
+                            alignment: WrapAlignment.center,
+                            spacing: 20,
                             children: [
-                              Text(context.appText.agreedPrice, style: AppTextStyle.body2),
+                              Text(context.appText.agreedPrice, style: AppTextStyle.body1Normal),
                               Text(
                                 loadPrice,
                                 style: AppTextStyle.h4.copyWith(

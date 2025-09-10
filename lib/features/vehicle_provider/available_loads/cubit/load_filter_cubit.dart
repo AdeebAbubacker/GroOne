@@ -1,6 +1,5 @@
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
@@ -10,6 +9,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_ty
 
 class LoadFilterCubit extends BaseCubit<LoadFilterState> {
   final VpLoadRepository _vpLoadRepository;
+  LoadFilterCubit(this._vpLoadRepository) : super(LoadFilterState());
 
   LoadFilterCubit(this._vpLoadRepository) : super(LoadFilterState());
 
@@ -19,9 +19,9 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
   }
 
   // get vehicle type
-  Future<void> getAllVehicleType() async {
+  Future<void> getAllVehicleType({String? search}) async {
     _setVehicleTypeState(UIState.loading());
-    Result result = await _vpLoadRepository.getTruckTypeData();
+    Result result = await _vpLoadRepository.getTruckTypeData(search: search);
 
     if (result is Success<List<TruckTypeModel>>) {
       _setVehicleTypeState(UIState.success(result.value));
@@ -32,11 +32,16 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
   }
 
   // set lanes  state
+  void _setLanesState(UIState<TruckPrefLaneModel>? uiState) {
+    emit(state.copyWith(truckTypeLaneUIState: uiState));
   void _setLanesState(UIState<TruckPrefLaneModel>? uiState, int? currentPage) {
     emit(state.copyWith(truckTypeLaneUIState: uiState,currentPage: currentPage));
   }
 
   // get prefer lanes
+  Future<void> getPreferLens() async {
+    _setLanesState(UIState.loading());
+    Result result = await _vpLoadRepository.getPrefTruckLaneData("", page: 1);
 
   Future<void> getPreferLens( {bool isInit=true,String? query}) async {
 
@@ -84,9 +89,11 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
   }
 
   // get commodity
-  Future<void> getAllCommodityState() async {
+  Future<void> getAllCommodityState({String? search}) async {
     _setCommodityState(UIState.loading());
-    Result result = await _vpLoadRepository.getLoadCommodityData();
+    Result result = await _vpLoadRepository.getLoadCommodityData(
+      search: search,
+    );
     if (result is Success<List<LoadCommodityListModel>>) {
       _setCommodityState(UIState.success(result.value));
     }
