@@ -13,18 +13,18 @@ class GpsUploadDocumentState extends Equatable {
   final String? aadhaarRequestId;
   final String? aadhaarDocLink;
 
-
   final String pan;
   final bool isPanValid;
-  final bool isPanVerified;
+  bool isPanVerified;
   final UIState<GpsPanVerificationResponse>? panVerificationState;
 
   final bool hasAttemptedSubmit;
+
   // Only PAN document list (used for all document fields)
   final List<Map<String, dynamic>> panDocuments;
   final UIState<GpsKycUploadResponseModel>? uploadKycState;
 
-  const GpsUploadDocumentState({
+  GpsUploadDocumentState({
     required this.aadhaar,
     required this.isAadhaarValid,
     required this.isAadhaarVerified,
@@ -32,7 +32,7 @@ class GpsUploadDocumentState extends Equatable {
     required this.aadhaarVerifyOtpState,
     required this.aadhaarRequestId,
     required this.pan,
-    required this.isPanValid,
+    this.isPanValid = false,
     required this.isPanVerified,
     required this.panVerificationState,
     required this.hasAttemptedSubmit,
@@ -49,7 +49,8 @@ class GpsUploadDocumentState extends Equatable {
     aadhaarVerifyOtpState: null,
     aadhaarRequestId: null,
     pan: '',
-    isPanValid: true, // PAN is optional, so it's valid by default
+    isPanValid: true,
+    // PAN is optional, so it's valid by default
     isPanVerified: false,
     panVerificationState: null,
     hasAttemptedSubmit: false,
@@ -78,7 +79,8 @@ class GpsUploadDocumentState extends Equatable {
       isAadhaarValid: isAadhaarValid ?? this.isAadhaarValid,
       isAadhaarVerified: isAadhaarVerified ?? this.isAadhaarVerified,
       aadhaarSendOtpState: aadhaarSendOtpState ?? this.aadhaarSendOtpState,
-      aadhaarVerifyOtpState: aadhaarVerifyOtpState ?? this.aadhaarVerifyOtpState,
+      aadhaarVerifyOtpState:
+          aadhaarVerifyOtpState ?? this.aadhaarVerifyOtpState,
       aadhaarRequestId: aadhaarRequestId ?? this.aadhaarRequestId,
       pan: pan ?? this.pan,
       isPanValid: isPanValid ?? this.isPanValid,
@@ -106,6 +108,6 @@ class GpsUploadDocumentState extends Equatable {
     hasAttemptedSubmit,
     panDocuments,
     uploadKycState,
-    aadhaarDocLink
+    aadhaarDocLink,
   ];
-} 
+}

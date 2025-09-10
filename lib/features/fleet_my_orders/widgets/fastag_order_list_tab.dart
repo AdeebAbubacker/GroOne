@@ -19,7 +19,8 @@ class FastagOrderListTabWidget extends StatefulWidget {
   const FastagOrderListTabWidget({super.key});
 
   @override
-  State<FastagOrderListTabWidget> createState() => _FastagOrderListTabWidgetState();
+  State<FastagOrderListTabWidget> createState() =>
+      _FastagOrderListTabWidgetState();
 }
 
 class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
@@ -57,10 +58,11 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
                 return Center(child: Text(context.appText.noOrdersFound));
               }
 
-              final filtered = items.where((f) {
-                return f.vehicleNo.toLowerCase().contains(_searchText) ||
-                    f.id.toString().contains(_searchText);
-              }).toList();
+              final filtered =
+                  items.where((f) {
+                    return f.vehicleNo.toLowerCase().contains(_searchText) ||
+                        f.id.toString().contains(_searchText);
+                  }).toList();
 
               return ListView.builder(
                 padding: const EdgeInsets.all(16),
@@ -83,7 +85,6 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
         ),
       ],
     );
-
   }
 
   Widget _buildSearchBar(BuildContext context) {
@@ -94,12 +95,13 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
         decoration: InputDecoration(
           hintText: context.appText.search,
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: _searchText.isNotEmpty
-              ? IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () => _searchController.clear(),
-          )
-              : null,
+          suffixIcon:
+              _searchText.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () => _searchController.clear(),
+                  )
+                  : null,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
@@ -109,19 +111,19 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
   String _mapStatus(int statusCode) {
     switch (statusCode) {
       case 1:
-      // return "Active";
-        return "Under Issuance";
+        // return "Active";
+        return context.appText.underIssuance;
       case 2:
-        return "Low Balance";
+        return context.appText.lowBalance;
       default:
-        return "Under Issuance";
+        return context.appText.underIssuance;
     }
   }
 
   Color _mapStatusColor(int statusCode) {
     switch (statusCode) {
       case 1:
-      // return Colors.green;
+        // return Colors.green;
         return Colors.grey;
       case 2:
         return Colors.red;
@@ -199,11 +201,14 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
           4.height,
 
           // Balance Section
-          if (status != 'Under Issuance')
+          if (status != context.appText.underIssuance)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Current Balance', style: AppTextStyle.body3GreyColor),
+                Text(
+                  '${context.appText.currentBalance} ',
+                  style: AppTextStyle.body3GreyColor,
+                ),
 
                 Row(
                   children: [
@@ -213,9 +218,9 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
                         color:
-                        status == 'Under Issuance'
-                            ? Colors.grey
-                            : AppColors.primaryColor,
+                            status == context.appText.underIssuance
+                                ? Colors.grey
+                                : AppColors.primaryColor,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -232,7 +237,7 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
                           commonRoute(FastagRechargeScreen()),
                         );
                       },
-                      title: 'Recharge',
+                      title: context.appText.recharge,
                       style: AppButtonStyle.primary,
                     ).expand(),
                   ],
@@ -240,13 +245,13 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
                 2.height,
                 // Last Updated
                 Text(
-                  'Last Updated $lastUpdated',
+                  '${context.appText.lastUpdated} $lastUpdated',
                   style: const TextStyle(fontSize: 12, color: Colors.grey),
                 ),
               ],
             ),
 
-          if (status == 'Under Issuance')
+          if (status == context.appText.underIssuance)
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

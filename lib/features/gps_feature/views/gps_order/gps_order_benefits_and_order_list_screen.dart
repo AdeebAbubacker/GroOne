@@ -218,7 +218,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
                 (state.hasKycDocuments == false || state.kycData == null)) {
               return _buildBenefitsScreen(
                 context,
-                navigateToUploadDocument: true,
+                navigateToUploadDocument:
+                    state.kycData != null &&
+                    state.kycData!['documents'] != null &&
+                    state.kycData!['documents']['panDocLink'] == null,
               );
             }
 
@@ -544,7 +547,22 @@ class _GpsOrderBenefitsAndOrderListScreenState
           onPressed: () {
             if (navigateToUploadDocument) {
               // Scenario 1: KYC not done - navigate to upload document
-              Navigator.push(context, commonRoute(GpsUploadDocumentScreen()));
+              Navigator.push(
+                context,
+                commonRoute(GpsUploadDocumentScreen()),
+              ).then((v) {
+                if (!context.mounted) return;
+                Future.microtask(() {
+                  if (mounted) {
+                    if (customerId != null) {
+                      if (!context.mounted) return;
+                      context.read<GpsKycCheckCubit>().checkKycDocuments(
+                        customerId!,
+                      );
+                    }
+                  }
+                });
+              });
             } else {
               // Scenario 2: KYC done but no orders - navigate to GPS model screen
               Navigator.push(context, commonRoute(GpsModelsScreen()));

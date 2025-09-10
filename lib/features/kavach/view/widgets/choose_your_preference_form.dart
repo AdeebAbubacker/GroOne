@@ -33,7 +33,8 @@ class ChooseYourPreferenceForm extends StatefulWidget {
   });
 
   @override
-  State<ChooseYourPreferenceForm> createState() => _ChooseYourPreferenceFormState();
+  State<ChooseYourPreferenceForm> createState() =>
+      _ChooseYourPreferenceFormState();
 }
 
 class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
@@ -76,8 +77,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(  
-       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
       decoration: commonContainerDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -97,7 +98,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
               ),
               15.height,
             ],
-        
+
             // Vehicle make dropdown
             _buildMakeDropdown(context),
             10.height,
@@ -131,6 +132,7 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
     final makes = widget.vehicleFilters.keys.toList();
 
     return SearchableDropdown(
+      noResultsFoundText: context.appText.noResultsFound,
       labelText: context.appText.make,
       mandatoryStar: true,
       selectedItem: selectedMake,
@@ -151,12 +153,12 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the vehicle model dropdown widget
   Widget _buildModelDropdown(BuildContext context) {
-    final vehicleFilter = selectedMake != null
-        ? widget.vehicleFilters[selectedMake]
-        : null;
+    final vehicleFilter =
+        selectedMake != null ? widget.vehicleFilters[selectedMake] : null;
     final models = vehicleFilter?.models ?? [];
 
     return SearchableDropdown(
+      noResultsFoundText: context.appText.noResultsFound,
       labelText: context.appText.model,
       mandatoryStar: true,
       selectedItem: selectedModel,
@@ -176,12 +178,12 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the engine type dropdown widget
   Widget _buildEngineDropdown(BuildContext context) {
-    final vehicleFilter = selectedMake != null
-        ? widget.vehicleFilters[selectedMake]
-        : null;
+    final vehicleFilter =
+        selectedMake != null ? widget.vehicleFilters[selectedMake] : null;
     final engines = vehicleFilter?.engineType ?? [];
 
     return SearchableDropdown(
+      noResultsFoundText: context.appText.noResultsFound,
       labelText: context.appText.engine,
       selectedItem: selectedEngine,
       items: engines,
@@ -199,12 +201,12 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the tank type dropdown widget
   Widget _buildTankTypeDropdown(BuildContext context) {
-    final vehicleFilter = selectedMake != null
-        ? widget.vehicleFilters[selectedMake]
-        : null;
+    final vehicleFilter =
+        selectedMake != null ? widget.vehicleFilters[selectedMake] : null;
     final tankTypes = vehicleFilter?.tankType ?? [];
 
     return SearchableDropdown(
+      noResultsFoundText: context.appText.noResultsFound,
       labelText: context.appText.tankType,
       selectedItem: selectedTankType,
       items: tankTypes,
@@ -221,16 +223,16 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
 
   /// Builds the device type dropdown widget
   Widget _buildDeviceTypeDropdown(BuildContext context) {
-    final vehicleFilter = selectedMake != null
-        ? widget.vehicleFilters[selectedMake]
-        : null;
+    final vehicleFilter =
+        selectedMake != null ? widget.vehicleFilters[selectedMake] : null;
     final deviceTypes = vehicleFilter?.deviceType ?? [];
 
     return SearchableDropdown(
+      noResultsFoundText: context.appText.noResultsFound,
       labelText: context.appText.deviceType,
       selectedItem: selectedDeviceType,
       items: deviceTypes,
-      hintText:context.appText.select,
+      hintText: context.appText.select,
       onChanged: (val) {
         setState(() {
           selectedDeviceType = val;
@@ -243,11 +245,12 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
   /// Builds the action buttons section
   Widget _buildActionButtons(BuildContext context) {
     // Check if BS4 is selected in engine type - handle different variations
-    final isBS4Selected = selectedEngine != null &&
+    final isBS4Selected =
+        selectedEngine != null &&
         (selectedEngine!.toUpperCase().contains('BS4') ||
-         selectedEngine!.toUpperCase().contains('BS-4') ||
-         selectedEngine!.toUpperCase().contains('BS 4'));
-    
+            selectedEngine!.toUpperCase().contains('BS-4') ||
+            selectedEngine!.toUpperCase().contains('BS 4'));
+
     return Row(
       children: [
         AppButton(
@@ -257,7 +260,8 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
         ).expand(),
         20.width,
         AppButton(
-          title: isBS4Selected ? context.appText.support : context.appText.apply,
+          title:
+              isBS4Selected ? context.appText.support : context.appText.apply,
           style: AppButtonStyle.primary,
           onPressed: () {
             if (isBS4Selected) {
@@ -283,4 +287,4 @@ class _ChooseYourPreferenceFormState extends State<ChooseYourPreferenceForm> {
       ],
     );
   }
-} 
+}

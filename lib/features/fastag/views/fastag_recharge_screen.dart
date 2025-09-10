@@ -49,7 +49,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
           children: [
             // App Bar
             _buildAppBar(),
-            
+
             // Main Content
             Expanded(
               child: SingleChildScrollView(
@@ -57,23 +57,23 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
                   children: [
                     // FASTag Details Card
                     _buildFastagDetailsCard(),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Vehicle Selection Section
                     _buildVehicleSelectionSection(),
-                    
+
                     const SizedBox(height: 24),
-                    
+
                     // Add Amount Section
                     _buildAddAmountSection(),
-                    
+
                     const SizedBox(height: 40),
                   ],
                 ),
               ),
             ),
-            
+
             // Recharge Button
             _buildRechargeButton(),
           ],
@@ -83,10 +83,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
   }
 
   Widget _buildAppBar() {
-    return CommonAppBar(
-      title: const Text('Recharge'),
-      centreTile: true,
-    );
+    return CommonAppBar(title: const Text('Recharge'), centreTile: true);
   }
 
   Widget _buildFastagDetailsCard() {
@@ -110,22 +107,19 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
           // ID
           Text(
             'ID - 8387123010',
-            style: const TextStyle(
-              fontSize: 12,
-              color: Colors.grey,
-            ),
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Vehicle Information Row
           Row(
             children: [
               // IDFC Icon
               Image.asset(AppIcons.png.fastagListCardIcon),
-              
+
               const SizedBox(width: 8),
-              
+
               // Vehicle Number
               const Text(
                 'TN12 BD 1234',
@@ -157,9 +151,9 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
               color: Colors.black,
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Vehicle Selection Field
           VehicleSelectionField(
             controller: _vehicleController,
@@ -200,9 +194,9 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
               color: Colors.black,
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Amount Input Field
           Container(
             decoration: BoxDecoration(
@@ -211,28 +205,23 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
               border: Border.all(color: AppColors.borderColor),
             ),
             child: AppTextField(
+              enableInteractiveSelection: true,
               controller: _amountController,
               hintText: '₹1000',
               keyboardType: TextInputType.number,
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Quick Select Buttons
           Row(
             children: [
-              Expanded(
-                child: _buildQuickSelectButton('₹1000', '1000'),
-              ),
+              Expanded(child: _buildQuickSelectButton('₹1000', '1000')),
               const SizedBox(width: 12),
-              Expanded(
-                child: _buildQuickSelectButton('₹2000', '2000'),
-              ),
+              Expanded(child: _buildQuickSelectButton('₹2000', '2000')),
               const SizedBox(width: 12),
-              Expanded(
-                child: _buildQuickSelectButton('₹5000', '5000'),
-              ),
+              Expanded(child: _buildQuickSelectButton('₹5000', '5000')),
             ],
           ),
         ],
@@ -242,7 +231,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
 
   Widget _buildQuickSelectButton(String text, String value) {
     final isSelected = _selectedAmount == value;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -278,7 +267,7 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       child: AppButton(
-        onPressed: _isLoading ? (){} : _handleRecharge,
+        onPressed: _isLoading ? () {} : _handleRecharge,
         title: 'Recharge ₹200',
         style: AppButtonStyle.primary,
         isLoading: _isLoading,
@@ -316,14 +305,14 @@ class _FastagRechargeScreenState extends State<FastagRechargeScreen> {
   void _showSuccessPopup() {
     AppDialog.show(
       context,
-      child :SuccessDialogView(
-          heading: 'Recharge Successful',
-          message: 'FASTag Recharge Completed Successfully',
-          afterDismiss: (){
-            Navigator.pop(context);
-            Navigator.push(context, commonRoute(FastagListScreen()));
-          },
-        ),
+      child: SuccessDialogView(
+        heading: 'Recharge Successful',
+        message: 'FASTag Recharge Completed Successfully',
+        afterDismiss: () {
+          Navigator.pop(context);
+          Navigator.push(context, commonRoute(FastagListScreen()));
+        },
+      ),
     );
   }
 }

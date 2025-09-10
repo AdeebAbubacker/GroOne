@@ -1,6 +1,8 @@
 // lib/features/gps_feature/widgets/trip_report_card.dart
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:intl/intl.dart';
+import 'package:path/path.dart';
 
 import '../../../utils/app_colors.dart';
 import '../model/address_model.dart';
@@ -10,9 +12,14 @@ import 'address_skeleton.dart';
 class TripReportCard extends StatelessWidget {
   final TripReport report;
   final AddressResponse? addressResponse;
+  final BuildContext context;
 
-  const TripReportCard({Key? key, required this.report, this.addressResponse})
-    : super(key: key);
+  const TripReportCard({
+    Key? key,
+    required this.report,
+    this.addressResponse,
+    required this.context,
+  }) : super(key: key);
 
   String _formatDateTime(String dateTimeString) {
     try {
@@ -153,7 +160,7 @@ class TripReportCard extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(
-              '${_calculateTotalViolations()} Safety count',
+              '${_calculateTotalViolations()} ${context.appText.safetyCount}',
               style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF4CAF50),
@@ -167,8 +174,8 @@ class TripReportCard extends StatelessWidget {
         Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            const Text(
-              'Color Code',
+             Text(
+              context.appText.colorCode,
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey,
@@ -284,7 +291,7 @@ class TripReportCard extends StatelessWidget {
                 icon: Icons.place,
                 iconColor: const Color(0xFF2196F3),
                 value: '${_formatDecimal(report.distance)} Kms',
-                label: 'Distance',
+                label: context.appText.distance,
               ),
             ),
             const SizedBox(width: 12),
@@ -293,7 +300,7 @@ class TripReportCard extends StatelessWidget {
                 icon: Icons.speed,
                 iconColor: const Color(0xFF2196F3),
                 value: '${report.avgSpeed} Km/hr',
-                label: 'Avg. Speed',
+                label: context.appText.avgSpeed,
               ),
             ),
           ],
@@ -308,7 +315,7 @@ class TripReportCard extends StatelessWidget {
                 icon: Icons.access_time,
                 iconColor: const Color(0xFF2196F3),
                 value: report.engineTime,
-                label: 'Engine ON',
+                label: context.appText.engineOn,
               ),
             ),
             const SizedBox(width: 12),
@@ -317,7 +324,7 @@ class TripReportCard extends StatelessWidget {
                 icon: Icons.warning_amber_outlined,
                 iconColor: const Color(0xFF2196F3),
                 value: report.idleTime,
-                label: 'Idle Time',
+                label: context.appText.idleTime,
               ),
             ),
           ],

@@ -40,7 +40,10 @@ class GpsBillingAddressSelected extends GpsBillingAddressState {
   final KavachAddressModel selectedAddress;
   final List<KavachAddressModel> addresses;
 
-  GpsBillingAddressSelected({required this.selectedAddress, required this.addresses});
+  GpsBillingAddressSelected({
+    required this.selectedAddress,
+    required this.addresses,
+  });
 }
 
 class GpsBillingAddressEmpty extends GpsBillingAddressState {}
@@ -56,9 +59,10 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
   final GpsOrderApiRepository _repository;
   final UserInformationRepository _userRepository;
 
-  GpsBillingAddressCubit(this._repository, this._userRepository) : super(GpsBillingAddressInitial());
+  GpsBillingAddressCubit(this._repository, this._userRepository)
+    : super(GpsBillingAddressInitial());
 
-  Future<void> fetchGpsBillingAddresses() async {
+  Future<void> fetchGpsBillingAddresses({int changeBillingIndex = 0}) async {
     emit(GpsBillingAddressLoading());
     try {
       final customerId = await _userRepository.getUserID();
@@ -76,12 +80,22 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
       if (result is Success<GpsAddressListResponse>) {
         final rows = result.value.data?.rows ?? [];
         if (rows.isNotEmpty) {
-          final addresses = rows.map((gpsAddress) => gpsAddress.toKavachAddressModel()).toList();
+          final addresses =
+              rows
+                  .map((gpsAddress) => gpsAddress.toKavachAddressModel())
+                  .toList();
           // Auto-select first address
-          emit(GpsBillingAddressSelected(
-            selectedAddress: addresses.first,
-            addresses: addresses,
-          ));
+          emit(
+            GpsBillingAddressSelected(
+              selectedAddress:
+                  addresses[changeBillingIndex == 1
+                      ? changeBillingIndex
+                      : changeBillingIndex > 1
+                      ? changeBillingIndex - 1
+                      : 0],
+              addresses: addresses,
+            ),
+          );
         } else {
           emit(GpsBillingAddressEmpty());
         }
@@ -93,34 +107,56 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
     }
   }
 
-
-  void selectGpsBillingAddress(KavachAddressModel address) {
+  selectGpsBillingAddress(KavachAddressModel address) {
     // Get current addresses from state
     List<KavachAddressModel> addresses = [];
     if (state is GpsBillingAddressAvailable) {
       addresses = (state as GpsBillingAddressAvailable).addresses;
-      CustomLog.debug(this, "GPS Billing - Selecting address from Available state with ${addresses.length} addresses");
+      CustomLog.debug(
+        this,
+        "GPS Billing - Selecting address from Available state with ${addresses.length} addresses",
+      );
     } else if (state is GpsBillingAddressSelected) {
       addresses = (state as GpsBillingAddressSelected).addresses;
-      CustomLog.debug(this, "GPS Billing - Selecting address from Selected state with ${addresses.length} addresses");
+      CustomLog.debug(
+        this,
+        "GPS Billing - Selecting address from Selected state with ${addresses.length} addresses",
+      );
     }
-    
+
     // If no addresses are available, fetch them first
     if (addresses.isEmpty) {
-      CustomLog.debug(this, "GPS Billing - No addresses available, fetching addresses first");
+      CustomLog.debug(
+        this,
+        "GPS Billing - No addresses available, fetching addresses first",
+      );
       fetchGpsBillingAddresses().then((_) {
         // After fetching, try to select the address again
         if (state is GpsBillingAddressAvailable) {
-          final loadedAddresses = (state as GpsBillingAddressAvailable).addresses;
-          CustomLog.debug(this, "GPS Billing - Fetched ${loadedAddresses.length} addresses, now selecting");
-          emit(GpsBillingAddressSelected(selectedAddress: address, addresses: loadedAddresses));
+          final loadedAddresses =
+              (state as GpsBillingAddressAvailable).addresses;
+          CustomLog.debug(
+            this,
+            "GPS Billing - Fetched ${loadedAddresses.length} addresses, now selecting",
+          );
+          emit(
+            GpsBillingAddressSelected(
+              selectedAddress: address,
+              addresses: loadedAddresses,
+            ),
+          );
         }
       });
       return;
     }
-    
-    CustomLog.debug(this, "GPS Billing - Emitting selected state with ${addresses.length} addresses");
-    emit(GpsBillingAddressSelected(selectedAddress: address, addresses: addresses));
+
+    CustomLog.debug(
+      this,
+      "GPS Billing - Emitting selected state with ${addresses.length} addresses",
+    );
+    emit(
+      GpsBillingAddressSelected(selectedAddress: address, addresses: addresses),
+    );
   }
 
   void clearGpsBillingAddress() {
@@ -136,4 +172,4 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
     // If we're in available state, stay there (no selection)
     // If we're in empty/error state, stay there
   }
-} 
+}
