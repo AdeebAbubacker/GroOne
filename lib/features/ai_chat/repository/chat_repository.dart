@@ -28,7 +28,8 @@ class ChatRepository {
   }
 
   /// Send text message and get AI response
-  Future<ChatMessage> sendTextMessage({
+  /// Returns a Map with 'message' and 'rate_limit' keys
+  Future<Map<String, dynamic>> sendTextMessage({
     required String message,
     required String language,
   }) async {
@@ -41,7 +42,7 @@ class ChatRepository {
       // Ensure response is properly typed
       final Map<String, dynamic> responseMap = response as Map<String, dynamic>;
 
-      return ChatMessage(
+      final chatMessage = ChatMessage(
         id: responseMap['assistant_message_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
         message: responseMap['message'] ?? 'No response received',
         isUser: false,
@@ -50,9 +51,14 @@ class ChatRepository {
         messageType: MessageType.text,
         reported: false, // New messages are not reported
       );
+
+      return {
+        'message': chatMessage,
+        'rate_limit': responseMap['rate_limit'] ?? <String, dynamic>{},
+      };
     } catch (e) {
       // Return user-friendly error message as AI response
-      return ChatMessage(
+      final errorMessage = ChatMessage(
         id: DateTime.now().millisecondsSinceEpoch.toString(),
         message: _getUserFriendlyErrorMessage(e),
         isUser: false,
@@ -61,12 +67,17 @@ class ChatRepository {
         messageType: MessageType.text,
         reported: false, // Error messages are not reported
       );
+
+      return {
+        'message': errorMessage,
+        'rate_limit': <String, dynamic>{},
+      };
     }
   }
 
   /// Send voice message and get AI response
-  /// Returns a Map with 'userMessage' and 'aiMessage' keys
-  Future<Map<String, ChatMessage>> sendVoiceMessage({
+  /// Returns a Map with 'userMessage', 'aiMessage', and 'rate_limit' keys
+  Future<Map<String, dynamic>> sendVoiceMessage({
     required String audioFilePath,
     required String language,
   }) async {
@@ -102,6 +113,7 @@ class ChatRepository {
       return {
         'userMessage': userMessage,
         'aiMessage': aiMessage,
+        'rate_limit': responseMap['aiMessage']?['rate_limit'] ?? <String, dynamic>{},
       };
     } catch (e) {
 
@@ -130,6 +142,7 @@ class ChatRepository {
       return {
         'userMessage': userMessage,
         'aiMessage': aiMessage,
+        'rate_limit': <String, dynamic>{},
       };
     }
   }
