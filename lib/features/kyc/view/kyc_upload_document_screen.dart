@@ -530,8 +530,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       if (!ok) {
         ToastMessages.alert(message: '${context.appText.pleaseUpload} $msg');
       }
-
-
       return ok;
     }
 
@@ -546,6 +544,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     bool gstValid() {
+      if(companyId==1){
+        return true;
+      }
+
       final uploaded = gstDoc.isNotEmpty;
       final verified = kycCubit.state.verifiedGst ?? false;
       return need(context.appText.gstDocument, uploaded) &&
@@ -669,6 +671,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // Verify KYC Api Call
   Future verifyKycApiCall() async {
+
     if (_formKey.currentState!.validate()) {
       final ok = validateDocs(
         userRole: kycCubit.userRole ?? 0,
@@ -1155,6 +1158,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
+              isMandatory: companyId!=1,
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },
@@ -1747,6 +1751,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     bool? isMandatory,
     Function(String? text)? onChanged,
   }) {
+
     return Column(
       children: [
         Row(

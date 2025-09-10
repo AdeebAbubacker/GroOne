@@ -343,6 +343,11 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
             AppSearchBar(
               searchController: searchController,
               onChanged: _onSearchChanged,
+              onClear: () {
+                searchController.clear();
+                _loadDataByTab(index: _tabController.index);
+
+              },
 
             ).expand(),
 

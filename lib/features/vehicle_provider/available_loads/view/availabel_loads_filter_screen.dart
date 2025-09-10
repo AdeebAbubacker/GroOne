@@ -5,13 +5,17 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
+import 'package:gro_one_app/features/vehicle_provider/available_loads/widget/prefer_lanes_filter.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_searchabledropdown.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -45,7 +49,7 @@ class _AvailableLoadsFilterScreenState
   @override
   void initState() {
     _setInitialFilterData();
-    check();
+
     super.initState();
   }
 
@@ -53,16 +57,6 @@ class _AvailableLoadsFilterScreenState
   void dispose() {
     disposeFunction();
     super.dispose();
-  }
-
-
-  check(){
-    scrollController.addListener(() {
-      if (scrollController.position.pixels >=
-          scrollController.position.maxScrollExtent) {
-
-      }
-    },);
   }
 
 
@@ -137,6 +131,8 @@ class _AvailableLoadsFilterScreenState
             state.truckTypeLaneUIState?.data?.data?.items ?? [];
         List<LoadCommodityListModel> loadTypeList =
             state.commodityResponseUIState?.data ?? [];
+        Item? item=  state.selectedPrefLanes;
+        if(item!=null) laneDropDownValue="${item.fromLocation?.name} - ${item.toLocation?.name??""}";
 
         return Form(
           key: formKey,
@@ -156,27 +152,29 @@ class _AvailableLoadsFilterScreenState
               20.height,
 
               // Lane Type
-              SearchableDropdown(
-                hintText: context.appText.selectLaneType,
-                items:
-                preferLanesModel
-                        .map(
-                          (e) =>
-                              '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',
-                        )
-                        .toList(),
-                labelText: context.appText.lane,
-                selectedItem: laneDropDownValue,
-                onChanged: (value) {
-                  _getLaneId(preferLanesModel, value);
-                },
-              ),
+
+              _buildPreferLanes(),
+
+              // SearchableDropdown(
+              //   hintText: context.appText.selectLaneType,
+              //   items:
+              //   preferLanesModel
+              //           .map(
+              //             (e) =>
+              //                 '${e.fromLocation?.name ?? ""} - ${e.toLocation?.name ?? ""}',
+              //           )
+              //           .toList(),
+              //   labelText: context.appText.lane,
+              //   selectedItem: laneDropDownValue,
+              //   onChanged: (value) {
+              //     _getLaneId(preferLanesModel, value);
+              //   },
+              // ),
 
               20.height,
 
               // Road Type
               SearchableDropdown(
-
                 hintText: context.appText.selectRoadType,
                 items: loadTypeList.map((e) => e.name).toList(),
                 labelText: context.appText.loadType,
@@ -219,6 +217,46 @@ class _AvailableLoadsFilterScreenState
           ),
         );
       },
+    );
+  }
+
+  _buildPreferLanes(){
+    print("laneDropDownValue is $laneDropDownValue");
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          context.appText.lane,
+          style: AppTextStyle.textFiled,
+        ),
+        6.height,
+        GestureDetector(
+          onTap: () {
+            Navigator.push(context, commonRoute(PreferLanesFilter()));
+          },
+
+          child: Container(
+            height: 50,
+            padding: EdgeInsets.only(left: 10),
+            decoration: BoxDecoration(
+              color: AppColors.textFieldFillColor,
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(
+                width: 1,
+                color:AppColors.borderColor ,
+
+              )
+            ),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: laneDropDownValue==null ? Text(
+                context.appText.selectLaneType,
+                style: AppTextStyle.textFieldHint,
+              ): Text(laneDropDownValue??""),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

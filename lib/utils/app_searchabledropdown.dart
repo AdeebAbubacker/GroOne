@@ -58,12 +58,12 @@ class SearchableDropdown extends StatelessWidget {
         if (labelText != null) 6.height,
         DropdownSearch<String>(
           selectedItem: selectedItem,
-
           items: (String filter, _) async {
             return items
                 .where((v) => v.toLowerCase().contains(filter.toLowerCase()))
                 .toList();
           },
+
           popupProps: PopupProps.menu(
             showSearchBox: showSearchBox,
             emptyBuilder: emptyBuilder ??
@@ -74,6 +74,7 @@ class SearchableDropdown extends StatelessWidget {
             loadingBuilder: (context, searchEntry) =>
                 const Center(child: CircularProgressIndicator()),
             constraints: BoxConstraints(
+
               maxHeight: items.isEmpty
                   ? 140 
                   : items.length <= 2
@@ -81,7 +82,7 @@ class SearchableDropdown extends StatelessWidget {
                       : 250,
             ),
              menuProps: MenuProps(
-             backgroundColor: AppColors.white, 
+             backgroundColor: AppColors.white,
             ), 
             searchFieldProps: TextFieldProps(
 
@@ -93,8 +94,7 @@ class SearchableDropdown extends StatelessWidget {
               isDense: true,
             ),
           ),
-         itemBuilder: popupItemBuilder,
-          ),
+         itemBuilder: popupItemBuilder,),
           
           decoratorProps: DropDownDecoratorProps(
             decoration: commonInputDecoration(
