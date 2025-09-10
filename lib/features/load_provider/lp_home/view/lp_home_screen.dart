@@ -322,14 +322,18 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   // Kyc Bottom Sheet
   void kycBottomSheet(BuildContext context){
+    var companyId = profileCubit.state.profileDetailUIState?.data?.customer?.companyTypeId;
     commonBottomSheetWithBGBlur(
       screen: KycPendingDialogue(
         onPressed: () {
           context.pop();
-          commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
-            lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"),
-            );
-          });
+          if(companyId != null && (companyId == 2 || companyId == 1)) {
+            commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet()).then((value) {
+              lpHomeBloc.add(GetProfileDetailApiRequest(lpHomeBloc.userId ?? "0"));
+            });
+          } else {
+            commonBottomSheetWithBGBlur(context: context, screen: KycUploadDocumentScreen());
+          }
         },
       ),
       context: context,

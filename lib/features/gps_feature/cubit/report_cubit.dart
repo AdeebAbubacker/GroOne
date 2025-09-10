@@ -2,6 +2,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 import '../../../data/model/result.dart';
 import '../../../dependency_injection/locator.dart';

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -91,7 +92,7 @@ class _EnhancedDropdownFieldState extends State<EnhancedDropdownField> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Select ${widget.labelText}'),
+          title: Text('${context.appText.select} ${widget.labelText}'),
           content: SizedBox(
             width: double.maxFinite,
             child: ListView.builder(

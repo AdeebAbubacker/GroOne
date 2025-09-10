@@ -23,14 +23,17 @@ class KavachBillingAddressListScreen extends StatelessWidget {
   final KavachAddressModel? selectedShippingAddress;
   final AddressListFeature feature;
   final GpsBillingAddressCubit? gpsBillingAddressCubit; // For GPS feature
-  final GpsShippingAddressCubit? gpsShippingAddressCubit; // For GPS feature - to refresh both lists
-  
-  const KavachBillingAddressListScreen({
+  final GpsShippingAddressCubit?
+  gpsShippingAddressCubit; // For GPS feature - to refresh both lists
+  int? changeShippingIndex;
+
+  KavachBillingAddressListScreen({
     super.key,
     this.selectedShippingAddress,
     this.feature = AddressListFeature.kavach,
     this.gpsBillingAddressCubit,
     this.gpsShippingAddressCubit,
+    this.changeShippingIndex,
   });
 
   @override
@@ -42,10 +45,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
     // Wrap with BlocProvider if this is for GPS feature
     if (feature == AddressListFeature.gps && gpsBillingAddressCubit != null) {
-      body = BlocProvider.value(
-        value: gpsBillingAddressCubit!,
-        child: body,
-      );
+      body = BlocProvider.value(value: gpsBillingAddressCubit!, child: body);
     }
 
     return AppBottomSheetBody(
@@ -55,21 +55,24 @@ class KavachBillingAddressListScreen extends StatelessWidget {
     );
   }
 
-  Widget addVehicleButton(BuildContext context){
+  Widget addVehicleButton(BuildContext context) {
     return AppButton(
       onPressed: () async {
         if (feature == AddressListFeature.kavach) {
-        await commonBottomSheetWithBGBlur(
-          context: context,
-          screen: KavachAddAddressBottomSheet(
-            addrType: 2, // Billing address type
-            title: context.appText.billingAddress,
+          await commonBottomSheetWithBGBlur(
+            context: context,
+            screen: KavachAddAddressBottomSheet(
+              addrType: 2, // Billing address type
+              title: context.appText.billingAddress,
               feature: AddressFeature.kavach,
-          ),
-        );
-        if (!context.mounted) return;
-        context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
-        } else if (feature == AddressListFeature.gps && gpsBillingAddressCubit != null) {
+            ),
+          );
+          if (!context.mounted) return;
+          context.read<KavachCheckoutBillingAddressBloc>().add(
+            FetchKavachBillingAddresses(),
+          );
+        } else if (feature == AddressListFeature.gps &&
+            gpsBillingAddressCubit != null) {
           await commonBottomSheetWithBGBlur(
             context: context,
             screen: KavachAddAddressBottomSheet(
@@ -80,7 +83,10 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                 // Refresh both billing and shipping address lists
                 gpsBillingAddressCubit!.fetchGpsBillingAddresses();
                 if (gpsShippingAddressCubit != null) {
-                  gpsShippingAddressCubit!.fetchGpsShippingAddresses();
+                  gpsShippingAddressCubit!.fetchGpsShippingAddresses(
+                    changeShippingIndex:
+                        changeShippingIndex != null ? changeShippingIndex! : 0,
+                  );
                 }
               },
             ),
@@ -95,17 +101,21 @@ class KavachBillingAddressListScreen extends StatelessWidget {
   Widget _buildBody({required BuildContext context}) {
     if (feature == AddressListFeature.kavach) {
       return _buildKavachBody(context);
-    } else if (feature == AddressListFeature.gps && gpsBillingAddressCubit != null) {
+    } else if (feature == AddressListFeature.gps &&
+        gpsBillingAddressCubit != null) {
       return _buildGpsBody(context);
     }
     return Center(child: Text(context.appText.invalidFeatureConfiguration));
   }
 
   Widget _buildKavachBody(BuildContext context) {
-    return BlocBuilder<KavachCheckoutBillingAddressBloc, KavachCheckoutBillingAddressState>(
+    return BlocBuilder<
+      KavachCheckoutBillingAddressBloc,
+      KavachCheckoutBillingAddressState
+    >(
       builder: (context, state) {
         if (state is KavachCheckoutBillingAddressLoading) {
-          return const Center(child: CircularProgressIndicator(),);
+          return const Center(child: CircularProgressIndicator());
         }
 
         if (state is KavachCheckoutBillingAddressError) {
@@ -126,7 +136,9 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                       10.height,
                       AppButton(
                         onPressed: () {
-                          context.read<KavachCheckoutBillingAddressBloc>().add(FetchKavachBillingAddresses());
+                          context.read<KavachCheckoutBillingAddressBloc>().add(
+                            FetchKavachBillingAddresses(),
+                          );
                         },
                         title: context.appText.retry,
                         style: AppButtonStyle.outline,
@@ -141,50 +153,67 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
         if (state is KavachCheckoutBillingAddressSelected) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses = selectedShippingAddress != null 
-              ? state.addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
-              : state.addresses;
+          final filteredAddresses =
+              selectedShippingAddress != null
+                  ? state.addresses
+                      .where(
+                        (address) =>
+                            address.uniqueId !=
+                            selectedShippingAddress!.uniqueId,
+                      )
+                      .toList()
+                  : state.addresses;
 
           return Column(
             children: [
               addVehicleButton(context),
               Expanded(
-                child: filteredAddresses.isEmpty 
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.location_off, color: Colors.grey, size: 48),
-                            10.height,
-                            Text(
-                             context.appText.noAvailableBillingAddresses,
-                              style: AppTextStyle.h5,
-                            ),
-                            5.height,
-                            Text(
-                              selectedShippingAddress != null
-                                  ? context.appText.allAddressesAlreadySelectedForShipping
-                                  : context.appText.addYourFirstBillingAddress,
-                              style: AppTextStyle.bodyGreyColor,
-                            ),
-                          ],
+                child:
+                    filteredAddresses.isEmpty
+                        ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_off,
+                                color: Colors.grey,
+                                size: 48,
+                              ),
+                              10.height,
+                              Text(
+                                context.appText.noAvailableBillingAddresses,
+                                style: AppTextStyle.h5,
+                              ),
+                              5.height,
+                              Text(
+                                selectedShippingAddress != null
+                                    ? context
+                                        .appText
+                                        .allAddressesAlreadySelectedForShipping
+                                    : context
+                                        .appText
+                                        .addYourFirstBillingAddress,
+                                style: AppTextStyle.bodyGreyColor,
+                              ),
+                            ],
+                          ),
+                        )
+                        : ListView.separated(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shrinkWrap: true,
+                          itemCount: filteredAddresses.length,
+                          separatorBuilder: (context, index) => 10.height,
+                          itemBuilder: (context, index) {
+                            final address = filteredAddresses[index];
+                            return KavachAddressListItem(address: address);
+                          },
                         ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shrinkWrap: true,
-                        itemCount: filteredAddresses.length,
-                        separatorBuilder: (context, index) => 10.height,
-                        itemBuilder: (context, index) {
-                          final address = filteredAddresses[index];
-                          return KavachAddressListItem(address: address);
-                        },
-                      ),
               ),
               20.height,
               AppButton(
                 onPressed: () {
-                  final selectedAddress = context.read<KavachCheckoutBillingAddressBloc>().state;
+                  final selectedAddress =
+                      context.read<KavachCheckoutBillingAddressBloc>().state;
                   if (selectedAddress is KavachCheckoutBillingAddressSelected) {
                     Navigator.pop(context, selectedAddress.selectedAddress);
                   } else {
@@ -201,45 +230,61 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
         if (state is KavachCheckoutBillingAddressAvailable) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses = selectedShippingAddress != null 
-              ? state.addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
-              : state.addresses;
+          final filteredAddresses =
+              selectedShippingAddress != null
+                  ? state.addresses
+                      .where(
+                        (address) =>
+                            address.uniqueId !=
+                            selectedShippingAddress!.uniqueId,
+                      )
+                      .toList()
+                  : state.addresses;
 
           return Column(
             children: [
               addVehicleButton(context),
               Expanded(
-                child: filteredAddresses.isEmpty 
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.location_off, color: Colors.grey, size: 48),
-                            10.height,
-                            Text(
-                              context.appText.noAvailableBillingAddresses,
-                              style: AppTextStyle.h5,
-                            ),
-                            5.height,
-                            Text(
-                              selectedShippingAddress != null
-                                  ? context.appText.allAddressesAlreadySelectedForShipping
-                                  : context.appText.addYourFirstBillingAddress,
-                              style: AppTextStyle.bodyGreyColor,
-                            ),
-                          ],
+                child:
+                    filteredAddresses.isEmpty
+                        ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_off,
+                                color: Colors.grey,
+                                size: 48,
+                              ),
+                              10.height,
+                              Text(
+                                context.appText.noAvailableBillingAddresses,
+                                style: AppTextStyle.h5,
+                              ),
+                              5.height,
+                              Text(
+                                selectedShippingAddress != null
+                                    ? context
+                                        .appText
+                                        .allAddressesAlreadySelectedForShipping
+                                    : context
+                                        .appText
+                                        .addYourFirstBillingAddress,
+                                style: AppTextStyle.bodyGreyColor,
+                              ),
+                            ],
+                          ),
+                        )
+                        : ListView.separated(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shrinkWrap: true,
+                          itemCount: filteredAddresses.length,
+                          separatorBuilder: (context, index) => 10.height,
+                          itemBuilder: (context, index) {
+                            final address = filteredAddresses[index];
+                            return KavachAddressListItem(address: address);
+                          },
                         ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shrinkWrap: true,
-                        itemCount: filteredAddresses.length,
-                        separatorBuilder: (context, index) => 10.height,
-                        itemBuilder: (context, index) {
-                          final address = filteredAddresses[index];
-                          return KavachAddressListItem(address: address);
-                        },
-                      ),
               ),
               20.height,
               AppButton(
@@ -330,48 +375,64 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
         if (state is GpsBillingAddressSelected) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses = selectedShippingAddress != null 
-              ? state.addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
-              : state.addresses;
+          final filteredAddresses =
+              selectedShippingAddress != null
+                  ? state.addresses
+                      .where(
+                        (address) =>
+                            address.uniqueId !=
+                            selectedShippingAddress!.uniqueId,
+                      )
+                      .toList()
+                  : state.addresses;
 
           return Column(
             children: [
               addVehicleButton(context),
               Expanded(
-                child: filteredAddresses.isEmpty 
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.location_off, color: Colors.grey, size: 48),
-                            10.height,
-                            Text(
-                              context.appText.noAvailableBillingAddresses,
-                              style: AppTextStyle.h5,
-                            ),
-                            5.height,
-                            Text(
-                              selectedShippingAddress != null
-                                  ? context.appText.allAddressesAlreadySelectedForShipping
-                                  : context.appText.addYourFirstBillingAddress,
-                              style: AppTextStyle.bodyGreyColor,
-                            ),
-                          ],
+                child:
+                    filteredAddresses.isEmpty
+                        ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_off,
+                                color: Colors.grey,
+                                size: 48,
+                              ),
+                              10.height,
+                              Text(
+                                context.appText.noAvailableBillingAddresses,
+                                style: AppTextStyle.h5,
+                              ),
+                              5.height,
+                              Text(
+                                selectedShippingAddress != null
+                                    ? context
+                                        .appText
+                                        .allAddressesAlreadySelectedForShipping
+                                    : context
+                                        .appText
+                                        .addYourFirstBillingAddress,
+                                style: AppTextStyle.bodyGreyColor,
+                              ),
+                            ],
+                          ),
+                        )
+                        : ListView.separated(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shrinkWrap: true,
+                          itemCount: filteredAddresses.length,
+                          separatorBuilder: (context, index) => 10.height,
+                          itemBuilder: (context, index) {
+                            final address = filteredAddresses[index];
+                            return GpsAddressListItem(
+                              address: address,
+                              cubit: gpsBillingAddressCubit!,
+                            );
+                          },
                         ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shrinkWrap: true,
-                        itemCount: filteredAddresses.length,
-                        separatorBuilder: (context, index) => 10.height,
-                        itemBuilder: (context, index) {
-                          final address = filteredAddresses[index];
-                          return GpsAddressListItem(
-                            address: address,
-                            cubit: gpsBillingAddressCubit!,
-                          );
-                        },
-                      ),
               ),
               20.height,
               AppButton(
@@ -393,48 +454,64 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
         if (state is GpsBillingAddressAvailable) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses = selectedShippingAddress != null 
-              ? state.addresses.where((address) => address.uniqueId != selectedShippingAddress!.uniqueId).toList()
-              : state.addresses;
+          final filteredAddresses =
+              selectedShippingAddress != null
+                  ? state.addresses
+                      .where(
+                        (address) =>
+                            address.uniqueId !=
+                            selectedShippingAddress!.uniqueId,
+                      )
+                      .toList()
+                  : state.addresses;
 
           return Column(
             children: [
               addVehicleButton(context),
               Expanded(
-                child: filteredAddresses.isEmpty 
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(Icons.location_off, color: Colors.grey, size: 48),
-                            10.height,
-                            Text(
-                              context.appText.noAvailableBillingAddresses,
-                              style: AppTextStyle.h5,
-                            ),
-                            5.height,
-                            Text(
-                              selectedShippingAddress != null 
-                                  ? context.appText.allAddressesAlreadySelectedForShipping
-                                  : context.appText.addYourFirstBillingAddress,
-                              style: AppTextStyle.bodyGreyColor,
-                            ),
-                          ],
+                child:
+                    filteredAddresses.isEmpty
+                        ? Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.location_off,
+                                color: Colors.grey,
+                                size: 48,
+                              ),
+                              10.height,
+                              Text(
+                                context.appText.noAvailableBillingAddresses,
+                                style: AppTextStyle.h5,
+                              ),
+                              5.height,
+                              Text(
+                                selectedShippingAddress != null
+                                    ? context
+                                        .appText
+                                        .allAddressesAlreadySelectedForShipping
+                                    : context
+                                        .appText
+                                        .addYourFirstBillingAddress,
+                                style: AppTextStyle.bodyGreyColor,
+                              ),
+                            ],
+                          ),
+                        )
+                        : ListView.separated(
+                          padding: const EdgeInsets.symmetric(vertical: 20),
+                          shrinkWrap: true,
+                          itemCount: filteredAddresses.length,
+                          separatorBuilder: (context, index) => 10.height,
+                          itemBuilder: (context, index) {
+                            final address = filteredAddresses[index];
+                            return GpsAddressListItem(
+                              address: address,
+                              cubit: gpsBillingAddressCubit!,
+                            );
+                          },
                         ),
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        shrinkWrap: true,
-                        itemCount: filteredAddresses.length,
-                        separatorBuilder: (context, index) => 10.height,
-                        itemBuilder: (context, index) {
-                          final address = filteredAddresses[index];
-                          return GpsAddressListItem(
-                            address: address,
-                            cubit: gpsBillingAddressCubit!,
-                          );
-                        },
-                      ),
               ),
               20.height,
               AppButton(
@@ -493,34 +570,49 @@ class KavachAddressListItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final selectedAddress = context.select((KavachCheckoutBillingAddressBloc bloc) {
+    final selectedAddress = context.select((
+      KavachCheckoutBillingAddressBloc bloc,
+    ) {
       final state = bloc.state;
-      if (state is KavachCheckoutBillingAddressSelected) return state.selectedAddress;
+      if (state is KavachCheckoutBillingAddressSelected)
+        return state.selectedAddress;
       return null;
     });
 
     return GestureDetector(
       onTap: () {
-        context.read<KavachCheckoutBillingAddressBloc>().add(SelectKavachBillingAddress(address));
+        context.read<KavachCheckoutBillingAddressBloc>().add(
+          SelectKavachBillingAddress(address),
+        );
       },
       child: Container(
         padding: const EdgeInsets.all(8),
-        decoration: commonContainerDecoration(color: AppColors.greyContainerBackgroundColor),
+        decoration: commonContainerDecoration(
+          color: AppColors.greyContainerBackgroundColor,
+        ),
         child: Row(
           children: [
             Radio<KavachAddressModel>(
               value: address,
               groupValue: selectedAddress,
               onChanged: (_) {
-                context.read<KavachCheckoutBillingAddressBloc>().add(SelectKavachBillingAddress(address));
+                context.read<KavachCheckoutBillingAddressBloc>().add(
+                  SelectKavachBillingAddress(address),
+                );
               },
             ),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
-                  Text(address.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
+                  Text(
+                    address.addressName,
+                    style: AppTextStyle.textDarkGreyColor14w500,
+                  ),
+                  Text(
+                    address.fullAddress,
+                    style: AppTextStyle.textDarkGreyColor14w500,
+                  ),
                 ],
               ),
             ),
@@ -536,7 +628,7 @@ class GpsAddressListItem extends StatelessWidget {
   final GpsBillingAddressCubit cubit;
 
   const GpsAddressListItem({
-    super.key, 
+    super.key,
     required this.address,
     required this.cubit,
   });
@@ -550,12 +642,13 @@ class GpsAddressListItem extends StatelessWidget {
     });
 
     // Compare addresses by their unique identifier instead of object reference
-    final isSelected = selectedAddress != null && 
-                      selectedAddress.id == address.id &&
-                      selectedAddress.addressName == address.addressName &&
-                      selectedAddress.addr1 == address.addr1 &&
-                      selectedAddress.city == address.city &&
-                      selectedAddress.pincode == address.pincode;
+    final isSelected =
+        selectedAddress != null &&
+        selectedAddress.id == address.id &&
+        selectedAddress.addressName == address.addressName &&
+        selectedAddress.addr1 == address.addr1 &&
+        selectedAddress.city == address.city &&
+        selectedAddress.pincode == address.pincode;
 
     return GestureDetector(
       onTap: () {
@@ -564,7 +657,10 @@ class GpsAddressListItem extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: commonContainerDecoration(
-          color: isSelected ? AppColors.primaryColor.withValues(alpha: 0.1) : AppColors.greyContainerBackgroundColor,
+          color:
+              isSelected
+                  ? AppColors.primaryColor.withValues(alpha: 0.1)
+                  : AppColors.greyContainerBackgroundColor,
         ),
         child: Row(
           children: [
@@ -579,8 +675,14 @@ class GpsAddressListItem extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(address.addressName, style: AppTextStyle.textDarkGreyColor14w500),
-                  Text(address.fullAddress, style: AppTextStyle.textDarkGreyColor14w500),
+                  Text(
+                    address.addressName,
+                    style: AppTextStyle.textDarkGreyColor14w500,
+                  ),
+                  Text(
+                    address.fullAddress,
+                    style: AppTextStyle.textDarkGreyColor14w500,
+                  ),
                 ],
               ),
             ),

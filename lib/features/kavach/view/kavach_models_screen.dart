@@ -221,6 +221,7 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
       children: [
         // Search bar
         AppSearchBar(
+          hintText: context.appText.search,
           searchController: searchController,
           onChanged: (text) {
             debounce(() {

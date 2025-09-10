@@ -49,7 +49,7 @@ class _KavachAddVehicleBottomSheetState
 
   // Add FocusNode for capacity field
   final FocusNode capacityFocusNode = FocusNode();
-  
+
   // Add ScrollController to dismiss keyboard on scroll
   final ScrollController scrollController = ScrollController();
 
@@ -70,7 +70,7 @@ class _KavachAddVehicleBottomSheetState
     kavachAddNewVehicleCubit.resetVehicleVerification();
     kavachAddNewVehicleCubit.fetchCommodities();
     kavachAddNewVehicleCubit.fetchTruckTypes();
-    
+
     // Add listener to capacity FocusNode to dismiss keyboard when focus is lost
     capacityFocusNode.addListener(() {
       if (!capacityFocusNode.hasFocus) {
@@ -78,12 +78,12 @@ class _KavachAddVehicleBottomSheetState
         FocusScope.of(context).unfocus();
       }
     });
-    
+
     // Add listener to ScrollController to dismiss keyboard when scrolling
     scrollController.addListener(() {
       FocusScope.of(context).unfocus();
     });
-    
+
     super.initState();
   }
 
@@ -122,404 +122,464 @@ class _KavachAddVehicleBottomSheetState
   Widget build(BuildContext context) {
     return SafeArea(
       child: AppBottomSheetBody(
-      title: context.appText.addNewVehicle,
-      hideDivider: false,
-      body: SizedBox(
-        height: MediaQuery.of(context).size.height * 0.55,
-        child: SingleChildScrollView(
-          controller: scrollController,
-          child: Form(
-            key: formKey,
-            child: Column(
-              children: [
-                BlocBuilder<KavachAddVehicleFormCubit, KavachAddVehicleFormState>(
-                  buildWhen: (previous, current) =>
-                  previous.vehicleVerification != current.vehicleVerification,
-                  builder: (context, state) {
-                    final verificationState = state.vehicleVerification;
+        title: context.appText.addNewVehicle,
+        hideDivider: false,
+        body: SizedBox(
+          height: MediaQuery.of(context).size.height * 0.55,
+          child: SingleChildScrollView(
+            controller: scrollController,
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: [
+                  BlocBuilder<
+                    KavachAddVehicleFormCubit,
+                    KavachAddVehicleFormState
+                  >(
+                    buildWhen:
+                        (previous, current) =>
+                            previous.vehicleVerification !=
+                            current.vehicleVerification,
+                    builder: (context, state) {
+                      final verificationState = state.vehicleVerification;
 
-                    if(verificationState.status == Status.SUCCESS){
-                      isVerified = true;
-                    }
+                      if (verificationState.status == Status.SUCCESS) {
+                        isVerified = true;
+                      }
 
-                    return AppTextField(
-                      controller: truckNumberController,
-                      mandatoryStar: true,
-                      maxLength: 15,
-                      labelText: context.appText.truckNumber,
-                      textCapitalization: TextCapitalization.characters,
-                      validator: (value) => Validator.validateVehicleNumber(
-                        value,
-                        fieldName: context.appText.truckNumber,
-                      ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
-                      ],
-                      readOnly: verificationState.status == Status.SUCCESS,
-                      decoration: commonInputDecoration(
-                        suffixIcon: verificationState.status == Status.LOADING
-                            ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                            : verificationState.status == Status.SUCCESS
-                            ? const Icon(Icons.verified, color: Colors.green)
-                            :  InkWell(
-                          onTap: () async {
-                            final vehicleNumber = truckNumberController.text.trim().toUpperCase();
-
-                            final validationMessage = Validator.validateVehicleNumber(
-                              vehicleNumber,
+                      return AppTextField(
+                        controller: truckNumberController,
+                        mandatoryStar: true,
+                        maxLength: 15,
+                        labelText: context.appText.truckNumber,
+                        textCapitalization: TextCapitalization.characters,
+                        validator:
+                            (value) => Validator.validateVehicleNumber(
+                              value,
                               fieldName: context.appText.truckNumber,
-                            );
-
-                            if (validationMessage != null) {
-                              ToastMessages.alert(message: validationMessage);
-                              return;
-                            }
-
-                            // ✅ Call fetch + verify
-                            final result = await context.read<KavachAddVehicleFormCubit>().fetchAndVerifyVehicle(vehicleNumber);
-
-                            if (result is Success<Map<String, dynamic>>) {
-                              final data = result.value;
-
-                              // Autofill truck make/model
-                              final makeModel = data['vehicle_make_model'] ?? data['modelNumber'];
-                              if (makeModel != null) {
-                                truckMakeModelController.text = makeModel.toString();
-                              }
-
-                              // Autofill capacity
-                              final capacity = data['vehicle_gross_weight'] ?? data['tonnage'];
-                              if (capacity != null) {
-                                final numberOnly = RegExp(r'\d+').stringMatch(capacity.toString());
-                                capacityController.text = numberOnly ?? capacity.toString();
-                              }
-
-                              ToastMessages.success(message: "Vehicle verified & data autofilled.");
-                            } else {
-                              ToastMessages.alert(message: "Vehicle verification failed");
-                            }
-                          },
-
-                          child: Text(
-                            "Verify",
-                            style: AppTextStyle.body3.copyWith(
-                              color: AppColors.primaryColor,
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColors.primaryColor,
                             ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            vehicleAlphaNumSpaceRegex,
                           ),
+                        ],
+                        readOnly: verificationState.status == Status.SUCCESS,
+                        decoration: commonInputDecoration(
+                          suffixIcon:
+                              verificationState.status == Status.LOADING
+                                  ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : verificationState.status == Status.SUCCESS
+                                  ? const Icon(
+                                    Icons.verified,
+                                    color: Colors.green,
+                                  )
+                                  : InkWell(
+                                    onTap: () async {
+                                      final vehicleNumber =
+                                          truckNumberController.text
+                                              .trim()
+                                              .toUpperCase();
+
+                                      final validationMessage =
+                                          Validator.validateVehicleNumber(
+                                            vehicleNumber,
+                                            fieldName:
+                                                context.appText.truckNumber,
+                                          );
+
+                                      if (validationMessage != null) {
+                                        ToastMessages.alert(
+                                          message: validationMessage,
+                                        );
+                                        return;
+                                      }
+
+                                      // ✅ Call fetch + verify
+                                      final result = await context
+                                          .read<KavachAddVehicleFormCubit>()
+                                          .fetchAndVerifyVehicle(vehicleNumber);
+
+                                      if (result
+                                          is Success<Map<String, dynamic>>) {
+                                        final data = result.value;
+
+                                        // Autofill truck make/model
+                                        final makeModel =
+                                            data['vehicle_make_model'] ??
+                                            data['modelNumber'];
+                                        if (makeModel != null) {
+                                          truckMakeModelController.text =
+                                              makeModel.toString();
+                                        }
+
+                                        // Autofill capacity
+                                        final capacity =
+                                            data['vehicle_gross_weight'] ??
+                                            data['tonnage'];
+                                        if (capacity != null) {
+                                          final numberOnly = RegExp(
+                                            r'\d+',
+                                          ).stringMatch(capacity.toString());
+                                          capacityController.text =
+                                              numberOnly ?? capacity.toString();
+                                        }
+
+                                        ToastMessages.success(
+                                          message:
+                                              "Vehicle verified & data autofilled.",
+                                        );
+                                      } else {
+                                        ToastMessages.alert(
+                                          message:
+                                              "Vehicle verification failed",
+                                        );
+                                      }
+                                    },
+
+                                    child: Text(
+                                      context.appText.verify,
+                                      style: AppTextStyle.body3.copyWith(
+                                        color: AppColors.primaryColor,
+                                        decoration: TextDecoration.underline,
+                                        decorationColor: AppColors.primaryColor,
+                                      ),
+                                    ),
+                                  ),
+                        ),
+                      );
+                    },
+                  ),
+                  10.height,
+                  AppTextField(
+                    controller: truckMakeModelController,
+                    mandatoryStar: true,
+                    maxLength: 20,
+                    readOnly: true,
+                    labelText: context.appText.truckMakeModel,
+                    textCapitalization: TextCapitalization.characters,
+                    validator:
+                        (value) => Validator.fieldRequired(
+                          value,
+                          fieldName: context.appText.truckMakeModel,
+                        ),
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        vehicleAlphaNumSpaceRegex,
+                      ),
+                    ],
+                  ),
+                  10.height,
+                  AppTextField(
+                    enableInteractiveSelection: true,
+                    controller: licenseNumberController,
+                    labelText: context.appText.rcNumber,
+                    maxLength: 16,
+                    textCapitalization: TextCapitalization.characters,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.allow(
+                        alphanumericWithSpaceRegex,
+                      ),
+                    ],
+                    mandatoryStar: true,
+                    validator:
+                        (value) => Validator.noSpecialCharacters(
+                          value,
+                          fieldName: context.appText.rcNumber,
+                        ),
+                  ),
+
+                  10.height,
+
+                  /// Upload RC (custom logic required to implement file picker)
+                  Row(
+                    children: [
+                      Text(
+                        " ${context.appText.uploadRCBookCopy}",
+                        style: AppTextStyle.textFiled,
+                      ),
+                      Text(
+                        " *",
+                        style: AppTextStyle.textFiled.copyWith(
+                          color: Colors.red,
                         ),
                       ),
-                    );
-                  },
-                ),
-                10.height,
-                AppTextField(
-                  controller: truckMakeModelController,
-                  mandatoryStar: true,
-                  maxLength: 20,
-                  readOnly: true,
-                  labelText: context.appText.truckMakeModel,
-                  textCapitalization: TextCapitalization.characters,
-                  validator:
-                      (value) => Validator.fieldRequired(
-                        value,
-                        fieldName: context.appText.truckMakeModel,
-                      ),
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
-                  ],
-                ),
-                10.height,
-                AppTextField(
-                  controller: licenseNumberController,
-                  labelText: context.appText.rcNumber,
-                  maxLength: 16,
-                  textCapitalization: TextCapitalization.characters,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(alphanumericWithSpaceRegex),
-                  ],
-                  mandatoryStar: true,
-                  validator:
-                      (value) => Validator.noSpecialCharacters(
-                        value,
-                        fieldName: context.appText.rcNumber,
-                      ),
-                ),
+                    ],
+                  ),
+                  5.height,
+                  UploadAttachmentFiles(
+                    multiFilesList: vehicleDocList,
+                    isSingleFile: true,
+                    isLoading:
+                        context
+                            .watch<KavachAddVehicleFormCubit>()
+                            .state
+                            .vehicleDocUpload
+                            .status ==
+                        Status.LOADING,
+                    thenUploadFileToSever: () async {
+                      await _uploadGSTDocumentApiCall(context, vehicleDocList);
+                    },
+                  ),
 
-                10.height,
+                  10.height,
+                  BlocBuilder<
+                    KavachAddVehicleFormCubit,
+                    KavachAddVehicleFormState
+                  >(
+                    builder: (context, state) {
+                      final cubit = context.read<KavachAddVehicleFormCubit>();
 
-                /// Upload RC (custom logic required to implement file picker)
-                Row(
-                  children: [
-                    Text(
-                      " ${context.appText.uploadRCBookCopy}",
-                      style: AppTextStyle.textFiled,
-                    ),
-                    Text(
-                      " *",
-                      style: AppTextStyle.textFiled.copyWith(color: Colors.red),
-                    ),
-                  ],
-                ),
-                5.height,
-                UploadAttachmentFiles(
-                  multiFilesList: vehicleDocList,
-                  isSingleFile: true,
-                  isLoading:
-                      context
-                          .watch<KavachAddVehicleFormCubit>()
-                          .state
-                          .vehicleDocUpload
-                          .status ==
-                      Status.LOADING,
-                  thenUploadFileToSever: () async {
-                    await _uploadGSTDocumentApiCall(context, vehicleDocList);
-                  },
-                ),
-
-                10.height,
-                BlocBuilder<
-                  KavachAddVehicleFormCubit,
-                  KavachAddVehicleFormState >(
-                  builder: (context, state) {
-                    final cubit = context.read<KavachAddVehicleFormCubit>();
-
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        /// Truck Type Dropdown
-                        if (state.truckTypes.status == Status.SUCCESS)
-                          GestureDetector(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                            },
-                            child: SearchableDropdown(
-                              labelText: context.appText.truckType,
-                              hintText: context.appText.selectTruckType,
-                              mandatoryStar: true,
-                              selectedItem: truckTypeDropdownValue,
-                              items: state.truckTypes.data!, // Already List<String>
-                              onChanged: (selected) {
-                                setState(() {
-                                  truckTypeDropdownValue = selected;
-                                  truckLengthDropdownValue = null;
-                                });
-                                if (selected != null) {
-                                  cubit.fetchTruckLengths(selected);
-                                }
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          /// Truck Type Dropdown
+                          if (state.truckTypes.status == Status.SUCCESS)
+                            GestureDetector(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
                               },
+                              child: SearchableDropdown(
+                                labelText: context.appText.truckType,
+                                hintText: context.appText.selectTruckType,
+                                mandatoryStar: true,
+                                selectedItem: truckTypeDropdownValue,
+                                items: state.truckTypes.data!,
+                                // Already List<String>
+                                onChanged: (selected) {
+                                  setState(() {
+                                    truckTypeDropdownValue = selected;
+                                    truckLengthDropdownValue = null;
+                                  });
+                                  if (selected != null) {
+                                    cubit.fetchTruckLengths(selected);
+                                  }
+                                },
+                              ),
                             ),
-                          ),
 
-                        15.height,
+                          15.height,
 
-                        /// Truck Length Dropdown
-                        if (state.truckLengths.status == Status.SUCCESS)
-                          GestureDetector(
-                            onTap: () {
-                              FocusScope.of(context).unfocus();
-                            },
-                            child: SearchableDropdown(
-                              labelText: context.appText.truckLength,
-                              hintText: context.appText.truckLength,
-                              mandatoryStar: true,
-                              selectedItem: truckLengthDropdownValue,
-                              items: state.truckLengths.data!.map((e) => e.subType).toList(),
-                              onChanged: (selected) {
-                                setState(() {
-                                  truckLengthDropdownValue = selected;
-
-                                  final selectedModel = state.truckLengths.data!
-                                      .firstWhere(
-                                        (e) => e.subType == selected,
-                                    orElse: () => TruckLengthModel(id: 0, type: '', subType: ''),
-                                  );
-
-                                  selectedTruckTypeId = selectedModel.id;
-                                });
+                          /// Truck Length Dropdown
+                          if (state.truckLengths.status == Status.SUCCESS)
+                            GestureDetector(
+                              onTap: () {
+                                FocusScope.of(context).unfocus();
                               },
+                              child: SearchableDropdown(
+                                labelText: context.appText.truckLength,
+                                hintText: context.appText.truckLength,
+                                mandatoryStar: true,
+                                selectedItem: truckLengthDropdownValue,
+                                items:
+                                    state.truckLengths.data!
+                                        .map((e) => e.subType)
+                                        .toList(),
+                                onChanged: (selected) {
+                                  setState(() {
+                                    truckLengthDropdownValue = selected;
+
+                                    final selectedModel = state
+                                        .truckLengths
+                                        .data!
+                                        .firstWhere(
+                                          (e) => e.subType == selected,
+                                          orElse:
+                                              () => TruckLengthModel(
+                                                id: 0,
+                                                type: '',
+                                                subType: '',
+                                              ),
+                                        );
+
+                                    selectedTruckTypeId = selectedModel.id;
+                                  });
+                                },
+                              ),
                             ),
-                          ),
+                        ],
+                      );
+                    },
+                  ),
+                  10.height,
 
-                      ],
-                    );
-                  },
-                ),
-                10.height,
-
-                /// Capacity field
-                AppTextField(
-                  controller: capacityController,
-                  labelText: context.appText.capacity,
-                  mandatoryStar: true,
-                  readOnly: true,
-                  keyboardType: TextInputType.number,
-                  maxLength: 10,
-                  currentFocus: capacityFocusNode,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator:
-                      (value) => Validator.positiveNumber(
-                        value,
-                        fieldName: context.appText.capacity,
-                      ),
-                  decoration: commonInputDecoration(
-                    suffixIcon: Text(
+                  /// Capacity field
+                  AppTextField(
+                    controller: capacityController,
+                    labelText: context.appText.capacity,
+                    mandatoryStar: true,
+                    readOnly: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 10,
+                    currentFocus: capacityFocusNode,
+                    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                    validator:
+                        (value) => Validator.positiveNumber(
+                          value,
+                          fieldName: context.appText.capacity,
+                        ),
+                    decoration: commonInputDecoration(
+                      suffixIcon: Text(
                         'Metric Tons',
                         style: AppTextStyle.body3.copyWith(
                           color: AppColors.textGreyColor,
                         ),
                       ),
-                  ),
-                ),
-                10.height,
-
-                /// Acceptable Commodities Dropdown
-                BlocBuilder<KavachAddVehicleFormCubit, KavachAddVehicleFormState>(
-                  builder: (context, state) {
-                    if (state.commodities.status == Status.LOADING) {
-                      return const SizedBox.shrink(); // or CircularProgressIndicator()
-                    } else if (state.commodities.status == Status.SUCCESS) {
-                      final items =
-                          state.commodities.data!.map((commodity) {
-                            return DropdownItem<String>(
-                              label: commodity.name,
-                              value: commodity.id.toString(),
-                            );
-                          }).toList();
-
-                      return AppMultiSelectionDropdown<String>(
-                        labelText: context.appText.acceptableCommodities,
-                        hintText: context.appText.select,
-                        mandatoryStar: true,
-                        controller: acceptableCommoditiesController,
-                        items: items,
-                        onTap: () {
-                          // Dismiss keyboard when tapping on commodities dropdown
-                          FocusScope.of(context).unfocus();
-                        },
-                        onSelectionChange: (selected) {
-                          // Selected commodities handled
-                          // Dismiss keyboard when selection changes
-                          FocusScope.of(context).unfocus();
-                        },
-                        validator:
-                            (value) =>
-                                value == null || value.isEmpty
-                                    ? context.appText.pleaseSelectCommodity
-                                    : null,
-                        showValidationError: showValidationErrors,
-                      );
-
-
-
-                    } else if (state.commodities.status == Status.ERROR) {
-                      return Text('Error: ${state.commodities.errorType}',
-                      style: AppTextStyle.body3.copyWith(color: Colors.red));
-                    }
-
-                    return const SizedBox.shrink();
-                  },
-                ),
-
-                10.height,
-
-                /// Active Switch
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(context.appText.active),
-                    Switch(
-                      value: isActive,
-                      onChanged: (val) {
-                        setState(() {
-                          isActive = val;
-                        });
-                      },
                     ),
-                  ],
-                ),
-                20.height,
-                Row(
-                  children: [
-                    AppButton(
-                      onPressed: () => context.pop(),
-                      title: context.appText.cancel,
-                      style: AppButtonStyle.outline,
-                    ).expand(),
-                    20.width,
-                    AppButton(
-                      onPressed: () async {
-                        setState(() {
-                          showValidationErrors = true;
-                        });
-                        if (!formKey.currentState!.validate()) return;
-                        if (vehicleDocList.isEmpty) {
-                          ToastMessages.alert(
-                            message: context.appText.pleaseUploadRc,
-                          );
-                          return;
-                        }
-                        if(isVerified==false){
-                          ToastMessages.alert(
-                            message: 'Please verify your Vehicle Number',
-                          );
-                          return;
-                        }
+                  ),
+                  10.height,
 
-                        final selectedCommoditiesIds =
-                            acceptableCommoditiesController.selectedItems
-                                .map((idStr) => int.tryParse(idStr.value))
-                                .whereType<int>() // filters out null
-                                .toList();
-                        final rcDocLink = vehicleDocList.first['path'];
+                  /// Acceptable Commodities Dropdown
+                  BlocBuilder<
+                    KavachAddVehicleFormCubit,
+                    KavachAddVehicleFormState
+                  >(
+                    builder: (context, state) {
+                      if (state.commodities.status == Status.LOADING) {
+                        return const SizedBox.shrink(); // or CircularProgressIndicator()
+                      } else if (state.commodities.status == Status.SUCCESS) {
+                        final items =
+                            state.commodities.data!.map((commodity) {
+                              return DropdownItem<String>(
+                                label: commodity.name,
+                                value: commodity.id.toString(),
+                              );
+                            }).toList();
 
-                        final request = KavachAddVehicleRequest(
-                          customerId: '', // Will be set by repository
-                          vehicleNumber: truckNumberController.text.trim(),
-                          vehicleTypeId: 1,
-                          rcNumber: licenseNumberController.text.trim(),
-                          rcDocLink: rcDocLink,
-                          truckMakeAndModel:
-                              truckMakeModelController.text.trim(),
-                          truckType: selectedTruckTypeId ?? 0,
-                          truckLength: selectedTruckTypeId ?? 0,
-                          capacity:
-                              int.tryParse(capacityController.text.trim()) ?? 0,
-                          acceptableCommodities: selectedCommoditiesIds,
-                          vehicleStatus: isActive ? 1 : 0,
+                        return AppMultiSelectionDropdown<String>(
+                          labelText: context.appText.acceptableCommodities,
+                          hintText: context.appText.select,
+                          mandatoryStar: true,
+                          controller: acceptableCommoditiesController,
+                          items: items,
+                          onTap: () {
+                            // Dismiss keyboard when tapping on commodities dropdown
+                            FocusScope.of(context).unfocus();
+                          },
+                          onSelectionChange: (selected) {
+                            // Selected commodities handled
+                            // Dismiss keyboard when selection changes
+                            FocusScope.of(context).unfocus();
+                          },
+                          validator:
+                              (value) =>
+                                  value == null || value.isEmpty
+                                      ? context.appText.pleaseSelectCommodity
+                                      : null,
+                          showValidationError: showValidationErrors,
                         );
+                      } else if (state.commodities.status == Status.ERROR) {
+                        return Text(
+                          'Error: ${state.commodities.errorType}',
+                          style: AppTextStyle.body3.copyWith(color: Colors.red),
+                        );
+                      }
 
-                        final result = await kavachAddNewVehicleCubit
-                            .addVehicle(request);
-                        if (!context.mounted) return;
-                        if (result is Success) {
-                          context.pop();
-                          ToastMessages.success(
-                            message: context.appText.vehicleSavedSuccess,
-                          );
-                        } else if (result is Error) {
-                          ToastMessages.error(
-                            message: getErrorMsg(errorType: result.type),
-                          );
-                        }
-                      },
+                      return const SizedBox.shrink();
+                    },
+                  ),
 
-                      title: context.appText.save,
-                      style: AppButtonStyle.primary,
-                    ).expand(),
-                  ],
-                ),
-              ],
+                  10.height,
+
+                  /// Active Switch
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(context.appText.active),
+                      Switch(
+                        value: isActive,
+                        onChanged: (val) {
+                          setState(() {
+                            isActive = val;
+                          });
+                        },
+                      ),
+                    ],
+                  ),
+                  20.height,
+                  Row(
+                    children: [
+                      AppButton(
+                        onPressed: () => context.pop(),
+                        title: context.appText.cancel,
+                        style: AppButtonStyle.outline,
+                      ).expand(),
+                      20.width,
+                      AppButton(
+                        onPressed: () async {
+                          setState(() {
+                            showValidationErrors = true;
+                          });
+                          if (!formKey.currentState!.validate()) return;
+                          if (vehicleDocList.isEmpty) {
+                            ToastMessages.alert(
+                              message: context.appText.pleaseUploadRc,
+                            );
+                            return;
+                          }
+                          if (isVerified == false) {
+                            ToastMessages.alert(
+                              message: 'Please verify your Vehicle Number',
+                            );
+                            return;
+                          }
+
+                          final selectedCommoditiesIds =
+                              acceptableCommoditiesController.selectedItems
+                                  .map((idStr) => int.tryParse(idStr.value))
+                                  .whereType<int>() // filters out null
+                                  .toList();
+                          final rcDocLink = vehicleDocList.first['path'];
+
+                          final request = KavachAddVehicleRequest(
+                            customerId: '',
+                            // Will be set by repository
+                            vehicleNumber: truckNumberController.text.trim(),
+                            vehicleTypeId: 1,
+                            rcNumber: licenseNumberController.text.trim(),
+                            rcDocLink: rcDocLink,
+                            truckMakeAndModel:
+                                truckMakeModelController.text.trim(),
+                            truckType: selectedTruckTypeId ?? 0,
+                            truckLength: selectedTruckTypeId ?? 0,
+                            capacity:
+                                int.tryParse(capacityController.text.trim()) ??
+                                0,
+                            acceptableCommodities: selectedCommoditiesIds,
+                            vehicleStatus: isActive ? 1 : 0,
+                          );
+
+                          final result = await kavachAddNewVehicleCubit
+                              .addVehicle(request);
+                          if (!context.mounted) return;
+                          if (result is Success) {
+                            context.pop();
+                            ToastMessages.success(
+                              message: context.appText.vehicleSavedSuccess,
+                            );
+                          } else if (result is Error) {
+                            ToastMessages.error(
+                              message: getErrorMsg(errorType: result.type),
+                            );
+                          }
+                        },
+
+                        title: context.appText.save,
+                        style: AppButtonStyle.primary,
+                      ).expand(),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
-

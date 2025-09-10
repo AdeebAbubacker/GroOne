@@ -13,12 +13,13 @@ class SearchableDropdown extends StatelessWidget {
   final ValueChanged<String?> onChanged;
   final bool showSearchBox;
   final String? labelText;
+  final String? noResultsFoundText;
   final bool mandatoryStar;
   final TextStyle? labelTextStyle;
   final DropdownSearchBuilder<String>? dropdownBuilder;
   final Widget Function(BuildContext, String)? emptyBuilder;
   final DropdownSearchPopupItemBuilder<String>? popupItemBuilder;
-  
+
 
   const SearchableDropdown({
     super.key,
@@ -29,7 +30,8 @@ class SearchableDropdown extends StatelessWidget {
     this.showSearchBox = true,
     this.dropdownBuilder,
     this.emptyBuilder,
-     this.labelText,
+    this.labelText,
+    this.noResultsFoundText,
     this.mandatoryStar = false,
     this.labelTextStyle,
     this.popupItemBuilder,
@@ -50,8 +52,9 @@ class SearchableDropdown extends StatelessWidget {
               if (mandatoryStar)
                 Text(
                   " *",
-                  style: (labelTextStyle ?? AppTextStyle.textFiled)
-                      .copyWith(color: Colors.red),
+                  style: (labelTextStyle ?? AppTextStyle.textFiled).copyWith(
+                    color: Colors.red,
+                  ),
                 ),
             ],
           ),
@@ -66,23 +69,24 @@ class SearchableDropdown extends StatelessWidget {
           },
           popupProps: PopupProps.menu(
             showSearchBox: showSearchBox,
-            emptyBuilder: emptyBuilder ??
-           (context, searchEntry) => const SizedBox(
-              height: 120,
-              child: Center(child: Text("No results found")),
-            ),
-            loadingBuilder: (context, searchEntry) =>
-                const Center(child: CircularProgressIndicator()),
+            emptyBuilder:
+                emptyBuilder ??
+                (context, searchEntry) => SizedBox(
+                  height: 120,
+                  child: Center(child: Text(noResultsFoundText ?? 'No results found')),
+                ),
+            loadingBuilder:
+                (context, searchEntry) =>
+                    const Center(child: CircularProgressIndicator()),
             constraints: BoxConstraints(
-              maxHeight: items.isEmpty
-                  ? 140 
-                  : items.length <= 2
+              maxHeight:
+                  items.isEmpty
+                      ? 140
+                      : items.length <= 2
                       ? (items.length * 48 + 80).toDouble()
                       : 250,
             ),
-             menuProps: MenuProps(
-             backgroundColor: AppColors.white, 
-            ), 
+            menuProps: MenuProps(backgroundColor: AppColors.white),
             searchFieldProps: TextFieldProps(
 
             decoration: InputDecoration(
@@ -95,11 +99,9 @@ class SearchableDropdown extends StatelessWidget {
           ),
          itemBuilder: popupItemBuilder,
           ),
-          
+
           decoratorProps: DropDownDecoratorProps(
-            decoration: commonInputDecoration(
-              hintText: hintText,
-            ),
+            decoration: commonInputDecoration(hintText: hintText),
           ),
           onChanged: onChanged,
           dropdownBuilder: dropdownBuilder,
