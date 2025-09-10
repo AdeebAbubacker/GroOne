@@ -60,6 +60,21 @@ class ChatCubit extends Cubit<ChatState> {
         final messages = data['messages'] as List<dynamic>?;
         final hasMore = data['has_more'] as bool? ?? false;
         final currentPage = data['page'] as int? ?? 1;
+        
+        // Extract rate limit information from chat history if available
+        final rateLimitData = data['rate_limit'] as Map<String, dynamic>?;
+        int? todaysCount;
+        int? dailyLimit;
+        
+        print('📊 Rate limit data from history API: $rateLimitData');
+        
+        if (rateLimitData != null) {
+          todaysCount = rateLimitData['current_count'] as int?;
+          dailyLimit = rateLimitData['daily_limit'] as int?;
+          print('📊 Extracted chat limits - Today: $todaysCount, Daily: $dailyLimit');
+        } else {
+          print('📊 No rate limit data found in history API response');
+        }
 
         if (messages != null) {
           final List<ChatMessage> chatMessages = [];
@@ -113,13 +128,24 @@ class ChatCubit extends Cubit<ChatState> {
 
           _hasMoreMessages = hasMore;
 
+          // Always update chat limits if they exist in the response, even if they're 0
+          final newTodaysCount = todaysCount ?? state.todaysChatCount;
+          final newDailyLimit = dailyLimit ?? state.dailyChatLimit;
+          
+          print('📊 About to emit state - Extracted values: Today: $todaysCount, Daily: $dailyLimit');
+          print('📊 About to emit state - Final values: Today: $newTodaysCount, Daily: $newDailyLimit');
+          
           emit(state.copyWith(
             messages: updatedMessages,
             isLoading: false,
             hasMoreMessages: _hasMoreMessages,
             pageNo: _currentPage,
             isInitialLoadingComplete: isInitialLoad, // Set to true for initial load
+            todaysChatCount: newTodaysCount,
+            dailyChatLimit: newDailyLimit,
           ));
+          
+          print('📊 State emitted successfully');
           _currentPage = currentPage + 1;
 
 
@@ -193,13 +219,24 @@ class ChatCubit extends Cubit<ChatState> {
         clearError: true,
       ));
 
-      // Call the real API
-      final aiMessage = await _repository.sendTextMessage(
+      // Call the real API - now returns both message and rate limit data
+      final response = await _repository.sendTextMessage(
         message: userMessage,
         language: state.selectedLanguage.code,
       );
 
+      // Extract chat message and rate limit data
+      final aiMessage = response['message'] as ChatMessage;
+      final rateLimitData = response['rate_limit'] as Map<String, dynamic>?;
 
+      // Extract rate limit information from actual API response structure
+      int? todaysCount;
+      int? dailyLimit;
+      
+      if (rateLimitData != null) {
+        todaysCount = rateLimitData['current_count'] as int?;
+        dailyLimit = rateLimitData['daily_limit'] as int?;
+      }
 
       final updatedMessages = List<ChatMessage>.from(state.messages)
         ..add(aiMessage);
@@ -208,6 +245,8 @@ class ChatCubit extends Cubit<ChatState> {
         messages: updatedMessages,
         isLoading: false,
         isTyping: false,
+        todaysChatCount: todaysCount ?? state.todaysChatCount,
+        dailyChatLimit: dailyLimit ?? state.dailyChatLimit,
       ));
     } catch (e) {
 
@@ -236,10 +275,18 @@ class ChatCubit extends Cubit<ChatState> {
         language: state.selectedLanguage.code,
       );
 
-      final userMessage = result['userMessage']!;
-      final aiMessage = result['aiMessage']!;
+      final userMessage = result['userMessage'] as ChatMessage;
+      final aiMessage = result['aiMessage'] as ChatMessage;
+      final rateLimitData = result['rate_limit'] as Map<String, dynamic>?;
 
-
+      // Extract rate limit information from actual API response structure
+      int? todaysCount;
+      int? dailyLimit;
+      
+      if (rateLimitData != null) {
+        todaysCount = rateLimitData['current_count'] as int?;
+        dailyLimit = rateLimitData['daily_limit'] as int?;
+      }
 
       // Add both user transcript message and AI response
       final updatedMessages = List<ChatMessage>.from(state.messages)
@@ -251,6 +298,8 @@ class ChatCubit extends Cubit<ChatState> {
         isLoading: false,
         isTyping: false,
         isProcessingVoice: false,
+        todaysChatCount: todaysCount ?? state.todaysChatCount,
+        dailyChatLimit: dailyLimit ?? state.dailyChatLimit,
       ));
     } catch (e) {
 
@@ -539,6 +588,21 @@ class ChatCubit extends Cubit<ChatState> {
         final currentPage = data['page'] as int? ?? 1;
         final totalCount = data['total_count'] as int? ?? 0;
         final pageSize = data['page_size'] as int? ?? _pageSize;
+        
+        // Extract rate limit information from pagination response if available
+        final rateLimitData = data['rate_limit'] as Map<String, dynamic>?;
+        int? todaysCount;
+        int? dailyLimit;
+        
+        print('📊 Rate limit data from pagination API: $rateLimitData');
+        
+        if (rateLimitData != null) {
+          todaysCount = rateLimitData['current_count'] as int?;
+          dailyLimit = rateLimitData['daily_limit'] as int?;
+          print('📊 Extracted chat limits (pagination) - Today: $todaysCount, Daily: $dailyLimit');
+        } else {
+          print('📊 No rate limit data found in pagination API response');
+        }
 
         if (messages != null) {
           final List<ChatMessage> chatMessages = [];
@@ -568,6 +632,8 @@ class ChatCubit extends Cubit<ChatState> {
             hasMoreMessages: _hasMoreMessages,
             isLoading: false,
             pageNo: currentPage,
+            todaysChatCount: todaysCount ?? state.todaysChatCount,
+            dailyChatLimit: dailyLimit ?? state.dailyChatLimit,
           ));
           _currentPage = currentPage + 1;
 
