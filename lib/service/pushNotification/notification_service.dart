@@ -844,7 +844,7 @@ class NotificationService {
   /// Clear FCM Token
   Future<void> clearFcmToken() async {
     try {
-      await FirebaseMessaging.instance.deleteToken();
+      // await FirebaseMessaging.instance.deleteToken();
       CustomLog.debug(this, "FCM token cleared successfully");
     } catch (e) {
       CustomLog.error(this, "Failed to clear FCM token", e);
