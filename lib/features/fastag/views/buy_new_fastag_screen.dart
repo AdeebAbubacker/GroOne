@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/gps_feature/views/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -454,6 +455,8 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
   final _pincodeController = TextEditingController();
   final _contactNoController = TextEditingController();
 
+  final fastagCubit = locator<FastagCubit>();
+
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -470,136 +473,174 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(context.appText.contactAddress, style: AppTextStyle.h4),
-                16.height,
+    return BlocConsumer<FastagCubit, FastagState>(
+      bloc: fastagCubit,
+      listenWhen: (previous, current) {
+        final status = current.pincodeVerifyUIState.status;
+        return status == Status.SUCCESS || status == Status.ERROR;
+      },
+      listener: (context, state) {
+        final status = state.pincodeVerifyUIState.status;
+        if (status == Status.SUCCESS) {
+          if (state.pincodeVerifyUIState.data != null &&
+              state.pincodeVerifyUIState.data!.data.isNotEmpty) {
+            _stateController.text =
+                state.pincodeVerifyUIState.data!.data[0].state;
+            _cityController.text =
+                state.pincodeVerifyUIState.data!.data[0].district;
+          } else {
+            _stateController.text = '';
+            _cityController.text = '';
+          }
+        } else if (status == Status.ERROR) {
+          _stateController.text = '';
+          _cityController.text = '';
+        }
+      },
+      builder: (context, state) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(context).viewInsets.bottom,
+              ),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      context.appText.contactAddress,
+                      style: AppTextStyle.h4,
+                    ),
+                    16.height,
 
-                // Address Name
-                AppTextField(
-                  enableInteractiveSelection: true,
-                  mandatoryStar: true,
-                  controller: _addressNameController,
-                  labelText: context.appText.addressName,
-                  maxLength: 50,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'[a-zA-Z0-9\s,./#-]'),
+                    // Address Name
+                    AppTextField(
+                      enableInteractiveSelection: true,
+                      mandatoryStar: true,
+                      controller: _addressNameController,
+                      labelText: context.appText.addressName,
+                      maxLength: 50,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z0-9\s,./#-]'),
+                        ),
+                      ],
+                      validator:
+                          (value) => Validator.fieldRequired(
+                            value,
+                            fieldName: context.appText.addressName,
+                          ),
+                    ),
+                    10.height,
+
+                    // Address
+                    AppTextField(
+                      enableInteractiveSelection: true,
+                      mandatoryStar: true,
+                      controller: _addressController,
+                      labelText: context.appText.address,
+                      maxLength: 200,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(
+                          RegExp(r'[a-zA-Z0-9\s,./#-]'),
+                        ),
+                      ],
+                      validator:
+                          (value) => Validator.fieldRequired(
+                            value,
+                            fieldName: context.appText.address,
+                          ),
+                    ),
+                    10.height,
+
+                    // Pincode
+                    AppTextField(
+                      enableInteractiveSelection: true,
+                      mandatoryStar: true,
+                      controller: _pincodeController,
+                      labelText: context.appText.pincode,
+                      maxLength: 6,
+                      keyboardType: TextInputType.number,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      onChanged: (value) {
+                        if (value.length == 6) {
+                          fastagCubit.verifyPincode(value);
+                        }
+                      },
+                      validator: (value) {
+                        return Validator.pincode(value);
+                      },
+                    ),
+                    10.height,
+
+                    // City
+                    AppTextField(
+                      enableInteractiveSelection: true,
+                      mandatoryStar: true,
+                      controller: _cityController,
+                      labelText: context.appText.city,
+                      maxLength: 20,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                      ],
+                      validator:
+                          (value) => Validator.alphabetsOnly(
+                            value,
+                            fieldName: context.appText.city,
+                          ),
+                    ),
+                    10.height,
+
+                    // State
+                    AppTextField(
+                      enableInteractiveSelection: true,
+                      mandatoryStar: true,
+                      controller: _stateController,
+                      labelText: context.appText.state,
+                      maxLength: 20,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                      ],
+                      validator:
+                          (value) => Validator.alphabetsOnly(
+                            value,
+                            fieldName: context.appText.state,
+                          ),
+                    ),
+
+                    10.height,
+
+                    // Contact Number
+                    AppTextField(
+                      enableInteractiveSelection: true,
+                      mandatoryStar: true,
+                      controller: _contactNoController,
+                      labelText: context.appText.contactNumber,
+                      maxLength: 10,
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      validator: (value) => Validator.phone(value),
+                    ),
+                    20.height,
+
+                    // Submit Button
+                    AppButton(
+                      title: context.appText.createFastagRequest,
+                      style: AppButtonStyle.primary,
+                      onPressed: _submit,
                     ),
                   ],
-                  validator:
-                      (value) => Validator.fieldRequired(
-                        value,
-                        fieldName: context.appText.addressName,
-                      ),
                 ),
-                10.height,
-
-                // Address
-                AppTextField(
-                  enableInteractiveSelection: true,
-                  mandatoryStar: true,
-                  controller: _addressController,
-                  labelText: context.appText.address,
-                  maxLength: 200,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(
-                      RegExp(r'[a-zA-Z0-9\s,./#-]'),
-                    ),
-                  ],
-                  validator:
-                      (value) => Validator.fieldRequired(
-                        value,
-                        fieldName: context.appText.address,
-                      ),
-                ),
-                10.height,
-
-                // City
-                AppTextField(
-                  enableInteractiveSelection: true,
-                  mandatoryStar: true,
-                  controller: _cityController,
-                  labelText: context.appText.city,
-                  maxLength: 20,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
-                  ],
-                  validator:
-                      (value) => Validator.alphabetsOnly(
-                        value,
-                        fieldName: context.appText.city,
-                      ),
-                ),
-                10.height,
-
-                // State
-                AppTextField(
-                  enableInteractiveSelection: true,
-                  mandatoryStar: true,
-                  controller: _stateController,
-                  labelText: context.appText.state,
-                  maxLength: 20,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
-                  ],
-                  validator:
-                      (value) => Validator.alphabetsOnly(
-                        value,
-                        fieldName: context.appText.state,
-                      ),
-                ),
-                10.height,
-
-                // Pincode
-                AppTextField(
-                  enableInteractiveSelection: true,
-                  mandatoryStar: true,
-                  controller: _pincodeController,
-                  labelText: context.appText.pincode,
-                  maxLength: 6,
-                  keyboardType: TextInputType.number,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) => Validator.pincode(value),
-                ),
-                10.height,
-
-                // Contact Number
-                AppTextField(
-                  enableInteractiveSelection: true,
-                  mandatoryStar: true,
-                  controller: _contactNoController,
-                  labelText: context.appText.contactNumber,
-                  maxLength: 10,
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                  validator: (value) => Validator.phone(value),
-                ),
-                20.height,
-
-                // Submit Button
-                AppButton(
-                  title: context.appText.createFastagRequest,
-                  style: AppButtonStyle.primary,
-                  onPressed: _submit,
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

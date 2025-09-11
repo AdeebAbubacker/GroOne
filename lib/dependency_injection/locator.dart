@@ -504,7 +504,10 @@ void _registerBasicBlocs() {
     () => KavachCheckoutVehicleBloc(locator<KavachRepository>()),
   );
   locator.registerLazySingleton(
-    () => KavachCheckoutAddAddressBloc(locator<KavachRepository>()),
+    () => KavachCheckoutAddAddressBloc(
+      locator<KavachRepository>(),
+      locator<FastagRepository>(),
+    ),
   );
   locator.registerLazySingleton(
     () => KavachOrderBloc(

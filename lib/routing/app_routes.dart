@@ -395,10 +395,10 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.myAccount,
         pageBuilder: (BuildContext context, GoRouterState state) {
-          final data = state.extra as Map<String, dynamic>;
-          final CustomerDataResponse customerDetail = data["customerDetail"];
-          final BankDetails bankDetails = data["bankDetails"];
-          final KycDoc kycDoc = data["kycDoc"];
+          final data = state.extra as Map<String, dynamic>? ?? {};
+          final CustomerDataResponse? customerDetail = data["customerDetail"] as CustomerDataResponse?;
+          final BankDetails? bankDetails = data["bankDetails"] as BankDetails?;
+          final KycDoc? kycDoc = data["kycDoc"] as KycDoc?;
 
           return buildTransitionPage(
             state: state,

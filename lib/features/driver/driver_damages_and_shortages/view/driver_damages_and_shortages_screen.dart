@@ -463,7 +463,7 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
                               setState(() {});
                             },
                             style: AppButtonStyle.circularIconButtonStyle,
-                            icon: Icon(CupertinoIcons.clear, color: Colors.red, size: 20),
+                            icon: Icon(CupertinoIcons.clear, color: AppColors.red, size: 20),
                         ).align(Alignment.topRight)
                       ],
                     );

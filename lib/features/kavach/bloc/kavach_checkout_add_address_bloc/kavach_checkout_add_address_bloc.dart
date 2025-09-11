@@ -1,4 +1,7 @@
 import 'package:bloc/bloc.dart';
+import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.dart';
+import 'package:gro_one_app/features/fastag/repository/fastag_repository.dart'
+    show FastagRepository;
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_event.dart';
 
 import '../../../../data/model/result.dart';
@@ -6,23 +9,38 @@ import '../../model/kavach_address_model.dart';
 import '../../repository/kavach_repository.dart';
 import 'kavach_checkout_add_address_state.dart';
 
-class KavachCheckoutAddAddressBloc extends Bloc<KavachCheckoutAddAddressEvent, KavachCheckoutAddAddressState> {
+class KavachCheckoutAddAddressBloc
+    extends Bloc<KavachCheckoutAddAddressEvent, KavachCheckoutAddAddressState> {
   final KavachRepository repository;
+  final FastagRepository fastagRepository;
 
-  KavachCheckoutAddAddressBloc(this.repository)
-      : super(KavachCheckoutAddressInitial()) {
+  KavachCheckoutAddAddressBloc(this.repository, this.fastagRepository)
+    : super(KavachCheckoutAddressInitial()) {
     on<AddKavachAddress>((event, emit) async {
       emit(KavachCheckoutAddressLoading());
       final result = await repository.addAddress(event.address);
       if (result is Success<KavachAddressModel>) {
         emit(KavachCheckoutAddressAdded(result.value));
       } else if (result is Error<KavachAddressModel>) {
-        final errorMessage = result.type is ErrorWithMessage 
-            ? (result.type as ErrorWithMessage).message 
-            : "Failed to add address";
+        final errorMessage =
+            result.type is ErrorWithMessage
+                ? (result.type as ErrorWithMessage).message
+                : "Failed to add address";
         emit(KavachCheckoutAddressError(errorMessage));
       }
     });
-
+    on<VerifyPincode>((event, emit) async {
+      emit(KavachCheckoutAddressLoading());
+      final result = await fastagRepository.verifyPincode(event.pincode);
+      if (result is Success<FleetPincodeVerifyModel>) {
+        emit(KavachVerifyPincodeLoaded(result.value));
+      } else if (result is Error<FleetPincodeVerifyModel>) {
+        final errorMessage =
+            result.type is ErrorWithMessage
+                ? (result.type as ErrorWithMessage).message
+                : "Failed to add address";
+        emit(KavachCheckoutAddressError(errorMessage));
+      }
+    });
   }
 }

@@ -337,7 +337,7 @@ draggableSheet({required List<Widget> child}) {
         decoration: BoxDecoration(
           color: AppColors.backgroundColor,
           borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
-          boxShadow: [BoxShadow(blurRadius: 20, color: Colors.black26)],
+          boxShadow: [BoxShadow(blurRadius: 20, color: AppColors.deActiveButtonColor)],
         ),
         child: SingleChildScrollView(
           controller: scrollController,

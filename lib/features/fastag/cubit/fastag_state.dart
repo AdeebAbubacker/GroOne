@@ -7,6 +7,7 @@ class FastagState extends Equatable {
   final bool isFrontRcUploaded;
   final bool isBackRcUploaded;
   final UIState<DocumentUploadResponse?> documentUploadUIState;
+  final UIState<FleetPincodeVerifyModel?> pincodeVerifyUIState;
   final UIState<FastagListResponse?> fastagListUIState;
   final bool shouldNavigateToBuyFastag;
 
@@ -17,6 +18,7 @@ class FastagState extends Equatable {
     required this.isFrontRcUploaded,
     required this.isBackRcUploaded,
     required this.documentUploadUIState,
+    required this.pincodeVerifyUIState,
     required this.fastagListUIState,
     required this.shouldNavigateToBuyFastag,
   });
@@ -27,6 +29,7 @@ class FastagState extends Equatable {
     isFrontRcUploaded: false,
     isBackRcUploaded: false,
     documentUploadUIState: UIState.initial(),
+    pincodeVerifyUIState: UIState.initial(),
     fastagListUIState: UIState.initial(),
     shouldNavigateToBuyFastag: false,
   );
@@ -37,6 +40,7 @@ class FastagState extends Equatable {
     bool? isFrontRcUploaded,
     bool? isBackRcUploaded,
     UIState<DocumentUploadResponse?>? documentUploadUIState,
+    UIState<FleetPincodeVerifyModel?>? pincodeVerifyUIState,
     UIState<FastagListResponse?>? fastagListUIState,
     bool? shouldNavigateToBuyFastag,
   }) {
@@ -46,6 +50,7 @@ class FastagState extends Equatable {
       isFrontRcUploaded: isFrontRcUploaded ?? this.isFrontRcUploaded,
       isBackRcUploaded: isBackRcUploaded ?? this.isBackRcUploaded,
       documentUploadUIState: documentUploadUIState ?? this.documentUploadUIState,
+      pincodeVerifyUIState: pincodeVerifyUIState ?? this.pincodeVerifyUIState,
       fastagListUIState: fastagListUIState ?? this.fastagListUIState,
       shouldNavigateToBuyFastag: shouldNavigateToBuyFastag ?? this.shouldNavigateToBuyFastag,
     );
@@ -60,5 +65,6 @@ class FastagState extends Equatable {
     documentUploadUIState,
     fastagListUIState,
     shouldNavigateToBuyFastag,
+    pincodeVerifyUIState,
   ];
 }
