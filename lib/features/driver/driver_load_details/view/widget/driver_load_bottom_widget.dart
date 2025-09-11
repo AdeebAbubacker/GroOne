@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_damages_and_shortages/view/driver_damages_and_shortages_screen.dart';
@@ -23,6 +24,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/inf
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -414,21 +416,13 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                               title:
                                                   context.appText.damageAndShortage,
                                               onAdd: () {
-                                                Navigator.push(
-                                                  context,
-                                                  commonRoute(
-                                                    DriverDamagesAndShortagesScreen(
-                                                      vehicleId:
-                                                          widget
-                                                              .loadItem
-                                                              .data
-                                                              ?.scheduleTripDetails
-                                                              ?.vehicleId,
-                                                      loadId: loads.data!.loadId,
-                                                      isDamageApprovedOrReject: loads.data?.loadApproval?.damageAndShortagesApproved ?? "",
-                                                    ),
-                                                    isForward: true,
-                                                  ),
+                                                context.push(
+                                                  AppRouteName.driverDamageScreen,
+                                                  extra: {
+                                                    "loadId": loads.data!.loadId,
+                                                    "vehicleId": widget.loadItem.data?.scheduleTripDetails?.vehicleId ?? "",
+                                                    "isDamageApprovedOrReject": loads.data?.loadApproval?.damageAndShortagesApproved ?? "",
+                                                  },
                                                 ).then((value) {
                                                   if (mounted) {
                                                     getLoadDetails();
@@ -505,19 +499,12 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                                       null,
                                               title: context.appText.settlements,
                                               onAdd: () {
-                                                Navigator.push(
-                                                  context,
-                                                  commonRoute(
-                                                    DriverSettlementsScreen(
-                                                      vehicleID:
-                                                          loads
-                                                              .data!
-                                                              .scheduleTripDetails
-                                                              ?.vehicleId,
-                                                      loadId: loads.data!.loadId,
-                                                    ),
-                                                    isForward: true,
-                                                  ),
+                                                context.push(
+                                                  AppRouteName.driverSettlementsScreen,
+                                                  extra: {
+                                                    "loadId": loads.data!.loadId,
+                                                    "vehicleId": loads.data!.scheduleTripDetails?.vehicleId ?? "",
+                                                  },
                                                 ).then((value) {
                                                   if (mounted) {
                                                     getLoadDetails();
@@ -647,16 +634,11 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                   state.iPodSkip != true &&
                                   loads.data?.podDispatch?.courierCompany ==
                                       null) {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder:
-                                        (context) => DriverPodDispatchScreen(
-                                          loadId: loads.data!.loadId,
-                                        ),
-                                  ),
+                                context.push(
+                                  AppRouteName.driverPodDispatch,
+                                  extra: {"loadId": loads.data!.loadId},
                                 ).then((value) {
-                                  if (value == true) {
+                                  if (value == true && mounted) {
                                     widget.cubit.getDriverLoadsById(
                                       loadId: loads.data!.loadId,
                                     );

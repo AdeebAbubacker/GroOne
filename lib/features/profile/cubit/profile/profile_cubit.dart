@@ -161,9 +161,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Success<DeleteAccountModel> && isSignOut is Success<bool>) {
       _setDeleteAccountUIState(UIState.success(result.value));
     }
-    if (result is Error) {
-      final error = result as Error; // Cast
-      _setDeleteAccountUIState(UIState.error(error.type));
+    else if (result is Error<DeleteAccountModel>) {
+      _setDeleteAccountUIState(UIState.error(result.type));
     } else {
       _setDeleteAccountUIState(UIState.error(GenericError()));
     }
