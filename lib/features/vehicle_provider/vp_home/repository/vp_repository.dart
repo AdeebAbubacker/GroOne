@@ -35,7 +35,7 @@ class VpHomeRepository {
   }) async {
     try {
       
-      return await _vpService.getVehicleDetails(userId: userId,search: search,page: page,pageSize: limit);
+      return await _vpService.getVehicleDetails(userId: userId,search: search,page: page ?? 1,pageSize: limit ?? 10);
       
     } catch (e) {
       print("eror from service ${e}");

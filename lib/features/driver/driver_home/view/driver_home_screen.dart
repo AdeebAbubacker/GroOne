@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
@@ -24,6 +25,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/bloc/vp_all_loads_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -510,10 +512,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                           ),
                         )
                         .onClick(() {
-                          Navigator.push(
-                            context,
-                            commonRoute(DriverProfileScreen(), isForward: true),
-                          ).then((v) {
+                          context.push(AppRouteName.driverProfile).then((v) {
                             frameCallback(
                               () => driverProfileCubit.fetchProfileDetail(),
                             );
@@ -535,10 +534,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   child: Text(getInitialsFromName(this, name: "")),
                 )
                 .onClick(() {
-                  Navigator.push(
-                    context,
-                    commonRoute(DriverProfileScreen(), isForward: true),
-                  );
+                  context.push(AppRouteName.driverProfile).then((v) {
+                    frameCallback(
+                      () => driverProfileCubit.fetchProfileDetail(),
+                    );
+                  });
                 })
                 .paddingRight(commonSafeAreaPadding);
           },
@@ -656,14 +656,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                     onClickAssignDriver: () {
                       final currentStatus = load.loadStatusId;
                       if (currentStatus == 8) {
-                        Navigator.push(
-                          context,
-                          commonRoute(
-                            DriverLoadsLocationDetailsScreen(
-                              loadId: load.loadId,
-                            ),
-                          ),
-                        );
+                        final extra = {"loadId": load.loadId};
+                        context.push(AppRouteName.driverLoadDetails, extra: extra);
                       } else if (currentStatus <= 7) {
                         context.read<DriverLoadsBloc>().add(
                           ChangeDriverLoadStatus(

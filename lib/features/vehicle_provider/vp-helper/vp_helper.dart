@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -126,16 +128,33 @@ String getSwipeButtonTitle(
 
 Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
   try {
-    path.basename(url);
-    final directory = await getApplicationDocumentsDirectory();
-    final filePath = path.join(directory.path, originalFileName);
+    final directory = Platform.isAndroid
+        ? await getExternalStorageDirectory()
+        : await getTemporaryDirectory();
+    String fileName;
+    if (originalFileName != null && originalFileName.isNotEmpty) {
+      fileName = originalFileName; 
+    } else {
+      final uri = Uri.parse(url);
+      final lastSegment = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "downloaded_file.pdf";
+      fileName = lastSegment.contains(".") ? lastSegment : "$lastSegment.pdf";
+    }
+
+    final filePath = path.join(directory!.path, fileName);
+
     final dio = Dio();
     await dio.download(url, filePath);
-    await OpenFilex.open(filePath);
+
+    debugPrint("Saved file path: $filePath");
+
+    final result = await OpenFilex.open(filePath, type: "application/pdf",);
+    debugPrint("OpenFilex result: ${result.message}");
   } catch (e) {
     debugPrint("Error downloading/opening file: $e");
   }
 }
+
+
 
 LoadStatus getLoadStatus(int? status) {
   return switch (status) {

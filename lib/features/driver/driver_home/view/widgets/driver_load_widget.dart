@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/helper/driver_load_helper.dart';
 import 'package:gro_one_app/features/driver/driver_home/model/driver_load_response.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -113,14 +115,9 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          commonRoute(
-            DriverLoadsLocationDetailsScreen(
-              loadId: widget.driverLoadDetails.loadId,
-            ),
-            isForward: true,
-          ),
+        context.push(
+          AppRouteName.driverLoadDetails,
+          extra: {"loadId": widget.driverLoadDetails.loadId},
         ).then((value) {
           if (mounted) {
             context.read<DriverLoadsBloc>().add(
@@ -298,15 +295,16 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                   onPressed: () {
                     if ((widget.driverLoadDetails.loadStatusId == 4 && widget.driverLoadDetails.isAgreed == 0) || widget.driverLoadDetails.loadStatusId == 9  &&
                         widget.driverLoadDetails.loadMemoDetails == null) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder:
-                              (_) => DriverLoadsLocationDetailsScreen(
-                                loadId: widget.driverLoadDetails.loadId,
-                              ),
-                        ),
-                      );
+                      context.push(
+                        AppRouteName.driverLoadDetails,
+                        extra: {"loadId": widget.driverLoadDetails.loadId},
+                      ).then((value) {
+                        if (mounted) {
+                          context.read<DriverLoadsBloc>().add(
+                            FetchDriverLoads(forceRefresh: true),
+                          );
+                        }
+                      });
                       return;
                     }
                     //Check for sim consent and trip doc
