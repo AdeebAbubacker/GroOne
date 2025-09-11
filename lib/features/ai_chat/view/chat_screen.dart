@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -123,7 +124,7 @@ class _ChatScreenState extends State<ChatScreen> {
     }
   }
 
-  /// Get current city and state from user's location
+  /// Get current full address from user's location
   Future<void> _getCurrentCity() async {
     try {
       final positionResult = await _locationService.getCurrentLatLong();
@@ -140,19 +141,45 @@ class _ChatScreenState extends State<ChatScreen> {
           
           if (placemarks.isNotEmpty) {
             final placemark = placemarks.first;
-            final city = placemark.locality ?? 'Unknown City';
-            final state = placemark.administrativeArea ?? 'Unknown State';
-            
-            // Store location for API calls
-            _currentLocation = '$city, $state';
-            print('🌍 ChatScreen: Current city: $_currentLocation');
+
+            // Build full address in the format: Area, Subarea, City, State Pincode
+            List<String> addressParts = [];
+            if (placemark.subThoroughfare != null && placemark.subThoroughfare!.isNotEmpty) {
+              addressParts.add(placemark.subThoroughfare!);
+            }
+            if (placemark.thoroughfare != null && placemark.thoroughfare!.isNotEmpty) {
+              addressParts.add(placemark.thoroughfare!);
+            }
+            if (placemark.subLocality != null && placemark.subLocality!.isNotEmpty) {
+              addressParts.add(placemark.subLocality!);
+            }
+            if (placemark.locality != null && placemark.locality!.isNotEmpty) {
+              addressParts.add(placemark.locality!);
+            }
+            if (placemark.administrativeArea != null && placemark.administrativeArea!.isNotEmpty) {
+              addressParts.add(placemark.administrativeArea!);
+            }
+            if (placemark.postalCode != null && placemark.postalCode!.isNotEmpty) {
+              addressParts.add(placemark.postalCode!);
+            }
+
+            // Create full address string
+            if (addressParts.isNotEmpty) {
+              _currentLocation = addressParts.join(', ');
+            } else {
+              _currentLocation = 'unknown';
+            }
           }
         } catch (e) {
-          print('🌍 ChatScreen: Error getting location details: $e');
+          if (kDebugMode) {
+            print('🌍 ChatScreen: Error getting location details: $e');
+          }
         }
       }
     } catch (e) {
-      print('🌍 ChatScreen: Error getting current city: $e');
+      if (kDebugMode) {
+        print('🌍 ChatScreen: Error getting current address: $e');
+      }
     }
   }
 
@@ -306,27 +333,20 @@ class _ChatScreenState extends State<ChatScreen> {
         final changed = previous.todaysChatCount != current.todaysChatCount || 
                        previous.dailyChatLimit != current.dailyChatLimit;
         if (changed) {
-          print('🎨 BlocListener detected chat limit change - Previous: ${previous.todaysChatCount}/${previous.dailyChatLimit}, Current: ${current.todaysChatCount}/${current.dailyChatLimit}');
         }
         return changed;
       },
       listener: (context, state) {
-        print('🎨 BlocListener triggered - Chat limits updated: ${state.todaysChatCount}/${state.dailyChatLimit}');
       },
       child: BlocBuilder<ChatCubit, ChatState>(
         buildWhen: (previous, current) {
-          final shouldRebuild = previous.todaysChatCount != current.todaysChatCount || 
-                                previous.dailyChatLimit != current.dailyChatLimit;
-          print('🎨 BlocBuilder buildWhen - Should rebuild: $shouldRebuild');
+          final shouldRebuild = previous.todaysChatCount != current.todaysChatCount || previous.dailyChatLimit != current.dailyChatLimit;
           return shouldRebuild;
         },
         builder: (context, state) {
           // Show 0/0 initially until data is loaded from API
           final todaysCount = state.todaysChatCount;
           final dailyLimit = state.dailyChatLimit;
-          
-          print('🎨 UI Building chat limit - Today: $todaysCount, Daily: $dailyLimit');
-
         return Padding(
           padding: const EdgeInsets.only(bottom: 6.0),
           child: Row(
@@ -1731,19 +1751,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         );
         // Reset playing state
-        setState(() {
-          message.isPlaying = false;
-          _isPlayingPreview = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to play text-to-speech: $e'),
-            backgroundColor: const Color(0xFFE31B25),
-          ),
-        );
         setState(() {
           message.isPlaying = false;
           _isPlayingPreview = false;

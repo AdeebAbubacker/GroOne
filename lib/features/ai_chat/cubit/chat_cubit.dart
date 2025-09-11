@@ -65,17 +65,10 @@ class ChatCubit extends Cubit<ChatState> {
         final rateLimitData = data['rate_limit'] as Map<String, dynamic>?;
         int? todaysCount;
         int? dailyLimit;
-        
-        print('📊 Rate limit data from history API: $rateLimitData');
-        
         if (rateLimitData != null) {
           todaysCount = rateLimitData['current_count'] as int?;
           dailyLimit = rateLimitData['daily_limit'] as int?;
-          print('📊 Extracted chat limits - Today: $todaysCount, Daily: $dailyLimit');
-        } else {
-          print('📊 No rate limit data found in history API response');
         }
-
         if (messages != null) {
           final List<ChatMessage> chatMessages = [];
 
@@ -131,10 +124,6 @@ class ChatCubit extends Cubit<ChatState> {
           // Always update chat limits if they exist in the response, even if they're 0
           final newTodaysCount = todaysCount ?? state.todaysChatCount;
           final newDailyLimit = dailyLimit ?? state.dailyChatLimit;
-          
-          print('📊 About to emit state - Extracted values: Today: $todaysCount, Daily: $dailyLimit');
-          print('📊 About to emit state - Final values: Today: $newTodaysCount, Daily: $newDailyLimit');
-          
           emit(state.copyWith(
             messages: updatedMessages,
             isLoading: false,
@@ -144,11 +133,7 @@ class ChatCubit extends Cubit<ChatState> {
             todaysChatCount: newTodaysCount,
             dailyChatLimit: newDailyLimit,
           ));
-          
-          print('📊 State emitted successfully');
           _currentPage = currentPage + 1;
-
-
         }
       }
     } catch (e) {
@@ -595,15 +580,10 @@ class ChatCubit extends Cubit<ChatState> {
         final rateLimitData = data['rate_limit'] as Map<String, dynamic>?;
         int? todaysCount;
         int? dailyLimit;
-        
-        print('📊 Rate limit data from pagination API: $rateLimitData');
-        
+
         if (rateLimitData != null) {
           todaysCount = rateLimitData['current_count'] as int?;
           dailyLimit = rateLimitData['daily_limit'] as int?;
-          print('📊 Extracted chat limits (pagination) - Today: $todaysCount, Daily: $dailyLimit');
-        } else {
-          print('📊 No rate limit data found in pagination API response');
         }
 
         if (messages != null) {
