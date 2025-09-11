@@ -34,6 +34,7 @@ class _AvailableLoadsFilterScreenState
   String? vehicleTypeDownValue;
   String? laneDropDownValue;
   String? loadTypeDropDownValue;
+
   final ScrollController scrollController = ScrollController();
   final lpLoadLocator = locator<LpLoadCubit>();
   final filterCubit = locator<LoadFilterCubit>();
@@ -68,44 +69,31 @@ class _AvailableLoadsFilterScreenState
   void disposeFunction() => frameCallback(() {});
 
   void _getTruckType(
-    List<TruckTypeModel> truckTypeList,
-    String? selectedTruckType,
+      String? selectedTruckType,
+      TruckTypeModel? truckTypeModel
   ) {
-    TruckTypeModel? truckTypeModel = truckTypeList.firstWhere((element) {
-      String commodity = "${element.type} ${element.subType}";
-      return commodity == selectedTruckType;
-    });
-    truckTypeId = truckTypeModel.id;
+    truckTypeId = truckTypeModel?.id;
     filterCubit.setTruckTypeData(
-      truckTypeId: truckTypeModel.id,
+      truckTypeId: truckTypeModel?.id,
       value: selectedTruckType,
     );
   }
 
-  void _getLaneId(List<Item> preferLanesModel, String? selectedLens) {
-    Item? selectedObject = preferLanesModel.firstWhere((element) {
-      String lane =
-          '${element.fromLocation?.name ?? ""} - ${element.toLocation?.name ?? ""}';
-      return lane == selectedLens;
-    });
-    laneId = selectedObject.masterLaneId;
+  void _getLaneId(RouteList? selectedItem) {
+    laneId = selectedItem?.masterLaneId;
     filterCubit.setLensData(
-      leneId: selectedObject.masterLaneId,
-      value: selectedLens,
+      leneId: selectedItem?.masterLaneId,
+      value: '${selectedItem?.fromLocation?.name ?? ""} - ${selectedItem?.toLocation?.name ?? ""}',
     );
   }
 
-  void _getCommodity(List<LoadCommodityListModel> loadTypeList, String? value) {
-    LoadCommodityListModel? loadType = loadTypeList.firstWhere((element) {
-      String loadType = element.name;
-      return loadType == value;
-    });
-    commodityId = loadType.id;
-    filterCubit.setCommodityData(commodityId: loadType.id, value: value);
+  void _getCommodity(LoadCommodityListModel? loadType, String? value) {
+    commodityId = loadType?.id;
+    filterCubit.setCommodityData(commodityId: loadType?.id, value: value);
   }
 
-  void _setInitialFilterData() {
-    lpLoadLocator.getRouteDetails();
+  Future<void> _setInitialFilterData() async {
+   await lpLoadLocator.getRouteDetails();
     if (filterCubit.state.isFilterApplied == false) {
       return;
     }
@@ -113,11 +101,14 @@ class _AvailableLoadsFilterScreenState
     vehicleTypeDownValue = filterCubit.state.selectedTruckType?['value'];
     truckTypeId = filterCubit.state.selectedTruckType?['id'];
 
+
     laneDropDownValue = filterCubit.state.selectedLaneType?['value'];
     laneId = filterCubit.state.selectedLaneType?['id'];
 
+
     loadTypeDropDownValue = filterCubit.state.selectedCommodity?['value'];
     commodityId = filterCubit.state.selectedCommodity?['id'];
+
   }
 
   @override
@@ -166,8 +157,8 @@ class _AvailableLoadsFilterScreenState
                         vehicleTypeDownValue = value?.id.toString();
                       });
                       _getTruckType(
-                        truckTypeList,
                         "${value?.type} ${value?.subType}",
+                          value
                       );
                     },
                     mandatoryStar: false,
@@ -184,6 +175,7 @@ class _AvailableLoadsFilterScreenState
                   final routeList = uiState?.data?.data?.routeList ?? [];
 
                   return RouteSearchableDropdown(
+
                     labelText: context.appText.route,
                     hintText: context.appText.searchRoutes,
                     fetchRoutes: (page, searchKey) async {
@@ -200,11 +192,12 @@ class _AvailableLoadsFilterScreenState
                           [];
                     },
                     selectedRoute: routeList.firstWhereOrNull(
-                      (r) => r.masterLaneId == laneDropDownValue,
+                      (r) => r.masterLaneId == laneId,
                     ),
                     onChanged: (RouteList? value) {
                       setState(() {
                         laneDropDownValue = value?.masterLaneId.toString();
+                        _getLaneId(value);
                       });
                     },
                     mandatoryStar: false,
@@ -237,14 +230,14 @@ class _AvailableLoadsFilterScreenState
                     },
 
                     selectedLoadType: loadTypeList.firstWhereOrNull(
-                      (t) => t.id.toString() == loadTypeDropDownValue,
+                      (t) => t.id == commodityId,
                     ),
 
                     onChanged: (LoadCommodityListModel? value) {
                       setState(() {
                         loadTypeDropDownValue = value?.id.toString();
                       });
-                      _getCommodity(loadTypeList, value?.name ?? '');
+                      _getCommodity(value, value?.name ?? '');
                     },
                   );
                 },
