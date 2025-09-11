@@ -170,7 +170,7 @@ class ChatCubit extends Cubit<ChatState> {
     await _loadChatHistory();
   }
 
-  void sendTextMessage(String message) {
+  void sendTextMessage(String message, {String? currentLocation}) {
     if (message.trim().isEmpty) return;
 
     final userMessage = ChatMessage(
@@ -193,10 +193,10 @@ class ChatCubit extends Cubit<ChatState> {
     ));
 
     // Call text API
-    _callTextAPI(message.trim());
+    _callTextAPI(message.trim(), currentLocation: currentLocation);
   }
 
-  void sendVoiceMessage(String audioPath) {
+  void sendVoiceMessage(String audioPath, {String? currentLocation}) {
     // Don't add user message here - repository will create both user transcript and AI response
     emit(state.copyWith(
       isProcessingVoice: true,
@@ -205,10 +205,10 @@ class ChatCubit extends Cubit<ChatState> {
     ));
 
     // Call voice API
-    _callVoiceAPI(audioPath);
+    _callVoiceAPI(audioPath, currentLocation: currentLocation);
   }
 
-  Future<void> _callTextAPI(String userMessage) async {
+  Future<void> _callTextAPI(String userMessage, {String? currentLocation}) async {
     try {
 
 
@@ -223,6 +223,7 @@ class ChatCubit extends Cubit<ChatState> {
       final response = await _repository.sendTextMessage(
         message: userMessage,
         language: state.selectedLanguage.code,
+        currentLocation: currentLocation,
       );
 
       // Extract chat message and rate limit data
@@ -259,7 +260,7 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  Future<void> _callVoiceAPI(String audioPath) async {
+  Future<void> _callVoiceAPI(String audioPath, {String? currentLocation}) async {
     try {
 
 
@@ -273,6 +274,7 @@ class ChatCubit extends Cubit<ChatState> {
       final result = await _repository.sendVoiceMessage(
         audioFilePath: audioPath,
         language: state.selectedLanguage.code,
+        currentLocation: currentLocation,
       );
 
       final userMessage = result['userMessage'] as ChatMessage;
@@ -453,9 +455,9 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  void sendRecordedAudio() {
+  void sendRecordedAudio({String? currentLocation}) {
     if (state.recordedAudioPath != null) {
-      sendVoiceMessage(state.recordedAudioPath!);
+      sendVoiceMessage(state.recordedAudioPath!, currentLocation: currentLocation);
 
       // Clear the recorded audio after sending
       emit(state.copyWith(

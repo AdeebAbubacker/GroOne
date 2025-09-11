@@ -46,6 +46,7 @@ class ChatApiService {
   Future<Map<String, dynamic>> sendTextMessage({
     required String message,
     required String language,
+    String? currentLocation,
   }) async {
     try {
       // Get user ID from secure storage
@@ -61,6 +62,7 @@ class ChatApiService {
         'language': _mapLanguageCode(language),
         'user_id': userId,
         'catalog_id': 'groone',
+        'current_location': currentLocation ?? 'unknown',
       };
 
       // Add custom headers with X-API-Key
@@ -135,6 +137,7 @@ class ChatApiService {
   Future<Map<String, dynamic>> sendVoiceMessage({
     required String audioFilePath,
     required String language,
+    String? currentLocation,
   }) async {
     try {
       // Get user ID from secure storage
@@ -156,15 +159,17 @@ class ChatApiService {
         'X-API-Key': xApiKey,
       };
 
+      final fields = {
+        'language': _mapLanguageCode(language),
+        'user_id': userId,
+        'catalog_id': 'groone',
+        'current_location': currentLocation ?? 'unknown',
+      };
       // Use multipart for file upload with correct field name 'file' (singular)
       final result = await _apiService.multipart(
         endpoint,
         [file], // files as positional parameter
-        fields: {
-          'language': _mapLanguageCode(language),
-          'user_id': userId,
-          'catalog_id': 'groone',
-        },
+        fields: fields,
         pathName: 'file', // API expects 'file' not 'files'
         customHeaders: customHeaders,
       );

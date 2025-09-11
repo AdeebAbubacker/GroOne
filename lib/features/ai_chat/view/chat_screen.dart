@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,6 +15,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../data/model/result.dart';
 import '../../../data/ui_state/status.dart';
 import '../../../dependency_injection/locator.dart';
+import '../../../service/location_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/common_functions.dart';
@@ -40,6 +42,8 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _showLanguageOptions =
   false; // Flag to prevent multiple pagination calls
   final profileCubit = locator<ProfileCubit>();
+  final LocationService _locationService = LocationService();
+  String? _currentLocation; // Store current city and state
 
 
   // Scroll position tracking - simplified
@@ -74,6 +78,8 @@ class _ChatScreenState extends State<ChatScreen> {
     // Load initial chat history
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChatCubit>().loadChatHistory(refresh: true);
+      // Get current city when screen loads
+      _getCurrentCity();
     });
   }
 
@@ -114,6 +120,39 @@ class _ChatScreenState extends State<ChatScreen> {
           _isLoadingHistory = false;
         });
       }
+    }
+  }
+
+  /// Get current city and state from user's location
+  Future<void> _getCurrentCity() async {
+    try {
+      final positionResult = await _locationService.getCurrentLatLong();
+      
+      if (positionResult is Success) {
+        final successResult = positionResult as Success;
+        final position = successResult.value;
+        
+        try {
+          List<Placemark> placemarks = await placemarkFromCoordinates(
+            position.latitude, 
+            position.longitude
+          );
+          
+          if (placemarks.isNotEmpty) {
+            final placemark = placemarks.first;
+            final city = placemark.locality ?? 'Unknown City';
+            final state = placemark.administrativeArea ?? 'Unknown State';
+            
+            // Store location for API calls
+            _currentLocation = '$city, $state';
+            print('🌍 ChatScreen: Current city: $_currentLocation');
+          }
+        } catch (e) {
+          print('🌍 ChatScreen: Error getting location details: $e');
+        }
+      }
+    } catch (e) {
+      print('🌍 ChatScreen: Error getting current city: $e');
     }
   }
 
@@ -1039,7 +1078,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed:
                     canSend
                         ? () {
-                      context.read<ChatCubit>().sendRecordedAudio();
+                      context.read<ChatCubit>().sendRecordedAudio(
+                        currentLocation: _currentLocation,
+                      );
                       // Reset audio player state
                       if (_isPlayingPreview) {
                         _audioPlayer.stop();
@@ -1216,7 +1257,10 @@ class _ChatScreenState extends State<ChatScreen> {
                           ? () {
                         final text = _textController.text.trim();
                         if (text.isNotEmpty) {
-                          context.read<ChatCubit>().sendTextMessage(text);
+                          context.read<ChatCubit>().sendTextMessage(
+                            text,
+                            currentLocation: _currentLocation,
+                          );
                           _textController.clear();
                           setState(() {}); // Update UI
                         }
