@@ -8,6 +8,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_button.dart';
 import '../../../utils/app_icon_button.dart';
@@ -58,10 +59,6 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
               // Only load data if not already loaded
               if (!vehicleListCubit.hasLoadedData) {
                 vehicleListCubit.loadVehicleData();
-              } else {
-                debugPrint(
-                  "📍 GpsGeofenceScreen - Vehicle data already loaded, skipping loadVehicleData call",
-                );
               }
 
               Navigator.push(
@@ -77,7 +74,8 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
             icon: SvgPicture.asset(AppIcons.svg.notification, height: 20),
             iconColor: AppColors.primaryColor,
           ),
-          IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),],
+          IconButton(icon: Icon(Icons.more_vert), onPressed: () {}),
+        ],
       ),
       backgroundColor: AppColors.backgroundColor,
       body: BlocBuilder<VehicleListCubit, VehicleListState>(
@@ -90,16 +88,17 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
           //   final hasValidDate = vehicle.subscriptionExpiryDate != null;
           //   return matchesSearch && hasValidDate;
           // }).toList();
-          _filteredVehicles = _allVehicles
-              .where((vehicle) {
-            final query = searchController.text.toLowerCase();
-            final matchesSearch = vehicle.vehicleNumber?.toLowerCase().contains(query) ?? false;
-            final hasValidDate = vehicle.subscriptionExpiryDate != null;
-            return matchesSearch && hasValidDate;
-          })
-              .toList();
+          _filteredVehicles =
+              _allVehicles.where((vehicle) {
+                final query = searchController.text.toLowerCase();
+                final matchesSearch =
+                    vehicle.vehicleNumber?.toLowerCase().contains(query) ??
+                    false;
+                final hasValidDate = vehicle.subscriptionExpiryDate != null;
+                return matchesSearch && hasValidDate;
+              }).toList();
 
-// Sort: Expired first, then by ascending days left
+          // Sort: Expired first, then by ascending days left
           _filteredVehicles.sort((a, b) {
             final aDays = _calculateDaysLeft(a.subscriptionExpiryDate);
             final bDays = _calculateDaysLeft(b.subscriptionExpiryDate);
@@ -113,8 +112,6 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
 
             return aDays.compareTo(bDays); // ascending
           });
-
-
 
           final expiringCount =
               _allVehicles.where((vehicle) {

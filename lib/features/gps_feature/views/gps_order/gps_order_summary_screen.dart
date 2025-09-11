@@ -1,5 +1,4 @@
 import 'package:dotted_line/dotted_line.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -7,8 +6,8 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
-import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -25,6 +24,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
+
 import '../../../../service/analytics/analytics_event_name.dart';
 import '../../../../service/analytics/analytics_service.dart';
 import '../../../../utils/app_dialog.dart' show AppDialog;
@@ -116,16 +116,16 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
       final request = GpsOrderSummaryRequest(products: products);
       for (int i = 0; i < products.length; i++) {
-        if (kDebugMode) {
-          print('Product $i: ${products[i].toJson()}');
-        }
+        // Process products
       }
       await gpsOrderCubit.getOrderSummary(request);
     } catch (e) {
       setState(() {
         isLoadingSummary = false;
       });
-      ToastMessages.error(message: 'Failed to load order summary. Please try again.');
+      ToastMessages.error(
+        message: 'Failed to load order summary. Please try again.',
+      );
     }
   }
 
@@ -173,7 +173,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       // Fallback to hardcoded values if still not available
       return {
         "companyName":
-            companyName?.isNotEmpty == true ? companyName! : "ABC Logistics Pvt Ltd",
+            companyName?.isNotEmpty == true
+                ? companyName!
+                : "ABC Logistics Pvt Ltd",
         "contactNumber":
             contactNumber?.isNotEmpty == true ? contactNumber! : "9876543210",
         "blueMembershipId": blueId?.isNotEmpty == true ? blueId! : "BLUE123456",
@@ -246,13 +248,16 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                         context.go(AppRouteName.gps);
                       } catch (fallbackError) {
                         try {
-                          Navigator.of(
-                            context,
-                          ).pushNamedAndRemoveUntil(AppRouteName.gps, (route) => false);
+                          Navigator.of(context).pushNamedAndRemoveUntil(
+                            AppRouteName.gps,
+                            (route) => false,
+                          );
                         } catch (navigatorError) {
                           try {
                             Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (context) => GpsHomeScreen()),
+                              MaterialPageRoute(
+                                builder: (context) => GpsHomeScreen(),
+                              ),
                               (route) => false,
                             );
                           } catch (pushError) {
@@ -276,7 +281,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         }
 
         if (state is GpsOrderError) {
-          ToastMessages.error(message: "Order creation failed: ${state.message}");
+          ToastMessages.error(
+            message: "Order creation failed: ${state.message}",
+          );
         }
 
         // Handle order summary states
@@ -290,7 +297,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             isLoadingSummary = false;
           });
           if (!context.mounted) return;
-          ToastMessages.error(message: context.appText.failedToLoadOrderSummary);
+          ToastMessages.error(
+            message: context.appText.failedToLoadOrderSummary,
+          );
         }
       },
       child: Scaffold(
@@ -498,7 +507,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     return BlocBuilder<GpsOrderCubit, GpsOrderState>(
       bloc: gpsOrderCubit,
       builder: (context, state) {
-        final isLoading = state is GpsOrderLoading || state is GpsPaymentInitiating;
+        final isLoading =
+            state is GpsOrderLoading || state is GpsPaymentInitiating;
         return Container(
           decoration: BoxDecoration(
             color: Colors.white,
@@ -516,7 +526,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(context.appText.total, style: AppTextStyle.blackColor14w400),
+                  Text(
+                    context.appText.total,
+                    style: AppTextStyle.blackColor14w400,
+                  ),
                   Text(
                     "₹${KavachHelper.formatCurrencyRoundOf(totalAmount.toStringAsFixed(2))}",
                     style: AppTextStyle.primaryColor16w900,
@@ -539,10 +552,12 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                       // This should be the actual order ID from the order creation
                       amount: totalAmount,
                       customerName:
-                          customerInfo["companyName"] ?? "ABC Logistics Pvt Ltd",
+                          customerInfo["companyName"] ??
+                          "ABC Logistics Pvt Ltd",
                       customerEmail: "customer@example.com",
                       // This should be fetched from user profile
-                      customerMobile: customerInfo["contactNumber"] ?? "9876543210",
+                      customerMobile:
+                          customerInfo["contactNumber"] ?? "9876543210",
                       customerCity: widget.billingAddress.city,
                       customerId: customerId,
                       merchantReferenceNo: 'fleet',
@@ -570,7 +585,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
     try {
       // Split by commas and clean up
-      List<String> parts = addressString.split(',').map((part) => part.trim()).toList();
+      List<String> parts =
+          addressString.split(',').map((part) => part.trim()).toList();
 
       if (parts.length >= 3) {
         // Try to extract postal code from the last part (format: "Country - PostalCode")
@@ -602,9 +618,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         }
       }
     } catch (e) {
-      if (kDebugMode) {
-        print('Error parsing address: $e');
-      }
+      // Handle error silently
     }
 
     return {'city': city, 'state': state, 'postalCode': postalCode};
@@ -635,7 +649,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         createdEmpId = widget.orderReferencedBy;
         // For now, using a default user ID. In a real implementation,
         // you would fetch the employee details from the referral code
-        createdEmpUserId = 52864; // This should be fetched based on referral code
+        createdEmpUserId =
+            52864; // This should be fetched based on referral code
       }
 
       // Create billing address
@@ -685,7 +700,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           widget.products.map((product) {
             final quantity = widget.quantities[product.id]!;
             final stock = widget.availableStocks[product.id] ?? 0;
-            final vehicleNumbers = widget.selectedVehiclePerProduct[product.id] ?? [];
+            final vehicleNumbers =
+                widget.selectedVehiclePerProduct[product.id] ?? [];
             final price = double.tryParse(product.price) ?? 0.0;
             final itemTotal = price * quantity;
             final itemGst = itemTotal * (18.0 / 100);
@@ -698,7 +714,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               totalPrice: totalWithGst,
               stockAvailable: stock,
               vehicleNumbers:
-                  vehicleNumbers.map((v) => GpsOrderVehicle(vehicleNumber: v)).toList(),
+                  vehicleNumbers
+                      .map((v) => GpsOrderVehicle(vehicleNumber: v))
+                      .toList(),
             );
           }).toList();
 
@@ -716,7 +734,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
         createdEmpId: createdEmpId,
         // Will be null if no referral code
         orderReferencedBy:
-            widget.orderReferencedBy.isNotEmpty ? widget.orderReferencedBy : "DIRECT",
+            widget.orderReferencedBy.isNotEmpty
+                ? widget.orderReferencedBy
+                : "DIRECT",
         totalPrice: orderSummary?.data.grandTotal ?? _fallbackTotalAmount,
         // Use the API's grandTotal or fallback
         categoryId: 1,
@@ -747,7 +767,9 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Expanded(child: Text(label, style: AppTextStyle.textDarkGreyColor14w500)),
+        Expanded(
+          child: Text(label, style: AppTextStyle.textDarkGreyColor14w500),
+        ),
         Text(value, style: AppTextStyle.blackColor15w500),
       ],
     ).paddingSymmetric(vertical: 5);

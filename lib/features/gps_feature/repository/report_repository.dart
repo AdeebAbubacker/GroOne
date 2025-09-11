@@ -19,32 +19,25 @@ class GpsReportRepository {
   // --- VEHICLE LIST (Getting from Realm Database) ---
   Future<Result<List<GpsCombinedVehicleData>>> getVehicles() async {
     try {
-      print("🔍 GpsReportRepository.getVehicles called");
       
       // Check if we have offline data available
       final hasOfflineData = await _loginRepository.hasOfflineData();
       
       if (hasOfflineData) {
-        print("  - Offline data available, fetching from Realm");
         final offlineVehicles = await _loginRepository.getOfflineVehicleData();
-        print("  - Found ${offlineVehicles.length} vehicles in Realm");
         return Success(offlineVehicles);
       } else {
-        print("  - No offline data available, trying to fetch from API");
         
         // Try to get fresh data from API
         final result = await _loginRepository.getAllVehicleData();
         
         if (result is Success<List<GpsCombinedVehicleData>>) {
-          print("  - Successfully fetched ${result.value.length} vehicles from API");
           return result;
         } else {
-          print("  - Failed to fetch vehicles from API: ${(result as Error).type}");
           return result;
         }
       }
     } catch (e) {
-      print("  - Error in getVehicles: $e");
       return Error(GenericError());
     }
   }
@@ -65,12 +58,6 @@ class GpsReportRepository {
     final formattedFromDate = _formatDate(fromDate);
     final formattedToDate = _formatDate(toDate);
     
-    print("🔍 GpsReportRepository.fetchStopReports called");
-    print("  - Vehicle ID: $vehicleId");
-    print("  - From Date: $fromDate");
-    print("  - To Date: $toDate");
-    print("  - Formatted From Date: $formattedFromDate");
-    print("  - Formatted To Date: $formattedToDate");
     
     final result = await _service.fetchStopReports(
       fromDate: formattedFromDate,
@@ -78,7 +65,6 @@ class GpsReportRepository {
       vehicleId: vehicleId,
     );
     
-    print("  - Service result type: ${result.runtimeType}");
     return result;
   }
 
@@ -90,11 +76,6 @@ class GpsReportRepository {
     final formattedFromDate = _formatDate(fromDate);
     final formattedToDate = _formatDate(toDate);
     
-    print("🔍 Date formatting:");
-    print("  - Original fromDate: $fromDate");
-    print("  - Original toDate: $toDate");
-    print("  - Formatted fromDate: $formattedFromDate");
-    print("  - Formatted toDate: $formattedToDate");
     
     return await _service.fetchTripReports(
       fromDate: formattedFromDate,
@@ -120,10 +101,6 @@ class GpsReportRepository {
     required DateTime fromDate,
     required DateTime toDate,
   }) async {
-    print("🔍 GpsReportRepository.fetchDailyKmReports called");
-    print("  - Vehicle ID: $vehicleId");
-    print("  - From Date: $fromDate");
-    print("  - To Date: $toDate");
     
     final result = await _service.fetchDailyKmReports(
       fromDate: _formatDate(fromDate),
@@ -132,7 +109,6 @@ class GpsReportRepository {
     );
     
     if (result is Success<List<DailyDistanceReport>>) {
-      print("  - API call successful, processing date range...");
       
       // Process the date range to ensure all selected dates are included
       final processedReports = await _processDailyKmDateRange(
@@ -142,7 +118,6 @@ class GpsReportRepository {
         vehicleId,
       );
       
-      print("  - Processed reports count: ${processedReports.length}");
       return Success(processedReports);
     }
     
@@ -156,10 +131,6 @@ class GpsReportRepository {
     DateTime toDate,
     int vehicleId,
   ) async {
-    print("🔍 _processDailyKmDateRange called");
-    print("  - Original reports count: ${originalReports.length}");
-    print("  - From Date: $fromDate");
-    print("  - To Date: $toDate");
     
     final List<DailyDistanceReport> processedReports = [];
     
@@ -173,7 +144,6 @@ class GpsReportRepository {
       currentDate = currentDate.add(const Duration(days: 1));
     }
     
-    print("  - Date range count: ${dateRange.length}");
     
     // Process each original report
     for (final report in originalReports) {
@@ -211,10 +181,7 @@ class GpsReportRepository {
             date: displayDate,
             distance: 0.0,
           );
-          print("  - Created placeholder for date: $displayDate");
         } else {
-          print("  - Found existing data for date: ${existingItem.date}, distance: ${existingItem.distance}");
-          print("  - Raw distance value: ${existingItem.distance}");
         }
         
         processedItems.add(existingItem);
@@ -230,7 +197,6 @@ class GpsReportRepository {
       processedReports.add(processedReport);
     }
     
-    print("  - Processed reports count: ${processedReports.length}");
     return processedReports;
   }
 

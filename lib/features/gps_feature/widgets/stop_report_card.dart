@@ -10,19 +10,16 @@ import 'address_skeleton.dart';
 class StopReportCard extends StatelessWidget {
   final StopReport report;
   final AddressResponse? addressResponse;
-  
-  const StopReportCard({
-    Key? key, 
-    required this.report,
-    this.addressResponse,
-  }) : super(key: key);
+
+  const StopReportCard({Key? key, required this.report, this.addressResponse})
+    : super(key: key);
 
   String _formatDate(String dateTimeString) {
     try {
       final dateTime = DateTime.parse(dateTimeString);
       return DateFormat('MMM dd, yyyy').format(dateTime);
-    } catch (e) { 
-      return 'Invalid Date'; 
+    } catch (e) {
+      return 'Invalid Date';
     }
   }
 
@@ -30,8 +27,8 @@ class StopReportCard extends StatelessWidget {
     try {
       final dateTime = DateTime.parse(dateTimeString);
       return DateFormat('h:mm a').format(dateTime);
-    } catch (e) { 
-      return 'N/A'; 
+    } catch (e) {
+      return 'N/A';
     }
   }
 
@@ -43,18 +40,18 @@ class StopReportCard extends StatelessWidget {
         return realAddress;
       }
     }
-    
+
     // Fallback to original address from API if it looks like a real address
     if (report.address.isNotEmpty && !report.address.contains(',')) {
       return report.address;
     }
-    
+
     // Final fallback to formatted coordinates
     // If coordinates are 0,0 (invalid GPS), show dash
     if (report.latitude == 0.0 && report.longitude == 0.0) {
       return "-";
     }
-    
+
     return "Lat: ${report.latitude.toStringAsFixed(6)}\nLng: ${report.longitude.toStringAsFixed(6)}";
   }
 
@@ -72,15 +69,15 @@ class StopReportCard extends StatelessWidget {
         children: [
           // Date header
           Text(
-            _formatDate(report.startTime), 
+            _formatDate(report.startTime),
             style: const TextStyle(
               color: AppColors.black,
-              fontWeight: FontWeight.bold, 
-              fontSize: 16
-            )
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
           const SizedBox(height: 12),
-          
+
           // Time and location row
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -91,39 +88,37 @@ class StopReportCard extends StatelessWidget {
                 style: const TextStyle(
                   color: AppColors.activeRedColor, // Red color for time
                   fontWeight: FontWeight.bold,
-                  fontSize: 14
-                )
+                  fontSize: 14,
+                ),
               ),
               const SizedBox(width: 8),
               // Separator
               const Text(
                 '|',
-                style: TextStyle(
-                  color: AppColors.black,
-                  fontSize: 14
-                )
+                style: TextStyle(color: AppColors.black, fontSize: 14),
               ),
               const SizedBox(width: 8),
               // Location - flexible to take remaining space
               Expanded(
-                child: addressResponse == null 
-                  ? Container(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: const AddressSkeleton(showStartEnd: false),
-                    )
-                  : Text(
-                      _getDisplayAddress(),
-                      style: const TextStyle(
-                        color: AppColors.black,
-                        fontSize: 13,
-                        height: 1.3
-                      )
-                    ),
+                child:
+                    addressResponse == null
+                        ? Container(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: const AddressSkeleton(showStartEnd: false),
+                        )
+                        : Text(
+                          _getDisplayAddress(),
+                          style: const TextStyle(
+                            color: AppColors.black,
+                            fontSize: 13,
+                            height: 1.3,
+                          ),
+                        ),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Engine time info and View on Map button
           Container(
             padding: const EdgeInsets.all(12),
@@ -140,32 +135,31 @@ class StopReportCard extends StatelessWidget {
                     children: [
                       const Text(
                         'Engine On time',
-                        style: TextStyle(
-                          color: AppColors.black,
-                          fontSize: 12
-                        )
+                        style: TextStyle(color: AppColors.black, fontSize: 12),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         report.duration,
-                        style:  TextStyle(
+                        style: TextStyle(
                           color: AppColors.black,
                           fontSize: 14,
-                          fontWeight: FontWeight.bold
-                        )
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                
+
                 // View on Map button
                 GestureDetector(
                   onTap: () {
                     // Add your map navigation logic here
-                    print('Navigate to map for location: ${_getDisplayAddress()}');
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     child: const Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -174,14 +168,14 @@ class StopReportCard extends StatelessWidget {
                           style: TextStyle(
                             color: AppColors.primaryColor,
                             fontSize: 13,
-                            fontWeight: FontWeight.w500
-                          )
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                         SizedBox(width: 4),
                         Icon(
                           Icons.arrow_forward_ios,
                           color: AppColors.primaryColor,
-                          size: 13
+                          size: 13,
                         ),
                       ],
                     ),

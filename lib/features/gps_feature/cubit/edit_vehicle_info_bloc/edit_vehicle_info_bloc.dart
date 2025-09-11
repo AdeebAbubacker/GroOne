@@ -44,12 +44,6 @@ class EditVehicleInfoBloc
     if (state is EditVehicleInfoLoaded) {
       final currentState = state as EditVehicleInfoLoaded;
 
-      print('🔍 Initializing EditVehicleInfo with:');
-      print('🔍 Vehicle: ${event.vehicle?.vehicleNumber}');
-      print(
-        '🔍 SelectedVehicleExtraInfo: ${event.selectedVehicleExtraInfo?.vehicleRegistrationNumber}',
-      );
-
       // Extract data from vehicle and extra info
       String? vehicleNumber = event.vehicle?.vehicleNumber;
       String? plateNumber;
@@ -68,17 +62,6 @@ class EditVehicleInfoBloc
       // Get data from extra info if available
       if (event.selectedVehicleExtraInfo != null) {
         final extraInfo = event.selectedVehicleExtraInfo!;
-        print('🔍 ExtraInfo data:');
-        print(
-          '🔍 - vehicleRegistrationNumber: ${extraInfo.vehicleRegistrationNumber}',
-        );
-        print('🔍 - plateNumber: ${extraInfo.plateNumber}');
-        print('🔍 - chasisNumber: ${extraInfo.chasisNumber}');
-        print('🔍 - vehicleBrand: ${extraInfo.vehicleBrand}');
-        print('🔍 - vehicleModel: ${extraInfo.vehicleModel}');
-        print('🔍 - insuranceExpiryDate: ${extraInfo.insuranceExpiryDate}');
-        print('🔍 - pollutionExpiryDate: ${extraInfo.pollutionExpiryDate}');
-        print('🔍 - fitnessExpiryDate: ${extraInfo.fitnessExpiryDate}');
 
         vehicleNumber =
             extraInfo.vehicleRegistrationNumber?.toString() ?? vehicleNumber;
@@ -86,9 +69,6 @@ class EditVehicleInfoBloc
         chassisNumber = extraInfo.chasisNumber?.toString();
         selectedBrand = extraInfo.vehicleBrand?.toString();
         selectedModel = extraInfo.vehicleModel?.toString();
-
-        print('🔍 Extracted brand: "$selectedBrand"');
-        print('🔍 Extracted model: "$selectedModel"');
 
         insuranceExpDate = extraInfo.insuranceExpiryDate?.toString();
         pollutionExpDate = extraInfo.pollutionExpiryDate?.toString();
@@ -103,20 +83,12 @@ class EditVehicleInfoBloc
         if (extraInfo.dateAdded != null) {
           try {
             dateAdded = DateTime.parse(extraInfo.dateAdded.toString());
-            print('🔍 Parsed dateAdded: $dateAdded');
           } catch (e) {
-            print(
-              '🔍 Failed to parse extraInfo.dateAdded: ${extraInfo.dateAdded}',
-            );
             // If parsing fails, try to parse from vehicle data
             if (event.vehicle?.dateAdded != null) {
               try {
                 dateAdded = DateTime.parse(event.vehicle!.dateAdded!);
-                print('🔍 Parsed vehicle.dateAdded: $dateAdded');
               } catch (e) {
-                print(
-                  '🔍 Failed to parse vehicle.dateAdded: ${event.vehicle!.dateAdded}',
-                );
                 // If both fail, use current date
                 dateAdded = DateTime.now();
               }
@@ -125,11 +97,7 @@ class EditVehicleInfoBloc
         } else if (event.vehicle?.dateAdded != null) {
           try {
             dateAdded = DateTime.parse(event.vehicle!.dateAdded!);
-            print('🔍 Parsed vehicle.dateAdded: $dateAdded');
           } catch (e) {
-            print(
-              '🔍 Failed to parse vehicle.dateAdded: ${event.vehicle!.dateAdded}',
-            );
             dateAdded = DateTime.now();
           }
         }
@@ -161,17 +129,6 @@ class EditVehicleInfoBloc
           }
         }
       }
-
-      print('🔍 Final state values:');
-      print('🔍 - vehicleNumber: $vehicleNumber');
-      print('🔍 - plateNumber: $plateNumber');
-      print('🔍 - chassisNumber: $chassisNumber');
-      print('🔍 - selectedBrand: $selectedBrand');
-      print('🔍 - selectedModel: $selectedModel');
-      print('🔍 - dateAdded: $dateAdded');
-      print('🔍 - insuranceExpDate: $insuranceExpDate');
-      print('🔍 - pollutionExpDate: $pollutionExpDate');
-      print('🔍 - fitnessExpDate: $fitnessExpDate');
 
       emit(
         currentState.copyWith(

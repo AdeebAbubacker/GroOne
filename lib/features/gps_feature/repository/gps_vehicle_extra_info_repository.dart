@@ -41,7 +41,6 @@ class GpsVehicleExtraInfoRepository {
           await _realmService.saveVehicleExtraInfo(realmDataList);
         } catch (e) {
           // Log error but don't fail the operation
-          debugPrint("⚠️ Failed to save vehicle extra info to Realm: $e");
         }
       }
 

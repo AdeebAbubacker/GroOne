@@ -9,7 +9,6 @@ class RingtonePicker {
       final String? uri = await _channel.invokeMethod('pickRingtone');
       return uri;
     } on PlatformException catch (e) {
-      debugPrint("Failed to pick ringtone: ${e.message}");
       return null;
     }
   }

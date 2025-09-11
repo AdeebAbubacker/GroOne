@@ -39,7 +39,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
     if (_isClosed) return;
 
     if (_hasLoadedData && state is GpsGeofenceLoaded && !forceRefresh) {
-      debugPrint("📍 GpsGeofenceCubit.loadGeofences() - Skipping due to cache");
       return;
     }
 
@@ -53,7 +52,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
         if (_isClosed) return;
 
         if (storedGeofences.isNotEmpty) {
-          debugPrint("📱 Loaded from Realm: ${storedGeofences.length}");
           if (!_isClosed) {
             emit(GpsGeofenceLoaded(storedGeofences));
           }
@@ -62,7 +60,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
         }
       }
 
-      debugPrint("🌐 Fetching geofences from API...");
 
       // Use safe API caller with retry mechanism
       final result = await SafeApiCaller.callWithRetryAndTimeout(
@@ -75,19 +72,16 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
       if (_isClosed) return;
 
       if (result is Success<List<GpsGeofenceModel>>) {
-        debugPrint("✅ Fetched from API: ${result.value.length}");
         if (!_isClosed) {
           emit(GpsGeofenceLoaded(result.value));
         }
         _hasLoadedData = true;
       } else if (result is Error<List<GpsGeofenceModel>>) {
-        debugPrint("❌ API fetch failed");
         if (!_isClosed) {
           emit(GpsGeofenceError(result.type.toString()));
         }
       }
     } catch (e) {
-      debugPrint("❌ Error in loadGeofences: $e");
       if (!_isClosed) {
         emit(GpsGeofenceError(e.toString()));
       }
@@ -166,7 +160,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
         }
       }
     } catch (e) {
-      debugPrint("❌ Error in submitGeofence: $e");
       if (!_isClosed) {
         emit(GpsGeofenceError("Failed to submit geofence: ${e.toString()}"));
       }
@@ -221,7 +214,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
         }
       }
     } catch (e) {
-      debugPrint("❌ Error in toggleGeofenceForVehicle: $e");
       if (!_isClosed) {
         emit(GpsGeofenceError("Failed to toggle geofence: ${e.toString()}"));
       }
@@ -230,7 +222,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
 
   /// Refresh data - resets the guard flag and reloads
   Future<void> refreshData() async {
-    debugPrint("🔄 GpsGeofenceCubit.refreshData() called");
     _hasLoadedData = false; // Reset the guard flag
     await loadGeofences();
   }
@@ -269,7 +260,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
         );
       }
     } catch (e) {
-      debugPrint("❌ Error in fetchAutoComplete: $e");
       if (!_isClosed) {
         emit(GpsGeofenceError("Autocomplete failed: ${e.toString()}"));
       }
@@ -303,7 +293,6 @@ class GpsGeofenceCubit extends Cubit<GpsGeofenceState> {
         );
       }
     } catch (e) {
-      debugPrint("❌ Error in fetchLatLngForPlace: $e");
       if (!_isClosed) {
         emit(GpsGeofenceError("Failed to get location: ${e.toString()}"));
       }

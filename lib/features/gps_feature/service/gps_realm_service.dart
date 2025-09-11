@@ -85,7 +85,6 @@ class GpsRealmService {
       // If migration fails, clear the database and try again
       if (e.toString().contains('Migration required') ||
           e.toString().contains('schema mismatch')) {
-        print("🔄 Migration required, clearing database and retrying...");
         await clearEntireDatabase();
 
         // Try again with fresh database
@@ -119,7 +118,6 @@ class GpsRealmService {
         _mobileConfigData = _realm!.all<GpsMobileConfigRealmModel>();
         _userConfigurationData = _realm!.all<GpsUserConfigurationRealmModel>();
         _geofenceData = _realm!.all<GpsGeofenceRealmModel>();
-        print("✅ Database initialized successfully after migration");
       } else {
         throw Exception('Failed to initialize Realm: $e');
       }
@@ -144,9 +142,7 @@ class GpsRealmService {
           _realm!.add(realmData);
         }
       });
-      print("💾 Vehicle data saved to Realm: ${vehicles.length} vehicles");
     } catch (e) {
-      print("❌ Failed to save vehicle data to Realm: $e");
       throw Exception('Failed to save vehicle data to Realm: $e');
     }
   }
@@ -157,7 +153,6 @@ class GpsRealmService {
     try {
       return _vehicleData!.map((realmData) => realmData.toDomain()).toList();
     } catch (e) {
-      print("❌ Failed to read vehicle data from Realm: $e");
       throw Exception('Failed to read vehicle data from Realm: $e');
     }
   }
@@ -172,7 +167,6 @@ class GpsRealmService {
           ]).firstOrNull;
       return realmData?.toDomain();
     } catch (e) {
-      print("❌ Failed to read vehicle data by ID from Realm: $e");
       throw Exception('Failed to read vehicle data by ID from Realm: $e');
     }
   }
@@ -218,11 +212,7 @@ class GpsRealmService {
           _realm!.add(realmData);
         }
       });
-      print(
-        "💾 Vehicle data updated in Realm for device ID: ${vehicle.deviceId}",
-      );
     } catch (e) {
-      print("❌ Failed to update vehicle data in Realm: $e");
       throw Exception('Failed to update vehicle data in Realm: $e');
     }
   }
@@ -246,9 +236,7 @@ class GpsRealmService {
       _realm!.write(() {
         _realm!.deleteAll<GpsCombinedVehicleRealmData>();
       });
-      print("🗑️ Vehicle data cleared from Realm");
     } catch (e) {
-      print("❌ Failed to clear vehicle data from Realm: $e");
       throw Exception('Failed to clear vehicle data from Realm: $e');
     }
   }
@@ -267,13 +255,11 @@ class GpsRealmService {
       final file = File(realmPath);
       if (await file.exists()) {
         await file.delete();
-        print("🗑️ Entire Realm database cleared");
       }
 
       // Reset initialization flag
       _isInitialized = false;
     } catch (e) {
-      print("❌ Failed to clear entire database: $e");
       throw Exception('Failed to clear entire database: $e');
     }
   }
@@ -297,9 +283,7 @@ class GpsRealmService {
         );
         _realm!.add(realmData);
       });
-      print("💾 Login response saved to Realm");
     } catch (e) {
-      print("❌ Failed to save login response to Realm: $e");
       throw Exception('Failed to save login response to Realm: $e');
     }
   }
@@ -317,7 +301,6 @@ class GpsRealmService {
       }
       return null;
     } catch (e) {
-      print("❌ Failed to read login response from Realm: $e");
       return null;
     }
   }
@@ -337,11 +320,7 @@ class GpsRealmService {
           _realm!.add(extraInfo);
         }
       });
-      print(
-        "💾 Vehicle extra info saved to Realm: ${extraInfoList.length} records",
-      );
     } catch (e) {
-      print("❌ Failed to save vehicle extra info to Realm: $e");
       throw Exception('Failed to save vehicle extra info to Realm: $e');
     }
   }
@@ -352,7 +331,6 @@ class GpsRealmService {
     try {
       return _realm!.all<GpsVehicleExtraInfoRealm>().toList();
     } catch (e) {
-      print("❌ Failed to read vehicle extra info from Realm: $e");
       throw Exception('Failed to read vehicle extra info from Realm: $e');
     }
   }
@@ -382,9 +360,7 @@ class GpsRealmService {
           _realm!.add(realmData);
         }
       });
-      print("💾 Login response updated in Realm");
     } catch (e) {
-      print("❌ Failed to update login response in Realm: $e");
       throw Exception('Failed to update login response in Realm: $e');
     }
   }
@@ -396,9 +372,7 @@ class GpsRealmService {
       _realm!.write(() {
         _realm!.deleteAll<GpsLoginResponseRealmModel>();
       });
-      print("🗑️ Login data cleared from Realm");
     } catch (e) {
-      print("❌ Failed to clear login data from Realm: $e");
       throw Exception('Failed to clear login data from Realm: $e');
     }
   }
@@ -419,9 +393,7 @@ class GpsRealmService {
         );
         _realm!.add(realmData);
       });
-      print("💾 User details saved to Realm");
     } catch (e) {
-      print("❌ Failed to save user details to Realm: $e");
       throw Exception('Failed to save user details to Realm: $e');
     }
   }
@@ -436,7 +408,6 @@ class GpsRealmService {
       }
       return null;
     } catch (e) {
-      print("❌ Failed to read user details from Realm: $e");
       return null;
     }
   }
@@ -469,9 +440,7 @@ class GpsRealmService {
           _realm!.add(realmData);
         }
       });
-      print("💾 User details updated in Realm");
     } catch (e) {
-      print("❌ Failed to update user details in Realm: $e");
       throw Exception('Failed to update user details in Realm: $e');
     }
   }
@@ -483,9 +452,7 @@ class GpsRealmService {
       _realm!.write(() {
         _realm!.deleteAll<GpsUserDetailsRealmModel>();
       });
-      print("🗑️ User details cleared from Realm");
     } catch (e) {
-      print("❌ Failed to clear user details from Realm: $e");
       throw Exception('Failed to clear user details from Realm: $e');
     }
   }
@@ -510,9 +477,7 @@ class GpsRealmService {
           }
         }
       });
-      print("💾 User config saved to Realm");
     } catch (e) {
-      print("❌ Failed to save user config to Realm: $e");
       throw Exception('Failed to save user config to Realm: $e');
     }
   }
@@ -529,7 +494,6 @@ class GpsRealmService {
       }
       return null;
     } catch (e) {
-      print("❌ Failed to read user config from Realm: $e");
       return null;
     }
   }
@@ -552,9 +516,7 @@ class GpsRealmService {
           }
         }
       });
-      print("💾 User config updated in Realm");
     } catch (e) {
-      print("❌ Failed to update user config in Realm: $e");
       throw Exception('Failed to update user config in Realm: $e');
     }
   }
@@ -566,9 +528,7 @@ class GpsRealmService {
       _realm!.write(() {
         _realm!.deleteAll<GpsUserConfigRealmModel>();
       });
-      print("🗑️ User config cleared from Realm");
     } catch (e) {
-      print("❌ Failed to clear user config from Realm: $e");
       throw Exception('Failed to clear user config from Realm: $e');
     }
   }
@@ -593,9 +553,7 @@ class GpsRealmService {
           }
         }
       });
-      print("💾 Device fuel data saved to Realm");
     } catch (e) {
-      print("ℹ️ Device fuel data not saved (non-critical feature): $e");
       // Don't throw exception for non-critical feature
     }
   }
@@ -616,7 +574,6 @@ class GpsRealmService {
       }
       return null;
     } catch (e) {
-      print("ℹ️ Device fuel data not available from Realm (non-critical): $e");
       return null;
     }
   }
@@ -639,9 +596,7 @@ class GpsRealmService {
           }
         }
       });
-      print("💾 Device fuel data updated in Realm");
     } catch (e) {
-      print("❌ Failed to update device fuel data in Realm: $e");
       throw Exception('Failed to update device fuel data in Realm: $e');
     }
   }
@@ -653,9 +608,7 @@ class GpsRealmService {
       _realm!.write(() {
         _realm!.deleteAll<GpsDeviceFuelRealmModel>();
       });
-      print("🗑️ Device fuel data cleared from Realm");
     } catch (e) {
-      print("❌ Failed to clear device fuel data from Realm: $e");
       throw Exception('Failed to clear device fuel data from Realm: $e');
     }
   }
@@ -671,9 +624,7 @@ class GpsRealmService {
         );
         _realm!.add(realmData);
       });
-      print("💾 Mobile config saved to Realm");
     } catch (e) {
-      print("❌ Failed to save mobile config to Realm: $e");
       throw Exception('Failed to save mobile config to Realm: $e');
     }
   }
@@ -684,7 +635,6 @@ class GpsRealmService {
       final realmData = _mobileConfigData!.firstOrNull;
       return realmData?.toDomain();
     } catch (e) {
-      print("❌ Failed to read mobile config from Realm: $e");
       return null;
     }
   }
@@ -702,9 +652,7 @@ class GpsRealmService {
         );
         _realm!.add(realmData);
       });
-      print("💾 User configuration saved to Realm");
     } catch (e) {
-      print("❌ Failed to save user configuration to Realm: $e");
       throw Exception('Failed to save user configuration to Realm: $e');
     }
   }
@@ -715,7 +663,6 @@ class GpsRealmService {
       final realmData = _userConfigurationData!.firstOrNull;
       return realmData?.toDomain();
     } catch (e) {
-      print("❌ Failed to read user configuration from Realm: $e");
       return null;
     }
   }
@@ -734,9 +681,7 @@ class GpsRealmService {
           _realm!.add(realmData);
         }
       });
-      print("💾 Geofence data saved to Realm: ${geofences.length} geofences");
     } catch (e) {
-      print("❌ Failed to save geofence data to Realm: $e");
       throw Exception('Failed to save geofence data to Realm: $e');
     }
   }
@@ -746,7 +691,6 @@ class GpsRealmService {
     try {
       return _geofenceData!.map((realmData) => realmData.toDomain()).toList();
     } catch (e) {
-      print("❌ Failed to read geofence data from Realm: $e");
       throw Exception('Failed to read geofence data from Realm: $e');
     }
   }
@@ -757,9 +701,7 @@ class GpsRealmService {
       _realm!.write(() {
         _realm!.deleteAll<GpsGeofenceRealmModel>();
       });
-      print("🗑️ Geofence data cleared from Realm");
     } catch (e) {
-      print("❌ Failed to clear geofence data from Realm: $e");
       throw Exception('Failed to clear geofence data from Realm: $e');
     }
   }
@@ -810,11 +752,7 @@ class GpsRealmService {
           }
         }
       });
-      print(
-        "💾 Distance report data saved to Realm: ${distanceData.length} devices",
-      );
     } catch (e) {
-      print("❌ Failed to save distance report data to Realm: $e");
       throw Exception('Failed to save distance report data to Realm: $e');
     }
   }
@@ -825,7 +763,6 @@ class GpsRealmService {
     try {
       return _realm!.all<DistanceReportRealmModel>().toList();
     } catch (e) {
-      print("❌ Failed to read distance report data from Realm: $e");
       throw Exception('Failed to read distance report data from Realm: $e');
     }
   }
@@ -840,9 +777,6 @@ class GpsRealmService {
         deviceId,
       ]).toList();
     } catch (e) {
-      print(
-        "❌ Failed to read distance report data by device ID from Realm: $e",
-      );
       throw Exception(
         'Failed to read distance report data by device ID from Realm: $e',
       );
@@ -864,7 +798,6 @@ class GpsRealmService {
       double total = results.fold(0.0, (sum, e) => sum + (e.distance ?? 0));
       return '${total.toStringAsFixed(2)} Km';
     } catch (e) {
-      print("❌ Failed to get monthly distance: $e");
       return '0.0';
     }
   }
@@ -885,7 +818,6 @@ class GpsRealmService {
       double total = results.fold(0.0, (sum, e) => sum + (e.distance ?? 0));
       return '${total.toStringAsFixed(2)} Km';
     } catch (e) {
-      print("❌ Failed to get weekly distance: $e");
       return '0.0';
     }
   }
@@ -919,7 +851,6 @@ class GpsRealmService {
 
       return fullWeek;
     } catch (e) {
-      print("❌ Failed to get week distance list: $e");
       return [];
     }
   }
@@ -931,9 +862,7 @@ class GpsRealmService {
       _realm!.write(() {
         _realm!.deleteAll<DistanceReportRealmModel>();
       });
-      print("🗑️ Distance report data cleared from Realm");
     } catch (e) {
-      print("❌ Failed to clear distance report data from Realm: $e");
       throw Exception('Failed to clear distance report data from Realm: $e');
     }
   }
@@ -944,7 +873,6 @@ class GpsRealmService {
       final date = DateTime.parse(dateString);
       return date.millisecondsSinceEpoch;
     } catch (e) {
-      print("❌ Failed to parse date: $dateString");
       return DateTime.now().millisecondsSinceEpoch;
     }
   }
@@ -958,7 +886,6 @@ class GpsRealmService {
       final loginData = _realm!.all<GpsLoginResponseRealmModel>().firstOrNull;
       return loginData != null && loginData.token.isNotEmpty;
     } catch (e) {
-      print("❌ Failed to check login status: $e");
       return false;
     }
   }
@@ -988,7 +915,6 @@ class GpsRealmService {
         'lastUpdated': DateTime.now().toIso8601String(),
       };
     } catch (e) {
-      print("❌ Failed to get data summary: $e");
       return {};
     }
   }
@@ -1008,9 +934,7 @@ class GpsRealmService {
         _realm!.deleteAll<GpsGeofenceRealmModel>();
         _realm!.deleteAll<DistanceReportRealmModel>();
       });
-      print("🗑️ All GPS data cleared from Realm");
     } catch (e) {
-      print("❌ Failed to clear all data from Realm: $e");
       throw Exception('Failed to clear all data from Realm: $e');
     }
   }
@@ -1106,6 +1030,5 @@ class GpsRealmService {
   void close() {
     _realm?.close();
     _isInitialized = false;
-    print("🔒 Realm instance closed");
   }
 }

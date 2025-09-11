@@ -331,7 +331,6 @@ class AppRoutes {
           final initialSelectedVehicle =
               data['initialSelectedVehicle'] as GpsCombinedVehicleData?;
           return VehicleMapScreen(
-            sbMatricContent: context.appText.sbMatricSchool,
             listViewText: context.appText.listView,
             vehicles: vehicles,
             initialSelectedVehicle: initialSelectedVehicle,
@@ -377,7 +376,8 @@ class AppRoutes {
         path: AppRouteName.myAccount,
         pageBuilder: (BuildContext context, GoRouterState state) {
           final data = state.extra as Map<String, dynamic>? ?? {};
-          final CustomerDataResponse? customerDetail = data["customerDetail"] as CustomerDataResponse?;
+          final CustomerDataResponse? customerDetail =
+              data["customerDetail"] as CustomerDataResponse?;
           final BankDetails? bankDetails = data["bankDetails"] as BankDetails?;
           final KycDoc? kycDoc = data["kycDoc"] as KycDoc?;
 
@@ -558,7 +558,6 @@ class AppRoutes {
         },
       ),
 
-
       GoRoute(
         path: AppRouteName.lpSelectAddressScreen,
         pageBuilder: (BuildContext context, GoRouterState state) {
@@ -568,12 +567,15 @@ class AppRoutes {
           final String location = data['location'] ?? '';
           return buildTransitionPage(
             state: state,
-            child: LPSelectAddressScreen(title: title, address: address, location: location),
-            isForward: true
+            child: LPSelectAddressScreen(
+              title: title,
+              address: address,
+              location: location,
+            ),
+            isForward: true,
           );
         },
       ),
-
     ],
   );
 }
