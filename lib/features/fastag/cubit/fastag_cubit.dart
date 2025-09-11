@@ -4,13 +4,16 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.dart';
 import '../../en-dhan_fuel/model/document_upload_response.dart';
 import '../model/fastag_list_response.dart';
 import '../repository/fastag_repository.dart';
+
 part 'fastag_state.dart';
 
 class FastagCubit extends Cubit<FastagState> {
   final FastagRepository _repository;
+
   FastagCubit(this._repository) : super(FastagState.initial());
 
   /// Upload document
@@ -21,23 +24,33 @@ class FastagCubit extends Cubit<FastagState> {
       final result = await _repository.uploadDocument(file);
 
       if (result is Success<DocumentUploadResponse>) {
-        emit(state.copyWith(documentUploadUIState: UIState.success(result.value)));
+        emit(
+          state.copyWith(documentUploadUIState: UIState.success(result.value)),
+        );
         return result.value;
       } else if (result is Error<DocumentUploadResponse>) {
         emit(state.copyWith(documentUploadUIState: UIState.error(result.type)));
         return null;
       }
     } catch (_) {
-      emit(state.copyWith(documentUploadUIState: UIState.error(GenericError())));
+      emit(
+        state.copyWith(documentUploadUIState: UIState.error(GenericError())),
+      );
     }
     return null;
   }
 
-  void updateFrontRc(List newList) => emit(state.copyWith(frontRcDocuments: newList));
-  void updateBackRc(List newList) => emit(state.copyWith(backRcDocuments: newList));
+  void updateFrontRc(List newList) =>
+      emit(state.copyWith(frontRcDocuments: newList));
 
-  void setFrontRcUploaded(bool value) => emit(state.copyWith(isFrontRcUploaded: value));
-  void setBackRcUploaded(bool value) => emit(state.copyWith(isBackRcUploaded: value));
+  void updateBackRc(List newList) =>
+      emit(state.copyWith(backRcDocuments: newList));
+
+  void setFrontRcUploaded(bool value) =>
+      emit(state.copyWith(isFrontRcUploaded: value));
+
+  void setBackRcUploaded(bool value) =>
+      emit(state.copyWith(isBackRcUploaded: value));
 
   Future<Result<bool>> placeFastagOrder({
     required String referralCode,
@@ -62,7 +75,6 @@ class FastagCubit extends Cubit<FastagState> {
       vehicles: vehicles,
     );
 
-
     if (result is Success) {
       emit(state.copyWith(documentUploadUIState: UIState.success(null)));
     } else if (result is Error<bool>) {
@@ -72,11 +84,16 @@ class FastagCubit extends Cubit<FastagState> {
     return result;
   }
 
-  Future<void> fetchFastagList({String searchTerm = '', bool isInitialLoad = false}) async {
-    emit(state.copyWith(
-      fastagListUIState: UIState.loading(),
-      shouldNavigateToBuyFastag: false, // reset flag
-    ));
+  Future<void> fetchFastagList({
+    String searchTerm = '',
+    bool isInitialLoad = false,
+  }) async {
+    emit(
+      state.copyWith(
+        fastagListUIState: UIState.loading(),
+        shouldNavigateToBuyFastag: false, // reset flag
+      ),
+    );
 
     final result = await _repository.getFastagList(searchTerm: searchTerm);
 
@@ -85,30 +102,53 @@ class FastagCubit extends Cubit<FastagState> {
 
       // Only trigger navigation if this is the first load & list is empty
       if (isInitialLoad && list.isEmpty) {
-        emit(state.copyWith(
-          fastagListUIState: UIState.success(result.value),
-          shouldNavigateToBuyFastag: true,
-        ));
+        emit(
+          state.copyWith(
+            fastagListUIState: UIState.success(result.value),
+            shouldNavigateToBuyFastag: true,
+          ),
+        );
         return;
       } else {
-        emit(state.copyWith(
-          fastagListUIState: UIState.success(result.value),
-        ));
+        emit(state.copyWith(fastagListUIState: UIState.success(result.value)));
       }
     } else if (result is Error<FastagListResponse>) {
       emit(state.copyWith(fastagListUIState: UIState.error(result.type)));
     }
   }
 
-  void resetRcDocuments() {
-    emit(state.copyWith(
-      frontRcDocuments: [],
-      backRcDocuments: [],
-      isFrontRcUploaded: false,
-      isBackRcUploaded: false,
-    ));
+  /// Verify pincode
+  Future<FleetPincodeVerifyModel?> verifyPincode(String pincode) async {
+    emit(state.copyWith(pincodeVerifyUIState: UIState.loading()));
+
+    try {
+      final result = await _repository.verifyPincode(pincode);
+
+      if (result is Success<FleetPincodeVerifyModel>) {
+        emit(
+          state.copyWith(
+            pincodeVerifyUIState: UIState.success(result.value),
+          ),
+        );
+        return result.value;
+      } else if (result is Error<FleetPincodeVerifyModel>) {
+        emit(state.copyWith(pincodeVerifyUIState: UIState.error(result.type)));
+        return null;
+      }
+    } catch (_) {
+      emit(state.copyWith(pincodeVerifyUIState: UIState.error(GenericError())));
+    }
+    return null;
   }
 
-
-
+  void resetRcDocuments() {
+    emit(
+      state.copyWith(
+        frontRcDocuments: [],
+        backRcDocuments: [],
+        isFrontRcUploaded: false,
+        isBackRcUploaded: false,
+      ),
+    );
+  }
 }

@@ -4,7 +4,8 @@ class EnDhanState extends Equatable {
   // UI States
   final UIState<EnDhanKycModel>? uploadKycState;
   final UIState<EnDhanKycCheckModel>? kycCheckState;
-  final UIState<api_models.EnDhanCustomerCreationResponse>? customerCreationState;
+  final UIState<api_models.EnDhanCustomerCreationResponse>?
+  customerCreationState;
   final UIState<api_models.EnDhanStateResponse>? statesState;
   final UIState<api_models.EnDhanDistrictResponse>? districtsState;
   final UIState<api_models.EnDhanZonalResponse>? zonalOfficesState;
@@ -20,8 +21,7 @@ class EnDhanState extends Equatable {
   final UIState<PincodeResponse>? pincodeState;
   final String? aadhaarDocLink;
   final UIState<Map<String, dynamic>>? endhanServerStatusState;
-
-
+  final UIState<FleetPincodeVerifyModel?>? pincodeVerifyUIState;
 
   // KYC Form fields
   final String aadhaar;
@@ -85,14 +85,15 @@ class EnDhanState extends Equatable {
   final String roDistrict;
   final int? selectedStateId;
   final int? selectedDistrictId;
-  final String? selectedDistrictName; // For displaying district name from pincode API
+  final String?
+  selectedDistrictName; // For displaying district name from pincode API
   final int? selectedZonalOfficeId;
   final int? selectedRegionalOfficeId;
   final List<CardFormData> cards;
-  final String? selectedStateName;       // For showing state name in UI
+  final String? selectedStateName; // For showing state name in UI
   final String? selectedZonalOfficeName; // For showing zonal name in UI
   final String? selectedRegionalOfficeName; // Optional, if you want same for RO
-  
+
   // Master Data
   final List<dynamic> states;
   final List<dynamic> districts;
@@ -176,6 +177,7 @@ class EnDhanState extends Equatable {
     this.selectedStateName,
     this.selectedZonalOfficeName,
     this.selectedRegionalOfficeName,
+    this.pincodeVerifyUIState,
   });
 
   /// Factory constructor for initial state with mutable document lists
@@ -192,7 +194,7 @@ class EnDhanState extends Equatable {
       isAddressFrontUploaded: false,
       isAddressBackUploaded: false,
       hasAttemptedSubmit: false,
-      
+
       // Clear all form fields
       aadhaar: '',
       pan: '',
@@ -201,14 +203,14 @@ class EnDhanState extends Equatable {
       identityProofFront: '',
       identityProofBack: '',
       panImage: '',
-      
+
       // Clear all document lists
       panDocuments: [],
       identityFrontDocuments: [],
       identityBackDocuments: [],
       addressFrontDocuments: [],
       addressBackDocuments: [],
-      
+
       // Reset all UI states
       uploadKycState: null,
       kycCheckState: null,
@@ -298,27 +300,30 @@ class EnDhanState extends Equatable {
     List<String>? vehicleTypes,
     String? aadhaarDocLink,
     UIState<Map<String, dynamic>>? endhanServerStatusState,
+    UIState<FleetPincodeVerifyModel?>? pincodeVerifyUIState,
     String? selectedStateName,
     String? selectedZonalOfficeName,
     String? selectedRegionalOfficeName,
-
   }) {
     return EnDhanState(
       uploadKycState: uploadKycState ?? this.uploadKycState,
       kycCheckState: kycCheckState ?? this.kycCheckState,
-      customerCreationState: customerCreationState ?? this.customerCreationState,
+      customerCreationState:
+          customerCreationState ?? this.customerCreationState,
       statesState: statesState ?? this.statesState,
       districtsState: districtsState ?? this.districtsState,
       zonalOfficesState: zonalOfficesState ?? this.zonalOfficesState,
       regionalOfficesState: regionalOfficesState ?? this.regionalOfficesState,
       vehicleTypesState: vehicleTypesState ?? this.vehicleTypesState,
       documentUploadState: documentUploadState ?? this.documentUploadState,
-          cardsState: cardsState ?? this.cardsState,
-    cardBalanceState: cardBalanceState ?? this.cardBalanceState,
-    aadhaarSendOtpState: aadhaarSendOtpState ?? this.aadhaarSendOtpState,
-      aadhaarVerifyOtpState: aadhaarVerifyOtpState ?? this.aadhaarVerifyOtpState,
+      cardsState: cardsState ?? this.cardsState,
+      cardBalanceState: cardBalanceState ?? this.cardBalanceState,
+      aadhaarSendOtpState: aadhaarSendOtpState ?? this.aadhaarSendOtpState,
+      aadhaarVerifyOtpState:
+          aadhaarVerifyOtpState ?? this.aadhaarVerifyOtpState,
       panVerificationState: panVerificationState ?? this.panVerificationState,
-      vehicleVerificationState: vehicleVerificationState ?? this.vehicleVerificationState,
+      vehicleVerificationState:
+          vehicleVerificationState ?? this.vehicleVerificationState,
       pincodeState: pincodeState ?? this.pincodeState,
       aadhaar: aadhaar ?? this.aadhaar,
       pan: pan ?? this.pan,
@@ -333,19 +338,28 @@ class EnDhanState extends Equatable {
       isAadhaarVerified: isAadhaarVerified ?? this.isAadhaarVerified,
       aadhaarRequestId: aadhaarRequestId ?? this.aadhaarRequestId,
       isPanVerified: isPanVerified ?? this.isPanVerified,
-      verifiedVehicleNumbers: verifiedVehicleNumbers ?? this.verifiedVehicleNumbers,
+      verifiedVehicleNumbers:
+          verifiedVehicleNumbers ?? this.verifiedVehicleNumbers,
       isAadhaarValid: isAadhaarValid ?? this.isAadhaarValid,
       isPanValid: isPanValid ?? this.isPanValid,
       isPanImageUploaded: isPanImageUploaded ?? this.isPanImageUploaded,
-      isIdentityFrontUploaded: isIdentityFrontUploaded ?? this.isIdentityFrontUploaded,
-      isIdentityBackUploaded: isIdentityBackUploaded ?? this.isIdentityBackUploaded,
-      isAddressFrontUploaded: isAddressFrontUploaded ?? this.isAddressFrontUploaded,
-      isAddressBackUploaded: isAddressBackUploaded ?? this.isAddressBackUploaded,
+      isIdentityFrontUploaded:
+          isIdentityFrontUploaded ?? this.isIdentityFrontUploaded,
+      isIdentityBackUploaded:
+          isIdentityBackUploaded ?? this.isIdentityBackUploaded,
+      isAddressFrontUploaded:
+          isAddressFrontUploaded ?? this.isAddressFrontUploaded,
+      isAddressBackUploaded:
+          isAddressBackUploaded ?? this.isAddressBackUploaded,
       panDocuments: panDocuments ?? List.from(this.panDocuments),
-      identityFrontDocuments: identityFrontDocuments ?? List.from(this.identityFrontDocuments),
-      identityBackDocuments: identityBackDocuments ?? List.from(this.identityBackDocuments),
-      addressFrontDocuments: addressFrontDocuments ?? List.from(this.addressFrontDocuments),
-      addressBackDocuments: addressBackDocuments ?? List.from(this.addressBackDocuments),
+      identityFrontDocuments:
+          identityFrontDocuments ?? List.from(this.identityFrontDocuments),
+      identityBackDocuments:
+          identityBackDocuments ?? List.from(this.identityBackDocuments),
+      addressFrontDocuments:
+          addressFrontDocuments ?? List.from(this.addressFrontDocuments),
+      addressBackDocuments:
+          addressBackDocuments ?? List.from(this.addressBackDocuments),
       hasAttemptedSubmit: hasAttemptedSubmit ?? this.hasAttemptedSubmit,
       customerName: customerName ?? this.customerName,
       title: title ?? this.title,
@@ -355,7 +369,8 @@ class EnDhanState extends Equatable {
       address2: address2 ?? this.address2,
       cityName: cityName ?? this.cityName,
       pincode: pincode ?? this.pincode,
-      referralCode: referralCode ?? this.referralCode, // Added referral code
+      referralCode: referralCode ?? this.referralCode,
+      // Added referral code
       shippingAddress: shippingAddress ?? this.shippingAddress,
       saveAsShipping: saveAsShipping ?? this.saveAsShipping,
       regionalOffice: regionalOffice ?? this.regionalOffice,
@@ -366,8 +381,10 @@ class EnDhanState extends Equatable {
       selectedStateId: selectedStateId ?? this.selectedStateId,
       selectedDistrictId: selectedDistrictId ?? this.selectedDistrictId,
       selectedDistrictName: selectedDistrictName ?? this.selectedDistrictName,
-      selectedZonalOfficeId: selectedZonalOfficeId ?? this.selectedZonalOfficeId,
-      selectedRegionalOfficeId: selectedRegionalOfficeId ?? this.selectedRegionalOfficeId,
+      selectedZonalOfficeId:
+          selectedZonalOfficeId ?? this.selectedZonalOfficeId,
+      selectedRegionalOfficeId:
+          selectedRegionalOfficeId ?? this.selectedRegionalOfficeId,
       cards: cards ?? this.cards,
       states: states ?? this.states,
       districts: districts ?? this.districts,
@@ -375,22 +392,26 @@ class EnDhanState extends Equatable {
       regionalOffices: regionalOffices ?? this.regionalOffices,
       vehicleTypes: vehicleTypes ?? this.vehicleTypes,
       aadhaarDocLink: aadhaarDocLink ?? this.aadhaarDocLink,
-      endhanServerStatusState: endhanServerStatusState ?? this.endhanServerStatusState,
+      endhanServerStatusState:
+          endhanServerStatusState ?? this.endhanServerStatusState,
       selectedStateName: selectedStateName ?? this.selectedStateName,
-      selectedZonalOfficeName: selectedZonalOfficeName ?? this.selectedZonalOfficeName,
-      selectedRegionalOfficeName: selectedRegionalOfficeName ?? this.selectedRegionalOfficeName,
+      selectedZonalOfficeName:
+          selectedZonalOfficeName ?? this.selectedZonalOfficeName,
+      selectedRegionalOfficeName:
+          selectedRegionalOfficeName ?? this.selectedRegionalOfficeName,
+      pincodeVerifyUIState: pincodeVerifyUIState ?? this.pincodeVerifyUIState,
     );
   }
 
   // Computed property for form validation
   bool get isFormValid {
     return isAadhaarValid &&
-           isPanValid &&
-           isPanImageUploaded &&
-           isIdentityFrontUploaded &&
-           isIdentityBackUploaded &&
-           isAddressFrontUploaded &&
-           isAddressBackUploaded;
+        isPanValid &&
+        isPanImageUploaded &&
+        isIdentityFrontUploaded &&
+        isIdentityBackUploaded &&
+        isAddressFrontUploaded &&
+        isAddressBackUploaded;
   }
 
   @override
@@ -404,9 +425,9 @@ class EnDhanState extends Equatable {
     regionalOfficesState,
     vehicleTypesState,
     documentUploadState,
-          cardsState,
-      cardBalanceState,
-      aadhaarSendOtpState,
+    cardsState,
+    cardBalanceState,
+    aadhaarSendOtpState,
     aadhaarVerifyOtpState,
     panVerificationState,
     vehicleVerificationState,
@@ -468,6 +489,7 @@ class EnDhanState extends Equatable {
     selectedStateName,
     selectedZonalOfficeName,
     selectedRegionalOfficeName,
+    pincodeVerifyUIState,
   ];
 }
 
@@ -476,7 +498,7 @@ class CardFormData extends Equatable {
   final String? vehicleType;
   final String vinNumber;
   final String mobile;
-   final String rcNumber;
+  final String rcNumber;
   final List<Map<String, dynamic>> rcDocuments;
 
   const CardFormData({
@@ -515,4 +537,4 @@ class CardFormData extends Equatable {
     rcNumber,
     rcDocuments,
   ];
-} 
+}

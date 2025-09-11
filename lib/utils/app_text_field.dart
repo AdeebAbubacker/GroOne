@@ -37,37 +37,38 @@ class AppTextField extends StatelessWidget {
   final Iterable<String>? autofillHints;
   final TextInputAction? textInputAction;
   final TextCapitalization textCapitalization;
+
   const AppTextField({
     super.key,
-      this.controller,
-      this.labelTextStyle,
-      this.decoration,
-      this.onTextFieldTap,
-      this.labelText,
-      this.inputTextColor,
-      this.cursorColor,
-      this.inputFormatters,
-      this.textAlign = TextAlign.start,
-      this.validator,
-      this.onFieldSubmitted,
-      this.currentFocus,
-      this.nextFocus,
-      this.keyboardType,
-      this.readOnly,
-      this.showCursor,
-      this.autofocus,
-      this.maxLines,
-      this.obscureText,
-      this.ignorePointers,
-      this.maxLength,
-      this.textInputAction,
-      this.hintText,
-      this.onChanged,
+    this.controller,
+    this.labelTextStyle,
+    this.decoration,
+    this.onTextFieldTap,
+    this.labelText,
+    this.inputTextColor,
+    this.cursorColor,
+    this.inputFormatters,
+    this.textAlign = TextAlign.start,
+    this.validator,
+    this.onFieldSubmitted,
+    this.currentFocus,
+    this.nextFocus,
+    this.keyboardType,
+    this.readOnly,
+    this.showCursor,
+    this.autofocus,
+    this.maxLines,
+    this.obscureText,
+    this.ignorePointers,
+    this.maxLength,
+    this.textInputAction,
+    this.hintText,
+    this.onChanged,
     this.autofillHints,
     this.mandatoryStar = false,
     this.enabled = true,
     this.textCapitalization = TextCapitalization.none,
-    this.enableInteractiveSelection = false,
+    this.enableInteractiveSelection = true,
   });
 
   @override
@@ -78,13 +79,20 @@ class AppTextField extends StatelessWidget {
         if (labelText != null)
           Row(
             children: [
-              Text(" $labelText", style:labelTextStyle ?? AppTextStyle.textFiled),
-              if(mandatoryStar == true)
-              Text(" *", style:labelTextStyle ?? AppTextStyle.textFiled.copyWith(color: Colors.red)),
+              Text(
+                " $labelText",
+                style: labelTextStyle ?? AppTextStyle.textFiled,
+              ),
+              if (mandatoryStar == true)
+                Text(
+                  " *",
+                  style:
+                      labelTextStyle ??
+                      AppTextStyle.textFiled.copyWith(color: Colors.red),
+                ),
             ],
           ),
-        if (labelText != null)
-          6.height,
+        if (labelText != null) 6.height,
         TextFormField(
           key: key,
           enabled: enabled ?? true,
@@ -105,16 +113,23 @@ class AppTextField extends StatelessWidget {
           autofocus: autofocus ?? false,
           showCursor: showCursor,
           ignorePointers: ignorePointers,
-          style: AppTextStyle.textFiled.copyWith(color:  inputTextColor ?? AppColors.primaryTextColor),
+          style: AppTextStyle.textFiled.copyWith(
+            color: inputTextColor ?? AppColors.primaryTextColor,
+          ),
           decoration: decoration ?? commonInputDecoration(hintText: hintText),
           maxLength: maxLength,
           autofillHints: autofillHints,
           textInputAction: textInputAction,
           onChanged: onChanged,
-          onFieldSubmitted: onFieldSubmitted ??
+          onFieldSubmitted:
+              onFieldSubmitted ??
               (value) {
                 try {
-                  fieldFocusChange(context, current: currentFocus!, nextFocus: nextFocus!);
+                  fieldFocusChange(
+                    context,
+                    current: currentFocus!,
+                    nextFocus: nextFocus!,
+                  );
                 } catch (e) {
                   if (kDebugMode) {
                     print(e);

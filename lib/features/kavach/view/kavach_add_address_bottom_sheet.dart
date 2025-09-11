@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -206,6 +207,20 @@ class _KavachAddAddressBottomSheetState
                       });
                     } else if (state is KavachCheckoutAddressError) {
                       ToastMessages.error(message: state.error);
+                    } else if (state is KavachVerifyPincodeLoaded) {
+                      if (state.fleetPincodeVerifyModel.data.isNotEmpty) {
+                        cityController.text =
+                            state.fleetPincodeVerifyModel.data[0].district;
+                        stateController.text =
+                            state.fleetPincodeVerifyModel.data[0].state;
+                      } else {
+                        cityController.text = '';
+                        stateController.text = '';
+                      }
+                    } else if (state is KavachCheckoutAddressError) {
+                      cityController.text = '';
+                      stateController.text = '';
+                      ToastMessages.error(message: state.error);
                     }
                   },
                   child: _buildBody(context: context),
@@ -216,149 +231,184 @@ class _KavachAddAddressBottomSheetState
   }
 
   Widget _buildBody({required BuildContext context}) {
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.7,
-        minHeight: MediaQuery.of(context).size.height * 0.4,
-      ),
-      child: Form(
-        key: formKey,
-        child: SingleChildScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              AppTextField(
-                enableInteractiveSelection: true,
-                mandatoryStar: true,
-                controller: addressNameController,
-                labelText: context.appText.addressName,
-                maxLength: 50,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r'[a-zA-Z0-9\s,./#-]'),
-                  ),
-                ],
-                validator:
-                    (value) => Validator.fieldRequired(
-                      value,
-                      fieldName: context.appText.addressName,
+    return BlocListener<
+      KavachCheckoutAddAddressBloc,
+      KavachCheckoutAddAddressState
+    >(
+      listener: (context, state) {
+        if (state is KavachVerifyPincodeLoaded) {
+          if (state.fleetPincodeVerifyModel.data.isNotEmpty) {
+            cityController.text =
+                state.fleetPincodeVerifyModel.data[0].district;
+            stateController.text = state.fleetPincodeVerifyModel.data[0].state;
+          } else {
+            cityController.text = '';
+            stateController.text = '';
+          }
+        } else if (state is KavachCheckoutAddressError) {
+          cityController.text = '';
+          stateController.text = '';
+          ToastMessages.error(message: state.error);
+        }
+      },
+      child: Container(
+        constraints: BoxConstraints(
+          maxHeight: MediaQuery.of(context).size.height * 0.7,
+          minHeight: MediaQuery.of(context).size.height * 0.4,
+        ),
+        child: Form(
+          key: formKey,
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                AppTextField(
+                  enableInteractiveSelection: true,
+                  mandatoryStar: true,
+                  controller: addressNameController,
+                  labelText: context.appText.addressName,
+                  maxLength: 50,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9\s,./#-]'),
                     ),
-              ),
-              10.height,
-              AppTextField(
-                enableInteractiveSelection: true,
-                mandatoryStar: true,
-                controller: addressController,
-                labelText: context.appText.address,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                    RegExp(r'[a-zA-Z0-9\s,./#-]'),
-                  ),
-                ],
-                maxLength: 200,
-                validator:
-                    (value) => Validator.fieldRequired(
-                      value,
-                      fieldName: context.appText.address,
-                    ),
-              ),
-              10.height,
-              AppTextField(
-                enableInteractiveSelection: true,
-                mandatoryStar: true,
-                controller: cityController,
-                labelText: context.appText.city,
-                maxLength: 20,
-                validator:
-                    (value) => Validator.alphabetsOnly(
-                      value,
-                      fieldName: context.appText.city,
-                    ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
-                ],
-              ),
-              10.height,
-              AppTextField(
-                enableInteractiveSelection: true,
-                mandatoryStar: true,
-                controller: stateController,
-                labelText: context.appText.state,
-                maxLength: 20,
-                validator:
-                    (value) => Validator.alphabetsOnly(
-                      value,
-                      fieldName: context.appText.state,
-                    ),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
-                ],
-              ),
-              10.height,
-              AppTextField(
-                enableInteractiveSelection: true,
-                mandatoryStar: true,
-                controller: pinCodeController,
-                labelText: context.appText.pincode,
-                maxLength: 6,
-                keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                validator: (value) => Validator.pincode(value),
-              ),
-              10.height,
-              AppTextField(
-                enableInteractiveSelection: true,
-                controller: gstNoController,
-                maxLength: 15,
-                labelText:
-                    '${context.appText.gstKavach} (${context.appText.optional})',
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return null;
-                  }
-                  // final gstRegEx = RegExp(r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$');
-                  // if (!gstRegEx.hasMatch(value.trim().toUpperCase())) {
-                  //   return context.appText.enterValidGstin;
-                  // }
-                  return null;
-                },
-              ),
-              15.height,
-              AppButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryColor,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(commonButtonRadius),
-                  ),
+                  ],
+                  validator:
+                      (value) => Validator.fieldRequired(
+                        value,
+                        fieldName: context.appText.addressName,
+                      ),
                 ),
-                onPressed: useMyCurrentLocation,
-                title: context.appText.useMyCurrentLocation,
-              ),
-              15.height,
-              // Add extra padding at bottom to ensure buttons are visible
-              20.height,
-              Row(
-                children: [
-                  AppButton(
-                    onPressed: () => context.pop(),
-                    title: context.appText.cancel,
-                    style: AppButtonStyle.outline,
-                  ).expand(),
-                  20.width,
-                  AppButton(
-                    onPressed: _submitAddress,
-                    title: context.appText.submit,
-                    style: AppButtonStyle.primary,
-                  ).expand(),
-                ],
-              ),
-              // Add extra padding at bottom for keyboard
-              20.height,
-            ],
+                10.height,
+                AppTextField(
+                  enableInteractiveSelection: true,
+                  mandatoryStar: true,
+                  controller: addressController,
+                  labelText: context.appText.address,
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                      RegExp(r'[a-zA-Z0-9\s,./#-]'),
+                    ),
+                  ],
+                  maxLength: 200,
+                  validator:
+                      (value) => Validator.fieldRequired(
+                        value,
+                        fieldName: context.appText.address,
+                      ),
+                ),
+
+                10.height,
+                AppTextField(
+                  enableInteractiveSelection: true,
+                  mandatoryStar: true,
+                  controller: pinCodeController,
+                  labelText: context.appText.pincode,
+                  maxLength: 6,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    if (value.length == 6) {
+                      context.read<KavachCheckoutAddAddressBloc>().add(
+                        VerifyPincode(value.toString()),
+                      );
+                    }
+                  },
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  validator: (value) => Validator.pincode(value),
+                ),
+                10.height,
+                AppTextField(
+                  enableInteractiveSelection: true,
+                  mandatoryStar: true,
+                  controller: cityController,
+                  labelText: context.appText.city,
+                  maxLength: 20,
+                  validator:
+                      (value) => Validator.alphabetsOnly(
+                        value,
+                        fieldName: context.appText.city,
+                      ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  ],
+                ),
+                10.height,
+                AppTextField(
+                  enableInteractiveSelection: true,
+                  mandatoryStar: true,
+                  controller: stateController,
+                  labelText: context.appText.state,
+                  maxLength: 20,
+                  validator:
+                      (value) => Validator.alphabetsOnly(
+                        value,
+                        fieldName: context.appText.state,
+                      ),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[a-zA-Z ]')),
+                  ],
+                ),
+                10.height,
+                AppTextField(
+                  enableInteractiveSelection: true,
+                  controller: gstNoController,
+                  maxLength: 15,
+                  labelText:
+                      '${context.appText.gstKavach} (${context.appText.optional})',
+                  validator: (value) {
+                    // if (value == null ||
+                    //     (value.trim().isEmpty || isValidGSTIN(value))) {
+                    //   return value;
+                    // }
+                    if (value.toString().isEmpty) {
+                      return null;
+                    } else {
+                      if (!KavachHelper.isValidGSTIN(
+                        value.toString().trim().toUpperCase(),
+                      )) {
+                        return context.appText.enterValidGstin;
+                      }
+                    }
+                    return null;
+                  },
+                ),
+                15.height,
+                AppButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.primaryColor,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(commonButtonRadius),
+                    ),
+                  ),
+                  onPressed: useMyCurrentLocation,
+                  title: context.appText.useMyCurrentLocation,
+                ),
+                15.height,
+                // Add extra padding at bottom to ensure buttons are visible
+                20.height,
+                Row(
+                  children: [
+                    AppButton(
+                      onPressed: () => context.pop(),
+                      title: context.appText.cancel,
+                      style: AppButtonStyle.outline,
+                    ).expand(),
+                    20.width,
+                    AppButton(
+                      onPressed: _submitAddress,
+                      title: context.appText.submit,
+                      style: AppButtonStyle.primary,
+                    ).expand(),
+                  ],
+                ),
+                // Add extra padding at bottom for keyboard
+                20.height,
+              ],
+            ),
           ),
         ),
       ),

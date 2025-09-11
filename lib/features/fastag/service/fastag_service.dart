@@ -1,10 +1,11 @@
+import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.dart';
+
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart';
 import '../../../data/network/api_urls.dart';
 import '../../../data/storage/secured_shared_preferences.dart';
 import '../../../utils/app_string.dart';
 import '../../en-dhan_fuel/model/document_upload_response.dart';
-
 
 import 'dart:io';
 
@@ -29,7 +30,12 @@ class FastagService {
       'documentType': 'fastag_document',
     };
 
-    final result = await _apiService.multipart(url, file, pathName: "file", fields: fields);
+    final result = await _apiService.multipart(
+      url,
+      file,
+      pathName: "file",
+      fields: fields,
+    );
 
     if (result is Success) {
       final data = DocumentUploadResponse.fromJson(result.value);
@@ -52,8 +58,9 @@ class FastagService {
     required List<Map<String, String>> vehicles,
   }) async {
     try {
-
-      final customerId   = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      final customerId = await _secureSharedPrefs.get(
+        AppString.sessionKey.userId,
+      );
       if (customerId == null || customerId.isEmpty) {
         return Error(ErrorWithMessage(message: 'Customer ID not found'));
       }
@@ -75,11 +82,10 @@ class FastagService {
         body: body,
       );
 
-
       if (response is Success) {
         return await _apiService.getResponseStatus(
           response.value,
-              (data) => data['success'] == true,
+          (data) => data['success'] == true,
         );
       } else {
         return Error(response is Error ? response.type : GenericError());
@@ -115,9 +121,13 @@ class FastagService {
   //   }
   // }
 
-  Future<Result<FastagListResponse>> getFastagList({String searchTerm = ''}) async {
+  Future<Result<FastagListResponse>> getFastagList({
+    String searchTerm = '',
+  }) async {
     try {
-      final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      final customerId = await _secureSharedPrefs.get(
+        AppString.sessionKey.userId,
+      );
       if (customerId == null || customerId.isEmpty) {
         return Error(ErrorWithMessage(message: 'Customer ID not found'));
       }
@@ -134,12 +144,17 @@ class FastagService {
         final json = response.value;
 
         // If API says success = false but no data, treat it as empty list Success
-        if (json is Map && json['success'] == false && (json['data'] == null || json['data'] == '')) {
-          return Success(FastagListResponse(
-            success: false,
-            message: json['message'] ?? '',
-            data: [], totalCount: 0,
-          ));
+        if (json is Map &&
+            json['success'] == false &&
+            (json['data'] == null || json['data'] == '')) {
+          return Success(
+            FastagListResponse(
+              success: false,
+              message: json['message'] ?? '',
+              data: [],
+              totalCount: 0,
+            ),
+          );
         }
 
         final data = FastagListResponse.fromJson(json);
@@ -152,4 +167,31 @@ class FastagService {
     }
   }
 
+  Future<Result<FleetPincodeVerifyModel>> verifyPincode({
+    String pincode = '',
+  }) async {
+    try {
+      final customerId = await _secureSharedPrefs.get(
+        AppString.sessionKey.userId,
+      );
+      if (customerId == null || customerId.isEmpty) {
+        return Error(ErrorWithMessage(message: 'Customer ID not found'));
+      }
+
+      String url = ApiUrls.verifyPincode + pincode;
+
+      final response = await _apiService.get(url);
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+          (data) => FleetPincodeVerifyModel.fromJson(data),
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 }
