@@ -509,14 +509,14 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
       builder: (context, state) {
         final isLoading = state.uploadDamageUIState?.status == Status.LOADING;
         return UploadAttachmentFiles(
-          isdocSupportWithoutPdf: false,
-          title: context.appText.productPhoto,
-          isMandatory: true,
-          multiFilesList: multiFilesList,
-          isMultipleSelectionFile: false,
-          isSingleFile: false,
-          isLoading: isLoading,
-          thenUploadFileToSever: ()  {
+            isdocSupportWithoutPdf: false,
+            title: context.appText.productPhoto,
+            isMandatory: true,
+            multiFilesList: multiFilesList,
+            isMultipleSelectionFile: true,
+            isSingleFile: true,
+            isLoading: isLoading,
+            thenUploadFileToSever: ()  {
             if (multiFilesList.isNotEmpty) {
               cubit.uploadDamageFile(File(multiFilesList.length > 1 ? multiFilesList.last['path'] : multiFilesList.first['path']));
             } else {

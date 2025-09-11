@@ -1322,7 +1322,8 @@
   "forAnyQueriesContactSupportTeam": "For any further queries, please contact the support team.",
   "onAnotherTrip" : "On Another Trip",
 
-  "self":"Self"
+  "self":"Self",
+  "viewDocument":"View Document"
 
 
 }

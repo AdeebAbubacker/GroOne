@@ -9,9 +9,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_ty
 
 class LoadFilterCubit extends BaseCubit<LoadFilterState> {
   final VpLoadRepository _vpLoadRepository;
-  LoadFilterCubit(this._vpLoadRepository) : super(LoadFilterState());
 
   LoadFilterCubit(this._vpLoadRepository) : super(LoadFilterState());
+
 
   // set vehicle type state
   void _setVehicleTypeState(UIState<List<TruckTypeModel>>? uiState) {
@@ -32,19 +32,17 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
   }
 
   // set lanes  state
-  void _setLanesState(UIState<TruckPrefLaneModel>? uiState) {
-    emit(state.copyWith(truckTypeLaneUIState: uiState));
+
+
   void _setLanesState(UIState<TruckPrefLaneModel>? uiState, int? currentPage) {
-    emit(state.copyWith(truckTypeLaneUIState: uiState,currentPage: currentPage));
+    emit(state.copyWith(
+        truckTypeLaneUIState: uiState, currentPage: currentPage));
   }
 
   // get prefer lanes
-  Future<void> getPreferLens() async {
-    _setLanesState(UIState.loading());
-    Result result = await _vpLoadRepository.getPrefTruckLaneData("", page: 1);
 
-  Future<void> getPreferLens( {bool isInit=true,String? query}) async {
 
+  Future<void> getPreferLens({bool isInit = true, String? query}) async {
     if (isInit) {
       _setLanesState(UIState.loading(), 1);
     }
@@ -119,14 +117,12 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
 
   /// select prefer lanes
 
-  void selectPreferLanes(Item? selectedLanes){
-
-    if(selectedLanes!=null){
+  void selectPreferLanes(Item? selectedLanes) {
+    if (selectedLanes != null) {
       emit(state.copyWith(
-        selectedPrefLanes: selectedLanes
+          selectedPrefLanes: selectedLanes
       ));
     }
-
   }
 
 
@@ -149,3 +145,4 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
     );
   }
 }
+

@@ -44,6 +44,8 @@ class AppRouteName {
   /// assign Driver
   static const String loadDetailsScreen = "/loadDetailsScreen";
   static const String tripScheduleScreen = "/tripScheduleScreen";
+  static const String viewFileWidget = "/viewFileWidget";
+
 
   /// Driver
   static const String driverHome = "/driverHome";
@@ -74,4 +76,6 @@ class AppRouteName {
 
   static const String termsAndConditions = '/termsAndConditions';
   static const String privacyPolicy = '/privacyPolicy';
+
+
 }

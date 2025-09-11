@@ -625,6 +625,7 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
     required VoidCallback onEdit,
     required VoidCallback onDelete,
   }) {
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(

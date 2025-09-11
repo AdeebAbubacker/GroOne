@@ -133,7 +133,6 @@ class _MasterScreenState extends State<MasterScreen>
     addressSearchController.dispose();
     driverSearchController.dispose();
 
-
     vpCreationCubit.clearSelectedLanes();
   });
 

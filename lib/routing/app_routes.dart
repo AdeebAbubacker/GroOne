@@ -43,6 +43,8 @@ import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_d
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide Customer;
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_pdf_viewer.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/routing/transition_page.dart';
@@ -298,6 +300,15 @@ class AppRoutes {
           final data = state.extra! as Map<String, dynamic>;
           final String loadId = data["loadId"].toString();
           return VpLoadDetailsScreen(loadId: loadId);
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.viewFileWidget,
+        builder: (BuildContext context, GoRouterState state) {
+          final data = state.extra! as Map<String, dynamic>;
+          final String url = data["url"].toString();
+          final String originalFileName = data["originalFileName"].toString();
+          return PdfViewer(url: url, originalFileName: originalFileName,);
         },
       ),
       GoRoute(
