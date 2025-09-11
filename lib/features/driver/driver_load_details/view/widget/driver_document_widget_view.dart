@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_view_others_document.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/preview_document_widget.dart';
@@ -89,7 +88,7 @@ class DriverDocumentWidgetView extends StatelessWidget {
             pickFile(context);
           },
           child: DottedBorder(
-            color: Colors.black26,
+            color: AppColors.deActiveButtonColor,
             strokeWidth: 1,
             radius: const Radius.circular(commonTexFieldRadius),
             borderType: BorderType.RRect,
