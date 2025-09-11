@@ -94,6 +94,9 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     _loadDataByTab(index: widget.initialTabIndex); // load initial tab
     _getFilterDataEntity();
     _fetchMoreLoads();
+
+
+
   }
 
   @override
@@ -102,7 +105,16 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     searchController.dispose();
     _tabController.dispose();
     _vpLoadSub!.cancel();
+    _clearFilter();
     super.dispose();
+  }
+
+
+  void _clearFilter(){
+    loadFilterCubit.setIsFilterApplied(value: false);
+    commodityID=null;
+    leneId=null;
+    truckTypeId=null;
   }
 
 
@@ -377,13 +389,10 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text("Filter Applied"),
+                  Text(context.appText.filterApplied),
                   GestureDetector(
                     onTap: () {
-                       loadFilterCubit.setIsFilterApplied(value: false);
-                       commodityID=null;
-                       leneId=null;
-                       truckTypeId=null;
+                      _clearFilter();
                        _onPullToRefresh();
                     },
                     child: Icon(

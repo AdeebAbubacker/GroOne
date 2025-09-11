@@ -230,6 +230,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   labelText: context.appText.vehicleType,
                   hintText: context.appText.selectVehicleType,
                   fetchVehicleTypes: () async {
+
                     await context.read<LoadFilterCubit>().getAllVehicleType();
                     return context
                             .read<LoadFilterCubit>()
