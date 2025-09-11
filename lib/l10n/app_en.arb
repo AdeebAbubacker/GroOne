@@ -1318,12 +1318,32 @@
   "kycInProgressText": "KYC InProgress",
   "lanes":"Lanes",
   "supportTicket":"Support Ticket",
+  "showGeofenceOnMap":"Show Geofence on Map",
+  "addMoreKavach":"Add More Kavach",
+  "vehicleRegNo":"Vehicle Reg No",
+  "noResultsFound":"No results found",
+  "vehicleVerify":"Verify",
+  "underIssuance":"Under Issuance",
+  "defaultAppSettings":"Default",
+  "supportTicket":"Support Ticket",
   "ticket":"Ticket",
   "forAnyQueriesContactSupportTeam": "For any further queries, please contact the support team.",
   "onAnotherTrip" : "On Another Trip",
 
   "self":"Self",
   "viewDocument":"View Document"
+  "self":"Self",
+  "stops":"STOPS",
+  "trips":"TRIPS",
+  "daily":"DAILY",
+  "dailyKm":"DAILY KM",
+  "reachability":"REACHABILITY",
+  "safetyCount":"Safety count",
+  "distance":"Distance",
+  "avgSpeed":"Avg. Speed",
+  "engineOn":"Engine ON",
+  "idleTime":"Idle Time",
+  "colorCode":"Color Code"
 
 
 }

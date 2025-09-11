@@ -322,11 +322,10 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               if (status == Status.SUCCESS) {
                 LpBottomNavigation.selectedIndexNotifier.value = 0;
                 disposeFunction();
-                // context.pushReplacement(AppRouteName.chooseLanguage);
-                context.pushReplacement(
-                  AppRouteName.login,
-                  extra: {"showBackButton": false},
-                );
+                context.go(
+                AppRouteName.login,
+                extra: {"showBackButton": false},
+              );
               }
 
               if (status == Status.ERROR) {

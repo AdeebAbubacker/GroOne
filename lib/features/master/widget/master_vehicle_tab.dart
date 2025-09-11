@@ -93,6 +93,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
     await vpCreationCubit.fetchTruckType();
     await lpHomeCubit.fetchLoadWeight();
   });
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -753,7 +754,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                   truckNo: cleanVehicleNumber(
                     truckNumberController.text.trim(),
                   ),
-                  tonnage: '${selectedWeightDropDownValue}T',
+                  tonnage: selectedWeightDropDownValue,
                   truckTypeId: selectedTruckType?.id ?? 1,
                   modelNumber: truckMakeModelController.text.trim(),
                   ownerName: owenerNameController.text,
@@ -774,7 +775,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       truckNo: cleanVehicleNumber(
                         truckNumberController.text.trim(),
                       ),
-                      tonnage: '${selectedWeightDropDownValue}T',
+                      tonnage: selectedWeightDropDownValue,
                       truckTypeId: selectedTruckType?.id ?? 1,
                       fcExpiryDate: convertToYMD(fcExpiryDate.toString()),
                       insuranceValidityDate: convertToYMD(
@@ -898,7 +899,7 @@ Widget buildVehicleVerificationFieldWidget({
         controller: vehicleNoController,
         mandatoryStar: true,
         maxLength: 15,
-        labelText: "Vehicle Reg No",
+        labelText: context.appText.vehicleRegNo,
 
         textCapitalization: TextCapitalization.characters,
         validator:
@@ -963,7 +964,7 @@ Widget buildVehicleVerificationFieldWidget({
                     },
 
                     child: Text(
-                      "Verify",
+                      context.appText.verify,
                       style: AppTextStyle.body3.copyWith(
                         color: AppColors.primaryColor,
                         decoration: TextDecoration.underline,
@@ -1128,7 +1129,7 @@ class AddVehicleDialog {
                       child: buildReadOnlyField(
                         context.appText.registrationDate,
                         (registrationDate?.isEmpty ?? true)
-                            ? 'Registartion Date'
+                            ? context.appText.registrationDate
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
@@ -1183,6 +1184,7 @@ class AddVehicleDialog {
                         );
 
                         return SearchableDropdown(
+                          noResultsFoundText: context.appText.noResultsFound,
                           hintText: context.appText.truckType,
                           items: truckTypeLabels,
                           selectedItem:
@@ -1207,6 +1209,7 @@ class AddVehicleDialog {
                             weights.map((e) => '${e.value} Ton').toList();
 
                         return SearchableDropdown(
+                          noResultsFoundText: context.appText.noResultsFound,
                           hintText: context.appText.capacity,
                           items: weightLabels,
                           selectedItem: selectedWeightDropDownValue,
@@ -1251,7 +1254,7 @@ class AddVehicleDialog {
                       child: buildReadOnlyField(
                         context.appText.insuranceValidityDate,
                         (insuranceValidityDate?.isEmpty ?? true)
-                            ? 'Insurance Validity Date'
+                            ? context.appText.insuranceValidityDate
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         textStyle:
@@ -1304,7 +1307,7 @@ class AddVehicleDialog {
                           },
                           child: buildReadOnlyField(
                             context.appText.fcExpiryDate,
-                            fcExpiryDate ?? 'FC Expiry Date',
+                            fcExpiryDate ?? context.appText.fcExpiryDate,
                             fillColor: Colors.white,
                             textStyle:
                                 (fcExpiryDate ?? "").isEmpty
@@ -1343,7 +1346,7 @@ class AddVehicleDialog {
                       child: buildReadOnlyField(
                         context.appText.pucExpiryDate,
                         (pucExpiryDate?.isEmpty ?? true)
-                            ? 'PUC Expiry Date'
+                            ? context.appText.pucExpiryDate
                             : pucExpiryDate!,
                         fillColor: Colors.white,
                         textStyle:

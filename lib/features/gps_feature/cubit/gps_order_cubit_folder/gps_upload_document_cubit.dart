@@ -328,13 +328,13 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     }
 
     // Validate required fields
-    if (state.aadhaar.isEmpty) {
-      return;
-    }
-
-    if (!state.isAadhaarVerified) {
-      return;
-    }
+    // if (state.aadhaar.isEmpty) {
+    //   return;
+    // }
+    //
+    // if (!state.isAadhaarVerified) {
+    //   return;
+    // }
     _setUploadKycUIState(UIState.loading());
 
     try {

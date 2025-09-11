@@ -49,7 +49,12 @@ class AppRouteName {
 
   /// Driver
   static const String driverHome = "/driverHome";
-
+  static const String driverProfile= "/driverProfile";
+  static const String driverLoadDetails = "/driverLoadDetailsScreen";
+  static const String driverPodDispatch = "/driverPodDispatchScreen";
+  static const String driverDamageScreen = "/driverDamageScreen";
+  static const String driverSettlementsScreen = "/driverSettlementsScreen";
+  static const String driverViewOtherDocs = "/driverviewOtherDocsScreen";
   static const String vehicleMap = '/vehicle-map';
 
   static const String fastagList = '/fastagList';

@@ -16,6 +16,7 @@ class GpsModelWidget extends StatelessWidget {
   final int quantity;
   final int availableStock;
   final Function(int)? onQuantityChanged;
+
   const GpsModelWidget({
     super.key,
     required this.product,
@@ -34,16 +35,21 @@ class GpsModelWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          CachedNetworkImage(
-            imageUrl: product.fileKey,
-            width: 100,
-            height: 100,
-            fit: BoxFit.cover,
-            errorWidget: (context, url, error) {
-              return Image.asset(AppImage.png.gpsNewProduct, width: 100);
-            },
-          ),
-
+          product.fileKey.isNotEmpty
+              ? CachedNetworkImage(
+                imageUrl: product.fileKey,
+                width: 100,
+                height: 100,
+                fit: BoxFit.cover,
+                // errorWidget: (context, url, error) {
+                //   return Image.asset(AppImage.png.gpsNewProduct, width: 100);
+                // },
+              )
+              : SizedBox(
+                height: 100,
+                width: 100,
+                child: Image.asset(AppImage.png.gpsNewProduct, width: 100),
+              ),
           10.width,
 
           Column(
@@ -70,9 +76,7 @@ class GpsModelWidget extends StatelessWidget {
                   ).expand(),
                   // Conditional rendering based on availableStock
                   if (availableStock == 0)
-                    Text(context.appText.outOfStock,
-                      style: AppTextStyle.h5,
-                    )
+                    Text(context.appText.outOfStock, style: AppTextStyle.h5)
                   else
                     ProductCounter(
                       count: quantity,

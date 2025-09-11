@@ -166,13 +166,13 @@ class VehicleListView extends StatelessWidget {
                               context.read<VehicleListCubit>().toggleMapType(),
                       onReachability: () {
                         // Navigate to GPS reports screen with reachability pre-selected
-                        context.push(
-                          AppRouteName.gpsReports,
-                          extra: {
-                            'preSelectedReportType': 'reachability',
-                            'preSelectedVehicle': null,
-                          },
-                        );
+                        // context.push(
+                        //   AppRouteName.gpsReports,
+                        //   extra: {
+                        //     'preSelectedReportType': 'reachability',
+                        //     'preSelectedVehicle': null,
+                        //   },
+                        // );
                       },
                       onNearbyVehicles: () {
                         ScaffoldMessenger.of(context).showSnackBar(
@@ -269,28 +269,28 @@ class VehicleListView extends StatelessWidget {
                 _buildStatusTab(
                   context,
                   VehicleTabType.Total,
-                  'Total (${state.statusCount.total})',
+                  '${context.appText.total} (${state.statusCount.total})',
                   AppConstants.primaryColor,
                   state.selectedTab == VehicleTabType.Total,
                 ),
                 _buildStatusTab(
                   context,
                   VehicleTabType.IgnitionON,
-                  'Ignition ON (${state.statusCount.ignitionOn})',
+                  '${context.appText.ignitionOn} (${state.statusCount.ignitionOn})',
                   AppConstants.primaryColor,
                   state.selectedTab == VehicleTabType.IgnitionON,
                 ),
                 _buildStatusTab(
                   context,
                   VehicleTabType.IgnitionOFF,
-                  'Ignition OFF (${state.statusCount.ignitionOff})',
+                  '${context.appText.ignitionOff} (${state.statusCount.ignitionOff})',
                   AppConstants.errorColor,
                   state.selectedTab == VehicleTabType.IgnitionOFF,
                 ),
                 _buildStatusTab(
                   context,
                   VehicleTabType.Idle,
-                  'Idle (${state.statusCount.idle})',
+                  '${context.appText.idle} (${state.statusCount.idle})',
                   AppConstants.successColor,
                   state.selectedTab == VehicleTabType.Idle,
                 ),
@@ -506,13 +506,13 @@ class VehicleListView extends StatelessWidget {
           isExpired
               ? null
               : () {
-                context.push(
-                  AppRouteName.vehicleMap,
-                  extra: {
-                    'vehicles': [vehicle],
-                    'initialSelectedVehicle': vehicle,
-                  },
-                );
+                // context.push(
+                //   AppRouteName.vehicleMap,
+                //   extra: {
+                //     'vehicles': [vehicle],
+                //     'initialSelectedVehicle': vehicle,
+                //   },
+                // );
               },
       child: Stack(
         children: [

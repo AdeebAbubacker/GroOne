@@ -54,7 +54,6 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     super.dispose();
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -156,7 +155,10 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
         children: [
           Row(
             children: [
-              Text('${context.appText.vehicle} ${index + 1}', style: AppTextStyle.h4),
+              Text(
+                '${context.appText.vehicle} ${index + 1}',
+                style: AppTextStyle.h4,
+              ),
               const Spacer(),
               if (_vehicleControllers.length > 1)
                 GestureDetector(
@@ -178,10 +180,12 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
             isVerified: _vehicleVerifiedList[index],
             isVehicleAlreadySelected: false,
             onVehicleSelected: (selectedIndex, selectedVehicle) {
-              final isDuplicate = _vehicleControllers.any((controller) =>
-              controller.text.trim().toLowerCase() ==
-                  selectedVehicle.trim().toLowerCase() &&
-                  controller != _vehicleControllers[selectedIndex]);
+              final isDuplicate = _vehicleControllers.any(
+                (controller) =>
+                    controller.text.trim().toLowerCase() ==
+                        selectedVehicle.trim().toLowerCase() &&
+                    controller != _vehicleControllers[selectedIndex],
+              );
 
               if (isDuplicate) {
                 ToastMessages.alert(
@@ -194,7 +198,9 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                 _vehicleControllers[index].text = selectedVehicle;
                 _vehicleVerifiedList[index] = true;
               });
-              ToastMessages.success(message: context.appText.vehicleSelectedSuccess);
+              ToastMessages.success(
+                message: context.appText.vehicleSelectedSuccess,
+              );
             },
             onVehicleVerified: (verifiedVehicle) {
               setState(() {
@@ -203,7 +209,10 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
             },
           ),
           const SizedBox(height: 16),
-          Text(context.appText.vehicleRCOptional, style: AppTextStyle.textFiled),
+          Text(
+            context.appText.vehicleRCOptional,
+            style: AppTextStyle.textFiled,
+          ),
           const SizedBox(height: 8),
           Row(
             children: [
@@ -239,12 +248,15 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                                   cubit.setFrontRcUploaded(true);
                                   if (!context.mounted) return;
                                   ToastMessages.success(
-                                    message: context.appText.fileUploadSuccessfully,
+                                    message:
+                                        context.appText.fileUploadSuccessfully,
                                   );
                                 } else {
                                   cubit.setFrontRcUploaded(false);
                                   if (!context.mounted) return;
-                                  ToastMessages.alert(message: context.appText.uploadFailed,);
+                                  ToastMessages.alert(
+                                    message: context.appText.uploadFailed,
+                                  );
                                 }
                               }
                             },
@@ -276,12 +288,15 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                                   cubit.setBackRcUploaded(true);
                                   if (!context.mounted) return;
                                   ToastMessages.success(
-                                    message: context.appText.fileUploadSuccessfully,
+                                    message:
+                                        context.appText.fileUploadSuccessfully,
                                   );
                                 } else {
                                   cubit.setBackRcUploaded(false);
                                   if (!context.mounted) return;
-                                  ToastMessages.alert(message: context.appText.uploadFailed);
+                                  ToastMessages.alert(
+                                    message: context.appText.uploadFailed,
+                                  );
                                 }
                               }
                             },
@@ -303,7 +318,9 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     for (int i = 0; i < _vehicleControllers.length; i++) {
       if (_vehicleControllers[i].text.trim().isEmpty ||
           !_vehicleVerifiedList[i]) {
-        ToastMessages.alert(message: '${context.appText.pleaseVerifyVehicle} ${i + 1}');
+        ToastMessages.alert(
+          message: '${context.appText.pleaseVerifyVehicle} ${i + 1}',
+        );
         return;
       }
     }
@@ -374,7 +391,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
       "contactNo": contactNo,
       "vehicles": vehiclesData.map((v) => v['vehicleNo']).join(","),
     };
-    analyticsHelper.logEvent(AnalyticEventName.FLEET_ORDER_CREATION, request,);
+    analyticsHelper.logEvent(AnalyticEventName.FLEET_ORDER_CREATION, request);
 
     final result = await cubit.placeFastagOrder(
       referralCode: _referralCodeController.text.trim(),
@@ -400,7 +417,6 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
       // _showFailurePopup(errorMessage);
       ToastMessages.error(message: errorMessage);
     }
-
   }
 
   void _showSuccessPopup(BuildContext context) {
@@ -473,6 +489,7 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
 
                 // Address Name
                 AppTextField(
+                  enableInteractiveSelection: true,
                   mandatoryStar: true,
                   controller: _addressNameController,
                   labelText: context.appText.addressName,
@@ -492,6 +509,7 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
 
                 // Address
                 AppTextField(
+                  enableInteractiveSelection: true,
                   mandatoryStar: true,
                   controller: _addressController,
                   labelText: context.appText.address,
@@ -511,6 +529,7 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
 
                 // City
                 AppTextField(
+                  enableInteractiveSelection: true,
                   mandatoryStar: true,
                   controller: _cityController,
                   labelText: context.appText.city,
@@ -528,6 +547,7 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
 
                 // State
                 AppTextField(
+                  enableInteractiveSelection: true,
                   mandatoryStar: true,
                   controller: _stateController,
                   labelText: context.appText.state,
@@ -545,6 +565,7 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
 
                 // Pincode
                 AppTextField(
+                  enableInteractiveSelection: true,
                   mandatoryStar: true,
                   controller: _pincodeController,
                   labelText: context.appText.pincode,
@@ -557,6 +578,7 @@ class _ContactAddressSheetState extends State<ContactAddressSheet> {
 
                 // Contact Number
                 AppTextField(
+                  enableInteractiveSelection: true,
                   mandatoryStar: true,
                   controller: _contactNoController,
                   labelText: context.appText.contactNumber,

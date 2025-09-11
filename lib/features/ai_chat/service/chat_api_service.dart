@@ -96,7 +96,7 @@ class ChatApiService {
                 'language': detectedLanguage ?? language, // fallback to request language
                 'assistant_message_id': assistantMessageId ?? DateTime.now().millisecondsSinceEpoch.toString(),
                 'cached': cached.toString(),
-                'rate_limit': rateLimit ?? <String, dynamic>{},
+                'rate_limit': data['rate_limit'] ?? <String, dynamic>{},
               };
             }
           }
