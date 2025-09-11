@@ -10,6 +10,7 @@ import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart
 import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/reachability_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/edit_vehicle_info.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/select_vehicle_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/vehicle_share_update_screen.dart';
@@ -240,6 +241,16 @@ class AppRoutes {
               preSelectedVehicle: preSelectedVehicle,
             ),
           );
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.gpsReachability,
+        builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final preSelectedVehicle = extra?['preSelectedVehicle'];
+
+          return ReachabilityScreen(preSelectedVehicle: preSelectedVehicle);
         },
       ),
 

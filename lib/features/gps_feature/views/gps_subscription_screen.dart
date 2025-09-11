@@ -33,6 +33,18 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
   List<GpsCombinedVehicleData> _allVehicles = [];
   List<GpsCombinedVehicleData> _filteredVehicles = [];
 
+  @override
+  void initState() {
+    super.initState();
+    // Ensure data is loaded when the page opens
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final vehicleListCubit = locator<VehicleListCubit>();
+      if (!vehicleListCubit.hasLoadedData) {
+        vehicleListCubit.loadVehicleData();
+      }
+    });
+  }
+
   int? _calculateDaysLeft(String? expiryDate) {
     if (expiryDate == null) return null;
     try {
@@ -78,120 +90,112 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
         ],
       ),
       backgroundColor: AppColors.backgroundColor,
-      body: BlocBuilder<VehicleListCubit, VehicleListState>(
-        builder: (context, state) {
-          _allVehicles = state.vehicleDataState?.data ?? [];
+      body: RefreshIndicator(
+        onRefresh: () async {
+          final vehicleListCubit = locator<VehicleListCubit>();
+          await vehicleListCubit.refreshData();
+        },
+        child: BlocBuilder<VehicleListCubit, VehicleListState>(
+          builder: (context, state) {
+            _allVehicles = state.vehicleDataState?.data ?? [];
 
-          // _filteredVehicles = _allVehicles.where((vehicle) {
-          //   final query = searchController.text.toLowerCase();
-          //   final matchesSearch = vehicle.vehicleNumber?.toLowerCase().contains(query) ?? false;
-          //   final hasValidDate = vehicle.subscriptionExpiryDate != null;
-          //   return matchesSearch && hasValidDate;
-          // }).toList();
-          _filteredVehicles =
-              _allVehicles.where((vehicle) {
-                final query = searchController.text.toLowerCase();
-                final matchesSearch =
-                    vehicle.vehicleNumber?.toLowerCase().contains(query) ??
-                    false;
-                final hasValidDate = vehicle.subscriptionExpiryDate != null;
-                return matchesSearch && hasValidDate;
-              }).toList();
+            // _filteredVehicles = _allVehicles.where((vehicle) {
+            //   final query = searchController.text.toLowerCase();
+            //   final matchesSearch = vehicle.vehicleNumber?.toLowerCase().contains(query) ?? false;
+            //   final hasValidDate = vehicle.subscriptionExpiryDate != null;
+            //   return matchesSearch && hasValidDate;
+            // }).toList();
+            _filteredVehicles =
+                _allVehicles.where((vehicle) {
+                  final query = searchController.text.toLowerCase();
+                  final matchesSearch =
+                      vehicle.vehicleNumber?.toLowerCase().contains(query) ??
+                      false;
+                  final hasValidDate = vehicle.subscriptionExpiryDate != null;
+                  return matchesSearch && hasValidDate;
+                }).toList();
 
-          // Sort: Expired first, then by ascending days left
-          _filteredVehicles.sort((a, b) {
-            final aDays = _calculateDaysLeft(a.subscriptionExpiryDate);
-            final bDays = _calculateDaysLeft(b.subscriptionExpiryDate);
+            // Sort: Expired first, then by ascending days left
+            _filteredVehicles.sort((a, b) {
+              final aDays = _calculateDaysLeft(a.subscriptionExpiryDate);
+              final bDays = _calculateDaysLeft(b.subscriptionExpiryDate);
 
-            if (aDays == null && bDays == null) return 0;
-            if (aDays == null) return 1;
-            if (bDays == null) return -1;
+              if (aDays == null && bDays == null) return 0;
+              if (aDays == null) return 1;
+              if (bDays == null) return -1;
 
-            if (aDays < 0 && bDays >= 0) return -1;
-            if (aDays >= 0 && bDays < 0) return 1;
+              if (aDays < 0 && bDays >= 0) return -1;
+              if (aDays >= 0 && bDays < 0) return 1;
 
-            return aDays.compareTo(bDays); // ascending
-          });
+              return aDays.compareTo(bDays); // ascending
+            });
 
-          final expiringCount =
-              _allVehicles.where((vehicle) {
-                final daysLeft = _calculateDaysLeft(
-                  vehicle.subscriptionExpiryDate,
-                );
-                return daysLeft != null && daysLeft <= 30;
-              }).length;
+            final expiringCount =
+                _allVehicles.where((vehicle) {
+                  final daysLeft = _calculateDaysLeft(
+                    vehicle.subscriptionExpiryDate,
+                  );
+                  return daysLeft != null && daysLeft <= 30;
+                }).length;
 
-          return Column(
-            children: [
-              if (expiringCount > 0) _buildAlertCard(context, expiringCount),
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 15,
-                  vertical: 15,
-                ),
-                child: AppTextField(
-                  decoration: commonInputDecoration(
-                    hintText: context.appText.searchVehicle,
-                    suffixIcon: const Icon(Icons.search),
+            return Column(
+              children: [
+                if (expiringCount > 0) _buildAlertCard(context, expiringCount),
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 15,
+                    vertical: 15,
                   ),
-                  onChanged: (value) {
-                    setState(() {});
-                  },
-                  controller: searchController,
+                  child: AppTextField(
+                    decoration: commonInputDecoration(
+                      hintText: context.appText.searchVehicle,
+                      suffixIcon: const Icon(Icons.search),
+                    ),
+                    onChanged: (value) {
+                      setState(() {});
+                    },
+                    controller: searchController,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _filteredVehicles.length,
-                  itemBuilder: (context, index) {
-                    final vehicle = _filteredVehicles[index];
-                    final daysLeft = _calculateDaysLeft(
-                      vehicle.subscriptionExpiryDate,
-                    );
-                    final isInvalidDate = daysLeft == null;
-                    final isExpired = daysLeft != null && daysLeft < 0;
-                    final isExpiringSoon = daysLeft != null && daysLeft <= 30;
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _filteredVehicles.length,
+                    itemBuilder: (context, index) {
+                      final vehicle = _filteredVehicles[index];
+                      final daysLeft = _calculateDaysLeft(
+                        vehicle.subscriptionExpiryDate,
+                      );
+                      final isInvalidDate = daysLeft == null;
+                      final isExpired = daysLeft != null && daysLeft < 0;
+                      final isExpiringSoon = daysLeft != null && daysLeft <= 30;
 
-                    return Container(
-                      decoration: commonContainerDecoration(),
-                      margin: const EdgeInsets.symmetric(
-                        vertical: 5,
-                        horizontal: 15,
-                      ),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          backgroundColor: AppColors.primaryColor.withOpacity(
-                            0.1,
-                          ),
-                          child: SvgPicture.asset(
-                            AppIcons.svg.truck,
-                            width: 24,
-                          ),
+                      return Container(
+                        decoration: commonContainerDecoration(),
+                        margin: const EdgeInsets.symmetric(
+                          vertical: 5,
+                          horizontal: 15,
                         ),
-                        title: Text(
-                          vehicle.vehicleNumber ?? '-',
-                          style: AppTextStyle.h5,
-                        ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              (isExpired || isExpiringSoon || isInvalidDate)
-                                  ? Icons.warning
-                                  : Icons.check,
-                              color:
-                                  (isExpired || isExpiringSoon || isInvalidDate)
-                                      ? AppColors.red
-                                      : AppColors.greenColor,
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor: AppColors.primaryColor.withOpacity(
+                              0.1,
                             ),
-                            5.width,
-                            Text(
-                              isInvalidDate
-                                  ? context.appText.notAvailable
-                                  : isExpired
-                                  ? context.appText.expired
-                                  : '$daysLeft ${context.appText.daysLeft}',
-                              style: AppTextStyle.body4.copyWith(
+                            child: SvgPicture.asset(
+                              AppIcons.svg.truck,
+                              width: 24,
+                            ),
+                          ),
+                          title: Text(
+                            vehicle.vehicleNumber ?? '-',
+                            style: AppTextStyle.h5,
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                (isExpired || isExpiringSoon || isInvalidDate)
+                                    ? Icons.warning
+                                    : Icons.check,
                                 color:
                                     (isExpired ||
                                             isExpiringSoon ||
@@ -199,43 +203,59 @@ class _GpsSubscriptionsScreenState extends State<GpsSubscriptionsScreen> {
                                         ? AppColors.red
                                         : AppColors.greenColor,
                               ),
-                            ),
-                          ],
+                              5.width,
+                              Text(
+                                isInvalidDate
+                                    ? context.appText.notAvailable
+                                    : isExpired
+                                    ? context.appText.expired
+                                    : '$daysLeft ${context.appText.daysLeft}',
+                                style: AppTextStyle.body4.copyWith(
+                                  color:
+                                      (isExpired ||
+                                              isExpiringSoon ||
+                                              isInvalidDate)
+                                          ? AppColors.red
+                                          : AppColors.greenColor,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  color: AppColors.lightBlueColor,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.appText.renewal,
+                        style: AppTextStyle.h5PrimaryColor,
                       ),
-                    );
-                  },
+                      5.height,
+                      Text(
+                        context.appText.renewDescription,
+                        style: AppTextStyle.body,
+                      ),
+                      15.height,
+                      AppButton(
+                        onPressed: () {
+                          commonSupportDialog(context);
+                        },
+                        title: context.appText.contactCustomerSupport,
+                      ).paddingSymmetric(horizontal: 40, vertical: 15),
+                    ],
+                  ),
                 ),
-              ),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                color: AppColors.lightBlueColor,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      context.appText.renewal,
-                      style: AppTextStyle.h5PrimaryColor,
-                    ),
-                    5.height,
-                    Text(
-                      context.appText.renewDescription,
-                      style: AppTextStyle.body,
-                    ),
-                    15.height,
-                    AppButton(
-                      onPressed: () {
-                        commonSupportDialog(context);
-                      },
-                      title: context.appText.contactCustomerSupport,
-                    ).paddingSymmetric(horizontal: 40, vertical: 15),
-                  ],
-                ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

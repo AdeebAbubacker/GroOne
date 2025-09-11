@@ -528,13 +528,10 @@ class _VehicleMapContent extends StatelessWidget {
                                       .read<VehicleListCubit>()
                                       .toggleMapType(),
                           onReachability: () {
-                            // Navigate to GPS reports screen with reachability pre-selected
+                            // Navigate to reachability screen
                             context.push(
-                              AppRouteName.gpsReports,
-                              extra: {
-                                'preSelectedReportType': 'reachability',
-                                'preSelectedVehicle': selectedVehicle,
-                              },
+                              AppRouteName.gpsReachability,
+                              extra: {'preSelectedVehicle': selectedVehicle},
                             );
                           },
                           onNearbyVehicles: () async {
@@ -1739,7 +1736,52 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
   String _calculateIdleTimeFromTimestamps() {
     final idleFixTime = widget.vehicle.idleFixTime;
     final idleFixTimeKey = widget.vehicle.idleFixTimeKey;
+    final directIdleTime = widget.vehicle.idleTime;
 
+    // Check if directIdleTime is a timestamp (contains 'T' and time info)
+    if (directIdleTime != null && directIdleTime.isNotEmpty) {
+      if (directIdleTime.contains('T') && directIdleTime.contains(':')) {
+        // directIdleTime is a timestamp, calculate duration from now
+        try {
+          final DateTime idleStartTime = DateTime.parse(directIdleTime);
+          final DateTime now = DateTime.now();
+          final Duration difference = now.difference(idleStartTime);
+          final int totalSeconds = difference.inSeconds;
+
+          if (totalSeconds < 0) {
+            return '0min';
+          }
+
+          // Apply native Java logic
+          final int durationMinutes = (totalSeconds ~/ 60) % 60;
+          final int durationHours = (totalSeconds ~/ (60 * 60)) % 24;
+
+          String result;
+          if (totalSeconds > 0) {
+            if (durationHours > 0 && durationMinutes > 0) {
+              result = '${durationHours}hr ${durationMinutes}min';
+            } else if (durationHours > 0) {
+              result = '${durationHours}hr';
+            } else if (durationMinutes > 0) {
+              result = '${durationMinutes}min';
+            } else {
+              result = '0min';
+            }
+          } else {
+            result = '0min';
+          }
+
+          return result;
+        } catch (e) {
+          // Error parsing timestamp, fall through to other methods
+        }
+      } else {
+        // directIdleTime is not a timestamp, try to parse as duration
+        return _formatIdleTime(directIdleTime);
+      }
+    }
+
+    // Fallback to timestamp calculation if direct idleTime is not available
     if (idleFixTime == null ||
         idleFixTime.isEmpty ||
         idleFixTimeKey == null ||
@@ -1764,17 +1806,22 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
         difference = idleFixTimeKeyLocal.difference(idleFixTimeLocal);
       }
 
-      // Format the duration
+      // Format the duration - match native Java logic exactly
       final int totalSeconds = difference.inSeconds;
+
+      print('  Timestamp calculation: $totalSeconds seconds');
 
       if (totalSeconds < 0) {
         return '-'; // Invalid time difference
       }
 
-      // Apply the same logic as native Java code
+      // Native Java logic:
+      // int duration_minutes = (int) ((tripIdleHours / 60) % 60);
+      // int duration_hours = (int) ((tripIdleHours / (60 * 60)) % 24);
       final int durationMinutes = (totalSeconds ~/ 60) % 60;
       final int durationHours = (totalSeconds ~/ (60 * 60)) % 24;
 
+      // Native Java formatting: "Xhr Ymin" or "0min"
       String result;
       if (totalSeconds > 0) {
         if (durationHours > 0 && durationMinutes > 0) {
@@ -1790,8 +1837,10 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
         result = '0min';
       }
 
+      print('  Final result: $result');
       return result;
     } catch (e) {
+      print('  Error in timestamp calculation: $e');
       // If parsing fails, fall back to the original idleTime
       return _formatIdleTime(widget.vehicle.idleTime);
     }
@@ -1858,28 +1907,28 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
     final ignitionStatus = _getIgnitionStatus(ignition, status);
 
     if (ignitionStatus == 'ON') {
-      // Show ignition on time
+      // Show ignition on timestamp in native format: "dd-MM-yy hh:mma"
       if (lastIgnitionOnFixTime == null || lastIgnitionOnFixTime.isEmpty) {
         return 'N/A';
       }
       try {
         final dateTime = DateTime.parse(lastIgnitionOnFixTime);
-        final localDateTime = dateTime;
-        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)}, ${_formatTime(localDateTime)}';
+        final localDateTime = dateTime.toLocal();
+        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)} ${_formatTime(localDateTime)}';
       } catch (e) {
-        return lastIgnitionOnFixTime;
+        return 'N/A';
       }
     } else {
-      // Show ignition off time
+      // Show ignition off timestamp in native format: "dd-MM-yy hh:mma"
       if (lastIgnitionOffFixTime == null || lastIgnitionOffFixTime.isEmpty) {
         return 'N/A';
       }
       try {
         final dateTime = DateTime.parse(lastIgnitionOffFixTime);
-        final localDateTime = dateTime;
-        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)}, ${_formatTime(localDateTime)}';
+        final localDateTime = dateTime.toLocal();
+        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)} ${_formatTime(localDateTime)}';
       } catch (e) {
-        return lastIgnitionOffFixTime;
+        return 'N/A';
       }
     }
   }
@@ -2587,9 +2636,10 @@ String formatDuration(dynamic rawIdleTime) {
   // Handle negative values
   if (idleSeconds < 0) return '0min';
 
-  // Apply the same logic as native Java code
-  // Native: int duration_minutes = (int) ((tripIdleHours / 60) % 60);
-  // Native: int duration_hours = (int) ((tripIdleHours / (60 * 60)) % 24);
+  // Native Java logic:
+  // int duration_minutes = (int) ((tripIdleHours / 60) % 60);
+  // int duration_hours = (int) ((tripIdleHours / (60 * 60)) % 24);
+  // Note: tripIdleHours is actually in seconds despite the name
   final int durationMinutes = (idleSeconds ~/ 60) % 60;
   final int durationHours = (idleSeconds ~/ (60 * 60)) % 24;
 
