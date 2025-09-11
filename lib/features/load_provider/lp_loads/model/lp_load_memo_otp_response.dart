@@ -25,7 +25,7 @@ class LpLoadMemoOtpResponse {
     return LpLoadMemoOtpResponse(
       message: json["message"] ?? "",
       mobile: json["mobile"] ?? "",
-      otp: json["otp"] ?? 0,
+      otp: json["otp"] ?? "",
     );
   }
 

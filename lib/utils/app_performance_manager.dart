@@ -138,10 +138,10 @@ class _EnhancedErrorBoundaryState extends State<EnhancedErrorBoundary> {
   @override
   void initState() {
     super.initState();
-    // Set up error handling
-    FlutterError.onError = (FlutterErrorDetails details) {
-      _handleError(details.exception, details.stack);
-    };
+
+    // FlutterError.onError = (FlutterErrorDetails details) {
+    //   _handleError(details.exception, details.stack);
+    // };
   }
 
   void _handleError(dynamic error, StackTrace? stackTrace) {
@@ -152,12 +152,12 @@ class _EnhancedErrorBoundaryState extends State<EnhancedErrorBoundary> {
         _error = error.toString();
       });
     }
-
     widget.onError?.call();
   }
 
   @override
   Widget build(BuildContext context) {
+
     if (_error != null) {
       return widget.errorBuilder?.call(_error!) ?? _buildDefaultErrorWidget();
     }

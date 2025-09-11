@@ -9,7 +9,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_ty
 
 class LoadFilterCubit extends BaseCubit<LoadFilterState> {
   final VpLoadRepository _vpLoadRepository;
+
   LoadFilterCubit(this._vpLoadRepository) : super(LoadFilterState());
+
 
   // set vehicle type state
   void _setVehicleTypeState(UIState<List<TruckTypeModel>>? uiState) {
@@ -30,19 +32,52 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
   }
 
   // set lanes  state
-  void _setLanesState(UIState<TruckPrefLaneModel>? uiState) {
-    emit(state.copyWith(truckTypeLaneUIState: uiState));
+
+
+  void _setLanesState(UIState<TruckPrefLaneModel>? uiState, int? currentPage) {
+    emit(state.copyWith(
+        truckTypeLaneUIState: uiState, currentPage: currentPage));
   }
 
   // get prefer lanes
-  Future<void> getPreferLens() async {
-    _setLanesState(UIState.loading());
-    Result result = await _vpLoadRepository.getPrefTruckLaneData("", page: 1);
+
+
+  Future<void> getPreferLens({bool isInit = true, String? query}) async {
+    if (isInit) {
+      _setLanesState(UIState.loading(), 1);
+    }
+
+
+    final existingModel = state.truckTypeLaneUIState?.data;
+
+    if (!isInit && existingModel != null) {
+      final total = existingModel.data?.total ?? 0;
+      final limit = existingModel.data?.limit ?? 0;
+      List lanesItems = existingModel.data?.items ?? [];
+      final currentPage = state.currentPage ?? 1;
+      if (total <= (currentPage - 1) * limit && lanesItems.length >= total) {
+        return; // stop calling API
+      }
+    }
+
+    Result result = await _vpLoadRepository.getPrefTruckLaneData(
+      query,
+      page: state.currentPage ?? 1,
+    );
     if (result is Success<TruckPrefLaneModel>) {
-      _setLanesState(UIState.success(result.value));
+      List<Item> newLens = result.value.data?.items ?? [];
+      List<Item> oldLanes = state.truckTypeLaneUIState?.data?.data?.items ?? [];
+      TruckPrefLaneModel lanesModel = result.value;
+      TruckPrefLaneModel newLanesModel = lanesModel.copyWith(
+        data: lanesModel.data?.copyWith(items: [...oldLanes, ...newLens]),
+      );
+      _setLanesState(
+        UIState.success(newLanesModel),
+        (state.currentPage ?? 0) + 1,
+      );
     }
     if (result is Error) {
-      _setLanesState(UIState.error(result.type));
+      _setLanesState(UIState.error(result.type), null);
     }
   }
 
@@ -80,6 +115,17 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
     }
   }
 
+  /// select prefer lanes
+
+  void selectPreferLanes(Item? selectedLanes) {
+    if (selectedLanes != null) {
+      emit(state.copyWith(
+          selectedPrefLanes: selectedLanes
+      ));
+    }
+  }
+
+
   /// set truckTypeId
   void setCommodityData({int? commodityId, String? value}) {
     emit(
@@ -99,3 +145,4 @@ class LoadFilterCubit extends BaseCubit<LoadFilterState> {
     );
   }
 }
+

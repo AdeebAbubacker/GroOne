@@ -51,6 +51,9 @@ import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creati
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart'
     hide Customer;
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide Customer;
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_pdf_viewer.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -319,6 +322,15 @@ class AppRoutes {
         },
       ),
       GoRoute(
+        path: AppRouteName.viewFileWidget,
+        builder: (BuildContext context, GoRouterState state) {
+          final data = state.extra! as Map<String, dynamic>;
+          final String url = data["url"].toString();
+          final String originalFileName = data["originalFileName"].toString();
+          return PdfViewer(url: url, originalFileName: originalFileName,);
+        },
+      ),
+      GoRoute(
         path: AppRouteName.tripScheduleScreen,
         builder: (BuildContext context, GoRouterState state) {
           return TripScheduleScreen();
@@ -383,10 +395,10 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.myAccount,
         pageBuilder: (BuildContext context, GoRouterState state) {
-          final data = state.extra as Map<String, dynamic>? ?? {};
-          final CustomerDataResponse? customerDetail = data["customerDetail"] as CustomerDataResponse?;
-          final BankDetails? bankDetails = data["bankDetails"] as BankDetails?;
-          final KycDoc? kycDoc = data["kycDoc"] as KycDoc?;
+          final data = state.extra as Map<String, dynamic>;
+          final CustomerDataResponse customerDetail = data["customerDetail"];
+          final BankDetails bankDetails = data["bankDetails"];
+          final KycDoc kycDoc = data["kycDoc"];
 
           return buildTransitionPage(
             state: state,
