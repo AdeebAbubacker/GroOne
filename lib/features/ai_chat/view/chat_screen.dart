@@ -45,6 +45,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final profileCubit = locator<ProfileCubit>();
   final LocationService _locationService = LocationService();
   String? _currentLocation; // Store current city and state
+  String? _loadingTTSMessageId; // Track which message is loading TTS
 
 
   // Scroll position tracking - simplified
@@ -629,6 +630,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (!isVoice)
                         GestureDetector(
                           onTap: () {
+                            // Don't allow tap if this message is loading TTS
+                            if (_loadingTTSMessageId == message.id) return;
+                            
                             if (message.isPlaying) {
                               // Stop current audio if this message is playing
                               _audioPlayer.stop();
@@ -641,14 +645,25 @@ class _ChatScreenState extends State<ChatScreen> {
                               _playTextToSpeech(message);
                             }
                           },
-                          child: Icon(
-                            message.isPlaying ? Icons.stop : Icons.volume_up,
-                            size: 20,
-                            color:
-                            message.isPlaying
-                                ? const Color(0xFFE31B25)
-                                : AppColors.grayColor,
-                          ),
+                          child: _loadingTTSMessageId == message.id
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.primaryColor,
+                                    ),
+                                  ),
+                                )
+                              : Icon(
+                                  message.isPlaying ? Icons.stop : Icons.volume_up,
+                                  size: 20,
+                                  color:
+                                  message.isPlaying
+                                      ? const Color(0xFFE31B25)
+                                      : AppColors.grayColor,
+                                ),
                         ),
                     ],
                   ),
@@ -1690,6 +1705,11 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Play text-to-speech audio
   Future<void> _playTextToSpeech(ChatMessage message) async {
     try {
+      // Set loading state for this specific message
+      setState(() {
+        _loadingTTSMessageId = message.id;
+      });
+
       // First, stop any currently playing audio and reset all messages' playing state
       if (_audioPlayer.playing) {
         await _audioPlayer.stop();
@@ -1713,6 +1733,11 @@ class _ChatScreenState extends State<ChatScreen> {
         message.message,
         language: validatedLanguage,
       );
+
+      // Clear loading state
+      setState(() {
+        _loadingTTSMessageId = null;
+      });
 
       if (audioBytes.isNotEmpty) {
         // Convert base64 audio bytes to temporary file and play
@@ -1743,6 +1768,11 @@ class _ChatScreenState extends State<ChatScreen> {
         throw Exception('No audio data received');
       }
     } catch (e) {
+      // Clear loading state on error
+      setState(() {
+        _loadingTTSMessageId = null;
+      });
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -2014,12 +2044,25 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             if (!message.isUser && message.messageType != MessageType.voice) ...[
               ListTile(
-                leading: Icon(Icons.volume_up, color: AppColors.primaryColor),
+                leading: _loadingTTSMessageId == message.id
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primaryColor,
+                          ),
+                        ),
+                      )
+                    : Icon(Icons.volume_up, color: AppColors.primaryColor),
                 title: const Text('Play Audio'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _playTextToSpeech(message);
-                },
+                onTap: _loadingTTSMessageId == message.id
+                    ? null // Disable tap when loading
+                    : () {
+                        Navigator.pop(context);
+                        _playTextToSpeech(message);
+                      },
               ),
               if (!message.reported)
                 ListTile(
