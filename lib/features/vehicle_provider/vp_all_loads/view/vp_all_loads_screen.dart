@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
@@ -65,7 +66,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
   late VpLoadCubit vpLoadBloc;
   Timer? _debounce;
   StreamSubscription? _vpLoadSub;
-
+  final lpLoadLocator = locator<LpLoadCubit>();
 
 
   /// filterContent
@@ -219,7 +220,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
    await Future.wait([
    loadFilterCubit.getAllCommodityState(),
    loadFilterCubit.getAllVehicleType(),
-   loadFilterCubit.getPreferLens()
+   loadFilterCubit.getPreferLens(),
+     lpLoadLocator.getRouteDetails()
    ]);
   }
 
