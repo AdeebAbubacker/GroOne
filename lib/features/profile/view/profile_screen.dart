@@ -199,9 +199,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               if (state.profileDetailUIState?.data?.customer?.blueId != null &&
                   state.profileDetailUIState?.data?.customer?.blueId != "")
                 InkWell(
-                  onTap: () {
-                    context.push(AppRouteName.benefitsOfMembership);
-                  },
+                  onTap: () {},
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                     decoration: BoxDecoration(
