@@ -101,7 +101,10 @@ class AppTextField extends StatelessWidget {
           textAlign: textAlign ?? TextAlign.start,
           controller: controller,
           focusNode: currentFocus,
-          enableInteractiveSelection: enableInteractiveSelection ?? false,
+          enableInteractiveSelection:
+              readOnly != null && readOnly!
+                  ? false
+                  : enableInteractiveSelection ?? false,
           cursorColor: cursorColor ?? AppColors.lightGreyTextColor,
           cursorWidth: 1.5,
           keyboardType: keyboardType,
