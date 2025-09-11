@@ -8,9 +8,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
-import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
-import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
@@ -32,7 +30,6 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
@@ -230,6 +227,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   labelText: context.appText.vehicleType,
                   hintText: context.appText.selectVehicleType,
                   fetchVehicleTypes: () async {
+
                     await context.read<LoadFilterCubit>().getAllVehicleType();
                     return context
                             .read<LoadFilterCubit>()

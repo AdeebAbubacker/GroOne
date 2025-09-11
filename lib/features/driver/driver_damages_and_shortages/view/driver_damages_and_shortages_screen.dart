@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -462,7 +463,7 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
                               setState(() {});
                             },
                             style: AppButtonStyle.circularIconButtonStyle,
-                            icon: Icon(CupertinoIcons.clear, color: Colors.red, size: 20),
+                            icon: Icon(CupertinoIcons.clear, color: AppColors.red, size: 20),
                         ).align(Alignment.topRight)
                       ],
                     );
@@ -510,9 +511,15 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
           isdocSupportWithoutPdf: false,
           title: context.appText.productPhoto,
           multiFilesList: multiFilesList,
-          isMultipleSelectionFile: false,
-          isSingleFile: false,
+
+          isMultipleSelectionFile: true,
+          isSingleFile: true,
           isLoading: isLoading,
+          allowedExtensions: [
+            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', // images
+            'mp4', 'avi', 'mov', 'mkv', 'webm',         // videos
+            'pdf',
+          ],
           thenUploadFileToSever: ()  {
             if (multiFilesList.isNotEmpty) {
               cubit.uploadDamageFile(File(multiFilesList.length > 1 ? multiFilesList.last['path'] : multiFilesList.first['path']));
@@ -625,7 +632,7 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
     required VoidCallback onEdit,
     required VoidCallback onDelete,
   }) {
-
+    Uri? url=Uri.tryParse(imageUrl);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -642,7 +649,12 @@ class _DriverDamagesAndShortagesScreenState extends BaseState<DriverDamagesAndSh
               topLeft: Radius.circular(12),
               bottomLeft: Radius.circular(12),
             ),
-            child: SizedBox(
+            child: url?.path.split(".").last=="pdf" ?  SvgPicture.asset(
+              AppIcons.svg.documentView,
+              width: 22,
+              height: 22,
+              colorFilter: AppColors.svg(AppColors.grey),
+            ).center(): SizedBox(
               width: 110,
               height: double.infinity,
               child: commonCacheNetworkImage(

@@ -1343,7 +1343,8 @@
   "avgSpeed":"Avg. Speed",
   "engineOn":"Engine ON",
   "idleTime":"Idle Time",
-  "colorCode":"Color Code"
+  "colorCode":"Color Code",
+  "filterApplied":"Filter Applied"
 
 
 }

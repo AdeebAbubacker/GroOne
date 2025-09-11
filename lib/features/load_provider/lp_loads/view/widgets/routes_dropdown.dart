@@ -13,8 +13,7 @@ class RouteSearchableDropdown extends StatelessWidget {
   final String labelText;
   final String hintText;
   final bool mandatoryStar;
-  final Future<List<RouteList>> Function(int page, String? searchKey)
-  fetchRoutes;
+  final Future<List<RouteList>> Function(int page, String? searchKey)fetchRoutes;
 
   const RouteSearchableDropdown({
     super.key,
