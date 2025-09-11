@@ -7,12 +7,12 @@ class FleetPincodeVerifyModel {
 
   final bool success;
   final String message;
-  final List<Datum> data;
+  final List<FleetPincodeVerifyModelData> data;
 
   FleetPincodeVerifyModel copyWith({
     bool? success,
     String? message,
-    List<Datum>? data,
+    List<FleetPincodeVerifyModelData>? data,
   }) {
     return FleetPincodeVerifyModel(
       success: success ?? this.success,
@@ -25,7 +25,7 @@ class FleetPincodeVerifyModel {
     return FleetPincodeVerifyModel(
       success: json["success"] ?? false,
       message: json["message"] ?? "",
-      data: json["data"] == null ? [] : List<Datum>.from(json["data"]!.map((x) => Datum.fromJson(x))),
+      data: json["data"] == null ? [] : List<FleetPincodeVerifyModelData>.from(json["data"]!.map((x) => FleetPincodeVerifyModelData.fromJson(x))),
     );
   }
 
@@ -37,8 +37,8 @@ class FleetPincodeVerifyModel {
 
 }
 
-class Datum {
-  Datum({
+class FleetPincodeVerifyModelData {
+  FleetPincodeVerifyModelData({
     required this.name,
     required this.description,
     required this.branchType,
@@ -66,7 +66,7 @@ class Datum {
   final String country;
   final String pincode;
 
-  Datum copyWith({
+  FleetPincodeVerifyModelData copyWith({
     String? name,
     dynamic? description,
     String? branchType,
@@ -80,7 +80,7 @@ class Datum {
     String? country,
     String? pincode,
   }) {
-    return Datum(
+    return FleetPincodeVerifyModelData(
       name: name ?? this.name,
       description: description ?? this.description,
       branchType: branchType ?? this.branchType,
@@ -96,8 +96,8 @@ class Datum {
     );
   }
 
-  factory Datum.fromJson(Map<String, dynamic> json){
-    return Datum(
+  factory FleetPincodeVerifyModelData.fromJson(Map<String, dynamic> json){
+    return FleetPincodeVerifyModelData(
       name: json["Name"] ?? "",
       description: json["Description"],
       branchType: json["BranchType"] ?? "",

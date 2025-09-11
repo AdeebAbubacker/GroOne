@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -366,10 +367,7 @@ class _KavachAddAddressBottomSheetState
                     if (value.toString().isEmpty) {
                       return null;
                     } else {
-                      final gstRegEx = RegExp(
-                        r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$',
-                      );
-                      if (!gstRegEx.hasMatch(
+                      if (!KavachHelper.isValidGSTIN(
                         value.toString().trim().toUpperCase(),
                       )) {
                         return context.appText.enterValidGstin;
@@ -415,12 +413,5 @@ class _KavachAddAddressBottomSheetState
         ),
       ),
     );
-  }
-
-  bool isValidGSTIN(String gstIn) {
-    final gstRegex = RegExp(
-      r'^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$',
-    );
-    return gstRegex.hasMatch(gstIn);
   }
 }
