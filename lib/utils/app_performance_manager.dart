@@ -139,9 +139,9 @@ class _EnhancedErrorBoundaryState extends State<EnhancedErrorBoundary> {
   void initState() {
     super.initState();
 
-    FlutterError.onError = (FlutterErrorDetails details) {
-      _handleError(details.exception, details.stack);
-    };
+    // FlutterError.onError = (FlutterErrorDetails details) {
+    //   _handleError(details.exception, details.stack);
+    // };
   }
 
   void _handleError(dynamic error, StackTrace? stackTrace) {
