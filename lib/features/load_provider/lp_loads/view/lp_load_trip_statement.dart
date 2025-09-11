@@ -71,76 +71,81 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
             return Text(context.appText.tripStatementIsEmpty).center();
           }
 
-          return Padding(
-            padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
-            child: SingleChildScrollView(
-              child: Column(
-                spacing: 10,
-                children: [
-                  buildMainDetailWidget(tripDetails),
-                  buildBankDetailsWidget(tripDetails),
-                  buildTruckSupplierWidget(tripDetails),
+          return RefreshIndicator(
+            onRefresh: () async {
+              initFunction();
+            },
+            child: Padding(
+              padding: EdgeInsets.symmetric(vertical: 12.0, horizontal: 20),
+              child: SingleChildScrollView(
+                child: Column(
+                  spacing: 10,
+                  children: [
+                    buildMainDetailWidget(tripDetails),
+                    buildBankDetailsWidget(tripDetails),
+                    buildTruckSupplierWidget(tripDetails),
 
-                  20.height,
-                  if (tripDetails.balanceToBePaid != '0.00')
-                    LpPaymentHelper.buildPaymentActionButton(
-                      context: context,
-                      label: context.appText.payBalance,
-                      showWarningIcon: false,
-                      onPressed: () {
-                        LpPaymentHelper.showPaymentMethodDialog(
-                          context: context,
-                          isLoading: lpLoadCubit.state.lpCreateOrder?.status == Status.LOADING,
-                          onNeftTap: () {
-                            LpPaymentHelper.showBankDetailsDialog(context, widget.loadItem.bankDetails);
+                    20.height,
+                    if (tripDetails.balanceToBePaid != '0.00')
+                      LpPaymentHelper.buildPaymentActionButton(
+                        context: context,
+                        label: context.appText.payBalance,
+                        showWarningIcon: false,
+                        onPressed: () {
+                          LpPaymentHelper.showPaymentMethodDialog(
+                            context: context,
+                            isLoading: lpLoadCubit.state.lpCreateOrder?.status == Status.LOADING,
+                            onNeftTap: () {
+                              LpPaymentHelper.showBankDetailsDialog(context, widget.loadItem.bankDetails);
+                            },
+                            onOnlineTap: () {
+                              LpPaymentHelper.navigateToPaymentScreen(
+                                context: context,
+                                loadId: widget.loadItem.loadId,
+                                lpLoadCubit: lpLoadCubit,
+                                request: CreateOrderIdRequest(
+                                    memoid: widget.loadItem.loadMemoDetails?.id ?? '',
+                                    lpId: widget.loadItem.customer?.customerSeriesNo.toString() ?? '',
+                                    lpName: widget.loadItem.customer?.customerName ?? '',
+                                    lpEmailId: widget.loadItem.customer?.emailId ?? '',
+                                    lpMobile: widget.loadItem.customer?.mobileNumber ?? '',
+                                    vpId: widget.loadItem.vpCustomer?.customerSeriesNo.toString() ?? '',
+                                    loadSeriesId: widget.loadItem.loadSeriesId,
+                                    netFreight: widget.loadItem.loadMemoDetails?.netFreight ?? '',
+                                    advance: widget.loadItem.loadMemoDetails?.advance ?? '',
+                                    advancePercentage: widget.loadItem.loadMemoDetails?.advancePercentage ?? '',
+                                    balance: widget.loadItem.loadMemoDetails?.balance ?? '',
+                                    balancePercentage: widget.loadItem.loadMemoDetails?.balancePercentage ?? '',
+                                    vpAdvance: widget.loadItem.loadMemoDetails?.vpAdvance ?? '',
+                                    vpAdvancePercentage: widget.loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
+                                    vpBalance: widget.loadItem.loadMemoDetails?.vpBalance ?? '',
+                                    vpBalancePercentage: widget.loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
+                                    amount: tripDetails.balanceToBePaid,
+                                    type: 'online',
+                                    action: 'balance',
+                                    vpAmount: widget.loadItem.loadMemoDetails?.vpAmount ?? ''
+                                ),
+                                onSuccess: () {
+                                  initFunction();
+                                },
+                              );
+                            },
+                          );
+                        },
+                      ),
+                    if((tripDetails.invoiceUrl??"").isNotEmpty)
+                      ...[
+                        AppButton(
+                          title: context.appText.downloadInvoice,
+                          onPressed: () {
+                            vpLoadCubit.downloadDocument(tripDetails.invoiceUrl??"",-1);
                           },
-                          onOnlineTap: () {
-                            LpPaymentHelper.navigateToPaymentScreen(
-                              context: context,
-                              loadId: widget.loadItem.loadId,
-                              lpLoadCubit: lpLoadCubit,
-                              request: CreateOrderIdRequest(
-                                memoid: widget.loadItem.loadMemoDetails?.id ?? '',
-                                lpId: widget.loadItem.customer?.customerSeriesNo.toString() ?? '',
-                                lpName: widget.loadItem.customer?.customerName ?? '',
-                                lpEmailId: widget.loadItem.customer?.emailId ?? '',
-                                lpMobile: widget.loadItem.customer?.mobileNumber ?? '',
-                                vpId: widget.loadItem.vpCustomer?.customerSeriesNo.toString() ?? '',
-                                loadSeriesId: widget.loadItem.loadSeriesId,
-                                netFreight: widget.loadItem.loadMemoDetails?.netFreight ?? '',
-                                advance: widget.loadItem.loadMemoDetails?.advance ?? '',
-                                advancePercentage: widget.loadItem.loadMemoDetails?.advancePercentage ?? '',
-                                balance: widget.loadItem.loadMemoDetails?.balance ?? '',
-                                balancePercentage: widget.loadItem.loadMemoDetails?.balancePercentage ?? '',
-                                vpAdvance: widget.loadItem.loadMemoDetails?.vpAdvance ?? '',
-                                vpAdvancePercentage: widget.loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
-                                vpBalance: widget.loadItem.loadMemoDetails?.vpBalance ?? '',
-                                vpBalancePercentage: widget.loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
-                                amount: tripDetails.balanceToBePaid,
-                                type: 'online',
-                                action: 'balance',
-                                vpAmount: widget.loadItem.loadMemoDetails?.vpAmount ?? ''
-                              ),
-                              onSuccess: () {
-                                initFunction();
-                              },
-                            );
-                          },
-                        );
-                      },
-                    ),
-                  if((tripDetails.invoiceUrl??"").isNotEmpty)
-                  ...[
-                    AppButton(
-                      title: context.appText.downloadInvoice,
-                      onPressed: () {
-                        vpLoadCubit.downloadDocument(tripDetails.invoiceUrl??"",-1);
-                      },
-                    ),
-                    10.height,
+                        ),
+                        10.height,
+                      ],
+                    40.height,
                   ],
-                  40.height,
-                ],
+                ),
               ),
             ),
           );
@@ -239,6 +244,11 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
             label: context.appText.advance,
             value: PriceHelper.formatINR(details.advancePaid),
           ),
+          if(details.balancePaid != 0)
+            buildDetailRow(
+              label: context.appText.balance,
+              value: PriceHelper.formatINR(details.balancePaid),
+            ),
           buildDetailRow(
             label: context.appText.balanceToBePaid,
             value: PriceHelper.formatINR(details.balanceToBePaid),
