@@ -44,6 +44,13 @@ class GpsLoginRepository {
     return await _gpsLoginService.login();
   }
 
+  /// Check GPS authentication with mobile number
+  Future<Result<GpsLoginResponseModel>> checkGpsAuth(
+    String mobileNumber,
+  ) async {
+    return await _gpsLoginService.checkGpsAuth(mobileNumber);
+  }
+
   /// Get user details
   Future<Result<GpsUserDetailsModel>> getUserDetails(String token) async {
     return await _gpsLoginService.getUserDetails(token);
