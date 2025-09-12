@@ -547,11 +547,25 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                     final typeInfo =
                         (type.isNotEmpty || subType.isNotEmpty)
                             ? " ($type $subType)"
-                            : "";
+                            : "";      
                     return SearchableDropdownMenuItem<VehicleDetail>(
                       value: truck,
                       label: "${truck.truckNo}$typeInfo",
-                      child: Text("${truck.truckNo}$typeInfo"),
+                        child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                         Text("${truck.truckNo}$typeInfo"),
+                          if (truck.activeStatus?.trim().toLowerCase() ==
+                              "inactive")
+                            Text(
+                              context.appText.onAnotherTrip,
+                              style: const TextStyle(
+                                color: Colors.red,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      ),
                     );
                   }).toList();
                 },

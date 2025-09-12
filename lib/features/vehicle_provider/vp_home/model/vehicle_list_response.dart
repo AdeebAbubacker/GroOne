@@ -53,6 +53,7 @@ class VehicleDetail {
         required this.deletedAt,
         required this.companyName,
         required this.truckType,
+        this.activeStatus,
     });
 
     final String vehicleId;
@@ -75,6 +76,7 @@ class VehicleDetail {
     final dynamic deletedAt;
     final String companyName;
     final TruckType? truckType;
+    final String? activeStatus;
 
     VehicleDetail copyWith({
         String? vehicleId,
@@ -119,6 +121,7 @@ class VehicleDetail {
             deletedAt: deletedAt ?? this.deletedAt,
             companyName: companyName ?? this.companyName,
             truckType: truckType ?? this.truckType,
+            activeStatus: activeStatus ?? this.activeStatus,
         );
     }
 
@@ -144,6 +147,7 @@ class VehicleDetail {
             deletedAt: json["deletedAt"],
             companyName: json["companyName"] ?? "",
             truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
+            activeStatus: json["activeStatus"],
         );
     }
 
