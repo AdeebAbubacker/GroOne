@@ -159,6 +159,7 @@ class TripDetails {
       balanceToBePaid: json["balanceToBePaid"] ?? "",
       bankDetails: json["bankDetails"] == null ? null : BankDetails.fromJson(json["bankDetails"]),
       truckSupplier: json["truckSupplier"] == null ? null : TruckSupplier.fromJson(json["truckSupplier"]),
+
       invoiceUrl: json["invoiceUrl"]??"",
       balancePaid: json["balancePaid"] ?? 0
     );

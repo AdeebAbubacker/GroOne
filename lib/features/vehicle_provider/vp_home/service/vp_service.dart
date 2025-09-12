@@ -38,8 +38,8 @@ class VpHomeService {
   Future<Result<VehicleListResponse>> getVehicleDetails({
     required String userId,
     String? search,
-    int? page,
-    int? pageSize = 5,
+    int page = 1,
+    int pageSize = 10,
   }) async {
     try {
       // Base URL
@@ -48,7 +48,7 @@ class VpHomeService {
 
       // Append search if provided
       if (search != null && search.trim().isNotEmpty) {
-        url = "$url?search=$search";
+        url = "$url&search=$search";
       }
 
       final result = await _apiService.get(url);
@@ -69,7 +69,7 @@ class VpHomeService {
   Future<Result<DriverListResponse>> getDriverDetails({
     required String userId,
     String? search,
-    int? page,
+    int? page = 1,
     int? pageSize = 10,
   }) async {
     try {

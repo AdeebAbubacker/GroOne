@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/widgets/prefer_lanes_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
@@ -43,40 +44,29 @@ class _PreferLensScreenState extends State<PreferLensScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CommonAppBar(title:context.appText.preferredLanes),
-      body: Column(
-        children: [
-          AppTextField(
-            controller: searchController,
-            labelText: context.appText.preferredLanes,
-            hintText: context.appText.searchedLanes,
+      body: BlocBuilder<VpCreateAccountCubit,VpCreateAccountState>(
+        builder: (context, state)  {
+          List<Item> preferLanes=  state.prefLaneUIState?.data?.data?.items??[];
+          return PreferLanesWidget(
+            controller:scrollController ,
+            preferLanes: preferLanes,
+            searchController: searchController,
             onChanged: (p0) {
-              vpCreationCubit.fetchPrefLane(p0,isInit: true);
+              vpCreationCubit.fetchPrefLane(
+                  p0,isInit: true);
+              },
+            selectLanes: ({item, masterLanesId, value}) {
+              vpCreationCubit.selectLanes(
+                id:masterLanesId ,
+                selected: value,
+              );
             },
-          ),
-          8.height,
-          BlocConsumer<VpCreateAccountCubit,VpCreateAccountState>(
-            listener: (context, state) {},
-            builder: (context, state) {
-              List<Item> preferLanes=  state.prefLaneUIState?.data?.data?.items??[];
+          );
+        }
+      ),
 
-              return ListView.builder(
-                controller: scrollController,
-                itemCount: preferLanes.length,
-                itemBuilder: (context, index) {
-                final locationItem=preferLanes[index];
-                return CheckboxListTile(
-                  title: Text( '${locationItem.fromLocation?.name ?? ""} - ${locationItem.toLocation?.name ?? ""}'),
-                  value: locationItem.isSelected, onChanged: (bool? value) {
-                    vpCreationCubit.selectLanes(
-                        id:locationItem.masterLaneId ,
-                        selected: value);
-                    },
-                ) ;
-              },).expand();
-            }
-          )
-        ],
-      ).paddingAll(15),
+
+
     );
   }
 }

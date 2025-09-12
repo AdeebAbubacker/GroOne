@@ -241,7 +241,7 @@ class _UploadAttachmentFilesState extends State<UploadAttachmentFiles> {
                 setState(() {});
               } : () {},
               child: DottedBorder(
-                color:  Colors.black26,
+                color:  AppColors.deActiveButtonColor,
                 strokeWidth: 1,
                 radius:  const Radius.circular(commonTexFieldRadius),
                 borderType: BorderType.RRect,

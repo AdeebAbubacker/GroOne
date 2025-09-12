@@ -25,7 +25,7 @@ class NotificationService {
 
   // Dependencies
   late SecuredSharedPreferences _secureSharedPrefs;
-  late GlobalKey<NavigatorState> navigatorKey;
+  static late GlobalKey<NavigatorState> navigatorKey;
   final NotificationView _notificationView = NotificationView();
   final NotificationSessionManager _sessionManager =
       NotificationSessionManager();
@@ -382,8 +382,7 @@ class NotificationService {
   static Future<void> _onAwesomeNotificationReceived(
     ReceivedAction receivedAction,
   ) async {
-    print("receivedAction is ${receivedAction.body}");
-    print("receivedAction payload ${receivedAction.payload}");
+
     try {
       NotificationPayload payload = NotificationPayload.fromJson(
         receivedAction.payload ?? {},
@@ -396,8 +395,7 @@ class NotificationService {
       if (payload.route != null) {
         //// TODO: implement redirection here
 
-        // Handle navigation
-        // navigatorKey.currentState?.pushNamed(payload.route!);
+        navigatorKey.currentState?.pushNamed(payload.route!);
       }
     } catch (e) {
       CustomLog.error(
@@ -795,8 +793,10 @@ class NotificationService {
   ) {
     CustomLog.debug(this, "$consolePrint : $payload");
     if (payload.route != null) {
-      /// TODO: handle notification routing
-      // navigatorKey.currentState?.pushNamed(payload.route!);
+
+      if(payload.route!=null){
+        navigatorKey.currentState?.pushNamed(payload.route!);
+      }
     }
   }
 
@@ -844,7 +844,7 @@ class NotificationService {
   /// Clear FCM Token
   Future<void> clearFcmToken() async {
     try {
-      await FirebaseMessaging.instance.deleteToken();
+      // await FirebaseMessaging.instance.deleteToken();
       CustomLog.debug(this, "FCM token cleared successfully");
     } catch (e) {
       CustomLog.error(this, "Failed to clear FCM token", e);

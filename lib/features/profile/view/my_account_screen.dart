@@ -128,29 +128,8 @@ class _LpMyAccountState extends State<LpMyAccount> {
               ],
 
 
-
               // Bank Details
-              if(widget.bankDetails == null)...[
-                headingText(text: context.appText.bankDetails),
-                buildDetailWidget(
-                  text1: context.appText.accountNumber,
-                  text2: checkUserDetails(widget.bankDetails?.bankAccount),
-                ),
-                buildDetailWidget(
-                  text1: context.appText.bankName,
-                  text2: checkUserDetails(widget.bankDetails?.bankName),
-                ),
-                buildDetailWidget(
-                  text1: context.appText.branchName,
-                  text2: checkUserDetails(widget.bankDetails?.branchName),
-                ),
-                buildDetailWidget(
-                  text1: context.appText.ifscCode,
-                  text2: checkUserDetails(widget.bankDetails?.ifscCode),
-                ),
-                dividerWidget(),
-
-              ],
+              ..._buildBankDetails(context),
 
 
               // Company Detail
@@ -178,12 +157,37 @@ class _LpMyAccountState extends State<LpMyAccount> {
     );
   }
 
- Widget buildDetailWidget({required String text1, required String text2}) {
+  // Build Bank Details Section
+  List<Widget> _buildBankDetails(BuildContext context) {
+    final details = {
+      context.appText.accountNumber: widget.bankDetails?.bankAccount,
+      context.appText.bankName: widget.bankDetails?.bankName,
+      context.appText.branchName: widget.bankDetails?.branchName,
+      context.appText.ifscCode: widget.bankDetails?.ifscCode,
+    };
+
+    final bankWidgets = details.entries
+        .where((e) => (e.value?.isNotEmpty ?? false))
+        .map((e) => buildDetailWidget(text1: e.key, text2: checkUserDetails(e.value)))
+        .toList();
+
+    if (bankWidgets.isEmpty) return [];
+    return [
+      headingText(text: context.appText.bankDetails),
+      ...bankWidgets,
+      dividerWidget(),
+    ];
+  }
+
+
+  Widget buildDetailWidget({required String text1, required String text2}) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(text1, style: AppTextStyle.textGreyDetailColor14w400),
-        Text(text2, style: AppTextStyle.textGreyDetailColor14w400),
+        50.width,
+        Flexible(child: Text(text2, style: AppTextStyle.textGreyDetailColor14w400)),
       ],
     );
   }

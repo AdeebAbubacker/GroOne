@@ -119,6 +119,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     // Now we're processing points and polyline
     _polylineCoordinates.clear();
 
+
     List<PointLatLng> result = PolylinePoints().decodePolyline(points ?? "");
     for (var point in result) {
       _polylineCoordinates.add(LatLng(point.latitude, point.longitude));

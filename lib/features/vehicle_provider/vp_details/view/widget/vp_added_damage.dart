@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -6,6 +7,9 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+
+import '../../../../../utils/app_icons.dart';
 
 class VpAddedDamageWidget extends StatelessWidget {
   final List<DamageReport>? damageReport;
@@ -47,6 +51,8 @@ class VpAddedDamageWidget extends StatelessWidget {
     required VoidCallback onEdit,
     required VoidCallback onDelete,
   }) {
+    Uri? url=Uri.tryParse(imageUrl);
+
     return Container(
       height: 100,
       decoration: BoxDecoration(
@@ -70,7 +76,12 @@ class VpAddedDamageWidget extends StatelessWidget {
                 constraints: const BoxConstraints(
                 maxWidth: 110,
               ),
-                child: commonCacheNetworkImage(
+                child: url?.path.split(".").last=="pdf" ?    SvgPicture.asset(
+                  AppIcons.svg.documentView,
+                  width: 22,
+                  height: 22,
+                  colorFilter: AppColors.svg(AppColors.grey),
+                ).center():  commonCacheNetworkImage(
                   path: imageUrl,
                   errorImage: Icons.image_not_supported,
                   radius: 0,

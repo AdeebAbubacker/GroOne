@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
@@ -11,15 +12,13 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class DriverViewOthersDocument extends StatelessWidget {
   final List<LoadDocument>? loadDocument;
-  final DriverLoadDetailsCubit? cubit;
   final DocumentEntity? documentEntity;
-  const DriverViewOthersDocument({
+  DriverViewOthersDocument({
     super.key,
     required this.loadDocument,
-    this.cubit,
     this.documentEntity,
   });
-
+  final cubit = locator<DriverLoadDetailsCubit>();
   List<LoadDocument> getOthersDocument(DriverLoadDetailsState state) {
     try {
       return state.tripDocumentList
@@ -53,17 +52,17 @@ class DriverViewOthersDocument extends StatelessWidget {
                     onClickViewMoreIcon: () {},
                     showAddMoreButton: false,
                     showDeleteIcon:
-                        cubit?.state.loadStatus == LoadStatus.loading,
+                        cubit.state.loadStatus == LoadStatus.loading,
                     showDeleteLoader: false,
                     onClickDeleteIcon: () {
-                      cubit?.deleteLoadDocument(
+                      cubit.deleteLoadDocument(
                         loadDocumentObj.loadDocumentId ?? "",
                         index,
                         otherDocument: true,
                       );
                     },
                     onClickDownload: () {
-                      cubit?.downloadDocument(
+                      cubit.downloadDocument(
                         loadDocumentObj.documentId ?? "",
                         index,
                       );

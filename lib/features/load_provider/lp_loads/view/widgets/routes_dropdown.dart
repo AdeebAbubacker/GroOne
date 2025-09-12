@@ -3,6 +3,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown_controller.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/model/model.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';
@@ -13,8 +14,8 @@ class RouteSearchableDropdown extends StatelessWidget {
   final String labelText;
   final String hintText;
   final bool mandatoryStar;
-  final Future<List<RouteList>> Function(int page, String? searchKey)
-  fetchRoutes;
+
+  final Future<List<RouteList>> Function(int page, String? searchKey)fetchRoutes;
 
   const RouteSearchableDropdown({
     super.key,
@@ -24,6 +25,7 @@ class RouteSearchableDropdown extends StatelessWidget {
     required this.hintText,
     required this.fetchRoutes,
     this.mandatoryStar = false,
+
   });
 
   @override
@@ -53,8 +55,8 @@ class RouteSearchableDropdown extends StatelessWidget {
           child: SearchableDropdown<RouteList>.paginated(
             hintText: Text(hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
-            requestItemCount: 10,
 
+            requestItemCount: 10,
             // Initial selected value
             initialValue:
                 selectedRoute != null

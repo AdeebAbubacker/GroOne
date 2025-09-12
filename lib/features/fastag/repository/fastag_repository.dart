@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.dart';
 import 'package:gro_one_app/features/fastag/service/fastag_service.dart';
 import '../../../data/model/result.dart';
 import '../../en-dhan_fuel/model/document_upload_response.dart';
@@ -13,6 +14,14 @@ class FastagRepository{
   Future<Result<DocumentUploadResponse>> uploadDocument(File file) async {
     try {
       return await _service.uploadDocument(file);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  Future<Result<FleetPincodeVerifyModel>> verifyPincode(String pincode) async {
+    try {
+      return await _service.verifyPincode(pincode: pincode);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

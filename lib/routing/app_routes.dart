@@ -3,7 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/features/choose_language_screen/view/choose_language_screen.dart';
 import 'package:gro_one_app/features/choose_role_screen/view/choose_role_screen.dart';
+import 'package:gro_one_app/features/driver/driver_damages_and_shortages/view/driver_damages_and_shortages_screen.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/driver_home_screen.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/widget/driver_view_others_document.dart';
+import 'package:gro_one_app/features/driver/driver_pod/view/driver_pod_dispatch_screen.dart';
+import 'package:gro_one_app/features/driver/driver_profile/view/driver_profile_screen.dart';
+import 'package:gro_one_app/features/driver/driver_settlements/view/driver_settlements_screen.dart';
 import 'package:gro_one_app/features/email_verification/view/email_verification_screen.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart';
@@ -42,8 +48,12 @@ import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditi
 import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_bottom_navigation/vp_bottom_navigation.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/vp_creation_form_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart'
     hide Customer;
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide Customer;
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/view_file_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_pdf_viewer.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_trip_schedule/view/trip_schedule_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -312,6 +322,15 @@ class AppRoutes {
         },
       ),
       GoRoute(
+        path: AppRouteName.viewFileWidget,
+        builder: (BuildContext context, GoRouterState state) {
+          final data = state.extra! as Map<String, dynamic>;
+          final String url = data["url"].toString();
+          final String originalFileName = data["originalFileName"].toString();
+          return PdfViewer(url: url, originalFileName: originalFileName,);
+        },
+      ),
+      GoRoute(
         path: AppRouteName.tripScheduleScreen,
         builder: (BuildContext context, GoRouterState state) {
           return TripScheduleScreen();
@@ -573,7 +592,75 @@ class AppRoutes {
           );
         },
       ),
-
+      GoRoute(
+        path: AppRouteName.driverProfile,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          return buildTransitionPage(
+              state: state,
+              child: DriverProfileScreen(),
+              isForward: true
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.driverLoadDetails,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final String loadId = data["loadId"].toString();
+          return buildTransitionPage(
+            state: state,
+            child: DriverLoadsLocationDetailsScreen(loadId: loadId),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.driverPodDispatch,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final String loadId = data["loadId"].toString();
+          return buildTransitionPage(
+            state: state,
+            child: DriverPodDispatchScreen(loadId: loadId),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.driverDamageScreen,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final String loadId = data["loadId"].toString();
+          final String vehicleId = data["vehicleId"].toString();
+          final dynamic isDamageApprovedOrReject = data["isDamageApprovedOrReject"];
+          return buildTransitionPage(
+            state: state,
+            child: DriverDamagesAndShortagesScreen(loadId: loadId,vehicleId: vehicleId,isDamageApprovedOrReject: isDamageApprovedOrReject,),
+          );
+        },
+      ),
+       GoRoute(
+        path: AppRouteName.driverSettlementsScreen,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final String loadId = data["loadId"].toString();
+          final String vehicleId = data["vehicleId"].toString();
+          return buildTransitionPage(
+            state: state,
+            child: DriverSettlementsScreen(loadId: loadId,vehicleID: vehicleId),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.driverViewOtherDocs,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final List<LoadDocument>? loadDocument = data["loadDocument"];
+          final DocumentEntity? documentEntity = data["documentEntity"];
+          return buildTransitionPage(
+            state: state,
+            child: DriverViewOthersDocument(loadDocument: loadDocument,documentEntity: documentEntity),
+          );
+        },
+      ),
     ],
   );
 }

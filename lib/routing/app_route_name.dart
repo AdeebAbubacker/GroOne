@@ -44,10 +44,17 @@ class AppRouteName {
   /// assign Driver
   static const String loadDetailsScreen = "/loadDetailsScreen";
   static const String tripScheduleScreen = "/tripScheduleScreen";
+  static const String viewFileWidget = "/viewFileWidget";
+
 
   /// Driver
   static const String driverHome = "/driverHome";
-
+  static const String driverProfile= "/driverProfile";
+  static const String driverLoadDetails = "/driverLoadDetailsScreen";
+  static const String driverPodDispatch = "/driverPodDispatchScreen";
+  static const String driverDamageScreen = "/driverDamageScreen";
+  static const String driverSettlementsScreen = "/driverSettlementsScreen";
+  static const String driverViewOtherDocs = "/driverviewOtherDocsScreen";
   static const String vehicleMap = '/vehicle-map';
 
   static const String fastagList = '/fastagList';
@@ -74,4 +81,6 @@ class AppRouteName {
 
   static const String termsAndConditions = '/termsAndConditions';
   static const String privacyPolicy = '/privacyPolicy';
+
+
 }

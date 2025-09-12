@@ -504,7 +504,10 @@ void _registerBasicBlocs() {
     () => KavachCheckoutVehicleBloc(locator<KavachRepository>()),
   );
   locator.registerLazySingleton(
-    () => KavachCheckoutAddAddressBloc(locator<KavachRepository>()),
+    () => KavachCheckoutAddAddressBloc(
+      locator<KavachRepository>(),
+      locator<FastagRepository>(),
+    ),
   );
   locator.registerLazySingleton(
     () => KavachOrderBloc(
@@ -745,6 +748,7 @@ void _registerDeferredBlocs() {
   locator.registerLazySingleton(
     () => GpsKycCheckCubit(locator<GpsOrderApiRepository>()),
   );
+  locator.registerLazySingleton<VpHomeCubit>(() => VpHomeCubit(locator<VpHomeRepository>(), locator<UserInformationRepository>(),));
 
   // Verify GPS cubits are registered
   try {

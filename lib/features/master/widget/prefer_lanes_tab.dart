@@ -5,7 +5,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/preferLans_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/prefer_lanse_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
@@ -89,17 +89,9 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Text(
-                    context.appText.preferredLanesText,
-                    style: AppTextStyle.textFiled,
-                  ),
-                  Text(
-                    " *",
-                    style: AppTextStyle.textFiled.copyWith(color: Colors.red),
-                  ),
-                ],
+              Text(
+                context.appText.preferredLanesText,
+                style: AppTextStyle.textFiled,
               ),
               8.height,
               GestureDetector(
