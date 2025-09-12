@@ -62,6 +62,7 @@ class _LoginScreenState extends BaseState<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -237,7 +238,9 @@ class _LoginScreenState extends BaseState<LoginScreen>
                   ),
       
                   // Bottom Banner Gro Image
-                  buildBottomBannerImageWidget(),
+                  Visibility(
+                    visible: !isKeyboardOpen,
+                    child: buildBottomBannerImageWidget()),
                 ],
               ),
             );
