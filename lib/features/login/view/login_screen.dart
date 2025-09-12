@@ -7,6 +7,8 @@ import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/login/api_request/login_in_api_request.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
+import 'package:gro_one_app/features/splash/splash_screen.dart';
+import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/analytics/analytics_event_name.dart';
@@ -16,6 +18,7 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/common_dialog_view/update_popup.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_onboarding_appbar.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -29,6 +32,8 @@ import 'package:gro_one_app/utils/key_helper.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
+import '../../../data/ui_state/status.dart';
+
 class LoginScreen extends StatefulWidget {
   final bool showBackButton;
   const LoginScreen({super.key, this.showBackButton = true});
@@ -40,6 +45,8 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends BaseState<LoginScreen>
     with EnhancedDisposeMixin {
   final loginBloc = locator<LoginBloc>();
+  final splashViewModel = locator<SplashViewModel>();
+
   final formKey = GlobalKey<FormState>();
 
   FocusNode focusNode = FocusNode();
@@ -58,6 +65,17 @@ class _LoginScreenState extends BaseState<LoginScreen>
 
   initFun() => safePostFrameCallback(() async {
     await HasInternetConnection().checkConnectivity();
+    await splashViewModel.checkAppUpdate();
+
+    final updateState = splashViewModel.appUpdateUIState;
+    if (updateState != null && updateState.status == Status.SUCCESS) {
+      final updateType = parseUpdateType(updateState.data!);
+
+      if (updateType == AppUpdateType.force) {
+        showUpdatePopUp(updateState.data);
+        return;
+      }
+    }
   });
 
   @override

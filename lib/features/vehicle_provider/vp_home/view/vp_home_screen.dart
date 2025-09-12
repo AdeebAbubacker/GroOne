@@ -43,6 +43,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
+import 'package:gro_one_app/utils/common_dialog_view/update_popup.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -108,10 +109,14 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
     if (updateState != null && updateState.status == Status.SUCCESS) {
       final updateType = parseUpdateType(updateState.data!);
 
-      if (updateType == AppUpdateType.force && mounted) {
+      if (updateType == AppUpdateType.soft && mounted) {
         ToastMessages.updateAvailable(
           message: context.appText.updateAvailableText,
         );
+      }
+      if (updateType == AppUpdateType.force) {
+        showUpdatePopUp(updateState.data);
+        return;
       }
     }
     lpHomeBloc.getUserId();

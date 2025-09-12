@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
@@ -7,23 +6,14 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/splash/model/app_update_response.dart';
 import 'package:gro_one_app/features/splash/splash_view_mode.dart';
-import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
-import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/app_text_style.dart';
-import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
-import 'package:url_launcher/url_launcher.dart';
-
-import '../../utils/app_global_variables.dart';
-import '../../utils/app_image.dart';
 
 enum AppUpdateType { none, soft, force }
 
@@ -63,41 +53,8 @@ class _SplashScreenState extends State<SplashScreen> {
 
 
   //  Init Function
-  Future<void> init1(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 4), () async {
-       await splashViewModel.fetchIsUserLogin();
-    });
-
-    if (splashViewModel.checkIsUserLoginUIState != null && splashViewModel.checkIsUserLoginUIState?.status != null) {
-      if (splashViewModel.checkIsUserLoginUIState?.status == Status.SUCCESS) {
-        if (splashViewModel.checkIsUserLoginUIState!.data == true) {
-          if (!context.mounted) return;
-          await _checkUserType(context);
-        }
-      }
-      if (splashViewModel.checkIsUserLoginUIState?.status == Status.ERROR) {
-        if (!context.mounted) return;
-        frameCallback(()=> context.push(AppRouteName.chooseLanguage));
-      }
-    } else {
-      ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
-    }
-  }
-
   Future<void> init(BuildContext context) async {
     await Future.delayed(const Duration(seconds: 4));
-
-    await splashViewModel.checkAppUpdate();
-
-    final updateState = splashViewModel.appUpdateUIState;
-    if (updateState != null && updateState.status == Status.SUCCESS) {
-      final update = updateState.data!;
-      if (update.updateRequired && update.isForce) {
-        if (!context.mounted) return;
-         showUpdatePopUp(update);
-        return;
-      }
-    }
 
     final prefs = locator<SecuredSharedPreferences>();
     final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
@@ -127,47 +84,6 @@ class _SplashScreenState extends State<SplashScreen> {
       ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
     }
   }
-
-
-  showUpdatePopUp(update) {
-    AppDialog.show(
-      context,
-      child: CommonDialogView(
-        hideCloseButton: true,
-        onSingleButtonText: context.appText.updateNow,
-        onTapSingleButton: () {
-          launchUrl(Uri.parse(isAndroid ? playStoreUrl : appStoreUrl));
-        },
-        child: Column(
-          children: [
-            SvgPicture.asset(AppImage.svg.customerSupport, width: 200),
-            Text(
-              context.appText.updateRequired,
-              style: AppTextStyle.h4,
-            ),
-            10.height,
-            Text.rich(
-              TextSpan(
-                text: context.appText.updateAppText1,
-                style: AppTextStyle.h5,
-                children: [
-                  TextSpan(
-                    text: update.version,
-                    style: AppTextStyle.h4,
-                  ),
-                  TextSpan(text: context.appText.updateAppText2,
-                      style: AppTextStyle.h5),
-                ],
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-
 
 
   // Check user type (1 LP, 2 VP, 3 Both, 4)
@@ -214,13 +130,13 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Lottie.asset(
-          height: MediaQuery.of(context).size.height,
-          AppJSON.splash,
-          fit: BoxFit.fill,
-          width: double.infinity,
-          frameRate: FrameRate(120),
-          repeat: false,
-          filterQuality: FilterQuality.high,
+        AppJSON.splash,
+        fit: BoxFit.cover,
+        height: MediaQuery.of(context).size.height,
+        width: MediaQuery.of(context).size.width,
+        frameRate: FrameRate(120),
+        repeat: false,
+        filterQuality: FilterQuality.high,
       ),
     );
   }
