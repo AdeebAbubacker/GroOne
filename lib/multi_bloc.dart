@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/fastag/cubit/fastag_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
@@ -158,6 +159,9 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<GpsVehicleCubit>(
           create: (_) => locator<GpsVehicleCubit>(),
         ),
+        BlocProvider<GpsInfoWindowDetailsCubit>(
+          create: (_) => locator<GpsInfoWindowDetailsCubit>(),
+        ),
 
         // Other
         BlocProvider<EmailVerificationCubit>(
@@ -173,8 +177,12 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<PaymentCubit>(create: (_) => locator<PaymentCubit>()),
         BlocProvider<MastersCubit>(create: (_) => locator<MastersCubit>()),
         BlocProvider<FastagCubit>(create: (_) => locator<FastagCubit>()),
-        BlocProvider<DocumentTypeCubit>(create: (_) => locator<DocumentTypeCubit>()),
-        BlocProvider<LoadFilterCubit>(create: (_) => locator<LoadFilterCubit>()),
+        BlocProvider<DocumentTypeCubit>(
+          create: (_) => locator<DocumentTypeCubit>(),
+        ),
+        BlocProvider<LoadFilterCubit>(
+          create: (_) => locator<LoadFilterCubit>(),
+        ),
 
         BlocProvider<DocumentTypeCubit>(
           create: (_) => locator<DocumentTypeCubit>(),
@@ -185,14 +193,10 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<PrivacyPolicyBloc>(
           create: (_) => locator<PrivacyPolicyBloc>(),
         ),
-        BlocProvider<VpHomeCubit>(
-          create: (_) => locator<VpHomeCubit>(),
-        ),
-        
+        BlocProvider<VpHomeCubit>(create: (_) => locator<VpHomeCubit>()),
       ],
 
       child: child,
     );
   }
 }
-

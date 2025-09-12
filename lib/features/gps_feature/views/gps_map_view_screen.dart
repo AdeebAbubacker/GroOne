@@ -154,7 +154,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen>
         }
       }
     } catch (e) {
-      debugPrint('Error getting current location: $e');
     }
   }
 
@@ -209,7 +208,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen>
       final bounds = _getLatLngBounds(points);
       _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
     } catch (e) {
-      debugPrint('Error moving camera to polyline: $e');
     }
   }
 
@@ -236,7 +234,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen>
       final bounds = _getLatLngBounds(points);
       _mapController?.animateCamera(CameraUpdate.newLatLngBounds(bounds, 50));
     } catch (e) {
-      debugPrint('Error moving camera to polygon: $e');
     }
   }
 
@@ -518,7 +515,6 @@ class _GeofenceMapViewScreenState extends State<GeofenceMapViewScreen>
 
     return ErrorBoundary(
       onError: () {
-        debugPrint('🚨 Error caught in geofence map view');
       },
       child: MultiBlocListener(
         listeners: [

@@ -399,9 +399,42 @@ class GpsCombinedVehicleData {
     GpsDeviceExpiryData expiryData,
     GpsDevicePositionData? positionData,
   ) {
-    // Priority: ignition field > status field > position valid > expiry status
+    // Priority: idle check > ignition field > status field > position valid > expiry status
 
-    // Check ignition field first
+    // First check if vehicle is idle based on the new logic
+    if (positionData?.ignition != null &&
+        positionData?.speed != null &&
+        positionData?.idleFixTime != null) {
+      final ignition = positionData!.ignition!.toLowerCase().trim();
+      final speed = positionData.speed!;
+      final idleFixTime = positionData.idleFixTime!;
+
+      // Check if ignition is ON
+      if (ignition == "on" ||
+          ignition == "1" ||
+          ignition == "true" ||
+          ignition == "yes" ||
+          ignition == "running") {
+        // Check if speed is 0
+        final double? speedValue = double.tryParse(speed);
+        if (speedValue != null && speedValue == 0.0) {
+          // Check if idle time is greater than 60 seconds
+          try {
+            final DateTime idleStartTime = DateTime.parse(idleFixTime);
+            final DateTime now = DateTime.now();
+            final Duration difference = now.difference(idleStartTime);
+
+            if (!difference.isNegative && difference.inSeconds > 60) {
+              return 'IDLE';
+            }
+          } catch (e) {
+            // If parsing fails, continue with other checks
+          }
+        }
+      }
+    }
+
+    // Check ignition field
     if (positionData?.ignition != null) {
       final ignition = positionData!.ignition!.toLowerCase().trim();
 

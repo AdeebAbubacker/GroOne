@@ -14,7 +14,6 @@ class GpsNotificationTypesSheetCubit extends Cubit<GpsNotificationTypesSheetStat
     emit(GpsNotificationTypesLoading());
 
     final result = await _repository.fetchDeprecatedNotificationStatus();
-    print('harsh: $result');
     if (result is Success<Map<String, dynamic>>) {
       final data = result.value;
 

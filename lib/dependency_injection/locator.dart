@@ -38,12 +38,14 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gp
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_screen_lifecycle_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/reachability_cubit/reachability_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_detail_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_service/gps_order_api_services.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_service.dart';
+import 'package:gro_one_app/features/gps_feature/service/reachability_service.dart';
 import 'package:gro_one_app/features/gps_feature/service/report_service.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_add_address_bloc/kavach_checkout_add_address_bloc.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
@@ -108,7 +110,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_details/services/vp_det
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/load_accpect/vp_accept_load_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_home_bloc/vp_home_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/bloc/vp_recent_load_list/vp_recent_load_list_bloc.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_home/cubit/vp_home_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/repository/vp_repository.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/service/vp_service.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_pod_dispatch/cubit/pod_dispatch_cubit.dart';
@@ -145,6 +146,7 @@ import '../features/gps_feature/service/gps_screen_manager.dart';
 import '../features/gps_feature/service/gps_vehicle_extra_info_service.dart';
 import '../features/gps_feature/service/path_replay_service.dart';
 import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import '../features/vehicle_provider/vp_home/cubit/vp_home_cubit.dart';
 import '../service/pushNotification/notification_service.dart';
 
 var locator = GetIt.instance;
@@ -742,13 +744,30 @@ void _registerDeferredBlocs() {
     () => GpsReportCubit(repository: locator<GpsReportRepository>()),
   );
   locator.registerLazySingleton(() => VehicleDetailCubit());
+
+  // Reachability Service and Cubit
+  locator.registerLazySingleton(
+    () => ReachabilityService(locator<ApiService>()),
+  );
+  locator.registerLazySingleton(
+    () => ReachabilityCubit(
+      service: locator<ReachabilityService>(),
+      loginRepository: locator<GpsLoginRepository>(),
+      geofenceCubit: locator<GpsGeofenceCubit>(),
+    ),
+  );
   locator.registerLazySingleton(
     () => PathReplayCubit(locator<PathReplayRepository>()),
   );
   locator.registerLazySingleton(
     () => GpsKycCheckCubit(locator<GpsOrderApiRepository>()),
   );
-  locator.registerLazySingleton<VpHomeCubit>(() => VpHomeCubit(locator<VpHomeRepository>(), locator<UserInformationRepository>(),));
+  locator.registerLazySingleton(
+    () => VpHomeCubit(
+      locator<VpHomeRepository>(),
+      locator<UserInformationRepository>(),
+    ),
+  );
 
   // Verify GPS cubits are registered
   try {

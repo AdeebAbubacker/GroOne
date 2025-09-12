@@ -1,10 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/fastag/views/fastag_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/gps_feature/repository/gps_login_repository.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 // import 'package:gro_one_app/features/gps/view/gps_order_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_orders_list_screen.dart';
@@ -95,54 +97,79 @@ class _OurValueAddedServicesWidgetState
             if (context.mounted) {
               if (kycCheckCubit.state.hasKycDocuments &&
                   kycCheckCubit.state.kycData != null) {
-                // KYC done - check order list to decide between GPS home or benefits
-                final orderListCubit = GpsOrderListCubit(
-                  locator<GpsOrderApiRepository>(),
-                );
+                // KYC done - check GPS authentication first
+                final userRepository = locator<UserInformationRepository>();
+                final mobileNumber = await userRepository.getUserMobileNumber();
 
-                // Show loading dialog for order list check
-                showDialog(
-                  context: context,
-                  barrierDismissible: false,
-                  builder: (BuildContext context) {
-                    return const Center(child: CircularProgressIndicator());
-                  },
-                );
+                if (mobileNumber != null && mobileNumber.isNotEmpty) {
+                  // Show loading dialog for GPS auth check
+                  showDialog(
+                    context: context,
+                    barrierDismissible: false,
+                    builder: (BuildContext context) {
+                      return const Center(child: CircularProgressIndicator());
+                    },
+                  );
 
-                // Get order list
-                await orderListCubit.getOrderList(customerId: customerId);
+                  // Check GPS authentication
+                  final gpsLoginRepository = locator<GpsLoginRepository>();
+                  final authResult = await gpsLoginRepository.checkGpsAuth(
+                    mobileNumber,
+                  );
 
-                // Close loading dialog
-                if (context.mounted) {
-                  Navigator.of(context).pop();
-                }
+                  // Close loading dialog
+                  if (context.mounted) {
+                    Navigator.of(context).pop();
+                  }
 
-                // Navigate based on order list
-                if (context.mounted) {
-                  if (orderListCubit.state is GpsOrderListLoaded) {
-                    final orderState =
-                        orderListCubit.state as GpsOrderListLoaded;
-                    if (orderState.orderList.data.rows.isNotEmpty) {
-                      // Scenario 1: KYC done and has orders - show GPS home screen
+                  if (context.mounted) {
+                    if (authResult is Success) {
+                      // GPS auth successful - directly navigate to GPS home screen
                       Navigator.push(context, commonRoute(GpsHomeScreen()));
                     } else {
-                      // Scenario 2: KYC done but no orders - show benefits screen
-                      Navigator.push(
-                        context,
-                        commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+                      // GPS auth failed - check order list and then show benefits screen
+                      final orderListCubit = GpsOrderListCubit(
+                        locator<GpsOrderApiRepository>(),
                       );
-                    }
-                  } else {
-                    // Fallback to benefits screen if order list check fails
-                    Navigator.push(
-                      context,
-                      commonRoute(GpsOrderBenefitsAndOrderListScreen()),
-                    );
-                  }
-                }
 
-                // Dispose the temporary cubits
-                orderListCubit.close();
+                      // Show loading dialog for order list check
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext context) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        },
+                      );
+
+                      // Get order list
+                      await orderListCubit.getOrderList(customerId: customerId);
+
+                      // Close loading dialog
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
+
+                      // Navigate to benefits screen (GPS auth failed)
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+                        );
+                      }
+
+                      // Dispose the temporary cubit
+                      orderListCubit.close();
+                    }
+                  }
+                } else {
+                  // No mobile number - show benefits screen
+                  Navigator.push(
+                    context,
+                    commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+                  );
+                }
               } else {
                 // Scenario 3: KYC not done - show benefits screen
                 Navigator.push(
@@ -297,7 +324,10 @@ class _OurValueAddedServicesWidgetState
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Expanded(
-                child: Text(context.appText.valueAddedServices, style: AppTextStyle.body1),
+                child: Text(
+                  context.appText.valueAddedServices,
+                  style: AppTextStyle.body1,
+                ),
               ),
             ],
           ).paddingSymmetric(horizontal: commonSafeAreaPadding),

@@ -16,6 +16,7 @@ import 'package:gro_one_app/features/gps_feature/views/gps_dashboard_screen.dart
 import 'package:gro_one_app/features/gps_feature/views/gps_geofence_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_home_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
+import 'package:gro_one_app/features/gps_feature/views/reachability_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/edit_vehicle_info.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/select_vehicle_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/vehicle_share_update_screen.dart';
@@ -254,6 +255,16 @@ class AppRoutes {
       ),
 
       GoRoute(
+        path: AppRouteName.gpsReachability,
+        builder: (BuildContext context, GoRouterState state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          final preSelectedVehicle = extra?['preSelectedVehicle'];
+
+          return ReachabilityScreen(preSelectedVehicle: preSelectedVehicle);
+        },
+      ),
+
+      GoRoute(
         path: AppRouteName.lpCreateAccount,
         pageBuilder: (BuildContext context, GoRouterState state) {
           final data = state.extra as Map<String, dynamic>;
@@ -350,7 +361,6 @@ class AppRoutes {
           final initialSelectedVehicle =
               data['initialSelectedVehicle'] as GpsCombinedVehicleData?;
           return VehicleMapScreen(
-            sbMatricContent: context.appText.sbMatricSchool,
             listViewText: context.appText.listView,
             vehicles: vehicles,
             initialSelectedVehicle: initialSelectedVehicle,
@@ -396,7 +406,8 @@ class AppRoutes {
         path: AppRouteName.myAccount,
         pageBuilder: (BuildContext context, GoRouterState state) {
           final data = state.extra as Map<String, dynamic>? ?? {};
-          final CustomerDataResponse? customerDetail = data["customerDetail"] as CustomerDataResponse?;
+          final CustomerDataResponse? customerDetail =
+              data["customerDetail"] as CustomerDataResponse?;
           final BankDetails? bankDetails = data["bankDetails"] as BankDetails?;
           final KycDoc? kycDoc = data["kycDoc"] as KycDoc?;
 
@@ -576,7 +587,6 @@ class AppRoutes {
           );
         },
       ),
-
 
       GoRoute(
         path: AppRouteName.lpSelectAddressScreen,

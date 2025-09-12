@@ -17,9 +17,11 @@ import 'package:gro_one_app/features/gps_feature/helper/vehicle_marker_helper.da
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/service/idle_calculation_service.dart';
 import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/service/location_service.dart';
@@ -38,6 +40,7 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
 
   SelectedVehicleCubit() : super(null);
 
+  @override
   bool get isClosed => _isClosed;
 
   @override
@@ -63,44 +66,61 @@ class SelectedVehicleCubit extends Cubit<GpsCombinedVehicleData?> {
   }
 }
 
-class VehicleMapScreen extends StatelessWidget {
+class VehicleMapScreen extends StatefulWidget {
   final List<GpsCombinedVehicleData> vehicles;
   final GpsCombinedVehicleData? initialSelectedVehicle;
-  final String? sbMatricContent;
   final String? listViewText;
 
   const VehicleMapScreen({
     super.key,
     required this.vehicles,
     this.initialSelectedVehicle,
-    this.sbMatricContent,
     this.listViewText,
   });
 
   @override
+  State<VehicleMapScreen> createState() => _VehicleMapScreenState();
+}
+
+class _VehicleMapScreenState extends State<VehicleMapScreen> {
+  @override
   Widget build(BuildContext context) {
     return GpsScreenLifecycleWrapper(
       screenType: GpsScreenType.map,
-      child: _VehicleMapContent(
-        vehicles: vehicles,
-        initialSelectedVehicle: initialSelectedVehicle,
-        sbMatricContent: sbMatricContent,
-        listViewText: listViewText,
+      child: FutureBuilder<String?>(
+        future: _getUsername(),
+        builder: (context, snapshot) {
+          return _VehicleMapContent(
+            vehicles: widget.vehicles,
+            initialSelectedVehicle: widget.initialSelectedVehicle,
+            username: snapshot.data,
+            listViewText: widget.listViewText,
+          );
+        },
       ),
     );
+  }
+
+  Future<String?> _getUsername() async {
+    try {
+      final userInfoRepo = locator<UserInformationRepository>();
+      return await userInfoRepo.getUsername();
+    } catch (e) {
+      return null;
+    }
   }
 }
 
 class _VehicleMapContent extends StatelessWidget {
   final List<GpsCombinedVehicleData> vehicles;
   final GpsCombinedVehicleData? initialSelectedVehicle;
-  final String? sbMatricContent;
+  final String? username;
   final String? listViewText;
 
   const _VehicleMapContent({
     required this.vehicles,
     this.initialSelectedVehicle,
-    this.sbMatricContent,
+    this.username,
     this.listViewText,
   });
 
@@ -117,7 +137,7 @@ class _VehicleMapContent extends StatelessWidget {
       try {
         if (context.mounted) {
           final cubit = context.read<SelectedVehicleCubit>();
-          if (cubit != null && !cubit.isClosed) {
+          if (!cubit.isClosed) {
             cubit.select(vehicle);
           }
         }
@@ -131,7 +151,6 @@ class _VehicleMapContent extends StatelessWidget {
   Future<Set<Marker>> _createVehicleMarkers(
     List<GpsCombinedVehicleData> vehicles,
     BuildContext context,
-    String sbMatricContent,
   ) async {
     final markers = <Marker>{};
     for (final vehicle in vehicles) {
@@ -179,11 +198,7 @@ class _VehicleMapContent extends StatelessWidget {
         builder: (context, selectedVehicle) {
           final isSingleVehicle = vehicles.length == 1;
           return FutureBuilder<Set<Marker>>(
-            future: _createVehicleMarkers(
-              vehicles,
-              context,
-              sbMatricContent ?? '',
-            ),
+            future: _createVehicleMarkers(vehicles, context),
             builder: (context, markerSnapshot) {
               final markers = markerSnapshot.data ?? <Marker>{};
               final initialCameraPosition = () {
@@ -398,7 +413,7 @@ class _VehicleMapContent extends StatelessWidget {
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Text(
-                                    sbMatricContent ?? 'SB Matric school',
+                                    username ?? 'User',
                                     style: const TextStyle(
                                       color: Colors.black,
                                       fontWeight: FontWeight.w600,
@@ -514,13 +529,10 @@ class _VehicleMapContent extends StatelessWidget {
                                       .read<VehicleListCubit>()
                                       .toggleMapType(),
                           onReachability: () {
-                            // Navigate to GPS reports screen with reachability pre-selected
+                            // Navigate to reachability screen
                             context.push(
-                              AppRouteName.gpsReports,
-                              extra: {
-                                'preSelectedReportType': 'reachability',
-                                'preSelectedVehicle': selectedVehicle,
-                              },
+                              AppRouteName.gpsReachability,
+                              extra: {'preSelectedVehicle': selectedVehicle},
                             );
                           },
                           onNearbyVehicles: () async {
@@ -658,11 +670,6 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
                           fontSize: 16,
                         ),
                       ),
-                      const SizedBox(width: 8),
-                      _StatusChip(
-                        label: (vehicle.status ?? '-').capitalize(),
-                        color: _getStatusColor(vehicle.status),
-                      ),
                     ],
                   ),
                 ),
@@ -762,49 +769,6 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color _getStatusColor(String? status) {
-    if (status == null) return Colors.grey;
-
-    final statusUpper = status.toUpperCase();
-    switch (statusUpper) {
-      case 'IGNITION_ON':
-      case 'ACTIVE':
-      case 'RUNNING':
-      case 'ON':
-        return Colors.green;
-      case 'IGNITION_OFF':
-      case 'OFF':
-      case 'INACTIVE':
-      case 'STOPPED':
-        return Colors.red;
-      case 'IDLE':
-      case 'PARKED':
-        return Colors.orange;
-      case 'MAINTENANCE':
-      case 'SERVICE':
-        return Colors.purple;
-      case 'ERROR':
-      case 'FAULT':
-        return Colors.red;
-      default:
-        // Try to determine color from status string
-        final statusLower = status.toLowerCase();
-        if (statusLower.contains('on') ||
-            statusLower.contains('active') ||
-            statusLower.contains('running')) {
-          return Colors.green;
-        } else if (statusLower.contains('off') ||
-            statusLower.contains('inactive') ||
-            statusLower.contains('stopped')) {
-          return Colors.red;
-        } else if (statusLower.contains('idle') ||
-            statusLower.contains('parked')) {
-          return Colors.orange;
-        }
-        return Colors.grey;
-    }
   }
 
   String _getIgnitionStatus(String? ignition, String? status) {
@@ -908,39 +872,6 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
   }
 }
 
-extension _CapitalizeExtension on String {
-  String capitalize() {
-    if (isEmpty) return this;
-    return this[0].toUpperCase() + substring(1).toLowerCase();
-  }
-}
-
-class _StatusChip extends StatelessWidget {
-  final String label;
-  final Color color;
-
-  const _StatusChip({required this.label, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.25),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: color,
-          fontWeight: FontWeight.w600,
-          fontSize: 12,
-        ),
-      ),
-    );
-  }
-}
-
 // Stateless widget with BlocProvider
 class _VehicleBottomCard extends StatelessWidget {
   final GpsCombinedVehicleData vehicle;
@@ -999,20 +930,20 @@ class _VehicleBottomCardContent extends StatefulWidget {
 
 class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
   bool _expanded = false;
-  GpsInfoWindowDetailsCubit? _infoWindowDetailsCubit;
 
   @override
   void initState() {
     super.initState();
-    // Call API when widget is first created
-    _loadInfoWindowDetails();
+    // Call API when widget is first created - add small delay to ensure cubit is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadInfoWindowDetails();
+    });
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Store cubit reference safely
-    _infoWindowDetailsCubit = context.read<GpsInfoWindowDetailsCubit>();
+    // No need to store cubit reference - we'll get it fresh when needed
   }
 
   @override
@@ -1026,16 +957,22 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
 
   void _loadInfoWindowDetails() {
     if (widget.vehicle.deviceId != null) {
-      _infoWindowDetailsCubit?.getInfoWindowDetails(
-        widget.vehicle.deviceId.toString(),
-      );
+      // Get fresh cubit reference to avoid closed cubit issues
+      try {
+        final cubit = context.read<GpsInfoWindowDetailsCubit>();
+        if (!cubit.isClosed) {
+          cubit.getInfoWindowDetails(widget.vehicle.deviceId.toString());
+        }
+      } catch (e) {
+        // Handle error silently
+      }
     }
   }
 
   @override
   void dispose() {
-    // Reset cubit state when widget is disposed - use stored reference
-    _infoWindowDetailsCubit?.resetState();
+    // Don't reset cubit state on dispose - let it persist for better UX
+    // The cubit will be reused for other vehicles
     super.dispose();
   }
 
@@ -1187,19 +1124,19 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                             ],
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            _calculateIdleCountFromTimestamps(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
+                          // Text(
+                          //   _calculateIdleCountFromTimestamps(),
+                          //   style: const TextStyle(
+                          //     fontWeight: FontWeight.bold,
+                          //     fontSize: 18,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 2),
                           Text(
                             _calculateIdleTimeFromTimestamps(),
                             style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
                           ),
                         ],
@@ -1358,92 +1295,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
             // Info Window Details Card (Trip Details)
             BlocBuilder<GpsInfoWindowDetailsCubit, GpsInfoWindowDetailsState>(
               builder: (context, state) {
-                if (state.infoWindowDetailsState?.status == Status.LOADING) {
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      top: 12,
-                      left: 12,
-                      right: 12,
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: const EdgeInsets.all(16),
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                  );
-                }
-
-                if (state.infoWindowDetailsState?.status == Status.SUCCESS &&
-                    state.infoWindowDetailsState?.data != null) {
-                  final infoDetails = state.infoWindowDetailsState!.data!;
-                  return Padding(
-                    padding: const EdgeInsets.only(
-                      top: 12,
-                      left: 12,
-                      right: 12,
-                    ),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      child: Column(
-                        children: [
-                          _InfoRow(
-                            icon: Icons.vpn_key,
-                            label:
-                                _getIgnitionStatus(
-                                          widget.vehicle.ignition,
-                                          widget.vehicle.status,
-                                        ) ==
-                                        'ON'
-                                    ? 'Ignition On Since'
-                                    : 'Ignition OFF Since',
-                            value: _formatIgnitionTime(
-                              widget.vehicle.lastIgnitionOnFixTime,
-                              widget.vehicle.lastIgnitionOffFixTime,
-                              widget.vehicle.ignition,
-                              widget.vehicle.status,
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          _InfoRow(
-                            icon: Icons.access_time,
-                            label: 'Last Trip Time',
-                            value: _formatLastTripTime(
-                              widget.vehicle.lastUpdate,
-                            ),
-                          ),
-                          const Divider(height: 1),
-                          _InfoWindowDetailRow(
-                            icon: Icons.speed,
-                            label: 'Max Speed',
-                            value:
-                                '${infoDetails.maxSpeedKph?.toStringAsFixed(1) ?? '0.0'} km/h',
-                          ),
-                          const Divider(height: 1),
-                          _InfoWindowDetailRow(
-                            icon: Icons.route,
-                            label: 'Last Trip Distance',
-                            value:
-                                '${infoDetails.lastTripDistance?.toStringAsFixed(1) ?? '0.0'} km',
-                          ),
-                          const Divider(height: 1),
-                          _InfoWindowDetailRow(
-                            icon: Icons.stop_circle,
-                            label: 'Stops Count',
-                            value: '${infoDetails.stopsCount ?? 0}',
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                }
-
-                return const SizedBox.shrink();
+                return _buildInfoWindowCard(state);
               },
             ),
 
@@ -1605,129 +1457,155 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
     return '${cacheDistance.toStringAsFixed(1)} km';
   }
 
-  String _formatIdleCount(String? idleTime) {
-    if (idleTime == null || idleTime.isEmpty) return '-';
-    // Since we don't have idle count in the API, we'll calculate it from idle time
-    try {
-      final idleSeconds = int.tryParse(idleTime);
-      if (idleSeconds != null && idleSeconds > 0) {
-        // If idle time is more than 5 minutes, consider it as an idle event
-        if (idleSeconds > 300) {
-          // 5 minutes = 300 seconds
-          return '1';
-        }
-      }
-    } catch (e) {
-      // If parsing fails, return default
-    }
-    return '0';
-  }
-
   String _calculateIdleCountFromTimestamps() {
-    final idleFixTime = widget.vehicle.idleFixTime;
-    final idleFixTimeKey = widget.vehicle.idleFixTimeKey;
+    final idleCount = IdleCalculationService.getIdleCount(
+      ignition: widget.vehicle.ignition,
+      speed: widget.vehicle.lastSpeed,
+      idleFixTime: widget.vehicle.idleFixTime,
+    );
+    return idleCount.toString();
+  }
 
-    if (idleFixTime == null ||
-        idleFixTime.isEmpty ||
-        idleFixTimeKey == null ||
-        idleFixTimeKey.isEmpty) {
-      return '-';
-    }
+  String _getVehicleStatusText(String? status) {
+    if (status == null || status.isEmpty) return 'Unknown';
 
-    try {
-      // Parse UTC timestamps
-      final DateTime idleFixTimeUtc = DateTime.parse(idleFixTime);
-      final DateTime idleFixTimeKeyUtc = DateTime.parse(idleFixTimeKey);
-
-      // Convert to local time
-      final DateTime idleFixTimeLocal = idleFixTimeUtc.toLocal();
-      final DateTime idleFixTimeKeyLocal = idleFixTimeKeyUtc.toLocal();
-
-      // Calculate the difference - always subtract the earlier time from the later time
-      Duration difference;
-      if (idleFixTimeLocal.isAfter(idleFixTimeKeyLocal)) {
-        difference = idleFixTimeLocal.difference(idleFixTimeKeyLocal);
-      } else {
-        difference = idleFixTimeKeyLocal.difference(idleFixTimeLocal);
-      }
-
-      // Calculate idle count based on duration
-      final int totalSeconds = difference.inSeconds;
-      if (totalSeconds < 0) {
-        return '0'; // Invalid time difference
-      }
-
-      // If idle time is more than 5 minutes, consider it as an idle event
-      if (totalSeconds > 300) {
-        return '1';
-      }
-
-      return '0';
-    } catch (e) {
-      // If parsing fails, fall back to the original idleTime calculation
-      return _formatIdleCount(widget.vehicle.idleTime);
+    switch (status.toUpperCase()) {
+      case 'IGNITION_ON':
+        return 'Running';
+      case 'IGNITION_OFF':
+        return 'Stopped';
+      case 'IDLE':
+        return 'Idle';
+      case 'INACTIVE':
+        return 'Inactive';
+      default:
+        return status;
     }
   }
 
-  String _formatIdleTime(String? idleTime) {
-    if (idleTime == null || idleTime.isEmpty) return '-';
-    return formatDuration(idleTime);
+  /// Optimized method to build info window card with memoized calculations
+  Widget _buildInfoWindowCard(GpsInfoWindowDetailsState state) {
+    final infoDetails = state.infoWindowDetailsState?.data;
+    final isLoading = state.infoWindowDetailsState?.status == Status.LOADING;
+    final hasApiData =
+        state.infoWindowDetailsState?.status == Status.SUCCESS &&
+        infoDetails != null;
+
+    // Memoize expensive calculations
+    final ignitionStatus = _getIgnitionStatus(
+      widget.vehicle.ignition,
+      widget.vehicle.status,
+    );
+    final ignitionLabel =
+        ignitionStatus == 'ON' ? 'Ignition On Since' : 'Ignition OFF Since';
+    final ignitionValue = _formatIgnitionTime(
+      widget.vehicle.lastIgnitionOnFixTime,
+      widget.vehicle.lastIgnitionOffFixTime,
+      widget.vehicle.ignition,
+      widget.vehicle.status,
+    );
+    final lastTripTime = _formatLastTripTime(widget.vehicle.lastUpdate);
+    final currentSpeed = '${widget.vehicle.lastSpeed ?? '0'} km/h';
+    final todayDistance = '${widget.vehicle.todayDistance ?? '0.0'} km';
+    final vehicleStatus = _getVehicleStatusText(widget.vehicle.status);
+
+    return Padding(
+      padding: const EdgeInsets.only(top: 12, left: 12, right: 12),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            // Basic vehicle information (always shown)
+            _InfoRow(
+              icon: Icons.vpn_key,
+              label: ignitionLabel,
+              value: ignitionValue,
+            ),
+            const Divider(height: 1),
+            _InfoRow(
+              icon: Icons.access_time,
+              label: 'Last Trip Time',
+              value: lastTripTime,
+            ),
+            const Divider(height: 1),
+            _InfoRow(
+              icon: Icons.speed,
+              label: 'Current Speed',
+              value: currentSpeed,
+            ),
+            const Divider(height: 1),
+            _InfoRow(
+              icon: Icons.route,
+              label: 'Today Distance',
+              value: todayDistance,
+            ),
+            const Divider(height: 1),
+            _InfoRow(
+              icon: Icons.stop_circle,
+              label: 'Status',
+              value: vehicleStatus,
+            ),
+
+            // API details (shown when available)
+            if (hasApiData) ...[
+              const Divider(height: 1),
+              _InfoWindowDetailRow(
+                icon: Icons.speed,
+                label: 'Max Speed',
+                value:
+                    '${infoDetails.maxSpeedKph?.toStringAsFixed(1) ?? '0.0'} km/h',
+              ),
+              const Divider(height: 1),
+              _InfoWindowDetailRow(
+                icon: Icons.route,
+                label: 'Last Trip Distance',
+                value:
+                    '${infoDetails.lastTripDistance?.toStringAsFixed(1) ?? '0.0'} km',
+              ),
+              const Divider(height: 1),
+              _InfoWindowDetailRow(
+                icon: Icons.stop_circle,
+                label: 'Stops Count',
+                value: '${infoDetails.stopsCount ?? 0}',
+              ),
+            ],
+
+            // Loading indicator for API data
+            if (isLoading) ...[
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Loading additional details...',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 
   String _calculateIdleTimeFromTimestamps() {
-    final idleFixTime = widget.vehicle.idleFixTime;
-    final idleFixTimeKey = widget.vehicle.idleFixTimeKey;
-
-    if (idleFixTime == null ||
-        idleFixTime.isEmpty ||
-        idleFixTimeKey == null ||
-        idleFixTimeKey.isEmpty) {
-      return '-';
-    }
-
-    try {
-      // Parse UTC timestamps
-      final DateTime idleFixTimeUtc = DateTime.parse(idleFixTime);
-      final DateTime idleFixTimeKeyUtc = DateTime.parse(idleFixTimeKey);
-
-      // Convert to local time
-      final DateTime idleFixTimeLocal = idleFixTimeUtc.toLocal();
-      final DateTime idleFixTimeKeyLocal = idleFixTimeKeyUtc.toLocal();
-
-      // Calculate the difference - always subtract the earlier time from the later time
-      Duration difference;
-      if (idleFixTimeLocal.isAfter(idleFixTimeKeyLocal)) {
-        difference = idleFixTimeLocal.difference(idleFixTimeKeyLocal);
-      } else {
-        difference = idleFixTimeKeyLocal.difference(idleFixTimeLocal);
-      }
-
-      // Format the duration
-      final int totalSeconds = difference.inSeconds;
-
-      if (totalSeconds < 0) {
-        return '-'; // Invalid time difference
-      }
-
-      final int hours = totalSeconds ~/ 3600;
-      final int minutes = (totalSeconds % 3600) ~/ 60;
-
-      String result;
-      if (hours > 0 && minutes > 0) {
-        result = '${hours}h ${minutes}m';
-      } else if (hours > 0) {
-        result = '${hours}h';
-      } else if (minutes > 0) {
-        result = '${minutes}m';
-      } else {
-        result = '0m';
-      }
-
-      return result;
-    } catch (e) {
-      // If parsing fails, fall back to the original idleTime
-      return _formatIdleTime(widget.vehicle.idleTime);
-    }
+    // Use the new idle calculation service
+    return IdleCalculationService.formatIdleDurationFromTimestamp(
+      widget.vehicle.idleFixTime,
+    );
   }
 
   String _getIgnitionStatus(String? ignition, String? status) {
@@ -1791,28 +1669,28 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
     final ignitionStatus = _getIgnitionStatus(ignition, status);
 
     if (ignitionStatus == 'ON') {
-      // Show ignition on time
+      // Show ignition on timestamp in native format: "dd-MM-yy hh:mma"
       if (lastIgnitionOnFixTime == null || lastIgnitionOnFixTime.isEmpty) {
         return 'N/A';
       }
       try {
         final dateTime = DateTime.parse(lastIgnitionOnFixTime);
         final localDateTime = dateTime.toLocal();
-        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)}, ${_formatTime(localDateTime)}';
+        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)} ${_formatTime(localDateTime)}';
       } catch (e) {
-        return lastIgnitionOnFixTime;
+        return 'N/A';
       }
     } else {
-      // Show ignition off time
+      // Show ignition off timestamp in native format: "dd-MM-yy hh:mma"
       if (lastIgnitionOffFixTime == null || lastIgnitionOffFixTime.isEmpty) {
         return 'N/A';
       }
       try {
         final dateTime = DateTime.parse(lastIgnitionOffFixTime);
         final localDateTime = dateTime.toLocal();
-        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)}, ${_formatTime(localDateTime)}';
+        return '${localDateTime.day.toString().padLeft(2, '0')}-${localDateTime.month.toString().padLeft(2, '0')}-${localDateTime.year.toString().substring(2)} ${_formatTime(localDateTime)}';
       } catch (e) {
-        return lastIgnitionOffFixTime;
+        return 'N/A';
       }
     }
   }
@@ -1828,7 +1706,7 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
     // Check if it's a timestamp (ISO format)
     if (tmp.contains('T') && tmp.contains('+')) {
       try {
-        final dateTime = DateTime.parse(tmp);
+        DateTime.parse(tmp); // Validate timestamp format
         // Extract temperature from posAttr if available
         if (widget.vehicle.posAttr != null &&
             widget.vehicle.posAttr!.isNotEmpty) {
@@ -2470,19 +2348,23 @@ class _StatusIconText extends StatelessWidget {
 }
 
 String formatDuration(dynamic rawIdleTime) {
-  int totalSeconds = 0;
-
   if (rawIdleTime == null) return '-';
 
-  // Try to parse if it's a string number
+  int idleSeconds = 0;
+
+  // Parse the input value
   if (rawIdleTime is String) {
-    // Handle different time formats
     final cleanTime = rawIdleTime.trim();
+
+    // Return early if already formatted
+    if (cleanTime.isEmpty) return '-';
 
     // Check if it's already in a readable format (e.g., "2h 30m")
     if (cleanTime.contains('h') ||
         cleanTime.contains('hr') ||
-        cleanTime.contains('hour')) {
+        cleanTime.contains('hour') ||
+        cleanTime.contains('m') ||
+        cleanTime.contains('min')) {
       return cleanTime;
     }
 
@@ -2493,41 +2375,49 @@ String formatDuration(dynamic rawIdleTime) {
         final hours = int.tryParse(parts[0]) ?? 0;
         final minutes = int.tryParse(parts[1]) ?? 0;
         final seconds = int.tryParse(parts[2]) ?? 0;
-        totalSeconds = hours * 3600 + minutes * 60 + seconds;
+        idleSeconds = hours * 3600 + minutes * 60 + seconds;
       } else if (parts.length == 2) {
         final minutes = int.tryParse(parts[0]) ?? 0;
         final seconds = int.tryParse(parts[1]) ?? 0;
-        totalSeconds = minutes * 60 + seconds;
+        idleSeconds = minutes * 60 + seconds;
       }
     } else {
       // Try to parse as a simple number
-      totalSeconds = int.tryParse(cleanTime) ?? 0;
+      final parsedValue = int.tryParse(cleanTime);
+      if (parsedValue == null) return '-';
+      idleSeconds = parsedValue;
     }
   } else if (rawIdleTime is int) {
-    totalSeconds = rawIdleTime;
+    idleSeconds = rawIdleTime;
   } else if (rawIdleTime is double) {
-    totalSeconds = rawIdleTime.toInt();
-  }
-
-  // If the value is very small (less than 1000), it might be in minutes
-  // If it's between 1000-100000, it might be in seconds
-  // If it's very large, it might already be in seconds
-  if (totalSeconds > 0 && totalSeconds < 1000) {
-    totalSeconds *= 60; // Convert minutes to seconds
-  }
-
-  final duration = Duration(seconds: totalSeconds);
-  final hours = duration.inHours;
-  final minutes = duration.inMinutes % 60;
-
-  if (hours > 0 && minutes > 0) {
-    return '${hours}h ${minutes}m';
-  } else if (hours > 0) {
-    return '${hours}h';
-  } else if (minutes > 0) {
-    return '${minutes}m';
+    idleSeconds = rawIdleTime.toInt();
   } else {
-    return '0m';
+    return '-';
+  }
+
+  // Handle negative values
+  if (idleSeconds < 0) return '0min';
+
+  // Native Java logic:
+  // int duration_minutes = (int) ((tripIdleHours / 60) % 60);
+  // int duration_hours = (int) ((tripIdleHours / (60 * 60)) % 24);
+  // Note: tripIdleHours is actually in seconds despite the name
+  final int durationMinutes = (idleSeconds ~/ 60) % 60;
+  final int durationHours = (idleSeconds ~/ (60 * 60)) % 24;
+
+  // Format exactly like native: "Xhr Ymin" or "0min"
+  if (idleSeconds > 0) {
+    if (durationHours > 0 && durationMinutes > 0) {
+      return '${durationHours}hr ${durationMinutes}min';
+    } else if (durationHours > 0) {
+      return '${durationHours}hr';
+    } else if (durationMinutes > 0) {
+      return '${durationMinutes}min';
+    } else {
+      return '0min';
+    }
+  } else {
+    return '0min';
   }
 }
 

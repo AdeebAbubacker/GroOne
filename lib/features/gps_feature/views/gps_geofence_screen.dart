@@ -171,7 +171,6 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
         actions: [
           AppIconButton(
             onPressed: () {
-              debugPrint("🔄 GpsGeofenceScreen - Refresh button pressed");
               // gpsGeofenceCubit.refreshData();
               gpsGeofenceCubit.refreshData().then((_) {
                 if (_tabController.index == 1 && selectedVehicle.isNotEmpty) {
@@ -194,10 +193,6 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
               // Only load data if not already loaded
               if (!vehicleListCubit.hasLoadedData) {
                 vehicleListCubit.loadVehicleData();
-              } else {
-                debugPrint(
-                  "📍 GpsGeofenceScreen - Vehicle data already loaded, skipping loadVehicleData call",
-                );
               }
 
               Navigator.push(
@@ -300,17 +295,10 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
                           geofence: item,
                           onSave: (updatedGeofence) {
                             // Handle the updated geofence data (e.g., save to database, API)
-                            debugPrint(
-                              "Geofence updated: ${updatedGeofence.name}, ID: ${updatedGeofence.id}",
-                            );
                             if (updatedGeofence.shapeType == "circle") {
-                              debugPrint(
-                                "Center: ${updatedGeofence.center}, Radius: ${updatedGeofence.radius}",
-                              );
+                              // Handle circle geofence
                             } else if (updatedGeofence.shapeType == "polygon") {
-                              debugPrint(
-                                "Polygon Points: ${updatedGeofence.polygonPoints}",
-                              );
+                              // Handle polygon geofence
                             }
                           },
                         ),
@@ -696,9 +684,7 @@ class _GpsGeofenceScreenState extends State<GpsGeofenceScreen>
             builder:
                 (context) => GeofenceMapViewScreen(
                   geofence: null,
-                  onSave: (newGeofence) {
-                    debugPrint("New Geofence added: ${newGeofence.name}");
-                  },
+                  onSave: (newGeofence) {},
                 ),
           ),
         );

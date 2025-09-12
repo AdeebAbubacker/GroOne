@@ -81,10 +81,6 @@ class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
               // Only load data if not already loaded
               if (!vehicleListCubit.hasLoadedData) {
                 vehicleListCubit.loadVehicleData();
-              } else {
-                debugPrint(
-                  "📍 GpsGeofenceScreen - Vehicle data already loaded, skipping loadVehicleData call",
-                );
               }
 
               Navigator.push(
@@ -280,6 +276,21 @@ class _GpsSettingsScreenState extends State<GpsSettingsScreen> {
                   onChanged: (val) async {
                     setState(() => _showGeofenceOnMap = val);
                     await GpsSessionManager.setShowGeofenceOnMap(val);
+
+                    // Show feedback to user
+                    if (mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            val
+                                ? 'Geofence display enabled. Refresh the map to see changes.'
+                                : 'Geofence display disabled.',
+                          ),
+                          backgroundColor: val ? Colors.green : Colors.orange,
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
                   },
                 ),
               ],

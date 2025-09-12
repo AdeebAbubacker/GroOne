@@ -27,7 +27,7 @@ class GpsScreenManager {
   /// Called when a GPS screen becomes active
   void onScreenEnter(GpsScreenType screenType) {
     if (!_isInitialized) {
-      CustomLog.debug(this, "GPS Screen Manager not initialized");
+      CustomLog.error(this, "GPS Screen Manager not initialized", null);
       return;
     }
 
@@ -36,7 +36,10 @@ class GpsScreenManager {
       return;
     }
 
-    CustomLog.info(this, "Entering GPS screen: $screenType");
+    CustomLog.info(
+      this,
+      "📱 Entering GPS screen: $screenType at ${DateTime.now().toIso8601String()}",
+    );
     _currentScreenType = screenType;
     _refreshServiceInstance.startRefresh(screenType);
   }
