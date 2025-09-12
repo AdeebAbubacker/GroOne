@@ -14,6 +14,9 @@ class NotificationPayload {
 
 
   factory NotificationPayload.fromJson(Map<String, dynamic> json) {
+
+    print("json is ${json}");
+
     return NotificationPayload(
         route: json['route'],
         eventType: json['eventType'],
@@ -23,7 +26,7 @@ class NotificationPayload {
         screen: json['screen'],
         osType: json['os_type'],
         toUser: json['to_user'],
-        notificationData: NotificationData.fromJson(json['data'])
+        notificationData:json['data']!=null ?  NotificationData.fromJson(json['data']):null
     );
   }
 

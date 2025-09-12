@@ -199,9 +199,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               if (state.profileDetailUIState?.data?.customer?.blueId != null &&
                   state.profileDetailUIState?.data?.customer?.blueId != "")
                 InkWell(
-                  onTap: () {
-                    context.push(AppRouteName.benefitsOfMembership);
-                  },
+                  onTap: () {},
                   child: Container(
                     padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
                     decoration: BoxDecoration(
@@ -322,11 +320,10 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               if (status == Status.SUCCESS) {
                 LpBottomNavigation.selectedIndexNotifier.value = 0;
                 disposeFunction();
-                // context.pushReplacement(AppRouteName.chooseLanguage);
-                context.pushReplacement(
-                  AppRouteName.login,
-                  extra: {"showBackButton": false},
-                );
+                context.go(
+                AppRouteName.login,
+                extra: {"showBackButton": false},
+              );
               }
 
               if (status == Status.ERROR) {

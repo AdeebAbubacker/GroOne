@@ -119,6 +119,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     // Now we're processing points and polyline
     _polylineCoordinates.clear();
 
+
     List<PointLatLng> result = PolylinePoints().decodePolyline(points ?? "");
     for (var point in result) {
       _polylineCoordinates.add(LatLng(point.latitude, point.longitude));
@@ -276,7 +277,7 @@ class _GoogleMapWidgetState extends State<GoogleMapWidget> {
     else {
       _polylines.add(Polyline(
         polylineId: PolylineId(navigatorKey.currentState!.context.appText.route),
-        color: AppColors.primaryColor.withOpacity(0.7),
+        color: AppColors.primaryColor.withValues(alpha:0.7),
         width: 5,
         points: _polylineCoordinates,
       ));

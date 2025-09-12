@@ -4,7 +4,6 @@ import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_discovery_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/location_address_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/lp_get_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_detail_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_load_api_request.dart';
@@ -243,24 +242,6 @@ class LpHomeService{
       final result = await _apiService.patch(url);
       if (result is Success) {
         return Success(null);
-      } else if (result is Error) {
-        return Error(result.type);
-      } else {
-        return Error(GenericError());
-      }
-    } catch(e) {
-      return Error(DeserializationError());
-    }
-  }
-
-  /// Fetch location address
-  Future<Result<LocationAddressResponse>> fetchLocationAddress({required double lat, required double lng}) async {
-    try {
-      final url = ApiUrls.getLocationAddress;
-      final result = await _apiService.get(url, queryParams: {'lat': lat, 'lng': lng});
-      if (result is Success) {
-        final data = LocationAddressResponse.fromJson(result.value);
-        return Success(data);
       } else if (result is Error) {
         return Error(result.type);
       } else {

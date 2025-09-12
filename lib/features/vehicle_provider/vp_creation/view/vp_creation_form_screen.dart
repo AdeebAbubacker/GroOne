@@ -14,7 +14,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/api_request/vp_creation_api_request.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/cubit/vp_create_account_cubit.dart';
-import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/preferLans_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/prefer_lanse_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/view/widgets/vp_company_type_dropdown.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';

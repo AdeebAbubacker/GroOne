@@ -169,7 +169,6 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         );
 
       } else {
-
         request = TrackingDistanceApiRequest(
           originLat: tracking?.originLat??0,
           originLong: tracking?.originLong??0,

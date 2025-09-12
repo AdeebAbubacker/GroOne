@@ -76,6 +76,7 @@ class _MasterScreenState extends State<MasterScreen>
   String? fcExpiryDate;
   String? pucExpiryDate;
   String? registrationDate;
+  List<LaneDetailsResponse> laneDetails=[];
   @override
 
 
@@ -112,7 +113,7 @@ class _MasterScreenState extends State<MasterScreen>
 
   void _autoSelectPreSelectLanes()  {
     ProfileDetailModel? profileDetailModel= profileCubit.state.profileDetailUIState?.data;
-    List<LaneDetailsResponse> laneDetails=profileDetailModel?.customer?.laneDetails??[];
+    laneDetails =profileDetailModel?.customer?.laneDetails??[];
     if((laneDetails).isNotEmpty){
       vpCreationCubit.autoSelectLanes(laneDetails);
     }
@@ -131,7 +132,6 @@ class _MasterScreenState extends State<MasterScreen>
     vehicleSearchController.dispose();
     addressSearchController.dispose();
     driverSearchController.dispose();
-
 
     vpCreationCubit.clearSelectedLanes();
   });

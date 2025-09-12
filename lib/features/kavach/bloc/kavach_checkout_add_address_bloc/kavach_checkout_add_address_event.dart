@@ -4,5 +4,12 @@ abstract class KavachCheckoutAddAddressEvent {}
 
 class AddKavachAddress extends KavachCheckoutAddAddressEvent {
   final KavachAddAddressApiRequest address;
+
   AddKavachAddress(this.address);
+}
+
+class VerifyPincode extends KavachCheckoutAddAddressEvent {
+  final String pincode;
+
+  VerifyPincode(this.pincode);
 }

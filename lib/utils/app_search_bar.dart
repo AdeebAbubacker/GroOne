@@ -59,7 +59,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
           boxShadow:  [
             if(widget.shadow == true)
               const BoxShadow(
-                color: Colors.black26,
+                color: AppColors.deActiveButtonColor,
                 offset: Offset(0.0, 2.0),
                 blurRadius: 2.5,
               ),

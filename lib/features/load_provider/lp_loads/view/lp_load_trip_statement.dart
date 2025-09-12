@@ -104,26 +104,26 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
                                 loadId: widget.loadItem.loadId,
                                 lpLoadCubit: lpLoadCubit,
                                 request: CreateOrderIdRequest(
-                                  memoid: widget.loadItem.loadMemoDetails?.id ?? '',
-                                  lpId: widget.loadItem.customer?.customerSeriesNo.toString() ?? '',
-                                  lpName: widget.loadItem.customer?.customerName ?? '',
-                                  lpEmailId: widget.loadItem.customer?.emailId ?? '',
-                                  lpMobile: widget.loadItem.customer?.mobileNumber ?? '',
-                                  vpId: widget.loadItem.vpCustomer?.customerSeriesNo.toString() ?? '',
-                                  loadSeriesId: widget.loadItem.loadSeriesId,
-                                  netFreight: widget.loadItem.loadMemoDetails?.netFreight ?? '',
-                                  advance: widget.loadItem.loadMemoDetails?.advance ?? '',
-                                  advancePercentage: widget.loadItem.loadMemoDetails?.advancePercentage ?? '',
-                                  balance: widget.loadItem.loadMemoDetails?.balance ?? '',
-                                  balancePercentage: widget.loadItem.loadMemoDetails?.balancePercentage ?? '',
-                                  vpAdvance: widget.loadItem.loadMemoDetails?.vpAdvance ?? '',
-                                  vpAdvancePercentage: widget.loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
-                                  vpBalance: widget.loadItem.loadMemoDetails?.vpBalance ?? '',
-                                  vpBalancePercentage: widget.loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
-                                  amount: tripDetails.balanceToBePaid,
-                                  type: 'online',
-                                  action: 'balance',
-                                  vpAmount: widget.loadItem.loadMemoDetails?.vpAmount ?? ''
+                                    memoid: widget.loadItem.loadMemoDetails?.id ?? '',
+                                    lpId: widget.loadItem.customer?.customerSeriesNo.toString() ?? '',
+                                    lpName: widget.loadItem.customer?.customerName ?? '',
+                                    lpEmailId: widget.loadItem.customer?.emailId ?? '',
+                                    lpMobile: widget.loadItem.customer?.mobileNumber ?? '',
+                                    vpId: widget.loadItem.vpCustomer?.customerSeriesNo.toString() ?? '',
+                                    loadSeriesId: widget.loadItem.loadSeriesId,
+                                    netFreight: widget.loadItem.loadMemoDetails?.netFreight ?? '',
+                                    advance: widget.loadItem.loadMemoDetails?.advance ?? '',
+                                    advancePercentage: widget.loadItem.loadMemoDetails?.advancePercentage ?? '',
+                                    balance: widget.loadItem.loadMemoDetails?.balance ?? '',
+                                    balancePercentage: widget.loadItem.loadMemoDetails?.balancePercentage ?? '',
+                                    vpAdvance: widget.loadItem.loadMemoDetails?.vpAdvance ?? '',
+                                    vpAdvancePercentage: widget.loadItem.loadMemoDetails?.vpAdvancePercentage ?? '',
+                                    vpBalance: widget.loadItem.loadMemoDetails?.vpBalance ?? '',
+                                    vpBalancePercentage: widget.loadItem.loadMemoDetails?.vpBalancePercentage ?? '',
+                                    amount: tripDetails.balanceToBePaid,
+                                    type: 'online',
+                                    action: 'balance',
+                                    vpAmount: widget.loadItem.loadMemoDetails?.vpAmount ?? ''
                                 ),
                                 onSuccess: () {
                                   initFunction();
@@ -134,15 +134,15 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
                         },
                       ),
                     if((tripDetails.invoiceUrl??"").isNotEmpty)
-                    ...[
-                      AppButton(
-                        title: context.appText.downloadInvoice,
-                        onPressed: () {
-                          vpLoadCubit.downloadDocument(tripDetails.invoiceUrl??"",-1);
-                        },
-                      ),
-                      10.height,
-                    ],
+                      ...[
+                        AppButton(
+                          title: context.appText.downloadInvoice,
+                          onPressed: () {
+                            vpLoadCubit.downloadDocument(tripDetails.invoiceUrl??"",-1);
+                          },
+                        ),
+                        10.height,
+                      ],
                     40.height,
                   ],
                 ),
@@ -303,7 +303,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
     return Text(
       text,
       style: AppTextStyle.h5.copyWith(
-          color: isHeading ? AppColors.textBlackColor :  Color(0xff6a7282), fontWeight: FontWeight.w700,
+          color: isHeading ? AppColors.textBlackColor :  AppColors.mediumDarkGrey, fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -319,7 +319,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: AppColors.grey.withValues(alpha:  0.1)),
         color: AppColors.white,
       ),
       child: Row(

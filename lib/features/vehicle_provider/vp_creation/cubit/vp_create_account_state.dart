@@ -8,6 +8,7 @@ class VpCreateAccountState extends Equatable {
   final UIState<UploadRcTruckFileModel>? uploadRcFileUIState;
   final List<Item>? selectedPreferLanes;
   final int? currentPage;
+
   const VpCreateAccountState({
     this.createAccountUIState,
     this.companyTypeUIState,
@@ -16,7 +17,6 @@ class VpCreateAccountState extends Equatable {
     this.uploadRcFileUIState,
     this.currentPage=1,
     this.selectedPreferLanes,
-
   });
 
   VpCreateAccountState copyWith({

@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:path_provider/path_provider.dart';
@@ -14,6 +16,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../data/model/result.dart';
 import '../../../data/ui_state/status.dart';
 import '../../../dependency_injection/locator.dart';
+import '../../../service/location_service.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_image.dart';
 import '../../../utils/common_functions.dart';
@@ -40,6 +43,9 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _showLanguageOptions =
   false; // Flag to prevent multiple pagination calls
   final profileCubit = locator<ProfileCubit>();
+  final LocationService _locationService = LocationService();
+  String? _currentLocation; // Store current city and state
+  String? _loadingTTSMessageId; // Track which message is loading TTS
 
 
   // Scroll position tracking - simplified
@@ -74,6 +80,8 @@ class _ChatScreenState extends State<ChatScreen> {
     // Load initial chat history
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ChatCubit>().loadChatHistory(refresh: true);
+      // Get current city when screen loads
+      _getCurrentCity();
     });
   }
 
@@ -113,6 +121,65 @@ class _ChatScreenState extends State<ChatScreen> {
         chatCubit.loadMoreChatHistory().whenComplete(() {
           _isLoadingHistory = false;
         });
+      }
+    }
+  }
+
+  /// Get current full address from user's location
+  Future<void> _getCurrentCity() async {
+    try {
+      final positionResult = await _locationService.getCurrentLatLong();
+      
+      if (positionResult is Success) {
+        final successResult = positionResult as Success;
+        final position = successResult.value;
+        
+        try {
+          List<Placemark> placemarks = await placemarkFromCoordinates(
+            position.latitude, 
+            position.longitude
+          );
+          
+          if (placemarks.isNotEmpty) {
+            final placemark = placemarks.first;
+
+            // Build full address in the format: Area, Subarea, City, State Pincode
+            List<String> addressParts = [];
+            if (placemark.subThoroughfare != null && placemark.subThoroughfare!.isNotEmpty) {
+              addressParts.add(placemark.subThoroughfare!);
+            }
+            if (placemark.thoroughfare != null && placemark.thoroughfare!.isNotEmpty) {
+              addressParts.add(placemark.thoroughfare!);
+            }
+            if (placemark.subLocality != null && placemark.subLocality!.isNotEmpty) {
+              addressParts.add(placemark.subLocality!);
+            }
+            if (placemark.locality != null && placemark.locality!.isNotEmpty) {
+              addressParts.add(placemark.locality!);
+            }
+            if (placemark.administrativeArea != null && placemark.administrativeArea!.isNotEmpty) {
+              addressParts.add(placemark.administrativeArea!);
+            }
+            if (placemark.postalCode != null && placemark.postalCode!.isNotEmpty) {
+              addressParts.add(placemark.postalCode!);
+            }
+
+            // Create full address string
+            if (addressParts.isNotEmpty) {
+              _currentLocation = addressParts.join(', ');
+            } else {
+              _currentLocation = 'unknown';
+            }
+          }
+        } catch (e) {
+          if (kDebugMode) {
+            print('🌍 ChatScreen: Error getting location details: $e');
+          }
+        }
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print('🌍 ChatScreen: Error getting current address: $e');
       }
     }
   }
@@ -267,27 +334,20 @@ class _ChatScreenState extends State<ChatScreen> {
         final changed = previous.todaysChatCount != current.todaysChatCount || 
                        previous.dailyChatLimit != current.dailyChatLimit;
         if (changed) {
-          print('🎨 BlocListener detected chat limit change - Previous: ${previous.todaysChatCount}/${previous.dailyChatLimit}, Current: ${current.todaysChatCount}/${current.dailyChatLimit}');
         }
         return changed;
       },
       listener: (context, state) {
-        print('🎨 BlocListener triggered - Chat limits updated: ${state.todaysChatCount}/${state.dailyChatLimit}');
       },
       child: BlocBuilder<ChatCubit, ChatState>(
         buildWhen: (previous, current) {
-          final shouldRebuild = previous.todaysChatCount != current.todaysChatCount || 
-                                previous.dailyChatLimit != current.dailyChatLimit;
-          print('🎨 BlocBuilder buildWhen - Should rebuild: $shouldRebuild');
+          final shouldRebuild = previous.todaysChatCount != current.todaysChatCount || previous.dailyChatLimit != current.dailyChatLimit;
           return shouldRebuild;
         },
         builder: (context, state) {
           // Show 0/0 initially until data is loaded from API
           final todaysCount = state.todaysChatCount;
           final dailyLimit = state.dailyChatLimit;
-          
-          print('🎨 UI Building chat limit - Today: $todaysCount, Daily: $dailyLimit');
-
         return Padding(
           padding: const EdgeInsets.only(bottom: 6.0),
           child: Row(
@@ -570,6 +630,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       if (!isVoice)
                         GestureDetector(
                           onTap: () {
+                            // Don't allow tap if this message is loading TTS
+                            if (_loadingTTSMessageId == message.id) return;
+                            
                             if (message.isPlaying) {
                               // Stop current audio if this message is playing
                               _audioPlayer.stop();
@@ -582,14 +645,25 @@ class _ChatScreenState extends State<ChatScreen> {
                               _playTextToSpeech(message);
                             }
                           },
-                          child: Icon(
-                            message.isPlaying ? Icons.stop : Icons.volume_up,
-                            size: 20,
-                            color:
-                            message.isPlaying
-                                ? const Color(0xFFE31B25)
-                                : AppColors.grayColor,
-                          ),
+                          child: _loadingTTSMessageId == message.id
+                              ? SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.primaryColor,
+                                    ),
+                                  ),
+                                )
+                              : Icon(
+                                  message.isPlaying ? Icons.stop : Icons.volume_up,
+                                  size: 20,
+                                  color:
+                                  message.isPlaying
+                                      ? const Color(0xFFE31B25)
+                                      : AppColors.grayColor,
+                                ),
                         ),
                     ],
                   ),
@@ -1039,7 +1113,9 @@ class _ChatScreenState extends State<ChatScreen> {
                     onPressed:
                     canSend
                         ? () {
-                      context.read<ChatCubit>().sendRecordedAudio();
+                      context.read<ChatCubit>().sendRecordedAudio(
+                        currentLocation: _currentLocation,
+                      );
                       // Reset audio player state
                       if (_isPlayingPreview) {
                         _audioPlayer.stop();
@@ -1216,7 +1292,10 @@ class _ChatScreenState extends State<ChatScreen> {
                           ? () {
                         final text = _textController.text.trim();
                         if (text.isNotEmpty) {
-                          context.read<ChatCubit>().sendTextMessage(text);
+                          context.read<ChatCubit>().sendTextMessage(
+                            text,
+                            currentLocation: _currentLocation,
+                          );
                           _textController.clear();
                           setState(() {}); // Update UI
                         }
@@ -1626,6 +1705,11 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Play text-to-speech audio
   Future<void> _playTextToSpeech(ChatMessage message) async {
     try {
+      // Set loading state for this specific message
+      setState(() {
+        _loadingTTSMessageId = message.id;
+      });
+
       // First, stop any currently playing audio and reset all messages' playing state
       if (_audioPlayer.playing) {
         await _audioPlayer.stop();
@@ -1649,6 +1733,11 @@ class _ChatScreenState extends State<ChatScreen> {
         message.message,
         language: validatedLanguage,
       );
+
+      // Clear loading state
+      setState(() {
+        _loadingTTSMessageId = null;
+      });
 
       if (audioBytes.isNotEmpty) {
         // Convert base64 audio bytes to temporary file and play
@@ -1679,6 +1768,11 @@ class _ChatScreenState extends State<ChatScreen> {
         throw Exception('No audio data received');
       }
     } catch (e) {
+      // Clear loading state on error
+      setState(() {
+        _loadingTTSMessageId = null;
+      });
+      
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1687,19 +1781,6 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
         );
         // Reset playing state
-        setState(() {
-          message.isPlaying = false;
-          _isPlayingPreview = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to play text-to-speech: $e'),
-            backgroundColor: const Color(0xFFE31B25),
-          ),
-        );
         setState(() {
           message.isPlaying = false;
           _isPlayingPreview = false;
@@ -1963,12 +2044,25 @@ class _ChatScreenState extends State<ChatScreen> {
             ),
             if (!message.isUser && message.messageType != MessageType.voice) ...[
               ListTile(
-                leading: Icon(Icons.volume_up, color: AppColors.primaryColor),
+                leading: _loadingTTSMessageId == message.id
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.primaryColor,
+                          ),
+                        ),
+                      )
+                    : Icon(Icons.volume_up, color: AppColors.primaryColor),
                 title: const Text('Play Audio'),
-                onTap: () {
-                  Navigator.pop(context);
-                  _playTextToSpeech(message);
-                },
+                onTap: _loadingTTSMessageId == message.id
+                    ? null // Disable tap when loading
+                    : () {
+                        Navigator.pop(context);
+                        _playTextToSpeech(message);
+                      },
               ),
               if (!message.reported)
                 ListTile(

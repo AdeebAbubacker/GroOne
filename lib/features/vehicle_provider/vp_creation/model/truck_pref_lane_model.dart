@@ -1,3 +1,5 @@
+import 'package:equatable/equatable.dart';
+
 class TruckPrefLaneModel {
     TruckPrefLaneModel({
         required this.data,
@@ -60,8 +62,8 @@ class Data {
 
 }
 
-class Item {
-    Item({
+class Item  {
+    const Item({
          this.masterLaneId,
          this.fromLocationId,
          this.toLocationId,
@@ -120,6 +122,7 @@ class Item {
             toLocation: json["toLocation"] == null ? null : Location.fromJson(json["toLocation"]),
         );
     }
+
 
 }
 

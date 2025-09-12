@@ -78,7 +78,8 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
         prefLaneUIState: uiState));
   }
 
-  Future<void> fetchPrefLane(String? location,{bool isInit=false}) async {
+  Future<void> fetchPrefLane(String? location,{bool isInit=false,List<LaneDetailsResponse>? selectedLanes}) async {
+
     if(isInit){
       emit(state.copyWith(currentPage: 1, prefLaneUIState: UIState.loading()));
     }
@@ -98,20 +99,50 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
       List<Item> newLens=result.value.data?.items??[];
       List<Item> oldLanes=state.prefLaneUIState?.data?.data?.items??[];
       TruckPrefLaneModel lanesModel=result.value;
-      final newLanesModel=lanesModel.copyWith(
+      TruckPrefLaneModel newLanesModel=lanesModel.copyWith(
         data: lanesModel.data?.copyWith(
           items: [
-            ...newLens,
-            ...oldLanes
+            ...oldLanes,
+            ...newLens
+
           ]
         )
       );
+      newLanesModel= lanesModel.copyWith(
+          data: lanesModel.data?.copyWith(
+              items:  selectedDefaultLanes(newLanesModel.data?.items??[],state.selectedPreferLanes??[])
+          )
+      );
+
       _setPrefLaneUIState(UIState.success(newLanesModel), currentPage: (state.currentPage??0)+1);
+
     }
     if (result is Error) {
       _setPrefLaneUIState(UIState.error(result.type));
     }
   }
+
+
+
+  List<Item> selectedDefaultLanes(List<Item> preferLanes, List<Item> selectedPreferLanes) {
+    // Convert selectedPreferLanes into a set of IDs for quick lookup
+    final selectedIds = selectedPreferLanes.map((e) => e.masterLaneId).toSet();
+
+    for (int index=0;index<preferLanes.length;index++) {
+      Item newObj=preferLanes[index].copyWith(
+        isSelected: selectedIds.contains(preferLanes[index].masterLaneId)
+      );
+      if(index==selectedIds.length-1){
+        break;
+      }
+      preferLanes[index]=newObj;
+    }
+    return List.from(preferLanes);
+
+  }
+
+
+
 
 
 
@@ -144,6 +175,7 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
        }catch(E){}
 
        List split=preselectLanes.lane?.split("-")??[];
+
        selectedList.add(Item(
          masterLaneId: preselectLanes.masterLaneId,
          fromLocation: Location(
@@ -207,11 +239,12 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
         preferLanes[listIndex]=selectedLanesItem;
       }
 
-      if (selectedLanesItem!=null &&  selectedLanesItem.isSelected==true){
+      if (selectedLanesItem!=null &&  selectedLanesItem.isSelected==true ){
         selectedList.add(selectedLanesItem);
       } else{
         selectedList.removeAt(selectedListIndex);
       }
+
 
       emit(state.copyWith(
           selectedPreferLanes: selectedList,
@@ -220,6 +253,10 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
         )
       ))));
     }
+  }
+
+  void chooseDefaultLanes(){
+
   }
 
 

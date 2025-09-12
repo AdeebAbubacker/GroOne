@@ -169,8 +169,7 @@ class ApiUrls {
       "$_baseUrl$_loadDiscovery$_path$_v1$_load/podCenterList";
   static final String lpLoadTripDetails =
       "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
-  static final String getLocationAddress =
-      "$_baseUrl$_rateDiscovery$_path$_v1$_map/place-id-from-latlng";
+
 
   /// Load
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
@@ -398,4 +397,7 @@ class ApiUrls {
       "https://groone-uat.letsgro.co/driving_license/api/v1/send_license_number";
   static final String vehicleVahanVerfification =
       "https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number";
+
+  //Verify pincode
+  static final String verifyPincode = "$_baseUrl$_vendor$_path$_v1/dtplus/pincode/";
 }

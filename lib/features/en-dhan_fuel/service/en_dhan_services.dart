@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/model/en_dhan_models.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/endhan_transaction_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/vehicle_verification_response.dart';
+import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -23,7 +24,9 @@ class EnDhanService {
   EnDhanService(this._apiService, this._secureSharedPrefs);
 
   /// Check KYC Documents Existence
-  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(String customerId) async {
+  Future<Result<EnDhanKycCheckModel>> checkKycDocuments(
+    String customerId,
+  ) async {
     try {
       final url = ApiUrls.enDhanKycCheck(customerId);
       final result = await _apiService.get(url);
@@ -37,9 +40,7 @@ class EnDhanService {
             this,
             "KYC Check Response: success=${response.success}, message=${response.message}, data=${response.data}",
           );
-          
 
-          
           return Success(response);
         } catch (e) {
           CustomLog.error(this, "Error parsing KYC check response", e);
@@ -68,26 +69,31 @@ class EnDhanService {
       final requestBody = request.toJson(includeFromFleet: false);
       // requestBody['customerId'] = customerId;
 
-      final result = await _apiService.post(url+customerId, body: requestBody);
+      final result = await _apiService.post(
+        url + customerId,
+        body: requestBody,
+      );
       if (result is Success) {
         final value = result.value;
 
         // If API returned only message, treat it as success
-        if (value is Map && value.containsKey('message') && !value.containsKey('success')) {
-          return Success(EnDhanKycModel(
-            success: true,
-            message: value['message'],
-            data: null,
-          ));
+        if (value is Map &&
+            value.containsKey('message') &&
+            !value.containsKey('success')) {
+          return Success(
+            EnDhanKycModel(
+              success: true,
+              message: value['message'],
+              data: null,
+            ),
+          );
         }
 
         return await _apiService.getResponseStatus(
           value,
-              (data) => EnDhanKycModel.fromJson(data),
+          (data) => EnDhanKycModel.fromJson(data),
         );
-      }
-
-      else if (result is Error) {
+      } else if (result is Error) {
         return Error(result.type);
       } else {
         return Error(GenericError());
@@ -301,7 +307,6 @@ class EnDhanService {
       final result = await _apiService.get(url);
 
       if (result is Success) {
-
         // Check if the response is successful
         if (result.value['success'] == true) {
           return Success(EnDhanVehicleTypeResponse.fromJson(result.value));
@@ -335,7 +340,7 @@ class EnDhanService {
       }
 
       final url = ApiUrls.documentUpload;
-      
+
       // Prepare form fields with required parameters
       final fields = {
         'userId': userId,
@@ -344,32 +349,53 @@ class EnDhanService {
       };
 
       final result = await _apiService.multipart(
-        url, 
-        file, 
+        url,
+        file,
         pathName: "file",
         fields: fields,
       );
 
       if (result is Success) {
         CustomLog.debug(this, "Upload API Response: ${result.value}");
-        CustomLog.debug(this, "Upload API Response Type: ${result.value.runtimeType}");
-        
+        CustomLog.debug(
+          this,
+          "Upload API Response Type: ${result.value.runtimeType}",
+        );
+
         try {
           // Parse the response directly since the API returns the data structure directly
           final responseData = result.value;
-          
+
           if (responseData is Map<String, dynamic>) {
-            CustomLog.debug(this, "Response keys: ${responseData.keys.toList()}");
+            CustomLog.debug(
+              this,
+              "Response keys: ${responseData.keys.toList()}",
+            );
             CustomLog.debug(this, "Response URL: ${responseData['url']}");
-            
+
             // The API response is directly the document upload data
-            final documentResponse = DocumentUploadResponse.fromJson(responseData);
-            CustomLog.debug(this, "Successfully parsed document upload response");
-            CustomLog.debug(this, "Document response success: ${documentResponse.success}");
-            CustomLog.debug(this, "Document response data URL: ${documentResponse.data?.url}");
+            final documentResponse = DocumentUploadResponse.fromJson(
+              responseData,
+            );
+            CustomLog.debug(
+              this,
+              "Successfully parsed document upload response",
+            );
+            CustomLog.debug(
+              this,
+              "Document response success: ${documentResponse.success}",
+            );
+            CustomLog.debug(
+              this,
+              "Document response data URL: ${documentResponse.data?.url}",
+            );
             return Success(documentResponse);
           } else {
-            CustomLog.error(this, "Invalid upload response format - expected Map, got ${responseData.runtimeType}", null);
+            CustomLog.error(
+              this,
+              "Invalid upload response format - expected Map, got ${responseData.runtimeType}",
+              null,
+            );
             return Error(DeserializationError());
           }
         } catch (e) {
@@ -397,7 +423,7 @@ class EnDhanService {
 
       // Get form fields (string data)
       final fields = {};
-      
+
       // Add customerId to the form fields
       fields['customerId'] = customerId;
 
@@ -542,11 +568,13 @@ class EnDhanService {
   Future<Result<EnDhanCardBalanceResponse>> fetchCardBalance() async {
     try {
       // Get customer ID from secure storage
-      final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      final customerId = await _secureSharedPrefs.get(
+        AppString.sessionKey.userId,
+      );
       if (customerId == null || customerId.isEmpty) {
         return Error(ErrorWithMessage(message: 'Customer ID not found'));
       }
-      
+
       final url = ApiUrls.enDhanCardBalance(customerId);
       CustomLog.debug(this, "Fetching card balance from: $url");
 
@@ -579,11 +607,13 @@ class EnDhanService {
   Future<Result<EnDhanCardListModel>> fetchCards({String? searchTerm}) async {
     try {
       // Get customer ID from secure storage
-      final customerId = await _secureSharedPrefs.get(AppString.sessionKey.userId);
+      final customerId = await _secureSharedPrefs.get(
+        AppString.sessionKey.userId,
+      );
       if (customerId == null || customerId.isEmpty) {
         return Error(ErrorWithMessage(message: 'Customer ID not found'));
       }
-      
+
       String url = ApiUrls.enDhanCards(customerId);
       if (searchTerm != null && searchTerm.isNotEmpty) {
         url += '?searchTerm=$searchTerm';
@@ -592,7 +622,6 @@ class EnDhanService {
       CustomLog.debug(this, "Fetching cards from: $url");
 
       // Test if the API service is working by making a simple call first
-
 
       final result = await _apiService.get(url);
 
@@ -612,7 +641,10 @@ class EnDhanService {
 
           // Log each key-value pair for debugging
           responseMap.forEach((key, value) {
-            CustomLog.debug(this,'🔍 Key: $key, Value: $value, Type: ${value.runtimeType}');
+            CustomLog.debug(
+              this,
+              '🔍 Key: $key, Value: $value, Type: ${value.runtimeType}',
+            );
           });
 
           if (responseMap.containsKey('data')) {
@@ -662,7 +694,6 @@ class EnDhanService {
             CustomLog.debug(this, "No cards found in response");
             return Success(cardListModel); // Return empty list, not error
           }
-
 
           CustomLog.debug(
             this,
@@ -754,7 +785,7 @@ class EnDhanService {
   ) async {
     try {
       final url = ApiUrls.panVerification;
-      
+
       // Custom headers for the new PAN verification API
       final customHeaders = {
         'accept': 'application/json',
@@ -762,8 +793,12 @@ class EnDhanService {
         'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
         'Content-Type': 'application/json',
       };
-      
-      final result = await _apiService.post(url, body: request.toJson(), customHeaders: customHeaders);
+
+      final result = await _apiService.post(
+        url,
+        body: request.toJson(),
+        customHeaders: customHeaders,
+      );
 
       if (result is Success) {
         try {
@@ -793,9 +828,10 @@ class EnDhanService {
     VehicleVerificationRequest request,
   ) async {
     try {
-      final url = 'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number';
+      final url =
+          'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number';
       final requestBody = request.toJson();
-      
+
       // Custom headers for the new vehicle verification API
       final customHeaders = {
         'accept': 'application/json',
@@ -803,20 +839,24 @@ class EnDhanService {
         'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
         'Content-Type': 'application/json',
       };
-      
+
       CustomLog.debug(
         this,
         "Vehicle Verification Request: URL=$url, Body=$requestBody",
       );
-      
-      final result = await _apiService.post(url, body: requestBody, customHeaders: customHeaders);
+
+      final result = await _apiService.post(
+        url,
+        body: requestBody,
+        customHeaders: customHeaders,
+      );
 
       if (result is Success) {
         CustomLog.debug(
           this,
           "Vehicle Verification Raw Response: ${result.value}",
         );
-        
+
         try {
           final response = VehicleVerificationResponse.fromJson(result.value);
           CustomLog.debug(
@@ -825,7 +865,11 @@ class EnDhanService {
           );
           return Success(response);
         } catch (e) {
-          CustomLog.error(this, "Error parsing vehicle verification response", e);
+          CustomLog.error(
+            this,
+            "Error parsing vehicle verification response",
+            e,
+          );
           return Error(DeserializationError());
         }
       } else if (result is Error) {
@@ -855,7 +899,9 @@ class EnDhanService {
       };
 
       // Construct URL with query parameters
-      final uri = Uri.parse(ApiUrls.getAllUsers).replace(queryParameters: queryParams);
+      final uri = Uri.parse(
+        ApiUrls.getAllUsers,
+      ).replace(queryParameters: queryParams);
 
       CustomLog.debug(this, "EnDhan Fetch Users - URL: $uri");
 
@@ -863,12 +909,20 @@ class EnDhanService {
 
       if (response is Success) {
         CustomLog.debug(this, "Users API raw response: ${response.value}");
-        CustomLog.debug(this, "Users API response type: ${response.value.runtimeType}");
-        
+        CustomLog.debug(
+          this,
+          "Users API response type: ${response.value.runtimeType}",
+        );
+
         try {
           // The API response is directly the data structure, not wrapped in success/status
-          final userListResponse = KavachUserListResponse.fromJson(response.value);
-          CustomLog.debug(this, "Successfully parsed user list response with ${userListResponse.data.length} users");
+          final userListResponse = KavachUserListResponse.fromJson(
+            response.value,
+          );
+          CustomLog.debug(
+            this,
+            "Successfully parsed user list response with ${userListResponse.data.length} users",
+          );
           return Success(userListResponse.data);
         } catch (e) {
           CustomLog.error(this, "Failed to parse users data", e);
@@ -908,16 +962,27 @@ class EnDhanService {
           final data = result.value as Map<String, dynamic>;
           CustomLog.debug(this, "API Response: $data");
           final transactionResponse = EndhanTransactionResponse.fromJson(data);
-          
+
           if (transactionResponse.success) {
-            CustomLog.debug(this, "En-Dhan Transaction Response: ${transactionResponse.transactions?.length} transactions");
+            CustomLog.debug(
+              this,
+              "En-Dhan Transaction Response: ${transactionResponse.transactions?.length} transactions",
+            );
             return Success(transactionResponse);
           } else {
-            return Error(ErrorWithMessage(message: transactionResponse.message));
+            return Error(
+              ErrorWithMessage(message: transactionResponse.message),
+            );
           }
         } catch (parseError) {
-          CustomLog.error(this, "Error parsing transaction response", parseError);
-          return Error(ErrorWithMessage(message: 'Error parsing response data'));
+          CustomLog.error(
+            this,
+            "Error parsing transaction response",
+            parseError,
+          );
+          return Error(
+            ErrorWithMessage(message: 'Error parsing response data'),
+          );
         }
       } else if (result is Error) {
         return Error(result.type);
@@ -944,21 +1009,28 @@ class EnDhanService {
           final data = result.value as Map<String, dynamic>;
           CustomLog.debug(this, "Pincode API Response: $data");
           final pincodeResponse = PincodeResponse.fromJson(data);
-          
+
           if (pincodeResponse.success) {
-            CustomLog.debug(this, "Pincode Response: ${pincodeResponse.data?.district?.name}");
+            CustomLog.debug(
+              this,
+              "Pincode Response: ${pincodeResponse.data?.district?.name}",
+            );
             return Success(pincodeResponse);
           } else {
             return Error(ErrorWithMessage(message: pincodeResponse.message));
           }
         } catch (parseError) {
           CustomLog.error(this, "Error parsing pincode response", parseError);
-          return Error(ErrorWithMessage(message: 'Error parsing pincode response data'));
+          return Error(
+            ErrorWithMessage(message: 'Error parsing pincode response data'),
+          );
         }
       } else if (result is Error) {
         return Error(result.type);
       } else {
-        return Error(ErrorWithMessage(message: 'Failed to fetch pincode details'));
+        return Error(
+          ErrorWithMessage(message: 'Failed to fetch pincode details'),
+        );
       }
     } catch (e) {
       final errorMessage = e.toString();
@@ -992,4 +1064,36 @@ class EnDhanService {
     }
   }
 
+  Future<Result<FleetPincodeVerifyModel>> verifyPincode({
+    String pincode = '',
+  }) async {
+    try {
+      final customerId = await _secureSharedPrefs.get(
+        AppString.sessionKey.userId,
+      );
+      if (customerId == null || customerId.isEmpty) {
+        return Error(ErrorWithMessage(message: 'Customer ID not found'));
+      }
+
+      String url = ApiUrls.fastagOrderList(customerId);
+      if (pincode.isNotEmpty) {
+        url += '$pincode?';
+      }
+
+      final response = await _apiService.get(
+        'https://gro-uat-api.letsgro.co/vendor/api/v1/dtplus/pincode/600113?',
+      );
+
+      if (response is Success) {
+        return await _apiService.getResponseStatus(
+          response.value,
+          (data) => FleetPincodeVerifyModel.fromJson(data),
+        );
+      } else {
+        return Error(response is Error ? response.type : GenericError());
+      }
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 }
