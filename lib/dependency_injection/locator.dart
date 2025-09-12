@@ -146,6 +146,7 @@ import '../features/gps_feature/service/gps_screen_manager.dart';
 import '../features/gps_feature/service/gps_vehicle_extra_info_service.dart';
 import '../features/gps_feature/service/path_replay_service.dart';
 import '../features/kavach/cubit/kavach_transaction_cubit/kavach_transaction_cubit.dart';
+import '../features/vehicle_provider/vp_home/cubit/vp_home_cubit.dart';
 import '../service/pushNotification/notification_service.dart';
 
 var locator = GetIt.instance;
@@ -761,7 +762,12 @@ void _registerDeferredBlocs() {
   locator.registerLazySingleton(
     () => GpsKycCheckCubit(locator<GpsOrderApiRepository>()),
   );
-  locator.registerLazySingleton<VpHomeCubit>(() => VpHomeCubit(locator<VpHomeRepository>(), locator<UserInformationRepository>(),));
+  locator.registerLazySingleton(
+    () => VpHomeCubit(
+      locator<VpHomeRepository>(),
+      locator<UserInformationRepository>(),
+    ),
+  );
 
   // Verify GPS cubits are registered
   try {
