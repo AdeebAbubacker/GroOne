@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_m
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_event_api_request.dart';
 
 class LpHomeRepository{
   final LpHomeService _lpHomeService;
@@ -58,6 +59,10 @@ class LpHomeRepository{
     }
   }
 
+  /// Get Show Blue
+  Future<String?> getUserId() async {
+    return await _userInformationRepository.getUserID();
+  }
 
   /// Get Truck Type data Repo
   Future<Result<CreateLoadModel>> getCreateLoadData(CreateLoadApiRequest request) async {
@@ -124,6 +129,15 @@ class LpHomeRepository{
     try {
       String userId = await _userInformationRepository.getUserID() ?? '';
       return await _lpHomeService.setBluIDFlag(userId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Create Event
+  Future<Result<String?>> createEvent(CreateEventApiRequest request) async {
+    try {
+      return await _lpHomeService.createEvent(request);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

@@ -17,6 +17,10 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_event_api_request.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 
 
 class LPHomeCubit extends BaseCubit<LPHomeState> {
@@ -246,6 +250,28 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
       truckTypeState: resetUIState<LoadTruckTypeListModel>(state.truckTypeUIState),
       profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
     ));
+  }
+
+  /// Create Event
+  Future<void> createEvent(CreateEventApiRequest request) async {
+    dynamic result = await _repo.createEvent(request);
+    // No need to emit state for this API as it's just for tracking
+    if (result is Success<String?>) {
+      final eventId = result.value;
+      if (eventId != null && eventId.isNotEmpty) {
+        // Store event_id in SharedPreferences
+        print('event_ID $eventId');
+        try {
+          final securePrefs = locator<SecuredSharedPreferences>();
+          await securePrefs.saveKey(AppString.sessionKey.eventId, eventId);
+        } catch (e) {
+          // Log error but don't show to user as it's not critical
+        }
+      }
+    }
+    if (result is Error) {
+      // Log error but don't show to user as it's not critical
+    }
   }
 
 

@@ -33,6 +33,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/upcoming
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/weight_selection_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/event_helper.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
@@ -47,7 +48,6 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
@@ -65,6 +65,8 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+
+import '../../../../utils/app_route.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -153,6 +155,19 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     }
 
     profileCubit.fetchProfileDetail();
+
+    // Create event API call when entering LP home screen
+    try {
+      final eventRequest = await EventHelper.buildHomeViewEvent(
+        entity: 'vas',
+        subEntity: 'endhan',
+        stage: 'start',
+        entityId: "",
+      );
+      lpHomeCubit.createEvent(eventRequest);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
 
     await profileCubit.fetchUserRole().then((val) {
       if(val != 4) {

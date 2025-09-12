@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
@@ -21,6 +23,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../utils/app_route.dart';
 import '../en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import '../gps_feature/views/gps_home_screen.dart';
+import '../load_provider/lp_home/cubit/lp_home_cubit.dart';
+import '../load_provider/lp_home/helper/event_helper.dart';
 
 class OurValueAddedServicesWidget extends StatefulWidget {
   const OurValueAddedServicesWidget({super.key, this.isGridLayout = false});
@@ -36,6 +40,7 @@ class _OurValueAddedServicesWidgetState
     extends State<OurValueAddedServicesWidget> {
   final ScrollController _scrollController = ScrollController();
   double _scrollProgress = 0.0;
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   @override
   void initState() {
@@ -131,6 +136,7 @@ class _OurValueAddedServicesWidgetState
                         context,
                         commonRoute(GpsOrderBenefitsAndOrderListScreen()),
                       );
+                      createEvent();
                     }
                   } else {
                     // Fallback to benefits screen if order list check fails
@@ -149,6 +155,7 @@ class _OurValueAddedServicesWidgetState
                   context,
                   commonRoute(GpsOrderBenefitsAndOrderListScreen()),
                 );
+                createEvent();
               }
             }
 
@@ -377,5 +384,19 @@ class _OurValueAddedServicesWidgetState
         ),
       ),
     );
+  }
+
+  Future<void> createEvent() async {
+    try {
+      final eventRequest = await EventHelper.buildHomeViewEvent(
+        entity: 'vas',
+        subEntity: 'endhan',
+        stage: 'start',
+        entityId: "",
+      );
+      lpHomeCubit.createEvent(eventRequest);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
   }
 }
