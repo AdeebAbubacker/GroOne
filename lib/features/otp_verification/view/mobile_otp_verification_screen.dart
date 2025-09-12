@@ -168,6 +168,7 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
 
   @override
   Widget build(BuildContext context) {
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return SafeArea(
       top: false,
       child: Scaffold(
@@ -351,7 +352,9 @@ class _MobileOtpVerificationScreenState extends BaseState<MobileOtpVerificationS
                 ).paddingSymmetric(horizontal: commonSafeAreaPadding),
 
                 // Bottom Banner Gro Image
-                buildBottomBannerImageWidget(),
+                Visibility(
+                  visible: !isKeyboardOpen,
+                  child: buildBottomBannerImageWidget()),
               ],
             );
           },
