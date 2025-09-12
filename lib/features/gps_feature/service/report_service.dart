@@ -4,6 +4,7 @@ import 'package:intl/intl.dart'; // Added for NumberFormat
 
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart'; // Your generic ApiService
+import '../../../data/network/api_urls.dart';
 import '../../../utils/custom_log.dart';
 import '../model/address_model.dart';
 import '../model/report_model.dart';
@@ -24,7 +25,7 @@ class GpsReportService {
     required Map<String, dynamic> queryParams,
     required T Function(Map<String, dynamic>) fromJson,
   }) async {
-    String baseUrl = 'https://api.letsgro.co/api/v1/auth/';
+    String baseUrl = '${ApiUrls.gpsBase}/';
     try {
       final loginResponse = await _repository.getStoredLoginResponse();
 
