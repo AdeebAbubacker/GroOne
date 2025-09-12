@@ -7,6 +7,8 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -31,6 +33,21 @@ class VehicleListScreen extends StatefulWidget {
 }
 
 class _VehicleListScreenState extends State<VehicleListScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return GpsScreenLifecycleWrapper(
+      screenType: GpsScreenType.home, // Use home type for 15-second refresh
+      child: _VehicleListContent(),
+    );
+  }
+}
+
+class _VehicleListContent extends StatefulWidget {
+  @override
+  State<_VehicleListContent> createState() => _VehicleListContentState();
+}
+
+class _VehicleListContentState extends State<_VehicleListContent> {
   @override
   Widget build(BuildContext context) {
     final vehicleListCubit = locator<VehicleListCubit>();

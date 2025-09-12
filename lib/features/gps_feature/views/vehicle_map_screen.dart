@@ -17,6 +17,7 @@ import 'package:gro_one_app/features/gps_feature/helper/vehicle_marker_helper.da
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_vehicle_extra_info_repository.dart';
 import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/service/idle_calculation_service.dart';
 import 'package:gro_one_app/features/gps_feature/views/path_replay_screen.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
 import 'package:gro_one_app/features/gps_feature/widgets/map_floating_menu.dart';
@@ -770,49 +771,6 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(String? status) {
-    if (status == null) return Colors.grey;
-
-    final statusUpper = status.toUpperCase();
-    switch (statusUpper) {
-      case 'IGNITION_ON':
-      case 'ACTIVE':
-      case 'RUNNING':
-      case 'ON':
-        return Colors.green;
-      case 'IGNITION_OFF':
-      case 'OFF':
-      case 'INACTIVE':
-      case 'STOPPED':
-        return Colors.red;
-      case 'IDLE':
-      case 'PARKED':
-        return Colors.orange;
-      case 'MAINTENANCE':
-      case 'SERVICE':
-        return Colors.purple;
-      case 'ERROR':
-      case 'FAULT':
-        return Colors.red;
-      default:
-        // Try to determine color from status string
-        final statusLower = status.toLowerCase();
-        if (statusLower.contains('on') ||
-            statusLower.contains('active') ||
-            statusLower.contains('running')) {
-          return Colors.green;
-        } else if (statusLower.contains('off') ||
-            statusLower.contains('inactive') ||
-            statusLower.contains('stopped')) {
-          return Colors.red;
-        } else if (statusLower.contains('idle') ||
-            statusLower.contains('parked')) {
-          return Colors.orange;
-        }
-        return Colors.grey;
-    }
-  }
-
   String _getIgnitionStatus(String? ignition, String? status) {
     if (ignition != null) {
       final ignitionLower = ignition.toLowerCase().trim();
@@ -911,13 +869,6 @@ class _VehicleInfoOverlayCard extends StatelessWidget {
     }
 
     return statusDuration;
-  }
-}
-
-extension _CapitalizeExtension on String {
-  String capitalize() {
-    if (isEmpty) return this;
-    return this[0].toUpperCase() + substring(1).toLowerCase();
   }
 }
 
@@ -1173,19 +1124,19 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
                             ],
                           ),
                           const SizedBox(height: 2),
-                          Text(
-                            _calculateIdleCountFromTimestamps(),
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
+                          // Text(
+                          //   _calculateIdleCountFromTimestamps(),
+                          //   style: const TextStyle(
+                          //     fontWeight: FontWeight.bold,
+                          //     fontSize: 18,
+                          //   ),
+                          // ),
+                          // const SizedBox(height: 2),
                           Text(
                             _calculateIdleTimeFromTimestamps(),
                             style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
                           ),
                         ],
@@ -1506,96 +1457,13 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
     return '${cacheDistance.toStringAsFixed(1)} km';
   }
 
-  String _formatIdleCount(String? idleTime) {
-    if (idleTime == null || idleTime.isEmpty) return '-';
-    // Since we don't have idle count in the API, we'll calculate it from idle time
-    try {
-      final idleSeconds = int.tryParse(idleTime);
-      if (idleSeconds != null && idleSeconds > 0) {
-        // If idle time is more than 5 minutes, consider it as an idle event
-        if (idleSeconds > 300) {
-          // 5 minutes = 300 seconds
-          return '1';
-        }
-      }
-    } catch (e) {
-      // If parsing fails, return default
-    }
-    return '0';
-  }
-
   String _calculateIdleCountFromTimestamps() {
-    final idleFixTime = widget.vehicle.idleFixTime;
-    final idleFixTimeKey = widget.vehicle.idleFixTimeKey;
-
-    if (idleFixTime == null ||
-        idleFixTime.isEmpty ||
-        idleFixTimeKey == null ||
-        idleFixTimeKey.isEmpty) {
-      return '-';
-    }
-
-    try {
-      // Parse UTC timestamps
-      final DateTime idleFixTimeUtc = DateTime.parse(idleFixTime);
-      final DateTime idleFixTimeKeyUtc = DateTime.parse(idleFixTimeKey);
-
-      // Convert to local time
-      final DateTime idleFixTimeLocal = idleFixTimeUtc.toLocal();
-      final DateTime idleFixTimeKeyLocal = idleFixTimeKeyUtc.toLocal();
-
-      // Calculate the difference - always subtract the earlier time from the later time
-      Duration difference;
-      if (idleFixTimeLocal.isAfter(idleFixTimeKeyLocal)) {
-        difference = idleFixTimeLocal.difference(idleFixTimeKeyLocal);
-      } else {
-        difference = idleFixTimeKeyLocal.difference(idleFixTimeLocal);
-      }
-
-      // Calculate idle count based on duration
-      final int totalSeconds = difference.inSeconds;
-      if (totalSeconds < 0) {
-        return '0'; // Invalid time difference
-      }
-
-      // If idle time is more than 5 minutes, consider it as an idle event
-      if (totalSeconds > 300) {
-        return '1';
-      }
-
-      return '0';
-    } catch (e) {
-      // If parsing fails, fall back to the original idleTime calculation
-      return _formatIdleCount(widget.vehicle.idleTime);
-    }
-  }
-
-  String _formatIdleTime(String? idleTime) {
-    if (idleTime == null || idleTime.isEmpty) return '-';
-    return formatDuration(idleTime);
-  }
-
-  String _formatIdleTimeFromSeconds(int idleSeconds) {
-    if (idleSeconds <= 0) return '0h 0m';
-    return _formatDuration(idleSeconds);
-  }
-
-  String _formatStoppedSince(int stoppedSince) {
-    if (stoppedSince <= 0) return '0h 0m';
-    return _formatDuration(stoppedSince);
-  }
-
-  String _formatDuration(int? seconds) {
-    if (seconds == null || seconds <= 0) return '0h 0m';
-
-    final hours = seconds ~/ 3600;
-    final minutes = (seconds % 3600) ~/ 60;
-
-    if (hours > 0) {
-      return '${hours}h ${minutes}m';
-    } else {
-      return '${minutes}m';
-    }
+    final idleCount = IdleCalculationService.getIdleCount(
+      ignition: widget.vehicle.ignition,
+      speed: widget.vehicle.lastSpeed,
+      idleFixTime: widget.vehicle.idleFixTime,
+    );
+    return idleCount.toString();
   }
 
   String _getVehicleStatusText(String? status) {
@@ -1734,116 +1602,10 @@ class _VehicleBottomCardContentState extends State<_VehicleBottomCardContent> {
   }
 
   String _calculateIdleTimeFromTimestamps() {
-    final idleFixTime = widget.vehicle.idleFixTime;
-    final idleFixTimeKey = widget.vehicle.idleFixTimeKey;
-    final directIdleTime = widget.vehicle.idleTime;
-
-    // Check if directIdleTime is a timestamp (contains 'T' and time info)
-    if (directIdleTime != null && directIdleTime.isNotEmpty) {
-      if (directIdleTime.contains('T') && directIdleTime.contains(':')) {
-        // directIdleTime is a timestamp, calculate duration from now
-        try {
-          final DateTime idleStartTime = DateTime.parse(directIdleTime);
-          final DateTime now = DateTime.now();
-          final Duration difference = now.difference(idleStartTime);
-          final int totalSeconds = difference.inSeconds;
-
-          if (totalSeconds < 0) {
-            return '0min';
-          }
-
-          // Apply native Java logic
-          final int durationMinutes = (totalSeconds ~/ 60) % 60;
-          final int durationHours = (totalSeconds ~/ (60 * 60)) % 24;
-
-          String result;
-          if (totalSeconds > 0) {
-            if (durationHours > 0 && durationMinutes > 0) {
-              result = '${durationHours}hr ${durationMinutes}min';
-            } else if (durationHours > 0) {
-              result = '${durationHours}hr';
-            } else if (durationMinutes > 0) {
-              result = '${durationMinutes}min';
-            } else {
-              result = '0min';
-            }
-          } else {
-            result = '0min';
-          }
-
-          return result;
-        } catch (e) {
-          // Error parsing timestamp, fall through to other methods
-        }
-      } else {
-        // directIdleTime is not a timestamp, try to parse as duration
-        return _formatIdleTime(directIdleTime);
-      }
-    }
-
-    // Fallback to timestamp calculation if direct idleTime is not available
-    if (idleFixTime == null ||
-        idleFixTime.isEmpty ||
-        idleFixTimeKey == null ||
-        idleFixTimeKey.isEmpty) {
-      return '-';
-    }
-
-    try {
-      // Parse UTC timestamps
-      final DateTime idleFixTimeUtc = DateTime.parse(idleFixTime);
-      final DateTime idleFixTimeKeyUtc = DateTime.parse(idleFixTimeKey);
-
-      // Convert to local time
-      final DateTime idleFixTimeLocal = idleFixTimeUtc.toLocal();
-      final DateTime idleFixTimeKeyLocal = idleFixTimeKeyUtc.toLocal();
-
-      // Calculate the difference - always subtract the earlier time from the later time
-      Duration difference;
-      if (idleFixTimeLocal.isAfter(idleFixTimeKeyLocal)) {
-        difference = idleFixTimeLocal.difference(idleFixTimeKeyLocal);
-      } else {
-        difference = idleFixTimeKeyLocal.difference(idleFixTimeLocal);
-      }
-
-      // Format the duration - match native Java logic exactly
-      final int totalSeconds = difference.inSeconds;
-
-      print('  Timestamp calculation: $totalSeconds seconds');
-
-      if (totalSeconds < 0) {
-        return '-'; // Invalid time difference
-      }
-
-      // Native Java logic:
-      // int duration_minutes = (int) ((tripIdleHours / 60) % 60);
-      // int duration_hours = (int) ((tripIdleHours / (60 * 60)) % 24);
-      final int durationMinutes = (totalSeconds ~/ 60) % 60;
-      final int durationHours = (totalSeconds ~/ (60 * 60)) % 24;
-
-      // Native Java formatting: "Xhr Ymin" or "0min"
-      String result;
-      if (totalSeconds > 0) {
-        if (durationHours > 0 && durationMinutes > 0) {
-          result = '${durationHours}hr ${durationMinutes}min';
-        } else if (durationHours > 0) {
-          result = '${durationHours}hr';
-        } else if (durationMinutes > 0) {
-          result = '${durationMinutes}min';
-        } else {
-          result = '0min';
-        }
-      } else {
-        result = '0min';
-      }
-
-      print('  Final result: $result');
-      return result;
-    } catch (e) {
-      print('  Error in timestamp calculation: $e');
-      // If parsing fails, fall back to the original idleTime
-      return _formatIdleTime(widget.vehicle.idleTime);
-    }
+    // Use the new idle calculation service
+    return IdleCalculationService.formatIdleDurationFromTimestamp(
+      widget.vehicle.idleFixTime,
+    );
   }
 
   String _getIgnitionStatus(String? ignition, String? status) {
