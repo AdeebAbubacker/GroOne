@@ -299,22 +299,23 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
             fontSize: 14,
             color: AppColors.textBlackDetailColor,
 
-          ),),
+          ),).expand(),
           Align(
-            alignment: Alignment.centerLeft,
+            alignment: Alignment.centerRight,
             child: Text(
                value,
-              maxLines: 2,
+              maxLines: 1,
               textAlign: TextAlign.right,
                style: AppTextStyle.body2.copyWith(
                 fontSize: 15,
+                overflow: TextOverflow.ellipsis,
                 fontWeight: FontWeight.w600,
                  color:(isPositive??false)?  AppColors.greenColor:
 
                  isNegative ? AppColors.iconRed : AppTextStyle.body2.color,
               ),
             ),
-          )
+          ).expand()
         ],
       ),
     );

@@ -14,6 +14,17 @@ class EnvironmentVariables {
 
   }
 
+  /// Fetch Base URL
+  static String get groServiceUrl {
+    return _getEnvVariable("VITE_VERIFICATION_BASE_URL");
+
+  }
+  /// Fetch Base URL
+  static String get adminURL {
+    return _getEnvVariable("ADMIN_URL");
+
+  }
+
   /// Fetch X API KEY
   static String get fetchXApiKEY {
     return _getEnvVariable("X_API_KEY");
