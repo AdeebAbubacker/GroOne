@@ -36,6 +36,9 @@ class _GpsScreenLifecycleWrapperState extends State<GpsScreenLifecycleWrapper> {
     if (widget.enableAutoRefresh) {
       // Notify screen manager when screen becomes active
       WidgetsBinding.instance.addPostFrameCallback((_) {
+        print(
+          "🔄 GpsScreenLifecycleWrapper: Starting refresh for ${widget.screenType}",
+        );
         _screenManager.onScreenEnter(widget.screenType);
         _lifecycleCubit.onScreenEnter(widget.screenType);
       });
@@ -45,6 +48,9 @@ class _GpsScreenLifecycleWrapperState extends State<GpsScreenLifecycleWrapper> {
   @override
   void dispose() {
     if (widget.enableAutoRefresh) {
+      print(
+        "🔄 GpsScreenLifecycleWrapper: Stopping refresh for ${widget.screenType}",
+      );
       _screenManager.onScreenExit();
       _lifecycleCubit.onScreenExit();
     }

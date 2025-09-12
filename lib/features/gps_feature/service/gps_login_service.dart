@@ -124,6 +124,92 @@ class GpsLoginService {
     }
   }
 
+  /// Check GPS authentication with mobile number
+  Future<Result<GpsLoginResponseModel>> checkGpsAuth(
+    String mobileNumber,
+  ) async {
+    try {
+      CustomLog.info(this, "Checking GPS authentication for: $mobileNumber");
+
+      // For auth check, we don't want to send authorization headers
+      final authHeaders = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'X-API-KEY': '63cee6fe-1c1b-4de9-af0e-ee0fab917531',
+        // No Authorization header for auth check
+      };
+
+      try {
+        // Use direct HTTP call to bypass API service's global 401 handling
+        final dio = Dio();
+        final response = await dio.post(
+          'https://new-test-gro.roadcast.net/api/v1/auth/auth_login?user_name=$mobileNumber',
+          options: Options(
+            headers: authHeaders,
+            sendTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+          ),
+        );
+
+        if (response.statusCode == 200 || response.statusCode == 201) {
+          CustomLog.info(this, "GPS auth check successful");
+          try {
+            CustomLog.info(this, "Parsing auth response: ${response.data}");
+            final authData = GpsLoginResponseModel.fromJson(response.data);
+            CustomLog.info(
+              this,
+              "Auth data parsed successfully: token=${authData.token?.substring(0, 20)}...",
+            );
+
+            // Save GPS token to secure storage for future use
+            if (authData.token != null) {
+              await _userInformationRepository.saveGpsToken(authData.token!);
+              CustomLog.info(this, "GPS token saved to secure storage");
+            }
+
+            return Success(authData);
+          } catch (e) {
+            CustomLog.error(this, "Error parsing auth response", e);
+            return Error(DeserializationError());
+          }
+        } else {
+          CustomLog.error(
+            this,
+            "GPS auth check failed with status: ${response.statusCode}",
+            null,
+          );
+          return Error(GenericError());
+        }
+      } on DioException catch (dioError) {
+        // Handle 401 status specifically for GPS auth check
+        if (dioError.response?.statusCode == 401) {
+          CustomLog.info(
+            this,
+            "GPS auth check returned 401 - user not found or not authorized",
+          );
+
+          // Return specific error for GPS auth failure
+          return Error(
+            GpsDeviceActivationError(
+              message:
+                  "GPS authentication failed. User not found or not authorized.",
+            ),
+          );
+        }
+
+        // For other Dio errors, return as usual
+        CustomLog.error(this, "Dio error during GPS auth check", dioError);
+        return Error(GenericError());
+      } catch (e) {
+        CustomLog.error(this, "Unexpected error during GPS auth check", e);
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, AppString.error.deserializationError, e);
+      return Error(DeserializationError());
+    }
+  }
+
   Future<Result<GpsUserDetailsModel>> getUserDetails(String token) async {
     try {
       CustomLog.info(

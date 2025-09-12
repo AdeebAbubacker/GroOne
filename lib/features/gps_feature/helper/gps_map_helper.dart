@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
+import 'package:gro_one_app/utils/location_permission_helper.dart';
 
 /// GPS Map Helper - Provides common map functionality for GPS feature screens
 class GpsMapHelper {
@@ -42,25 +43,31 @@ class GpsMapHelper {
     MapCreatedCallback? onMapCreated,
     Function(LatLng)? onTap,
     Function(LatLng)? onLongPress,
-    CameraPositionCallback? onCameraMove,
-    CameraPositionCallback? onCameraIdle,
   }) {
-    return GoogleMap(
-      initialCameraPosition: initialCameraPosition,
-      markers: markers,
-      circles: circles,
-      polygons: polygons,
-      polylines: polylines,
-      mapType: mapType,
-      myLocationEnabled: myLocationEnabled,
-      myLocationButtonEnabled: myLocationButtonEnabled,
-      zoomControlsEnabled: zoomControlsEnabled,
-      trafficEnabled: trafficEnabled,
-      compassEnabled: compassEnabled,
-      mapToolbarEnabled: mapToolbarEnabled,
-      onMapCreated: onMapCreated,
-      onTap: onTap,
-      onLongPress: onLongPress,
+    return FutureBuilder<bool>(
+      future: LocationPermissionHelper.shouldEnableMyLocation(),
+      builder: (context, snapshot) {
+        final canEnableMyLocation = snapshot.data ?? false;
+
+        return GoogleMap(
+          initialCameraPosition: initialCameraPosition,
+          markers: markers,
+          circles: circles,
+          polygons: polygons,
+          polylines: polylines,
+          mapType: mapType,
+          myLocationEnabled: myLocationEnabled && canEnableMyLocation,
+          myLocationButtonEnabled:
+              myLocationButtonEnabled && canEnableMyLocation,
+          zoomControlsEnabled: zoomControlsEnabled,
+          trafficEnabled: trafficEnabled,
+          compassEnabled: compassEnabled,
+          mapToolbarEnabled: mapToolbarEnabled,
+          onMapCreated: onMapCreated,
+          onTap: onTap,
+          onLongPress: onLongPress,
+        );
+      },
     );
   }
 
@@ -179,7 +186,6 @@ class GpsMapHelper {
         targetWidth: 32,
       );
     } catch (e) {
-      debugPrint('Failed to load red car icon in helper: $e');
       // Fallback to default yellow marker if custom icon fails to load
       vehicleIcon = BitmapDescriptor.defaultMarkerWithHue(
         BitmapDescriptor.hueYellow,

@@ -28,7 +28,6 @@ class PathReplayService {
 
         return data.map((e) => Data.fromJson(e)).toList();
       } catch (e) {
-        print("Parsing Error: $e");
         throw Exception("Failed to fetch path replay data");
       }
     } else {
@@ -52,8 +51,6 @@ class PathReplayService {
 
         return data.map((e) => TripPath.fromJson(e)).toList();
       } catch (e, stackTrace) {
-        print("Trip Path Parsing Error: $e");
-        print("Stack trace: $stackTrace");
         throw Exception("Failed to fetch trip path data: $e");
       }
     } else {

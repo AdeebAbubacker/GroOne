@@ -24,7 +24,6 @@ class GpsSettingsCubit extends Cubit<GpsSettingsState> {
     try {
       deviceToken = isEnabled ? await FirebaseMessaging.instance.getToken() : "";
     } catch (e) {
-      debugPrint("Error getting FCM token: $e");
     }
 
     Map<String, dynamic>? deviceDetails;

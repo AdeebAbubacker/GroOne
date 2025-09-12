@@ -156,7 +156,6 @@ class VehicleMarkerHelper {
         return BitmapDescriptor.fromBytes(byteData.buffer.asUint8List());
       }
     } catch (e) {
-      debugPrint('Error creating emoji bitmap: $e');
     }
 
     // Fallback to colored marker

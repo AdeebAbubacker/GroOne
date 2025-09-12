@@ -57,7 +57,6 @@ class _GpsNotificationScreenState extends State<GpsNotificationScreen> {
         actions: [
           AppIconButton(
             onPressed: () {
-              debugPrint("🔄 GpsGeofenceScreen - Refresh button pressed");
               context.read<GpsNotificationCubit>().loadNotifications();
             },
             icon: const Icon(Icons.refresh, size: 20),
