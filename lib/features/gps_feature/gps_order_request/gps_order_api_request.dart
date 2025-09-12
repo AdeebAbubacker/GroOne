@@ -1134,17 +1134,18 @@ class GpsOrderApiRequest {
 
   /// Verify vehicle
   Future<Result<bool>> verifyVehicle(String vehicleNumber) async {
+
     try {
       // Custom headers for the new vehicle verification API
       final customHeaders = {
         'accept': 'application/json',
-        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
-        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'X-API-Key': ApiUrls.xApiKey,
+        'X-Application-UDID': ApiUrls.fetchUDID,
         'Content-Type': 'application/json',
       };
 
       final result = await _apiService.post(
-        'https://groone-uat.letsgro.co/vehicle_number/api/v1/send_vehicle_number',
+        '${ApiUrls.groServicesUrl}/vehicle_number/api/v1/send_vehicle_number',
         body: {'vehicle_number': vehicleNumber},
         customHeaders: customHeaders,
       );

@@ -446,6 +446,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         AppSearchBar(
           searchController: searchController,
           onChanged: _onSearchChanged,
+          onClear: () {
+            searchController.clear();
+            _onPullToRefresh();
+          },
         ).expand(),
         8.width,
         AppIconButton(

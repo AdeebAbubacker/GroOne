@@ -309,6 +309,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   int _routesCurrentPage = 1;
   bool _routesIsLastPage = false;
   bool _routesIsLoadingMore = false;
+
   Future<void> getRouteDetails({
     bool isLoading = true,
     String? search,
