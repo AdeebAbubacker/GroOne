@@ -117,17 +117,15 @@ class ApiUrls {
 
   /// Kyc
   static final String submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
-  static final String aadhaarSendOtp = "$_verification/aadhaar/send-otp";
+
   static final String aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
-  static final String panVerification =
-      "https://groone-uat.letsgro.co/pan/api/v1/send_pan";
+
   static final String verifiedDocument =
       "$_baseUrl$_customer$_path$_v1/kyc/verify-doc-number";
-  static final String  submitKyc = "$_baseUrl$_customer$_path$_v1/kyc/";
+
   static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
-  static final String  aadhaarVerifyOtp = "$_verification/aadhaar/verify-otp";
   static final String  panVerification = "$groServicesUrl/pan/api/v1/send_pan";
-  static final String  verifiedDocument = "$_baseUrl$_customer$_path$_v1/kyc/verify-doc-number";
+
 
 
 
