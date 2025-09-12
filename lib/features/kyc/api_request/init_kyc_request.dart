@@ -31,7 +31,7 @@ class KycInitRequest {
       "docs": ["ADHAR"],
       'purpose': "KYC",
       'response_url': "${ApiUrls.groServicesUrl}/aadhar/api/v1/digilocker/webhook",
-      'redirect_url': "https://gro-devadmin.letsgro.co/",
+      'redirect_url': ApiUrls.adminUrl,
       'name_to_match': "String",
       'expiry_in_minutes': 32,
       'pinless': true,

@@ -18,6 +18,8 @@ class ApiUrls {
 
   static String get groServicesUrl => EnvironmentVariables.groServiceUrl;
 
+  static String get adminUrl => EnvironmentVariables.adminURL;
+
 
 
   /// Path
@@ -157,7 +159,7 @@ class ApiUrls {
   static final String  getTripStatement = "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
   static final String  getLoadStatus = "$_loadBaseUrl/loads/load-status_lp";
   static final String  getLoadStatusVp = "$_loadBaseUrl/loads/load-status_vp";
- 
+
   /// Settlement
   static String get _settlementBaseUrl => "$_baseUrl$_settlement$_path$_v1";
   static final String  submitSettlement = "$_settlementBaseUrl/settlement";
@@ -238,7 +240,7 @@ class ApiUrls {
   static final String getBloodGroup =  "$_fetchUrl$_customer$_path$_v1/blood-group";
   static final String getLicenseCategory = "$_fetchUrl$_customer$_path$_v1/license-category";
   static final String deleteDriver = "$_baseUrl$_customer$_path$_v1/drivers/";
- 
+
 
 
 

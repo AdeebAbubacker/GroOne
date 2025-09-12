@@ -19,6 +19,11 @@ class EnvironmentVariables {
     return _getEnvVariable("VITE_VERIFICATION_BASE_URL");
 
   }
+  /// Fetch Base URL
+  static String get adminURL {
+    return _getEnvVariable("ADMIN_URL");
+
+  }
 
   /// Fetch X API KEY
   static String get fetchXApiKEY {
