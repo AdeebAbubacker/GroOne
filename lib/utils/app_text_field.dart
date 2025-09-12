@@ -94,6 +94,7 @@ class AppTextField extends StatelessWidget {
           ),
         if (labelText != null) 6.height,
         TextFormField(
+
           key: key,
           enabled: enabled ?? true,
           validator: validator,
@@ -109,6 +110,7 @@ class AppTextField extends StatelessWidget {
           cursorWidth: 1.5,
           keyboardType: keyboardType,
           maxLines: maxLines ?? 1,
+
           obscureText: obscureText ?? false,
           obscuringCharacter: "•",
           cursorRadius: const Radius.circular(5),

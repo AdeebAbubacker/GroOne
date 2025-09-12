@@ -30,6 +30,8 @@ class LoginInService {
       return Error(DeserializationError());
     }
   }
+
+
   Future<Result<DeviceTokenModel>> saveDeviceToken(NotificationRequestModel? notificationRequestModel) async {
     try {
       final saveDeviceToken= ApiUrls.saveDeviceToken;
