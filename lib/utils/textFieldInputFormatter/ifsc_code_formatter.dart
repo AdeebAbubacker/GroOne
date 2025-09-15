@@ -17,9 +17,14 @@ class IFSCCodeFormatter extends TextInputFormatter {
     // Convert all to uppercase
     String formattedText = alphanumericOnly.toUpperCase();
 
+    int offset = newValue.selection.baseOffset;
+    if (offset > alphanumericOnly.length) {
+      offset = alphanumericOnly.length;
+    }
+
     return TextEditingValue(
       text: formattedText,
-      selection: TextSelection.collapsed(offset: formattedText.length),
+      selection: TextSelection.collapsed(offset: offset),
     );
   }
 }
