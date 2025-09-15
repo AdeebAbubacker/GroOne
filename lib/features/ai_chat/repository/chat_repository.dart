@@ -177,7 +177,8 @@ class ChatRepository {
     required String language,
     double speakingRate = 0.85,
     double pitch = 0.0,
-    String audioFormat = 'OGG_OPUS',
+    String audioFormat = 'MP3',
+    // String audioFormat = 'OGG_OPUS',
   }) async {
     try {
 
