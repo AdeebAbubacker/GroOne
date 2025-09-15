@@ -29,9 +29,9 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomple
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_weight_dropdown.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/upcoming_shipments_list_body.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/weight_selection_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_card_widget.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
@@ -141,7 +141,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   void initFunction() => frameCallback(() async {
-    Future.delayed(Duration(milliseconds: 200)).then((val) {
+    Future.delayed(Duration(milliseconds: 500)).then((val) {
       isLoading = false;
       setState(() {});
     });
@@ -1127,7 +1127,15 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                 separatorBuilder: (BuildContext context, int index) => 20.height,
                                 itemBuilder: (context, index) {
                                   final loadData = state.lpGetLoadUIState!.data!.data[index];
-                                  return UpcomingShipmentsListBody(loadData: loadData);
+                                  return GestureDetector(
+                                      onTap: () {
+                                        final extra = {"loadId": loadData.loadId};
+                                        context.push(
+                                          AppRouteName.lpLoadsLocationDetails,
+                                          extra: extra,
+                                        );
+                                      },
+                                      child: LPLoadListBodyWidget(loadItem: loadData, lpLoadLocator: lpLoadLocator));
                                 },
                               )
                             else
