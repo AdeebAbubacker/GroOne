@@ -14,6 +14,7 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class PaymentsScreen extends StatelessWidget {
@@ -57,19 +58,117 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
     super.dispose();
   }
 
+  // Map<String, String> upiAppPlayStoreLinks = {
+  //   "phonepe": "https://play.google.com/store/apps/details?id=com.phonepe.app",
+  //   "tez": "https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user", // GPay (Tez)
+  //   "gpay": "https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user",
+  //   "paytm": "https://play.google.com/store/apps/details?id=net.one97.paytm",
+  //   "bhim": "https://play.google.com/store/apps/details?id=in.org.npci.upiapp",
+  //   "cred": "https://play.google.com/store/apps/details?id=com.dreamplug.androidapp",
+  //
+  // };
+
+  // String _normalizeUpiUrl(String url) {
+  //   print('url is are $url');
+  //   // Only normalize BHIM and Cred
+  //   if (url.startsWith("bhim:") || url.startsWith("credpay:")) {
+  //     print('url $url');
+  //     final uri = Uri.parse(url);
+  //     return Uri(
+  //       scheme: "upi",
+  //       host: uri.host,
+  //       path: uri.path,
+  //       query: uri.query,
+  //     ).toString();
+  //   }
+  //
+  //   // Keep original for GPay, PhonePe, Paytm, etc.
+  //   return url;
+  // }
+
+
+
   @override
   void initState() {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(AppColors.white)
-      ..setNavigationDelegate(NavigationDelegate(onPageStarted: _handlePageStart));
+      ..setNavigationDelegate(NavigationDelegate(
+          onPageStarted: _handlePageStart,
+          onNavigationRequest: (NavigationRequest request) async {
+            var url = request.url;
+            debugPrint("Intercepted URL: $url");
+
+            if (url.startsWith("upi:") ||
+                url.startsWith("phonepe:") ||
+                url.startsWith("tez:") ||
+                url.startsWith("gpay:") ||
+                url.startsWith("paytmmp:") ||
+                url.startsWith("bhim:") ||
+                url.startsWith("credpay:")) {
+
+              final uri = Uri.parse(url);
+
+              // final normalizedUrl = _normalizeUpiUrl(url);
+              // final uri = Uri.parse(normalizedUrl);
+
+              print('uri is $uri');
+
+              try {
+                // Try opening the UPI app directly
+                final launched = await launchUrl(
+                  uri,
+                  mode: LaunchMode.externalApplication,
+                );
+
+                print('launched $launched');
+
+                if (!launched) {
+                  // If launch fails → go to Play Store
+                  await _openPlayStore(url);
+                }
+              } catch (e) {
+                debugPrint("Launch failed: $e");
+                await _openPlayStore(url);
+              }
+
+              return NavigationDecision.prevent;
+            }
+
+            return NavigationDecision.navigate;
+          }
+
+
+      ));
 
     paymentCubit.reset(); // optional: clear any old state
     _delayedLoad();
   }
 
+  Future<void> _openPlayStore(String url) async {
+    String? storeUrl;
+    if (url.startsWith("phonepe:")) {
+      storeUrl = "https://play.google.com/store/apps/details?id=com.phonepe.app";
+    } else if (url.startsWith("tez:") || url.startsWith("gpay:")) {
+      storeUrl = "https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user";
+    } else if (url.startsWith("paytmmp:")) {
+      storeUrl = "https://play.google.com/store/apps/details?id=net.one97.paytm";
+    } else if (url.startsWith("upi:")) {   // BHIM fallback
+      storeUrl = "https://play.google.com/store/apps/details?id=in.org.npci.upiapp";
+    } else if (url.startsWith("bhim:")) {
+      storeUrl = "https://play.google.com/store/apps/details?id=in.org.npci.upiapp";
+    } else if (url.startsWith("credpay:")) {
+      storeUrl = "https://play.google.com/store/apps/details?id=com.dreamplug.androidapp";
+    }
+
+    if (storeUrl != null) {
+      await launchUrl(Uri.parse(storeUrl), mode: LaunchMode.externalApplication);
+    }
+  }
+
   void _handlePageStart(String url) {
+    print('url is $url');
     if (url.contains('/updateTransaction')) paymentCubit.setPaymentStarted(true);
     if (url.contains('/process-response')) paymentCubit.setPaymentLoading(true);
     if (url.contains('/BankRespReceive')) paymentCubit.setPaymentLoading(false);
@@ -123,37 +222,39 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
 
   @override
   Widget build(BuildContext context) {
+    print('loading');
     return BlocBuilder<PaymentCubit, PaymentState>(
       // value: paymentCubit,
       builder: (context, state) {
         return WillPopScope(
           onWillPop: () async => await _onBackPressed(state),
-          child: Scaffold(
-            appBar: CommonAppBar(
-              leading: IconButton(
-                icon: const Icon(Icons.arrow_back),
-                onPressed: () async {
-                  final shouldExit = await _onBackPressed(state);
-                  if (shouldExit) Navigator.pop(context, true);
-                },
+          child: SafeArea(
+            top: false,
+            child: Scaffold(
+              appBar: CommonAppBar(
+                leading: IconButton(
+                  icon: const Icon(Icons.arrow_back),
+                  onPressed: () async {
+                    final shouldExit = await _onBackPressed(state);
+                    if (shouldExit) Navigator.pop(context, true);
+                  },
+                ),
+                centreTile: true,
+                title: context.appText.makePayment,
+                backgroundColor: Colors.transparent,
+                actions: [
+                  Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
+                ],
               ),
-              centreTile: true,
-              title: context.appText.makePayment,
-              backgroundColor: Colors.transparent,
-              actions: [
-                20.width,
-                Image.asset(AppImage.png.appIcon, width: 74.25, height: 33),
-                30.width,
-              ],
-            ),
-            body: state.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : Stack(
-              children: [
-                WebViewWidget(controller: _controller),
-                if (state.isPaymentLoading)
-                  const CircularProgressIndicator().center(),
-              ],
+              body: state.isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Stack(
+                children: [
+                  WebViewWidget(controller: _controller),
+                  if (state.isPaymentLoading)
+                    const CircularProgressIndicator().center(),
+                ],
+              ),
             ),
           ),
         );
