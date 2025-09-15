@@ -1293,7 +1293,8 @@
   "avgSpeed":"औसत रफ़्तार",
   "engineOn":"इंजन चालू",
   "idleTime":"बेकार का समय",
-  "colorCode":"रंग कोड"
+  "colorCode":"रंग कोड",
+  "accountDeletedSuccessfully": "खाता सफलतापूर्वक हटा दिया गया"
 
 
 

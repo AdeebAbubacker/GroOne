@@ -205,21 +205,30 @@ class _LpSettingState extends State<LpSetting> {
                                 /// Delete Account not from api - appending from ui (Todo from api list)
                                 if (setting.key == 'privacy_policy')
                                   BlocConsumer<ProfileCubit, ProfileState>(
-                                    listener: (context, state) {
+                                    listener: (context, state) async{
                                       final status =
                                           state.deleteAccountUIState?.status;
-
-                                      if (status == Status.SUCCESS) {
-                                        LpBottomNavigation
-                                            .selectedIndexNotifier
-                                            .value = 0;
-                                        disposeFunction();
-                                        context.go(
-                                        AppRouteName.login,
-                                        extra: {"showBackButton": false},
-                                      );
-                                      }
-
+                                        if (status == Status.SUCCESS) {
+                                          // Show toast first
+                                          ToastMessages.success(
+                                            message: context.appText.accountDeletedSuccessfully,
+                                            duration: Duration(milliseconds: 1000)
+                                            
+                                          );
+                                          profileCubit.resetState();
+                                          // Delay navigation so user can see toast
+                                          Future.delayed(const Duration(milliseconds: 1200), () {
+                                            if (!mounted) return; 
+                                            disposeFunction();
+                                            LpBottomNavigation.selectedIndexNotifier.value = 0;
+                                            if(!context.mounted) return;
+                                            // Navigate to login screen
+                                            context.go(
+                                              AppRouteName.login,
+                                              extra: {"showBackButton": false},
+                                            );
+                                          });
+                                        }
                                       if (status == Status.ERROR) {
                                         final error =
                                             state
