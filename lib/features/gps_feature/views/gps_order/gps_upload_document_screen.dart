@@ -22,6 +22,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import '../../../../utils/app_application_bar.dart';
 import '../../../../utils/app_route.dart';
@@ -185,6 +186,7 @@ class _GpsUploadDocumentContentState extends State<_GpsUploadDocumentContent> {
                       enableInteractiveSelection: true,
                       hintText: context.appText.enterPanNumber,
                       controller: panNoController,
+                      inputFormatters: [UpperCaseTextFormatter()],
                       maxLength: 10,
                       validator:
                           (value) => cubit.getPanValidationError(value ?? ''),

@@ -18,6 +18,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_document_upload_widget.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -399,6 +400,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                         mandatoryStar: true,
                         hintText: context.appText.enterPanNumber,
                         controller: panController,
+                        inputFormatters: [UpperCaseTextFormatter()],
                         onChanged:
                             state.isPanVerified
                                 ? null

@@ -53,7 +53,15 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           ),
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
+              Navigator.of(context).push(
+                commonRoute(
+                  LpSupport(
+                    showBackButton: true,
+                    ticketTag: TicketTags.TANK_LOCK,
+                  ),
+                  isForward: true,
+                ),
+              );
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -73,7 +81,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
               12.height,
               _orderTimeline(context),
               12.height,
-               _addressSection(order.billingAddress, context),
+              _addressSection(order.billingAddress, context),
               _addressSection(order.shippingAddress, context),
               12.height,
               _paymentSummary(context),
@@ -97,58 +105,55 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${context.appText.orderId}: ${order.orderUniqueId}',
-                  style: AppTextStyle.primaryColor14w700,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      '${context.appText.orderId}: ${order.orderUniqueId}',
+                      style: AppTextStyle.primaryColor14w700,
+                    ),
+                    4.height,
+                    Text(
+                      order.orderDate.toString(),
+                      style: AppTextStyle.bodyGreyColor,
+                    ),
+                  ],
                 ),
-                4.height,
-                Text(
-                  formatDateTimeKavach(order.orderDate.toString()),
-                  style: AppTextStyle.bodyGreyColor,
-                ),
-              ],
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            decoration: BoxDecoration(
-              color: KavachHelper.getKavachOrderStatusColor(
-                order.statusHistory.last.statusLabel,
-              ).withValues(alpha: 0.09),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              order.statusHistory.last.statusLabel,
-              style: TextStyle(
-                color: KavachHelper.getKavachOrderStatusColor(
-                  order.statusHistory.last.statusLabel,
-                ),
-                fontWeight: FontWeight.w600,
-                fontSize: 12,
               ),
-            ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: KavachHelper.getKavachOrderStatusColor(
+                    order.statusHistory.last.statusLabel,
+                  ).withValues(alpha: 0.09),
+                  borderRadius: BorderRadius.circular(6),
+                ),
+                child: Text(
+                  order.statusHistory.last.statusLabel,
+                  style: TextStyle(
+                    color: KavachHelper.getKavachOrderStatusColor(
+                      order.statusHistory.last.statusLabel,
+                    ),
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            ],
           ),
-       
-        ],
-      ),
-       25.height,
+          25.height,
           Text(
-            order.lineItems.length == 1 
+            order.lineItems.length == 1
                 ? context.appText.productDetail
-                : context.appText.productDetails, 
-            style: AppTextStyle.h5
+                : context.appText.productDetails,
+            style: AppTextStyle.h5,
           ),
           8.height,
           ...order.lineItems.map((p) => _productItem(p, context)),
-          const Divider(
-            color: AppColors.shadowColor,
-          ),
+          const Divider(color: AppColors.shadowColor),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -156,7 +161,10 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                 context.appText.totalAmountPaid,
                 style: AppTextStyle.h5GreyColor,
               ),
-              Text("₹${KavachHelper.formatCurrency(order.totalPrice)}", style: AppTextStyle.h5),
+              Text(
+                "₹${KavachHelper.formatCurrency(order.totalPrice)}",
+                style: AppTextStyle.h5,
+              ),
             ],
           ),
           10.height,
@@ -173,7 +181,14 @@ class KavachOrderDetailsScreen extends StatelessWidget {
         children: [
           Row(
             children: [
-              p.product?.fileKey!=null? CachedNetworkImage(imageUrl: p.product!.fileKey,width: 70,height: 70,fit: BoxFit.cover,):Image.asset(AppImage.png.kavachProduct, width: 70),
+              p.product?.fileKey != null
+                  ? CachedNetworkImage(
+                    imageUrl: p.product!.fileKey,
+                    width: 70,
+                    height: 70,
+                    fit: BoxFit.cover,
+                  )
+                  : Image.asset(AppImage.png.kavachProduct, width: 70),
               8.width,
               Expanded(
                 child: Column(
@@ -190,7 +205,10 @@ class KavachOrderDetailsScreen extends StatelessWidget {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('₹${KavachHelper.formatCurrency(p.totalPrice)}', style: AppTextStyle.h5),
+                  Text(
+                    '₹${KavachHelper.formatCurrency(p.totalPrice)}',
+                    style: AppTextStyle.h5,
+                  ),
                   Text(
                     '${context.appText.qty} - ${p.quantity}',
                     style: AppTextStyle.textGreyColor12w400,
@@ -228,7 +246,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
 
   String _formatVehicleNumbers(List<KavachOrderListVehicle> vehicles) {
     if (vehicles.isEmpty) return '';
-    
+
     if (vehicles.length <= 2) {
       return vehicles.map((v) => v.vehicleNumber).join(', ');
     } else {
@@ -249,21 +267,21 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 20.0),
             child: ListView.builder(
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            itemBuilder:
-                (context, index) => _stage(
-                  title: order.statusHistory[index].statusLabel,
-                  date: order.statusHistory[index].createdAt,
-                  subtitle: order.statusHistory[index].remarks,
-                  isLast: (order.statusHistory.length - 1) == index,
-                  installationPersonMobile:
-                      order.installationContactPersonNumber,
-                  installationPersonName: order.installationContactPerson,
-                  context: context,
-                ),
-            itemCount: order.statusHistory.length,
-          ),
+              physics: NeverScrollableScrollPhysics(),
+              shrinkWrap: true,
+              itemBuilder:
+                  (context, index) => _stage(
+                    title: order.statusHistory[index].statusLabel,
+                    date: order.statusHistory[index].createdAt,
+                    subtitle: order.statusHistory[index].remarks,
+                    isLast: (order.statusHistory.length - 1) == index,
+                    installationPersonMobile:
+                        order.installationContactPersonNumber,
+                    installationPersonName: order.installationContactPerson,
+                    context: context,
+                  ),
+              itemCount: order.statusHistory.length,
+            ),
           ),
         ],
       ),
@@ -320,7 +338,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                   Text(subtitle, style: AppTextStyle.textGreyColor14w300),
                   5.height,
                   Text(
-                    formatDateTimeKavach(date.toString()),
+                    date.toString(),
                     style: AppTextStyle.textGreyColor14w300,
                   ),
                   Visibility(
@@ -358,7 +376,10 @@ class KavachOrderDetailsScreen extends StatelessWidget {
   Widget _addressSection(KavachOrderListAddress address, BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: 20, vertical:commonSafeAreaPadding ),
+      padding: EdgeInsets.symmetric(
+        horizontal: 20,
+        vertical: commonSafeAreaPadding,
+      ),
       decoration: BoxDecoration(color: Colors.white),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -403,7 +424,10 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                 "${context.appText.price} (${getTotalQuantity()} ${getTotalQuantity() == 1 ? 'item' : context.appText.items})",
                 '₹${KavachHelper.formatCurrency(order.price.toStringAsFixed(2))}',
               ),
-              PriceRow(context.appText.gstKavach, '₹${KavachHelper.formatCurrency(order.totalGst.toStringAsFixed(2))}'),
+              PriceRow(
+                context.appText.gstKavach,
+                '₹${KavachHelper.formatCurrency(order.totalGst.toStringAsFixed(2))}',
+              ),
               5.height,
               DottedLine(
                 direction: Axis.horizontal,
@@ -413,7 +437,10 @@ class KavachOrderDetailsScreen extends StatelessWidget {
                 dashColor: AppColors.greyIconColor,
               ),
               5.height,
-              PriceRow(context.appText.totalAmountPaid, '₹${KavachHelper.formatCurrency(order.totalPrice.toStringAsFixed(2))}'),
+              PriceRow(
+                context.appText.totalAmountPaid,
+                '₹${KavachHelper.formatCurrency(order.totalPrice.toStringAsFixed(2))}',
+              ),
             ],
           ),
         ),
@@ -443,26 +470,26 @@ class KavachOrderDetailsScreen extends StatelessWidget {
           // Open the invoice in browser or PDF viewer
           launchUrl(Uri.parse(state.url), mode: LaunchMode.externalApplication);
         } else if (state is KavachOrderListError) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
         return AppButton(
           onPressed: () {
-            context
-                .read<KavachOrderListBloc>()
-                .add(DownloadInvoiceEvent(order.id));
+            context.read<KavachOrderListBloc>().add(
+              DownloadInvoiceEvent(order.id),
+            );
           },
-          title: state is InvoiceDownloading
-              ? context.appText.downloading
-              : context.appText.downloadInvoice,
+          title:
+              state is InvoiceDownloading
+                  ? context.appText.downloading
+                  : context.appText.downloadInvoice,
         ).bottomNavigationPadding();
       },
     );
   }
-
 }
 
 class Product {

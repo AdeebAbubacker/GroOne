@@ -25,6 +25,7 @@ import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en_dhan_repository.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
@@ -380,6 +381,7 @@ class _EndhanCreateCardCustomerInfoScreenState
                             maxLength: 10,
                             textCapitalization: TextCapitalization.characters,
                             inputFormatters: [
+                              UpperCaseTextFormatter(),
                               FilteringTextInputFormatter.allow(
                                 panNumberInputRegex,
                               ),
