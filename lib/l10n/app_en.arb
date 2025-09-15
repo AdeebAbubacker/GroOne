@@ -1344,7 +1344,8 @@
   "engineOn":"Engine ON",
   "idleTime":"Idle Time",
   "colorCode":"Color Code",
-  "filterApplied":"Filter Applied"
+  "filterApplied":"Filter Applied",
+  "accountDeletedSuccessfully" : "Account Deleted Successfully"
 
 
 }

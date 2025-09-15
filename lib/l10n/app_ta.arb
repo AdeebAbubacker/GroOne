@@ -1292,7 +1292,8 @@
   "avgSpeed":"சராசரி வேகம்",
   "engineOn":"என்ஜின் ஆன்",
   "idleTime":"செயலற்ற நேரம்",
-  "colorCode":"வண்ண குறியீடு"
+  "colorCode":"வண்ண குறியீடு",
+  "accountDeletedSuccessfully": "கணக்கு வெற்றிகரமாக நீக்கப்பட்டது"
 
 
 }
