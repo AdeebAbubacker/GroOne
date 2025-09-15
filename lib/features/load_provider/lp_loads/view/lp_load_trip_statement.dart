@@ -303,7 +303,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
     return Text(
       text,
       style: AppTextStyle.h5.copyWith(
-          color: isHeading ? AppColors.textBlackColor :  Color(0xff6a7282), fontWeight: FontWeight.w700,
+          color: isHeading ? AppColors.textBlackColor :  AppColors.mediumDarkGrey, fontWeight: FontWeight.w700,
       ),
     );
   }
@@ -319,7 +319,7 @@ class _LpLoadSummaryScreenState extends State<LpLoadSummaryScreen> {
       padding: const EdgeInsets.all(12),
       margin: const EdgeInsets.only(bottom: 0),
       decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey.withOpacity(0.1)),
+        border: Border.all(color: AppColors.grey.withValues(alpha:  0.1)),
         color: AppColors.white,
       ),
       child: Row(
