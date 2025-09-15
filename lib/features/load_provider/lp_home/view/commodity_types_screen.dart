@@ -74,7 +74,6 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
           return GridView.builder(
             itemCount: widget.dataList.length,
             shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
             padding: EdgeInsets.only(top: 20, bottom: 100),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 3, // 3 items per row

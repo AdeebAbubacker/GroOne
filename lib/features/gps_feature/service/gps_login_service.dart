@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -217,7 +218,7 @@ class GpsLoginService {
         "Getting user details with token: ${token.substring(0, 10)}...",
       );
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/tc_users',
+        '${ApiUrls.gpsBase}/tc_users',
         'GET',
         token: token,
       );
@@ -274,7 +275,7 @@ class GpsLoginService {
     try {
       CustomLog.info(this, "Getting devices with expiry...");
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/devices_with_expiry?__limit=50000',
+        '${ApiUrls.gpsBase}/devices_with_expiry?__limit=50000',
         'GET',
         token: token,
       );
@@ -307,7 +308,7 @@ class GpsLoginService {
     try {
       CustomLog.info(this, "Getting devices latest positions...");
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/devices_latest_positions',
+        '${ApiUrls.gpsBase}/devices_latest_positions',
         'POST',
         body: {},
         token: token,
@@ -339,7 +340,7 @@ class GpsLoginService {
     try {
       CustomLog.info(this, "Getting user config...");
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/user_config',
+        '${ApiUrls.gpsBase}/user_config',
         'GET',
         token: token,
       );
@@ -377,7 +378,7 @@ class GpsLoginService {
       };
 
       final result = await _apiService.get(
-        'https://api.letsgro.co/api/v1/auth/device_fuel',
+        '${ApiUrls.gpsBase}/device_fuel',
         customHeaders: headers,
       );
 
@@ -419,7 +420,7 @@ class GpsLoginService {
     try {
       CustomLog.info(this, "Getting mobile config for user ID: $userId");
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/get_user_mobile_app_settings?user_id=$userId',
+        '${ApiUrls.gpsBase}/get_user_mobile_app_settings?user_id=$userId',
         'GET',
         token: token,
       );
@@ -452,7 +453,7 @@ class GpsLoginService {
     try {
       CustomLog.info(this, "Getting user configuration for user ID: $userId");
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/user_configuration?__id__equal=$userId',
+        '${ApiUrls.gpsBase}/user_configuration?__id__equal=$userId',
         'GET',
         token: token,
       );
@@ -482,7 +483,7 @@ class GpsLoginService {
     try {
       CustomLog.info(this, "Getting geofences...");
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/tc_geofences?__include=area&__include=attributes&__limit=10000',
+        '${ApiUrls.gpsBase}/tc_geofences?__include=area&__include=attributes&__limit=10000',
         'GET',
         token: token,
       );
@@ -546,7 +547,7 @@ class GpsLoginService {
       ).format(now.toUtc());
 
       final result = await _makeAuthenticatedRequest(
-        'https://api.letsgro.co/api/v1/auth/reports/monthly_distance',
+        '${ApiUrls.gpsBase}/reports/monthly_distance',
         'GET',
         queryParams: {
           'start': dateFrom,

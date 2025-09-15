@@ -18,6 +18,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_document_upload_widget.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -124,8 +125,10 @@ class _EndhanKycScreenContent extends StatelessWidget {
     Future<void> checkVerification(
       BuildContext context,
       String? sdkUrl,
-      String? requestId,
-    ) async {
+      String? requestId, {
+      String status = '',
+      String pdf = '',
+    }) async {
       if (sdkUrl != null && sdkUrl.isNotEmpty) {
         final isVerified = await Navigator.push(
           context,
@@ -134,6 +137,31 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
         if (isVerified == true && requestId != null) {
           await kycCubit.getKYCStatus(requestId);
+        }
+      }
+
+      if (status == "VERIFIED") {
+        final pdfPath = await KycHelper.saveBase64PdfToFile(pdf ?? "");
+        final file = File(pdfPath);
+        final uploadResponse = await cubit.uploadDocument(
+          file,
+        ); // This function already exists in your cubit
+
+        if (uploadResponse?.data?.url != null) {
+          final url = uploadResponse!.data!.url;
+          cubit.setAadhaarDocUrl(
+            url,
+          ); // You’ll create this method and update the state
+          cubit.setAadhaarVerified(true);
+          if (!context.mounted) return;
+          ToastMessages.success(
+            message: context.appText.aadhaarVerifiedSuccessfully,
+          );
+        } else {
+          if (!context.mounted) return;
+          ToastMessages.error(
+            message: context.appText.failedToUploadAadhaarPdf,
+          );
         }
       }
     }
@@ -250,7 +278,13 @@ class _EndhanKycScreenContent extends StatelessWidget {
                             final requestId =
                                 state.kycInitResponse?.data?.requestId;
                             aadharRequestId.value = requestId;
-                            await checkVerification(context, sdkUrl, requestId);
+                            await checkVerification(
+                              context,
+                              sdkUrl,
+                              requestId,
+                              status: state.kycInitResponse?.data?.status ?? '',
+                              pdf: state.kycInitResponse?.data?.dataPdf ?? '',
+                            );
                           }
 
                           if (state.aadharVerificationState?.status ==
@@ -366,6 +400,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
                         mandatoryStar: true,
                         hintText: context.appText.enterPanNumber,
                         controller: panController,
+                        inputFormatters: [UpperCaseTextFormatter()],
                         onChanged:
                             state.isPanVerified
                                 ? null

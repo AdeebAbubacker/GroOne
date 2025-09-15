@@ -181,7 +181,6 @@ class ApiUrls {
   static final String lpLoadTripDetails =
       "$_baseUrl$_loadExecution$_path$_v1$_load/trip-statement/";
 
-
   /// Load
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
   static final String loadCommodity = "$_loadBaseUrl/commodities";
@@ -330,39 +329,38 @@ class ApiUrls {
 
 
   /// GPS Tracking
-  static const String _gpsBase = "https://api.letsgro.co/api/v1/auth";
+  static String get gpsBase => EnvironmentVariables.fetchGpsBaseUrl;
   static final String gpsFetchGeofences =
-      "$_gpsBase/tc_geofences?__include=area&__include=attributes&__limit=10000";
-  static final String gpsAddGeofence = "$_gpsBase/add_geo_fence";
-  static final String gpsUpdateGeofence = "$_gpsBase/update_geo_fence";
+      "$gpsBase/tc_geofences?__include=area&__include=attributes&__limit=10000";
+  static final String gpsAddGeofence = "$gpsBase/add_geo_fence";
+  static final String gpsUpdateGeofence = "$gpsBase/update_geo_fence";
   static final String gpsLinkUnlinkGeofenceDevice =
-      "$_gpsBase/link_unlink_geo_fence_device";
+      "$gpsBase/link_unlink_geo_fence_device";
   static String gpsFetchGeofencesForVehicle(String userId, String deviceId) =>
-      "$_gpsBase/tc_geofences?__include=area&__include=attributes&__limit=10000&user_id=$userId&device_id=$deviceId";
+      "$gpsBase/tc_geofences?__include=area&__include=attributes&__limit=10000&user_id=$userId&device_id=$deviceId";
   static String gpsFetchNotifications(String userId, int days, int limit) =>
-      "$_gpsBase/last_500_user_events?days=$days&limit=$limit&user_id=$userId";
-  static const String gpsFetchParkingMode = "$_gpsBase/parking_mode";
-  static String gpsUpdateParkingMode(int id) => "$_gpsBase/parking_mode/$id";
-  static const String getDeprecatedNotificationStatus =
-      "$_gpsBase/get_deprecated_notification_status";
-  static const String updateDeprecatedNotificationStatus =
-      "$_gpsBase/update_deprecated_notification_status";
+      "$gpsBase/last_500_user_events?days=$days&limit=$limit&user_id=$userId";
+  static String get gpsFetchParkingMode => "$gpsBase/parking_mode";
+  static String gpsUpdateParkingMode(int id) => "$gpsBase/parking_mode/$id";
+  static String get getDeprecatedNotificationStatus =>
+      "$gpsBase/get_deprecated_notification_status";
+  static String get updateDeprecatedNotificationStatus =>
+      "$gpsBase/update_deprecated_notification_status";
   static String gpsUpdateNotificationToggle(int id) =>
-      "$_gpsBase/user_config/$id";
-  static const String gpsGetUserId = "$_gpsBase/tc_users";
+      "$gpsBase/user_config/$id";
+  static String get gpsGetUserId => "$gpsBase/tc_users";
   static final String gpsGetPlace = "$_mapBaseUrl/place";
 
   // Reachability APIs (from native Android app)
-  static const String gpsCreateReachability =
-      "$_gpsBase/create_reachability_alert";
-  static const String gpsGetNotificationConfigs =
-      "$_gpsBase/notification_config";
+  static String get gpsCreateReachability =>
+      "$gpsBase/create_reachability_alert";
+  static String get gpsGetNotificationConfigs => "$gpsBase/notification_config";
   static String gpsGetReachabilityConfigs(String vehicleId) =>
-      "$_gpsBase/reachability/vehicle/$vehicleId";
+      "$gpsBase/reachability/vehicle/$vehicleId";
   static String gpsUpdateReachabilityConfig(String configId) =>
-      "$_gpsBase/reachability/$configId";
+      "$gpsBase/reachability/$configId";
   static String gpsDeleteReachabilityConfig(String configId) =>
-      "$_gpsBase/reachability/$configId";
+      "$gpsBase/reachability/$configId";
 
   /// profile
   static final String getMembershipBenefit =
@@ -406,5 +404,6 @@ class ApiUrls {
   static final String vehicleVahanVerfification = "$groServicesUrl/vehicle_number/api/v1/send_vehicle_number";
 
   //Verify pincode
-  static final String verifyPincode = "$_baseUrl$_vendor$_path$_v1/dtplus/pincode/";
+  static final String verifyPincode =
+      "$_baseUrl$_vendor$_path$_v1/dtplus/pincode/";
 }

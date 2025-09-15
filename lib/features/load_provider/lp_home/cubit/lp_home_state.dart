@@ -1,11 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/lp_get_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
@@ -19,7 +19,7 @@ class LPHomeState extends Equatable {
   final UIState<RateDiscoveryModel>? rateDiscoveryUIState;
   final UIState<List<LoadWeightModel>>? loadWeightUIState;
   final UIState<ProfileDetailModel>? profileDetailUIState;
-  final UIState<LpGetLoadModel>? lpGetLoadUIState;
+  final UIState<LpLoadResponse>? lpGetLoadUIState;
   final bool showSuccessKyc;
   final UIState<DestinationModel>? destination;
   final UIState<PickUpModel>? pickup;
@@ -60,7 +60,7 @@ class LPHomeState extends Equatable {
     UIState<RateDiscoveryModel>? rateDiscoveryUIState,
     UIState<List<LoadWeightModel>>? loadWeightUIState,
     UIState<ProfileDetailModel>? profileDetailUIState,
-    UIState<LpGetLoadModel>? getLoadListUIState,
+    UIState<LpLoadResponse>? getLoadListUIState,
     bool? showSuccessKyc,
     UIState<DestinationModel>? destination,
     UIState<PickUpModel>? pickup,

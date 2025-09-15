@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -9,10 +9,8 @@ import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_json.dart';
 import 'package:gro_one_app/utils/app_string.dart';
-import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
-import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
 
 enum AppUpdateType { none, soft, force }
@@ -54,56 +52,115 @@ class _SplashScreenState extends State<SplashScreen> {
 
   //  Init Function
   Future<void> init(BuildContext context) async {
-    await Future.delayed(const Duration(seconds: 4));
+    try {
+      CustomLog.debug(this, "Splash screen init started");
 
-    final prefs = locator<SecuredSharedPreferences>();
-    final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
+      await Future.delayed(const Duration(seconds: 4));
 
-    await splashViewModel.fetchIsUserLogin();
+      final prefs = locator<SecuredSharedPreferences>();
+      final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
 
-    final loginState = splashViewModel.checkIsUserLoginUIState;
+      CustomLog.debug(this, "Fetching user login status");
+      // Add timeout for fetchIsUserLogin
+      await splashViewModel.fetchIsUserLogin().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          CustomLog.error(this, "fetchIsUserLogin timed out", null);
+          throw TimeoutException('Login check timed out', const Duration(seconds: 10));
+        },
+      );
 
-    if (loginState != null && loginState.status == Status.SUCCESS) {
-      if (loginState.data == true) {
+      final loginState = splashViewModel.checkIsUserLoginUIState;
+      CustomLog.debug(this, "Login state: ${loginState?.status}, data: ${loginState?.data}");
+
+      if (loginState != null && loginState.status == Status.SUCCESS) {
+        if (loginState.data == true) {
+          if (!context.mounted) return;
+          await _checkUserType(context); // Go to home screen
+        } else {
+          if (!context.mounted) return;
+          context.go(AppRouteName.login, extra: {"showBackButton": false}); // Go to login screen
+        }
+      } else if (loginState != null && loginState.status == Status.ERROR) {
         if (!context.mounted) return;
-        await _checkUserType(context); // Go to home screen
+        if (savedLangCode == null) {
+          context.go(AppRouteName.chooseLanguage); // First-time user, no language
+        } else {
+          context.go(AppRouteName.login, extra: {"showBackButton": false}); // Language exists, go to login
+        }
       } else {
+        // Fallback navigation if state is null or unexpected
         if (!context.mounted) return;
-        context.go(AppRouteName.login, extra: {"showBackButton": false}); // Go to login screen
-
+        // CustomLog.error(this, "Unexpected login state, using fallback navigation", null);
+        if (savedLangCode == null) {
+          context.go(AppRouteName.chooseLanguage);
+        } else {
+          context.go(AppRouteName.login, extra: {"showBackButton": false});
+        }
       }
-    } else if (loginState != null && loginState.status == Status.ERROR) {
+    } catch (e) {
+      CustomLog.error(this, "Init function error", e);
       if (!context.mounted) return;
-      if (savedLangCode == null) {
-        context.go(AppRouteName.chooseLanguage); // First-time user, no language
-      } else {
-        context.go(AppRouteName.login, extra: {"showBackButton": false}); // Language exists, go to login
 
+      // Fallback navigation on any error
+      final prefs = locator<SecuredSharedPreferences>();
+      final savedLangCode = await prefs.get(AppString.sessionKey.selectedLanguage);
+
+      if (savedLangCode == null) {
+        context.go(AppRouteName.chooseLanguage);
+      } else {
+        context.go(AppRouteName.login, extra: {"showBackButton": false});
       }
-    } else {
-      ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
     }
   }
 
 
   // Check user type (1 LP, 2 VP, 3 Both, 4)
   _checkUserType(BuildContext context) async {
-    await splashViewModel.fetchUserType();
-    if (splashViewModel.userRoleUIState != null && splashViewModel.userRoleUIState?.status != null) {
-      if (splashViewModel.userRoleUIState?.status == Status.ERROR) {
-        if(splashViewModel.userRoleUIState?.errorType != null){
-          ToastMessages.error(message: getErrorMsg(errorType: splashViewModel.userRoleUIState!.errorType!));
-        } else {
-          ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
+    try {
+      // CustomLog.debug(this, "Fetching user type");
+
+      // Add timeout for fetchUserType
+      await splashViewModel.fetchUserType().timeout(
+        const Duration(seconds: 10),
+        onTimeout: () {
+          CustomLog.error(this, "fetchUserType timed out", null);
+          throw TimeoutException('User type check timed out', const Duration(seconds: 10));
+        },
+      );
+
+      if (!context.mounted) return;
+
+      final userRoleState = splashViewModel.userRoleUIState;
+      // CustomLog.debug(this, "User role state: ${userRoleState?.status}, data: ${userRoleState?.data}");
+
+      if (userRoleState != null && userRoleState.status != null) {
+        if (userRoleState.status == Status.ERROR) {
+          // Navigate to login on error instead of showing toast and hanging
+          context.go(AppRouteName.login, extra: {"showBackButton": false});
+          return;
         }
-      }
-      if (splashViewModel.userRoleUIState?.status == Status.SUCCESS) {
-        if (splashViewModel.userRoleUIState?.data != null) {
-          frameCallback(()=> navigateHomeScreen(splashViewModel.userRoleUIState!.data!, context));
+        if (userRoleState.status == Status.SUCCESS) {
+          if (userRoleState.data != null) {
+            // CustomLog.debug(this, "Navigating to home with user role: ${userRoleState.data}");
+            frameCallback(() {
+              navigateHomeScreen(userRoleState.data!, context);
+            });
+          } else {
+            // Fallback if data is null
+            context.go(AppRouteName.login, extra: {"showBackButton": false});
+          }
         }
+      } else {
+        // Fallback navigation if state is null
+        context.go(AppRouteName.login, extra: {"showBackButton": false});
       }
-    } else {
-      ToastMessages.error(message: getErrorMsg(errorType: GenericError()));
+    } catch (e) {
+      CustomLog.error(this, "Check user type error", e);
+      if (!context.mounted) return;
+
+      // Always navigate somewhere on error to prevent hanging
+      context.go(AppRouteName.login, extra: {"showBackButton": false});
     }
   }
 

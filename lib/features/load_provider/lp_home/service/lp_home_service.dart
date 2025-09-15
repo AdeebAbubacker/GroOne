@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_mod
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 
 
 class LpHomeService{
@@ -22,12 +23,12 @@ class LpHomeService{
 
 
   /// Gwt Load
-  Future<Result<LpGetLoadModel>> getLoads({required String id}) async {
+  Future<Result<LpLoadResponse>> getLoads({required String id}) async {
     try {
-      final url = ApiUrls.getLoads+id;
-      final result = await _apiService.get(url);
+      final url = ApiUrls.lpLoadList;
+      final result = await _apiService.get(url, queryParams: {'customerId' : id, 'limit' : 3});
       if (result is Success) {
-        final data = LpGetLoadModel.fromJson(result.value);
+        final data = LpLoadResponse.fromJson(result.value);
         return Success(data);
       } else if (result is Error) {
         return Error(result.type);
