@@ -535,7 +535,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           selectedWeight: weights.firstWhereOrNull(
                             (w) => w.id == selectedWeightDropDownValue,
                           ),
-                          fetchWeights: (page, searchKey) async {
+                          fetchWeights: () async {
                             await context.read<LPHomeCubit>().fetchLoadWeight();
                             return context
                                     .read<LPHomeCubit>()
