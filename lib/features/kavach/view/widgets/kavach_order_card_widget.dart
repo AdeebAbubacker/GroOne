@@ -18,7 +18,7 @@ class KavachOrderCardWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6,horizontal: 10),
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 10),
       decoration: commonContainerDecoration(borderColor: AppColors.borderColor),
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -35,15 +35,22 @@ class KavachOrderCardWidget extends StatelessWidget {
                   ),
                 ),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
-                    color: KavachHelper.getKavachOrderStatusColor(order.statusHistory.last.statusLabel).withValues(alpha: 0.09),
+                    color: KavachHelper.getKavachOrderStatusColor(
+                      order.statusHistory.last.statusLabel,
+                    ).withValues(alpha: 0.09),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
                     order.statusHistory.first.statusLabel,
                     style: TextStyle(
-                      color: KavachHelper.getKavachOrderStatusColor(order.statusHistory.last.statusLabel),
+                      color: KavachHelper.getKavachOrderStatusColor(
+                        order.statusHistory.last.statusLabel,
+                      ),
                       fontWeight: FontWeight.w600,
                       fontSize: 12,
                     ),
@@ -54,27 +61,48 @@ class KavachOrderCardWidget extends StatelessWidget {
             6.height,
             Row(
               children: [
-                Expanded(child: Text(order.lineItems.length>1?'${order.lineItems.first.product?.name} +${order.lineItems.length-1}':'${order.lineItems.first.product?.name}', style: AppTextStyle.textGreyColor14w300)),
+                Expanded(
+                  child: Text(
+                    order.lineItems.length > 1
+                        ? '${order.lineItems.first.product?.name} +${order.lineItems.length - 1}'
+                        : '${order.lineItems.first.product?.name}',
+                    style: AppTextStyle.textGreyColor14w300,
+                  ),
+                ),
                 // Text('₹${order.orderAmount}', style: AppTextStyle.h4),
-                Text('₹${double.parse(order.orderAmount).round()}', style: AppTextStyle.h4),
+                Text(
+                  '₹${double.parse(order.orderAmount).round()}',
+                  style: AppTextStyle.h4,
+                ),
               ],
             ),
-            Divider(color: AppColors.borderColor,),
+            Divider(color: AppColors.borderColor),
             Row(
               children: [
                 InkWell(
-                    onTap: () {
-                      Navigator.of(context).push(commonRoute(KavachOrderDetailsScreen(order: order,)));
-                    },
-                    child: Text(context.appText.viewDetails, style: AppTextStyle.primaryColor14w700)),
+                  onTap: () {
+                    Navigator.of(
+                      context,
+                    ).push(commonRoute(KavachOrderDetailsScreen(order: order)));
+                  },
+                  child: Text(
+                    context.appText.viewDetails,
+                    style: AppTextStyle.primaryColor14w700,
+                  ),
+                ),
                 15.width,
-                Expanded(child: Text("${context.appText.purchasedOn} ${formatDateTimeKavach(order.orderDate.toString())}", style: AppTextStyle.textGreyColor14w300,maxLines: 1,)),
+                Expanded(
+                  child: Text(
+                    "${context.appText.purchasedOn} ${order.orderDate.toString()}",
+                    style: AppTextStyle.textGreyColor14w300,
+                    maxLines: 1,
+                  ),
+                ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
   }
-
 }
