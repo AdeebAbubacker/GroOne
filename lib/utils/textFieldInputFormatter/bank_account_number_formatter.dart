@@ -14,9 +14,14 @@ class BankAccountNumberFormatter extends TextInputFormatter {
       digitsOnly = digitsOnly.substring(0, 18);
     }
 
+    int offset = newValue.selection.baseOffset;
+    if (offset > digitsOnly.length) {
+      offset = digitsOnly.length;
+    }
+
     return TextEditingValue(
       text: digitsOnly,
-      selection: TextSelection.collapsed(offset: digitsOnly.length),
+      selection: TextSelection.collapsed(offset: offset),
     );
   }
 }

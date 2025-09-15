@@ -24,9 +24,14 @@ class PANCardInputFormatter extends TextInputFormatter {
       }
     }
 
+    int offset = newValue.selection.baseOffset;
+    if (offset > alphanumericOnly.length) {
+      offset = alphanumericOnly.length;
+    }
+
     return TextEditingValue(
       text: formattedText,
-      selection: TextSelection.collapsed(offset: formattedText.length),
+      selection: TextSelection.collapsed(offset: offset),
     );
   }
 }
