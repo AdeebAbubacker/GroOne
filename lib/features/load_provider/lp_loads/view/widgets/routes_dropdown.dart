@@ -3,7 +3,6 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
-import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown_controller.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/model/model.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';

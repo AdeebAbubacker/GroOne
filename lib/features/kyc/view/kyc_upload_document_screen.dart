@@ -925,7 +925,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                     selectedState!.isNotEmpty,
                                 onCityChanged: (value) {
                                   setState(() {
-                                    selectedCity = value?.city.toString();
+                                    selectedCity = value?.id.toString();
                                   });
                                 },
                               ),
