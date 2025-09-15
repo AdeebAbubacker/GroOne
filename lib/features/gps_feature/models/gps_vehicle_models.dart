@@ -36,7 +36,6 @@ class GpsVehicleModel {
   });
 
   factory GpsVehicleModel.fromJson(Map<String, dynamic> json) {
-    print('🔍 GpsVehicleModel.fromJson called with: $json');
     
     final vehicle = GpsVehicleModel(
       vehicleId: json['vehicleId'] ?? '',
@@ -57,7 +56,6 @@ class GpsVehicleModel {
       deletedAt: json['deletedAt'],
     );
     
-    print('🔍 Created vehicle: ${vehicle.truckNo}, status: ${vehicle.status}');
     return vehicle;
   }
 
@@ -108,17 +106,13 @@ class GpsVehicleListResponse {
   });
 
   factory GpsVehicleListResponse.fromJson(Map<String, dynamic> json) {
-    print('🔍 GpsVehicleListResponse.fromJson called with: $json');
     
     final dataList = json['data'] as List<dynamic>?;
-    print('🔍 Data list: $dataList');
     
     final vehicles = dataList?.map((item) {
-      print('🔍 Parsing vehicle item: $item');
       return GpsVehicleModel.fromJson(item as Map<String, dynamic>);
     }).toList() ?? [];
     
-    print('🔍 Parsed ${vehicles.length} vehicles');
     
     return GpsVehicleListResponse(
       data: vehicles,
@@ -152,7 +146,6 @@ class GpsPageMeta {
   });
 
   factory GpsPageMeta.fromJson(Map<String, dynamic> json) {
-    print('🔍 GpsPageMeta.fromJson called with: $json');
     
     // Handle both string and int values for numeric fields
     final page = json['page'];
@@ -161,7 +154,6 @@ class GpsPageMeta {
     final pageSize = json['pageSize'];
     final total = json['total'];
     
-    print('🔍 Raw values - page: $page (${page.runtimeType}), pageCount: $pageCount (${pageCount.runtimeType}), nextPage: $nextPage (${nextPage.runtimeType}), pageSize: $pageSize (${pageSize.runtimeType}), total: $total (${total.runtimeType})');
     
     return GpsPageMeta(
       page: page is int ? page : int.tryParse(page?.toString() ?? '1') ?? 1,

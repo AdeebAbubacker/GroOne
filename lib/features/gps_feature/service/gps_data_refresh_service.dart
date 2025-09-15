@@ -69,7 +69,7 @@ class GpsDataRefreshService {
     final interval = getRefreshInterval(screenType);
     CustomLog.info(
       this,
-      "Starting GPS data refresh for $screenType with ${interval.inSeconds}s interval",
+      "🚀 Starting GPS data refresh for $screenType with ${interval.inSeconds}s interval at ${DateTime.now().toIso8601String()}",
     );
 
     _refreshTimer = Timer.periodic(interval, (timer) {
@@ -134,14 +134,18 @@ class GpsDataRefreshService {
   /// Perform the actual data refresh with error handling and performance optimization
   Future<void> _performDataRefresh() async {
     try {
-      CustomLog.debug(
+      CustomLog.info(
         this,
-        "Performing GPS data refresh for $_currentScreenType",
+        "🔄 Performing GPS data refresh for $_currentScreenType at ${DateTime.now().toIso8601String()}",
       );
 
       // Check if GPS service is properly initialized
       if (!_isGpsServiceInitialized()) {
-        CustomLog.debug(this, "GPS service not initialized, skipping refresh");
+        CustomLog.error(
+          this,
+          "GPS service not initialized, skipping refresh",
+          null,
+        );
         return;
       }
 

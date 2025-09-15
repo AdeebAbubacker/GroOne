@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 
 import '../../../data/model/result.dart';
 import '../../../utils/app_string.dart';
@@ -28,7 +29,7 @@ class GpsVehicleExtraInfoService {
       };
 
       final response = await _dio.get(
-        'https://api.letsgro.co/api/v1/auth/devices?__limit=50000',
+        '${ApiUrls.gpsBase}/devices?__limit=50000',
         options: Options(
           headers: headers,
           sendTimeout: const Duration(seconds: 30),
@@ -92,7 +93,7 @@ class GpsVehicleExtraInfoService {
       };
 
       final response = await _dio.get(
-        'https://api.letsgro.co/api/v1/auth/get_public_tracking_token',
+        '${ApiUrls.gpsBase}/get_public_tracking_token',
         queryParameters: queryParams,
         options: Options(
           headers: headers,
@@ -148,7 +149,7 @@ class GpsVehicleExtraInfoService {
       };
 
       final response = await _dio.post(
-        "https://api.letsgro.co/api/v1/auth/update_device",
+        "${ApiUrls.gpsBase}/update_device",
         data: data,
         options: Options(
           headers: headers,
@@ -190,7 +191,7 @@ class GpsVehicleExtraInfoService {
       };
 
       final response = await _dio.patch(
-        "https://api.letsgro.co/api/v1/auth/devices/$deviceId",
+        "${ApiUrls.gpsBase}/devices/$deviceId",
         data: data,
         options: Options(
           headers: headers,
@@ -233,7 +234,7 @@ class GpsVehicleExtraInfoService {
       };
 
       final response = await _dio.get(
-        'https://api.letsgro.co/api/v1/auth/info_window_details?device_id=$deviceId',
+        '${ApiUrls.gpsBase}/info_window_details?device_id=$deviceId',
         options: Options(
           headers: headers,
           sendTimeout: const Duration(seconds: 30),

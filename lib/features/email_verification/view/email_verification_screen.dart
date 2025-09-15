@@ -90,6 +90,7 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
   /// Body
   Widget buildBodyWidget() {
+    final isKeyboardOpen = MediaQuery.of(context).viewInsets.bottom > 0;
     return SafeArea(
       // bottom: false,
       child: Column(
@@ -108,7 +109,9 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
 
           buildResendCodeButtonWidget(),
 
-          buildBottomBannerImageWidget()
+          Visibility(
+            visible: !isKeyboardOpen,
+            child: buildBottomBannerImageWidget())
         ],
       ),
     );

@@ -7,6 +7,9 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/vehicle_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/model/gps_combined_vehicle_model.dart';
+import 'package:gro_one_app/features/gps_feature/service/gps_data_refresh_service.dart';
+import 'package:gro_one_app/features/gps_feature/widgets/gps_screen_lifecycle_wrapper.dart';
+import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -22,9 +25,29 @@ import '../constants/app_constants.dart';
 import '../widgets/map_floating_menu.dart';
 import '../widgets/nearby_places_bottom_sheet.dart';
 
-class VehicleListScreen extends StatelessWidget {
+class VehicleListScreen extends StatefulWidget {
   const VehicleListScreen({super.key});
 
+  @override
+  State<VehicleListScreen> createState() => _VehicleListScreenState();
+}
+
+class _VehicleListScreenState extends State<VehicleListScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return GpsScreenLifecycleWrapper(
+      screenType: GpsScreenType.home, // Use home type for 15-second refresh
+      child: _VehicleListContent(),
+    );
+  }
+}
+
+class _VehicleListContent extends StatefulWidget {
+  @override
+  State<_VehicleListContent> createState() => _VehicleListContentState();
+}
+
+class _VehicleListContentState extends State<_VehicleListContent> {
   @override
   Widget build(BuildContext context) {
     final vehicleListCubit = locator<VehicleListCubit>();
@@ -38,13 +61,29 @@ class VehicleListScreen extends StatelessWidget {
 
     return BlocProvider.value(
       value: vehicleListCubit,
-      child: VehicleListView(),
+      child: FutureBuilder<String?>(
+        future: _getUsername(),
+        builder: (context, snapshot) {
+          return VehicleListView(username: snapshot.data);
+        },
+      ),
     );
+  }
+
+  Future<String?> _getUsername() async {
+    try {
+      final userInfoRepo = locator<UserInformationRepository>();
+      return await userInfoRepo.getUsername();
+    } catch (e) {
+      return null;
+    }
   }
 }
 
 class VehicleListView extends StatelessWidget {
-  const VehicleListView({super.key});
+  final String? username;
+
+  const VehicleListView({super.key, this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -219,7 +258,7 @@ class VehicleListView extends StatelessWidget {
           ),
           Expanded(
             child: Text(
-              context.appText.sbMatricSchool,
+              username ?? 'User',
               style: TextStyle(
                 color: AppConstants.primaryColor,
                 fontWeight: FontWeight.w600,
@@ -506,13 +545,13 @@ class VehicleListView extends StatelessWidget {
           isExpired
               ? null
               : () {
-                // context.push(
-                //   AppRouteName.vehicleMap,
-                //   extra: {
-                //     'vehicles': [vehicle],
-                //     'initialSelectedVehicle': vehicle,
-                //   },
-                // );
+                context.push(
+                  AppRouteName.vehicleMap,
+                  extra: {
+                    'vehicles': [vehicle],
+                    'initialSelectedVehicle': vehicle,
+                  },
+                );
               },
       child: Stack(
         children: [

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
@@ -35,10 +36,10 @@ class _GpsShowHideGeofenceScreenState extends State<GpsShowHideGeofenceScreen> {
   Future<void> _loadSavedToggles() async {
     final savedToggles = await GpsSessionManager.getGeofenceToggleMap();
     setState(() {
+      toggledState.clear();
       toggledState.addAll(savedToggles);
     });
   }
-
 
   String _getFormattedValue(GpsGeofenceModel item) {
     switch (item.shapeType) {
@@ -61,7 +62,6 @@ class _GpsShowHideGeofenceScreenState extends State<GpsShowHideGeofenceScreen> {
     });
     await GpsSessionManager.setGeofenceToggleMap(toggledState);
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -86,9 +86,7 @@ class _GpsShowHideGeofenceScreenState extends State<GpsShowHideGeofenceScreen> {
             final geofences = state.geofences;
 
             // Determine global toggle status
-            final allOn = geofences.every(
-                  (g) => toggledState[g.id] ?? false,
-            );
+            final allOn = geofences.every((g) => toggledState[g.id] ?? false);
             if (allOn != selectAll) selectAll = allOn;
 
             return ListView(
@@ -125,12 +123,19 @@ class _GpsShowHideGeofenceScreenState extends State<GpsShowHideGeofenceScreen> {
                         value: isOn,
                         activeTrackColor: AppColors.activeGreenColor,
                         activeColor: Colors.white,
-                          onChanged: (val) async {
-                            setState(() {
-                              toggledState[geofence.id] = val;
-                            });
-                            await GpsSessionManager.setGeofenceToggleMap(toggledState);
+                        onChanged: (val) async {
+                          setState(() {
+                            toggledState[geofence.id] = val;
+                          });
+                          await GpsSessionManager.setGeofenceToggleMap(
+                            toggledState,
+                          );
+                          // Force refresh the map if it's open
+                          if (mounted) {
+                            // Trigger a rebuild by updating the state
+                            setState(() {});
                           }
+                        },
                       ),
                     ),
                   );

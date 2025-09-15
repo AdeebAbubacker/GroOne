@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_string.dart';
@@ -41,7 +42,8 @@ class KycVerificationWebViewState extends State<KycVerificationWebView> {
            Uri? uri=Uri.tryParse(change.url??"");
            if((uri?.path??"").isNotEmpty){
               String url=change.url??"";
-              if(url.contains('https://gro-devadmin.letsgro.co')){
+
+              if(url.contains(ApiUrls.adminUrl)){
                 _isBack=true;
                  await securePrefs.saveBoolean(AppString.sessionKey.iskycAdarWebview,true);
                 if(mounted) {

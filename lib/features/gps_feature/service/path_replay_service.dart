@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 
 import '../../../data/network/api_service.dart';
+import '../../../data/network/api_urls.dart';
 import '../model/path_positions_pojo.dart';
 import '../model/trip_path_model.dart';
 
@@ -16,7 +17,7 @@ class PathReplayService {
     Dio dio = Dio();
 
     final response = await dio.get(
-      "https://api.letsgro.co/api/v1/auth/reports/position",
+      "${ApiUrls.gpsBase}/reports/position",
       queryParameters: queryParams,
       options: Options(headers: {"Authorization": token}),
     );
@@ -28,7 +29,6 @@ class PathReplayService {
 
         return data.map((e) => Data.fromJson(e)).toList();
       } catch (e) {
-        print("Parsing Error: $e");
         throw Exception("Failed to fetch path replay data");
       }
     } else {
@@ -40,7 +40,7 @@ class PathReplayService {
     Dio dio = Dio();
 
     final response = await dio.get(
-      "https://api.letsgro.co/api/v1/auth/reports/last_trip_position_records",
+      "${ApiUrls.gpsBase}/reports/last_trip_position_records",
       queryParameters: {"device_id": deviceId},
       options: Options(headers: {"Authorization": token}),
     );
@@ -52,8 +52,6 @@ class PathReplayService {
 
         return data.map((e) => TripPath.fromJson(e)).toList();
       } catch (e, stackTrace) {
-        print("Trip Path Parsing Error: $e");
-        print("Stack trace: $stackTrace");
         throw Exception("Failed to fetch trip path data: $e");
       }
     } else {

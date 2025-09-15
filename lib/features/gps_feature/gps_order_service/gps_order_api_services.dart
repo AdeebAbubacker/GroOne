@@ -1,7 +1,3 @@
-
-
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
@@ -11,8 +7,8 @@ import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_order_list_models.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_payment_status_response.dart';
-import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_request.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
@@ -354,8 +350,6 @@ class GpsOrderApiService {
     try {
       // PAN verification doesn't require authentication token
       final url = ApiUrls.panVerification;
-      final xApiKey = ApiUrls.xApiKey;
-      final udid = ApiUrls.fetchUDID;
       CustomLog.debug(this, "🔐 GPS PAN Verification - URL: $url");
       CustomLog.debug(
         this,
@@ -365,8 +359,8 @@ class GpsOrderApiService {
       // Custom headers for the new PAN verification API
       final customHeaders = {
         'accept': 'application/json',
-        'X-API-Key': xApiKey,
-        'X-Application-UDID': udid,
+        'X-API-Key': ApiUrls.xApiKey,
+        'X-Application-UDID': ApiUrls.fetchUDID,
         'Content-Type': 'application/json',
       };
 
@@ -670,7 +664,6 @@ class GpsOrderApiService {
       );
 
       if (result is Success) {
-        log(result.value.toString());
         CustomLog.debug(
           this,
           "GPS Customer Orders List - Response: ${result.value}",

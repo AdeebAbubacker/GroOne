@@ -785,13 +785,12 @@ class EnDhanService {
   ) async {
     try {
       final url = ApiUrls.panVerification;
-      final xApiKey = ApiUrls.xApiKey;
-      final udid = ApiUrls.fetchUDID;
+
       // Custom headers for the new PAN verification API
       final customHeaders = {
         'accept': 'application/json',
-        'X-API-Key': xApiKey,
-        'X-Application-UDID': udid,
+        'X-API-Key': ApiUrls.xApiKey,
+        'X-Application-UDID': ApiUrls.fetchUDID,
         'Content-Type': 'application/json',
       };
 
@@ -829,16 +828,15 @@ class EnDhanService {
     VehicleVerificationRequest request,
   ) async {
     try {
-      final url = ApiUrls.sendVehicleNumber;
-      final xApiKey = ApiUrls.xApiKey;
-      final udid = ApiUrls.fetchUDID;
+      final url =
+          '${ApiUrls.groServicesUrl}/vehicle_number/api/v1/send_vehicle_number';
       final requestBody = request.toJson();
 
       // Custom headers for the new vehicle verification API
       final customHeaders = {
         'accept': 'application/json',
-        'X-API-Key': xApiKey,
-        'X-Application-UDID': udid,
+        'X-API-Key': ApiUrls.xApiKey,
+        'X-Application-UDID': ApiUrls.fetchUDID,
         'Content-Type': 'application/json',
       };
 

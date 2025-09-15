@@ -31,7 +31,6 @@ class GpsRepository {
       if (config?.data == null) return null;
 
       for (var user in config!.data!) {
-        debugPrint(user.id.toString());
       }
       final matchedData = config!.data!.firstWhere(
         (element) => element.userId == userId,
@@ -54,7 +53,6 @@ class GpsRepository {
     final result = await _service.getUserId(token);
     if (result is Success<int?>) {
       _cachedUserId = result.value;
-      debugPrint("User ID Saved in repository: $_cachedUserId");
       return _cachedUserId;
     }
 

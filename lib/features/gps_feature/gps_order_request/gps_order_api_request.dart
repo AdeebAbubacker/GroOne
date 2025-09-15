@@ -1134,19 +1134,18 @@ class GpsOrderApiRequest {
 
   /// Verify vehicle
   Future<Result<bool>> verifyVehicle(String vehicleNumber) async {
+
     try {
-      final xApiKey = ApiUrls.xApiKey;
-      final udid = ApiUrls.fetchUDID;
       // Custom headers for the new vehicle verification API
       final customHeaders = {
         'accept': 'application/json',
-        'X-API-Key': xApiKey,
-        'X-Application-UDID': udid,
+        'X-API-Key': ApiUrls.xApiKey,
+        'X-Application-UDID': ApiUrls.fetchUDID,
         'Content-Type': 'application/json',
       };
 
       final result = await _apiService.post(
-        ApiUrls.sendVehicleNumber,
+        '${ApiUrls.groServicesUrl}/vehicle_number/api/v1/send_vehicle_number',
         body: {'vehicle_number': vehicleNumber},
         customHeaders: customHeaders,
       );

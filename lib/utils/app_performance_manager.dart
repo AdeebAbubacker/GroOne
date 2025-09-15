@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 /// Comprehensive app performance and stability manager
 class AppPerformanceManager {
@@ -138,18 +139,22 @@ class _EnhancedErrorBoundaryState extends State<EnhancedErrorBoundary> {
   @override
   void initState() {
     super.initState();
-
-    // FlutterError.onError = (FlutterErrorDetails details) {
-    //   _handleError(details.exception, details.stack);
-    // };
+    FlutterError.onError = (FlutterErrorDetails details) {
+      _handleError(details.exception, details.stack);
+    };
   }
 
   void _handleError(dynamic error, StackTrace? stackTrace) {
     AppPerformanceManager().logError(error.toString(), stackTrace);
 
     if (mounted) {
-      setState(() {
-        _error = error.toString();
+      // Use post-frame callback to avoid build during frame error
+      SchedulerBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _error = error.toString();
+          });
+        }
       });
     }
     widget.onError?.call();
