@@ -49,7 +49,7 @@ class ToastMessages{
 
   /// Error Msg
   static error({required String message}) {
-    if(message == 'The access token is invalid or has expired') {
+    if(message == 'Your session has expired. Please log in again') {
       return;
     }
     Flushbar(
