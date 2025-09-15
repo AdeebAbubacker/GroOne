@@ -337,7 +337,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                       selectedStateId: selectedState,
                       onStateChanged: (value) {
                         setState(() {
-                          selectedState = value?.id.toString();
+                          selectedState = value?.name.toString();
                           selectedStateData = value?.name.toString();
                           selectedCity = null;
                         });
@@ -351,7 +351,8 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                           selectedState != null && selectedState!.isNotEmpty,
                       onCityChanged: (value) {
                         setState(() {
-                          selectedCity = value;
+                          selectedCity = value?.city.toString();
+                          print('Selected City: $selectedCity');
                         });
                       },
                     ),
@@ -589,7 +590,7 @@ class CityDropdown extends StatefulWidget {
   final String? selectedCityId;
   final String? selectedState;
   final bool isStateSelected;
-  final ValueChanged<String?> onCityChanged;
+  final ValueChanged<CityModelList?> onCityChanged;
 
   const CityDropdown({
     super.key,
@@ -688,7 +689,7 @@ class _CityDropdownState extends State<CityDropdown> {
               },
 
               onChanged: (CityModelList? newCity) {
-                widget.onCityChanged(newCity?.id.toString());
+                widget.onCityChanged(newCity);
               },
             ),
           ),
