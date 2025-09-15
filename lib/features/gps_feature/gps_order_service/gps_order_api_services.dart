@@ -354,6 +354,8 @@ class GpsOrderApiService {
     try {
       // PAN verification doesn't require authentication token
       final url = ApiUrls.panVerification;
+      final xApiKey = ApiUrls.xApiKey;
+      final udid = ApiUrls.fetchUDID;
       CustomLog.debug(this, "🔐 GPS PAN Verification - URL: $url");
       CustomLog.debug(
         this,
@@ -363,8 +365,8 @@ class GpsOrderApiService {
       // Custom headers for the new PAN verification API
       final customHeaders = {
         'accept': 'application/json',
-        'X-API-Key': '5f522b06263423e4cab5eb45d27f2be4',
-        'X-Application-UDID': '52e3dcc8-52ef-4f52-8756-3a06996757cd',
+        'X-API-Key': xApiKey,
+        'X-Application-UDID': udid,
         'Content-Type': 'application/json',
       };
 
