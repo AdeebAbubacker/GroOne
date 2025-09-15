@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/foundation.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
@@ -28,7 +29,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   LPHomeCubit(this._repo) : super(LPHomeState());
 
   Timer? _matchTimer;
-
+  final securePrefs = locator<SecuredSharedPreferences>();
   @override
   Future<void> close() {
     _matchTimer?.cancel();
@@ -260,14 +261,27 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
       final eventId = result.value;
       if (eventId != null && eventId.isNotEmpty) {
         // Store event_id in SharedPreferences
-        print('event_ID $eventId');
         try {
-          final securePrefs = locator<SecuredSharedPreferences>();
           await securePrefs.saveKey(AppString.sessionKey.eventId, eventId);
         } catch (e) {
           // Log error but don't show to user as it's not critical
         }
       }
+    }
+    if (result is Error) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
+  /// update Event
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    final eventId = await securePrefs.get(AppString.sessionKey.eventId);
+    dynamic result = await _repo.updatedAppEvent(stage: stage,eventId: eventId ??'',entityId: entityId,context: context);
+    // No need to emit state for this API as it's just for tracking
+    if (result is Success<String?>) {
+        if (kDebugMode) {
+          print('Event updated successfully-----');
+        }
     }
     if (result is Error) {
       // Log error but don't show to user as it's not critical

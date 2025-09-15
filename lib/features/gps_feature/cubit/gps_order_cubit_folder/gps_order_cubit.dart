@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
@@ -44,8 +45,9 @@ class GpsOrderLoading extends GpsOrderState {}
 
 class GpsOrderSuccess extends GpsOrderState {
   final String message;
+  final String orderID;
 
-  GpsOrderSuccess(this.message);
+  GpsOrderSuccess({required this.message, required this.orderID});
 }
 
 class GpsOrderError extends GpsOrderState {
@@ -128,7 +130,10 @@ class GpsOrderCubit extends Cubit<GpsOrderState> {
       
       if (result is Success) {
         if (!_isClosed) {
-          emit(GpsOrderSuccess('Order created successfully'));
+          if (kDebugMode) {
+            print("gps_order_id${result.value["data"]["order_unique_id"] ?? ''}");
+          }
+          emit(GpsOrderSuccess(message: 'Order created successfully',orderID: result.value["data"]["order_unique_id"]??''));
         }
       } else if (result is Error) {
         final errorMessage = result.type is ErrorWithMessage

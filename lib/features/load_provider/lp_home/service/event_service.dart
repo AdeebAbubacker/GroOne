@@ -54,4 +54,45 @@ class EventService {
       return Error(DeserializationError());
     }
   }
+
+  /// updated App Event Service
+  Future<Result<String?>> updatedAppEvent({ required String eventId, required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      // Use the fixed API credentials from your example
+      final xApiKey = '5f522b06263423e4cab5eb45d27f2be4';
+      final udid = '52e3dcc8-52ef-4f52-8756-3a06996757cd';
+
+      // Build the URL with event ID
+      final url = '${ApiUrls.createEvent}/$eventId';
+
+      // Create the request body matching your example format
+      final requestBody = {
+        "stage": stage,
+        "context": context ?? {"additionalProp1": {}},
+        "entity_id": entityId ?? ""
+      };
+
+      final result = await _apiService.put(
+        url,
+        body: requestBody,
+        customHeaders: {
+          "accept": "application/json",
+          "X-API-Key": xApiKey,
+          "X-Application-UDID": udid,
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (result is Success) {
+        // For PUT requests, typically return the eventId or success indicator
+        return Success(eventId);
+      } else if (result is Error) {
+        return Error(result.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
 }

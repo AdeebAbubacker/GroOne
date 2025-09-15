@@ -142,6 +142,14 @@ class LpHomeRepository{
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
+  /// updated App Event
+  Future<Result<String?>> updatedAppEvent({ required String eventId, required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      return await _lpHomeService.updatedAppEvent(stage: stage,eventId: eventId,entityId: entityId,context: context);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
 
 
 }
