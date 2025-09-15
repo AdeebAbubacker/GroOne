@@ -64,21 +64,30 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
     final subTypes = widget.dataList.where((e) => e.type == selectedType).toList();
     return SafeArea(
       minimum: EdgeInsets.all(commonSafeAreaPadding),
-      child:  Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
 
-          // Truck Tabs Type Row
-          Text(context.appText.selectTruckType, style: AppTextStyle.body),
-          10.height,
-          Row(
-            children: List.generate(types.length, (index) {
-              final type = types[index];
+            // Truck Tabs Type Row
+            Text(context.appText.selectTruckType, style: AppTextStyle.body),
+            10.height,
+            GridView.builder(
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                childAspectRatio: 2.5,
+              ),
+              itemCount: types.length,
+              itemBuilder: (context, index) {
+                final type = types[index];
+                final icons = selectTruckTypeList[0];
+                final isSelected = selectedType == type;
 
-               final icons = selectTruckTypeList[0];
-              final isSelected = selectedType == type;
-              return Expanded(
-                child: GestureDetector(
+                return GestureDetector(
                   onTap: () {
                     setState(() {
                       selectedType = type;
@@ -86,7 +95,6 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
                     });
                   },
                   child: Container(
-                    height: 50,
                     decoration: commonContainerDecoration(
                       color: AppColors.lightPrimaryColor2,
                       borderColor: isSelected ? AppColors.primaryColor : AppColors.lightDividerColor,
@@ -96,71 +104,82 @@ class _TruckTypesScreenState extends State<TruckTypesScreen> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SvgPicture.asset(icons, colorFilter: AppColors.svg(isSelected ? AppColors.primaryColor : AppColors.greyIconColor), width: 25),
-                        5.width,
-                        Text(type, style: isSelected ? AppTextStyle.body3PrimaryColor : AppTextStyle.body3GreyColor),
+                        SvgPicture.asset(
+                          icons,
+                          colorFilter: AppColors.svg(
+                            isSelected ? AppColors.primaryColor : AppColors.greyIconColor,
+                          ),
+                          width: 25,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          type,
+                          style: isSelected
+                              ? AppTextStyle.body3PrimaryColor
+                              : AppTextStyle.body3GreyColor,
+                        ),
                       ],
                     ),
                   ),
-                ),
-              );
-            }).expand((w) => [w, 10.width]).toList()..removeLast(),
-          ),
-
-          20.height,
-
-          // SubType Grid
-          Text(context.appText.truckLength, style: AppTextStyle.body),
-          10.height,
-          GridView.builder(
-            itemCount: subTypes.length,
-            shrinkWrap: true,
-            physics: NeverScrollableScrollPhysics(),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.2,
+                );
+              },
             ),
-            itemBuilder: (context, index) {
-              final data = subTypes[index];
-              final isSelected = (index == selectedSubTypeIndex);
-              return GestureDetector(
-                onTap: () {
-                  setState(() {
-                    checkValidation = index.toString();
-                    selectedSubTypeIndex = index;
-                    widget.onSelect(data);
-                  });
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(10.0),
-                  decoration: commonContainerDecoration(
-                    color: AppColors.lightPrimaryColor2,
-                    borderColor: isSelected ? AppColors.primaryColor : AppColors.lightDividerColor,
-                    borderRadius: BorderRadius.circular(10),
-                    borderWidth: isSelected ?  1.5 : 1,
+
+            20.height,
+
+            // SubType Grid
+            Text(context.appText.truckLength, style: AppTextStyle.body),
+            10.height,
+            GridView.builder(
+              itemCount: subTypes.length,
+              shrinkWrap: true,
+              physics: NeverScrollableScrollPhysics(),
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.2,
+              ),
+              itemBuilder: (context, index) {
+                final data = subTypes[index];
+                final isSelected = (index == selectedSubTypeIndex);
+                return GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      checkValidation = index.toString();
+                      selectedSubTypeIndex = index;
+                      widget.onSelect(data);
+                    });
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(10.0),
+                    decoration: commonContainerDecoration(
+                      color: AppColors.lightPrimaryColor2,
+                      borderColor: isSelected ? AppColors.primaryColor : AppColors.lightDividerColor,
+                      borderRadius: BorderRadius.circular(10),
+                      borderWidth: isSelected ?  1.5 : 1,
+                    ),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SvgPicture.asset(
+                          AppIcons.svg.truck,
+                          colorFilter: AppColors.svg(isSelected ? AppColors.primaryColor : AppColors.greyIconColor),
+                        ),
+                        5.height,
+                        Text(
+                          data.subType,
+                          style: isSelected ? AppTextStyle.body3PrimaryColor : AppTextStyle.body3GreyColor,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SvgPicture.asset(
-                        AppIcons.svg.truck,
-                        colorFilter: AppColors.svg(isSelected ? AppColors.primaryColor : AppColors.greyIconColor),
-                      ),
-                      5.height,
-                      Text(
-                        data.subType,
-                        style: isSelected ? AppTextStyle.body3PrimaryColor : AppTextStyle.body3GreyColor,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          )
-        ],
+                );
+              },
+            )
+          ],
+        ),
       ),
     );
   }
