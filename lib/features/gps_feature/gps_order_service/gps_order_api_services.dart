@@ -16,6 +16,7 @@ import 'package:gro_one_app/features/kavach/api_request/kavach_payment_api_reque
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_order_added_success_response.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import '../models/gps_create_order_response.dart';
 
 class GpsOrderApiService {
   final ApiService _apiService;
@@ -597,7 +598,8 @@ class GpsOrderApiService {
         CustomLog.debug(this, "GPS Create Order - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
-          (data) {}, // For void return
+          (data)=> CreateOrderResponse.fromJson(data),
+          // (data) {},
         );
       } else if (result is Error) {
         CustomLog.error(this, "GPS Create Order failed: ${result.type}", null);

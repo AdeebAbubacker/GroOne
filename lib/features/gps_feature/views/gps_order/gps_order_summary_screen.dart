@@ -287,6 +287,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
           try {
             lpHomeCubit.updatedAppEvent(
               stage: 'end',
+              entityId: state.orderID
             );
           } catch (e) {
             // Log error but don't show to user as it's not critical
