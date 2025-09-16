@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/profile/api_request/ticket_detail_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/ticket_message_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
@@ -20,21 +21,11 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../utils/app_icons.dart';
 
 class TicketDetailsScreen extends StatefulWidget {
-  final String ticketNo;
-  final String ticketId;
-  final String title;
-  final String description;
-  final String? attachment;
-  final DateTime? time;
+  final TicketDetailRequest request;
 
   const TicketDetailsScreen({
     super.key,
-    required this.ticketNo,
-    required this.ticketId,
-    required this.title,
-    required this.description,
-    this.attachment,
-    this.time,
+    required this.request
   });
 
   @override
@@ -53,7 +44,7 @@ class _TicketDetailsScreenState extends State<TicketDetailsScreen> {
   }
 
   fetchMessages() async {
-    await profileCubit.fetchTicketMessages(ticketId: widget.ticketId, docId: widget.attachment);
+    await profileCubit.fetchTicketMessages(ticketId: widget.request.ticketId, docId: widget.request.attachment);
   }
 
   @override
@@ -62,7 +53,7 @@ class _TicketDetailsScreenState extends State<TicketDetailsScreen> {
     return SafeArea(
       top: false,
       child: Scaffold(
-        appBar: AppBar(title: Text(" ${context.appText.ticket} ${widget.ticketNo}")),
+        appBar: AppBar(title: Text(" ${context.appText.ticket} ${widget.request.ticketNo}")),
 
       body: RefreshIndicator(
         onRefresh: () => fetchMessages(),
@@ -74,7 +65,7 @@ class _TicketDetailsScreenState extends State<TicketDetailsScreen> {
               alignment: Alignment.centerRight,
               child: ConstrainedBox(
                 constraints: BoxConstraints(
-                  maxWidth: widget.attachment != '' ? width * 0.7 : width * 0.5,
+                  maxWidth: widget.request.attachment != '' ? width * 0.7 : width * 0.5,
                 ),
                 child: Container(
                   margin: const EdgeInsets.symmetric(vertical: 8),
@@ -85,14 +76,14 @@ class _TicketDetailsScreenState extends State<TicketDetailsScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.title,
+                      Text(widget.request.title,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold)),
                       4.height,
-                      Text(widget.description),
-                      if(widget.attachment != '')
+                      Text(widget.request.description),
+                      if(widget.request.attachment != '')
                         ...[
                           8.height,
                           BlocBuilder<ProfileCubit, ProfileState>(
@@ -199,7 +190,7 @@ class _TicketDetailsScreenState extends State<TicketDetailsScreen> {
                       Align(
                         alignment: Alignment.centerRight,
                         child: Text(
-                          DateTimeHelper.formatCustomDateTimeIST(widget.time),
+                          DateTimeHelper.formatCustomDateTimeIST(widget.request.time),
                           style: AppTextStyle.body4.copyWith(color: AppColors.greyTextColor),
                         ),
                       ),

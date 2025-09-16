@@ -468,23 +468,19 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                       String? aadhaarNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
                       String? aadhaarPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
 
+                    final extra = { 'aadhaarNumber': aadhaarNumber, 'pdfPath': aadhaarPDF};
+
                     if (companyId != null && (companyId == 2 || companyId == 1)) {
                       if ((isKycCompleted || isAadhaarVerified) && context.mounted) {
-                        Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                          aadhaarNumber: aadhaarNumber,
-                          pdfPath: aadhaarPDF,
-                        )));
-                        } else{
+                        context.push(AppRouteName.kycUploadDocument, extra: extra);
+                      } else {
                         if (context.mounted) {
                           commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
                         }
-                        }
+                      }
                     } else {
                       if(context.mounted) {
-                        Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                          aadhaarNumber: aadhaarNumber,
-                          pdfPath: aadhaarPDF,
-                        )));
+                        context.push(AppRouteName.kycUploadDocument, extra: extra);
                       }
                     }
                   },

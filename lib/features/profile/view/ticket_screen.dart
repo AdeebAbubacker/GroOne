@@ -1,21 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/profile/api_request/ticket_detail_request.dart';
 import 'package:gro_one_app/features/profile/api_request/ticket_request.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
-import 'package:gro_one_app/features/profile/view/widgets/add_new_support_ticket.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
-
-import 'ticket_detail_screen.dart';
 
 class TicketScreen extends StatelessWidget {
   TicketScreen({super.key, this.ticketTag, required this.searchController});
@@ -86,15 +85,15 @@ class TicketScreen extends StatelessWidget {
                             ticket.ticketStatusKey == 'COMPLETED';
                         return GestureDetector(
                           onTap: () {
-                            Navigator.push(context, commonRoute(
-                                TicketDetailsScreen(
-                                  ticketId: ticket.ticketId,
-                                  ticketNo: ticket.ticketSeriesId ?? '',
-                                  title: ticket.title,
-                                  description: ticket.description,
-                                  attachment: ticket.attachment.isNotEmpty ? ticket.attachment[0] : '',
-                                  time: ticket.createdAt,
-                                ),isForward: true));
+                            var request =  TicketDetailRequest(
+                              ticketId: ticket.ticketId,
+                              ticketNo: ticket.ticketSeriesId ?? '',
+                              title: ticket.title,
+                              description: ticket.description,
+                              attachment: ticket.attachment.isNotEmpty ? ticket.attachment[0] : '',
+                              time: ticket.createdAt,
+                            );
+                            context.push(AppRouteName.ticketDetails, extra: request);
                           },
                           child: Container(
                             padding: const EdgeInsets.all(16),
@@ -190,10 +189,7 @@ class TicketScreen extends StatelessWidget {
   Widget buildCreateTicketButton(BuildContext context) {
     return AppButton(
       onPressed: () {
-        Navigator.push(
-          context,
-          commonRoute(AddNewTicketScreen(ticketTag: ticketTag), isForward: true),
-        ).then((val) {
+        context.push(AppRouteName.addNewTicket, extra: {"ticketTag": ticketTag}).then((val) {
           profileCubit.fetchTickets(request: TicketRequest());
         });
       },

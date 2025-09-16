@@ -116,12 +116,13 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.7,
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             genericErrorWidget(error: uiState.errorType),
                           ],
-                        ),
+                        ).center(),
                       ),
                     ],
                   ),
@@ -145,7 +146,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                             children: [
                               SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.5,
+                                    MediaQuery.of(context).size.height * 0.6,
                                 child: Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -274,7 +275,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
             onPressed: () => showAddAddressPopup(context),
           ),
         ),
-        20.height,
       ],
     );
   }
