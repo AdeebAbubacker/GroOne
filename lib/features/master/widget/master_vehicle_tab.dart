@@ -137,7 +137,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.7,
                         child: Center(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -172,7 +172,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             children: [
                               SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.5,
+                                    MediaQuery.of(context).size.height * 0.6,
                                 child: Center(
                                   child: Column(
                                     mainAxisSize: MainAxisSize.min,
@@ -272,7 +272,6 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
             },
           ),
         ),
-        20.height,
       ],
     );
   }

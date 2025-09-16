@@ -111,6 +111,7 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
                   5.height,
                   profileOptionWidget(context),
                   buildProfileVersionWidget(),
+                  5.height,
                 ],
               ),
             ).withScroll(),

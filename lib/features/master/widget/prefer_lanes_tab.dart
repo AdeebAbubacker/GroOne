@@ -47,7 +47,6 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
         15.height,
         _buildPreferLensWidget().expand(),
         _buildUpdateButtonWidget(),
-        20.height,
       ],
     ).paddingSymmetric(horizontal: 20);
   }
