@@ -280,7 +280,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     // No need to emit state for this API as it's just for tracking
     if (result is Success<String?>) {
         if (kDebugMode) {
-          print('Event updated successfully-----');
+          print('Event updated successfully-----$stage');
         }
     }
     if (result is Error) {
