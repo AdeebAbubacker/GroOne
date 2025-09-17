@@ -71,6 +71,10 @@ class AppRouteName {
   static const String lpTransaction = '/lpTransaction';
   static const String settings = '/settings';
   static const String support = '/support';
+  static const String addNewTicket = '/addNewTicket';
+  static const String ticketDetails = '/ticketDetails';
+  static const String termsAndConditions = '/termsAndConditions';
+  static const String privacyPolicy = '/privacyPolicy';
 
   /// Load Provider
   static const String lpLoadsLocationDetails = '/lpLoadsLocationDetails';
@@ -78,10 +82,11 @@ class AppRouteName {
   static const String lpLoadSummary = '/lpLoadSummary';
   static const String recentRoute = '/recentRoute';
   static const String paymentSummary = '/paymentSummary';
+  static const String paymentScreen = '/paymentScreen';
   static const String lpSelectAddressScreen = '/lpSelectAddressScreen';
 
-  static const String termsAndConditions = '/termsAndConditions';
-  static const String privacyPolicy = '/privacyPolicy';
+
+  static const String kycUploadDocument = '/kycUploadDocument';
 
 
 }

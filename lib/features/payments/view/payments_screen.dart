@@ -17,6 +17,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../../utils/app_global_variables.dart';
+
 class PaymentsScreen extends StatelessWidget {
   final String url;
   final String loadId;
@@ -113,7 +115,12 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
               // final normalizedUrl = _normalizeUpiUrl(url);
               // final uri = Uri.parse(normalizedUrl);
 
-              print('uri is $uri');
+              // print('uri is $uri');
+              //
+              // final normalizedUrl = _normalizeUpiUrl(url);
+              // final uri = Uri.parse(normalizedUrl);
+              //
+              // debugPrint("Launching normalized UPI URL: $normalizedUrl");
 
               try {
                 // Try opening the UPI app directly
@@ -126,11 +133,11 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
 
                 if (!launched) {
                   // If launch fails → go to Play Store
-                  await _openPlayStore(url);
+                  await _openStore(url);
                 }
               } catch (e) {
                 debugPrint("Launch failed: $e");
-                await _openPlayStore(url);
+                await _openStore(url);
               }
 
               return NavigationDecision.prevent;
@@ -139,27 +146,40 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
             return NavigationDecision.navigate;
           }
 
-
       ));
 
     paymentCubit.reset(); // optional: clear any old state
     _delayedLoad();
   }
 
-  Future<void> _openPlayStore(String url) async {
+
+  Future<void> _openStore(String url) async {
     String? storeUrl;
-    if (url.startsWith("phonepe:")) {
-      storeUrl = "https://play.google.com/store/apps/details?id=com.phonepe.app";
-    } else if (url.startsWith("tez:") || url.startsWith("gpay:")) {
-      storeUrl = "https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user";
-    } else if (url.startsWith("paytmmp:")) {
-      storeUrl = "https://play.google.com/store/apps/details?id=net.one97.paytm";
-    } else if (url.startsWith("upi:")) {   // BHIM fallback
-      storeUrl = "https://play.google.com/store/apps/details?id=in.org.npci.upiapp";
-    } else if (url.startsWith("bhim:")) {
-      storeUrl = "https://play.google.com/store/apps/details?id=in.org.npci.upiapp";
-    } else if (url.startsWith("credpay:")) {
-      storeUrl = "https://play.google.com/store/apps/details?id=com.dreamplug.androidapp";
+
+    if (isAndroid) {
+      if (url.startsWith("phonepe:")) {
+        storeUrl = "https://play.google.com/store/apps/details?id=com.phonepe.app";
+      } else if (url.startsWith("tez:") || url.startsWith("gpay:")) {
+        storeUrl = "https://play.google.com/store/apps/details?id=com.google.android.apps.nbu.paisa.user";
+      } else if (url.startsWith("paytmmp:")) {
+        storeUrl = "https://play.google.com/store/apps/details?id=net.one97.paytm";
+      } else if (url.startsWith("upi:") || url.startsWith("bhim:")) {
+        storeUrl = "https://play.google.com/store/apps/details?id=in.org.npci.upiapp";
+      } else if (url.startsWith("credpay:")) {
+        storeUrl = "https://play.google.com/store/apps/details?id=com.dreamplug.androidapp";
+      }
+    } else if (isIOS) {
+      if (url.startsWith("phonepe:")) {
+        storeUrl = "https://apps.apple.com/in/app/phonepe/id1170055821";
+      } else if (url.startsWith("tez:") || url.startsWith("gpay:")) {
+        storeUrl = "https://apps.apple.com/in/app/google-pay-save-pay-manage/id1193357041";
+      } else if (url.startsWith("paytmmp:")) {
+        storeUrl = "https://apps.apple.com/in/app/paytm-secure-upi-payments/id473941634";
+      } else if (url.startsWith("upi:") || url.startsWith("bhim:")) {
+        storeUrl = "https://apps.apple.com/in/app/bhim-making-india-cashless/id1172687124";
+      } else if (url.startsWith("credpay:")) {
+        storeUrl = "https://apps.apple.com/in/app/cred/id1428580080";
+      }
     }
 
     if (storeUrl != null) {

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
@@ -463,18 +464,18 @@ Future<Result<bool>> deleteVehicle({
   }
 
 
-    Future<Result<Map<String, dynamic>>> fetchVehicleData(String vehicleNumber) async {
+    Future<Result<Map<String, dynamic>>> fetchVehicleData(BuildContext context, String vehicleNumber) async {
     try {
-      return await _profileService.fetchVehicleData(vehicleNumber);
+      return await _profileService.fetchVehicleData(context, vehicleNumber);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch vehicle data in repository", e);
       return Error(GenericError());
     }
   }
 
-     Future<Result<Map<String, dynamic>>> fetchLicenseData({required LicenseVahanRequest  licensereq}) async {
+     Future<Result<Map<String, dynamic>>> fetchLicenseData({required BuildContext context, required LicenseVahanRequest  licensereq}) async {
     try {
-      return await _profileService.fetchLicenseExcistence(request: licensereq);
+      return await _profileService.fetchLicenseExcistence(context: context, request: licensereq);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch vehicle data in repository", e);
       return Error(GenericError());

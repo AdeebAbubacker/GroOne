@@ -310,7 +310,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
             }
             if (state is CreateLoadSuccess) {
               final createdLoadId = state.createLoadModel.data?.loadId;
-              if (createdLoadId != null) {
+              if (createdLoadId != null && widget.isKycValid == 2) {
                 await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
               }
               if (context.mounted) {

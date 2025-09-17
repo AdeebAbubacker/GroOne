@@ -101,6 +101,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   }
 
   void initFunction() => frameCallback(() async {
+    await splashViewModel.checkAppUpdate();
       final updateState = splashViewModel.appUpdateUIState;
     if (updateState != null && updateState.status == Status.SUCCESS) {
       final updateType = parseUpdateType(updateState.data!);

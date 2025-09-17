@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
@@ -45,8 +46,10 @@ import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 class ProfileService {
   final ApiService _apiService;
@@ -906,6 +909,7 @@ Future<Result<FaqResponse>> fetchFaq({
   }
 
   Future<Result<Map<String, dynamic>>> fetchVehicleData(
+    BuildContext context,
     String vehicleNumber,
   ) async {
     try {
@@ -939,14 +943,27 @@ Future<Result<FaqResponse>> fetchFaq({
           api1Response.value['success'] != false) {
         return Success(api1Response.value['data']);
       }
+      else if (api1Response is Error) {
+        if (!context.mounted) {
+          return Error(GenericError());
+        }
+      final errorType = api1Response.type;
+      final errorMessage = errorType.getText(context);
 
-      return Error(GenericError());
+      ToastMessages.alert(
+        message: errorMessage.isNotEmpty
+            ? errorMessage
+            : context.appText.vehicleVerificationFailed,
+      );
+    }
+     return Error(GenericError());
     } catch (e) {
       return Error(GenericError());
     }
   }
 
   Future<Result<Map<String, dynamic>>> fetchLicenseExcistence({
+    required BuildContext context,
     required LicenseVahanRequest request,
   }) async {
     try {
@@ -981,6 +998,19 @@ Future<Result<FaqResponse>> fetchFaq({
         return Success(api1Response.value['data']);
       }
 
+      else if (api1Response is Error) {
+      if (!context.mounted) {
+        return Error(GenericError());
+      }
+      final errorType = api1Response.type;
+      final errorMessage = errorType.getText(context);
+
+      ToastMessages.alert(
+          message: errorMessage.isNotEmpty
+              ? errorMessage
+              : context.appText.licenseVerificationFailed,
+      );
+    }
       return Error(GenericError());
     } catch (e) {
       return Error(GenericError());
