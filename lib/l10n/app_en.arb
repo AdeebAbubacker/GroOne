@@ -832,7 +832,7 @@
   "viewFiles":"View Files",
   "days":"Days",
   "settlementRecordedSuccessfully":"Your settlement details has been recorded.",
-    "updateLanes":"Update lanes",
+  "updateLanes":"Update lanes",
 
 
   "pod":"Proof of Document",
@@ -1345,7 +1345,9 @@
   "idleTime":"Idle Time",
   "colorCode":"Color Code",
   "filterApplied":"Filter Applied",
-  "accountDeletedSuccessfully" : "Account Deleted Successfully"
-
+  "accountDeletedSuccessfully" : "Account Deleted Successfully",
+  "stateisRequired":"State is required",
+  "cityisRequired" : "City is required",
+  "gstNo" : "GST"
 
 }
