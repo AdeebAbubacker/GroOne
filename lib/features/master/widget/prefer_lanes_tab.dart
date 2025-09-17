@@ -33,12 +33,22 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
   final vpCreationCubit = locator<VpCreateAccountCubit>();
   final masterCubit = locator<MastersCubit>();
   final profileCubit = locator<ProfileCubit>();
-  List<int> selectedPrefLanesTypeList = [];
+  ValueNotifier<List<int>> selectedPreferenceList=ValueNotifier([]);
+
+
 
   @override
   void initState() {
     super.initState();
   }
+
+  // selectedItemIds
+
+  void selectedIDs(List<int> selectedIds){
+   frameCallback(() =>  selectedPreferenceList.value=selectedIds,);
+
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -79,12 +89,10 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
           final preferredLaneItems =
               state.selectedPreferLanes;
           if ((preferredLaneItems ?? []).isNotEmpty) {
-            selectedPrefLanesTypeList =
-                preferredLaneItems?.map((e) => e.masterLaneId??0).toList() ?? [];
+            selectedIDs(preferredLaneItems?.map((e) => e.masterLaneId??0).toList() ?? []);
           } else {
-            selectedPrefLanesTypeList = [];
+            selectedIDs([]);
           }
-
 
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,16 +187,22 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
         builder: (context, state) {
           Status? status = state.editUserUIState?.status;
 
-          return AppButton(
-            isLoading: status == Status.LOADING,
-            title:context.appText.updateLanes,
-            onPressed: () {
-              masterCubit.updatePreferLanes(
-                  companyName: profileCubit.state.profileDetailUIState?.data?.customer?.companyName??"",
-                  companyTypeId:profileCubit.state.profileDetailUIState?.data?.customer?.companyTypeId??0,
-                  customerName: profileCubit.state.profileDetailUIState?.data?.customer?.customerName??"",
-                  selectedPrefLanesTypeList);
-            },
+          return ValueListenableBuilder(
+              valueListenable: selectedPreferenceList,
+             builder: (context, value, child) {
+              return AppButton(
+                isLoading: status == Status.LOADING,
+                title:context.appText.updateLanes,
+                enable: value.isNotEmpty,
+                onPressed: value.isEmpty ? null: () {
+                  masterCubit.updatePreferLanes(
+                      companyName: profileCubit.state.profileDetailUIState?.data?.customer?.companyName??"",
+                      companyTypeId:profileCubit.state.profileDetailUIState?.data?.customer?.companyTypeId??0,
+                      customerName: profileCubit.state.profileDetailUIState?.data?.customer?.customerName??"",
+                      value);
+                },
+              );
+            }
           );
         },
       ),
