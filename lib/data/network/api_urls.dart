@@ -406,7 +406,9 @@ class ApiUrls {
   //Verify pincode
   static final String verifyPincode =
       "$_baseUrl$_vendor$_path$_v1/dtplus/pincode/";
+
+  /// Events API
+  static final String createEvent = "https://groone-uat.letsgro.co/audit/api/v1/events";
 }
 
-/// Events API
-static final String createEvent = "https://groone-uat.letsgro.co/audit/api/v1/events";
+
