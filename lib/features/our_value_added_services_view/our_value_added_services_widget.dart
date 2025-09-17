@@ -136,7 +136,6 @@ class _OurValueAddedServicesWidgetState
                         context,
                         commonRoute(GpsOrderBenefitsAndOrderListScreen()),
                       );
-                      createEvent();
                     }
                   } else {
                     // Fallback to benefits screen if order list check fails
@@ -155,7 +154,6 @@ class _OurValueAddedServicesWidgetState
                   context,
                   commonRoute(GpsOrderBenefitsAndOrderListScreen()),
                 );
-                createEvent();
               }
             }
 
@@ -384,19 +382,5 @@ class _OurValueAddedServicesWidgetState
         ),
       ),
     );
-  }
-
-  Future<void> createEvent() async {
-    try {
-      final eventRequest = await EventHelper.buildHomeViewEvent(
-        entity: 'vas',
-        subEntity: 'endhan',
-        stage: 'start',
-        entityId: "",
-      );
-      lpHomeCubit.createEvent(eventRequest);
-    } catch (e) {
-      // Log error but don't show to user as it's not critical
-    }
   }
 }

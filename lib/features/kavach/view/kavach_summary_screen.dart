@@ -36,6 +36,7 @@ import '../../../utils/app_text_style.dart';
 import '../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../../../utils/common_widgets.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import '../../load_provider/lp_home/cubit/lp_home_cubit.dart';
 import '../../login/repository/user_information_repository.dart';
 import '../../profile/view/support_screen.dart';
 import '../../profile/view/widgets/add_new_support_ticket.dart';
@@ -79,6 +80,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   final profileCubit = locator<ProfileCubit>();
   final userInfoRepo = locator<UserInformationRepository>();
   final AnalyticsService analyticsHelper = locator<AnalyticsService>();
+  final lpHomeCubit = locator<LPHomeCubit>();
+
 
   double get totalPrice {
     double total = 0.0;
@@ -148,6 +151,23 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    updatedAppEvent(stage:'viewedSummary');
+  }
+
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocListener<KavachOrderBloc, KavachOrderState>(
       bloc: kavachOrderBloc,
@@ -168,6 +188,8 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               kavachOrderBloc.add(CheckFleetPaymentStatus(paymentRequestId));
             }
           }
+
+          updatedAppEvent(stage:'enteredPaymentScreen',);
         }
         if (state is KavachPaymentStatusSuccess) {
           KavachOrderRequest request = widget.kavachOrderRequest;
@@ -221,6 +243,7 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
               },
             ),
           );
+          updatedAppEvent(stage:'end',entityId: state.orderId??'orderCreated');
         }
         if (state is KavachOrderFailure) {
           ToastMessages.error(message: state.message);

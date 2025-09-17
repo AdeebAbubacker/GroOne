@@ -258,6 +258,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     dynamic result = await _repo.createEvent(request);
     // No need to emit state for this API as it's just for tracking
     if (result is Success<String?>) {
+      await securePrefs.deleteKey(AppString.sessionKey.eventId);
       final eventId = result.value;
       if (eventId != null && eventId.isNotEmpty) {
         // Store event_id in SharedPreferences
@@ -279,9 +280,6 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
     dynamic result = await _repo.updatedAppEvent(stage: stage,eventId: eventId ??'',entityId: entityId,context: context);
     // No need to emit state for this API as it's just for tracking
     if (result is Success<String?>) {
-        if (kDebugMode) {
-          print('Event updated successfully-----$stage');
-        }
     }
     if (result is Error) {
       // Log error but don't show to user as it's not critical
