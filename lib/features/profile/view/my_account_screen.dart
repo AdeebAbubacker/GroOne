@@ -142,7 +142,7 @@ class _LpMyAccountState extends State<LpMyAccount> {
 
               if (widget.customerDetail?.companyType?.id != 2)
                 buildDetailWidget(
-                  text1: context.appText.gst,
+                  text1: context.appText.gstNo,
                   text2: checkUserDetails(widget.kycDoc?.gstin ?? ''),
                 ),
 

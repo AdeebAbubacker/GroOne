@@ -1294,7 +1294,11 @@
   "engineOn":"इंजन चालू",
   "idleTime":"बेकार का समय",
   "colorCode":"रंग कोड",
-  "accountDeletedSuccessfully": "खाता सफलतापूर्वक हटा दिया गया"
+  "accountDeletedSuccessfully": "खाता सफलतापूर्वक हटा दिया गया",
+  "updateLanes" : "लेन अपडेट",
+  "stateisRequired": "राज्य आवश्यक है",
+  "cityisRequired" : "शहर आवश्यक है",
+  "gstNo" : "शहर आवश्यक है"
 
 
 

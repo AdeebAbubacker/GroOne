@@ -448,33 +448,57 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
     if (isSuccess) {
       return Column(
         children: [
-          VpCompanyTypeSearchableDropdown(
-          key: AppKeys.ddl('company_type'),
-          selectedCompanyTypeId: companyTypeDropDownValue,
-          onCompanyTypeChanged: (newVal) {
-            if (!mounted) return;
-            setState(() {
-              companyTypeDropDownValue = newVal;
-            });
-          },
-          fetchCompanyTypes: (page, searchKey) async {
-            // Use the already fetched company types
-            final companyList = vpCreationCubit.state.companyTypeUIState?.data ?? [];
-
-            // Optional: filter by search key
-            final filtered = searchKey == null || searchKey.isEmpty
-                ? companyList
-                : companyList
-                    .where((c) =>
-                        c.companyType.toLowerCase().contains(searchKey.toLowerCase()))
-                    .toList();
-
-            return filtered;
-          },
-          labelText: context.appText.companyType,
-          hintText: context.appText.selectCompanyType,
-          mandatoryStar: true,
-        ),
+           FormField<String>(
+            validator: (value) {
+            if (value == null || value.isEmpty) {
+                      return context.appText.thisFieldIsRequired;
+                      }
+                      return null;
+            },          
+            builder: (field) {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  VpCompanyTypeSearchableDropdown(
+                  key: AppKeys.ddl('company_type'),
+                  selectedCompanyTypeId: companyTypeDropDownValue,
+                  onCompanyTypeChanged: (newVal) {
+                    if (!mounted) return;
+                    setState(() {
+                      companyTypeDropDownValue = newVal;
+                    });
+                     field.didChange(newVal?.isNotEmpty == true ? newVal : null);
+                  },
+                  fetchCompanyTypes: (page, searchKey) async {
+                    // Use the already fetched company types
+                    final companyList = vpCreationCubit.state.companyTypeUIState?.data ?? [];
+                  
+                    // Optional: filter by search key
+                    final filtered = searchKey == null || searchKey.isEmpty
+                        ? companyList
+                        : companyList
+                            .where((c) =>
+                                c.companyType.toLowerCase().contains(searchKey.toLowerCase()))
+                            .toList();
+                  
+                    return filtered;
+                  },
+                  labelText: context.appText.companyType,
+                  hintText: context.appText.selectCompanyType,
+                  mandatoryStar: true,
+                  ),
+                  if (field.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 8),
+                              child: Text(
+                                field.errorText!,
+                                style: AppTextStyle.textFieldHintRedColor,
+                              ),
+                  ),
+                ],
+              );
+            }
+          ),
 
           20.height,
         ],
