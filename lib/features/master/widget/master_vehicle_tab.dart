@@ -941,7 +941,7 @@ Widget buildVehicleVerificationFieldWidget({
 
                       final result = await context
                           .read<MastersCubit>()
-                          .fetchAndVerifyVehicle(
+                          .fetchAndVerifyVehicle(context,
                             cleanVehicleNumber(vehicleNumber),
                           );
 
@@ -954,11 +954,8 @@ Widget buildVehicleVerificationFieldWidget({
                           true,
                           result.value,
                         ); // Pass data back
-                      } else {
-                        if (!context.mounted) return;
-                        ToastMessages.alert(
-                          message: context.appText.vehicleVerificationFailed,
-                        );
+                      }             
+                       else {
                         onVerificationResult(false, null);
                       }
                     },
