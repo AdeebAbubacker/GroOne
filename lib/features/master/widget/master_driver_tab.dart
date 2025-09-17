@@ -953,6 +953,15 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
           children: [
             /// License No Field
             AppTextField(
+               onChanged: (value) {
+                final verificationState =
+                    context.read<MastersCubit>().state.licenseVerification;
+                if (verificationState.status == Status.SUCCESS) {
+                  // Reset verification if user edits
+                  context.read<MastersCubit>().resetLicenseVerification();
+                  onVerificationResult(false, null);
+                }
+              },
               controller: licenseNoController,
               mandatoryStar: true,
               labelText: "License No",
@@ -967,7 +976,6 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     value,
                     fieldName: "License No",
                   ),
-              readOnly: isVerified,
               decoration: commonInputDecoration(
                 suffixIcon:
                     verificationState.status == Status.LOADING
@@ -1081,6 +1089,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                               final result = await context
                                   .read<MastersCubit>()
                                   .fetchAndVerifyLicense(
+                                    context: context,
                                     licensereq: LicenseVahanRequest(
                                       licenseNumber:
                                           licenseNoController.text.trim(),
@@ -1097,11 +1106,6 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                                 );
                                 onVerificationResult(true, result.value);
                               } else {
-                                if (!context.mounted) return;
-                                ToastMessages.alert(
-                                  message:
-                                      context.appText.licenseVerificationFailed,
-                                );
                                 onVerificationResult(false, null);
                               }
                             },

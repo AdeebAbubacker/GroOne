@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
@@ -36,10 +37,10 @@ class MastersCubit extends BaseCubit<MastersState> {
   }
 
 
-  Future<Result<Map<String, dynamic>>> fetchAndVerifyVehicle(String vehicleNumber) async {
+  Future<Result<Map<String, dynamic>>> fetchAndVerifyVehicle(BuildContext context, String vehicleNumber) async {
     emit(state.copyWith(vehicleVerification: UIState.loading()));
 
-    final result = await _repository.fetchVehicleData(vehicleNumber);
+    final result = await _repository.fetchVehicleData(context, vehicleNumber);
 
     if (result is Success<Map<String, dynamic>>) {
       emit(state.copyWith(vehicleVerification: UIState.success(true)));
@@ -50,10 +51,14 @@ class MastersCubit extends BaseCubit<MastersState> {
     }
   }
 
-    Future<Result<Map<String, dynamic>>> fetchAndVerifyLicense({required LicenseVahanRequest  licensereq}) async {
+    Future<Result<Map<String, dynamic>>> fetchAndVerifyLicense({
+      required BuildContext context,
+      required LicenseVahanRequest  licensereq}) async {
     emit(state.copyWith(licenseVerification: UIState.loading()));
 
-    final result = await _repository.fetchLicenseData(licensereq: licensereq);
+    final result = await _repository.fetchLicenseData( 
+      context: context,
+      licensereq: licensereq);
 
     if (result is Success<Map<String, dynamic>>) {
       emit(state.copyWith(licenseVerification: UIState.success(true)));
