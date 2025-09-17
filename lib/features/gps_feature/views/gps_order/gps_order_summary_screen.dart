@@ -31,6 +31,7 @@ import '../../../../utils/app_dialog.dart' show AppDialog;
 import '../../../../utils/common_dialog_view/success_dialog_view.dart';
 import '../../../kavach/helper/kavach_helper.dart';
 import '../../../kavach/model/kavach_address_model.dart';
+import '../../../load_provider/lp_home/cubit/lp_home_cubit.dart';
 import '../../../payments/view/payments_screen.dart';
 import '../../../profile/view/support_screen.dart';
 import '../../../profile/view/widgets/add_new_support_ticket.dart';
@@ -74,6 +75,8 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
   final AnalyticsService analyticsHelper = locator<AnalyticsService>();
   GpsOrderSummaryResponse? orderSummary;
   bool isLoadingSummary = true;
+  final lpHomeCubit = locator<LPHomeCubit>();
+
 
   @override
   void initState() {
@@ -200,6 +203,14 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       bloc: gpsOrderCubit,
       listener: (context, state) async {
         if (state is GpsPaymentSuccess) {
+          try {
+            lpHomeCubit.updatedAppEvent(
+              stage: 'enteredPaymentScreen',
+            );
+          } catch (e) {
+            // Log error but don't show to user as it's not critical
+          }
+
           // Initiate payment → open payment screen
           final result = await Navigator.of(context).push(
             commonRoute(
@@ -278,6 +289,14 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
               },
             ),
           );
+          try {
+            lpHomeCubit.updatedAppEvent(
+              stage: 'end',
+              entityId: state.orderID
+            );
+          } catch (e) {
+            // Log error but don't show to user as it's not critical
+          }
         }
 
         if (state is GpsOrderError) {

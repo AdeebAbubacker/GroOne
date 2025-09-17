@@ -22,6 +22,8 @@ import '../../../../utils/app_icon_button.dart';
 import '../../../../utils/app_icons.dart';
 import '../../../../utils/app_search_bar.dart';
 import '../../../../utils/app_text_style.dart';
+import '../../../load_provider/lp_home/cubit/lp_home_cubit.dart';
+import '../../../load_provider/lp_home/helper/event_helper.dart';
 import '../../../profile/view/support_screen.dart';
 import '../../widgets/gps_model_widget.dart';
 import 'gps_order_checkout_screen.dart';
@@ -38,6 +40,8 @@ class GpsModelsScreen extends StatefulWidget {
 class _GpsModelsScreenState extends State<GpsModelsScreen> {
   final TextEditingController searchController = TextEditingController();
   late final GpsProductsCubit _gpsProductsCubit;
+  final lpHomeCubit = locator<LPHomeCubit>();
+
 
   @override
   void initState() {
@@ -57,6 +61,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     _gpsProductsCubit.searchProducts('');
     var res = widget.result;
     callBackMethodFromOrderCheckoutScreen(res);
+    createAppEvent(stage: 'start');
   }
 
   @override
@@ -64,6 +69,35 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     searchController.dispose();
     super.dispose();
   }
+
+
+
+  Future<void> createAppEvent({String? entityId, required String stage}) async {
+    try {
+      final eventRequest = await EventHelper.buildHomeViewEvent(
+        entity: 'vas',
+        subEntity: 'gps',
+        stage: stage,
+        entityId: entityId ?? '',
+      );
+      lpHomeCubit.createEvent(eventRequest);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
+
 
   // Track previous vehicle selections
   Map<String, List<String>>? _previousVehicleSelection;
@@ -249,6 +283,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         ),
       ),
     );
+    updatedAppEvent(stage: 'viewedCheckoutScreen');
 
     // Handle result from checkout screen
     callBackMethodFromOrderCheckoutScreen(result);
@@ -401,7 +436,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
             final quantity = state.quantities[product.id] ?? 0;
             return sum + (product.price * quantity);
           });
-
+          updatedAppEvent(stage: 'productAdded');
           return totalQuantity > 0
               ? Container(
                 decoration: BoxDecoration(

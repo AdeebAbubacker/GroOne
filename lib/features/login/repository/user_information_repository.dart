@@ -56,4 +56,9 @@ class UserInformationRepository {
   Future<String?> getGpsToken() async {
     return await _securedSharedPref.get(AppString.sessionKey.gpsToken);
   }
+
+  /// Get stored event ID
+  Future<String?> getEventId() async {
+    return await _securedSharedPref.get(AppString.sessionKey.eventId);
+  }
 }

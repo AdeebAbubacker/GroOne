@@ -33,6 +33,7 @@ import '../../../kavach/view/kavach_billing_address_list_screen.dart'
     as kavach_billing;
 import '../../../kavach/view/kavach_shipping_address_list_screen.dart'
     as kavach_shipping;
+import '../../../load_provider/lp_home/cubit/lp_home_cubit.dart';
 import '../../../login/repository/user_information_repository.dart';
 import '../../../profile/view/support_screen.dart';
 import '../../../profile/view/widgets/add_new_support_ticket.dart';
@@ -79,6 +80,8 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
   late final GpsOrderCubit gpsOrderCubit;
   final profileCubit = locator<ProfileCubit>();
   final userInfoRepo = locator<UserInformationRepository>();
+  final lpHomeCubit = locator<LPHomeCubit>();
+
 
   // Stream subscription for memory leak prevention
   StreamSubscription<dynamic>? _shippingAddressSubscription;
@@ -1582,6 +1585,9 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
               ),
             ),
           );
+
+          updatedAppEvent(stage: 'viewedCheckoutScreen');
+
           // gpsOrderCubit.createOrder(request);
         } else {
           ToastMessages.alert(message: context.appText.completeAllFields);
@@ -1749,5 +1755,16 @@ class _GpsOrderCheckoutScreenState extends State<GpsOrderCheckoutScreen>
       }
     });
     return selectedVehicles;
+  }
+
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
   }
 }
