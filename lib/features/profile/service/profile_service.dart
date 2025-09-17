@@ -997,18 +997,19 @@ Future<Result<FaqResponse>> fetchFaq({
           api1Response.value['success'] != false) {
         return Success(api1Response.value['data']);
       }
-      else if (api1Response is Error) {
-    if (!context.mounted) {
-      return Error(GenericError());
-    }
-    final errorType = api1Response.type;
-    final errorMessage = errorType.getText(context);
 
-    ToastMessages.alert(
-        message: errorMessage.isNotEmpty
-            ? errorMessage
-            : context.appText.licenseVerificationFailed,
-    );
+      else if (api1Response is Error) {
+      if (!context.mounted) {
+        return Error(GenericError());
+      }
+      final errorType = api1Response.type;
+      final errorMessage = errorType.getText(context);
+
+      ToastMessages.alert(
+          message: errorMessage.isNotEmpty
+              ? errorMessage
+              : context.appText.licenseVerificationFailed,
+      );
     }
       return Error(GenericError());
     } catch (e) {
