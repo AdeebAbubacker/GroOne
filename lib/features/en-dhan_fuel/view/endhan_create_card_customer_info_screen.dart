@@ -29,6 +29,8 @@ import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.d
 import '../../../utils/app_icon_button.dart';
 import '../../../utils/app_icons.dart';
 import '../../../utils/app_route.dart';
+import '../../load_provider/lp_home/cubit/lp_home_cubit.dart';
+import '../../load_provider/lp_home/helper/event_helper.dart';
 import '../../profile/view/support_screen.dart';
 import '../widgets/enhanced_dropdown_field.dart';
 
@@ -56,6 +58,9 @@ class _EndhanCreateCardCustomerInfoScreenState
   final cityNameController = TextEditingController();
   final pincodeController = TextEditingController();
 
+  final lpHomeCubit = locator<LPHomeCubit>();
+
+
   @override
   void dispose() {
     referralCodeController.dispose();
@@ -71,6 +76,33 @@ class _EndhanCreateCardCustomerInfoScreenState
     pincodeController.dispose();
     super.dispose();
   }
+
+
+  Future<void> createAppEvent({String? entityId, required String stage}) async {
+    try {
+      final eventRequest = await EventHelper.buildHomeViewEvent(
+        entity: 'vas',
+        subEntity: 'fuelCard',
+        stage: stage,
+        entityId: entityId ?? '',
+      );
+      lpHomeCubit.createEvent(eventRequest);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
 
   /// Force sync all controller values to cubit state
   void _forceSyncControllersToCubit(EnDhanCubit cubit) {
@@ -110,6 +142,8 @@ class _EndhanCreateCardCustomerInfoScreenState
       );
       cubit.setCommunicationCityName(cleanedValue);
     });
+
+    createAppEvent(stage: 'start');
 
     // Remove pincode listener to avoid circular updates causing cursor jumping
   }
@@ -766,6 +800,8 @@ class _EndhanCreateCardCustomerInfoScreenState
                                         (_) => EndhanCreateCardInfoScreen(),
                                   ),
                                 );
+
+                                updatedAppEvent(stage: 'customerInformationFilled');
                               }
                             },
                           ),

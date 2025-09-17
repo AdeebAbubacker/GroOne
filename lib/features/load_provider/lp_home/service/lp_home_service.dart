@@ -14,12 +14,15 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_mod
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_event_api_request.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/service/event_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 
 
 class LpHomeService{
   final ApiService _apiService;
-  LpHomeService(this._apiService);
+  final EventService _eventService;
+  LpHomeService(this._apiService, this._eventService);
 
 
   /// Gwt Load
@@ -249,6 +252,24 @@ class LpHomeService{
         return Error(GenericError());
       }
     } catch(e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// Create Event
+  Future<Result<String?>> createEvent(CreateEventApiRequest request) async {
+    try {
+      return await _eventService.createEvent(request);
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+  }
+
+  /// updated App Event
+  Future<Result<String?>> updatedAppEvent({ required String eventId, required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      return await _eventService.updatedAppEvent(stage: stage,eventId: eventId,entityId: entityId,context: context);
+    } catch (e) {
       return Error(DeserializationError());
     }
   }

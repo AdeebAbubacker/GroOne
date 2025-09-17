@@ -28,6 +28,7 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
 import '../../../utils/common_functions.dart';
+import '../../load_provider/lp_home/cubit/lp_home_cubit.dart';
 import '../../profile/view/support_screen.dart';
 import '../../profile/view/widgets/add_new_support_ticket.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
@@ -74,6 +75,8 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
   List<KavachAddressModel>? shippingAddresses;
 
   Timer? _debounce;
+  final lpHomeCubit = locator<LPHomeCubit>();
+
 
   @override
   void initState() {
@@ -96,6 +99,18 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
     }
 
     _scrollController.addListener(_onScroll);
+    updatedAppEvent(stage: 'viewedProducts');
+  }
+
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
   }
 
   @override

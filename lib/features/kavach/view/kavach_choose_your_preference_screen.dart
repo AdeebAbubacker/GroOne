@@ -17,6 +17,8 @@ import 'package:gro_one_app/utils/widgets/app_loading_widget.dart';
 import '../../../dependency_injection/locator.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/common_functions.dart';
+import '../../load_provider/lp_home/cubit/lp_home_cubit.dart';
+import '../../load_provider/lp_home/helper/event_helper.dart';
 import '../../profile/view/support_screen.dart';
 import '../../profile/view/widgets/add_new_support_ticket.dart';
 
@@ -30,6 +32,8 @@ class KavachChooseYourPreferenceScreen extends StatefulWidget {
 
 class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPreferenceScreen> {
   late final ChoosePreferenceCubit _cubit;
+  final lpHomeCubit = locator<LPHomeCubit>();
+
 
   @override
   void initState() {
@@ -38,6 +42,8 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
     _cubit = locator<ChoosePreferenceCubit>();
     // Fetch masters data when the screen initializes
     _cubit.fetchMastersData();
+    // App event
+    createAppEvent(stage:'start');
   }
 
   @override
@@ -126,6 +132,20 @@ class _KavachChooseYourPreferenceScreenState extends State<KavachChooseYourPrefe
         ),
       ),
     );
+  }
+
+  Future<void> createAppEvent({String? entityId, required String stage}) async {
+    try {
+      final eventRequest = await EventHelper.buildHomeViewEvent(
+        entity: 'vas',
+        subEntity: 'fuelSecurityDevice',
+        stage: stage,
+        entityId: entityId ?? '',
+      );
+      lpHomeCubit.createEvent(eventRequest);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
   }
 
   /// Builds the banner section with truck image and kavach product overlay

@@ -33,6 +33,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/weight_s
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_card_widget.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/helper/event_helper.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
@@ -47,7 +48,6 @@ import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
@@ -66,6 +66,8 @@ import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
+
+import '../../../../utils/app_route.dart';
 
 class HomeScreenLoadProvider extends StatefulWidget {
   const HomeScreenLoadProvider({super.key});
@@ -165,6 +167,9 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     }
 
     profileCubit.fetchProfileDetail();
+
+    // Create event API call when entering LP home screen
+    await createAppEvent(stage: 'start');
 
     await profileCubit.fetchUserRole().then((val) {
       if(val != 4) {
@@ -330,6 +335,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
       }
     });
 
+    // Create event API call when entering LP home screen
+    updatedAppEvent(stage: 'viewedSummary');
   }
 
   // Kyc Bottom Sheet
@@ -882,6 +889,10 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                               truckType = truck.type;
                               truckLength = truck.subType;
                               await fetchRateDiscovery();
+
+                              // Create event API call when entering LP home screen
+                              updatedAppEvent(stage: 'truckTypeSelected');
+
                               setState(() {});
                             },
                           )));
@@ -915,6 +926,10 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
                   }
                   await fetchRateDiscovery();
+
+                  // Create event API call when date Selected
+                  updatedAppEvent(stage: 'dateSelected');
+
                 },
                 child: Container(
                   height: 55,
@@ -956,12 +971,26 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
                           BlocConsumer<LPHomeCubit, LPHomeState>(
                             bloc: lpHomeCubit,
-                            listener: (context, state){
+                            listener: (context, state) async {
                               final status = state.rateDiscoveryUIState?.status;
 
                               if (status == Status.ERROR) {
                                 final error = state.rateDiscoveryUIState?.errorType;
                                 ToastMessages.error(message: getErrorMsg(errorType: error ?? GenericError()));
+                              }
+
+                              // Create event API call when entering LP home screen
+                              if (state.rateDiscoveryUIState?.status == Status.SUCCESS) {
+                                final data = state.rateDiscoveryUIState?.data?.data;
+                                if (data?.minPrice == null) {
+                                  // Create event API call when viewed Reach Out In 30Min
+                                  updatedAppEvent(stage: 'viewedReachOutIn30Min');
+
+                                }else{
+                                  // Create event API call when load Price Viewed
+                                  updatedAppEvent(stage: 'loadPriceViewed');
+
+                                }
                               }
                             },
                             builder: (context, state) {
@@ -992,7 +1021,6 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                 } else {
                                   formattedPrice = PriceHelper.formatINRRange('${data?.minPrice} - ${data?.maxPrice}');
                                 }
-
                                 return Text(
                                   formattedPrice,
                                   style: AppTextStyle.body1,
@@ -1163,6 +1191,31 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   Widget buildGenericError({dynamic error}) => genericErrorWidget(error: error ?? GenericError(), onRefresh: () => refreshLoadList()).paddingOnly(top: 50);
+
+  Future<void> createAppEvent({String? entityId, required String stage}) async {
+    try {
+      final eventRequest = await EventHelper.buildHomeViewEvent(
+        entity: 'loadProvider',
+        subEntity: 'loadFormEntry',
+        stage: stage,
+        entityId: entityId ?? '',
+      );
+      lpHomeCubit.createEvent(eventRequest);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
 
 
 }

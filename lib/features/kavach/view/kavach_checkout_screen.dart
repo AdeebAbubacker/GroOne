@@ -29,6 +29,7 @@ import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
 import '../../../utils/validator.dart';
+import '../../load_provider/lp_home/cubit/lp_home_cubit.dart';
 import '../../profile/view/support_screen.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
@@ -106,6 +107,8 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
 
   // Store previous shipping address for restoration when checkbox is toggled
   KavachAddressModel? _previousShippingAddress;
+
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   void loadVehicleSelection() {
     for (var product in _products) {
@@ -360,7 +363,21 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         }
       }
     });
+    updatedAppEvent(stage:'viewedCheckoutScreen');
+
   }
+
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
