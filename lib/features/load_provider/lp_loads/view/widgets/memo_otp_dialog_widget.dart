@@ -80,7 +80,8 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
           child: SuccessDialogView(
             heading: context.appText.memoESignSuccess,
             onContinue: () {
-              LpBottomNavigation.selectedIndexNotifier.value = 1;
+              // LpBottomNavigation.selectedIndexNotifier.value = 1;
+              lpBottomNavKey.currentState?.onItemTapped(1);
               parentCtx.push(AppRouteName.lpBottomNavigationBar);
             },
           ),

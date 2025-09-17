@@ -537,7 +537,8 @@ class ApiService {
     if (appContext.mounted) {
         appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton": false});
     }
-    LpBottomNavigation.selectedIndexNotifier.value = 0;
+    // LpBottomNavigation.selectedIndexNotifier.value = 0;
+    lpBottomNavKey.currentState?.onItemTapped(0);
 
   }
 
