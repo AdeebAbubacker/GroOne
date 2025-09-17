@@ -118,19 +118,73 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
 
 
   // Fetch Recent Route
-  void _setRecentUIState(UIState<RecentRoutesModel>? uiState){
-    emit(state.copyWith(recentRouteState: uiState));
+  void _setRecentUIState(UIState<RecentRoutesModel>? uiState, int page) {
+    emit(
+      state.copyWith(
+        recentRouteState: uiState,
+        recentPage: page,
+      ),
+    );
   }
-  Future<void> fetchRecentRoute({bool isLoading = true,String search = ''}) async {
-   if(isLoading)  _setRecentUIState(UIState.loading());
-    dynamic result = await _repo.getRecentRouteData(search);
+
+  Future<void> fetchRecentRoute({
+    bool isLoading = true,
+    String? search,
+    bool isInit = true,
+  }) async {
+    if (state.isFetchingRecent) return;
+
+    emit(state.copyWith(isFetchingRecent: true));
+
+    // reset when search changes
+    if (search != null && search.trim().isNotEmpty) {
+      _setRecentUIState(UIState.loading(), 1);
+    } else if (isInit || isLoading) {
+      if (isLoading) _setRecentUIState(UIState.loading(), 1);
+    }
+    final oldData = state.recentRouteState?.data?.data.data ?? [];
+    final totalRecords = state.recentRouteState?.data?.data.total ?? 0;
+    if (oldData.length >= totalRecords && totalRecords > 0) {
+      emit(state.copyWith(isFetchingRecent: false));
+      return;
+    }
+    final currentPage = state.recentPage ?? 1;
+
+    final result = await _repo.getRecentRouteData(
+      search,
+      currentPage,
+    );
+
     if (result is Success<RecentRoutesModel>) {
-      _setRecentUIState(UIState.success(result.value));
+      final fetchedData = result.value;
+      final oldObject = (search != null && search.trim().isNotEmpty)
+          ? null 
+          : state.recentRouteState?.data;
+
+      final List<RecentRouteData> mergedList = [
+        ...oldObject?.data.data ?? [],
+        ...fetchedData.data.data,
+      ];
+
+      final modifiedData = RecentRoutesModel(
+        message: fetchedData.message,
+        data: fetchedData.data.copyWith(data: mergedList),
+      );
+
+      _setRecentUIState(
+        UIState.success(modifiedData),
+        currentPage + 1,
+      );
     }
-    if (result is Error) {
-      _setRecentUIState(UIState.error(result.type));
+
+    if (result is Error<RecentRoutesModel>) {
+      _setRecentUIState(UIState.error(result.type), currentPage);
     }
+
+    emit(state.copyWith(isFetchingRecent: false));
   }
+
+
 
 
   // Fetch Auto Complete Api Call
@@ -238,7 +292,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   // Reset Complete UI State
   void resetState(){
     emit(state.copyWith(
-      recentRouteState: resetUIState<RecentRoutesModel>(state.recentRouteUIState),
+      recentRouteState: resetUIState<RecentRoutesModel>(state.recentRouteState),
       autoCompleteUIState: resetUIState<AutoCompleteModel>(state.autoCompleteUIState),
       verifyLocationUIState: resetUIState<VerifyLocationModel>(state.verifyLocationUIState),
       loadWeightUIState: resetUIState<List<LoadWeightModel>>(state.loadWeightUIState),
