@@ -542,7 +542,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     bool gstValid() {
-      if(companyId==1){
+      if(companyId==2){
         return true;
       }
 
@@ -1080,17 +1080,17 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // GST Text Field & Upload GST
   Widget _buildGstWidget() {
+
     return BlocBuilder<KycCubit, KycState>(
       bloc: kycCubit,
       builder: (context, state) {
         bool verified = state.verifiedGst != null && state.verifiedGst!;
-
         return Column(
           children: [
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
-              isMandatory: companyId!=1,
+              isMandatory: companyId!=2,
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },
@@ -1101,7 +1101,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       : context.appText.unVerified,
               readOnly: verified,
               rightText: "GSTIN",
-
+        
               controller: gstInTextController,
               suffixOnTap:
                   state.verifiedGst != null && state.verifiedGst!
