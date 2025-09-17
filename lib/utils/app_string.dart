@@ -62,4 +62,7 @@ class PreferenceKey {
   final String panDocId = "panDocId";
   final String tanDocID = "tanDocID";
   final String gstDocID = "gstDocID";
+  
+  /// Event tracking
+  final String eventId = "eventId";
 }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
@@ -23,6 +25,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../utils/app_route.dart';
 import '../en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import '../gps_feature/views/gps_home_screen.dart';
+import '../load_provider/lp_home/cubit/lp_home_cubit.dart';
+import '../load_provider/lp_home/helper/event_helper.dart';
 
 class OurValueAddedServicesWidget extends StatefulWidget {
   const OurValueAddedServicesWidget({super.key, this.isGridLayout = false});
@@ -38,6 +42,7 @@ class _OurValueAddedServicesWidgetState
     extends State<OurValueAddedServicesWidget> {
   final ScrollController _scrollController = ScrollController();
   double _scrollProgress = 0.0;
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   @override
   void initState() {
