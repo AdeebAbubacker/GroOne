@@ -29,9 +29,9 @@ import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/incomple
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_commodity_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_truck_type_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/lp_weight_dropdown.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/upcoming_shipments_list_body.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/widgets/weight_selection_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_card_widget.dart';
 import 'package:gro_one_app/features/login/bloc/login_bloc.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/event_helper.dart';
 import 'package:gro_one_app/features/our_value_added_services_view/our_value_added_services_widget.dart';
@@ -52,6 +52,7 @@ import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
+import 'package:gro_one_app/utils/common_dialog_view/update_popup.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -119,6 +120,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
   bool checkBoxBool = false;
   bool memoDone = false;
   bool hideKycSuccessStatus = false;
+  bool isLoading = false;
 
 
   @override
@@ -128,6 +130,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
   @override
   void initState() {
+    isLoading = true;
     initFunction();
     super.initState();
   }
@@ -140,6 +143,11 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
 
 
   void initFunction() => frameCallback(() async {
+    Future.delayed(Duration(milliseconds: 500)).then((val) {
+      isLoading = false;
+      setState(() {});
+    });
+
     await splashViewModel.checkAppUpdate();
     analytics.logEvent(AnalyticEventName.LP_HOME);
 
@@ -151,6 +159,10 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
         ToastMessages.updateAvailable(
           message: context.appText.updateAvailableText,
         );
+      }
+      if (updateType == AppUpdateType.force) {
+        showUpdatePopUp(updateState.data);
+        return;
       }
     }
 
@@ -402,7 +414,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     int? role = profileCubit.userRole;
     return Scaffold(
       appBar: buildAppBarWidget(context, role),
-      body: buildBodyWidget(context, role),
+      body: isLoading ? CircularProgressIndicator().center() : buildBodyWidget(context, role),
     );
   }
 
@@ -734,7 +746,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                           heading: context.appText.destination,
                           subHeading: destinationLocation ?? context.appText.selectDestination,
                           onClick: () async {
-                            final extra = {'title' : context.appText.pickupPoint, 'address': state.destination!.data?.address, 'location': state.destination!.data?.location};
+                            final extra = {'title' : context.appText.selectDestinationTitle, 'address': state.destination!.data?.address, 'location': state.destination!.data?.location};
                             context.push(AppRouteName.lpSelectAddressScreen, extra: extra).then((onValue) async {
                               if(onValue != null && onValue == true){
                                 await fetchRateDiscovery();
@@ -1143,7 +1155,15 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                 separatorBuilder: (BuildContext context, int index) => 20.height,
                                 itemBuilder: (context, index) {
                                   final loadData = state.lpGetLoadUIState!.data!.data[index];
-                                  return UpcomingShipmentsListBody(loadData: loadData);
+                                  return GestureDetector(
+                                      onTap: () {
+                                        final extra = {"loadId": loadData.loadId};
+                                        context.push(
+                                          AppRouteName.lpLoadsLocationDetails,
+                                          extra: extra,
+                                        );
+                                      },
+                                      child: LPLoadListBodyWidget(loadItem: loadData, lpLoadLocator: lpLoadLocator));
                                 },
                               )
                             else

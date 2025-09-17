@@ -65,17 +65,10 @@ class ChatCubit extends Cubit<ChatState> {
         final rateLimitData = data['rate_limit'] as Map<String, dynamic>?;
         int? todaysCount;
         int? dailyLimit;
-        
-        print('📊 Rate limit data from history API: $rateLimitData');
-        
         if (rateLimitData != null) {
           todaysCount = rateLimitData['current_count'] as int?;
           dailyLimit = rateLimitData['daily_limit'] as int?;
-          print('📊 Extracted chat limits - Today: $todaysCount, Daily: $dailyLimit');
-        } else {
-          print('📊 No rate limit data found in history API response');
         }
-
         if (messages != null) {
           final List<ChatMessage> chatMessages = [];
 
@@ -131,10 +124,6 @@ class ChatCubit extends Cubit<ChatState> {
           // Always update chat limits if they exist in the response, even if they're 0
           final newTodaysCount = todaysCount ?? state.todaysChatCount;
           final newDailyLimit = dailyLimit ?? state.dailyChatLimit;
-          
-          print('📊 About to emit state - Extracted values: Today: $todaysCount, Daily: $dailyLimit');
-          print('📊 About to emit state - Final values: Today: $newTodaysCount, Daily: $newDailyLimit');
-          
           emit(state.copyWith(
             messages: updatedMessages,
             isLoading: false,
@@ -144,11 +133,7 @@ class ChatCubit extends Cubit<ChatState> {
             todaysChatCount: newTodaysCount,
             dailyChatLimit: newDailyLimit,
           ));
-          
-          print('📊 State emitted successfully');
           _currentPage = currentPage + 1;
-
-
         }
       }
     } catch (e) {
@@ -170,7 +155,7 @@ class ChatCubit extends Cubit<ChatState> {
     await _loadChatHistory();
   }
 
-  void sendTextMessage(String message) {
+  void sendTextMessage(String message, {String? currentLocation}) {
     if (message.trim().isEmpty) return;
 
     final userMessage = ChatMessage(
@@ -193,10 +178,10 @@ class ChatCubit extends Cubit<ChatState> {
     ));
 
     // Call text API
-    _callTextAPI(message.trim());
+    _callTextAPI(message.trim(), currentLocation: currentLocation);
   }
 
-  void sendVoiceMessage(String audioPath) {
+  void sendVoiceMessage(String audioPath, {String? currentLocation}) {
     // Don't add user message here - repository will create both user transcript and AI response
     emit(state.copyWith(
       isProcessingVoice: true,
@@ -205,10 +190,10 @@ class ChatCubit extends Cubit<ChatState> {
     ));
 
     // Call voice API
-    _callVoiceAPI(audioPath);
+    _callVoiceAPI(audioPath, currentLocation: currentLocation);
   }
 
-  Future<void> _callTextAPI(String userMessage) async {
+  Future<void> _callTextAPI(String userMessage, {String? currentLocation}) async {
     try {
 
 
@@ -223,6 +208,7 @@ class ChatCubit extends Cubit<ChatState> {
       final response = await _repository.sendTextMessage(
         message: userMessage,
         language: state.selectedLanguage.code,
+        currentLocation: currentLocation,
       );
 
       // Extract chat message and rate limit data
@@ -259,7 +245,7 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  Future<void> _callVoiceAPI(String audioPath) async {
+  Future<void> _callVoiceAPI(String audioPath, {String? currentLocation}) async {
     try {
 
 
@@ -273,6 +259,7 @@ class ChatCubit extends Cubit<ChatState> {
       final result = await _repository.sendVoiceMessage(
         audioFilePath: audioPath,
         language: state.selectedLanguage.code,
+        currentLocation: currentLocation,
       );
 
       final userMessage = result['userMessage'] as ChatMessage;
@@ -453,9 +440,9 @@ class ChatCubit extends Cubit<ChatState> {
     }
   }
 
-  void sendRecordedAudio() {
+  void sendRecordedAudio({String? currentLocation}) {
     if (state.recordedAudioPath != null) {
-      sendVoiceMessage(state.recordedAudioPath!);
+      sendVoiceMessage(state.recordedAudioPath!, currentLocation: currentLocation);
 
       // Clear the recorded audio after sending
       emit(state.copyWith(
@@ -482,7 +469,8 @@ class ChatCubit extends Cubit<ChatState> {
         language: langCode,
         speakingRate: 0.85,
         pitch: 0.0,
-        audioFormat: 'OGG_OPUS',
+        audioFormat: 'MP3',
+        // audioFormat: 'OGG_OPUS',
       );
 
 
@@ -593,15 +581,10 @@ class ChatCubit extends Cubit<ChatState> {
         final rateLimitData = data['rate_limit'] as Map<String, dynamic>?;
         int? todaysCount;
         int? dailyLimit;
-        
-        print('📊 Rate limit data from pagination API: $rateLimitData');
-        
+
         if (rateLimitData != null) {
           todaysCount = rateLimitData['current_count'] as int?;
           dailyLimit = rateLimitData['daily_limit'] as int?;
-          print('📊 Extracted chat limits (pagination) - Today: $todaysCount, Daily: $dailyLimit');
-        } else {
-          print('📊 No rate limit data found in pagination API response');
         }
 
         if (messages != null) {

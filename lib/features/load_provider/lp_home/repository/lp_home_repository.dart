@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart' hide LocationResult;
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_event_api_request.dart';
 
@@ -22,7 +23,7 @@ class LpHomeRepository{
   LpHomeRepository(this._lpHomeService, this._userInformationRepository);
 
 
-  Future<Result<LpGetLoadModel>> getLoads() async {
+  Future<Result<LpLoadResponse>> getLoads() async {
     try {
       return await _lpHomeService.getLoads(id: await _userInformationRepository.getUserID() ?? "");
     } catch (e) {

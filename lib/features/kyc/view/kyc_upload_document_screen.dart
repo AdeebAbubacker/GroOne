@@ -774,7 +774,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   // Build Body
-  Widget _buildBodyWidget() {
+  Widget  _buildBodyWidget() {
     return SafeArea(
       bottom: false,
       child: SingleChildScrollView(
@@ -925,7 +925,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                     selectedState!.isNotEmpty,
                                 onCityChanged: (value) {
                                   setState(() {
-                                    selectedCity = value;
+                                    selectedCity = value?.id.toString();
                                   });
                                 },
                               ),
@@ -1101,6 +1101,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       : context.appText.unVerified,
               readOnly: verified,
               rightText: "GSTIN",
+
               controller: gstInTextController,
               suffixOnTap:
                   state.verifiedGst != null && state.verifiedGst!
@@ -1331,6 +1332,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           children: [
             // Enter PAN number
             buildTextFieldWithLabelWidget(
+
               onChanged: (text) {
                 setPanIntoLocal(text ?? "");
               },
@@ -1704,6 +1706,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         ),
         6.height,
         AppTextField(
+
           maxLength: maxLength,
           validator:
               (value) =>

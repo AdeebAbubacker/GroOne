@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:gro_one_app/core/base_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -516,6 +517,11 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
             isMultipleSelectionFile: true,
             isSingleFile: true,
             isLoading: isLoading,
+            allowedExtensions: [
+              'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', // images
+              'mp4', 'avi', 'mov', 'mkv', 'webm',         // videos
+              'pdf',
+            ],
             thenUploadFileToSever: ()  {
             if (multiFilesList.isNotEmpty) {
               cubit.uploadDamageFile(File(multiFilesList.length > 1 ? multiFilesList.last['path'] : multiFilesList.first['path']));
@@ -561,6 +567,7 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
                 itemCount: state.damageListUIState!.data!.data.length,
                 itemBuilder: (context, index) {
                   final data = state.damageListUIState!.data!.data[index];
+
                   return damageRecordCard(
                     context: context,
                     imageIds: data.image,
@@ -628,6 +635,8 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
     required VoidCallback onEdit,
     required VoidCallback onDelete,
   }) {
+
+    Uri? url=Uri.tryParse(imageUrl);
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
@@ -644,10 +653,15 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
               topLeft: Radius.circular(12),
               bottomLeft: Radius.circular(12),
             ),
-            child: SizedBox(
+            child:   SizedBox(
               width: 110,
               height: double.infinity,
-              child: commonCacheNetworkImage(
+              child: url?.path.split(".").last=="pdf" ?  SvgPicture.asset(
+                AppIcons.svg.documentView,
+                width: 22,
+                height: 22,
+                colorFilter: AppColors.svg(AppColors.grey),
+              ).center(): commonCacheNetworkImage(
                   path: imageUrl,
                   errorImage: Icons.image_not_supported,
                   radius: 0

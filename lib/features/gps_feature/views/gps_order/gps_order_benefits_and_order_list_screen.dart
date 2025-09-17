@@ -808,7 +808,10 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                               ],
                             ),
                             8.height,
-                            Row(
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 4,
+                              crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 InkWell(
                                   onTap: () {
@@ -823,12 +826,10 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                                     style: AppTextStyle.primaryColor16w400,
                                   ),
                                 ),
-                                15.width,
                                 Text(
-                                  '${context.appText.purchasedOn} ${formatDateTimeKavach(order.orderDate)}',
+                                  '${context.appText.purchasedOn} ${order.orderDate}',
                                   style: AppTextStyle.textGreyColor14w300,
-                                  maxLines: 1,
-                                ).expand(),
+                                ),
                               ],
                             ),
                           ],

@@ -94,6 +94,7 @@ class AppTextField extends StatelessWidget {
           ),
         if (labelText != null) 6.height,
         TextFormField(
+
           key: key,
           enabled: enabled ?? true,
           validator: validator,
@@ -101,11 +102,15 @@ class AppTextField extends StatelessWidget {
           textAlign: textAlign ?? TextAlign.start,
           controller: controller,
           focusNode: currentFocus,
-          enableInteractiveSelection: enableInteractiveSelection ?? false,
+          enableInteractiveSelection:
+              readOnly != null && readOnly!
+                  ? false
+                  : enableInteractiveSelection ?? false,
           cursorColor: cursorColor ?? AppColors.lightGreyTextColor,
           cursorWidth: 1.5,
           keyboardType: keyboardType,
           maxLines: maxLines ?? 1,
+
           obscureText: obscureText ?? false,
           obscuringCharacter: "•",
           cursorRadius: const Radius.circular(5),

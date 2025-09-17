@@ -1,11 +1,10 @@
 // lib/features/gps_feature/service/gps_report_service.dart
 
-import 'dart:convert';
-
 import 'package:intl/intl.dart'; // Added for NumberFormat
 
 import '../../../data/model/result.dart';
 import '../../../data/network/api_service.dart'; // Your generic ApiService
+import '../../../data/network/api_urls.dart';
 import '../../../utils/custom_log.dart';
 import '../model/address_model.dart';
 import '../model/report_model.dart';
@@ -26,7 +25,7 @@ class GpsReportService {
     required Map<String, dynamic> queryParams,
     required T Function(Map<String, dynamic>) fromJson,
   }) async {
-    String baseUrl = 'https://api.letsgro.co/api/v1/auth/';
+    String baseUrl = '${ApiUrls.gpsBase}/';
     try {
       final loginResponse = await _repository.getStoredLoginResponse();
 
@@ -89,9 +88,9 @@ class GpsReportService {
           "API call failed: ${(response as Error).type}",
           null,
         );
-        return Error((response as Error).type);
+        return Error(response.type);
       }
-    } catch (e, stackTrace) {
+    } catch (e) {
       CustomLog.error(
         this,
         "Failed to fetch reports from '$baseUrl$endpoint'",
@@ -250,11 +249,6 @@ class GpsReportService {
     String? toDate,
     int? vehicleId,
   }) async {
-    print(
-      "🌍 Fetching reachability reports - endpoint doesn't exist, returning mock data",
-    );
-    print("🌍 Device ID: $vehicleId, Start: $fromDate, End: $toDate");
-
     // Since reachability_alerts endpoint doesn't exist on the server,
     // we'll return mock data for now to demonstrate the UI
     // In a real implementation, you would fetch from a working endpoint
@@ -312,10 +306,8 @@ class GpsReportService {
         ),
       ];
 
-      print("🌍 Returning ${mockReports.length} mock reachability reports");
       return Success(mockReports);
     } catch (e) {
-      print("🌍 Error creating mock reachability reports: $e");
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
@@ -325,11 +317,6 @@ class GpsReportService {
     AddressPojo addressPojo,
   ) async {
     try {
-      print("🌍 Getting address for trip: ${addressPojo.id}");
-      print("   Device: ${addressPojo.deviceId}");
-      print("   Start: ${addressPojo.startLat}, ${addressPojo.startLon}");
-      print("   End: ${addressPojo.endLat}, ${addressPojo.endLon}");
-
       // Format coordinates exactly like Android code: DecimalFormat("##.###")
       String _formatDecimal(double value) {
         final formatter = NumberFormat("##.###");
@@ -350,14 +337,9 @@ class GpsReportService {
         },
       ];
 
-      print("🌍 Request payload: $coordinatesList");
-
       // Use the original API like Android code
       const String reverseGeocodeBaseUrl = "https://routing.roadcast.xyz";
       final String fullUrl = '$reverseGeocodeBaseUrl/reverse';
-
-      print("🌍 Making API call to: $fullUrl");
-      print("🌍 Request body: ${jsonEncode(coordinatesList)}");
 
       // Use custom headers without authentication for external routing service
       final customHeaders = {
@@ -371,13 +353,7 @@ class GpsReportService {
         customHeaders: customHeaders,
       );
 
-      print("🌍 Raw API result type: ${result.runtimeType}");
-
       if (result is Success) {
-        print("🌍 API Response success: ${result.value}");
-        print("🌍 API Response type: ${result.value.runtimeType}");
-        print("🌍 API Response full content: ${jsonEncode(result.value)}");
-
         // Parse response exactly like Android code
         String startAddress = "No Address";
         String endAddress = "No Address";
@@ -385,24 +361,13 @@ class GpsReportService {
         // Look for "12012" and "12013" keys exactly like Android
         if (result.value["12012"] != null) {
           final startData = result.value["12012"];
-          print("🌍 Start coordinate data: ${jsonEncode(startData)}");
           startAddress = startData["display_name"] ?? "No Address";
-          print("🌍 Start address found: $startAddress");
-        } else {
-          print("🌍 No data found for key '12012'");
-          print("🌍 Available keys: ${result.value.keys.toList()}");
-        }
+        } else {}
 
         if (result.value["12013"] != null) {
           final endData = result.value["12013"];
-          print("🌍 End coordinate data: ${jsonEncode(endData)}");
           endAddress = endData["display_name"] ?? "No Address";
-          print("🌍 End address found: $endAddress");
-        } else {
-          print("🌍 No data found for key '12013'");
-        }
-
-        print("🌍 Final addresses - Start: $startAddress, End: $endAddress");
+        } else {}
 
         // CRITICAL FIX: Use trip ID (start_position_id) as unique identifier like Android
         final addressResponse = AddressResponse(
@@ -415,7 +380,6 @@ class GpsReportService {
 
         return Success(addressResponse);
       } else {
-        print("🌍 API call failed: ${result.toString()}");
         return Error(ErrorWithMessage(message: "Failed to fetch addresses"));
       }
     } catch (e) {
@@ -432,28 +396,16 @@ class GpsReportService {
   ) async {
     List<AddressResponse> addresses = [];
 
-    print(
-      "🌍 Service: Starting to fetch addresses for ${tripReports.length} trip reports",
-    );
-
     // CRITICAL FIX: Process each trip individually (don't deduplicate by device ID)
     // Each trip should have its own unique address based on its specific start/end coordinates
     for (int i = 0; i < tripReports.length; i++) {
       final report = tripReports[i];
-      print("🌍 Service: Processing trip ${i + 1}/${tripReports.length}");
-      print("   Trip ID: ${report.startPositionId}");
-      print("   Device ID: ${report.deviceId}");
-      print("   Start: ${report.startLat}, ${report.startLng}");
-      print("   End: ${report.endLat}, ${report.endLng}");
 
       final addressPojo = AddressPojo.fromTripReport(report);
       final result = await getAddressFromServer(addressPojo);
 
       if (result is Success<AddressResponse>) {
         addresses.add(result.value);
-        print(
-          "🌍 Service: Successfully added address for trip ${result.value.positionId} (device ${result.value.deviceId})",
-        );
       } else {
         // Add fallback "No Address" entry for failed requests
         final fallbackAddress = AddressResponse(
@@ -463,9 +415,6 @@ class GpsReportService {
           endAddress: "No Address",
         );
         addresses.add(fallbackAddress);
-        print(
-          "🌍 Service: Added fallback address for failed trip ${report.startPositionId}",
-        );
       }
 
       // Add delay between requests to avoid overwhelming the server
@@ -474,9 +423,6 @@ class GpsReportService {
       }
     }
 
-    print(
-      "🌍 Service: Completed address fetching for trips, returning ${addresses.length} addresses",
-    );
     return addresses;
   }
 
@@ -485,14 +431,10 @@ class GpsReportService {
     StopAddressPojo stopPojo,
   ) async {
     try {
-      print("🌍 Making API call for stop address: $routingApiUrl");
-
       // Format coordinates to 3 decimal places like Android
       final formatter = NumberFormat("##.###");
       final latStr = formatter.format(stopPojo.latitude);
       final lngStr = formatter.format(stopPojo.longitude);
-
-      print("🌍 Stop formatted coordinates: $latStr, $lngStr");
 
       // Create request payload similar to Android - using single coordinate with hardcoded ID 12012
       final requestBody = [
@@ -502,8 +444,6 @@ class GpsReportService {
           "lng": lngStr,
         },
       ];
-
-      print("🌍 Stop API request body: ${jsonEncode(requestBody)}");
 
       // Use custom headers without authentication for external routing service
       final customHeaders = {
@@ -517,25 +457,14 @@ class GpsReportService {
         customHeaders: customHeaders,
       );
 
-      print("🌍 Stop API response result type: ${result.runtimeType}");
-
       if (result is Success) {
-        print("🌍 Stop API call successful");
-        print("🌍 Stop response data: ${jsonEncode(result.value)}");
-
         String address = "No Address";
 
         // Parse response similar to Android code
         if (result.value.containsKey("12012")) {
           final locationData = result.value["12012"];
-          print("🌍 Stop location data: ${jsonEncode(locationData)}");
           address = locationData["display_name"] ?? "No Address";
-          print("🌍 Stop address found: $address");
-        } else {
-          print("🌍 No data found for key '12012' in stop response");
-        }
-
-        print("🌍 Final stop address: $address");
+        } else {}
 
         final stopAddressResponse = StopAddressResponse(
           stopId: stopPojo.stopId,
@@ -545,7 +474,6 @@ class GpsReportService {
 
         return Success(stopAddressResponse);
       } else {
-        print("🌍 Stop API call failed: ${result.toString()}");
         return Error<StopAddressResponse>(
           ErrorWithMessage(message: "Failed to fetch stop address"),
         );
@@ -566,25 +494,14 @@ class GpsReportService {
   ) async {
     List<StopAddressResponse> addresses = [];
 
-    print(
-      "🌍 Service: Starting to fetch addresses for ${stopReports.length} stop reports",
-    );
-
     for (int i = 0; i < stopReports.length; i++) {
       final report = stopReports[i];
-      print("🌍 Service: Processing stop ${i + 1}/${stopReports.length}");
-      print("   Device ID: ${report.deviceId}");
-      print("   Start Time: ${report.startTime}");
-      print("   Location: ${report.latitude}, ${report.longitude}");
 
       final stopPojo = StopAddressPojo.fromStopReport(report);
       final result = await getStopAddressFromServer(stopPojo);
 
       if (result is Success<StopAddressResponse>) {
         addresses.add(result.value);
-        print(
-          "🌍 Service: Successfully added address for stop ${result.value.stopId} (device ${result.value.deviceId})",
-        );
       } else {
         // Add fallback "No Address" entry for failed requests
         final fallbackAddress = StopAddressResponse(
@@ -593,9 +510,6 @@ class GpsReportService {
           address: "No Address",
         );
         addresses.add(fallbackAddress);
-        print(
-          "🌍 Service: Added fallback address for failed stop ${stopPojo.stopId}",
-        );
       }
 
       // Add delay between requests to avoid overwhelming the server
@@ -604,9 +518,6 @@ class GpsReportService {
       }
     }
 
-    print(
-      "🌍 Service: Completed address fetching for stops, returning ${addresses.length} addresses",
-    );
     return addresses;
   }
 
@@ -615,12 +526,6 @@ class GpsReportService {
     SummaryAddressPojo summaryPojo,
   ) async {
     try {
-      print("🌍 Service: Making API call for summary addresses");
-      print("   Summary ID: ${summaryPojo.summaryId}");
-      print("   Device ID: ${summaryPojo.deviceId}");
-      print("   Start: ${summaryPojo.startLat}, ${summaryPojo.startLng}");
-      print("   End: ${summaryPojo.endLat}, ${summaryPojo.endLng}");
-
       // Format coordinates to 3 decimal places matching Android
       final NumberFormat formatter = NumberFormat("##.###");
       final String startLatFormatted = formatter.format(summaryPojo.startLat);
@@ -642,9 +547,6 @@ class GpsReportService {
         },
       ];
 
-      print("🌍 Service: Making POST request to $routingApiUrl");
-      print("🌍 Service: Coordinate list: $coordinateList");
-
       // Use custom headers without authentication for external routing service
       final customHeaders = {
         'Content-Type': 'application/json',
@@ -659,7 +561,6 @@ class GpsReportService {
 
       if (result is Success) {
         final Map<String, dynamic> responseData = result.value;
-        print("🌍 Service: API response received: $responseData");
 
         // Parse addresses for start (12012) and end (12013) locations
         String startAddress = "No Address";
@@ -683,10 +584,6 @@ class GpsReportService {
           }
         }
 
-        print(
-          "🌍 Service: Final summary addresses - Start: $startAddress, End: $endAddress",
-        );
-
         final summaryAddressResponse = SummaryAddressResponse(
           summaryId: summaryPojo.summaryId,
           deviceId: summaryPojo.deviceId,
@@ -696,7 +593,6 @@ class GpsReportService {
 
         return Success(summaryAddressResponse);
       } else {
-        print("🌍 Summary API call failed: ${result.toString()}");
         return Error<SummaryAddressResponse>(
           ErrorWithMessage(message: "Failed to fetch summary address"),
         );
@@ -717,27 +613,15 @@ class GpsReportService {
   ) async {
     List<SummaryAddressResponse> addresses = [];
 
-    print(
-      "🌍 Service: Starting to fetch addresses for ${summaryReports.length} summary reports",
-    );
-
     // Process each summary individually
     for (int i = 0; i < summaryReports.length; i++) {
       final report = summaryReports[i];
-      print("🌍 Service: Processing summary ${i + 1}/${summaryReports.length}");
-      print("   Summary ID: ${report.deviceId}_${report.startTime}");
-      print("   Device ID: ${report.deviceId}");
-      print("   Start: ${report.startLat}, ${report.startLng}");
-      print("   End: ${report.endLat}, ${report.endLng}");
 
       final summaryPojo = SummaryAddressPojo.fromSummaryReport(report);
       final result = await getSummaryAddressFromServer(summaryPojo);
 
       if (result is Success<SummaryAddressResponse>) {
         addresses.add(result.value);
-        print(
-          "🌍 Service: Successfully got address for summary ${summaryPojo.summaryId}",
-        );
       } else {
         // Add fallback "No Address" entry
         final fallbackAddress = SummaryAddressResponse(
@@ -747,21 +631,14 @@ class GpsReportService {
           endAddress: "No Address",
         );
         addresses.add(fallbackAddress);
-        print(
-          "🌍 Service: Failed to get address for summary ${summaryPojo.summaryId}, added fallback",
-        );
       }
 
       // Rate limiting: wait 1 second between requests
       if (i < summaryReports.length - 1) {
-        print("🌍 Service: Waiting 1 second before next request...");
         await Future.delayed(const Duration(seconds: 1));
       }
     }
 
-    print(
-      "🌍 Service: Completed summary address fetching, returning ${addresses.length} addresses",
-    );
     return addresses;
   }
 
@@ -769,27 +646,14 @@ class GpsReportService {
   Future<List<ReachabilityAddressResponse>> fetchAddressesForReachability(
     List<dynamic> reachabilityReports,
   ) async {
-    print(
-      "🌍 Service: Starting to fetch addresses for ${reachabilityReports.length} reachability reports",
-    );
-
     final List<ReachabilityAddressResponse> addresses = [];
 
     for (int i = 0; i < reachabilityReports.length; i++) {
       final report = reachabilityReports[i];
-      print(
-        "🌍 Service: Processing reachability ${i + 1}/${reachabilityReports.length} (ID: ${report.id})",
-      );
 
       // Create ReachabilityAddressPojo from report
       final reachabilityPojo = ReachabilityAddressPojo.fromReachabilityReport(
         report,
-      );
-      print(
-        "🌍 Service: Created ReachabilityAddressPojo for ID ${reachabilityPojo.reachabilityId}",
-      );
-      print(
-        "   Coordinates: ${reachabilityPojo.latitude}, ${reachabilityPojo.longitude}",
       );
 
       // Get address from server
@@ -797,9 +661,6 @@ class GpsReportService {
 
       if (result is Success<ReachabilityAddressResponse>) {
         addresses.add(result.value);
-        print(
-          "🌍 Service: Successfully got address for reachability ${reachabilityPojo.reachabilityId}",
-        );
       } else {
         // Add fallback "No Address" entry
         final fallbackAddress = ReachabilityAddressResponse(
@@ -808,21 +669,14 @@ class GpsReportService {
           address: "No Address",
         );
         addresses.add(fallbackAddress);
-        print(
-          "🌍 Service: Failed to get address for reachability ${reachabilityPojo.reachabilityId}, added fallback",
-        );
       }
 
       // Rate limiting: wait 1 second between requests
       if (i < reachabilityReports.length - 1) {
-        print("🌍 Service: Waiting 1 second before next request...");
         await Future.delayed(const Duration(seconds: 1));
       }
     }
 
-    print(
-      "🌍 Service: Completed reachability address fetching, returning ${addresses.length} addresses",
-    );
     return addresses;
   }
 
@@ -831,14 +685,6 @@ class GpsReportService {
     ReachabilityAddressPojo reachabilityPojo,
   ) async {
     try {
-      print(
-        "🌍 Getting address for reachability: ${reachabilityPojo.reachabilityId}",
-      );
-      print("   Device: ${reachabilityPojo.deviceId}");
-      print(
-        "   Coordinates: ${reachabilityPojo.latitude}, ${reachabilityPojo.longitude}",
-      );
-
       // Format coordinates exactly like Android code: DecimalFormat("##.###")
       String _formatDecimal(double value) {
         final formatter = NumberFormat("##.###");
@@ -853,8 +699,6 @@ class GpsReportService {
           "lng": _formatDecimal(reachabilityPojo.longitude),
         },
       ];
-
-      print("🌍 Reverse geocoding request body: $requestBody");
 
       // Use the same API endpoint as Android: https://routing.roadcast.xyz/reverse
       const String reverseGeocodeUrl = "https://routing.roadcast.xyz/reverse";
@@ -871,11 +715,8 @@ class GpsReportService {
         customHeaders: customHeaders,
       );
 
-      print("🌍 Reverse geocoding result type: ${result.runtimeType}");
-
       if (result is Success) {
         final data = result.value;
-        print("🌍 Reverse geocoding response: $data");
 
         // Extract address from response exactly like Android code
         String address = "No Address";
@@ -887,11 +728,7 @@ class GpsReportService {
             final coordinateData = data[reachabilityId];
             // Use 'display_name' field exactly like Android code
             address = coordinateData["display_name"] ?? "No Address";
-            print("🌍 Found address for ID $reachabilityId: '$address'");
-          } else {
-            print("🌍 No data found for key '$reachabilityId'");
-            print("🌍 Available keys: ${data.keys.toList()}");
-          }
+          } else {}
         }
 
         final addressResponse = ReachabilityAddressResponse(
@@ -900,18 +737,13 @@ class GpsReportService {
           address: address,
         );
 
-        print(
-          "🌍 Created ReachabilityAddressResponse: ${addressResponse.address}",
-        );
         return Success(addressResponse);
       } else {
-        print("🌍 Reverse geocoding failed: ${result.toString()}");
         return Error(
           ErrorWithMessage(message: "Failed to get address from server"),
         );
       }
     } catch (e) {
-      print("🌍 Error in reverse geocoding: $e");
       return Error(ErrorWithMessage(message: "Error during reverse geocoding"));
     }
   }

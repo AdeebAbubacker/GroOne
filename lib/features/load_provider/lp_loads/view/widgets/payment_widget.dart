@@ -41,12 +41,6 @@ class PaymentWidget extends StatelessWidget {
     final isLoading = createOrderStatus?.status == Status.LOADING || addPaymentStatus?.status == Status.LOADING;
 
     final paymentData = loadItem.lpPaymentsData;
-    final isUsingMemo = paymentData == null;
-
-    final memo = loadItem.loadMemoDetails;
-    final String memoAgreedPrice = memo?.netFreight.toString() ?? '';
-    final String memoAdvanceDue = memo?.advance.toString() ?? '';
-    final String memoBalanceDue = memo?.balance.toString() ?? '';
 
     final String paymentAgreedPrice = paymentData?.agreedPrice ?? '';
     final String paymentAdvanceDue = paymentData?.receivableAdvance ?? '';
@@ -55,10 +49,9 @@ class PaymentWidget extends StatelessWidget {
     final isAdvancePaid = paymentData?.receivableAdvancePaidFlg ?? false;
     final isBalancePaid = paymentData?.receivableBalancePaidFlg ?? false;
 
-    final agreedPriceToShow = isUsingMemo ? memoAgreedPrice : paymentAgreedPrice;
-    final advanceDueToShow = isUsingMemo ? memoAdvanceDue : paymentAdvanceDue;
-    final balanceDueToShow = isUsingMemo ? memoBalanceDue : paymentBalanceDue;
-
+    final agreedPriceToShow =  paymentAgreedPrice;
+    final advanceDueToShow = paymentAdvanceDue;
+    final balanceDueToShow = paymentBalanceDue;
     final paymentActionType = (paymentData?.receivableAdvancePaidFlg ?? false) ? 'balance' : 'advance';
 
     return Container(

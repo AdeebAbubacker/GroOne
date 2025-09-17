@@ -120,6 +120,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
 
   void fetchNextPage() async {
     paginationController.isFetchingMore = true;
+    setState(() {});
 
     final selectedType = _tabController!.index;
     final loadStatus =
@@ -316,6 +317,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         tabLabels[selectedType].id == 1 ? null : tabLabels[selectedType].id;
     lpLoadLocator.getLpLoadsByType(
       loadListApiRequest: LoadListApiRequest(
+        search: searchController.text,
         loadStatus: loadStatus,
         page: 1,
         laneId: selectedRoute,
@@ -446,6 +448,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
         AppSearchBar(
           searchController: searchController,
           onChanged: _onSearchChanged,
+          onClear: () {
+            searchController.clear();
+            _onPullToRefresh();
+          },
         ).expand(),
         8.width,
         AppIconButton(

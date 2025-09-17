@@ -164,7 +164,6 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
     try {
       // Check if we already have valid data and don't need refresh
       if (_hasLoadedData && _authToken?.isNotEmpty == true) {
-        print("Data already loaded, skipping refresh");
         return;
       }
 
@@ -209,11 +208,9 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
       }
 
       // Fallback: Full re-login if no token or refresh failed
-      print("No valid token found, performing full re-login");
       resetState();
       await initializeGpsFeature();
     } catch (e) {
-      print("Error during data refresh: $e");
       // If anything fails, fall back to full re-login
       resetState();
       await initializeGpsFeature();

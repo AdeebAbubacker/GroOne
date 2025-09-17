@@ -65,10 +65,6 @@ class _GpsParkingModeScreenState extends State<GpsParkingModeScreen> {
               // Only load data if not already loaded
               if (!vehicleListCubit.hasLoadedData) {
                 vehicleListCubit.loadVehicleData();
-              } else {
-                debugPrint(
-                  "📍 GpsGeofenceScreen - Vehicle data already loaded, skipping loadVehicleData call",
-                );
               }
 
               Navigator.push(

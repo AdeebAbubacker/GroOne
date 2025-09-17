@@ -240,7 +240,7 @@ class _LPLoadListBodyWidgetState extends State<LPLoadListBodyWidget> {
 
   /// Rate
   Widget buildRateWidget() {
-    final loadPrice = (widget.loadItem.loadPrice?.maxRate == null || widget.loadItem.loadPrice?.maxRate == 0)
+    final loadPrice = widget.loadItem.lpPaymentsData != null ? PriceHelper.formatINR(widget.loadItem.lpPaymentsData?.agreedPrice) : (widget.loadItem.loadPrice?.maxRate == null || widget.loadItem.loadPrice?.maxRate == 0)
         ? PriceHelper.formatINR(widget.loadItem.loadPrice?.rate)
         : PriceHelper.formatINRRange('${widget.loadItem.loadPrice?.rate} - ${widget.loadItem.loadPrice?.maxRate}');
     return Container(

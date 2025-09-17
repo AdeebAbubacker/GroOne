@@ -244,6 +244,7 @@ class ImagePickerFrom {
         return null;
       }
       final File fileImage = File(pickedFromCamera.path);
+
       final String fileExtension = path
           .extension(pickedFromCamera.path)
           .replaceFirst('.', '');
@@ -295,7 +296,7 @@ class ImagePickerFrom {
   }
 
   static Future<XFile?> compressImage(File file) async {
-    print("call compress image");
+
     const int maxSizeInBytes = 5 * 1024 * 1024;
     const int minQuality = 30;
 
@@ -327,7 +328,7 @@ class ImagePickerFrom {
 
       if (result != null && await result.length() <= maxSizeInBytes) {
         final compressedSize = await result.length();
-        print(
+        debugPrint(
           "📉 Compressed (quality $quality): ${(compressedSize / (1024 * 1024)).toStringAsFixed(2)} MB",
         );
 
@@ -341,9 +342,9 @@ class ImagePickerFrom {
     }
 
     if (compressedFile == null) {
-      print("❌ Compression failed or still too large. Returning original.");
+      debugPrint("❌ Compression failed or still too large. Returning original.");
     } else {
-      print(
+      debugPrint(
         "✅ Final compressed size: ${(await compressedFile.length() / (1024 * 1024)).toStringAsFixed(2)} MB",
       );
     }
@@ -361,6 +362,8 @@ class ImagePickerFrom {
       ToastMessages.alert(message: appContext.appText.imageSupport);
       return false;
     }
+
+
     if (image.lengthSync() > 7000000) {
       ToastMessages.alert(message: appContext.appText.imageSize);
       return false;
@@ -655,7 +658,7 @@ String getInitialsFromName(Object instance, {required String name}) {
     CustomLog.debug(instance, "Name is $name, Length is ${name.length}");
     _loggedNames.add(name);
   }
-  
+
   if (name.trim().isEmpty) return ''; // or return ''; if you prefer
 
   final parts = name.trim().split(' ').where((p) => p.isNotEmpty).toList();

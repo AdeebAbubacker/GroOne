@@ -44,6 +44,13 @@ class GpsLoginRepository {
     return await _gpsLoginService.login();
   }
 
+  /// Check GPS authentication with mobile number
+  Future<Result<GpsLoginResponseModel>> checkGpsAuth(
+    String mobileNumber,
+  ) async {
+    return await _gpsLoginService.checkGpsAuth(mobileNumber);
+  }
+
   /// Get user details
   Future<Result<GpsUserDetailsModel>> getUserDetails(String token) async {
     return await _gpsLoginService.getUserDetails(token);
@@ -167,13 +174,8 @@ class GpsLoginRepository {
       final userConfigResult = await getUserConfig(token);
       if (userConfigResult is Success<GpsUserConfigModel>) {
         await saveUserConfig(userConfigResult.value);
-        print("💾 User config fetched and stored successfully");
-      } else {
-        print("❌ Failed to fetch user config: ${userConfigResult.runtimeType}");
-      }
-    } catch (e) {
-      print("❌ Error fetching user config: $e");
-    }
+      } else {}
+    } catch (e) {}
   }
 
   /// Save device fuel data to Realm
@@ -192,14 +194,10 @@ class GpsLoginRepository {
       final deviceFuelResult = await getDeviceFuel(token);
       if (deviceFuelResult is Success<GpsDeviceFuelModel>) {
         await saveDeviceFuel(deviceFuelResult.value);
-        print("💾 Device fuel data fetched and stored successfully");
       } else {
         // Device fuel is not critical - don't log as error
-        print("ℹ️ Device fuel API not available (non-critical feature)");
       }
-    } catch (e) {
-      print("ℹ️ Device fuel API not available (non-critical feature)");
-    }
+    } catch (e) {}
   }
 
   /// Get mobile config
@@ -227,13 +225,8 @@ class GpsLoginRepository {
       if (result is Success<GpsMobileConfigModel> &&
           result.value.data != null) {
         await saveMobileConfig(result.value.data!);
-        print("💾 Mobile config fetched and stored successfully");
-      } else {
-        print("❌ Failed to fetch mobile config: ${result.runtimeType}");
-      }
-    } catch (e) {
-      print("❌ Error fetching mobile config: $e");
-    }
+      } else {}
+    } catch (e) {}
   }
 
   /// Get user configuration
@@ -264,13 +257,8 @@ class GpsLoginRepository {
           result.value.data != null &&
           result.value.data!.isNotEmpty) {
         await saveUserConfiguration(result.value.data!.first);
-        print("💾 User configuration fetched and stored successfully");
-      } else {
-        print("❌ Failed to fetch user configuration: ${result.runtimeType}");
-      }
-    } catch (e) {
-      print("❌ Error fetching user configuration: $e");
-    }
+      } else {}
+    } catch (e) {}
   }
 
   /// Get geofences
@@ -294,15 +282,8 @@ class GpsLoginRepository {
       final geofencesResult = await getGeofences(token);
       if (geofencesResult is Success<List<GpsGeofenceModel>>) {
         await saveGeofences(geofencesResult.value);
-        print(
-          "💾 Geofences fetched and stored successfully: ${geofencesResult.value.length} geofences",
-        );
-      } else {
-        print("❌ Failed to fetch geofences: ${geofencesResult.runtimeType}");
-      }
-    } catch (e) {
-      print("❌ Error fetching geofences: $e");
-    }
+      } else {}
+    } catch (e) {}
   }
 
   /// Fetch addresses for vehicles and update realm data with performance optimization
@@ -348,9 +329,7 @@ class GpsLoginRepository {
           await Future.delayed(const Duration(milliseconds: 100));
         }
       }
-    } catch (e) {
-      print("Error in fetchAndUpdateAddresses: $e");
-    }
+    } catch (e) {}
   }
 
   /// Fetch address for a single vehicle with error handling and timeout
@@ -378,7 +357,6 @@ class GpsLoginRepository {
       }
     } catch (e) {
       // Log error but continue with other vehicles
-      print("Failed to fetch address for vehicle ${vehicle.vehicleNumber}: $e");
     }
   }
 
@@ -433,14 +411,7 @@ class GpsLoginRepository {
       final distanceResult = await getDistanceAllVehicles(token, vehicles);
       if (distanceResult is Success<List<DeviceDistancePojo>>) {
         await saveDistanceReportData(distanceResult.value);
-        print(
-          "💾 Distance data fetched and stored successfully: ${distanceResult.value.length} devices",
-        );
-      } else {
-        print("❌ Failed to fetch distance data: ${distanceResult.runtimeType}");
-      }
-    } catch (e) {
-      print("❌ Error fetching distance data: $e");
-    }
+      } else {}
+    } catch (e) {}
   }
 }

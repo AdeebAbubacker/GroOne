@@ -7,12 +7,12 @@ import 'package:gro_one_app/features/load_provider/lp_home/api_request/rate_disc
 import 'package:gro_one_app/features/load_provider/lp_home/api_request/verify_location_api_request.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_state.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/helper/lp_home_helper.dart';
-import 'package:gro_one_app/features/load_provider/lp_home/model/lp_get_load_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
@@ -203,13 +203,13 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
 
 
   // Fetch Get Load Api Call
-  void _setGetLoadListUIState(UIState<LpGetLoadModel>? uiState){
+  void _setGetLoadListUIState(UIState<LpLoadResponse>? uiState){
     emit(state.copyWith(getLoadListUIState: uiState));
   }
   Future<void> fetchGetLoadList() async {
     _setGetLoadListUIState(UIState.loading());
     dynamic result = await _repo.getLoads();
-    if (result is Success<LpGetLoadModel>) {
+    if (result is Success<LpLoadResponse>) {
       _setGetLoadListUIState(UIState.success(result.value));
     }
     if (result is Error) {

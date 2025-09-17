@@ -34,19 +34,16 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
   Future<void> fetchVehicles({int limit = 10, int page = 1}) async {
     if (_isClosed) return;
     
-    print('🔍 GpsVehicleCubit.fetchVehicles called');
     emit(state.copyWith(
       vehicles: UIState.loading(),
     ));
 
     try {
       final customerId = await _userRepository.getUserID();
-      print('🔍 Customer ID from repository in fetchVehicles: $customerId');
       
       if (_isClosed) return;
       
       if (customerId == null) {
-        print('❌ Customer ID is null in fetchVehicles');
         if (!_isClosed) {
           emit(state.copyWith(
             vehicles: UIState.error(GenericError()),
@@ -64,17 +61,13 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
       if (_isClosed) return;
 
       if (result is Success<GpsVehicleListResponse>) {
-        print('✅ getVehicles success: ${result.value.data.length} vehicles');
-        print('📋 Vehicles: ${result.value.data.map((v) => v.truckNo).toList()}');
         if (!_isClosed) {
           emit(state.copyWith(
             vehicles: UIState.success(result.value.data),
           ));
         }
       } else {
-        print('❌ getVehicles failed: ${result.runtimeType}');
         if (result is Error) {
-          print('❌ Error type: ${(result as Error).type}');
         }
         if (!_isClosed) {
           emit(state.copyWith(
@@ -213,7 +206,6 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
   Future<void> fetchTruckTypes() async {
     if (_isClosed) return;
     
-    print('🔍 GpsVehicleCubit.fetchTruckTypes called');
     if (!_isClosed) {
       emit(state.copyWith(
         truckTypes: UIState.loading(),
@@ -222,22 +214,17 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
 
     try {
       final result = await _apiRequest.fetchTruckTypes();
-      print('🔍 Truck Types API result: ${result.runtimeType}');
 
       if (_isClosed) return;
 
       if (result is Success<List<String>>) {
-        print('✅ Truck Types fetched successfully: ${result.value.length} types');
-        print('📋 Truck Types: ${result.value}');
         if (!_isClosed) {
           emit(state.copyWith(
             truckTypes: UIState.success(result.value),
           ));
         }
       } else {
-        print('❌ Truck Types fetch failed: ${result.runtimeType}');
         if (result is Error) {
-          print('❌ Error type: ${(result as Error).type}');
         }
         if (!_isClosed) {
           emit(state.copyWith(
@@ -246,7 +233,6 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
         }
       }
     } catch (e) {
-      print('💥 Truck Types fetch exception: $e');
       if (!_isClosed) {
         emit(state.copyWith(
           truckTypes: UIState.error(GenericError()),
@@ -259,7 +245,6 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
   Future<void> fetchTruckLengths(String type) async {
     if (_isClosed) return;
     
-    print('🔍 GpsVehicleCubit.fetchTruckLengths called with type: $type');
     if (!_isClosed) {
       emit(state.copyWith(
         truckLengths: UIState.loading(),
@@ -268,22 +253,17 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
 
     try {
       final result = await _apiRequest.fetchTruckLengths(type);
-      print('🔍 Truck Lengths API result: ${result.runtimeType}');
 
       if (_isClosed) return;
 
       if (result is Success<List<GpsTruckLengthModel>>) {
-        print('✅ Truck Lengths fetched successfully: ${result.value.length} lengths');
-        print('📋 Truck Lengths: ${result.value}');
         if (!_isClosed) {
           emit(state.copyWith(
             truckLengths: UIState.success(result.value),
           ));
         }
       } else {
-        print('❌ Truck Lengths fetch failed: ${result.runtimeType}');
         if (result is Error) {
-          print('❌ Error type: ${(result as Error).type}');
         }
         if (!_isClosed) {
           emit(state.copyWith(
@@ -292,7 +272,6 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
         }
       }
     } catch (e) {
-      print('💥 Truck Lengths fetch exception: $e');
       if (!_isClosed) {
         emit(state.copyWith(
           truckLengths: UIState.error(GenericError()),
@@ -305,7 +284,6 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
   Future<void> fetchCommodities() async {
     if (_isClosed) return;
     
-    print('🔍 GpsVehicleCubit.fetchCommodities called');
     if (!_isClosed) {
       emit(state.copyWith(
         commodities: UIState.loading(),
@@ -314,22 +292,17 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
 
     try {
       final result = await _apiRequest.fetchCommodities();
-      print('🔍 Commodities API result: ${result.runtimeType}');
 
       if (_isClosed) return;
 
       if (result is Success<List<GpsCommodityModel>>) {
-        print('✅ Commodities fetched successfully: ${result.value.length} commodities');
-        print('📋 Commodities: ${result.value}');
         if (!_isClosed) {
           emit(state.copyWith(
             commodities: UIState.success(result.value),
           ));
         }
       } else {
-        print('❌ Commodities fetch failed: ${result.runtimeType}');
         if (result is Error) {
-          print('❌ Error type: ${(result as Error).type}');
         }
         if (!_isClosed) {
           emit(state.copyWith(
@@ -338,7 +311,6 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
         }
       }
     } catch (e) {
-      print('💥 Commodities fetch exception: $e');
       if (!_isClosed) {
         emit(state.copyWith(
           commodities: UIState.error(GenericError()),
@@ -351,7 +323,6 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
   Future<void> verifyVehicle(String vehicleNumber) async {
     if (_isClosed) return;
     
-    print('🔍 GpsVehicleCubit.verifyVehicle called with: $vehicleNumber');
     if (!_isClosed) {
       emit(state.copyWith(
         vehicleVerification: UIState.loading(),
@@ -360,21 +331,17 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
 
     try {
       final result = await _apiRequest.verifyVehicle(vehicleNumber);
-      print('🔍 Vehicle verification API result: ${result.runtimeType}');
 
       if (_isClosed) return;
 
       if (result is Success<bool>) {
-        print('✅ Vehicle verification result: ${result.value}');
         if (!_isClosed) {
           emit(state.copyWith(
             vehicleVerification: UIState.success(result.value),
           ));
         }
       } else {
-        print('❌ Vehicle verification failed: ${result.runtimeType}');
         if (result is Error) {
-          print('❌ Error type: ${(result as Error).type}');
         }
         if (!_isClosed) {
           emit(state.copyWith(
@@ -383,7 +350,6 @@ class GpsVehicleCubit extends Cubit<GpsVehicleState> {
         }
       }
     } catch (e) {
-      print('💥 Vehicle verification exception: $e');
       if (!_isClosed) {
         emit(state.copyWith(
           vehicleVerification: UIState.error(GenericError()),

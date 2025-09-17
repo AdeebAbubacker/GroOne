@@ -51,7 +51,6 @@ class PathReplayCubit extends Cubit<PathReplayState> {
       );
       emit(state.copyWith(truckIcon: icon));
     } catch (e) {
-      print('Failed to load red car icon: $e');
       // Fallback to the original truck icon if the new one fails to load
       try {
         final fallbackIcon = await _getResizedBitmapDescriptor(
@@ -60,7 +59,6 @@ class PathReplayCubit extends Cubit<PathReplayState> {
         );
         emit(state.copyWith(truckIcon: fallbackIcon));
       } catch (fallbackError) {
-        print('Failed to load fallback icon: $fallbackError');
         // Final fallback to a red default marker
         final finalFallback = BitmapDescriptor.defaultMarkerWithHue(
           BitmapDescriptor.hueRed,

@@ -332,7 +332,6 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
                 (value as List<bool>).map((item) => item).toList(),
               ),
             );
-            debugPrint('vehiclesDataInPreviousScreen $vehiclesData');
           } catch (e) {
             _previousVehicleSelection = null;
           }

@@ -7,9 +7,14 @@ class GSTInputFormatter extends TextInputFormatter {
 
     if (text.length > 15) text = text.substring(0, 15);
 
+    int offset = newValue.selection.baseOffset;
+    if (offset > text.length) {
+      offset = text.length;
+    }
+
     return TextEditingValue(
       text: text,
-      selection: TextSelection.collapsed(offset: text.length),
+      selection: TextSelection.collapsed(offset: offset),
     );
   }
 }

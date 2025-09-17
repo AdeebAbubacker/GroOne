@@ -17,6 +17,8 @@ import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.
 import 'package:gro_one_app/features/load_provider/lp_loads/model/load_status_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
+import 'package:gro_one_app/features/splash/splash_screen.dart';
+import 'package:gro_one_app/features/splash/splash_view_mode.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
@@ -43,6 +45,7 @@ import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:collection/collection.dart';
+import 'package:gro_one_app/utils/common_dialog_view/update_popup.dart';
 
 class DriverHomeScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -62,6 +65,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   final driverProfileCubit = locator<DriverProfileCubit>();
   final lpHomeBloc = locator<LpHomeBloc>();
   final loadCommodityBloc = locator<LoadCommodityBloc>();
+  final splashViewModel = locator<SplashViewModel>();
   final lpLoadLocator = locator<LpLoadCubit>();
   late DriverLoadsBloc driverLoadBloc;
   String? truckTypeDropDownValue;
@@ -76,13 +80,42 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   int selectedTabIndex = 0;
   late VpLoadCubit vpLoadBloc;
   List<LoadStatusResponse> tabLabels = [];
-  late TabController _tabController;
+  TabController? _tabController;
   final documentTypeCubit = locator<DocumentTypeCubit>();
 
   @override
   void initState() {
+    initFunction();
     super.initState();
-    vpLoadBloc = locator<VpLoadCubit>();
+  
+  }
+
+  _callDocumentListingAPi() {
+    documentTypeCubit.getDocumentTypeList();
+  }
+
+  @override
+  void dispose() {
+    disposeFunction();
+    super.dispose();
+  }
+
+  void initFunction() => frameCallback(() async {
+      final updateState = splashViewModel.appUpdateUIState;
+    if (updateState != null && updateState.status == Status.SUCCESS) {
+      final updateType = parseUpdateType(updateState.data!);
+
+      if (updateType == AppUpdateType.soft && mounted) {
+        ToastMessages.updateAvailable(
+          message: context.appText.updateAvailableText,
+        );
+      }
+      if (updateType == AppUpdateType.force) {
+         showUpdatePopUp(updateState.data);
+        return;
+      }
+    }
+      vpLoadBloc = locator<VpLoadCubit>();
     vpLoadBloc.fetchLoadStatus();
     _tabController = TabController(
       length: 0,
@@ -110,9 +143,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           initialIndex: widget.initialTabIndex,
         );
 
-        _tabController.addListener(() {
-          if (_tabController.indexIsChanging) {
-            _loadDataByTab(index: _tabController.index);
+        _tabController?.addListener(() {
+          if (_tabController!.indexIsChanging) {
+            _loadDataByTab(index: _tabController!.index);
           }
         });
 
@@ -131,11 +164,11 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     setState(() {});
     driverLoadBloc = locator<DriverLoadsBloc>();
     WidgetsBinding.instance.addPostFrameCallback((_) {});
-    _tabController.addListener(() {
-      if (_tabController.index != selectedTabIndex &&
-          !_tabController.indexIsChanging) {
+    _tabController?.addListener(() {
+      if (_tabController?.index != selectedTabIndex &&
+          !_tabController!.indexIsChanging) {
         setState(() {
-          selectedTabIndex = _tabController.index;
+          selectedTabIndex = _tabController!.index;
           clearAllFilterValues();
           _loadDataByTab(index: selectedTabIndex);
           lpLoadLocator.getLpLoadsByType(
@@ -150,21 +183,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     });
 
     _loadDataByTab(index: widget.initialTabIndex);
-    initFunction();
     _callDocumentListingAPi();
-  }
-
-  _callDocumentListingAPi() {
-    documentTypeCubit.getDocumentTypeList();
-  }
-
-  @override
-  void dispose() {
-    disposeFunction();
-    super.dispose();
-  }
-
-  void initFunction() => frameCallback(() async {
     await lpHomeBloc.getUserId();
     setState(() {});
   });
@@ -172,7 +191,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   void _onSearchChanged(String query) {
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      final currentIndex = _tabController.index;
+      final currentIndex = _tabController!.index;
       int? loadStatus =
           (currentIndex < tabLabels.length) ? tabLabels[currentIndex].id : null;
 
@@ -188,7 +207,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   }
 
   Future<void> _onPullToRefresh() async {
-    final currentIndex = _tabController.index;
+    final currentIndex = _tabController!.index;
     int? loadStatus =
         (currentIndex < tabLabels.length) ? tabLabels[currentIndex].id : null;
     driverLoadBloc.add(
@@ -227,6 +246,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                   labelText: context.appText.vehicleType,
                   hintText: context.appText.selectVehicleType,
                   fetchVehicleTypes: () async {
+
                     await context.read<LoadFilterCubit>().getAllVehicleType();
                     return context
                             .read<LoadFilterCubit>()
@@ -356,7 +376,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   void disposeFunction() => frameCallback(() {
     searchController.dispose();
     _debounce?.cancel();
-    _tabController.dispose();
+    _tabController?.dispose();
   });
 
   void _loadDataByTab({required int index, bool forceRefresh = false}) {
@@ -377,7 +397,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
     return Scaffold(
       appBar: buildAppBarWidget(context),
       body: SafeArea(
-        child: Column(
+        child: (tabLabels.isEmpty || _tabController == null)
+          ? const Center(child: CircularProgressIndicator())
+          : Column(
           children: [
             // Tab Bar
             Container(
@@ -401,7 +423,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                         indicator: const BoxDecoration(),
                         splashFactory: NoSplash.splashFactory,
                         tabs: List.generate(tabLabels.length, (index) {
-                          final isSelected = _tabController.index == index;
+                          final isSelected = _tabController?.index == index;
                           return Tab(
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -554,9 +576,9 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           onClear: () {
             searchController.clear();
             commonHideKeyboard(context);
-            final currentIndex = _tabController.index;
+            final currentIndex = _tabController?.index;
             int? loadStatus =
-                (currentIndex < tabLabels.length)
+                (currentIndex! < tabLabels.length)
                     ? tabLabels[currentIndex].id
                     : null;
             driverLoadBloc.add(
@@ -589,7 +611,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
             bloc: driverLoadBloc,
             listener: (context, state) {
               if (state is DriverLoadsLoaded) {
-                if (_tabController.index == index) {}
+                if (_tabController!.index == index) {}
               }
             },
             child: buildDriverLoadTab(

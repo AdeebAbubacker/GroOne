@@ -52,7 +52,12 @@ class GpsOrderDetailScreen extends StatelessWidget {
           ),
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.GPS,), isForward: true));
+              Navigator.of(context).push(
+                commonRoute(
+                  LpSupport(showBackButton: true, ticketTag: TicketTags.GPS),
+                  isForward: true,
+                ),
+              );
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -135,10 +140,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
                       style: AppTextStyle.primaryColor14w700,
                     ),
                     4.height,
-                    Text(
-                      formatDateTimeGps(order.orderDate),
-                      style: AppTextStyle.bodyGreyColor,
-                    ),
+                    Text(order.orderDate, style: AppTextStyle.bodyGreyColor),
                   ],
                 ),
               ),
@@ -208,12 +210,14 @@ class GpsOrderDetailScreen extends StatelessWidget {
             children: [
               // Use a GPS device icon or image
               CachedNetworkImage(
-                    imageUrl: p.product.fileKey,
-                    width: 70,
-                    height: 70,
-                    fit: BoxFit.cover,
-                errorWidget: (context, url, error) => Image.asset(AppImage.png.gpsNewProduct, width: 70),
-                  ),
+                imageUrl: p.product.fileKey,
+                width: 70,
+                height: 70,
+                fit: BoxFit.cover,
+                errorWidget:
+                    (context, url, error) =>
+                        Image.asset(AppImage.png.gpsNewProduct, width: 70),
+              ),
               8.width,
               Expanded(
                 child: Column(
@@ -360,10 +364,7 @@ class GpsOrderDetailScreen extends StatelessWidget {
                   ),
                   Text(subtitle, style: AppTextStyle.textGreyColor14w300),
                   5.height,
-                  Text(
-                    formatDateTimeGps(date),
-                    style: AppTextStyle.textGreyColor14w300,
-                  ),
+                  Text(date, style: AppTextStyle.textGreyColor14w300),
                   Visibility(
                     visible: title.toLowerCase().contains('installation'),
                     child: Column(

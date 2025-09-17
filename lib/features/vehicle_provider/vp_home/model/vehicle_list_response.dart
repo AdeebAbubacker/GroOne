@@ -53,6 +53,7 @@ class VehicleDetail {
         required this.deletedAt,
         required this.companyName,
         required this.truckType,
+        this.activeStatus,
     });
 
     final String vehicleId;
@@ -75,6 +76,7 @@ class VehicleDetail {
     final dynamic deletedAt;
     final String companyName;
     final TruckType? truckType;
+    final String? activeStatus;
 
     VehicleDetail copyWith({
         String? vehicleId,
@@ -85,16 +87,16 @@ class VehicleDetail {
         String? tonnage,
         int? truckTypeId,
         String? modelNumber,
-        dynamic? rcNumber,
-        dynamic? rcDocLink,
+        dynamic rcNumber,
+        dynamic rcDocLink,
         String? insurancePolicyNumber,
         DateTime? insuranceValidityDate,
         DateTime? fcExpiryDate,
         DateTime? pucExpiryDate,
         int? status,
         DateTime? createdAt,
-        dynamic? updatedAt,
-        dynamic? deletedAt,
+        dynamic updatedAt,
+        dynamic deletedAt,
         String? companyName,
         TruckType? truckType,
     }) {
@@ -119,6 +121,7 @@ class VehicleDetail {
             deletedAt: deletedAt ?? this.deletedAt,
             companyName: companyName ?? this.companyName,
             truckType: truckType ?? this.truckType,
+            activeStatus: activeStatus ?? this.activeStatus,
         );
     }
 
@@ -144,6 +147,7 @@ class VehicleDetail {
             deletedAt: json["deletedAt"],
             companyName: json["companyName"] ?? "",
             truckType: json["truckType"] == null ? null : TruckType.fromJson(json["truckType"]),
+            activeStatus: json["activeStatus"],
         );
     }
 
@@ -174,11 +178,11 @@ class TruckType {
         int? id,
         String? type,
         String? subType,
-        dynamic? iconUrl,
+        dynamic iconUrl,
         int? status,
         DateTime? createdAt,
-        dynamic? updatedAt,
-        dynamic? deletedAt,
+        dynamic updatedAt,
+        dynamic deletedAt,
     }) {
         return TruckType(
             id: id ?? this.id,
@@ -225,7 +229,7 @@ class PageMeta {
     PageMeta copyWith({
         String? page,
         int? pageCount,
-        dynamic? nextPage,
+        dynamic nextPage,
         String? pageSize,
         int? total,
     }) {

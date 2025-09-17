@@ -35,7 +35,7 @@ class GpsModelWidget extends StatelessWidget {
       ),
       child: Row(
         children: [
-          product.fileKey.isNotEmpty
+          product.fileKey.isNotEmpty && product.fileKey.contains('http')
               ? CachedNetworkImage(
                 imageUrl: product.fileKey,
                 width: 100,

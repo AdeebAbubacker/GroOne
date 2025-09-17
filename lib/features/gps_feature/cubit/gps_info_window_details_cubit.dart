@@ -15,10 +15,14 @@ class GpsInfoWindowDetailsCubit extends BaseCubit<GpsInfoWindowDetailsState> {
     : super(GpsInfoWindowDetailsState());
 
   void _setInfoWindowDetailsUIState(UIState<GpsInfoWindowDetails>? uiState) {
-    emit(state.copyWith(infoWindowDetailsState: uiState));
+    if (!isClosed) {
+      emit(state.copyWith(infoWindowDetailsState: uiState));
+    }
   }
 
   Future<void> getInfoWindowDetails(String deviceId) async {
+    if (isClosed) return;
+
     _setInfoWindowDetailsUIState(UIState.loading());
 
     try {
@@ -27,17 +31,23 @@ class GpsInfoWindowDetailsCubit extends BaseCubit<GpsInfoWindowDetailsState> {
         deviceId: deviceId,
       );
 
+      if (isClosed) return;
+
       if (result is Success<GpsInfoWindowDetails>) {
         _setInfoWindowDetailsUIState(UIState.success(result.value));
       } else {
         _setInfoWindowDetailsUIState(UIState.error(GenericError()));
       }
     } catch (e) {
-      _setInfoWindowDetailsUIState(UIState.error(GenericError()));
+      if (!isClosed) {
+        _setInfoWindowDetailsUIState(UIState.error(GenericError()));
+      }
     }
   }
 
   void resetState() {
-    emit(GpsInfoWindowDetailsState());
+    if (!isClosed) {
+      emit(GpsInfoWindowDetailsState());
+    }
   }
 }

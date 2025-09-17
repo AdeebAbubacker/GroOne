@@ -32,11 +32,13 @@ class ChatRepository {
   Future<Map<String, dynamic>> sendTextMessage({
     required String message,
     required String language,
+    String? currentLocation,
   }) async {
     try {
       final response = await _apiService.sendTextMessage(
         message: message,
         language: language,
+        currentLocation: currentLocation,
       );
       
       // Ensure response is properly typed
@@ -80,11 +82,13 @@ class ChatRepository {
   Future<Map<String, dynamic>> sendVoiceMessage({
     required String audioFilePath,
     required String language,
+    String? currentLocation,
   }) async {
     try {
       final response = await _apiService.sendVoiceMessage(
         audioFilePath: audioFilePath,
         language: language,
+        currentLocation: currentLocation,
       );
       
       // Ensure response is properly typed
@@ -173,7 +177,8 @@ class ChatRepository {
     required String language,
     double speakingRate = 0.85,
     double pitch = 0.0,
-    String audioFormat = 'OGG_OPUS',
+    String audioFormat = 'MP3',
+    // String audioFormat = 'OGG_OPUS',
   }) async {
     try {
 
