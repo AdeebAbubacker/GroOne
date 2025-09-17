@@ -53,6 +53,7 @@ class MasterScreen extends StatefulWidget {
 
 class _MasterScreenState extends State<MasterScreen>
     with SingleTickerProviderStateMixin {
+
   final profileCubit = locator<ProfileCubit>();
   final mastersCubit = locator<MastersCubit>();
   final vpCreationCubit = locator<VpCreateAccountCubit>();
@@ -77,9 +78,9 @@ class _MasterScreenState extends State<MasterScreen>
   String? pucExpiryDate;
   String? registrationDate;
   List<LaneDetailsResponse> laneDetails=[];
+
+
   @override
-
-
   void initState() {
     super.initState();
     context.read<MastersCubit>().resetVehicleVerification();

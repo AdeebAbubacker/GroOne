@@ -525,12 +525,17 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     required List checkDocLink,
     required List tdsDocLink,
   }) {
+
+    print("company id $companyId : user role $userRole");
+
+
     bool need(String msg, bool ok) {
+
       if (!ok) {
         ToastMessages.alert(message: '${context.appText.pleaseUpload} $msg');
       }
-
       return ok;
+
     }
 
     bool checkId(String? id, String label) {
@@ -542,6 +547,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     bool gstValid() {
+
       if(companyId==2){
         return true;
       }
@@ -568,19 +574,20 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     bool tanValid() {
-      /*    final uploaded = tanDoc.isNotEmpty;
+          final uploaded = tanDoc.isNotEmpty;
       final verified = kycCubit.state.verifiedTan ?? false;
       return need(context.appText.tanDocument, uploaded) &&
           checkId(tanDocId, "TAN") &
           need(
             '${context.appText.tanDocument} ${context.appText.notVerified}',
             verified,
-          );*/
-      return true;
+          );
+
     }
 
     // VP FLOW
     if (userRole != 1) {
+
       if (companyId == 2) {
         final chkOk =
             need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
@@ -588,17 +595,20 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         return need(context.appText.aadhaar, true) && chkOk;
       }
 
-      final gstOk = gstValid();
-      final panOk = panValid();
+
+      final gstOk = userRole==2 ? true: gstValid();
+      final panOk =  panValid();
 
       final chkOk =
           need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
           checkId(cancelledChequeDocId, "Cancelled Cheque");
-      final tdsOk =
+    /*  final tdsOk =
           need(context.appText.tdsCertificate, tdsDocLink.isNotEmpty) &&
-          checkId(tdsDocId, "TDS");
+          checkId(tdsDocId, "TDS");*/
 
-      return gstOk && panOk && chkOk && tdsOk;
+
+
+      return gstOk && panOk && chkOk;
     }
 
     // LP FLOW
@@ -679,7 +689,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         checkDocLink: checkDocLink,
         tdsDocLink: tdsDocLink,
       );
+
+
       if (!ok) return;
+
 
       /// TODO:
       /// check if state is selected
@@ -808,6 +821,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                 final userRole = kycCubit.userRole;
                 final isVP = userRole == 2 || userRole == 3 || userRole == 4;
                 final isLP = userRole == 1 || userRole == 3;
+
                 return Column(
                   children: [
                     Form(
@@ -821,7 +835,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 return SizedBox();
                               }
 
-                              CustomLog.debug(this, "User Role: $userRole");
+                              CustomLog.debug(this, "User Role: $userRole and company id $companyId");
 
                               List<Widget> children = [];
 
@@ -829,7 +843,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 children.addAll([
                                   _buildAadhaarWidget(context),
                                   25.height,
-                                  _buildGstWidget(),
+                                  _buildGstWidget(userRole),
                                   25.height,
                                   _buildPanWidget(),
                                   25.height,
@@ -838,7 +852,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                     25.height,
                                     buildTDSCertificationWidget(),
                                   ],
-                                  if (isLP) ...[25.height, _buildTanWidget()],
+                                  if (isLP) ...[25.height, _buildTanWidget(
+                                    isRequired: true
+                                  )],
                                   50.height,
                                 ]);
                               } else if (companyId == 2) {
@@ -850,10 +866,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                     buildCancelledCheckWidget(),
                                     50.height,
                                   ],
+                                  if (isLP) ...[25.height, _buildTanWidget(
+                                      isRequired: true
+                                  )],
                                 ]);
                               } else {
                                 children.addAll([
-                                  _buildGstWidget(),
+                                  _buildGstWidget(userRole),
                                   25.height,
                                   _buildPanWidget(),
                                   25.height,
@@ -1079,7 +1098,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   // GST Text Field & Upload GST
-  Widget _buildGstWidget() {
+  Widget _buildGstWidget(int userRole) {
 
     return BlocBuilder<KycCubit, KycState>(
       bloc: kycCubit,
@@ -1090,7 +1109,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
-              isMandatory: companyId!=2,
+              isMandatory: userRole==1 && companyId==1,
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },
@@ -1205,7 +1224,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   // TAN Text Field & Upload TAN
-  Widget _buildTanWidget() {
+  Widget _buildTanWidget({bool isRequired=false}) {
     return BlocBuilder<KycCubit, KycState>(
       bloc: kycCubit,
       builder: (context, state) {
@@ -1215,6 +1234,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter TAN number
             buildTextFieldWithLabelWidget(
               maxLength: 10,
+
               onChanged: (text) {
                 setTanIntoLocal(text ?? "");
               },
@@ -1225,7 +1245,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       : context.appText.unVerified,
               readOnly: verified,
               rightText: "TAN",
-              isMandatory: false,
+              isMandatory: isRequired,
               controller: tanTextController,
               suffixOnTap: () async {
                 if (tanTextController.text.isEmpty) {
@@ -1529,7 +1549,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         final tdsUploadState = state.uploadTDSDocUIState?.status;
         if (kycCubit.userRole != null && kycCubit.userRole != 1) {
           return UploadAttachmentFiles(
-            title: "${context.appText.tdsCertificate} *",
+            title: context.appText.tdsCertificate,
             multiFilesList: tdsDocLink,
             isSingleFile: true,
             isLoading: tdsUploadState == Status.LOADING,
@@ -1617,6 +1637,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           ToastMessages.error(
             message: getErrorMsg(errorType: error ?? GenericError()),
           );
+
+
         }
       },
       builder: (context, state) {
