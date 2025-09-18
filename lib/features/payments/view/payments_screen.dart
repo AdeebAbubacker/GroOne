@@ -176,7 +176,7 @@ class _PaymentsScreenViewState extends State<PaymentsScreenView> {
       } else if (url.startsWith("paytmmp:")) {
         storeUrl = "https://apps.apple.com/in/app/paytm-secure-upi-payments/id473941634";
       } else if (url.startsWith("upi:") || url.startsWith("bhim:")) {
-        storeUrl = "https://apps.apple.com/in/app/bhim-making-india-cashless/id1172687124";
+        storeUrl = "https://apps.apple.com/in/app/bhim-bharats-own-payments-app/id1200315258";
       } else if (url.startsWith("credpay:")) {
         storeUrl = "https://apps.apple.com/in/app/cred/id1428580080";
       }
