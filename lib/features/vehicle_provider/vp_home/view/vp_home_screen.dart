@@ -438,22 +438,26 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                       textAlign: TextAlign.start,
                       style: AppTextStyle.body1,
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: Size(68, 30),
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          minimumSize: Size(68, 30),
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        context.appText.viewAll,
-                        style: AppTextStyle.h5WhiteColor,
-                      ),
+                        child: Text(
+                          context.appText.viewAll,
+                          style: AppTextStyle.h5WhiteColor,
+                          overflow: TextOverflow.ellipsis,
+
+                        ),
+                      ).align(Alignment.centerRight),
                     ),
                     // TextButton(
                     //   onPressed: () {

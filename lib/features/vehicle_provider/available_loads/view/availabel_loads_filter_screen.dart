@@ -122,6 +122,7 @@ class _AvailableLoadsFilterScreenState
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
       title: context.appText.filter,
+      isCloseButton: false,
       body: _buildBody(context: context),
     );
   }

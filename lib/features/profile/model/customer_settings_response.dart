@@ -89,6 +89,7 @@ extension CustomerSettingsMapper on CustomerSettingsResponse {
   };
 
   static String getValue(String key, CustomerSettingsResponse? data, String fallback) {
+
     return valueExtractors[key]?.call(data) ?? fallback;
   }
 

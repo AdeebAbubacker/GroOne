@@ -137,60 +137,60 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
             final safeIndex = selectedIndex.clamp(0, pages.length - 1);
 
             return WillPopScope(
-              onWillPop: () async {
-                if (_navigationHistory.length > 1) {
-                  _navigationHistory.removeLast();
-                  LpBottomNavigation.selectedIndexNotifier.value =
-                      _navigationHistory.last;
-                  return false; // prevent app exit
-                }
-                return true; // allow app to exit
-              },
-              child: Scaffold(
-                body: pages[safeIndex],
-                bottomNavigationBar: BottomNavigationBar(
-                  backgroundColor: AppColors.primaryColor,
-                  type: BottomNavigationBarType.fixed,
-                  selectedItemColor: AppColors.white,
-                  unselectedItemColor: Colors.white54,
-                  currentIndex: safeIndex,
-                  onTap: onItemTapped,
-                  items: [
-                    BottomNavigationBarItem(
-                      icon: const Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Icon(CupertinoIcons.home),
+                onWillPop: () async {
+              if (_navigationHistory.length > 1) {
+                _navigationHistory.removeLast();
+                LpBottomNavigation.selectedIndexNotifier.value = _navigationHistory.last;
+                return false; // prevent app exit
+              }
+              return true; // allow app to exit
+            },
+            child: Scaffold(
+                  body: pages[safeIndex],
+                  bottomNavigationBar: BottomNavigationBar(
+                    backgroundColor: AppColors.primaryColor,
+                    type: BottomNavigationBarType.fixed,
+                    selectedItemColor: AppColors.white,
+                    unselectedItemColor: Colors.white54,
+                    currentIndex: safeIndex,
+                    onTap: onItemTapped,
+                    items: [
+                      BottomNavigationBarItem(
+                        icon: const Padding(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Icon(CupertinoIcons.home),
+                        ),
+                        label: context.appText.home,
                       ),
-                      label: context.appText.home,
-                    ),
-                    BottomNavigationBarItem(
-                      icon: const Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Icon(CupertinoIcons.cube),
+
+                      BottomNavigationBarItem(
+                        icon: const Padding(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Icon(CupertinoIcons.cube),
+                        ),
+                        label: role == 4 ? context.appText.myOrders : context.appText.myLoads,
                       ),
-                      label: role == 4
-                          ? context.appText.myOrders
-                          : context.appText.myLoads,
-                    ),
-                    BottomNavigationBarItem(
-                      icon: Padding(
-                        padding: EdgeInsets.only(top: 10.0),
-                        child: Icon(Icons.headset_mic_rounded),
-                      ),
-                      label: context.appText.support,
-                    ),
-                    if (profileCubit.userRole != null &&
-                        profileCubit.userRole == 3)
+
                       BottomNavigationBarItem(
                         icon: Padding(
                           padding: EdgeInsets.only(top: 10.0),
-                          child: Icon(Icons.compare_arrows_rounded),
+                          child: Icon(Icons.headset_mic_rounded),
                         ),
-                        label: context.appText.switchAccount,
+                        label: context.appText.support,
                       ),
-                  ],
-                ),
-              ),
+
+                      if (profileCubit.userRole != null &&
+                          profileCubit.userRole == 3)
+                        BottomNavigationBarItem(
+                          icon: Padding(
+                            padding: EdgeInsets.only(top: 10.0),
+                            child: Icon(Icons.compare_arrows_rounded),
+                          ),
+                          label: context.appText.switchAccount,
+                        ),
+                    ],
+                  ),
+                )
             );
           },
         );
