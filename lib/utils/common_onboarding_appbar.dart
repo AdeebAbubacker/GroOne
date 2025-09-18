@@ -12,7 +12,8 @@ class CommonOnboardingAppbar extends StatelessWidget implements PreferredSizeWid
   final bool? showBackButton;
   final bool? showTranslateButton;
   final bool? isCrossLeadingIcon;
-  const CommonOnboardingAppbar({super.key,  this.showBackButton = true, this.showTranslateButton = true, this.isCrossLeadingIcon = false});
+  final void Function()? onLeadingTap;
+  const CommonOnboardingAppbar({super.key,  this.showBackButton = true, this.showTranslateButton = true, this.isCrossLeadingIcon = false, this.onLeadingTap});
 
   @override
   Widget build(BuildContext context) {
@@ -42,6 +43,7 @@ class CommonOnboardingAppbar extends StatelessWidget implements PreferredSizeWid
           child: Image.asset(AppImage.png.appIcon, width: 80, height: 30),
         ),
       ],
+      onLeadingTap: onLeadingTap,
     );
   }
 
