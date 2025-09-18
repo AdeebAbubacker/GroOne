@@ -1300,7 +1300,11 @@
   "gstNo" : "நகரம் தேவை",
   "driverIsRequired" : "டிரைவர் தேவை",
   "vehicleIsRequired" : "வாகனம் தேவை",
-  "capacityisRequired": "திறன் தேவை"
+  "capacityisRequired": "திறன் தேவை",
+  "allFieldsRequired" : "அனைத்து புலங்களும் தேவை",
+  "licenseCategoryRequired" : "உரிமச் சான்றிதழ் வகை தேவை",
+  "bloodGroupRequired" : "இரத்த வகை தேவை"
+
 
 
 }

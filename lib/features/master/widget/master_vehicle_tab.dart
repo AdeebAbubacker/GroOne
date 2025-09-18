@@ -826,6 +826,18 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                 );
                 return;
               }
+              if (selectedTruckType == null ) {
+                ToastMessages.alert(
+                  message: context.appText.vehicleTypeRequired,
+                );
+                return;
+              }
+              if (selectedWeightDropDownValue == null || selectedWeightDropDownValue!.isEmpty) {
+                ToastMessages.alert(
+                  message: context.appText.capacityisRequired,
+                );
+                return;
+              }
               if (formKey.currentState!.validate()) {
                 final request = VehicleRequest(
                   customerId: profileCubit.userId ?? "",
@@ -1485,6 +1497,18 @@ class AddVehicleDialog {
               if (insurancePolicyNumber.text.isEmpty) {
                 ToastMessages.alert(
                   message: context.appText.insurancePolicyNumberRequired,
+                );
+                return;
+              }
+              if (selectedTruckType == null ) {
+                ToastMessages.alert(
+                  message: context.appText.vehicleTypeRequired,
+                );
+                return;
+              }
+              if (selectedWeightDropDownValue == null || selectedWeightDropDownValue!.isEmpty) {
+                ToastMessages.alert(
+                  message: context.appText.capacityisRequired,
                 );
                 return;
               }

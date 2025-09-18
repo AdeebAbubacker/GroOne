@@ -442,6 +442,36 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
               ),
             ),
             onClickYesButton: () async {
+            //missing fields
+            final missingFields = <String>[];
+
+            if (addressNameController.text.trim().isEmpty) {
+              missingFields.add(context.appText.addressName);
+            }
+            if (addressController.text.trim().isEmpty) {
+              missingFields.add(context.appText.address);
+            }
+            if (selectedState == null || selectedState!.isEmpty) {
+              missingFields.add(context.appText.state);
+            }
+            if (selectedCity == null || selectedCity!.isEmpty) {
+              missingFields.add(context.appText.city);
+            }
+            if (pinCodeController.text.trim().isEmpty) {
+              missingFields.add(context.appText.pincode);
+            }
+          if (missingFields.length == 5) {
+            ToastMessages.alert(message: context.appText.allFieldsRequired);
+            return;
+          }
+          if (missingFields.isNotEmpty) {
+            for (var field in missingFields) {
+              ToastMessages.alert(message: "$field ${context.appText.isRequired}");
+            }
+            return;
+          }
+
+
               if (formKey.currentState!.validate()) {
                 final existingAddresses =
                     profileCubit.state.addressState?.data?.addresses ?? [];

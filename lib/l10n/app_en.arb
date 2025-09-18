@@ -1351,6 +1351,9 @@
   "gstNo" : "GST",
   "driverIsRequired" : "Driver is Required",
   "vehicleIsRequired" : "Vehicle is Required",
-  "capacityisRequired": "Capacity is Required"
+  "capacityisRequired": "Capacity is Required",
+  "allFieldsRequired" : "All Fields are Required",
+  "licenseCategoryRequired" : "License Category is required",
+  "bloodGroupRequired" : "Blood group is required"
 
 }
