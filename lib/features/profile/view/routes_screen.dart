@@ -50,7 +50,7 @@ class _RouteScreenState extends State<RouteScreen> {
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       listener: (_, __) {},
       builder: (context, state) {
-        final uiState = state.recentRouteUIState;
+        final uiState = state.recentRouteState;
 
         if (uiState == null) return genericErrorWidget(error: GenericError());
 
@@ -72,14 +72,24 @@ class _RouteScreenState extends State<RouteScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   10.height,
-                  ListView.separated(
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.only(bottom: 100),
-                    itemCount: routes.length,
-                    separatorBuilder: (_, __) => const SizedBox(height: 20),
-                    itemBuilder: (context, index) =>
-                        _buildListBody(index: index, data: routes[index]),
-                  ).expand(),
+                  NotificationListener<ScrollNotification>(
+                  onNotification: (scrollInfo) {
+                    if (scrollInfo.metrics.pixels ==
+                        scrollInfo.metrics.maxScrollExtent) {
+                      lpHomeCubit.fetchRecentRoute(isLoading: false, isInit: false);
+                    }
+                    return false;
+                  },
+                    child: ListView.separated(
+                      shrinkWrap: true,
+                      padding: const EdgeInsets.only(bottom: 100),
+                      itemCount: routes.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 20),
+                      itemBuilder: (context, index) =>
+                          _buildListBody(index: index, data: routes[index]),
+                    ).expand(),
+                  ),
+                
                 ],
               ).paddingSymmetric(horizontal: 15),
             );

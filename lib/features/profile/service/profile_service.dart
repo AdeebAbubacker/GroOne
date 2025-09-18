@@ -249,14 +249,13 @@ class ProfileService {
   }) async {
     try {
       final baseUrl = ApiUrls.getAddress + userId;
-      final url =
-          (search != null && search.trim().isNotEmpty)
-              ? '$baseUrl?search=$search'
-              : baseUrl;
-      final response = await _apiService.get(url,queryParams: {
-        "limit":10,
-        "page":currentPage
-      });
+      final queryParams = {
+      "limit": 10,
+      "page": currentPage ?? 1,
+      if (search != null && search.trim().isNotEmpty) "search": search,
+    };
+
+    final response = await _apiService.get(baseUrl, queryParams: queryParams);
       if (response is Success) {
         final loads = PaginatedAddressList.fromJson(response.value);
         return Success(loads);
