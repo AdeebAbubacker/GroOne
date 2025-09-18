@@ -1299,7 +1299,8 @@
   "cityisRequired" : "நகரம் தேவை",
   "gstNo" : "நகரம் தேவை",
   "driverIsRequired" : "டிரைவர் தேவை",
-  "vehicleIsRequired" : "வாகனம் தேவை"
+  "vehicleIsRequired" : "வாகனம் தேவை",
+  "capacityisRequired": "திறன் தேவை"
 
 
 }

@@ -627,6 +627,10 @@ class StateDropdown extends StatelessWidget {
                 search: searchKey,
                 loadMore: page > 1,
               );
+               // Stop scrolling when last page reached
+            if (stateCubit.isStateLastPage && page > stateCubit.stateCurrentPage) {
+              return [];
+            }
               final stateList = stateCubit.state.stateUIState?.data ?? [];
               return stateList.map((state) {
                 return SearchableDropdownMenuItem<StateModelList>(
@@ -758,7 +762,10 @@ class _CityDropdownState extends State<CityDropdown> {
                     loadMore: page > 1,
                   );
                 }
-
+                // Stop scrolling when last page reached
+                if (kycCubit.isCityLastPage && page > kycCubit.cityCurrentPage) {
+                return [];
+                }
                 final cityList = kycCubit.state.cityUIState?.data ?? [];
                 return cityList.map((city) {
                   return SearchableDropdownMenuItem<CityModelList>(

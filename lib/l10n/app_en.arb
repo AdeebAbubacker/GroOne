@@ -1350,6 +1350,7 @@
   "cityisRequired" : "City is required",
   "gstNo" : "GST",
   "driverIsRequired" : "Driver is Required",
-  "vehicleIsRequired" : "Vehicle is Required"
+  "vehicleIsRequired" : "Vehicle is Required",
+  "capacityisRequired": "Capacity is Required"
 
 }

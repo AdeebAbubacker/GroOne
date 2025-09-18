@@ -495,29 +495,68 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         final uiState = state.truckTypeUIState;
                         final truckTypeList = uiState?.data ?? [];
 
-                        return VehicleTypeSearchableDropdown(
-                          labelText: context.appText.vehicleType,
-                          hintText: context.appText.selectVehicleType,
-                          fetchVehicleTypes: () async {
-                            await context
-                                .read<VpCreateAccountCubit>()
-                                .fetchTruckType();
-                            return context
-                                    .read<VpCreateAccountCubit>()
-                                    .state
-                                    .truckTypeUIState
-                                    ?.data ??
-                                [];
+                        return FormField<String>(
+                          initialValue: selectedTruckType?.id.toString(),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return context.appText.vehicleTypeRequired;
+                            }
+                            return null;
                           },
-                          selectedVehicleType: truckTypeList.firstWhereOrNull(
-                            (t) => t.id.toString() == selectedTruckType,
-                          ),
-                          onChanged: (TruckTypeModel? value) {
-                            setState(() {
-                              selectedTruckType = value;
-                            });
+                          builder: (field) {
+                            if ((field.value == null || field.value!.isEmpty) &&
+                                (selectedTruckType != null &&
+                                    selectedTruckType!.id != null)) {
+                              final selectedVehicleId =
+                                  selectedTruckType!.id.toString();
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                field.didChange(selectedVehicleId);
+                              });
+                            }
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                VehicleTypeSearchableDropdown(
+                                  labelText: context.appText.vehicleType,
+                                  hintText: context.appText.selectVehicleType,
+                                  fetchVehicleTypes: () async {
+                                    await context
+                                        .read<VpCreateAccountCubit>()
+                                        .fetchTruckType();
+                                    return context
+                                            .read<VpCreateAccountCubit>()
+                                            .state
+                                            .truckTypeUIState
+                                            ?.data ??
+                                        [];
+                                  },
+                                  selectedVehicleType: truckTypeList
+                                      .firstWhereOrNull(
+                                        (t) =>
+                                            t.id.toString() ==
+                                            selectedTruckType,
+                                      ),
+                                  onChanged: (TruckTypeModel? value) {
+                                    setState(() {
+                                      selectedTruckType = value;
+                                    });
+                                  },
+                                  mandatoryStar: false,
+                                ),
+                                if (field.hasError)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 4,
+                                      left: 8,
+                                    ),
+                                    child: Text(
+                                      field.errorText!,
+                                      style: AppTextStyle.textFieldHintRedColor,
+                                    ),
+                                  ),
+                              ],
+                            );
                           },
-                          mandatoryStar: false,
                         );
                       },
                     ),
@@ -527,27 +566,67 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         final uiState = state.loadWeightUIState;
                         final weights = uiState?.data ?? [];
 
-                        return LoadWeightSearchableDropdown(
-                          labelText: context.appText.capacity,
-                          hintText:
-                              '${context.appText.select} ${context.appText.capacity}',
-                          selectedWeight: weights.firstWhereOrNull(
-                            (w) => w.id == selectedWeightDropDownValue,
-                          ),
-                          fetchWeights: () async {
-                            await context.read<LPHomeCubit>().fetchLoadWeight();
-                            return context
-                                    .read<LPHomeCubit>()
-                                    .state
-                                    .loadWeightUIState
-                                    ?.data ??
-                                [];
+                        return FormField<String>(
+                          initialValue: selectedWeightDropDownValue?.toString(),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return context.appText.capacityisRequired;
+                            }
+                            return null;
                           },
-                          onChanged: (LoadWeightModel? value) {
-                            setState(() {
-                              selectedWeightDropDownValue =
-                                  value?.value.toString();
-                            });
+                          builder: (field) {
+                            if ((field.value == null || field.value!.isEmpty) &&
+                                (selectedWeightDropDownValue != null &&
+                                    selectedWeightDropDownValue != null)) {
+                              final selectedWeightDropDownValue = field.value;
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                field.didChange(selectedWeightDropDownValue);
+                              });
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                LoadWeightSearchableDropdown(
+                                  labelText: context.appText.capacity,
+                                  hintText:
+                                      '${context.appText.select} ${context.appText.capacity}',
+                                  selectedWeight: weights.firstWhereOrNull(
+                                    (w) => w.id == selectedWeightDropDownValue,
+                                  ),
+                                  fetchWeights: () async {
+                                    await context
+                                        .read<LPHomeCubit>()
+                                        .fetchLoadWeight();
+                                    return context
+                                            .read<LPHomeCubit>()
+                                            .state
+                                            .loadWeightUIState
+                                            ?.data ??
+                                        [];
+                                  },
+                                  onChanged: (LoadWeightModel? value) {
+                                    final newValue = value?.value.toString();
+                                    setState(() {
+                                      selectedWeightDropDownValue =
+                                          value?.value.toString();
+                                    });
+                                    field.didChange(newValue);
+                                  },
+                                ),
+                                if (field.hasError)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: 4,
+                                      left: 8,
+                                    ),
+                                    child: Text(
+                                      field.errorText!,
+                                      style: AppTextStyle.textFieldHintRedColor,
+                                    ),
+                                  ),
+                              ],
+                            );
                           },
                         );
                       },
@@ -940,7 +1019,8 @@ Widget buildVehicleVerificationFieldWidget({
 
                       final result = await context
                           .read<MastersCubit>()
-                          .fetchAndVerifyVehicle(context,
+                          .fetchAndVerifyVehicle(
+                            context,
                             cleanVehicleNumber(vehicleNumber),
                           );
 
@@ -953,8 +1033,7 @@ Widget buildVehicleVerificationFieldWidget({
                           true,
                           result.value,
                         ); // Pass data back
-                      }             
-                       else {
+                      } else {
                         onVerificationResult(false, null);
                       }
                     },
