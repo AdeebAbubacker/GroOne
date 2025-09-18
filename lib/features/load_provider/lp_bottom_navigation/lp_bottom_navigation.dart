@@ -55,6 +55,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
       profileCubit.fetchUserRole();
       setState(() {});
     });
+    profileCubit.switchToVp(false);
     documentTypeCubit.getDocumentTypeList();
     super.initState();
   }
@@ -78,6 +79,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
           ],
         ),
         onClickYesButton: () {
+          profileCubit.switchToVp(true);
           analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_VP);
           context.go(AppRouteName.vpBottomNavigationBar);
         },

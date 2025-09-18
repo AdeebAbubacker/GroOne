@@ -50,6 +50,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
     // Initialize profileCubit here to ensure dependency injection is ready
     profileCubit = locator<ProfileCubit>();
     documentTypeCubit = locator<DocumentTypeCubit>();
+    profileCubit.switchToVp(true);
     initFunction();
     super.initState();
   }
@@ -79,6 +80,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
         ),
         onClickYesButton: () {
           analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_LP);
+          profileCubit.switchToVp(false);
           changeTab(index, allLoadsSubTabIndex: 0);
         },
       ));
