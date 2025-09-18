@@ -220,7 +220,8 @@ class _LpSettingState extends State<LpSetting> {
                                           Future.delayed(const Duration(milliseconds: 1200), () {
                                             if (!mounted) return; 
                                             disposeFunction();
-                                            LpBottomNavigation.selectedIndexNotifier.value = 0;
+                                            // LpBottomNavigation.selectedIndexNotifier.value = 0;
+                                            lpBottomNavKey.currentState?.onItemTapped(0);
                                             if(!context.mounted) return;
                                             // Navigate to login screen
                                             context.go(

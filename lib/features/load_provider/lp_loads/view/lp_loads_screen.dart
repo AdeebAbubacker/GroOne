@@ -73,12 +73,15 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     super.dispose();
   }
 
-  void initFunction() => frameCallback(() {
+  void initFunction() => frameCallback(() async {
     analytics.logEvent(AnalyticEventName.LP_MY_LOAD);
     lpLoadLocator.updateSelectedTabIndex(0);
     paginationController = lpLoadLocator.paginationController;
+    await lpLoadLocator.getLoadStatus();
+
+    final tabs = lpLoadLocator.state.loadStatus?.data ?? [];
     _tabController = TabController(
-      length: 9,
+      length: tabs.length,
       vsync: this,
       initialIndex: lpLoadLocator.state.selectedTabIndex,
     )..addListener(_handleTabChange);
@@ -89,7 +92,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     lpLoadLocator.getLpLoadsByType(loadListApiRequest: LoadListApiRequest());
     lpLoadLocator.getTruckType();
     lpLoadLocator.getRouteDetails();
-    lpLoadLocator.getLoadStatus();
 
     setState(() {});
   });
@@ -409,7 +411,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
             indicator: const BoxDecoration(),
             dividerHeight: 0,
             tabAlignment: TabAlignment.center,
-            tabs: List.generate(9, (index) {
+            tabs: List.generate(tabLabels.length, (index) {
               final isSelected = state.selectedTabIndex == index;
               return Tab(
                 child: Container(
@@ -552,6 +554,12 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   return RepaintBoundary(
                     child: GestureDetector(
                       onTap: () {
+                        final selectedType = _tabController!.index;
+
+                        // prevent tap for "Unserviced"
+                        if (tabLabels[selectedType].loadStatus.toLowerCase() == "unserviced") {
+                          return;
+                        }
                         final extra = {"loadId": loadItem.loadId};
                         context
                             .push(
