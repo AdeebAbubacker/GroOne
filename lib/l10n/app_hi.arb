@@ -1298,7 +1298,9 @@
   "updateLanes" : "लेन अपडेट",
   "stateisRequired": "राज्य आवश्यक है",
   "cityisRequired" : "शहर आवश्यक है",
-  "gstNo" : "शहर आवश्यक है"
+  "gstNo" : "शहर आवश्यक है",
+  "driverIsRequired" : "ड्राइवर की आवश्यकता है",
+  "vehicleIsRequired" : "वाहन की आवश्यकता है"
 
 
 

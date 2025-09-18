@@ -1297,7 +1297,9 @@
   "updateLanes" : "வழித்தடப் புதுப்பிப்பு",
   "stateisRequired": "மாநிலம் தேவை",
   "cityisRequired" : "நகரம் தேவை",
-  "gstNo" : "நகரம் தேவை"
+  "gstNo" : "நகரம் தேவை",
+  "driverIsRequired" : "டிரைவர் தேவை",
+  "vehicleIsRequired" : "வாகனம் தேவை"
 
 
 }

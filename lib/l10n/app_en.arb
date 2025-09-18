@@ -66,7 +66,7 @@
   "lane": "Lane",
   "selectLaneType": "Select lane",
   "roadType": "Road Type",
-  "selectRoadType": "Select road type",
+  "selectRoadType": "Select load type",
   "cancel": "Cancel",
   "apply": "Apply",
   "tripTracking": "Trip Tracking",
@@ -1348,6 +1348,8 @@
   "accountDeletedSuccessfully" : "Account Deleted Successfully",
   "stateisRequired":"State is required",
   "cityisRequired" : "City is required",
-  "gstNo" : "GST"
+  "gstNo" : "GST",
+  "driverIsRequired" : "Driver is Required",
+  "vehicleIsRequired" : "Vehicle is Required"
 
 }

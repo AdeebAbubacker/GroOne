@@ -84,12 +84,16 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
           searchController: addressSearchController,
           onChanged: (query) {
             addressSearchDebounce?.cancel();
-            addressSearchDebounce = Timer(
-              const Duration(milliseconds: 300),
-              () {
-                profileCubit.fetchAddress(isLoading: false, search: query);
-              },
-            );
+            // addressSearchDebounce = Timer(
+            //   const Duration(milliseconds: 300),
+            //   () async{
+            //     print("searching for $query");
+            //  await profileCubit.fetchAddress(isLoading: false, search: query);
+            //   },
+            // );
+             addressSearchDebounce = Timer(const Duration(milliseconds: 300), () {
+              profileCubit.fetchAddress(isLoading: false, search: query);
+            });
           },
           onClear: () {
             setState(() {
@@ -196,8 +200,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     if (scrollInfo.metrics.pixels ==
                         scrollInfo.metrics.maxScrollExtent) {
                       profileCubit.fetchAddress(
-                        isLoading: false,
-                        isInit: false,
+                        loadMore: true
                       );
                     }
                     return false;
