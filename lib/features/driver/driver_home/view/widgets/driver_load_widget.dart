@@ -113,8 +113,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (widget.driverLoadDetails.loadStatusId == 10 ){
-          ToastMessages.alert(message: context.appText.sorryUnserveicedLoad);
+        if (widget.driverLoadDetails.loadStatusDetails?.loadStatus.toLowerCase() == "unserviced" ){
           return;
         }
         context.push(
