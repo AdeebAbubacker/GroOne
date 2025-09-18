@@ -103,11 +103,8 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
     super.initState();
   }
 
-
-
   @override
   void dispose() {
-
     disposeFunction();
 
     super.dispose();
@@ -116,7 +113,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
   void initFunction() => frameCallback(() async {
     mobileNumberTextController.text = widget.mobileNumber;
     await vpCreationCubit.fetchCompanyType();
-    await vpCreationCubit.fetchPrefLane(null,isInit: true);
+    await vpCreationCubit.fetchPrefLane(null, isInit: true);
     await vpCreationCubit.fetchTruckType();
   });
 
@@ -137,13 +134,11 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
     vpCreationCubit.resetState();
   });
 
-
-  listenEmailChanges(){
+  listenEmailChanges() {
     emailTextController.addListener(() {
       verifyEmailCubit.checkIfEmailChanged(emailTextController.text);
     });
   }
-
 
   // Vp Creation Api call
   Future<void> vpCreationApiCall(VpCreateAccountState state) async {
@@ -163,8 +158,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         return;
       }
 
-
-      if(selectedPrefLanesTypeList.isEmpty){
+      if (selectedPrefLanesTypeList.isEmpty) {
         ToastMessages.alert(message: context.appText.preferredLanes);
         return;
       }
@@ -200,9 +194,9 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
       context,
       child: SuccessDialogView(
         heading: context.appText.accountCreatedSuccessfully,
-        message: context.appText.accountCreatedSuccessfullySubHeading,
+        message: context.appText.accountCreatedSuccessfullyVpSubHeading,
         afterDismiss: () {
-          if(widget.roleId == 3){
+          if (widget.roleId == 3) {
             context.go(AppRouteName.lpBottomNavigationBar);
           } else {
             context.go(AppRouteName.vpBottomNavigationBar);
@@ -331,7 +325,10 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
               isForward: true,
             ),
           );
-          verifyEmailCubit.setVerifiedEmail(result == true,email: result ? emailTextController.text:null);
+          verifyEmailCubit.setVerifiedEmail(
+            result == true,
+            email: result ? emailTextController.text : null,
+          );
         }
 
         if (status == Status.ERROR) {
@@ -425,91 +422,102 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
           labelText: context.appText.companyName,
           hintText: "${context.appText.enter} ${context.appText.companyName}",
           mandatoryStar: true,
-
         ),
         20.height,
-        
-         // Company Type
-          BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
-  bloc: vpCreationCubit,
-  listener: (context, state) {
-    final status = state.companyTypeUIState?.status;
-    if (status == Status.ERROR) {
-      final error = state.companyTypeUIState?.errorType;
-      ToastMessages.error(
-        message: getErrorMsg(errorType: error ?? GenericError()),
-      );
-    }
-  },
-  builder: (context, state) {
-    final status = state.companyTypeUIState?.status;
-    final isSuccess = status == Status.SUCCESS;
 
-    if (isSuccess) {
-      return Column(
-        children: [
-           FormField<String>(
-            validator: (value) {
-            if (value == null || value.isEmpty) {
-                      return context.appText.thisFieldIsRequired;
+        // Company Type
+        BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
+          bloc: vpCreationCubit,
+          listener: (context, state) {
+            final status = state.companyTypeUIState?.status;
+            if (status == Status.ERROR) {
+              final error = state.companyTypeUIState?.errorType;
+              ToastMessages.error(
+                message: getErrorMsg(errorType: error ?? GenericError()),
+              );
+            }
+          },
+          builder: (context, state) {
+            final status = state.companyTypeUIState?.status;
+            final isSuccess = status == Status.SUCCESS;
+
+            if (isSuccess) {
+              return Column(
+                children: [
+                  FormField<String>(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return context.appText.thisFieldIsRequired;
                       }
                       return null;
-            },          
-            builder: (field) {
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  VpCompanyTypeSearchableDropdown(
-                  key: AppKeys.ddl('company_type'),
-                  selectedCompanyTypeId: companyTypeDropDownValue,
-                  onCompanyTypeChanged: (newVal) {
-                    if (!mounted) return;
-                    setState(() {
-                      companyTypeDropDownValue = newVal;
-                    });
-                     field.didChange(newVal?.isNotEmpty == true ? newVal : null);
-                  },
-                  fetchCompanyTypes: (page, searchKey) async {
-                    // Use the already fetched company types
-                    final companyList = vpCreationCubit.state.companyTypeUIState?.data ?? [];
-                  
-                    // Optional: filter by search key
-                    final filtered = searchKey == null || searchKey.isEmpty
-                        ? companyList
-                        : companyList
-                            .where((c) =>
-                                c.companyType.toLowerCase().contains(searchKey.toLowerCase()))
-                            .toList();
-                  
-                    return filtered;
-                  },
-                  labelText: context.appText.companyType,
-                  hintText: context.appText.selectCompanyType,
-                  mandatoryStar: true,
-                  ),
-                  if (field.hasError)
+                    },
+                    builder: (field) {
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          VpCompanyTypeSearchableDropdown(
+                            key: AppKeys.ddl('company_type'),
+                            selectedCompanyTypeId: companyTypeDropDownValue,
+                            onCompanyTypeChanged: (newVal) {
+                              if (!mounted) return;
+                              setState(() {
+                                companyTypeDropDownValue = newVal;
+                              });
+                              field.didChange(
+                                newVal?.isNotEmpty == true ? newVal : null,
+                              );
+                            },
+                            fetchCompanyTypes: (page, searchKey) async {
+                              // Use the already fetched company types
+                              final companyList =
+                                  vpCreationCubit
+                                      .state
+                                      .companyTypeUIState
+                                      ?.data ??
+                                  [];
+
+                              // Optional: filter by search key
+                              final filtered =
+                                  searchKey == null || searchKey.isEmpty
+                                      ? companyList
+                                      : companyList
+                                          .where(
+                                            (c) => c.companyType
+                                                .toLowerCase()
+                                                .contains(
+                                                  searchKey.toLowerCase(),
+                                                ),
+                                          )
+                                          .toList();
+
+                              return filtered;
+                            },
+                            labelText: context.appText.companyType,
+                            hintText: context.appText.selectCompanyType,
+                            mandatoryStar: true,
+                          ),
+                          if (field.hasError)
                             Padding(
                               padding: const EdgeInsets.only(top: 4, left: 8),
                               child: Text(
                                 field.errorText!,
                                 style: AppTextStyle.textFieldHintRedColor,
                               ),
+                            ),
+                        ],
+                      );
+                    },
                   ),
+
+                  20.height,
                 ],
               );
+            } else {
+              // Loading or initial empty state
+              return const SizedBox();
             }
-          ),
-
-          20.height,
-        ],
-      );
-    } else {
-      // Loading or initial empty state
-      return const SizedBox();
-    }
-  },
-),
-
+          },
+        ),
 
         // TrucK Type
         BlocConsumer<VpCreateAccountCubit, VpCreateAccountState>(
@@ -596,10 +604,14 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
             if (state.prefLaneUIState?.data?.data != null &&
                 state.prefLaneUIState!.data!.data!.items.isNotEmpty) {
               final preferredLaneItems = state.selectedPreferLanes;
-              if((preferredLaneItems??[]).isNotEmpty){
-                selectedPrefLanesTypeList=preferredLaneItems?.map((e) => e.masterLaneId??0,).toList()??[];
-              }else{
-                selectedPrefLanesTypeList=[];
+              if ((preferredLaneItems ?? []).isNotEmpty) {
+                selectedPrefLanesTypeList =
+                    preferredLaneItems
+                        ?.map((e) => e.masterLaneId ?? 0)
+                        .toList() ??
+                    [];
+              } else {
+                selectedPrefLanesTypeList = [];
               }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,13 +622,21 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                         context.appText.preferredLanesText,
                         style: AppTextStyle.textFiled,
                       ),
-                      Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+                      Text(
+                        " *",
+                        style: AppTextStyle.textFiled.copyWith(
+                          color: Colors.red,
+                        ),
+                      ),
                     ],
                   ),
                   8.height,
                   GestureDetector(
                     onTap: () async {
-                    await  Navigator.push(context, commonRoute(PreferLensScreen()));
+                      await Navigator.push(
+                        context,
+                        commonRoute(PreferLensScreen()),
+                      );
                     },
                     child: Container(
                       padding: EdgeInsets.only(
@@ -625,9 +645,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                         right: 10,
                         bottom: 10,
                       ),
-                      constraints: BoxConstraints(
-                        minHeight: 50
-                      ),
+                      constraints: BoxConstraints(minHeight: 50),
                       width: double.infinity,
                       decoration: BoxDecoration(
                         border: Border.all(
@@ -651,20 +669,26 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                                   children: List.generate(
                                     preferredLaneItems?.length ?? 0,
                                     (index) => Chip(
-
                                       label: Text(
                                         '${preferredLaneItems?[index].fromLocation?.name ?? ""} - ${preferredLaneItems?[index].toLocation?.name ?? ""}',
                                       ),
                                       backgroundColor: AppColors.primaryColor,
                                       labelStyle: AppTextStyle.body3WhiteColor,
-                                      deleteIcon:  Icon(Icons.clear, color: Colors.white, size: 18),
+                                      deleteIcon: Icon(
+                                        Icons.clear,
+                                        color: Colors.white,
+                                        size: 18,
+                                      ),
                                       deleteIconColor: Colors.red,
-                                      onDeleted: () =>  vpCreationCubit.selectLanes(
-                                        selected: false,
-                                        id: preferredLaneItems?[index].masterLaneId,
-                                      )
-                                     , shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(12)
+                                      onDeleted:
+                                          () => vpCreationCubit.selectLanes(
+                                            selected: false,
+                                            id:
+                                                preferredLaneItems?[index]
+                                                    .masterLaneId,
+                                          ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
                                       ),
                                       padding: EdgeInsets.zero,
                                     ),
@@ -746,7 +770,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                 state.uploadRcFileUIState?.status == Status.LOADING;
             return UploadAttachmentFiles(
               onDelete: (p0) {
-                uploadedRcFile=null;
+                uploadedRcFile = null;
               },
               allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
               multiFilesList: multiFilesList,
@@ -763,7 +787,6 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
                   );
                 }
               },
-
             );
           },
         ),
@@ -794,8 +817,7 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         }
       },
       builder: (context, state) {
-        final isLoading =
-            state.createAccountUIState?.status == Status.LOADING;
+        final isLoading = state.createAccountUIState?.status == Status.LOADING;
         return AppButton(
           key: AppKeys.btn('submit'),
           title: context.appText.submit,

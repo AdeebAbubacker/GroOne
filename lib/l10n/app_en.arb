@@ -1354,6 +1354,8 @@
   "capacityisRequired": "Capacity is Required",
   "allFieldsRequired" : "All Fields are Required",
   "licenseCategoryRequired" : "License Category is required",
-  "bloodGroupRequired" : "Blood group is required"
+  "bloodGroupRequired" : "Blood group is required",
+  "sorryUnserveicedLoad" : "Sorry load is unserviced",
+  "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads"
 
 }

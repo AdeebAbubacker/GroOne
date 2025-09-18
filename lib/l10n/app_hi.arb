@@ -1304,7 +1304,9 @@
   "capacityisRequired": "क्षमता आवश्यक है",
   "allFieldsRequired" : "सभी फ़ील्ड आवश्यक हैं",
   "licenseCategoryRequired" : "लाइसेंस श्रेणी आवश्यक है",
-  "bloodGroupRequired" : "रक्त समूह आवश्यक है"
+  "bloodGroupRequired" : "रक्त समूह आवश्यक है",
+  "sorryUnserveicedLoad" : "माफ़ कीजिए, लोड सेवा में नहीं है।",
+  "accountCreatedSuccessfullyVpSubHeading": "अब आप रेट्स देख सकते हैं\nऔर लोड्स स्वीकार कर सकते हैं।"
 
 
 
