@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -16,7 +18,7 @@ class RouteSearchableDropdown extends StatelessWidget {
 
   final Future<List<RouteList>> Function(int page, String? searchKey)fetchRoutes;
 
-  const RouteSearchableDropdown({
+  RouteSearchableDropdown({
     super.key,
     required this.selectedRoute,
     required this.onChanged,
@@ -26,7 +28,7 @@ class RouteSearchableDropdown extends StatelessWidget {
     this.mandatoryStar = false,
 
   });
-
+ final lpLoadLocator = locator<LpLoadCubit>();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -72,6 +74,9 @@ class RouteSearchableDropdown extends StatelessWidget {
             // Called whenever dropdown needs more items
             paginatedRequest: (int page, String? searchKey) async {
               final routes = await fetchRoutes(page, searchKey);
+               if (lpLoadLocator.isRoutesLastPage && page > lpLoadLocator.rootsCurrentPage) {
+              return [];
+            }
               return routes.map((route) {
                 final from = route.fromLocation?.name ?? '';
                 final to = route.toLocation?.name ?? '';

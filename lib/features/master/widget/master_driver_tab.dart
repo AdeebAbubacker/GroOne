@@ -730,9 +730,23 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                   return;
                 }
 
-                if (mobileController.text.trim().isEmpty) {
+                if (mobileController.text.isEmpty) {
                   ToastMessages.alert(
                     message: context.appText.pleaseEnterMobileNumber,
+                  );
+                  return;
+                }
+                if (selectedLicenseObj == null ||
+                    selectedLicenseObj!.categoryName!.isEmpty) {
+                  ToastMessages.alert(
+                    message: context.appText.licenseCategoryRequired,
+                  );
+                  return;
+                }
+                if (selectedBloodObj == null ||
+                    selectedBloodObj!.groupName!.isEmpty) {
+                  ToastMessages.alert(
+                    message: context.appText.bloodGroupRequired,
                   );
                   return;
                 }

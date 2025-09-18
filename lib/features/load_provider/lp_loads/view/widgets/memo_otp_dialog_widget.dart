@@ -82,7 +82,8 @@ class _MemoOtpDialogWidgetState extends State<MemoOtpDialogWidget> {
             onContinue: () {
               // LpBottomNavigation.selectedIndexNotifier.value = 1;
               lpBottomNavKey.currentState?.onItemTapped(1);
-              parentCtx.push(AppRouteName.lpBottomNavigationBar);
+              // parentCtx.push(AppRouteName.lpBottomNavigationBar);
+              Navigator.of(parentCtx).popUntil((route) => route.settings.name == AppRouteName.lpBottomNavigationBar);
             },
           ),
         );

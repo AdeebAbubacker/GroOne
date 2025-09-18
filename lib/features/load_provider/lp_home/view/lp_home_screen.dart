@@ -710,7 +710,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                           heading: context.appText.source,
                           subHeading: pickupLocation ?? context.appText.selectPickUpPoint,
                           onClick: () async {
-                            final uiState = state.recentRouteUIState;
+                            final uiState = state.recentRouteState;
 
                             if (uiState != null) {
                               switch (uiState.status) {

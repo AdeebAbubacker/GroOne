@@ -1298,7 +1298,17 @@
   "updateLanes" : "வழித்தடப் புதுப்பிப்பு",
   "stateisRequired": "மாநிலம் தேவை",
   "cityisRequired" : "நகரம் தேவை",
-  "gstNo" : "நகரம் தேவை"
+  "gstNo" : "நகரம் தேவை",
+  "driverIsRequired" : "டிரைவர் தேவை",
+  "vehicleIsRequired" : "வாகனம் தேவை",
+  "capacityisRequired": "திறன் தேவை",
+  "allFieldsRequired" : "அனைத்து புலங்களும் தேவை",
+  "licenseCategoryRequired" : "உரிமச் சான்றிதழ் வகை தேவை",
+  "bloodGroupRequired" : "இரத்த வகை தேவை",
+  "sorryUnserveicedLoad" : "மன்னிக்கவும், ஏற்றுமதி சேவை செய்யப்படவில்லை",
+  "accountCreatedSuccessfullyVpSubHeading": "இப்போது நீங்கள் விகிதங்களை பார்வையிடலாம்\nமற்றும் சரக்குகளை ஏற்கலாம்"
+
+
 
 
 }

@@ -135,7 +135,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
 
   Widget _buildSearchBarWidget(){
     return AppSearchBar(
-        searchController: searchController,
+      searchController: searchController,
       onChanged: (val) {
         lpHomeCubit.fetchRecentRoute(isLoading: false,search: searchController.text);
       },
@@ -152,13 +152,13 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       listener: (context, state) { },
       builder: (context, state) {
-        if(state.recentRouteUIState != null && state.recentRouteUIState?.status != null){
-          switch (state.recentRouteUIState!.status){
+        if(state.recentRouteState != null && state.recentRouteState?.status != null){
+          switch (state.recentRouteState!.status){
             case Status.LOADING :
               return CircularProgressIndicator().center();
             case Status.SUCCESS :
-              if (state.recentRouteUIState?.data != null) {
-                final routes = state.recentRouteUIState!.data!.data.data;
+              if (state.recentRouteState?.data != null) {
+                final routes = state.recentRouteState!.data!.data.data;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -168,19 +168,28 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                     20.height,
 
                     if (routes.isNotEmpty)
-                      ListView.separated(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.only(bottom: 100),
-                        itemCount: routes.length,
-                        separatorBuilder: (context, index) => 20.height,
-                        itemBuilder: (context, index) {
-                          final route = routes[index];
-                          return GestureDetector(
-                            onTap: () => updateSelectedRouteState(index, route),
-                            child: _buildListBody(index: index, data: route),
-                          );
+                      NotificationListener<ScrollNotification>(
+                        onNotification: (scrollInfo) {
+                          if (scrollInfo.metrics.pixels ==
+                              scrollInfo.metrics.maxScrollExtent) {
+                            lpHomeCubit.fetchRecentRoute(isLoading: false, isInit: false);
+                          }
+                          return false;
                         },
-                      ).expand()
+                        child: ListView.separated(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.only(bottom: 100),
+                          itemCount: routes.length,
+                          separatorBuilder: (context, index) => 20.height,
+                          itemBuilder: (context, index) {
+                            final route = routes[index];
+                            return GestureDetector(
+                              onTap: () => updateSelectedRouteState(index, route),
+                              child: _buildListBody(index: index, data: route),
+                            );
+                          },
+                        ).expand(),
+                      )
                     else
                       genericErrorWidget(error: NotFoundError()).expand(),
                   ],
@@ -189,8 +198,8 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
             case Status.ERROR :
-              if(state.recentRouteUIState?.errorType != null){
-                return genericErrorWidget(error: state.recentRouteUIState!.errorType, onRefresh: ()=> initFunction());
+              if(state.recentRouteState?.errorType != null){
+                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction());
               }else{
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }

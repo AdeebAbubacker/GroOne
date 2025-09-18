@@ -305,6 +305,16 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                                           .appText
                                           .possibleDeliveryDateValidation,
                                 );
+                               if(truckType == null || truckType!.isEmpty){
+                                ToastMessages.error(
+                                  message: context.appText.vehicleIsRequired,
+                                );
+                              }
+                               if(driverType == null || driverType!.isEmpty){
+                                ToastMessages.error(
+                                  message: context.appText.driverIsRequired,
+                                );
+                              }  
                                 return;
                               }
 
@@ -316,8 +326,8 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                                   expectedDeliveryDate:
                                       loadDetails?.expectedDeliveryDateTime
                                           ?.toString(),
-                                  vehicleId: truckType ?? "0",
-                                  driverId: driverType ?? "0",
+                                  vehicleId: truckType ,
+                                  driverId: driverType ,
                                   acceptedBy: userId ?? "",
                                   etaForPickUp:
                                       (loadDetails?.pickUpDateTime.toString() ??
