@@ -27,6 +27,7 @@ import '../../../utils/app_searchabledropdown.dart';
 import '../../../utils/common_widgets.dart';
 import 'package:go_router/go_router.dart';
 import '../../kavach/view/widgets/vehicle_selection_field.dart';
+import '../../load_provider/lp_home/cubit/lp_home_cubit.dart';
 import '../../profile/view/support_screen.dart';
 import '../../profile/view/widgets/add_new_support_ticket.dart';
 
@@ -34,13 +35,25 @@ class EndhanCreateCardInfoScreen extends StatefulWidget {
   const EndhanCreateCardInfoScreen({super.key});
 
   @override
-  State<EndhanCreateCardInfoScreen> createState() =>
-      _EndhanCreateCardInfoScreenState();
+  State<EndhanCreateCardInfoScreen> createState() => _EndhanCreateCardInfoScreenState();
 }
 
 class _EndhanCreateCardInfoScreenState
     extends State<EndhanCreateCardInfoScreen> {
   bool _isNavigating = false; // Flag to prevent multiple navigation attempts
+  final lpHomeCubit = locator<LPHomeCubit>();
+
+
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -54,7 +67,7 @@ class _EndhanCreateCardInfoScreenState
             listener: (context, state) {
               // Handle success state
               if (state.customerCreationState?.status == Status.SUCCESS) {
-                _showSuccessDialog(context);
+                _showSuccessDialog(context,);
               }
             },
           ),
@@ -124,6 +137,7 @@ class _EndhanCreateCardInfoScreenState
         },
       ),
     );
+    updatedAppEvent(stage: 'end',entityId: 'CardCreated');
   }
 }
 
@@ -157,6 +171,7 @@ class _EndhanCreateCardInfoContentState
   List<bool> vehicleVerificationStatus = [
     false,
   ]; // Track verification status for each card
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   @override
   void initState() {
@@ -594,6 +609,17 @@ class _EndhanCreateCardInfoContentState
     return false;
   }
 
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // Ensure expansion list length matches cards
@@ -1028,6 +1054,8 @@ class _EndhanCreateCardInfoContentState
                                           index,
                                           newList,
                                         );
+
+                                        updatedAppEvent(stage: 'cardInformationFilled',entityId: '');
                                       },
                                       thenUploadFileToSever: () async {
                                         if (card['rcDocuments'].isNotEmpty) {

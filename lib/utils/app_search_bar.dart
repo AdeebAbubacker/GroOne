@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -85,7 +86,7 @@ class _AppSearchBarState extends State<AppSearchBar> {
                 enabledBorder: InputBorder.none,
                 errorBorder: InputBorder.none,
                 disabledBorder: InputBorder.none,
-                hintText: widget.hintText ?? "Search",
+                hintText: widget.hintText ?? context.appText.search,
                 hintStyle: AppTextStyle.bodyGreyColor.copyWith(color: AppColors.greyTextColor, fontWeight: FontWeight.w500, fontSize: 16),
                 isCollapsed: true,
                 isDense: true,

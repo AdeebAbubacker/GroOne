@@ -25,17 +25,18 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
+final lpBottomNavKey = GlobalKey<_LpBottomNavigationState>();
+
 class LpBottomNavigation extends StatefulWidget {
   static final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
 
-  const LpBottomNavigation({super.key});
+  LpBottomNavigation({Key? key}) : super(key: key ?? lpBottomNavKey);
 
   @override
   State<LpBottomNavigation> createState() => _LpBottomNavigationState();
 }
 
 class _LpBottomNavigationState extends State<LpBottomNavigation> {
-
   final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   late final ProfileCubit profileCubit;
@@ -49,7 +50,7 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
   @override
   void initState() {
-    // Initialize profileCubit here to ensure dependency injection is ready
+    super.initState();
     profileCubit = locator<ProfileCubit>();
     frameCallback(() {
       profileCubit.fetchUserRole();
@@ -57,7 +58,6 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     });
     profileCubit.switchToVp(false);
     documentTypeCubit.getDocumentTypeList();
-    super.initState();
   }
 
 
@@ -65,25 +65,31 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     int? role = profileCubit.userRole;
 
     if (index == 3 && (role != null && role == 3)) {
-      AppDialog.show(context, child: CommonDialogView(
-        showYesNoButtonButtons: true,
-        hideCloseButton: true,
-        noButtonText: context.appText.cancel,
-        yesButtonText: context.appText.switchText,
-        child: Column(
-          children: [
-            SvgPicture.asset(AppImage.svg.switchVp),
-            Text(context.appText.switchToVp, style: AppTextStyle.h3w500.copyWith(fontSize: 20, color: AppColors.black)),
-            10.height,
-            Text(context.appText.switchToVpDesc, textAlign: TextAlign.center, style: AppTextStyle.body3.copyWith(color: AppColors.textGreyDetailColor)),
-          ],
-        ),
-        onClickYesButton: () {
-          profileCubit.switchToVp(true);
-          analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_VP);
-          context.go(AppRouteName.vpBottomNavigationBar);
-        },
-      ));
+      AppDialog.show(context,
+          child: CommonDialogView(
+            showYesNoButtonButtons: true,
+            hideCloseButton: true,
+            noButtonText: context.appText.cancel,
+            yesButtonText: context.appText.switchText,
+            child: Column(
+              children: [
+                SvgPicture.asset(AppImage.svg.switchVp),
+                Text(context.appText.switchToVp,
+                    style: AppTextStyle.h3w500.copyWith(
+                        fontSize: 20, color: AppColors.black)),
+                10.height,
+                Text(context.appText.switchToVpDesc,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.body3.copyWith(
+                        color: AppColors.textGreyDetailColor)),
+              ],
+            ),
+            onClickYesButton: () {
+              profileCubit.switchToVp(true);
+              analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_VP);
+              context.go(AppRouteName.vpBottomNavigationBar);
+            },
+          ));
     } else {
       if (LpBottomNavigation.selectedIndexNotifier.value != index) {
         _navigationHistory.add(index); // push to history
@@ -131,60 +137,60 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
             final safeIndex = selectedIndex.clamp(0, pages.length - 1);
 
             return WillPopScope(
-                onWillPop: () async {
-              if (_navigationHistory.length > 1) {
-                _navigationHistory.removeLast();
-                LpBottomNavigation.selectedIndexNotifier.value = _navigationHistory.last;
-                return false; // prevent app exit
-              }
-              return true; // allow app to exit
-            },
-            child: Scaffold(
-                  body: pages[safeIndex],
-                  bottomNavigationBar: BottomNavigationBar(
-                    backgroundColor: AppColors.primaryColor,
-                    type: BottomNavigationBarType.fixed,
-                    selectedItemColor: AppColors.white,
-                    unselectedItemColor: Colors.white54,
-                    currentIndex: safeIndex,
-                    onTap: onItemTapped,
-                    items: [
-                      BottomNavigationBarItem(
-                        icon: const Padding(
-                          padding: EdgeInsets.only(top: 10.0),
-                          child: Icon(CupertinoIcons.home),
-                        ),
-                        label: context.appText.home,
+              onWillPop: () async {
+                if (_navigationHistory.length > 1) {
+                  _navigationHistory.removeLast();
+                  LpBottomNavigation.selectedIndexNotifier.value =
+                      _navigationHistory.last;
+                  return false; // prevent app exit
+                }
+                return true; // allow app to exit
+              },
+              child: Scaffold(
+                body: pages[safeIndex],
+                bottomNavigationBar: BottomNavigationBar(
+                  backgroundColor: AppColors.primaryColor,
+                  type: BottomNavigationBarType.fixed,
+                  selectedItemColor: AppColors.white,
+                  unselectedItemColor: Colors.white54,
+                  currentIndex: safeIndex,
+                  onTap: onItemTapped,
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: const Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Icon(CupertinoIcons.home),
                       ),
-
-                      BottomNavigationBarItem(
-                        icon: const Padding(
-                          padding: EdgeInsets.only(top: 10.0),
-                          child: Icon(CupertinoIcons.cube),
-                        ),
-                        label: role == 4 ? context.appText.myOrders : context.appText.myLoads,
+                      label: context.appText.home,
+                    ),
+                    BottomNavigationBarItem(
+                      icon: const Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Icon(CupertinoIcons.cube),
                       ),
-
+                      label: role == 4
+                          ? context.appText.myOrders
+                          : context.appText.myLoads,
+                    ),
+                    BottomNavigationBarItem(
+                      icon: Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Icon(Icons.headset_mic_rounded),
+                      ),
+                      label: context.appText.support,
+                    ),
+                    if (profileCubit.userRole != null &&
+                        profileCubit.userRole == 3)
                       BottomNavigationBarItem(
                         icon: Padding(
                           padding: EdgeInsets.only(top: 10.0),
-                          child: Icon(Icons.headset_mic_rounded),
+                          child: Icon(Icons.compare_arrows_rounded),
                         ),
-                        label: context.appText.support,
+                        label: context.appText.switchAccount,
                       ),
-
-                      if (profileCubit.userRole != null &&
-                          profileCubit.userRole == 3)
-                        BottomNavigationBarItem(
-                          icon: Padding(
-                            padding: EdgeInsets.only(top: 10.0),
-                            child: Icon(Icons.compare_arrows_rounded),
-                          ),
-                          label: context.appText.switchAccount,
-                        ),
-                    ],
-                  ),
-                )
+                  ],
+                ),
+              ),
             );
           },
         );

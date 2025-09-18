@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/view/enter_aadhaar_number_bottom_sheet.dart';
-import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_image.dart';
@@ -33,17 +34,19 @@ class IncompleteKycStatusWidget extends StatelessWidget {
               Image.asset(AppImage.png.alertTriangle, width: 20),
               10.width,
 
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  children: [
-
-                    TextSpan(text: context.appText.your, style: AppTextStyle.textDarkGreyColor14w500),
-
-                    TextSpan(text: "  ${context.appText.kyc}  ", style: AppTextStyle.textDarkGreyColor14w500.copyWith(color: AppColors.orangeTextColor)),
-
-                    TextSpan(text: context.appText.isIncomplete, style: AppTextStyle.textDarkGreyColor14w500,),
-                  ],
+              Flexible(
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                
+                      TextSpan(text: context.appText.your, style: AppTextStyle.textDarkGreyColor14w500),
+                
+                      TextSpan(text: "  ${context.appText.kyc}  ", style: AppTextStyle.textDarkGreyColor14w500.copyWith(color: AppColors.orangeTextColor)),
+                
+                      TextSpan(text: context.appText.isIncomplete, style: AppTextStyle.textDarkGreyColor14w500,),
+                    ],
+                  ),
                 ),
               ),
 
@@ -55,17 +58,15 @@ class IncompleteKycStatusWidget extends StatelessWidget {
             onPressed: () async{
               bool isKycCompleted = await securePrefs.getBooleans(AppString.sessionKey.iskycAdarWebview);
               bool isAadharVerified = await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
-              String? aadharNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
-              String? aadharPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+              String? aadhaarNumber = await securePrefs.get(AppString.sessionKey.aadharNumber);
+              String? aadhaarPDF = await securePrefs.get(AppString.sessionKey.aadharPdf);
+
+              final extra = { 'aadhaarNumber': aadhaarNumber, 'pdfPath': aadhaarPDF};
+
 
               if (companyId != null && (companyId == 2 || companyId == 1)) {
-                if (isKycCompleted || isAadharVerified) {
-                if(context.mounted) {
-                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                    aadhaarNumber: aadharNumber,
-                    pdfPath: aadharPDF,
-                  )));
-                }
+                if ((isKycCompleted || isAadharVerified) && context.mounted) {
+                  context.push(AppRouteName.kycUploadDocument, extra: extra);
                 } else{
                   if(context.mounted) {
                     commonBottomSheetWithBGBlur(context: context, screen: EnterAadhaarNumberBottomSheet());
@@ -74,16 +75,15 @@ class IncompleteKycStatusWidget extends StatelessWidget {
 
               } else {
                 if(context.mounted) {
-                  Navigator.of(context).push(commonRoute(KycUploadDocumentScreen(
-                    pdfPath: aadharPDF,
-                    aadhaarNumber: aadharNumber,
-                  )));
+                  context.push(AppRouteName.kycUploadDocument, extra: extra);
                 }
               }
             },
             style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(AppColors.red)),
             child: Text(context.appText.verify, style: AppTextStyle.h5WhiteColor),
           ),
+       
+       
         ],
       ),
     );

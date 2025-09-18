@@ -992,6 +992,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(
       state.copyWith(
         logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+        deleteAccountUIState: resetUIState(state.deleteAccountUIState),
         profileDetailUIState: resetUIState<ProfileDetailModel>(
           state.profileDetailUIState,
         ),

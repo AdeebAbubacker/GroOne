@@ -853,7 +853,8 @@
   "possibleDeliveryDateValidation": "சாத்தியமான டெலிவரி தேதி தேவைப்படுகிறது",
   "tonn": "டன்",
   "kycPending": "கேவாய்சி நிலுவையில் உள்ளது",
-  "completeKycAlertDescription": "லோடுகளை ஏற்க உங்கள் கேவாய்சி ஐ பூர்த்தி செய்யவும்",
+  "completeKycAlertDescriptionLp": "சரக்குகளை பதிவு செய்ய உங்கள் கேவாய்சி ஐ முடிக்கவும்",
+  "completeKycAlertDescriptionVp": "லோடுகளை ஏற்க உங்கள் கேவாய்சி ஐ பூர்த்தி செய்யவும்",
   "goToKyc": "கேவாய்சி க்கு செல்லவும்",
   "blueMemberGeneratedSuccessfully": "ப்ளூ உறுப்பினர் ஐடி வெற்றிகரமாக உருவாக்கப்பட்டது",
   "startExploringPremiumLoadOption": "இன்று பிரீமியம் லோடுகளை ஆராயத் தொடங்குங்கள்",
@@ -1292,7 +1293,12 @@
   "avgSpeed":"சராசரி வேகம்",
   "engineOn":"என்ஜின் ஆன்",
   "idleTime":"செயலற்ற நேரம்",
-  "colorCode":"வண்ண குறியீடு"
+  "colorCode":"வண்ண குறியீடு",
+  "accountDeletedSuccessfully": "கணக்கு வெற்றிகரமாக நீக்கப்பட்டது",
+  "updateLanes" : "வழித்தடப் புதுப்பிப்பு",
+  "stateisRequired": "மாநிலம் தேவை",
+  "cityisRequired" : "நகரம் தேவை",
+  "gstNo" : "நகரம் தேவை"
 
 
 }

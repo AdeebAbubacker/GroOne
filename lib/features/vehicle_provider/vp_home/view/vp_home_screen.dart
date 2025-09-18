@@ -388,15 +388,13 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
           };
 
           isKycValid = customer.isKyc.toInt();
-          logKycStatusEvent(customer.isKyc.toInt(), customerDetails);
+          //logKycStatusEvent(customer.isKyc.toInt(), customerDetails);
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
           } else if (customer.isKyc == 1) {
-            return
-
-              IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
+            return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
         return  20.width;

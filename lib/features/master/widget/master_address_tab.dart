@@ -116,12 +116,13 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.7,
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             genericErrorWidget(error: uiState.errorType),
                           ],
-                        ),
+                        ).center(),
                       ),
                     ],
                   ),
@@ -145,7 +146,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                             children: [
                               SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.5,
+                                    MediaQuery.of(context).size.height * 0.6,
                                 child: Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -274,7 +275,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
             onPressed: () => showAddAddressPopup(context),
           ),
         ),
-        20.height,
       ],
     );
   }
@@ -333,28 +333,75 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                       alphanumericWithSpaceRegex,
                     ),
                     16.height,
-                    StateDropdown(
-                      selectedStateId: selectedState,
-                      onStateChanged: (value) {
-                        setState(() {
-                          selectedState = value?.name.toString();
-                          selectedStateData = value?.name.toString();
-                          selectedCity = null;
-                        });
-                      },
+                    FormField<String>(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                      return context.appText.stateisRequired;
+                      }
+                      return null;
+                    },
+                      builder: (field) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            StateDropdown(
+                              selectedStateId: selectedState,
+                              onStateChanged: (value) {
+                                setState(() {
+                                  selectedState = value?.name.toString();
+                                  selectedStateData = value?.name.toString();
+                                  selectedCity = null;
+                                });
+                                 field.didChange(value?.name.toString());
+                              },
+                            ),
+                            if (field.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 8),
+                              child: Text(
+                                field.errorText!,
+                                style: AppTextStyle.textFieldHintRedColor,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
                     ),
                     16.height,
-                    CityDropdown(
-                      selectedState: selectedStateData,
-                      selectedCityId: selectedCity,
-                      isStateSelected:
-                          selectedState != null && selectedState!.isNotEmpty,
-                      onCityChanged: (value) {
-                        setState(() {
-                          selectedCity = value?.city.toString();
-                          print('Selected City: $selectedCity');
-                        });
-                      },
+                    FormField<String>(
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                      return context.appText.cityisRequired;
+                      }
+                      return null;
+                    },
+                      builder: (field) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            CityDropdown(
+                              selectedState: selectedStateData,
+                              selectedCityId: selectedCity,
+                              isStateSelected:
+                                  selectedState != null && selectedState!.isNotEmpty,
+                              onCityChanged: (value) {
+                                setState(() {
+                                  selectedCity = value?.city.toString();
+                                });
+                                field.didChange(value?.city.toString());
+                              },
+                            ),
+                            if (field.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 8),
+                              child: Text(
+                                field.errorText!,
+                                style: AppTextStyle.textFieldHintRedColor,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
                     ),
                     16.height,
                     AppTextField(

@@ -469,7 +469,8 @@ class ChatCubit extends Cubit<ChatState> {
         language: langCode,
         speakingRate: 0.85,
         pitch: 0.0,
-        audioFormat: 'OGG_OPUS',
+        audioFormat: 'MP3',
+        // audioFormat: 'OGG_OPUS',
       );
 
 

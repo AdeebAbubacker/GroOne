@@ -34,6 +34,8 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
 
+import '../helper/event_helper.dart';
+
 class LoadSummaryScreen extends StatefulWidget {
   final CreateLoadApiRequest apiRequest;
   final String pickupAddress;
@@ -308,7 +310,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
             }
             if (state is CreateLoadSuccess) {
               final createdLoadId = state.createLoadModel.data?.loadId;
-              if (createdLoadId != null) {
+              if (createdLoadId != null && widget.isKycValid == 2) {
                 await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
               }
               if (context.mounted) {
@@ -344,6 +346,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
                     ),
                   ),
                 );
+                createAppEvent(stage: 'end',entityId: state.createLoadModel.data?.loadSeriesId);
               }
               lpHomeCubit.fetchGetLoadList();
               lpHomeCubit.clearPickUpAndDestination();
@@ -389,6 +392,20 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
         },
       ),
     );
+  }
+
+  Future<void> createAppEvent({String? entityId, required String stage}) async {
+    try {
+      final eventRequest = await EventHelper.buildHomeViewEvent(
+        entity: 'loadProvider',
+        subEntity: 'loadSummary',
+        stage: stage,
+        entityId: entityId ?? '',
+      );
+      lpHomeCubit.createEvent(eventRequest);
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
   }
 
 }

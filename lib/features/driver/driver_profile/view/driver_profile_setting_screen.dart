@@ -218,17 +218,27 @@ class _DriverProfileSettingScreenState
                                     listener: (context, state) {
                                       final status =
                                           state.deleteAccountUIState?.status;
-
                                       if (status == Status.SUCCESS) {
-                                        LpBottomNavigation
-                                            .selectedIndexNotifier
-                                            .value = 0;
-                                        disposeFunction();
-                                        context.go(
-                                        AppRouteName.login,
-                                        extra: {"showBackButton": false},
-                                      );
-                                      }
+                                          // Show toast first
+                                          ToastMessages.success(
+                                            message: context.appText.accountDeletedSuccessfully,
+                                            duration: Duration(milliseconds: 1000)
+                                            
+                                          );
+                                          driverProfileCubit.restState();
+                                          // Delay navigation so user can see toast
+                                          Future.delayed(const Duration(milliseconds: 1200), () {
+                                            if (!mounted) return; 
+                                            disposeFunction();
+                                            LpBottomNavigation.selectedIndexNotifier.value = 0;
+                                            if(!context.mounted) return;
+                                            // Navigate to login screen
+                                            context.go(
+                                              AppRouteName.login,
+                                              extra: {"showBackButton": false},
+                                            );
+                                          });
+                                        }
 
                                       if (status == Status.ERROR) {
                                         final error =

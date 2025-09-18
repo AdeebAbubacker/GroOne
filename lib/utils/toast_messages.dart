@@ -29,7 +29,7 @@ class ToastMessages{
   }
 
   /// success Msg
-  static success({required String message}) async {
+  static success({required String message,Duration? duration}) async {
     Flushbar(
       messageText: Text(message,  style: AppTextStyle.body),
       flushbarPosition: FlushbarPosition.TOP ,
@@ -43,13 +43,13 @@ class ToastMessages{
         )
       ],
       icon: const Icon(Icons.check_circle_rounded, size : 25, color: Colors.green).paddingAll(10).paddingLeft(5),
-      duration: const Duration(milliseconds: 3000),
+      duration: duration ?? const Duration(milliseconds: 3000),
     ).show(navigatorKey.currentState!.context);
   }
 
   /// Error Msg
   static error({required String message}) {
-    if(message == 'The access token is invalid or has expired') {
+    if(message == 'Your session has expired. Please log in again') {
       return;
     }
     Flushbar(
@@ -89,7 +89,7 @@ class ToastMessages{
   }
 
   /// Custom toast
-  static custom({required String message}) {
+  static custom({required String message,Duration? duration}) {
     Flushbar(
       messageText: Text(message, style: AppTextStyle.body),
       flushbarPosition: FlushbarPosition.TOP ,
@@ -103,7 +103,7 @@ class ToastMessages{
         )
       ],
       icon: const Icon(Icons.warning_rounded, size : 25, color:  AppColors.secondaryColor).paddingAll(10).paddingLeft(5),
-      duration: const Duration(milliseconds: 3000),
+      duration: duration ?? const Duration(milliseconds: 3000),
     ).show(navigatorKey.currentState!.context);
   }
 

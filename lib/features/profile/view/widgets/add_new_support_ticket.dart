@@ -103,12 +103,14 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 AppTextField(
+                  mandatoryStar: true,
                   labelText: context.appText.issueCategory,
                   controller: issueCategoryController,
                   validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.issueCategory),
                 ),
                 12.height,
                 AppTextField(
+                  mandatoryStar: true,
                   labelText: context.appText.title,
                   controller: titleController,
                   inputFormatters: [
@@ -120,6 +122,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                 12.height,
                 AppTextField(
                   maxLines: 3,
+                  mandatoryStar: true,
                   labelText: context.appText.description,
                   controller: descriptionController,
                   validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.description),

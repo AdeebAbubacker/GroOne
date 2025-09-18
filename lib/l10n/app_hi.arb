@@ -852,7 +852,8 @@
   "possibleDeliveryDateValidation": "संभावित डिलीवरी तिथि आवश्यक है",
   "tonn": "टन",
   "kycPending": "केवाईसी लंबित है",
-  "completeKycAlertDescription": "लोड स्वीकार करने के लिए कृपया अपनी केवाईसी पूरी करें",
+  "completeKycAlertDescriptionLp": "कृपया लोड पोस्ट करने के लिए अपना केवाईसी पूरा करें",
+  "completeKycAlertDescriptionVp": "लोड स्वीकार करने के लिए कृपया अपना केवाईसी पूरा करें",
   "goToKyc": "केवाईसी पर जाएं",
   "blueMemberGeneratedSuccessfully": "ब्लू मेंबरशिप आईडी सफलतापूर्वक जनरेट की गई",
   "startExploringPremiumLoadOption": "आज ही प्रीमियम लोड विकल्पों की खोज शुरू करें",
@@ -1293,7 +1294,12 @@
   "avgSpeed":"औसत रफ़्तार",
   "engineOn":"इंजन चालू",
   "idleTime":"बेकार का समय",
-  "colorCode":"रंग कोड"
+  "colorCode":"रंग कोड",
+  "accountDeletedSuccessfully": "खाता सफलतापूर्वक हटा दिया गया",
+  "updateLanes" : "लेन अपडेट",
+  "stateisRequired": "राज्य आवश्यक है",
+  "cityisRequired" : "शहर आवश्यक है",
+  "gstNo" : "शहर आवश्यक है"
 
 
 

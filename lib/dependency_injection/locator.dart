@@ -72,6 +72,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.d
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_select_address_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/service/event_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/service/lp_all_loads_service.dart';
@@ -237,7 +238,8 @@ void _registerAuthServices() {
       locator<AuthRepository>(),
     ),
   );
-  locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
+  locator.registerLazySingleton(() => EventService(locator<ApiService>()));
+  locator.registerLazySingleton(() => LpHomeService(locator<ApiService>(), locator<EventService>()));
   locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
   locator.registerLazySingleton(
     () => KavachService(

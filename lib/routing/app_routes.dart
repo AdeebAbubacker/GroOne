@@ -22,6 +22,7 @@ import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/sel
 import 'package:gro_one_app/features/gps_feature/views/vehicleShareAndUpdate/vehicle_share_update_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_list_screen.dart';
 import 'package:gro_one_app/features/gps_feature/views/vehicle_map_screen.dart';
+import 'package:gro_one_app/features/kyc/view/kyc_upload_document_screen.dart';
 import 'package:gro_one_app/features/load_provider/lp_bottom_navigation/lp_bottom_navigation.dart';
 import 'package:gro_one_app/features/load_provider/lp_create_account/view/lp_create_account.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/view/lp_home_screen.dart';
@@ -34,7 +35,9 @@ import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/otp_verification/view/mobile_otp_verification_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/instant_loan/view/instant_loan_screen.dart';
 import 'package:gro_one_app/features/our_value_added_service/view/insurance/view/insurance_screen.dart';
+import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/features/privacy_policy/view/privacy_polcy_screen.dart';
+import 'package:gro_one_app/features/profile/api_request/ticket_detail_request.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/profile/view/benefits_of_membership_screen.dart';
 import 'package:gro_one_app/features/profile/view/my_account_screen.dart';
@@ -43,7 +46,9 @@ import 'package:gro_one_app/features/profile/view/profile_screen.dart';
 import 'package:gro_one_app/features/profile/view/routes_screen.dart';
 import 'package:gro_one_app/features/profile/view/setting_screen.dart';
 import 'package:gro_one_app/features/profile/view/support_screen.dart';
+import 'package:gro_one_app/features/profile/view/ticket_detail_screen.dart';
 import 'package:gro_one_app/features/profile/view/transaction_screen.dart';
+import 'package:gro_one_app/features/profile/view/widgets/add_new_support_ticket.dart';
 import 'package:gro_one_app/features/splash/splash_screen.dart';
 import 'package:gro_one_app/features/terms_and_conditions/view/terms_and_conditions_screen.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/payment_information_dialogue.dart';
@@ -668,6 +673,55 @@ class AppRoutes {
           return buildTransitionPage(
             state: state,
             child: DriverViewOthersDocument(loadDocument: loadDocument,documentEntity: documentEntity),
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.addNewTicket,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final String ticketTag = data["ticketTag"] ?? '';
+          return buildTransitionPage(
+            state: state,
+            child: AddNewTicketScreen(ticketTag: ticketTag),
+            isForward: true
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.ticketDetails,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as TicketDetailRequest;
+          return buildTransitionPage(
+            state: state,
+            child: TicketDetailsScreen(request: data),
+            isForward: true
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRouteName.paymentScreen,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final String url = data["url"] ?? '';
+          final String loadId = data["loadId"] ?? '';
+          return buildTransitionPage(
+              state: state,
+              child: PaymentsScreen(url: url, loadId: loadId)
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.kycUploadDocument,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          final data = state.extra as Map<String, dynamic>;
+          final String aadhaarNumber = data["aadhaarNumber"] ?? '';
+          final String pdfPath = data["pdfPath"] ?? '';
+          return buildTransitionPage(
+              state: state,
+              child: KycUploadDocumentScreen(aadhaarNumber: aadhaarNumber, pdfPath: pdfPath)
           );
         },
       ),
