@@ -6,7 +6,6 @@ class ApiUrls {
   /// Env
   static String get _fetchUrl => EnvironmentVariables.fetchBaseUrl;
 
-
   /// Map Key
   static String get fetchedMapKEY => EnvironmentVariables.fetchMapKey;
 
@@ -14,13 +13,12 @@ class ApiUrls {
   static String get fetchUDID => EnvironmentVariables.fetchUDID;
 
   /// ChatBot XApiKEY
-  static String get fetchedChatBotXApiKEY => EnvironmentVariables.fetchChatBotXApiKEY;
+  static String get fetchedChatBotXApiKEY =>
+      EnvironmentVariables.fetchChatBotXApiKEY;
 
   static String get groServicesUrl => EnvironmentVariables.groServiceUrl;
 
   static String get adminUrl => EnvironmentVariables.adminURL;
-
-
 
   /// Path
   static String get _path => "/api";
@@ -123,15 +121,12 @@ class ApiUrls {
   static final String verifiedDocument =
       "$_baseUrl$_customer$_path$_v1/kyc/verify-doc-number";
 
-  static final String  aadhaarSendOtp = "$_verification/aadhaar/send-otp";
-  static final String  panVerification = "$groServicesUrl/pan/api/v1/send_pan";
+  static final String aadhaarSendOtp = "$_verification/aadhaar/send-otp";
+  static final String panVerification = "$groServicesUrl/pan/api/v1/send_pan";
 
-
-
-
-  static final String  gst = "$groServicesUrl/gst/api/v1/send_gst";
-  static final String  tan = "$groServicesUrl/tan/api/v1/send_tan";
-  static final String  pan = "$groServicesUrl/pan/api/v1/send_pan";
+  static final String gst = "$groServicesUrl/gst/api/v1/send_gst";
+  static final String tan = "$groServicesUrl/tan/api/v1/send_tan";
+  static final String pan = "$groServicesUrl/pan/api/v1/send_pan";
 
   static final String getCity = "$_baseUrl$_load$_path$_v1/location/city";
   static final String getState = "$_baseUrl$_load$_path$_v1/location/state";
@@ -234,7 +229,8 @@ class ApiUrls {
   static String kavachTruckSubType = "$_loadBaseUrl/truck-types/sub-types";
   static String kavachInvoice(String orderId) =>
       "$_baseUrl$_fleet$_path$_v1/invoices/$orderId/get-or-create";
-  static String  kavachVehicleVerification = "${ApiUrls.groServicesUrl}/vehicle_number/api/v1/send_vehicle_number";
+  static String kavachVehicleVerification =
+      "${ApiUrls.groServicesUrl}/vehicle_number/api/v1/send_vehicle_number";
   //payment-broker/api/v1/payment/fleetPaymentStatus
   static final String fleetPaymentStatus =
       "$_paymentBrokerBase/payment/fleetPaymentStatus";
@@ -327,7 +323,6 @@ class ApiUrls {
       "$_fetchUrl$_customer$_path$_v1/license-category";
   static final String deleteDriver = "$_baseUrl$_customer$_path$_v1/drivers/";
 
-
   /// GPS Tracking
   static String get gpsBase => EnvironmentVariables.fetchGpsBaseUrl;
   static final String gpsFetchGeofences =
@@ -397,18 +392,21 @@ class ApiUrls {
 
   /// DIGI LOCKER
 
-  static final String digiLockerInit = "$groServicesUrl/aadhar/api/v1/digilocker/init";
-  static final String adharStatus = "$groServicesUrl/aadhar/api/v1/aadhar_status/";
+  static final String digiLockerInit =
+      "$groServicesUrl/aadhar/api/v1/digilocker/init";
+  static final String adharStatus =
+      "$groServicesUrl/aadhar/api/v1/aadhar_status/";
 
-  static final String licenseVahanVerfification = "$groServicesUrl/driving_license/api/v1/send_license_number";
-  static final String vehicleVahanVerfification = "$groServicesUrl/vehicle_number/api/v1/send_vehicle_number";
+  static final String licenseVahanVerfification =
+      "$groServicesUrl/driving_license/api/v1/send_license_number";
+  static final String vehicleVahanVerfification =
+      "$groServicesUrl/vehicle_number/api/v1/send_vehicle_number";
 
   //Verify pincode
   static final String verifyPincode =
       "$_baseUrl$_vendor$_path$_v1/dtplus/pincode/";
 
   /// Events API
-  static final String createEvent = "https://groone-uat.letsgro.co/audit/api/v1/events";
+  static final String createEvent =
+      "https://groone-uat.letsgro.co/audit/api/v1/events";
 }
-
-
