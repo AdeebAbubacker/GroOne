@@ -753,6 +753,11 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   void setDownloadingKey(String? key) {
     emit(state.copyWith(downloadingKey: key));
   }
+
+  /// set is filter applied
+  void setIsFilterApplied({required bool value}) {
+    emit(state.copyWith(isFilterApplied: value));
+  }
 }
 
 class LpLoadPaginationController {
