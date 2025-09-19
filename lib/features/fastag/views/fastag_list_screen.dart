@@ -117,6 +117,13 @@ class _FastagListScreenState extends State<FastagListScreen> {
                         s.fastagListUIState.data != null
                             ? s.fastagListUIState.data!.totalCount
                             : 0;
+                    if (s.fastagListUIState.data != null) {
+                      if (s.fastagListUIState.data!.data.isEmpty) {
+                        stopPagination = true;
+                      } else {
+                        items.addAll(s.fastagListUIState.data!.data);
+                      }
+                    }
                   },
                   builder: (context, state) {
                     if (items.isEmpty &&
@@ -135,13 +142,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
                             (state.fastagListUIState.data!.data.isEmpty))) {
                       return Center(child: Text(context.appText.noData));
                     }
-                    if (state.fastagListUIState.data != null) {
-                      if (state.fastagListUIState.data!.data.isEmpty) {
-                        stopPagination = true;
-                      } else {
-                        items.addAll(state.fastagListUIState.data!.data);
-                      }
-                    }
+
                     return ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: items.length,
