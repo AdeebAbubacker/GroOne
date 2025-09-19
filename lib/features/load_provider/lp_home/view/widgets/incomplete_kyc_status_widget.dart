@@ -79,8 +79,10 @@ class IncompleteKycStatusWidget extends StatelessWidget {
                 }
               }
             },
-            style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(AppColors.red)),
-            child: Text(context.appText.verify, style: AppTextStyle.h5WhiteColor),
+            style: AppButtonStyle.primaryTextButton.copyWith(
+              fixedSize: WidgetStateProperty.all(const Size(120, 20)),
+              backgroundColor: WidgetStateProperty.all(AppColors.red)),
+            child: Text(context.appText.verify, style: AppTextStyle.h5WhiteColor.copyWith(fontSize: 13)),
           ),
        
        

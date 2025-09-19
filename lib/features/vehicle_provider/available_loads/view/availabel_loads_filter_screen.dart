@@ -179,6 +179,10 @@ class _AvailableLoadsFilterScreenState
                     search: searchKey,
                     loadMore: page > 1,
                   );
+                   if (lpLoadLocator.isRoutesLastPage &&
+                      page > lpLoadLocator.rootsCurrentPage) {
+                    return [];
+                  }
                   return routeList;
                 },
                 selectedRoute: selectedItem,

@@ -202,6 +202,12 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   hintText: "Select Truck Type",
                   fetchTruckTypes: (page, searchKey) async {
                     await lpLoadLocator.getTruckType(loadMore: page > 1);
+                     // Stop scrolling when last page is reached
+                  if (lpLoadLocator.isTruckLastPage &&
+                      page > lpLoadLocator.trucksCurrentPage) {
+                    return [];
+                  }
+
                     return lpLoadLocator.state.lpLoadTruckTypes?.data ?? [];
                   },
                   onChanged: (selectedTruck) {
@@ -228,6 +234,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                       search: searchKey,
                       loadMore: page > 1, 
                     );
+                     if (lpLoadLocator.isRoutesLastPage &&
+                      page > lpLoadLocator.rootsCurrentPage) {
+                    return [];
+                  }
                     return lpLoadLocator
                             .state
                             .lpLoadRouteDetails
