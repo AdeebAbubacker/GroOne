@@ -70,7 +70,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
   final lpLoadLocator = locator<LpLoadCubit>();
 
-
+   final _formKey = GlobalKey<FormState>();
    TextEditingController consigneeNameController = TextEditingController();
 
    TextEditingController consigneePhoneController = TextEditingController();
@@ -437,6 +437,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                           },
                           builder: (context, state) {
                             return _buildConsigneeDetail(
+                              formKey: _formKey,
                               context: context,
                               isTextField: true,
                               isUpdatable: true,
@@ -649,7 +650,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
 // Consignee Details
 
-Widget _buildConsigneeDetail({
+ Widget _buildConsigneeDetail({
   required BuildContext context,
   String? name,
   String? phoneNo,
@@ -661,6 +662,7 @@ Widget _buildConsigneeDetail({
   TextEditingController? phoneController,
   TextEditingController? emailController,
   VoidCallback? onUpdate,
+  GlobalKey<FormState>? formKey
 }) {
   final isEditable = context.read<LpLoadCubit>().state.isFieldUpdatble;
   return GestureDetector(
@@ -702,101 +704,114 @@ Widget _buildConsigneeDetail({
           ],
         ),
         if (isTextField)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              
-              20.height,
-              AppTextField(
-                decoration: commonInputDecoration(
-                fillColor:  (isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),     
-                readOnly: isUpdateConsignee ? isEditable : false,
-                 enabled: isUpdateConsignee ? !isEditable : true,
-                validator: (value) => Validator.fieldRequired(value),
-                controller: nameController,
-                labelText: context.appText.name,
-                hintText: context.appText.fullNameHint,
-                mandatoryStar:  isUpdateConsignee ? false : true,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
-                  LengthLimitingTextInputFormatter(50)
-                ],
-              ),
-              20.height,
-              AppTextField(
-              decoration: commonInputDecoration(
-                fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),    
-              readOnly: isUpdateConsignee ? isEditable : false,
-              enabled: isUpdateConsignee ? !isEditable : true,
-               validator: (value) => Validator.phone(value),
-                          maxLength: 10,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10),
-                          ],
-                          keyboardType: iosNumberKeyboard,
-                controller: phoneController,
-                labelText: context.appText.contactNumber,
-                 hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
+          Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                
+                20.height,
+                AppTextField(
+                  decoration: commonInputDecoration(
+                  fillColor:  (isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),     
+                  readOnly: isUpdateConsignee ? isEditable : false,
+                   enabled: isUpdateConsignee ? !isEditable : true,
+                  validator: (value) => Validator.fieldRequired(value),
+                  controller: nameController,
+                  labelText: context.appText.name,
+                  hintText: context.appText.fullNameHint,
                   mandatoryStar:  isUpdateConsignee ? false : true,
-
-              ),
-              20.height,
-              AppTextField(   
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
+                    LengthLimitingTextInputFormatter(50)
+                  ],
+                ),
+                20.height,
+                AppTextField(
                 decoration: commonInputDecoration(
-                fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),           
+                  fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),    
                 readOnly: isUpdateConsignee ? isEditable : false,
                 enabled: isUpdateConsignee ? !isEditable : true,
-                validator: (value) => Validator.email(value),
-                keyboardType: TextInputType.emailAddress,
-                controller: emailController,
-                labelText: context.appText.emailId,
-                hintText: context.appText.emailHint,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(50),
-                ],
-              ),
-              16.height,
+                 validator: (value) => Validator.phone(value),
+                            maxLength: 10,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            keyboardType: iosNumberKeyboard,
+                  controller: phoneController,
+                  labelText: context.appText.contactNumber,
+                   hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
+                    mandatoryStar:  isUpdateConsignee ? false : true,
+            
+                ),
+                20.height,
+                AppTextField(   
+                  decoration: commonInputDecoration(
+                  fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),           
+                  readOnly: isUpdateConsignee ? isEditable : false,
+                  enabled: isUpdateConsignee ? !isEditable : true,
+                  validator: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    return Validator.email(value); 
+                  }
+                  return null; 
+                },
+                  keyboardType: TextInputType.emailAddress,
+                  controller: emailController,
+                  labelText: context.appText.emailId,
+                  hintText: context.appText.emailHint,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(50),
+                  ],
+                ),
+                16.height,
+               
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                   ((!isUpdateConsignee || (isUpdateConsignee && !isEditable)) &&
+                    ((name?.isNotEmpty ?? false) || 
+                      (emailController?.text.isNotEmpty ?? false) || 
+                      (phoneController?.text.isNotEmpty ?? false)))
+                    ?  AppButton(
+                        buttonHeight: 40,
+                        title:  context.appText.cancel,
+                        style: AppButtonStyle.cancelShrink,
+                        textStyle: AppTextStyle.buttonRedColorTextColor,
+                        onPressed: () {
+                       FocusScope.of(context).unfocus();
+                          final cubit = context.read<LpLoadCubit>();
+                          cubit.emit(
+                            cubit.state.copyWith(
+                              isFieldUpdatble: true,
+                            ),
+                          );
+                        },
+                      )
+                    : SizedBox.shrink(),
+                    12.width,  
+                    (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
+                    ? AppButton(
+                        buttonHeight: 40,
+                        title: isUpdateConsignee ? context.appText.update : context.appText.add,
+                        style: AppButtonStyle.outlineShrink,
+                        textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+                        onPressed: () {
+                              if (formKey?.currentState?.validate() ?? false) {
+                                FocusScope.of(context).unfocus();
+                                onUpdate?.call();
+                              }
+                        },
+                      )
+                    : SizedBox.shrink()
+                   
              
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                 ((!isUpdateConsignee || (isUpdateConsignee && !isEditable)) &&
-                  ((name?.isNotEmpty ?? false) || 
-                    (emailController?.text.isNotEmpty ?? false) || 
-                    (phoneController?.text.isNotEmpty ?? false)))
-                  ?  AppButton(
-                      buttonHeight: 40,
-                      title:  context.appText.cancel,
-                      style: AppButtonStyle.cancelShrink,
-                      textStyle: AppTextStyle.buttonRedColorTextColor,
-                      onPressed: () {
-                     FocusScope.of(context).unfocus();
-                        final cubit = context.read<LpLoadCubit>();
-                        cubit.emit(
-                          cubit.state.copyWith(
-                            isFieldUpdatble: true,
-                          ),
-                        );
-                      },
-                    )
-                  : SizedBox.shrink(),
-                  12.width,  
-                  (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
-                  ? AppButton(
-                      buttonHeight: 40,
-                      title: isUpdateConsignee ? context.appText.update : context.appText.add,
-                      style: AppButtonStyle.outlineShrink,
-                      textStyle: AppTextStyle.buttonPrimaryColorTextColor,
-                      onPressed: onUpdate ?? () {},
-                    )
-                  : SizedBox.shrink()
-                 
-           
-                ],
-              ),
-                  
-            ],
+                  ],
+                ),
+                    
+              ],
+            ),
           )
         else
           Column(
@@ -820,7 +835,6 @@ Widget _buildConsigneeDetail({
     ),
   );
 }
-
 
 
 // Detail Widget
