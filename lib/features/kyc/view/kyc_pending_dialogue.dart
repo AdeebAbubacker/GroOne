@@ -8,10 +8,13 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 class KycPendingDialogue extends StatelessWidget {
-  const KycPendingDialogue({super.key,required this.onPressed,this.hideButton=false,this.isLp=false});
+  const KycPendingDialogue({super.key,required this.onPressed,this.hideButton=false,
+
+    this.isLp=false});
 final Function() onPressed;
 final bool hideButton;
 final bool isLp;
+
   @override
   Widget build(BuildContext context) {
     return AppBottomSheetBody(hideDivider: false,body: Column(
@@ -25,6 +28,11 @@ final bool isLp;
              textAlign: TextAlign.center,
              style: AppTextStyle.textDarkGreyColor14w400,)
           else
+
+            Text(context.appText.kycRejected,
+              textAlign: TextAlign.center,
+              style: AppTextStyle.textDarkGreyColor14w400,),
+
         Text( isLp ? context.appText.completeKycAlertDescriptionLp : context.appText.completeKycAlertDescriptionVp,style: AppTextStyle.textDarkGreyColor14w400),
         20.height,
         if(!hideButton)

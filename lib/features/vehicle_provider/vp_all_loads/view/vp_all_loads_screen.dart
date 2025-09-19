@@ -97,8 +97,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     _getFilterDataEntity();
     _fetchMoreLoads();
 
-
-
   }
 
   @override
@@ -450,6 +448,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                   } else if (_tabController.index == 1) {
                     return IgnorePointer(
                       ignoring: disabledOnTap,
+
                       child: GestureDetector(
                         onTap: () async {
                         await  context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
@@ -457,6 +456,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                         });
                         },
                         child: VpAllLoadMyLoadWidget(
+
+                          onServicesTab: disabledOnTap,
                           data: recentLoads[index],
                           onBack: () {
                             _onPullToRefresh();
@@ -472,6 +473,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                   } else {
                     return  IgnorePointer(
                       ignoring: disabledOnTap,
+
                       child: GestureDetector(
                         onTap: () async {
                           await context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":recentLoads[index].id}).then((value) {
@@ -479,7 +481,9 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                           });
                         },
                         child: VpAllLoadMyLoadWidget(
+                          onServicesTab: disabledOnTap,
                           data: recentLoads[index],
+
                           showButton: _tabController.index!=3,
                           onBack: () {
                             _onPullToRefresh();
