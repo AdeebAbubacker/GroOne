@@ -758,6 +758,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
               state.copyWith(
                 selectedZonalOfficeId: finalZonalOfficeId,
                 selectedRegionalOfficeId: finalRegionalOfficeId,
+                selectedRegionalOfficeName: data.region?.name ?? '',
                 selectedStateId: finalStateId,
                 selectedDistrictId: finalDistrictId,
                 selectedDistrictName: finalDistrictName,
@@ -770,11 +771,35 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
 
         _setPincodeUIState(UIState.success(response));
       } else if (result is Error) {
-        _setPincodeUIState(UIState.error((result as Error).type));
+        if (!_isClosed) {
+          emit(
+            state.copyWith(
+              selectedZonalOfficeId: null,
+              selectedRegionalOfficeId: null,
+              selectedRegionalOfficeName: '',
+              selectedStateId: null,
+              selectedDistrictId: null,
+              selectedDistrictName: '',
+              selectedStateName: '',
+              selectedZonalOfficeName: '',
+            ),
+          );
+        }
       }
     } catch (e) {
       if (!_isClosed) {
-        _setPincodeUIState(UIState.error(GenericError()));
+        emit(
+          state.copyWith(
+            selectedZonalOfficeId: null,
+            selectedRegionalOfficeId: null,
+            selectedRegionalOfficeName: '',
+            selectedStateId: null,
+            selectedDistrictId: null,
+            selectedDistrictName: '',
+            selectedStateName: '',
+            selectedZonalOfficeName: '',
+          ),
+        );
       }
     }
   }
@@ -1508,13 +1533,13 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         return false;
       }
 
-      if (card.rcNumber.isEmpty) {
-        return false;
-      }
-
-      if (card.rcDocuments.isEmpty) {
-        return false;
-      }
+      // if (card.rcNumber.isEmpty) {
+      //   return false;
+      // }
+      //
+      // if (card.rcDocuments.isEmpty) {
+      //   return false;
+      // }
 
       // Vehicle verification is no longer required
 
