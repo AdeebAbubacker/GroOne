@@ -30,7 +30,8 @@ class _ReachabilityScreenState extends State<ReachabilityScreen> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _radiusController = TextEditingController();
   final TextEditingController _dateController = TextEditingController();
-  final TextEditingController _timeController = TextEditingController();
+  final TextEditingController _startTimeController = TextEditingController();
+  final TextEditingController _endTimeController = TextEditingController();
 
   // Autocomplete variables
   List<Map<String, dynamic>> _locationSuggestions = [];
@@ -48,7 +49,8 @@ class _ReachabilityScreenState extends State<ReachabilityScreen> {
     _locationController.dispose();
     _radiusController.dispose();
     _dateController.dispose();
-    _timeController.dispose();
+    _startTimeController.dispose();
+    _endTimeController.dispose();
     super.dispose();
   }
 
@@ -455,63 +457,115 @@ class _ReachabilityScreenState extends State<ReachabilityScreen> {
           style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 8),
+        // Date picker
+        GestureDetector(
+          onTap: () => _selectDate(context, state),
+          child: Container(
+            height: 56,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.withOpacity(0.3)),
+              color: Colors.white,
+            ),
+            child: Row(
+              children: [
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Icon(Icons.calendar_today, color: Colors.grey),
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: _dateController,
+                    decoration: const InputDecoration(
+                      hintText: 'Pick a Date',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 16,
+                      ),
+                    ),
+                    readOnly: true,
+                    enabled: false,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 16),
+        // Time pickers
         Row(
           children: [
             Expanded(
               child: GestureDetector(
-                onTap: () async {
-                  final date = await showDatePicker(
-                    context: context,
-                    initialDate: DateTime.now(),
-                    firstDate: DateTime.now(),
-                    lastDate: DateTime.now().add(const Duration(days: 365)),
-                  );
-                  if (date != null) {
-                    _dateController.text =
-                        '${date.day}/${date.month}/${date.year}';
-                    context.read<ReachabilityCubit>().setSelectedDate(date);
-                  }
-                },
-                child: AppTextField(
-                  controller: _dateController,
-                  decoration: commonInputDecoration(
-                    hintText: 'Pick a Date',
-                    prefixIcon: const Icon(Icons.calendar_today),
+                onTap: () => _selectStartTime(context, state),
+                child: Container(
+                  height: 56,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                    color: Colors.white,
                   ),
-                  readOnly: true,
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Icon(Icons.access_time, color: Colors.grey),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _startTimeController,
+                          decoration: const InputDecoration(
+                            hintText: 'Start Time',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                          ),
+                          readOnly: true,
+                          enabled: false,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
             const SizedBox(width: 16),
             Expanded(
               child: GestureDetector(
-                onTap: () async {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime: TimeOfDay.now(),
-                  );
-                  if (time != null) {
-                    _timeController.text = time.format(context);
-                    final now = DateTime.now();
-                    final selectedTime = DateTime(
-                      now.year,
-                      now.month,
-                      now.day,
-                      time.hour,
-                      time.minute,
-                    );
-                    context.read<ReachabilityCubit>().setSelectedTime(
-                      selectedTime,
-                    );
-                  }
-                },
-                child: AppTextField(
-                  controller: _timeController,
-                  decoration: commonInputDecoration(
-                    hintText: 'Time',
-                    prefixIcon: const Icon(Icons.access_time),
+                onTap: () => _selectEndTime(context, state),
+                child: Container(
+                  height: 56,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.grey.withOpacity(0.3)),
+                    color: Colors.white,
                   ),
-                  readOnly: true,
+                  child: Row(
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Icon(Icons.access_time, color: Colors.grey),
+                      ),
+                      Expanded(
+                        child: TextField(
+                          controller: _endTimeController,
+                          decoration: const InputDecoration(
+                            hintText: 'End Time',
+                            border: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
+                          ),
+                          readOnly: true,
+                          enabled: false,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -606,6 +660,128 @@ class _ReachabilityScreenState extends State<ReachabilityScreen> {
         isLoading: state.isCreating,
       ),
     );
+  }
+
+  // Date selection method
+  Future<void> _selectDate(
+    BuildContext context,
+    ReachabilityState state,
+  ) async {
+    try {
+      final DateTime? picked = await showDatePicker(
+        context: context,
+        initialDate: state.selectedDate ?? DateTime.now(),
+        firstDate: DateTime.now(),
+        lastDate: DateTime.now().add(const Duration(days: 365)),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: AppColors.primaryColor,
+                onPrimary: Colors.white,
+                surface: Colors.white,
+                onSurface: Colors.black,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (picked != null && picked != state.selectedDate) {
+        _dateController.text =
+            '${picked.day.toString().padLeft(2, '0')}/${picked.month.toString().padLeft(2, '0')}/${picked.year}';
+        context.read<ReachabilityCubit>().setSelectedDate(picked);
+      }
+    } catch (e) {
+      print('Error selecting date: $e');
+    }
+  }
+
+  // Start time selection method
+  Future<void> _selectStartTime(
+    BuildContext context,
+    ReachabilityState state,
+  ) async {
+    try {
+      final TimeOfDay? picked = await showTimePicker(
+        context: context,
+        initialTime:
+            state.selectedStartTime != null
+                ? TimeOfDay.fromDateTime(state.selectedStartTime!)
+                : TimeOfDay.now(),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: AppColors.primaryColor,
+                onPrimary: Colors.white,
+                surface: Colors.white,
+                onSurface: Colors.black,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (picked != null) {
+        _startTimeController.text = picked.format(context);
+        final selectedTime = DateTime(
+          state.selectedDate?.year ?? DateTime.now().year,
+          state.selectedDate?.month ?? DateTime.now().month,
+          state.selectedDate?.day ?? DateTime.now().day,
+          picked.hour,
+          picked.minute,
+        );
+        context.read<ReachabilityCubit>().setSelectedStartTime(selectedTime);
+      }
+    } catch (e) {
+      print('Error selecting start time: $e');
+    }
+  }
+
+  // End time selection method
+  Future<void> _selectEndTime(
+    BuildContext context,
+    ReachabilityState state,
+  ) async {
+    try {
+      final TimeOfDay? picked = await showTimePicker(
+        context: context,
+        initialTime:
+            state.selectedEndTime != null
+                ? TimeOfDay.fromDateTime(state.selectedEndTime!)
+                : TimeOfDay.now(),
+        builder: (context, child) {
+          return Theme(
+            data: Theme.of(context).copyWith(
+              colorScheme: ColorScheme.light(
+                primary: AppColors.primaryColor,
+                onPrimary: Colors.white,
+                surface: Colors.white,
+                onSurface: Colors.black,
+              ),
+            ),
+            child: child!,
+          );
+        },
+      );
+
+      if (picked != null) {
+        _endTimeController.text = picked.format(context);
+        final selectedTime = DateTime(
+          state.selectedDate?.year ?? DateTime.now().year,
+          state.selectedDate?.month ?? DateTime.now().month,
+          state.selectedDate?.day ?? DateTime.now().day,
+          picked.hour,
+          picked.minute,
+        );
+        context.read<ReachabilityCubit>().setSelectedEndTime(selectedTime);
+      }
+    } catch (e) {
+      print('Error selecting end time: $e');
+    }
   }
 
   void _showInfoDialog(BuildContext context) {

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:dart_ipify/dart_ipify.dart';
 import 'package:dio/dio.dart';
 import 'package:go_router/go_router.dart';
 // import 'package:dio_http_cache/dio_http_cache.dart';
@@ -18,7 +19,6 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
 import 'package:network_info_plus/network_info_plus.dart';
-import 'package:dart_ipify/dart_ipify.dart';
 
 class ApiService {
   final Duration _timeout = const Duration(
@@ -36,7 +36,6 @@ class ApiService {
     _dio.options.connectTimeout = _timeout;
     _dio.options.receiveTimeout = _timeout;
   }
-
 
   Future<String> getDeviceIp() async {
     String? ip;
@@ -56,14 +55,13 @@ class ApiService {
     return ip;
   }
 
-
   /// Header
   Future<Map<String, String>> _getHeaders({bool isMultipart = false}) async {
     final ip = await getDeviceIp();
     Map<String, String> headers = {
       'Content-Type': isMultipart ? 'multipart/form-data' : 'application/json',
       'Accept': 'application/json',
-      'X-Real-IP' : ip
+      'X-Real-IP': ip,
     };
     try {
       String? accessToken = await _secureSharedPrefs.get(
@@ -108,7 +106,6 @@ class ApiService {
     CancelToken? cancelToken,
     Map<String, String>? customHeaders,
   }) async {
-
     if (!HasInternetConnection.isInternet) {
       return Error(InternetNetworkError());
     }
@@ -197,7 +194,6 @@ class ApiService {
     Map<String, dynamic>? queryParams,
     Map<String, String>? customHeaders,
   }) async {
-
     Object prettyBodyString;
     if (queryParams != null) {
       prettyBodyString = const JsonEncoder.withIndent(
@@ -387,17 +383,20 @@ class ApiService {
 
   /// Handle Body Response
   Future<Result<dynamic>> _handleBodyResponse(Response response) async {
-    final prettyBodyString = const JsonEncoder.withIndent(
-      '  ',
-    ).convert(response.data);
     CustomLog.debug(
       this,
       "\nResponse status code: ${response.statusCode}, \nResponse data: ${response.data}",
     );
     try {
       if (response.statusCode == 200 || response.statusCode == 201) {
+        // Only try to pretty print if response.data is a Map or List
+        if (response.data is Map || response.data is List) {
+          final prettyBodyString = const JsonEncoder.withIndent(
+            '  ',
+          ).convert(response.data);
+          CustomLog.debug(this, "Response data: $prettyBodyString");
+        }
         return Success(response.data);
-
       } else {
         return await _handleHttpError(response);
       }
@@ -416,10 +415,25 @@ class ApiService {
           return Error(BadRequestError(message: data['message'].first));
         }
         return Error(BadRequestError.fromApiResponse(response?.data));
+      case 422:
+        // Unprocessable Entity - validation error
+        CustomLog.error(
+          this,
+          "422 Validation Error Response: ${response?.data}",
+          null,
+        );
+        final msg =
+            response?.data?['message'] ??
+            response?.data?['error'] ??
+            response?.data?.toString() ??
+            'Validation error';
+        return Error(ErrorWithMessage(message: msg));
       case 401:
-      // Prevent retry loop
+        // Prevent retry loop
         if (response?.requestOptions.extra['retry'] != true) {
-          final retryResponse = await _handleUnauthorizedErrorAndRetry(response!);
+          final retryResponse = await _handleUnauthorizedErrorAndRetry(
+            response!,
+          );
           if (retryResponse != null) {
             return Success(retryResponse.data);
           }
@@ -450,13 +464,17 @@ class ApiService {
   }
 
   /// Handle 401 → Refresh token → Retry failed request
-  Future<Response?> _handleUnauthorizedErrorAndRetry(Response originalResponse) async {
+  Future<Response?> _handleUnauthorizedErrorAndRetry(
+    Response originalResponse,
+  ) async {
     try {
       final requestOptions = originalResponse.requestOptions;
 
       CustomLog.debug(this, "🔐 Handling 401 Unauthorized for ${requestOptions.uri}");
 
-      final refreshToken = await _secureSharedPrefs.get(AppString.sessionKey.refreshToken);
+      final refreshToken = await _secureSharedPrefs.get(
+        AppString.sessionKey.refreshToken,
+      );
       if (refreshToken == null || refreshToken.isEmpty) {
         CustomLog.debug(this, "No refresh token found, logging out");
         await _clearAuthAndRedirect();
@@ -464,7 +482,7 @@ class ApiService {
       }
 
       // If no refresh is running, start it
-       _refreshTokenFuture ??= _refreshTokenCall(refreshToken);
+      _refreshTokenFuture ??= _refreshTokenCall(refreshToken);
 
       final newAccessToken = await _refreshTokenFuture;
       _refreshTokenFuture = null; // Reset for next time
@@ -495,9 +513,7 @@ class ApiService {
     try {
       final refreshResult = await post(
         ApiUrls.refreshToken,
-        body: {
-          "refresh_token": refreshToken,
-        },
+        body: {"refresh_token": refreshToken},
         customHeaders: {
           "Content-Type": "application/json",
           "Accept": "application/json",
@@ -510,8 +526,14 @@ class ApiService {
           final newAccessToken = data['access_token'];
           final newRefreshToken = data['refresh_token'];
 
-          await _secureSharedPrefs.saveKey(AppString.sessionKey.accessToken, newAccessToken);
-          await _secureSharedPrefs.saveKey(AppString.sessionKey.refreshToken, newRefreshToken);
+          await _secureSharedPrefs.saveKey(
+            AppString.sessionKey.accessToken,
+            newAccessToken,
+          );
+          await _secureSharedPrefs.saveKey(
+            AppString.sessionKey.refreshToken,
+            newRefreshToken,
+          );
 
           CustomLog.debug(this, "🔐 Token refreshed successfully");
           return newAccessToken;
@@ -534,9 +556,6 @@ class ApiService {
     await _secureSharedPrefs.deleteKey(AppString.sessionKey.userRole);
     await _secureSharedPrefs.deleteKey(AppString.sessionKey.companyTypeId);
     clearAllBusinessDocs();
-
-
-
 
     if (appContext.mounted) {
         appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton": false});
@@ -561,8 +580,6 @@ class ApiService {
     await _secureSharedPrefs.deleteKey(AppString.sessionKey.tanDocID);
     await _secureSharedPrefs.deleteKey(AppString.sessionKey.iskycAdarWebview);
   }
-
-
 
   /// Handle Dio Error
   Future<Result<dynamic>> _handleDioError(DioException error) async {
