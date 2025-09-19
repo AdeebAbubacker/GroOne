@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:intl/intl.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -33,10 +34,12 @@ class _EndhanTransactionScreenContent extends StatefulWidget {
   const _EndhanTransactionScreenContent();
 
   @override
-  State<_EndhanTransactionScreenContent> createState() => _EndhanTransactionScreenContentState();
+  State<_EndhanTransactionScreenContent> createState() =>
+      _EndhanTransactionScreenContentState();
 }
 
-class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScreenContent> {
+class _EndhanTransactionScreenContentState
+    extends State<_EndhanTransactionScreenContent> {
   DateTime? fromDate;
   DateTime? toDate;
   final fromDateController = TextEditingController();
@@ -47,12 +50,12 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
   void initState() {
     super.initState();
     _cubit = context.read<EndhanTransactionCubit>();
-    
+
     // Set default date range to last 7 days
     toDate = DateTime.now();
     fromDate = toDate!.subtract(const Duration(days: 6));
     _updateDateControllers();
-    
+
     // Fetch initial transactions after frame is built
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -132,13 +135,13 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
     if (fromDate != null && toDate != null && mounted) {
       // Double-check date range before fetching
       final difference = toDate!.difference(fromDate!).inDays;
-      
+
       if (difference > 7) {
         // Show alert popup
         _showDateRangeErrorDialog(context);
         return;
       }
-      
+
       _cubit.fetchTransactions(fromDate: fromDate!, toDate: toDate!);
     }
   }
@@ -146,7 +149,10 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
   Future<void> _selectDate(BuildContext context, bool isFromDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isFromDate ? (fromDate ?? DateTime.now()) : (toDate ?? DateTime.now()),
+      initialDate:
+          isFromDate
+              ? (fromDate ?? DateTime.now())
+              : (toDate ?? DateTime.now()),
       firstDate: DateTime(2020),
       lastDate: DateTime.now(),
     );
@@ -155,7 +161,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
       bool wouldExceedLimit = false;
       DateTime? tempFromDate = fromDate;
       DateTime? tempToDate = toDate;
-      
+
       if (isFromDate) {
         tempFromDate = picked;
         if (tempToDate != null && tempToDate.difference(picked).inDays > 7) {
@@ -163,11 +169,12 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
         }
       } else {
         tempToDate = picked;
-        if (tempFromDate != null && picked.difference(tempFromDate).inDays > 7) {
+        if (tempFromDate != null &&
+            picked.difference(tempFromDate).inDays > 7) {
           wouldExceedLimit = true;
         }
       }
-      
+
       if (wouldExceedLimit) {
         // Show alert popup
         if (!context.mounted) return;
@@ -176,7 +183,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
         }
         return; // Don't update the dates
       }
-      
+
       setState(() {
         if (isFromDate) {
           fromDate = picked;
@@ -208,11 +215,11 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
       case 'completed':
         return Colors.green.withValues(alpha: 0.1); // Light green background
       case 'failed':
-        return AppColors.red.withValues(alpha:0.1); // Light red background
+        return AppColors.red.withValues(alpha: 0.1); // Light red background
       case 'pending':
-        return Colors.orange.withValues(alpha:0.1); // Light orange background
+        return Colors.orange.withValues(alpha: 0.1); // Light orange background
       default:
-        return Colors.grey.withValues(alpha:0.1);
+        return Colors.grey.withValues(alpha: 0.1);
     }
   }
 
@@ -295,28 +302,34 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
             10.height,
             // Transaction List
             Expanded(
-              child: BlocBuilder<EndhanTransactionCubit, EndhanTransactionState>(
+              child: BlocBuilder<
+                EndhanTransactionCubit,
+                EndhanTransactionState
+              >(
                 bloc: _cubit,
                 builder: (context, state) {
                   if (state is EndhanTransactionLoading) {
                     return const Center(child: CircularProgressIndicator());
-                                    } else if (state is EndhanTransactionError) {
+                  } else if (state is EndhanTransactionError) {
                     return Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Icon(Icons.error, color: Colors.red, size: 48),
                           10.height,
-                           Text(
-                             context.appText.noTransactionsFound,
-                             style: AppTextStyle.h5,
-                           ),
+                          Text(
+                            context.appText.noTransactionsFound,
+                            style: AppTextStyle.h5,
+                          ),
                           10.height,
-                         Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 40),
-                          child: AppButton(onPressed: _fetchTransactions, 
-                          title: context.appText.retry,
-                          style: AppButtonStyle.outline,),),
+                          Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 40),
+                            child: AppButton(
+                              onPressed: _fetchTransactions,
+                              title: context.appText.retry,
+                              style: AppButtonStyle.outline,
+                            ),
+                          ),
                         ],
                       ),
                     );
@@ -325,7 +338,11 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.calendar_today, color: Colors.orange, size: 48),
+                          Icon(
+                            Icons.calendar_today,
+                            color: Colors.orange,
+                            size: 48,
+                          ),
                           10.height,
                           Text(
                             context.appText.dateRangeTooLarge,
@@ -348,7 +365,9 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                 // Reset to last 7 days
                                 setState(() {
                                   toDate = DateTime.now();
-                                  fromDate = toDate!.subtract(const Duration(days: 6));
+                                  fromDate = toDate!.subtract(
+                                    const Duration(days: 6),
+                                  );
                                   _updateDateControllers();
                                 });
                                 _fetchTransactions();
@@ -365,7 +384,11 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.receipt_long, color: Colors.grey, size: 48),
+                          Icon(
+                            Icons.receipt_long,
+                            color: Colors.grey,
+                            size: 48,
+                          ),
                           10.height,
                           Text(
                             context.appText.noTransactionsFound,
@@ -381,7 +404,9 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                     );
                   } else if (state is EndhanTransactionLoaded) {
                     return ListView.builder(
-                      padding: EdgeInsets.symmetric(horizontal: commonSafeAreaPadding),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: commonSafeAreaPadding,
+                      ),
                       itemCount: state.transactions.length,
                       itemBuilder: (context, index) {
                         final transaction = state.transactions[index];
@@ -407,11 +432,12 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                     Center(
                                       child: Text(
                                         '₹',
-                                        style: AppTextStyle.h4PrimaryColor.copyWith(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.grey[700],
-                                        ),
+                                        style: AppTextStyle.h4PrimaryColor
+                                            .copyWith(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.grey[700],
+                                            ),
                                       ),
                                     ),
                                     // Status indicator overlay
@@ -424,7 +450,9 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                           height: 16,
                                           decoration: BoxDecoration(
                                             color: Colors.green,
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           child: Icon(
                                             Icons.check,
@@ -442,7 +470,9 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                           height: 16,
                                           decoration: BoxDecoration(
                                             color: AppColors.red,
-                                            borderRadius: BorderRadius.circular(8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
                                           ),
                                           child: Icon(
                                             Icons.error_outline,
@@ -461,7 +491,8 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      transaction.merchantName ?? "Unknown Merchant",
+                                      transaction.merchantName ??
+                                          "Unknown Merchant",
                                       style: AppTextStyle.h5.copyWith(
                                         fontWeight: FontWeight.w600,
                                         fontSize: 16,
@@ -470,20 +501,27 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                     4.height,
                                     Text(
                                       'TXN: ${transaction.transactionID ?? "N/A"}',
-                                      style: AppTextStyle.textGreyColor14w300.copyWith(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
-                                      ),
+                                      style: AppTextStyle.textGreyColor14w300
+                                          .copyWith(
+                                            fontSize: 13,
+                                            color: Colors.grey[600],
+                                          ),
                                     ),
                                     4.height,
                                     Text(
                                       transaction.parsedTransactionDate != null
-                                          ? DateFormat('dd MMM yyyy, h:mm a').format(transaction.parsedTransactionDate!)
-                                          : transaction.transactionDate ?? "N/A",
-                                      style: AppTextStyle.textGreyColor14w300.copyWith(
-                                        fontSize: 13,
-                                        color: Colors.grey[600],
-                                      ),
+                                          ? DateFormat(
+                                            'dd MMM yyyy, h:mm a',
+                                          ).format(
+                                            transaction.parsedTransactionDate!,
+                                          )
+                                          : transaction.transactionDate ??
+                                              "N/A",
+                                      style: AppTextStyle.textGreyColor14w300
+                                          .copyWith(
+                                            fontSize: 13,
+                                            color: Colors.grey[600],
+                                          ),
                                     ),
                                   ],
                                 ),
@@ -501,18 +539,27 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                                   ),
                                   8.height,
                                   Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 4,
+                                    ),
                                     decoration: BoxDecoration(
-                                      color: _getStatusBackgroundColor(transaction.status),
+                                      color: _getStatusBackgroundColor(
+                                        transaction.status,
+                                      ),
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                     child: Text(
                                       transaction.status,
-                                      style: AppTextStyle.textDarkGreyColor14w500.copyWith(
-                                        color: _getStatusColor(transaction.status),
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                      style: AppTextStyle
+                                          .textDarkGreyColor14w500
+                                          .copyWith(
+                                            color: _getStatusColor(
+                                              transaction.status,
+                                            ),
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w500,
+                                          ),
                                     ),
                                   ),
                                 ],
@@ -523,7 +570,7 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
                       },
                     );
                   }
-                  
+
                   // Initial state
                   return const Center(child: CircularProgressIndicator());
                 },
@@ -532,45 +579,42 @@ class _EndhanTransactionScreenContentState extends State<_EndhanTransactionScree
           ],
         ),
       ),
+      floatingActionButton: ChatActionButton(),
     );
   }
 
-  InputDecoration kavachInputDecoration({Widget? suffixIcon, String? hintText, bool? isMandatoryMark, Widget? preffixIcon}) {
+  InputDecoration kavachInputDecoration({
+    Widget? suffixIcon,
+    String? hintText,
+    bool? isMandatoryMark,
+    Widget? preffixIcon,
+  }) {
     return InputDecoration(
       prefixIcon: preffixIcon,
       hint: Row(
         children: [
           Text(hintText ?? '', style: AppTextStyle.textFieldHint),
           if (isMandatoryMark ?? false)
-            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            Text(
+              " *",
+              style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+            ),
         ],
       ),
       enabledBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          color: AppColors.borderColor,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: AppColors.borderColor, width: 1),
         borderRadius: BorderRadius.circular(commonTexFieldRadius),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          color: AppColors.borderColor,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: AppColors.borderColor, width: 1),
         borderRadius: BorderRadius.circular(commonTexFieldRadius),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          color: Colors.red,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: Colors.red, width: 1),
         borderRadius: BorderRadius.circular(commonTexFieldRadius),
       ),
       errorBorder: OutlineInputBorder(
-        borderSide: const BorderSide(
-          color: Colors.red,
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: Colors.red, width: 1),
         borderRadius: BorderRadius.circular(commonTexFieldRadius),
       ),
       suffixIcon: suffixIcon,
