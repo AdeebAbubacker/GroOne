@@ -290,7 +290,7 @@ class KavachOrderDetailsScreen extends StatelessWidget {
 
   Widget _stage({
     required String title,
-    required DateTime date,
+    required String date,
     required String subtitle,
     required bool isLast,
     required BuildContext context,

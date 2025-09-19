@@ -40,11 +40,32 @@ class FastagCubit extends Cubit<FastagState> {
     return null;
   }
 
-  void updateFrontRc(List newList) =>
-      emit(state.copyWith(frontRcDocuments: newList));
+  void updateFrontRc(int index, List<Map<String, String>> newList) {
+    final updated = List<List<Map<String, String>>>.from(
+      state.frontRcDocuments,
+    );
 
-  void updateBackRc(List newList) =>
-      emit(state.copyWith(backRcDocuments: newList));
+    // Ensure list is long enough
+    while (updated.length <= index) {
+      updated.add([]);
+    }
+
+    updated[index] = newList;
+
+    emit(state.copyWith(frontRcDocuments: updated));
+  }
+
+  void updateBackRc(int index, List<Map<String, String>> newList) {
+    final updated = List<List<Map<String, String>>>.from(state.backRcDocuments);
+
+    while (updated.length <= index) {
+      updated.add([]);
+    }
+
+    updated[index] = newList;
+
+    emit(state.copyWith(backRcDocuments: updated));
+  }
 
   void setFrontRcUploaded(bool value) =>
       emit(state.copyWith(isFrontRcUploaded: value));
@@ -87,6 +108,7 @@ class FastagCubit extends Cubit<FastagState> {
   Future<void> fetchFastagList({
     String searchTerm = '',
     bool isInitialLoad = false,
+    int page = 1,
   }) async {
     emit(
       state.copyWith(
@@ -95,7 +117,10 @@ class FastagCubit extends Cubit<FastagState> {
       ),
     );
 
-    final result = await _repository.getFastagList(searchTerm: searchTerm);
+    final result = await _repository.getFastagList(
+      searchTerm: searchTerm,
+      page: page,
+    );
 
     if (result is Success<FastagListResponse>) {
       final list = result.value.data;
@@ -126,9 +151,7 @@ class FastagCubit extends Cubit<FastagState> {
 
       if (result is Success<FleetPincodeVerifyModel>) {
         emit(
-          state.copyWith(
-            pincodeVerifyUIState: UIState.success(result.value),
-          ),
+          state.copyWith(pincodeVerifyUIState: UIState.success(result.value)),
         );
         return result.value;
       } else if (result is Error<FleetPincodeVerifyModel>) {
@@ -141,13 +164,32 @@ class FastagCubit extends Cubit<FastagState> {
     return null;
   }
 
-  void resetRcDocuments() {
+  void resetRcDocuments({int vehicleCount = 1}) {
     emit(
       state.copyWith(
-        frontRcDocuments: [],
-        backRcDocuments: [],
         isFrontRcUploaded: false,
         isBackRcUploaded: false,
+        frontRcDocuments: List.generate(vehicleCount, (_) => []),
+        backRcDocuments: List.generate(vehicleCount, (_) => []),
+      ),
+    );
+  }
+
+  void addVehicleDocs() {
+    final newFrontDocs = List<List<Map<String, String>>>.from(
+      state.frontRcDocuments,
+    );
+    final newBackDocs = List<List<Map<String, String>>>.from(
+      state.backRcDocuments,
+    );
+
+    newFrontDocs.add([]); // empty slot
+    newBackDocs.add([]); // empty slot
+
+    emit(
+      state.copyWith(
+        frontRcDocuments: newFrontDocs,
+        backRcDocuments: newBackDocs,
       ),
     );
   }

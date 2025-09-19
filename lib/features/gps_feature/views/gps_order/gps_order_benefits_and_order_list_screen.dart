@@ -665,6 +665,53 @@ class GpsOrderListWithTabs extends StatefulWidget {
 
 class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
   int selectedTab = 0;
+  int listCount = 7;
+  final ScrollController scrollController = ScrollController();
+  String customerId = '';
+  int page = 1;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    scrollController.addListener(_onScroll);
+    _getCustomerId();
+  }
+
+  Future<void> _getCustomerId() async {
+    final userRepository = locator<UserInformationRepository>();
+    final id = await userRepository.getUserID() ?? '';
+    setState(() {
+      customerId = id;
+    });
+  }
+
+  void _onScroll() async {
+    if (!scrollController.hasClients) return;
+
+    // Simple bottom detection like your example
+
+    // Simple pagination trigger - exactly like your working example
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      if (customerId.isNotEmpty) {
+        Future.microtask(() {
+          if (mounted) {
+            page += 1;
+            if (!context.mounted) return;
+            context.read<GpsOrderListCubit>().getOrderList(
+              customerId: customerId,
+              page: page,
+            );
+          }
+        });
+        await Future.delayed(Duration(seconds: 10));
+        setState(() {
+          listCount = 35;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -748,6 +795,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                       vertical: 10,
                       horizontal: 10,
                     ),
+                    controller: scrollController,
                     itemCount: filteredOrders.length,
                     separatorBuilder: (_, __) => 8.height,
                     itemBuilder: (context, index) {

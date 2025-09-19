@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.dart';
 
 import '../../../data/model/result.dart';
@@ -123,6 +124,7 @@ class FastagService {
 
   Future<Result<FastagListResponse>> getFastagList({
     String searchTerm = '',
+    int page = 1,
   }) async {
     try {
       final customerId = await _secureSharedPrefs.get(
@@ -135,12 +137,16 @@ class FastagService {
       // String url = 'https://gro-uat-api.letsgro.co/vendor/api/v1/fast-tag/card/$customerId';
       String url = ApiUrls.fastagOrderList(customerId);
       if (searchTerm.isNotEmpty) {
-        url += '?searchTerm=${Uri.encodeComponent(searchTerm)}';
+        url += '?searchTerm=${Uri.encodeComponent(searchTerm)}?page=$page?limit=10';
+      } else {
+        url += '?page=$page&limit=10';
       }
+      debugPrint('url=>$url');
 
       final response = await _apiService.get(url);
 
       if (response is Success) {
+        debugPrint('responseresponse=>${response.value['data']['data'].length}');
         final json = response.value;
 
         // If API says success = false but no data, treat it as empty list Success
