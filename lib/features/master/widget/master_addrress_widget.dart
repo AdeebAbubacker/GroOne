@@ -28,7 +28,6 @@ Widget masterInfoWidget({
         Row(
           children: [
             Text(title, style: AppTextStyle.h5).expand(),
-            Spacer(),
             IconButton(
               onPressed: onEdit,
               icon: SvgPicture.asset(
