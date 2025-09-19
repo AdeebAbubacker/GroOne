@@ -932,7 +932,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
       ),
     );
   }
- 
+
   /// View Vehicle Popup
   void showViewVehiclePopup(
     BuildContext context, {
@@ -1021,7 +1021,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         onVerificationResult: (isVerified, vehicleData) {
                           setState(() {
                             isVehicleVerified = isVerified;
-                
+
                             // If data came from API, autofill fields
                             if (vehicleData != null) {
                               final makeModel =
@@ -1037,7 +1037,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                               if (ownerName != null) {
                                 owenerNameController.text = ownerName.toString();
                               }
-                
+
                               final insurancePolicyNo =
                                   vehicleData['insurance_policy_number'] ??
                                   vehicleData['insurancePolicyNumber'];
@@ -1049,7 +1049,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                               if (capacity != null) {
                                 RegExp(r'\d+').stringMatch(capacity.toString());
                                 selectedWeightDropDownValue = capacity;
-                
+
                                 final truckTypeList =
                                     context
                                         .read<VpCreateAccountCubit>()
@@ -1057,18 +1057,18 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                         .truckTypeUIState
                                         ?.data ??
                                     [];
-                
+
                                 final TruckTypeModel? matchedTruckType =
                                     truckTypeList.firstWhereOrNull(
                                       (t) => t.id == vehicleData['truckTypeId'],
                                     );
-                
+
                                 if (matchedTruckType != null) {
                                   selectedTruckType = matchedTruckType;
                                 } else {
                                   selectedTruckType = null;
                                 }
-                
+
                                 final insurancyexpiryRaw =
                                     vehicleData['insurance_expiry_date'] ??
                                     vehicleData['insuranceValidityDate'];
@@ -1103,7 +1103,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         mandatoryStar: true,
                       ),
                       16.height,
-                
+
                       /// Regsitartion Date
                       InkWell(
                         onTap: () async {
@@ -1113,12 +1113,12 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             firstDate: DateTime(1900),
                             lastDate: DateTime(2100),
                           );
-                
+
                           if (pickedDate != null) {
                             final formattedDate = DateFormat(
                               'dd/MM/yyyy',
                             ).format(pickedDate);
-                
+
                             setState(() {
                               registrationDate = formattedDate;
                             });
@@ -1139,9 +1139,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                   ),
                         ),
                       ),
-                
+
                       16.height,
-                
+
                       16.height,
                       AppTextField(
                         validator: (value) => Validator.fieldRequired(value),
@@ -1156,7 +1156,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         builder: (context, state) {
                           final uiState = state.truckTypeUIState;
                           final truckTypeList = uiState?.data ?? [];
-                
+
                           return FormField<String>(
                             initialValue: selectedTruckType?.id.toString(),
                             validator: (value) {
@@ -1175,7 +1175,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                   field.didChange(selectedVehicleId);
                                 });
                               }
-                
+
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -1199,7 +1199,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                               t.id.toString() ==
                                               selectedTruckType?.id.toString(),
                                         ),
-                
+
                                     onChanged: (TruckTypeModel? value) {
                                       setState(() {
                                         selectedTruckType = value;
@@ -1237,7 +1237,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         builder: (context, state) {
                           final uiState = state.loadWeightUIState;
                           final weights = uiState?.data ?? [];
-                
+
                           return FormField<String>(
                             initialValue: selectedWeightDropDownValue?.toString(),
                             validator: (value) {
@@ -1255,7 +1255,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                   field.didChange(selectedWeightDropDownValue);
                                 });
                               }
-                
+
                               return Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -1303,7 +1303,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           );
                         },
                       ),
-                
+
                       16.height,
                       //Insurance policy number
                       AppTextField(
@@ -1314,7 +1314,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         mandatoryStar: true,
                       ),
                       16.height,
-                
+
                       /// Insurance Validity Date
                       InkWell(
                         onTap: () async {
@@ -1324,12 +1324,12 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                           );
-                
+
                           if (pickedDate != null) {
                             final formattedDate = DateFormat(
                               'dd/MM/yyyy',
                             ).format(pickedDate);
-                
+
                             setState(() {
                               insuranceValidityDate = formattedDate;
                             });
@@ -1351,7 +1351,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         ),
                       ),
                       16.height,
-                
+
                       /// FC Expiry Date
                       FormField<String>(
                         initialValue: fcExpiryDate,
@@ -1369,14 +1369,14 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                         'dd/MM/yyyy',
                                       ).parse(fcExpiryDate!)
                                       : DateTime.now();
-                
+
                               final pickedDate = await showDatePicker(
                                 context: context,
                                 initialDate: initialDate,
                                 firstDate: DateTime.now(),
                                 lastDate: DateTime(2100),
                               );
-                
+
                               if (pickedDate != null) {
                                 final formattedDate = DateFormat(
                                   'dd/MM/yyyy',
@@ -1404,9 +1404,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           );
                         },
                       ),
-                
+
                       16.height,
-                
+
                       /// PUC Expiry Date
                       InkWell(
                         onTap: () async {
@@ -1416,12 +1416,12 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                           );
-                
+
                           if (pickedDate != null) {
                             final formattedDate = DateFormat(
                               'dd/MM/yyyy',
                             ).format(pickedDate);
-                
+
                             setState(() {
                               pucExpiryDate = formattedDate;
                             });
@@ -1770,357 +1770,371 @@ class AddVehicleDialog {
             showYesNoButtonButtons: true,
             yesButtonText: context.appText.save,
             noButtonText: context.appText.cancel,
-            child: SingleChildScrollView(
-              child: Form(
-                key: formKey,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(context.appText.addNewVehicle, style: AppTextStyle.h4),
-                    20.height,
-                    buildVehicleVerificationFieldWidget(
-                      vehicleNoController: truckNumberController,
-                      onVerificationResult: (isVerified, vehicleData) {
-                        setState(() {
-                          isVehicleVerified = isVerified;
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(context).unfocus();
+              },
+              child: SingleChildScrollView(
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        context.appText.addNewVehicle + 'e',
+                        style: AppTextStyle.h4,
+                      ),
+                      20.height,
+                      buildVehicleVerificationFieldWidget(
+                        vehicleNoController: truckNumberController,
+                        onVerificationResult: (isVerified, vehicleData) {
+                          setState(() {
+                            isVehicleVerified = isVerified;
 
-                          // If data came from API, autofill fields
-                          if (vehicleData != null) {
-                            final makeModel =
-                                vehicleData['vehicle_make_model'] ??
-                                vehicleData['modelNumber'];
-                            if (makeModel != null) {
-                              truckMakeModelController.text =
-                                  makeModel.toString();
-                            }
-                            final ownerName =
-                                vehicleData['ownerName'] ??
-                                vehicleData['user_name'];
-                            if (ownerName != null) {
-                              owenerNameController.text = ownerName.toString();
-                            }
-
-                            final insurancePolicyNo =
-                                vehicleData['insurance_policy_number'] ??
-                                vehicleData['insurancePolicyNumber'];
-                            if (insurancePolicyNo != null) {
-                              insurancePolicyNumber.text =
-                                  insurancePolicyNo.toString();
-                            }
-                            final capacity = vehicleData['tonnage'];
-                            if (capacity != null) {
-                              RegExp(r'\d+').stringMatch(capacity.toString());
-                              selectedWeightDropDownValue = capacity;
-
-                              final truckTypeList =
-                                  context
-                                      .read<VpCreateAccountCubit>()
-                                      .state
-                                      .truckTypeUIState
-                                      ?.data ??
-                                  [];
-
-                              final TruckTypeModel? matchedTruckType =
-                                  truckTypeList.firstWhereOrNull(
-                                    (t) => t.id == vehicleData['truckTypeId'],
-                                  );
-
-                              if (matchedTruckType != null) {
-                                selectedTruckType = matchedTruckType;
-                              } else {
-                                selectedTruckType = null;
+                            // If data came from API, autofill fields
+                            if (vehicleData != null) {
+                              final makeModel =
+                                  vehicleData['vehicle_make_model'] ??
+                                  vehicleData['modelNumber'];
+                              if (makeModel != null) {
+                                truckMakeModelController.text =
+                                    makeModel.toString();
+                              }
+                              final ownerName =
+                                  vehicleData['ownerName'] ??
+                                  vehicleData['user_name'];
+                              if (ownerName != null) {
+                                owenerNameController.text =
+                                    ownerName.toString();
                               }
 
-                              final insurancyexpiryRaw =
-                                  vehicleData['insurance_expiry_date'] ??
-                                  vehicleData['insuranceValidityDate'];
-                              insuranceValidityDate = DateHelper.parseDate(
-                                insurancyexpiryRaw,
-                              );
-                              final pucExpiryRaw =
-                                  vehicleData['rc_pucc_expiry_date'] ??
-                                  vehicleData['pucExpiryDate'];
-                              pucExpiryDate = DateHelper.parseDate(
-                                pucExpiryRaw,
-                              );
-                              final fcExpiryRaw = vehicleData['fcExpiryDate'];
-                              fcExpiryDate = DateHelper.parseDate(fcExpiryRaw);
-                              final registrationRaw =
-                                  vehicleData['rc_registration_date'] ??
-                                  vehicleData['registrationDate'];
-                              registrationDate = DateHelper.parseDate(
-                                registrationRaw,
-                              );
+                              final insurancePolicyNo =
+                                  vehicleData['insurance_policy_number'] ??
+                                  vehicleData['insurancePolicyNumber'];
+                              if (insurancePolicyNo != null) {
+                                insurancePolicyNumber.text =
+                                    insurancePolicyNo.toString();
+                              }
+                              final capacity = vehicleData['tonnage'];
+                              if (capacity != null) {
+                                RegExp(r'\d+').stringMatch(capacity.toString());
+                                selectedWeightDropDownValue = capacity;
+
+                                final truckTypeList =
+                                    context
+                                        .read<VpCreateAccountCubit>()
+                                        .state
+                                        .truckTypeUIState
+                                        ?.data ??
+                                    [];
+
+                                final TruckTypeModel? matchedTruckType =
+                                    truckTypeList.firstWhereOrNull(
+                                      (t) => t.id == vehicleData['truckTypeId'],
+                                    );
+
+                                if (matchedTruckType != null) {
+                                  selectedTruckType = matchedTruckType;
+                                } else {
+                                  selectedTruckType = null;
+                                }
+
+                                final insurancyexpiryRaw =
+                                    vehicleData['insurance_expiry_date'] ??
+                                    vehicleData['insuranceValidityDate'];
+                                insuranceValidityDate = DateHelper.parseDate(
+                                  insurancyexpiryRaw,
+                                );
+                                final pucExpiryRaw =
+                                    vehicleData['rc_pucc_expiry_date'] ??
+                                    vehicleData['pucExpiryDate'];
+                                pucExpiryDate = DateHelper.parseDate(
+                                  pucExpiryRaw,
+                                );
+                                final fcExpiryRaw = vehicleData['fcExpiryDate'];
+                                fcExpiryDate = DateHelper.parseDate(
+                                  fcExpiryRaw,
+                                );
+                                final registrationRaw =
+                                    vehicleData['rc_registration_date'] ??
+                                    vehicleData['registrationDate'];
+                                registrationDate = DateHelper.parseDate(
+                                  registrationRaw,
+                                );
+                              }
                             }
-                          }
-                        });
-                      },
-                    ),
-                    16.height,
-                    AppTextField(
-                      validator: (value) => Validator.fieldRequired(value),
-                      controller: owenerNameController,
-                      labelText: context.appText.ownerName,
-                      hintText: context.appText.ownerName,
-                      mandatoryStar: true,
-                    ),
-                    16.height,
-
-                    /// Regsitartion Date
-                    InkWell(
-                      onTap: () async {
-                        final DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime(1900),
-                          lastDate: DateTime(2100),
-                        );
-
-                        if (pickedDate != null) {
-                          final formattedDate = DateFormat(
-                            'dd/MM/yyyy',
-                          ).format(pickedDate);
-
-                          setState(() {
-                            registrationDate = formattedDate;
                           });
-                        }
-                      },
-                      child: buildReadOnlyField(
-                        context.appText.registrationDate,
-                        (registrationDate?.isEmpty ?? true)
-                            ? context.appText.registrationDate
-                            : registrationDate!,
-                        fillColor: Colors.white,
-                        mandatoryStar: true,
-                        textStyle:
-                            (registrationDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                        },
                       ),
-                    ),
+                      16.height,
+                      AppTextField(
+                        validator: (value) => Validator.fieldRequired(value),
+                        controller: owenerNameController,
+                        labelText: context.appText.ownerName,
+                        hintText: context.appText.ownerName,
+                        mandatoryStar: true,
+                      ),
+                      16.height,
 
-                    16.height,
-
-                    16.height,
-                    AppTextField(
-                      validator: (value) => Validator.fieldRequired(value),
-                      controller: truckMakeModelController,
-                      labelText: context.appText.truckMakeAndModel,
-                      hintText: context.appText.truckMakeAndModel,
-                      mandatoryStar: true,
-                    ),
-                    16.height,
-                    Text(context.appText.truckType, style: AppTextStyle.body3),
-                    5.height,
-                    // TrucK Type
-                    BlocBuilder<VpCreateAccountCubit, VpCreateAccountState>(
-                      builder: (context, state) {
-                        final truckTypeUIState = state.truckTypeUIState;
-
-                        if (truckTypeUIState == null ||
-                            truckTypeUIState.status == Status.LOADING) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
+                      /// Regsitartion Date
+                      InkWell(
+                        onTap: () async {
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime(1900),
+                            lastDate: DateTime(2100),
                           );
-                        }
 
-                        if (truckTypeUIState.status == Status.ERROR) {
-                          return const Text("Error loading truck types");
-                        }
+                          if (pickedDate != null) {
+                            final formattedDate = DateFormat(
+                              'dd/MM/yyyy',
+                            ).format(pickedDate);
 
-                        final uiState = state.truckTypeUIState?.data;
-                        final truckTypes = uiState ?? [];
-                        final truckTypeLabels =
-                            truckTypes
-                                .map((e) => '${e.type} - ${e.subType}')
-                                .toList();
-                        final truckTypeLabelMap = Map.fromEntries(
-                          truckTypes.map(
-                            (e) => MapEntry('${e.type} - ${e.subType}', e),
-                          ),
-                        );
+                            setState(() {
+                              registrationDate = formattedDate;
+                            });
+                          }
+                        },
+                        child: buildReadOnlyField(
+                          context.appText.registrationDate,
+                          (registrationDate?.isEmpty ?? true)
+                              ? context.appText.registrationDate
+                              : registrationDate!,
+                          fillColor: Colors.white,
+                          mandatoryStar: true,
+                          textStyle:
+                              (registrationDate ?? "").isEmpty
+                                  ? AppTextStyle.textFieldHint
+                                  : AppTextStyle.textFiled.copyWith(
+                                    color: AppColors.primaryTextColor,
+                                  ),
+                        ),
+                      ),
 
-                        return SearchableDropdown(
-                          noResultsFoundText: context.appText.noResultsFound,
-                          hintText: context.appText.truckType,
-                          items: truckTypeLabels,
-                          selectedItem:
-                              selectedTruckType == null
-                                  ? null
-                                  : '${selectedTruckType!.type} - ${selectedTruckType!.subType}',
-                          onChanged: (value) {
-                            selectedTruckType = truckTypeLabelMap[value];
-                            setState(() {});
-                          },
-                        );
-                      },
-                    ),
-                    16.height,
-                    Text(context.appText.capacity, style: AppTextStyle.body3),
-                    5.height,
-                    BlocBuilder<LPHomeCubit, LPHomeState>(
-                      builder: (context, state) {
-                        final uiState = state.loadWeightUIState;
-                        final weights = uiState?.data ?? [];
-                        final weightLabels =
-                            weights.map((e) => '${e.value} Ton').toList();
+                      16.height,
 
-                        return SearchableDropdown(
-                          noResultsFoundText: context.appText.noResultsFound,
-                          hintText: context.appText.capacity,
-                          items: weightLabels,
-                          selectedItem: selectedWeightDropDownValue,
-                          onChanged: (value) {
-                            selectedWeightDropDownValue = value;
-                            setState(() {});
-                          },
-                        );
-                      },
-                    ),
-                    16.height,
-                    //Insurance policy number
-                    AppTextField(
-                      validator: (value) => Validator.fieldRequired(value),
-                      controller: insurancePolicyNumber,
-                      labelText: context.appText.insurancePolicyNumber,
-                      hintText: context.appText.insurancePolicyNumber,
-                      mandatoryStar: true,
-                    ),
-                    16.height,
-
-                    /// Insurance Validity Date
-                    InkWell(
-                      onTap: () async {
-                        final DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(2100),
-                        );
-
-                        if (pickedDate != null) {
-                          final formattedDate = DateFormat(
-                            'dd/MM/yyyy',
-                          ).format(pickedDate);
-
-                          setState(() {
-                            insuranceValidityDate = formattedDate;
-                          });
-                        }
-                      },
-                      child: buildReadOnlyField(
-                        context.appText.insuranceValidityDate,
-                        (insuranceValidityDate?.isEmpty ?? true)
-                            ? context.appText.insuranceValidityDate
-                            : insuranceValidityDate!,
-                        fillColor: Colors.white,
-                        textStyle:
-                            (insuranceValidityDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                      16.height,
+                      AppTextField(
+                        validator: (value) => Validator.fieldRequired(value),
+                        controller: truckMakeModelController,
+                        labelText: context.appText.truckMakeAndModel,
+                        hintText: context.appText.truckMakeAndModel,
                         mandatoryStar: true,
                       ),
-                    ),
-                    16.height,
+                      16.height,
+                      Text(
+                        context.appText.truckType,
+                        style: AppTextStyle.body3,
+                      ),
+                      5.height,
+                      // TrucK Type
+                      BlocBuilder<VpCreateAccountCubit, VpCreateAccountState>(
+                        builder: (context, state) {
+                          final truckTypeUIState = state.truckTypeUIState;
 
-                    /// FC Expiry Date
-                    FormField<String>(
-                      initialValue: fcExpiryDate,
-                      validator:
-                          (value) =>
-                              (value == null || value.isEmpty)
-                                  ? 'FC Expiry Date is required'
-                                  : null,
-                      builder: (state) {
-                        return InkWell(
-                          onTap: () async {
-                            final DateTime initialDate =
-                                fcExpiryDate != null
-                                    ? DateFormat(
-                                      'dd/MM/yyyy',
-                                    ).parse(fcExpiryDate!)
-                                    : DateTime.now();
-
-                            final pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: initialDate,
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(2100),
+                          if (truckTypeUIState == null ||
+                              truckTypeUIState.status == Status.LOADING) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
                             );
+                          }
 
-                            if (pickedDate != null) {
-                              final formattedDate = DateFormat(
-                                'dd/MM/yyyy',
-                              ).format(pickedDate);
-                              setState(() {
-                                fcExpiryDate = formattedDate;
-                              });
-                              state.didChange(
-                                formattedDate,
-                              ); // Update FormField state
-                            }
-                          },
-                          child: buildReadOnlyField(
-                            context.appText.fcExpiryDate,
-                            fcExpiryDate ?? context.appText.fcExpiryDate,
-                            fillColor: Colors.white,
-                            textStyle:
-                                (fcExpiryDate ?? "").isEmpty
-                                    ? AppTextStyle.textFieldHint
-                                    : AppTextStyle.textFiled.copyWith(
-                                      color: AppColors.primaryTextColor,
-                                    ),
-                            mandatoryStar: true,
-                          ),
-                        );
-                      },
-                    ),
+                          if (truckTypeUIState.status == Status.ERROR) {
+                            return const Text("Error loading truck types");
+                          }
 
-                    16.height,
+                          final uiState = state.truckTypeUIState?.data;
+                          final truckTypes = uiState ?? [];
+                          final truckTypeLabels =
+                              truckTypes
+                                  .map((e) => '${e.type} - ${e.subType}')
+                                  .toList();
+                          final truckTypeLabelMap = Map.fromEntries(
+                            truckTypes.map(
+                              (e) => MapEntry('${e.type} - ${e.subType}', e),
+                            ),
+                          );
 
-                    /// PUC Expiry Date
-                    InkWell(
-                      onTap: () async {
-                        final DateTime? pickedDate = await showDatePicker(
-                          context: context,
-                          initialDate: DateTime.now(),
-                          firstDate: DateTime.now(),
-                          lastDate: DateTime(2100),
-                        );
+                          return SearchableDropdown(
+                            noResultsFoundText: context.appText.noResultsFound,
+                            hintText: context.appText.truckType,
+                            items: truckTypeLabels,
+                            selectedItem:
+                                selectedTruckType == null
+                                    ? null
+                                    : '${selectedTruckType!.type} - ${selectedTruckType!.subType}',
+                            onChanged: (value) {
+                              selectedTruckType = truckTypeLabelMap[value];
+                              setState(() {});
+                            },
+                          );
+                        },
+                      ),
+                      16.height,
+                      Text(context.appText.capacity, style: AppTextStyle.body3),
+                      5.height,
+                      BlocBuilder<LPHomeCubit, LPHomeState>(
+                        builder: (context, state) {
+                          final uiState = state.loadWeightUIState;
+                          final weights = uiState?.data ?? [];
+                          final weightLabels =
+                              weights.map((e) => '${e.value} Ton').toList();
 
-                        if (pickedDate != null) {
-                          final formattedDate = DateFormat(
-                            'dd/MM/yyyy',
-                          ).format(pickedDate);
-
-                          setState(() {
-                            pucExpiryDate = formattedDate;
-                          });
-                        }
-                      },
-                      child: buildReadOnlyField(
-                        context.appText.pucExpiryDate,
-                        (pucExpiryDate?.isEmpty ?? true)
-                            ? context.appText.pucExpiryDate
-                            : pucExpiryDate!,
-                        fillColor: Colors.white,
-                        textStyle:
-                            (pucExpiryDate ?? "").isEmpty
-                                ? AppTextStyle.textFieldHint
-                                : AppTextStyle.textFiled.copyWith(
-                                  color: AppColors.primaryTextColor,
-                                ),
+                          return SearchableDropdown(
+                            noResultsFoundText: context.appText.noResultsFound,
+                            hintText: context.appText.capacity,
+                            items: weightLabels,
+                            selectedItem: selectedWeightDropDownValue,
+                            onChanged: (value) {
+                              selectedWeightDropDownValue = value;
+                              setState(() {});
+                            },
+                          );
+                        },
+                      ),
+                      16.height,
+                      //Insurance policy number
+                      AppTextField(
+                        validator: (value) => Validator.fieldRequired(value),
+                        controller: insurancePolicyNumber,
+                        labelText: context.appText.insurancePolicyNumber,
+                        hintText: context.appText.insurancePolicyNumber,
                         mandatoryStar: true,
                       ),
-                    ),
-                    20.height,
-                  ],
+                      16.height,
+
+                      /// Insurance Validity Date
+                      InkWell(
+                        onTap: () async {
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+
+                          if (pickedDate != null) {
+                            final formattedDate = DateFormat(
+                              'dd/MM/yyyy',
+                            ).format(pickedDate);
+
+                            setState(() {
+                              insuranceValidityDate = formattedDate;
+                            });
+                          }
+                        },
+                        child: buildReadOnlyField(
+                          context.appText.insuranceValidityDate,
+                          (insuranceValidityDate?.isEmpty ?? true)
+                              ? context.appText.insuranceValidityDate
+                              : insuranceValidityDate!,
+                          fillColor: Colors.white,
+                          textStyle:
+                              (insuranceValidityDate ?? "").isEmpty
+                                  ? AppTextStyle.textFieldHint
+                                  : AppTextStyle.textFiled.copyWith(
+                                    color: AppColors.primaryTextColor,
+                                  ),
+                          mandatoryStar: true,
+                        ),
+                      ),
+                      16.height,
+
+                      /// FC Expiry Date
+                      FormField<String>(
+                        initialValue: fcExpiryDate,
+                        validator:
+                            (value) =>
+                                (value == null || value.isEmpty)
+                                    ? 'FC Expiry Date is required'
+                                    : null,
+                        builder: (state) {
+                          return InkWell(
+                            onTap: () async {
+                              final DateTime initialDate =
+                                  fcExpiryDate != null
+                                      ? DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).parse(fcExpiryDate!)
+                                      : DateTime.now();
+
+                              final pickedDate = await showDatePicker(
+                                context: context,
+                                initialDate: initialDate,
+                                firstDate: DateTime.now(),
+                                lastDate: DateTime(2100),
+                              );
+
+                              if (pickedDate != null) {
+                                final formattedDate = DateFormat(
+                                  'dd/MM/yyyy',
+                                ).format(pickedDate);
+                                setState(() {
+                                  fcExpiryDate = formattedDate;
+                                });
+                                state.didChange(
+                                  formattedDate,
+                                ); // Update FormField state
+                              }
+                            },
+                            child: buildReadOnlyField(
+                              context.appText.fcExpiryDate,
+                              fcExpiryDate ?? context.appText.fcExpiryDate,
+                              fillColor: Colors.white,
+                              textStyle:
+                                  (fcExpiryDate ?? "").isEmpty
+                                      ? AppTextStyle.textFieldHint
+                                      : AppTextStyle.textFiled.copyWith(
+                                        color: AppColors.primaryTextColor,
+                                      ),
+                              mandatoryStar: true,
+                            ),
+                          );
+                        },
+                      ),
+
+                      16.height,
+
+                      /// PUC Expiry Date
+                      InkWell(
+                        onTap: () async {
+                          final DateTime? pickedDate = await showDatePicker(
+                            context: context,
+                            initialDate: DateTime.now(),
+                            firstDate: DateTime.now(),
+                            lastDate: DateTime(2100),
+                          );
+
+                          if (pickedDate != null) {
+                            final formattedDate = DateFormat(
+                              'dd/MM/yyyy',
+                            ).format(pickedDate);
+
+                            setState(() {
+                              pucExpiryDate = formattedDate;
+                            });
+                          }
+                        },
+                        child: buildReadOnlyField(
+                          context.appText.pucExpiryDate,
+                          (pucExpiryDate?.isEmpty ?? true)
+                              ? context.appText.pucExpiryDate
+                              : pucExpiryDate!,
+                          fillColor: Colors.white,
+                          textStyle:
+                              (pucExpiryDate ?? "").isEmpty
+                                  ? AppTextStyle.textFieldHint
+                                  : AppTextStyle.textFiled.copyWith(
+                                    color: AppColors.primaryTextColor,
+                                  ),
+                          mandatoryStar: true,
+                        ),
+                      ),
+                      20.height,
+                    ],
+                  ),
                 ),
               ),
             ),
