@@ -411,6 +411,10 @@ class ApiService {
   Future<Result<dynamic>> _handleHttpError(Response? response) async {
     switch (response?.statusCode) {
       case 400:
+      final data = response?.data;
+        if (data is Map && data['message'] is List && data['message'].isNotEmpty) {
+          return Error(BadRequestError(message: data['message'].first));
+        }
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 401:
       // Prevent retry loop
