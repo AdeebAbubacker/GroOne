@@ -703,10 +703,6 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
           return AppButton(
             onPressed: () async {
-              Navigator.pushReplacement(
-                context,
-                commonRoute(EndhanCreateCardCustomerInfoScreen()),
-              );
               if (isLoading) return;
 
               final bool isAadhaarVerified = state.isAadhaarVerified;
