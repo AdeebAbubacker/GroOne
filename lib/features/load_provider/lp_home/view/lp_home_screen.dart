@@ -50,6 +50,7 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/update_popup.dart';
@@ -344,6 +345,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     var companyId = profileCubit.state.profileDetailUIState?.data?.customer?.companyTypeId;
     commonBottomSheetWithBGBlur(
       screen: KycPendingDialogue(
+
         isLp: true,
         onPressed: () {
           context.pop();
@@ -416,6 +418,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     return Scaffold(
       appBar: buildAppBarWidget(context, role),
       body: isLoading ? CircularProgressIndicator().center() : buildBodyWidget(context, role),
+      floatingActionButton: ChatActionButton(),
     );
   }
 

@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
@@ -501,6 +502,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                   ],
                 ),
                 body: GpsOrderListWithTabs(orders: state.orderList.data.rows),
+                floatingActionButton: ChatActionButton(),
               );
             }
           }
@@ -665,6 +667,53 @@ class GpsOrderListWithTabs extends StatefulWidget {
 
 class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
   int selectedTab = 0;
+  int listCount = 7;
+  final ScrollController scrollController = ScrollController();
+  String customerId = '';
+  int page = 1;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    scrollController.addListener(_onScroll);
+    _getCustomerId();
+  }
+
+  Future<void> _getCustomerId() async {
+    final userRepository = locator<UserInformationRepository>();
+    final id = await userRepository.getUserID() ?? '';
+    setState(() {
+      customerId = id;
+    });
+  }
+
+  void _onScroll() async {
+    if (!scrollController.hasClients) return;
+
+    // Simple bottom detection like your example
+
+    // Simple pagination trigger - exactly like your working example
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      if (customerId.isNotEmpty) {
+        Future.microtask(() {
+          if (mounted) {
+            page += 1;
+            if (!context.mounted) return;
+            context.read<GpsOrderListCubit>().getOrderList(
+              customerId: customerId,
+              page: page,
+            );
+          }
+        });
+        await Future.delayed(Duration(seconds: 10));
+        setState(() {
+          listCount = 35;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -748,6 +797,7 @@ class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
                       vertical: 10,
                       horizontal: 10,
                     ),
+                    controller: scrollController,
                     itemCount: filteredOrders.length,
                     separatorBuilder: (_, __) => 8.height,
                     itemBuilder: (context, index) {

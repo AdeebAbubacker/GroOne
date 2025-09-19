@@ -716,10 +716,18 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
       } else if (widget.state.truckIcon != null) {
         // For regular paths, show animated truck marker
         final cubit = context.read<PathReplayCubit>();
+
+        // Use animated position if available and playing, otherwise use current position
+        final markerPosition =
+            widget.state.isPlaying &&
+                    widget.state.animatedMarkerPosition != null
+                ? widget.state.animatedMarkerPosition!
+                : currentPosition;
+
         markers.add(
           Marker(
             markerId: const MarkerId('truck'),
-            position: widget.state.animatedMarkerPosition ?? currentPosition,
+            position: markerPosition,
             icon: widget.state.truckIcon!,
             rotation: cubit.getCurrentRotation(),
             flat: true,
@@ -798,19 +806,32 @@ class _PathReplayMapWidgetState extends State<PathReplayMapWidget> {
         state.isPlaying &&
         state.pathType != 'ignition' &&
         state.pathType != 'daily') {
-      // Use smoother camera animation with appropriate zoom level
+      // Use speed-based camera animation like native Android
       final currentZoom = await controller.getZoomLevel();
-      controller.animateCamera(
-        CameraUpdate.newCameraPosition(
-          CameraPosition(
-            target: state.animatedMarkerPosition!,
-            zoom: currentZoom.clamp(
-              14.0,
-              18.0,
-            ), // Maintain reasonable zoom level
+      final targetZoom = currentZoom.clamp(14.0, 18.0);
+
+      // Use moveCamera for high speeds, animateCamera for low speeds
+      if (state.playbackSpeed > 4.0) {
+        // High speed - use moveCamera for instant following
+        controller.moveCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: state.animatedMarkerPosition!,
+              zoom: targetZoom,
+            ),
           ),
-        ),
-      );
+        );
+      } else {
+        // Low speed - use smooth animation
+        controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: state.animatedMarkerPosition!,
+              zoom: targetZoom,
+            ),
+          ),
+        );
+      }
     }
   }
 }

@@ -3,9 +3,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/gps_feature/views/widgets/referral_autocomplete_textfield.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -40,10 +42,8 @@ class BuyNewFastagScreen extends StatefulWidget {
 class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
   bool _isLoading = false;
   final TextEditingController _referralCodeController = TextEditingController();
-  final List<TextEditingController> _vehicleControllers = [
-    TextEditingController(),
-  ];
-  final List<bool> _vehicleVerifiedList = [false];
+  List<TextEditingController> _vehicleControllers = [TextEditingController()];
+  List<bool> _vehicleVerifiedList = [false];
   final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   @override
@@ -60,6 +60,8 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<FastagCubit>().resetRcDocuments();
+      final cubit = context.read<FastagCubit>();
+      cubit.addVehicleDocs();
     });
   }
 
@@ -132,6 +134,9 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                   setState(() {
                     _vehicleControllers.add(TextEditingController());
                     _vehicleVerifiedList.add(false);
+
+                    final cubit = context.read<FastagCubit>();
+                    cubit.addVehicleDocs();
                   });
                 },
                 child: Text(
@@ -175,6 +180,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
           ),
           const SizedBox(height: 12),
           VehicleSelectionField(
+            key: ValueKey('${index}_${_vehicleVerifiedList[index]}'),
             controller: _vehicleControllers[index],
             hintText: context.appText.selectVehicleNumber,
             index: index,
@@ -227,10 +233,13 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                         Expanded(
                           child: EndhanDocumentUploadWidget(
                             feildTitle: context.appText.frontSideRC,
-                            multiFilesList: state.frontRcDocuments,
+                            multiFilesList: state.frontRcDocuments[index],
                             isSingleFile: true,
                             onFilesChanged: (newList) async {
-                              cubit.updateFrontRc(newList);
+                              cubit.updateFrontRc(
+                                index,
+                                newList.cast<Map<String, String>>(),
+                              );
                               if (newList.isEmpty) {
                                 cubit.setFrontRcUploaded(false);
                                 return;
@@ -240,7 +249,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                                 final uploadResponse = await cubit
                                     .uploadDocument(File(filePath));
                                 if (uploadResponse?.data?.url != null) {
-                                  cubit.updateFrontRc([
+                                  cubit.updateFrontRc(index, [
                                     {
                                       'fileName': uploadResponse!.data!.url,
                                       'path': uploadResponse.data!.url,
@@ -267,10 +276,13 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                         Expanded(
                           child: EndhanDocumentUploadWidget(
                             feildTitle: context.appText.backSideRC,
-                            multiFilesList: state.backRcDocuments,
+                            multiFilesList: state.backRcDocuments[index],
                             isSingleFile: true,
                             onFilesChanged: (newList) async {
-                              cubit.updateBackRc(newList);
+                              cubit.updateBackRc(
+                                index,
+                                newList.cast<Map<String, String>>(),
+                              );
                               if (newList.isEmpty) {
                                 cubit.setBackRcUploaded(false);
                                 return;
@@ -280,7 +292,7 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
                                 final uploadResponse = await cubit
                                     .uploadDocument(File(filePath));
                                 if (uploadResponse?.data?.url != null) {
-                                  cubit.updateBackRc([
+                                  cubit.updateBackRc(index, [
                                     {
                                       'fileName': uploadResponse!.data!.url,
                                       'path': uploadResponse.data!.url,
@@ -372,12 +384,14 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
         {
           "vehicleNo": _vehicleControllers[i].text.trim(),
           "rcFrontPage":
-              cubit.state.frontRcDocuments.isNotEmpty
-                  ? cubit.state.frontRcDocuments.first['fileName']
+              cubit.state.frontRcDocuments.length > i &&
+                      cubit.state.frontRcDocuments[i].isNotEmpty
+                  ? cubit.state.frontRcDocuments[i].first['fileName'] ?? ''
                   : "",
           "rcBackPage":
-              cubit.state.backRcDocuments.isNotEmpty
-                  ? cubit.state.backRcDocuments.first['fileName']
+              cubit.state.backRcDocuments.length > i &&
+                      cubit.state.backRcDocuments[i].isNotEmpty
+                  ? cubit.state.backRcDocuments[i].first['fileName'] ?? ''
                   : "",
         },
     ];
@@ -429,7 +443,23 @@ class _BuyNewFastagScreenState extends State<BuyNewFastagScreen> {
         afterDismiss: () {
           context.read<FastagCubit>().resetRcDocuments();
           Navigator.pop(context);
-          Navigator.pushReplacement(context, commonRoute(FastagListScreen()));
+          Future.delayed(Duration(milliseconds: 100), () {
+            if (!context.mounted) return;
+            context.push(AppRouteName.fastTagListScreen).then((v) {
+              setState(() {
+                _referralCodeController.clear();
+                _vehicleControllers = [TextEditingController()];
+                _vehicleVerifiedList = [false];
+              });
+            });
+          }).then((v) {
+            setState(() {
+              _referralCodeController.clear();
+              _vehicleControllers = [TextEditingController()];
+              _vehicleVerifiedList.add(false);
+              debugPrint('_vehicleVerifiedList=>$_vehicleVerifiedList');
+            });
+          });
         },
       ),
     );

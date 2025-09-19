@@ -90,7 +90,6 @@ class _MasterScreenState extends State<MasterScreen>
     context.read<MastersCubit>().resetVehicleVerification();
     _tabController = TabController(
       initialIndex: widget.initialIndex ?? 0,
-
       length: (kycCubit.userRole == 3 && (profileCubit.state.switchToVp??false)) ||  kycCubit.userRole==2 ?  4:3,
       vsync: this,
     );
@@ -98,8 +97,6 @@ class _MasterScreenState extends State<MasterScreen>
       if (mounted) setState(() {});
     });
     kycCubit.fetchStateList();
-
-    print("value is ${profileCubit.state.switchToVp}");
     initFunction();
   }
 
