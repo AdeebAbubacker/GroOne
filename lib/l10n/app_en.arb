@@ -1357,6 +1357,10 @@
   "licenseCategoryRequired" : "License Category is required",
   "bloodGroupRequired" : "Blood group is required",
   "sorryUnserveicedLoad" : "Sorry load is unserviced",
+  "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads",
+  "insuranceValidityDate" : "Insurance Validity Date",
+  "fcExpiryDate" : "FC Expiry Date",
+  "pucExpiryDate" : "PUC Expiry Date"
   "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads"
   "gstNo" : "GST",
   "kycRejected":"Your kyc is rejected"

@@ -28,6 +28,8 @@ class ReachabilityCubit extends Cubit<ReachabilityState> {
 
   /// Initialize the reachability screen with vehicles and geofences
   Future<void> initialize() async {
+    if (isClosed) return; // Check if cubit is closed
+
     emit(state.copyWith(isLoading: true));
 
     try {
@@ -39,12 +41,16 @@ class ReachabilityCubit extends Cubit<ReachabilityState> {
         vehicles = vehiclesResult.value;
       }
 
+      if (isClosed) return; // Check again after async operation
+
       // Load geofences
       await _geofenceCubit.loadGeofences();
       final geofences =
           _geofenceCubit.state is GpsGeofenceLoaded
               ? (_geofenceCubit.state as GpsGeofenceLoaded).geofences
               : <GpsGeofenceModel>[];
+
+      if (isClosed) return; // Check again after async operation
 
       // Convert geofences to reachability geofences
       final reachabilityGeofences =
@@ -60,6 +66,8 @@ class ReachabilityCubit extends Cubit<ReachabilityState> {
             );
           }).toList();
 
+      if (isClosed) return; // Check before final emit
+
       emit(
         state.copyWith(
           isLoading: false,
@@ -69,47 +77,63 @@ class ReachabilityCubit extends Cubit<ReachabilityState> {
         ),
       );
     } catch (e) {
+      if (isClosed) return; // Check before error emit
       emit(state.copyWith(isLoading: false, error: e.toString()));
     }
   }
 
   /// Select a vehicle
   void selectVehicle(GpsCombinedVehicleData? vehicle) {
+    if (isClosed) return;
     emit(state.copyWith(selectedVehicle: vehicle));
   }
 
   /// Set location method
   void setLocationMethod(LocationMethod method) {
+    if (isClosed) return;
     emit(state.copyWith(locationMethod: method));
   }
 
   /// Set location address
   void setLocationAddress(String address) {
+    if (isClosed) return;
     emit(state.copyWith(locationAddress: address));
   }
 
   /// Set radius
   void setRadius(double radius) {
+    if (isClosed) return;
     emit(state.copyWith(radius: radius));
   }
 
   /// Select a geofence
   void selectGeofence(ReachabilityGeofence? geofence) {
+    if (isClosed) return;
     emit(state.copyWith(selectedGeofence: geofence));
   }
 
   /// Set selected date
   void setSelectedDate(DateTime? date) {
+    if (isClosed) return;
     emit(state.copyWith(selectedDate: date));
   }
 
-  /// Set selected time
-  void setSelectedTime(DateTime? time) {
-    emit(state.copyWith(selectedTime: time));
+  /// Set selected start time
+  void setSelectedStartTime(DateTime? time) {
+    if (isClosed) return;
+    emit(state.copyWith(selectedStartTime: time));
+  }
+
+  /// Set selected end time
+  void setSelectedEndTime(DateTime? time) {
+    if (isClosed) return;
+    emit(state.copyWith(selectedEndTime: time));
   }
 
   /// Toggle notification method
   void toggleNotificationMethod(NotificationMethod method) {
+    if (isClosed) return;
+
     final currentMethods = List<NotificationMethod>.from(
       state.notificationMethods,
     );
@@ -125,43 +149,53 @@ class ReachabilityCubit extends Cubit<ReachabilityState> {
 
   /// Set map center for location selection
   void setMapCenter(LatLng center) {
+    if (isClosed) return;
     emit(state.copyWith(mapCenter: center));
   }
 
   /// Create reachability configuration
   Future<void> createReachabilityConfig() async {
+    if (isClosed) return; // Check if cubit is closed
+
     if (state.selectedVehicle == null) {
+      if (isClosed) return;
       emit(state.copyWith(error: 'Please select a vehicle'));
       return;
     }
 
     if (state.locationMethod == LocationMethod.newLocation) {
       if (state.locationAddress?.isEmpty ?? true) {
+        if (isClosed) return;
         emit(state.copyWith(error: 'Please enter a location address'));
         return;
       }
       if (state.radius == null || state.radius! <= 0) {
+        if (isClosed) return;
         emit(state.copyWith(error: 'Please enter a valid radius'));
         return;
       }
       if (state.mapCenter == null) {
+        if (isClosed) return;
         emit(state.copyWith(error: 'Please select a location on the map'));
         return;
       }
     } else {
       if (state.selectedGeofence == null) {
+        if (isClosed) return;
         emit(state.copyWith(error: 'Please select a geofence'));
         return;
       }
     }
 
     if (state.notificationMethods.isEmpty) {
+      if (isClosed) return;
       emit(
         state.copyWith(error: 'Please select at least one notification method'),
       );
       return;
     }
 
+    if (isClosed) return;
     emit(state.copyWith(isCreating: true, error: null));
 
     try {
@@ -195,13 +229,15 @@ class ReachabilityCubit extends Cubit<ReachabilityState> {
                 ? state.selectedGeofence?.name
                 : null,
         selectedDate: state.selectedDate,
-        selectedTime: state.selectedTime,
+        selectedTime: state.selectedStartTime,
         notificationMethods: state.notificationMethods,
         createdAt: DateTime.now(),
         updatedAt: DateTime.now(),
       );
 
       final result = await _service.createReachabilityConfig(config);
+
+      if (isClosed) return; // Check after async operation
 
       if (result is Success) {
         emit(state.copyWith(isCreating: false, isSuccess: true, error: null));
@@ -213,17 +249,20 @@ class ReachabilityCubit extends Cubit<ReachabilityState> {
         emit(state.copyWith(isCreating: false, error: errorMessage));
       }
     } catch (e) {
+      if (isClosed) return; // Check before error emit
       emit(state.copyWith(isCreating: false, error: e.toString()));
     }
   }
 
   /// Reset the form
   void resetForm() {
+    if (isClosed) return;
     emit(ReachabilityState());
   }
 
   /// Clear error
   void clearError() {
+    if (isClosed) return;
     emit(state.copyWith(error: null));
   }
 }
