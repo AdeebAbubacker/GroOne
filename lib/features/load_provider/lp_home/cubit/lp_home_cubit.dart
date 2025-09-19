@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
@@ -141,33 +140,35 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
 
     emit(state.copyWith(isFetchingRecent: true));
 
-    // reset when search changes
-    if (search != null && search.trim().isNotEmpty) {
-      _setRecentUIState(UIState.loading(), 1);
-    } else if (isInit || isLoading) {
+    final isSearching = search != null && search.trim().isNotEmpty;
+
+    // Reset UI when search changes or initial load
+    if (isSearching || isInit || isLoading) {
       if (isLoading) _setRecentUIState(UIState.loading(), 1);
     }
-    final oldData = state.recentRouteState?.data?.data.data ?? [];
-    final totalRecords = state.recentRouteState?.data?.data.total ?? 0;
-    if (oldData.length >= totalRecords && totalRecords > 0) {
+
+    // Determine current page
+    final currentPage = isSearching ? 1 : (state.recentPage ?? 1);
+
+    // Old data only for non-search
+    final oldData = (!isSearching) ? state.recentRouteState?.data?.data.data ?? [] : [];
+    final totalRecords = (!isSearching) ? state.recentRouteState?.data?.data.total ?? 0 : 0;
+
+    // Stop pagination if all data loaded (only for non-search)
+    if (!isSearching && oldData.length >= totalRecords && totalRecords > 0) {
       emit(state.copyWith(isFetchingRecent: false));
       return;
     }
-    final currentPage = state.recentPage ?? 1;
 
-    final result = await _repo.getRecentRouteData(
-      search,
-      currentPage,
-    );
+    // Fetch data from repository
+    final result = await _repo.getRecentRouteData(search, currentPage);
 
     if (result is Success<RecentRoutesModel>) {
       final fetchedData = result.value;
-      final oldObject = (search != null && search.trim().isNotEmpty)
-          ? null 
-          : state.recentRouteState?.data;
 
+      // Merge old + new data for non-search
       final List<RecentRouteData> mergedList = [
-        ...oldObject?.data.data ?? [],
+        ...oldData,
         ...fetchedData.data.data,
       ];
 
@@ -180,15 +181,12 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
         UIState.success(modifiedData),
         currentPage + 1,
       );
-    }
-
-    if (result is Error<RecentRoutesModel>) {
+    } else if (result is Error<RecentRoutesModel>) {
       _setRecentUIState(UIState.error(result.type), currentPage);
     }
 
     emit(state.copyWith(isFetchingRecent: false));
   }
-
 
 
 
