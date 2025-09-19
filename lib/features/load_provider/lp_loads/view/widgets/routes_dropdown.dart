@@ -122,7 +122,6 @@ class VehicleTypeSearchableDropdown extends StatefulWidget {
 class _VehicleTypeSearchableDropdownState
     extends State<VehicleTypeSearchableDropdown> {
   List<TruckTypeModel> _allVehicleTypes = [];
-
   bool _isFetched = false;
 
   Future<List<TruckTypeModel>> _getVehicleTypes() async {
@@ -135,6 +134,8 @@ class _VehicleTypeSearchableDropdownState
 
   @override
   Widget build(BuildContext context) {
+    final initialTruck = widget.selectedVehicleType;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -159,17 +160,17 @@ class _VehicleTypeSearchableDropdownState
             hintText: Text(widget.hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
 
-            initialValue:
-                widget.selectedVehicleType != null
-                    ? SearchableDropdownMenuItem<TruckTypeModel>(
-                      value: widget.selectedVehicleType!,
-                      label:
-                          "${widget.selectedVehicleType?.type ?? ''} ${widget.selectedVehicleType?.subType ?? ''}",
-                      child: Text(
-                        "${widget.selectedVehicleType?.type ?? ''} ${widget.selectedVehicleType?.subType ?? ''}",
-                      ),
-                    )
-                    : null,
+            // ✅ Pre-select value if ID matches
+            initialValue: initialTruck != null
+                ? SearchableDropdownMenuItem<TruckTypeModel>(
+                    value: initialTruck,
+                    label:
+                        "${initialTruck.type ?? ''} ${initialTruck.subType ?? ''}",
+                    child: Text(
+                      "${initialTruck.type ?? ''} ${initialTruck.subType ?? ''}",
+                    ),
+                  )
+                : null,
 
             futureRequest: () async {
               final allVehicleTypes = await _getVehicleTypes();

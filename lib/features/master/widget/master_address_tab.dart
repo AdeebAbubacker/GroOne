@@ -332,14 +332,12 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                       context,
                       addressNameController,
                       context.appText.addressName,
-                      alphanumericWithSpaceRegex,
                     ),
                     16.height,
                     _buildTextField(
                       context,
                       addressController,
                       context.appText.address,
-                      alphanumericWithSpaceRegex,
                     ),
                     16.height,
                     FormField<String>(
@@ -567,7 +565,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
     BuildContext context,
     TextEditingController controller,
     String label,
-    RegExp pattern,
   ) {
     return AppTextField(
       mandatoryStar: true,
@@ -575,7 +572,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
       controller: controller,
       labelText: label,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(pattern),
         LengthLimitingTextInputFormatter(100),
       ],
     );
@@ -650,27 +646,21 @@ class StateDropdown extends StatelessWidget {
                       ),
                     )
                     : null,
-
-            // Pagination request
             paginatedRequest: (int page, String? searchKey) async {
-              await stateCubit.fetchStateList(
-                search: searchKey,
-                loadMore: page > 1,
-              );
-               // Stop scrolling when last page reached
-            if (stateCubit.isStateLastPage && page > stateCubit.stateCurrentPage) {
-              return [];
-            }
-              final stateList = stateCubit.state.stateUIState?.data ?? [];
-              return stateList.map((state) {
-                return SearchableDropdownMenuItem<StateModelList>(
-                  value: state,
-                  label: state.name,
-                  child: Text(state.name),
-                );
-              }).toList();
-            },
+            await stateCubit.fetchStateList(search: searchKey, loadMore: page > 1);
 
+            final stateList = stateCubit.state.stateUIState?.data ?? [];
+            if (stateList.isEmpty) return [];
+            final itemsForThisPage = stateList.skip((page - 1) * 10).take(10).toList();
+
+            return itemsForThisPage.map((state) {
+              return SearchableDropdownMenuItem<StateModelList>(
+                value: state,
+                label: state.name,
+                child: Text(state.name),
+              );
+            }).toList();
+           },
             onChanged: (StateModelList? newState) {
               // Pass the ID to parent callback
               onStateChanged(newState);
@@ -797,7 +787,8 @@ class _CityDropdownState extends State<CityDropdown> {
                 return [];
                 }
                 final cityList = kycCubit.state.cityUIState?.data ?? [];
-                return cityList.map((city) {
+                final itemsForThisPage = cityList.skip((page - 1) * 10).take(10).toList();
+                return itemsForThisPage.map((city) {
                   return SearchableDropdownMenuItem<CityModelList>(
                     value: city,
                     label: city.city,

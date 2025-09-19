@@ -147,4 +147,5 @@ class SvgIcons {
   final String gpsHomeSettings = "${_svgBasePath}gps_home_settings.svg";
   final String gpsHomeGeofences = "${_svgBasePath}gps_home_geofence.svg";
   final String calenderIcons = "${_svgBasePath}calender.svg";
+  final String eyeOutline = "${_svgBasePath}eyeOutline.svg";
 }
