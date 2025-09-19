@@ -255,6 +255,7 @@ class AppTextStyle {
   static TextStyle textFiled = GoogleFonts.ubuntu(color: AppColors.primaryTextColor , fontSize: 14);
   static TextStyle textFieldHint = GoogleFonts.ubuntu(color: AppColors.greyTextColor, fontWeight: FontWeight.w400, fontSize: 12);
   static TextStyle textFieldHintBlackColor = GoogleFonts.ubuntu(color: Colors.black, fontWeight: FontWeight.w400, fontSize: 14);
+   static TextStyle textFieldHintRedColor = GoogleFonts.ubuntu(color: AppColors.red, fontSize: 12);
   
    /// Radial Progress text
   static TextStyle radialProgressText = GoogleFonts.poppins(fontWeight: FontWeight.w500,fontSize: 10,color: AppColors.primaryTextColor);

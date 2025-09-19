@@ -122,6 +122,7 @@ class _AvailableLoadsFilterScreenState
   Widget build(BuildContext context) {
     return AppBottomSheetBody(
       title: context.appText.filter,
+      isCloseButton: false,
       body: _buildBody(context: context),
     );
   }
@@ -178,6 +179,10 @@ class _AvailableLoadsFilterScreenState
                     search: searchKey,
                     loadMore: page > 1,
                   );
+                   if (lpLoadLocator.isRoutesLastPage &&
+                      page > lpLoadLocator.rootsCurrentPage) {
+                    return [];
+                  }
                   return routeList;
                 },
                 selectedRoute: selectedItem,

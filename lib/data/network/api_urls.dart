@@ -42,6 +42,7 @@ class ApiUrls {
   static String get _tracking => "/tracking";
   static String get _paymentBroker => "/payment-broker";
   static String get _loadSettlement => "/load-settlement";
+  static String get _audit => "/audit";
 
   /// Base URL
   static String get _baseUrl => _fetchUrl;
@@ -408,5 +409,5 @@ class ApiUrls {
 
   /// Events API
   static final String createEvent =
-      "https://groone-uat.letsgro.co/audit/api/v1/events";
+      "$_baseUrl$_audit$_path$_v1/events";
 }

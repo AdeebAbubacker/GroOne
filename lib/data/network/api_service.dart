@@ -70,18 +70,6 @@ class ApiService {
       if (accessToken != null && accessToken.isNotEmpty) {
         final authHeader = 'Bearer $accessToken';
         headers['Authorization'] = authHeader;
-
-        // Debug token information
-        CustomLog.debug(this, "🔐 Token length: ${accessToken.length}");
-        CustomLog.debug(
-          this,
-          "🔐 Token preview: ${accessToken.substring(0, accessToken.length > 20 ? 20 : accessToken.length)}...",
-        );
-        CustomLog.debug(
-          this,
-          "🔐 Token has dots: ${accessToken.contains('.')}",
-        );
-        CustomLog.debug(this, "🔐 Full auth header: $authHeader");
       }
     } catch (e) {
       CustomLog.error(this, "Error getting authentication token", e);
@@ -98,7 +86,10 @@ class ApiService {
       final hasToken = token != null && token.isNotEmpty;
       CustomLog.debug(this, "🔐 Token availability check: $hasToken");
       if (hasToken) {
-        CustomLog.debug(this, "🔐 Token value: '${token.substring(0, 10)}...'");
+        CustomLog.debug(
+          this,
+          "🔐 Token value: '${token.substring(0, 10)}...'",
+        );
       }
       return hasToken;
     } catch (e) {
@@ -419,6 +410,10 @@ class ApiService {
   Future<Result<dynamic>> _handleHttpError(Response? response) async {
     switch (response?.statusCode) {
       case 400:
+      final data = response?.data;
+        if (data is Map && data['message'] is List && data['message'].isNotEmpty) {
+          return Error(BadRequestError(message: data['message'].first));
+        }
         return Error(BadRequestError.fromApiResponse(response?.data));
       case 422:
         // Unprocessable Entity - validation error
@@ -475,10 +470,7 @@ class ApiService {
     try {
       final requestOptions = originalResponse.requestOptions;
 
-      CustomLog.debug(
-        this,
-        "🔐 Handling 401 Unauthorized for ${requestOptions.uri}",
-      );
+      CustomLog.debug(this, "🔐 Handling 401 Unauthorized for ${requestOptions.uri}");
 
       final refreshToken = await _secureSharedPrefs.get(
         AppString.sessionKey.refreshToken,
@@ -505,10 +497,7 @@ class ApiService {
       requestOptions.extra['retry'] = true; // mark retried
       final retryResponse = await _dio.fetch(requestOptions);
 
-      CustomLog.debug(
-        this,
-        "✅ Retried request successful for ${requestOptions.uri}",
-      );
+      CustomLog.debug(this, "✅ Retried request successful for ${requestOptions.uri}");
       return retryResponse;
     } catch (e) {
       _refreshTokenFuture = null;
@@ -569,12 +558,11 @@ class ApiService {
     clearAllBusinessDocs();
 
     if (appContext.mounted) {
-      appContext.pushReplacement(
-        AppRouteName.login,
-        extra: {"showBackButton": false},
-      );
+        appContext.pushReplacement(AppRouteName.login, extra: {"showBackButton": false});
     }
-    LpBottomNavigation.selectedIndexNotifier.value = 0;
+    // LpBottomNavigation.selectedIndexNotifier.value = 0;
+    lpBottomNavKey.currentState?.onItemTapped(0);
+
   }
 
   Future<void> clearAllBusinessDocs() async {

@@ -285,6 +285,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       search: searchKey,
                       loadMore: page > 1, 
                     );
+                     if (lpLoadLocator.isRoutesLastPage &&
+                      page > lpLoadLocator.rootsCurrentPage) {
+                    return [];
+                  }
                     return lpLoadLocator
                             .state
                             .lpLoadRouteDetails

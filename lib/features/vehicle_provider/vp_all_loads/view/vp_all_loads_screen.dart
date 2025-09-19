@@ -75,6 +75,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
 
   int? truckTypeId;
+  int? previousFilter;
 
   @override
   void initState() {
@@ -252,6 +253,15 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                 indicatorPadding: EdgeInsets.zero,
                 labelPadding: EdgeInsets.zero,
                 padding: EdgeInsets.zero,
+                onTap: (value) {
+                  if(value!=previousFilter)
+                    {
+                      _clearFilter();
+                    }
+                  previousFilter=value;
+
+
+                },
                 indicator: const BoxDecoration(),
                 splashFactory: NoSplash.splashFactory,
                 tabs: List.generate(tabLabels.length, (index) {
@@ -338,7 +348,10 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
                   buildTab(),
                   buildTab(),
-                
+                  buildTab(
+                    disabledOnTap: true
+                  ),
+
                 ],
               ),
             ),
@@ -412,7 +425,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
   }
 
 
-  Widget buildTab() {
+  Widget buildTab({bool disabledOnTap=false}) {
     return BlocBuilder<VpLoadCubit, VpLoadState>(
       bloc: vpLoadBloc,
       builder: (context, state) {
@@ -435,43 +448,49 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                   if (_tabController.index == 0) {
                     return VpAllLoadAvailableLoadWidget(onBack: () =>  _onPullToRefresh(), data: recentLoads[index]).paddingSymmetric(vertical: 7);
                   } else if (_tabController.index == 1) {
-                    return GestureDetector(
-                      onTap: () async {
-                      await  context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
-                        _onPullToRefresh();
-                      });
-                      },
-                      child: VpAllLoadMyLoadWidget(
-                        data: recentLoads[index],
-                        onBack: () {
-                          _onPullToRefresh();
-                        },
-                        onClickAssignDriver: () async {
-                         await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
-                           _onPullToRefresh();
-                          });
-                        },
-                      ).paddingSymmetric(vertical: 7),
-                    );
-                  } else {
-                    return GestureDetector(
-                      onTap: () async {
-                        await context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":recentLoads[index].id}).then((value) {
+                    return IgnorePointer(
+                      ignoring: disabledOnTap,
+                      child: GestureDetector(
+                        onTap: () async {
+                        await  context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
                           _onPullToRefresh();
                         });
-                      },
-                      child: VpAllLoadMyLoadWidget(
-                        data: recentLoads[index],
-                        showButton: _tabController.index!=3,
-                        onBack: () {
-                          _onPullToRefresh();
                         },
-                        onClickAssignDriver: () async {
-                         await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
-                           _onPullToRefresh();
-                         });
+                        child: VpAllLoadMyLoadWidget(
+                          data: recentLoads[index],
+                          onBack: () {
+                            _onPullToRefresh();
+                          },
+                          onClickAssignDriver: () async {
+                           await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
+                             _onPullToRefresh();
+                            });
+                          },
+                        ).paddingSymmetric(vertical: 7),
+                      ),
+                    );
+                  } else {
+                    return  IgnorePointer(
+                      ignoring: disabledOnTap,
+                      child: GestureDetector(
+                        onTap: () async {
+                          await context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":recentLoads[index].id}).then((value) {
+                            _onPullToRefresh();
+                          });
                         },
-                      ).paddingSymmetric(vertical: 7),
+                        child: VpAllLoadMyLoadWidget(
+                          data: recentLoads[index],
+                          showButton: _tabController.index!=3,
+                          onBack: () {
+                            _onPullToRefresh();
+                          },
+                          onClickAssignDriver: () async {
+                           await context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
+                             _onPullToRefresh();
+                           });
+                          },
+                        ).paddingSymmetric(vertical: 7),
+                      ),
                     );
                   }
                 },

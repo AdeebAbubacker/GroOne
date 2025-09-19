@@ -853,7 +853,8 @@
   "possibleDeliveryDateValidation": "சாத்தியமான டெலிவரி தேதி தேவைப்படுகிறது",
   "tonn": "டன்",
   "kycPending": "கேவாய்சி நிலுவையில் உள்ளது",
-  "completeKycAlertDescription": "லோடுகளை ஏற்க உங்கள் கேவாய்சி ஐ பூர்த்தி செய்யவும்",
+  "completeKycAlertDescriptionLp": "சரக்குகளை பதிவு செய்ய உங்கள் கேவாய்சி ஐ முடிக்கவும்",
+  "completeKycAlertDescriptionVp": "லோடுகளை ஏற்க உங்கள் கேவாய்சி ஐ பூர்த்தி செய்யவும்",
   "goToKyc": "கேவாய்சி க்கு செல்லவும்",
   "blueMemberGeneratedSuccessfully": "ப்ளூ உறுப்பினர் ஐடி வெற்றிகரமாக உருவாக்கப்பட்டது",
   "startExploringPremiumLoadOption": "இன்று பிரீமியம் லோடுகளை ஆராயத் தொடங்குங்கள்",
@@ -1293,7 +1294,26 @@
   "engineOn":"என்ஜின் ஆன்",
   "idleTime":"செயலற்ற நேரம்",
   "colorCode":"வண்ண குறியீடு",
-  "accountDeletedSuccessfully": "கணக்கு வெற்றிகரமாக நீக்கப்பட்டது"
+  "accountDeletedSuccessfully": "கணக்கு வெற்றிகரமாக நீக்கப்பட்டது",
+  "updateLanes" : "வழித்தடப் புதுப்பிப்பு",
+  "stateisRequired": "மாநிலம் தேவை",
+  "cityisRequired" : "நகரம் தேவை",
+  "gstNo" : "நகரம் தேவை",
+  "driverIsRequired" : "டிரைவர் தேவை",
+  "vehicleIsRequired" : "வாகனம் தேவை",
+  "capacityisRequired": "திறன் தேவை",
+  "allFieldsRequired" : "அனைத்து புலங்களும் தேவை",
+  "licenseCategoryRequired" : "உரிமச் சான்றிதழ் வகை தேவை",
+  "bloodGroupRequired" : "இரத்த வகை தேவை",
+  "sorryUnserveicedLoad" : "மன்னிக்கவும், ஏற்றுமதி சேவை செய்யப்படவில்லை",
+  "accountCreatedSuccessfullyVpSubHeading": "இப்போது நீங்கள் விகிதங்களை பார்வையிடலாம்\nமற்றும் சரக்குகளை ஏற்கலாம்",
+  "lanes": "பாதைகள்",
+  "waitingForLpToConfirmed": "சுமை வழங்குநர் உறுதி காத்திரு",
+  "insuranceValidityDate" : "காப்பீட்டு காலம்",
+  "fcExpiryDate" : "FC காலாவதி",
+  "pucExpiryDate" : "PUC காலாவதி"
+
+
 
 
 }

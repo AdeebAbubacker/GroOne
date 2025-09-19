@@ -36,6 +36,10 @@ import 'package:gro_one_app/utils/app_string.dart';
 part 'kyc_state.dart';
 
 class KycCubit extends BaseCubit<KycState> {
+  bool get isStateLastPage => _stateIsLastPage;
+  int get stateCurrentPage => _stateCurrentPage;
+  bool get isCityLastPage => _cityIsLastPage;
+  int get cityCurrentPage => _cityCurrentPage;
   final KycRepository _repo;
   KycCubit(this._repo, UserInformationRepository userInformationRepository)
     : super(KycState());

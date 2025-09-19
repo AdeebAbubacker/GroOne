@@ -388,15 +388,13 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
           };
 
           isKycValid = customer.isKyc.toInt();
-          logKycStatusEvent(customer.isKyc.toInt(), customerDetails);
+          //logKycStatusEvent(customer.isKyc.toInt(), customerDetails);
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
           } else if (customer.isKyc == 1) {
-            return
-
-              IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
+            return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
         return  20.width;
@@ -440,22 +438,26 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                       textAlign: TextAlign.start,
                       style: AppTextStyle.body1,
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: Size(68, 30),
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          minimumSize: Size(68, 30),
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        context.appText.viewAll,
-                        style: AppTextStyle.h5WhiteColor,
-                      ),
+                        child: Text(
+                          context.appText.viewAll,
+                          style: AppTextStyle.h5WhiteColor,
+                          overflow: TextOverflow.ellipsis,
+
+                        ),
+                      ).align(Alignment.centerRight),
                     ),
                     // TextButton(
                     //   onPressed: () {

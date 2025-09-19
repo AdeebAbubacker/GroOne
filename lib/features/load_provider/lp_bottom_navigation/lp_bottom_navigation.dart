@@ -25,17 +25,18 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
+final lpBottomNavKey = GlobalKey<_LpBottomNavigationState>();
+
 class LpBottomNavigation extends StatefulWidget {
   static final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
 
-  const LpBottomNavigation({super.key});
+  LpBottomNavigation({Key? key}) : super(key: key ?? lpBottomNavKey);
 
   @override
   State<LpBottomNavigation> createState() => _LpBottomNavigationState();
 }
 
 class _LpBottomNavigationState extends State<LpBottomNavigation> {
-
   final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   late final ProfileCubit profileCubit;
@@ -49,14 +50,14 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
 
   @override
   void initState() {
-    // Initialize profileCubit here to ensure dependency injection is ready
+    super.initState();
     profileCubit = locator<ProfileCubit>();
     frameCallback(() {
       profileCubit.fetchUserRole();
       setState(() {});
     });
+    profileCubit.switchToVp(false);
     documentTypeCubit.getDocumentTypeList();
-    super.initState();
   }
 
 
@@ -64,24 +65,31 @@ class _LpBottomNavigationState extends State<LpBottomNavigation> {
     int? role = profileCubit.userRole;
 
     if (index == 3 && (role != null && role == 3)) {
-      AppDialog.show(context, child: CommonDialogView(
-        showYesNoButtonButtons: true,
-        hideCloseButton: true,
-        noButtonText: context.appText.cancel,
-        yesButtonText: context.appText.switchText,
-        child: Column(
-          children: [
-            SvgPicture.asset(AppImage.svg.switchVp),
-            Text(context.appText.switchToVp, style: AppTextStyle.h3w500.copyWith(fontSize: 20, color: AppColors.black)),
-            10.height,
-            Text(context.appText.switchToVpDesc, textAlign: TextAlign.center, style: AppTextStyle.body3.copyWith(color: AppColors.textGreyDetailColor)),
-          ],
-        ),
-        onClickYesButton: () {
-          analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_VP);
-          context.go(AppRouteName.vpBottomNavigationBar);
-        },
-      ));
+      AppDialog.show(context,
+          child: CommonDialogView(
+            showYesNoButtonButtons: true,
+            hideCloseButton: true,
+            noButtonText: context.appText.cancel,
+            yesButtonText: context.appText.switchText,
+            child: Column(
+              children: [
+                SvgPicture.asset(AppImage.svg.switchVp),
+                Text(context.appText.switchToVp,
+                    style: AppTextStyle.h3w500.copyWith(
+                        fontSize: 20, color: AppColors.black)),
+                10.height,
+                Text(context.appText.switchToVpDesc,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyle.body3.copyWith(
+                        color: AppColors.textGreyDetailColor)),
+              ],
+            ),
+            onClickYesButton: () {
+              profileCubit.switchToVp(true);
+              analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_VP);
+              context.go(AppRouteName.vpBottomNavigationBar);
+            },
+          ));
     } else {
       if (LpBottomNavigation.selectedIndexNotifier.value != index) {
         _navigationHistory.add(index); // push to history
