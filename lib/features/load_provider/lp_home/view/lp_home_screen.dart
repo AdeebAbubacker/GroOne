@@ -344,6 +344,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     var companyId = profileCubit.state.profileDetailUIState?.data?.customer?.companyTypeId;
     commonBottomSheetWithBGBlur(
       screen: KycPendingDialogue(
+
         isLp: true,
         onPressed: () {
           context.pop();

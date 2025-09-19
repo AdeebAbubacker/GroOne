@@ -1349,6 +1349,7 @@
   "accountDeletedSuccessfully" : "Account Deleted Successfully",
   "stateisRequired":"State is required",
   "cityisRequired" : "City is required",
-  "gstNo" : "GST"
+  "gstNo" : "GST",
+  "kycRejected":"Your kyc is rejected"
 
 }

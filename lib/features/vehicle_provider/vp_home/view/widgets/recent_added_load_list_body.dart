@@ -217,7 +217,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                           commonBottomSheetWithBGBlur(
                             context: context,
                             screen: KycPendingDialogue(
-                              hideButton:widget.kycStatus==2 ,
+                              hideButton:widget.kycStatus==2  ,
                               onPressed: () async {
                                 context.pop();
                                 bool isAadharVerified=await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
