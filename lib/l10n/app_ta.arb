@@ -1311,7 +1311,8 @@
   "waitingForLpToConfirmed": "சுமை வழங்குநர் உறுதி காத்திரு",
   "insuranceValidityDate" : "காப்பீட்டு காலம்",
   "fcExpiryDate" : "FC காலாவதி",
-  "pucExpiryDate" : "PUC காலாவதி"
+  "pucExpiryDate" : "PUC காலாவதி",
+  "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें"
 
 
 

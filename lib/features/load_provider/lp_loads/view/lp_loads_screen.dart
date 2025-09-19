@@ -204,8 +204,8 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                               (e) => e.id == selectedTruckTypeId,
                         ),
                         // preselect
-                        labelText: "Truck Type",
-                        hintText: "Select Truck Type",
+                        labelText: context.appText.truckType,
+                        hintText: context.appText.selectTruckType,
                         fetchTruckTypes: (page, searchKey) async {
                           await lpLoadLocator.getTruckType(loadMore: page > 1);
                           // Stop scrolling when last page is reached
@@ -269,8 +269,6 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                   ),
 
                   15.height,
-                  // Text(context.appText.loadPostedDate, style: AppTextStyle.body3),
-                  // 5.height,
                   InkWell(
                     onTap: () async {
                       final String? date = await commonDatePicker(
@@ -299,9 +297,10 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 ],
               ),
               onClickYesButton: () {
-                if(truckTypeDropDownValue != '' || (routeDropDownValue != "") || loadPostedDateController.text.isNotEmpty) {
-                  ToastMessages.alert(message: 'Please select any one filter');
+                if(truckTypeDropDownValue == '' && routeDropDownValue == "" && loadPostedDateController.text.isEmpty) {
+                  ToastMessages.alert(message: context.appText.pleaseSelectOneFilter);
                 } else {
+                  lpLoadLocator.setIsFilterApplied(value: true);
                   Navigator.pop(context);
                   lpLoadLocator.getLpLoadsByType(
                     loadListApiRequest: LoadListApiRequest(
@@ -333,6 +332,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void clearAllFilterValues() {
+    lpLoadLocator.setIsFilterApplied(value: false);
     selectedRoute = null;
     routeDropDownValue = null;
     selectedTruckTypeId = null;
@@ -473,22 +473,51 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
 
   /// Search and Filter
   Widget buildSearchBarAndFilterWidget(BuildContext context) {
-    return Row(
+    return Column(
       children: [
-        AppSearchBar(
-          searchController: searchController,
-          onChanged: _onSearchChanged,
-          onClear: () {
-            searchController.clear();
-            _onPullToRefresh();
-          },
-        ).expand(),
-        8.width,
-        AppIconButton(
-          onPressed: filterPopUp,
-          style: AppButtonStyle.primaryIconButtonStyle,
-          icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
+        Row(
+          children: [
+            AppSearchBar(
+              searchController: searchController,
+              onChanged: _onSearchChanged,
+              onClear: () {
+                searchController.clear();
+                _onPullToRefresh();
+              },
+            ).expand(),
+            8.width,
+            AppIconButton(
+              onPressed: filterPopUp,
+              style: AppButtonStyle.primaryIconButtonStyle,
+              icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
+            ),
+          ],
         ),
+        BlocBuilder<LpLoadCubit, LpLoadState>(
+            buildWhen: (previous, current) =>
+            previous.isFilterApplied != current.isFilterApplied,
+            builder: (context, state) {
+              return Visibility(
+                visible: lpLoadLocator.state.isFilterApplied ?? false,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(context.appText.filterApplied),
+                      GestureDetector(
+                        onTap: () {
+                          clearAllFilterValues();
+                          _onPullToRefresh();
+                        },
+                        child: Icon(Icons.cancel_outlined),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            })
       ],
     ).paddingOnly(
       left: commonSafeAreaPadding,
