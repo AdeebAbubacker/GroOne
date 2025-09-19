@@ -5,11 +5,10 @@ import '../../../data/model/result.dart';
 import '../../en-dhan_fuel/model/document_upload_response.dart';
 import '../model/fastag_list_response.dart';
 
-class FastagRepository{
+class FastagRepository {
   final FastagService _service;
 
   FastagRepository(this._service);
-
 
   Future<Result<DocumentUploadResponse>> uploadDocument(File file) async {
     try {
@@ -49,9 +48,10 @@ class FastagRepository{
     );
   }
 
-  Future<Result<FastagListResponse>> getFastagList({String searchTerm = ''}) {
-    return _service.getFastagList(searchTerm: searchTerm);
+  Future<Result<FastagListResponse>> getFastagList({
+    String searchTerm = '',
+    int page = 1,
+  }) {
+    return _service.getFastagList(searchTerm: searchTerm, page: page);
   }
-
-
 }

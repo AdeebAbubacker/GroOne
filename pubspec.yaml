@@ -51,7 +51,7 @@ dependencies:
   another_flushbar: ^1.12.30
   flutter_pdfview: ^1.4.0+1
   open_filex: ^4.7.0
-  very_good_analysis: ^9.0.0
+#  very_good_analysis: ^9.0.0
   flutter_html: ^3.0.0
 
   # Tools

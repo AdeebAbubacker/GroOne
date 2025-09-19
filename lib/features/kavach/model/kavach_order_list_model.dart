@@ -30,9 +30,10 @@ class KavachOrderListResponse {
   factory KavachOrderListResponse.fromJson(Map<String, dynamic> json) {
     final data = json['data'];
     return KavachOrderListResponse(
-      orders: (data['rows'] as List)
-          .map((e) => KavachOrderListOrderItem.fromJson(e))
-          .toList(),
+      orders:
+          (data['rows'] as List)
+              .map((e) => KavachOrderListOrderItem.fromJson(e))
+              .toList(),
       meta: KavachOrderListMeta.fromJson(data['meta']),
     );
   }
@@ -123,15 +124,19 @@ class KavachOrderListItem {
       productId: json['product_id'],
       serviceId: json['service_id'],
       totalGstAmt: json['total_gst_amt'],
-      product: json['product'] != null
-          ? KavachOrderListProduct.fromJson(json['product'])
-          : null,
-      service: json['service'] != null
-          ? KavachOrderListService.fromJson(json['service'])
-          : null,
-      vehicles: (json['vehicles'] as List<dynamic>?)
-          ?.map((e) => KavachOrderListVehicle.fromJson(e))
-          .toList() ?? [],
+      product:
+          json['product'] != null
+              ? KavachOrderListProduct.fromJson(json['product'])
+              : null,
+      service:
+          json['service'] != null
+              ? KavachOrderListService.fromJson(json['service'])
+              : null,
+      vehicles:
+          (json['vehicles'] as List<dynamic>?)
+              ?.map((e) => KavachOrderListVehicle.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 }
@@ -139,7 +144,7 @@ class KavachOrderListItem {
 class KavachOrderListStatusHistory {
   final int statusId;
   final String remarks;
-  final DateTime createdAt;
+  final String createdAt;
   final String statusLabel;
   final List<String> statusDescription;
 
@@ -155,11 +160,12 @@ class KavachOrderListStatusHistory {
     return KavachOrderListStatusHistory(
       statusId: json['status_id'],
       remarks: json['remarks'] ?? '',
-      createdAt: DateTime.parse(json['created_at']),
+      createdAt: json['created_at'],
       statusLabel: json['orderStatus']?['status_label'] ?? '',
-      statusDescription: (json['orderStatus']?['status_description'] as List<dynamic>?)
-          ?.map((e) => e.toString())
-          .toList() ??
+      statusDescription:
+          (json['orderStatus']?['status_description'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList() ??
           [],
     );
   }
@@ -210,14 +216,14 @@ class KavachOrderListOrderItem {
   final String id;
   final String customerName;
   final String customerMembershipId;
-  final DateTime orderDate;
+  final String orderDate;
   final String orderUniqueId;
   final String orderAmount;
   final String personInCharge;
   final String shippingContactNumber;
   final String billType;
   final String orderStatusId;
-  final DateTime createdAt;
+  final String createdAt;
   final String? invoiceUrlPath;
   final String orderReferencedBy;
   final List<KavachOrderListItem> lineItems;
@@ -264,35 +270,40 @@ class KavachOrderListOrderItem {
       id: json['id'],
       customerName: json['customer_name'],
       customerMembershipId: json['customer_membership_id'],
-      orderDate: DateTime.parse(json['order_date']),
+      orderDate: json['order_date'],
       orderUniqueId: json['order_unique_id'],
       orderAmount: json['order_amount'],
       personInCharge: json['person_in_charge'],
       shippingContactNumber: json['shipping_contact_number'],
       billType: json['bill_type'],
       orderStatusId: json['order_status_id'],
-      createdAt: DateTime.parse(json['created_at']),
-      invoiceUrlPath: json['invoice_url_path']??'',
+      createdAt: json['created_at'],
+      invoiceUrlPath: json['invoice_url_path'] ?? '',
       orderReferencedBy: json['order_referenced_by'] ?? '',
-      lineItems: (json['lineItems'] as List)
-          .map((e) => KavachOrderListItem.fromJson(e))
-          .toList(),
+      lineItems:
+          (json['lineItems'] as List)
+              .map((e) => KavachOrderListItem.fromJson(e))
+              .toList(),
       billingAddress: KavachOrderListAddress.fromJson(json['billing_address']),
-      shippingAddress:
-      KavachOrderListAddress.fromJson(json['shipping_address']),
-      statusHistory: (json['statusHistory'] as List)
-          .map((e) => KavachOrderListStatusHistory.fromJson(e))
-          .toList(),
+      shippingAddress: KavachOrderListAddress.fromJson(
+        json['shipping_address'],
+      ),
+      statusHistory:
+          (json['statusHistory'] as List)
+              .map((e) => KavachOrderListStatusHistory.fromJson(e))
+              .toList(),
       installationContactPerson: json['installationContactPerson'] ?? '',
       installationContactPersonNumber:
-      json['installationContactPersonNumber'] ?? '',
+          json['installationContactPersonNumber'] ?? '',
       productCount: json['productCount'],
       totalGst: (json['totalGst'] as num).toDouble(),
       price: (json['price'] as num).toDouble(),
       totalPrice: (json['totalPrice'] as num).toDouble(),
-      payments: (json['payments'] as List<dynamic>?)
-          ?.map((e) => KavachOrderListPayment.fromJson(e))
-          .toList() ?? [],
+      payments:
+          (json['payments'] as List<dynamic>?)
+              ?.map((e) => KavachOrderListPayment.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 }
@@ -317,10 +328,10 @@ class KavachOrderListPayment {
   factory KavachOrderListPayment.fromJson(Map<String, dynamic> json) {
     return KavachOrderListPayment(
       id: json['id'],
-      paidAmount: json['paid_amount']??'',
+      paidAmount: json['paid_amount'] ?? '',
       paymentDate: json['payment_date'],
-      paymentMode: json['payment_mode']??'',
-      referenceNumber: json['reference_number']??'',
+      paymentMode: json['payment_mode'] ?? '',
+      referenceNumber: json['reference_number'] ?? '',
       status: json['status'],
     );
   }
