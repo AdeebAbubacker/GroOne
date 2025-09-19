@@ -332,14 +332,12 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                       context,
                       addressNameController,
                       context.appText.addressName,
-                      alphanumericWithSpaceRegex,
                     ),
                     16.height,
                     _buildTextField(
                       context,
                       addressController,
                       context.appText.address,
-                      alphanumericWithSpaceRegex,
                     ),
                     16.height,
                     FormField<String>(
@@ -567,7 +565,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
     BuildContext context,
     TextEditingController controller,
     String label,
-    RegExp pattern,
   ) {
     return AppTextField(
       mandatoryStar: true,
@@ -575,7 +572,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
       controller: controller,
       labelText: label,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(pattern),
         LengthLimitingTextInputFormatter(100),
       ],
     );

@@ -227,6 +227,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                         name: vehicleDetailsData.truckNo,
                         phone: vehicleDetailsData.companyName,
                         driverStatus: vehicleDetailsData.status,
+                        ownerName: vehicleDetailsData.ownerName,
                         // onEdit: () async {
                         //   mastersCubit.resetVehicleVerification();
                         //   await Future.delayed(

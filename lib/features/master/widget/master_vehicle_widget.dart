@@ -11,6 +11,7 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 Widget masterVehicleInfoWidget({
   required String name,
   required String phone,
+  required String ownerName,
   required int driverStatus,
   // required VoidCallback onEdit,
   required VoidCallback onDelete,
@@ -81,58 +82,61 @@ Widget masterVehicleInfoWidget({
                     phone,
                     style: const TextStyle(color: AppColors.black87, fontSize: 14),
                   ),
+                  4.height,
+                  Text(
+                    ownerName,
+                    style: const TextStyle(color: AppColors.black87, fontSize: 14),
+                  ),
                 ],
               ),
             ),
             // Active Tag
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        driverStatus == 1
+                            ? AppColors.green100
+                            : AppColors.red100,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    driverStatus == 1
+                        ? context.appText.active
+                        : context.appText.inactive,
+                    style: AppTextStyle.body.copyWith(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 12,
                       color:
                           driverStatus == 1
-                              ? AppColors.green100
-                              : AppColors.red100,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      driverStatus == 1
-                          ? context.appText.active
-                          : context.appText.inactive,
-                      style: AppTextStyle.body.copyWith(
-                        fontWeight: FontWeight.w400,
-                        fontSize: 12,
-                        color:
-                            driverStatus == 1
-                                ? AppColors.greenColor
-                                : AppColors.red,
-                      ),
+                              ? AppColors.greenColor
+                              : AppColors.red,
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        onPressed: onDelete,
-                        icon:  SvgPicture.asset(
-                          AppIcons.svg.delete,
-                          colorFilter: ColorFilter.mode(
-                         AppColors.iconRed,
-                          BlendMode.srcIn,
-                        ),
-                        ),
-                        splashRadius: 20,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    IconButton(
+                      onPressed: onDelete,
+                      icon:  SvgPicture.asset(
+                        AppIcons.svg.delete,
+                        colorFilter: ColorFilter.mode(
+                       AppColors.iconRed,
+                        BlendMode.srcIn,
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                      ),
+                      splashRadius: 20,
+                    ),
+                  ],
+                ),
+              ],
             ),
           ],
         ),
