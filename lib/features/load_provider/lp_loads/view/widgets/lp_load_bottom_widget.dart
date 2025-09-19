@@ -552,7 +552,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                       ],
 
                     // Timeline
-                    if(widget.loadStatus.index >= LoadStatus.confirmed.index)
+                    if(widget.loadStatus.index >= LoadStatus.assigned.index)
                       ...[
                         Text(context.appText.timeline, style: AppTextStyle.h4),
                         20.height,

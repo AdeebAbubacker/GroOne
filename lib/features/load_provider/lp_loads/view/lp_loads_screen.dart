@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_load_card_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trucktype_dropdown.dart';
+import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
@@ -29,6 +30,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -36,6 +38,7 @@ import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 class LpLoadsScreen extends StatefulWidget {
   const LpLoadsScreen({super.key});
@@ -175,142 +178,156 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
     var loadStatusType = lpLoadLocator.state.selectedTabIndex;
     AppDialog.show(
       context,
-      child: CommonDialogView(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        hideCloseButton: true,
-        showYesNoButtonButtons: true,
-        noButtonText: context.appText.cancel,
-        yesButtonText: context.appText.apply,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              context.appText.filter,
-              style: AppTextStyle.body1.copyWith(fontSize: 20),
-            ),
-            10.height,
-            BlocBuilder<LpLoadCubit, LpLoadState>(
-              builder: (context, state) {
-                final uiState = state.lpLoadTruckTypes;
-                final truckTypes = uiState?.data ?? [];
-
-                return TruckTypeSearchableDropdown(
-                  selectedTruckType: truckTypes.firstWhereOrNull(
-                    (e) => e.id == selectedTruckTypeId,
-                  ), // preselect
-                  labelText: "Truck Type",
-                  hintText: "Select Truck Type",
-                  fetchTruckTypes: (page, searchKey) async {
-                    await lpLoadLocator.getTruckType(loadMore: page > 1);
-                     // Stop scrolling when last page is reached
-                  if (lpLoadLocator.isTruckLastPage &&
-                      page > lpLoadLocator.trucksCurrentPage) {
-                    return [];
-                  }
-
-                    return lpLoadLocator.state.lpLoadTruckTypes?.data ?? [];
-                  },
-                  onChanged: (selectedTruck) {
-                    setState(() {
-                      truckTypeDropDownValue =
-                          "${selectedTruck?.type} Truck - ${selectedTruck?.subType}";
-                      selectedTruckTypeId = selectedTruck?.id;
-                    });
-                  },
-                );
-              },
-            ),
-            15.height,
-            BlocBuilder<LpLoadCubit, LpLoadState>(
-              builder: (context, state) {
-                final uiState = state.lpLoadRouteDetails;
-                final routeList = uiState?.data?.data?.routeList ?? [];
-
-                return RouteSearchableDropdown(
-                  labelText: context.appText.route,
-                  hintText: context.appText.searchRoutes,
-                  fetchRoutes: (page, searchKey) async {
-                    await lpLoadLocator.getRouteDetails(
-                      search: searchKey,
-                      loadMore: page > 1, 
-                    );
-                     if (lpLoadLocator.isRoutesLastPage &&
-                      page > lpLoadLocator.rootsCurrentPage) {
-                    return [];
-                  }
-                    return lpLoadLocator
-                            .state
-                            .lpLoadRouteDetails
-                            ?.data
-                            ?.data
-                            ?.routeList ??
-                        [];
-                  },
-                  selectedRoute: routeList.firstWhereOrNull(
-                    (r) => r.masterLaneId == selectedRoute,
+      child: StatefulBuilder(
+          builder: (context, setState) {
+            return CommonDialogView(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              hideCloseButton: true,
+              showYesNoButtonButtons: true,
+              noButtonText: context.appText.cancel,
+              yesButtonText: context.appText.apply,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    context.appText.filter,
+                    style: AppTextStyle.body1.copyWith(fontSize: 20),
                   ),
-                  onChanged: (RouteList? value) {
-                    setState(() {
-                      routeDropDownValue = value?.status.toString();
-                      selectedRoute = value?.masterLaneId;
-                    });
-                  },
-                  mandatoryStar: false,
-                );
-              },
-            ),
+                  10.height,
+                  BlocBuilder<LpLoadCubit, LpLoadState>(
+                    builder: (context, state) {
+                      final uiState = state.lpLoadTruckTypes;
+                      final truckTypes = uiState?.data ?? [];
 
-            15.height,
-            Text(context.appText.loadPostedDate, style: AppTextStyle.body3),
-            5.height,
-            AppTextField(
-              controller: loadPostedDateController,
-              decoration: commonInputDecoration(
-                suffixIcon: Icon(Icons.calendar_today_outlined),
-                suffixOnTap: () async {
-                  final String? date = await commonDatePicker(
-                    context,
-                    firstDate: DateTime(2025),
-                    lastDate: DateTime.now(),
-                    initialDate:
+                      return TruckTypeSearchableDropdown(
+                        selectedTruckType: truckTypes.firstWhereOrNull(
+                              (e) => e.id == selectedTruckTypeId,
+                        ),
+                        // preselect
+                        labelText: "Truck Type",
+                        hintText: "Select Truck Type",
+                        fetchTruckTypes: (page, searchKey) async {
+                          await lpLoadLocator.getTruckType(loadMore: page > 1);
+                          // Stop scrolling when last page is reached
+                          if (lpLoadLocator.isTruckLastPage &&
+                              page > lpLoadLocator.trucksCurrentPage) {
+                            return [];
+                          }
+
+                          return lpLoadLocator.state.lpLoadTruckTypes?.data ??
+                              [];
+                        },
+                        onChanged: (selectedTruck) {
+                          setState(() {
+                            truckTypeDropDownValue =
+                            "${selectedTruck?.type} Truck - ${selectedTruck
+                                ?.subType}";
+                            selectedTruckTypeId = selectedTruck?.id;
+                          });
+                        },
+                      );
+                    },
+                  ),
+                  15.height,
+                  BlocBuilder<LpLoadCubit, LpLoadState>(
+                    builder: (context, state) {
+                      final uiState = state.lpLoadRouteDetails;
+                      final routeList = uiState?.data?.data?.routeList ?? [];
+
+                      return RouteSearchableDropdown(
+                        labelText: context.appText.route,
+                        hintText: context.appText.searchRoutes,
+                        fetchRoutes: (page, searchKey) async {
+                          await lpLoadLocator.getRouteDetails(
+                            search: searchKey,
+                            loadMore: page > 1,
+                          );
+                          if (lpLoadLocator.isRoutesLastPage &&
+                              page > lpLoadLocator.rootsCurrentPage) {
+                            return [];
+                          }
+                          return lpLoadLocator
+                              .state
+                              .lpLoadRouteDetails
+                              ?.data
+                              ?.data
+                              ?.routeList ??
+                              [];
+                        },
+                        selectedRoute: routeList.firstWhereOrNull(
+                              (r) => r.masterLaneId == selectedRoute,
+                        ),
+                        onChanged: (RouteList? value) {
+                          setState(() {
+                            routeDropDownValue = value?.status.toString();
+                            selectedRoute = value?.masterLaneId;
+                          });
+                        },
+                        mandatoryStar: false,
+                      );
+                    },
+                  ),
+
+                  15.height,
+                  // Text(context.appText.loadPostedDate, style: AppTextStyle.body3),
+                  // 5.height,
+                  InkWell(
+                    onTap: () async {
+                      final String? date = await commonDatePicker(
+                        context,
+                        firstDate: DateTime(2025),
+                        lastDate: DateTime.now(),
+                        initialDate:
                         DateTimeHelper.convertToDateTimeWithCurrentTime(
                           loadPostedDateController.text,
                         ),
-                  );
-
-                  if (date != null) {
-                    loadPostedDateController
-                        .text = DateTimeHelper.convertToDatabaseFormat2(date);
-                    setState(() {});
-                  }
-                },
+                      );
+                      if (date != null) {
+                        loadPostedDateController
+                            .text =
+                            DateTimeHelper.convertToDatabaseFormat2(date);
+                        setState(() {});
+                      }
+                    },
+                    child: buildReadOnlyField(
+                      context.appText.loadPostedDate,
+                      loadPostedDateController.text,
+                      fillColor: Colors.white,
+                    ),
+                    // mandatoryStar: true,
+                  ),
+                ],
               ),
-            ),
-          ],
-        ),
-        onClickYesButton: () {
-          Navigator.pop(context);
-          lpLoadLocator.getLpLoadsByType(
-            loadListApiRequest: LoadListApiRequest(
-              loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
-              laneId: selectedRoute,
-              truckTypeId: selectedTruckTypeId?.toString(),
-              loadPostDate:
-                  loadPostedDateController.text.isEmpty
-                      ? null
-                      : loadPostedDateController.text,
-            ),
-          );
-        },
-        onClickNoButton: () {
-          Navigator.pop(context);
-          lpLoadLocator.getLpLoadsByType(
-            loadListApiRequest: LoadListApiRequest(
-              loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
-            ),
-          );
-          clearAllFilterValues();
-        },
+              onClickYesButton: () {
+                if(truckTypeDropDownValue != '' || (routeDropDownValue != "") || loadPostedDateController.text.isNotEmpty) {
+                  ToastMessages.alert(message: 'Please select any one filter');
+                } else {
+                  Navigator.pop(context);
+                  lpLoadLocator.getLpLoadsByType(
+                    loadListApiRequest: LoadListApiRequest(
+                      loadStatus: loadStatusType == 0 ? null : loadStatusType +
+                          1,
+                      laneId: selectedRoute,
+                      truckTypeId: selectedTruckTypeId?.toString(),
+                      loadPostDate:
+                      loadPostedDateController.text.isEmpty
+                          ? null
+                          : loadPostedDateController.text,
+                    ),
+                  );
+                }
+              },
+              onClickNoButton: () {
+                Navigator.pop(context);
+                lpLoadLocator.getLpLoadsByType(
+                  loadListApiRequest: LoadListApiRequest(
+                    loadStatus: loadStatusType == 0 ? null : loadStatusType + 1,
+                  ),
+                );
+                clearAllFilterValues();
+              },
+            );
+          }
       ),
     );
   }
@@ -355,6 +372,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
           ],
         ),
       ),
+      floatingActionButton: ChatActionButton(),
     );
   }
 
