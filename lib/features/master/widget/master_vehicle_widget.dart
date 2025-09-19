@@ -13,7 +13,7 @@ Widget masterVehicleInfoWidget({
   required String phone,
   required String ownerName,
   required int driverStatus,
-  // required VoidCallback onEdit,
+  required VoidCallback onEdit,
   required VoidCallback onDelete,
   required BuildContext context,
 }) {
@@ -123,6 +123,17 @@ Widget masterVehicleInfoWidget({
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
+                      IconButton(
+                      onPressed: onEdit,
+                      icon: SvgPicture.asset(
+                          AppIcons.svg.eyeOutline ,
+                          colorFilter: ColorFilter.mode(
+                         AppColors.primaryColor,
+                          BlendMode.srcIn,
+                        ),
+                        ),
+                      splashRadius: 20,
+                    ),
                     IconButton(
                       onPressed: onDelete,
                       icon:  SvgPicture.asset(
