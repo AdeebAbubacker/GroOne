@@ -1306,7 +1306,12 @@
   "licenseCategoryRequired" : "உரிமச் சான்றிதழ் வகை தேவை",
   "bloodGroupRequired" : "இரத்த வகை தேவை",
   "sorryUnserveicedLoad" : "மன்னிக்கவும், ஏற்றுமதி சேவை செய்யப்படவில்லை",
-  "accountCreatedSuccessfullyVpSubHeading": "இப்போது நீங்கள் விகிதங்களை பார்வையிடலாம்\nமற்றும் சரக்குகளை ஏற்கலாம்"
+  "accountCreatedSuccessfullyVpSubHeading": "இப்போது நீங்கள் விகிதங்களை பார்வையிடலாம்\nமற்றும் சரக்குகளை ஏற்கலாம்",
+  "lanes": "பாதைகள்",
+  "waitingForLpToConfirmed": "சுமை வழங்குநர் உறுதி காத்திரு",
+  "insuranceValidityDate" : "காப்பீட்டு காலம்",
+  "fcExpiryDate" : "FC காலாவதி",
+  "pucExpiryDate" : "PUC காலாவதி"
 
 
 

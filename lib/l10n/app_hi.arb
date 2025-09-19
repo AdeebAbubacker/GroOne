@@ -1307,7 +1307,12 @@
   "licenseCategoryRequired" : "लाइसेंस श्रेणी आवश्यक है",
   "bloodGroupRequired" : "रक्त समूह आवश्यक है",
   "sorryUnserveicedLoad" : "माफ़ कीजिए, लोड सेवा में नहीं है।",
-  "accountCreatedSuccessfullyVpSubHeading": "अब आप रेट्स देख सकते हैं\nऔर लोड्स स्वीकार कर सकते हैं।"
+  "accountCreatedSuccessfullyVpSubHeading": "अब आप रेट्स देख सकते हैं\nऔर लोड्स स्वीकार कर सकते हैं।",
+  "lanes": "लाइनों",
+  "waitingForLpToConfirmed": "लोड प्रोवाइडर पुष्टि की प्रतीक्षा",
+  "insuranceValidityDate" : "बीमा वैधता दिनांक",
+  "fcExpiryDate" : "एफसी समाप्ति दिनांक",
+  "pucExpiryDate" : "PUC समाप्ति दिनांक"
 
 
 

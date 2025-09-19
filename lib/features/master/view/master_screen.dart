@@ -37,6 +37,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
@@ -226,6 +227,7 @@ class _MasterScreenState extends State<MasterScreen>
     return Container(
       height: 30,
       alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(horizontal: 12),
       decoration: BoxDecoration(
         color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
         borderRadius: BorderRadius.circular(30),
@@ -259,21 +261,31 @@ class _MasterScreenState extends State<MasterScreen>
         body: Column(
           children: [
            15.height,
-          TabBar(
-          controller: _tabController,
-          indicator: BoxDecoration(
-            color: Colors.transparent, // selected tab bg
-            borderRadius: BorderRadius.circular(30),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: TabBar(
+            isScrollable: true, 
+            controller: _tabController,
+            padding: EdgeInsets.zero,
+            indicator: BoxDecoration(
+              color: Colors.transparent, // selected tab bg
+              borderRadius: BorderRadius.circular(30),
+            ),
+            indicatorSize: TabBarIndicatorSize.tab,
+            dividerHeight: 0,
+            labelColor: AppColors.white,
+            unselectedLabelColor: AppColors.white,
+            labelStyle: AppTextStyle.h6.copyWith(fontWeight: FontWeight.w600),
+            unselectedLabelStyle: AppTextStyle.h6,
+            overlayColor: WidgetStateProperty.all(Colors.transparent),
+            tabs: [
+              _buildTab(context.appText.lanes, _tabController.index == 0),
+              _buildTab(context.appText.address, _tabController.index == 1),
+              _buildTab(context.appText.vehicles, _tabController.index == 2),
+              _buildTab(context.appText.drivers, _tabController.index == 3),
+            ],
+                    ),
           ),
-          indicatorSize: TabBarIndicatorSize.tab,
-          dividerHeight: 0,
-          labelColor: AppColors.white,
-          unselectedLabelColor: AppColors.white,
-          labelStyle: AppTextStyle.h6.copyWith(fontWeight: FontWeight.w600),
-          unselectedLabelStyle: AppTextStyle.h6,
-          overlayColor: WidgetStateProperty.all(Colors.transparent),
-          tabs:  getTabs(context),
-        ),
         Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -587,9 +599,9 @@ class _MasterScreenState extends State<MasterScreen>
                         }
                       },
                       child: buildReadOnlyField(
-                        "Insurance Validity Date",
+                        context.appText.insuranceValidityDate,
                         (insuranceValidityDate?.isEmpty ?? true)
-                            ? 'Insurance Validity Date'
+                            ?  context.appText.insuranceValidityDate
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
@@ -618,9 +630,9 @@ class _MasterScreenState extends State<MasterScreen>
                         }
                       },
                       child: buildReadOnlyField(
-                        "FC Expiry Date",
+                         context.appText.fcExpiryDate,
                         (fcExpiryDate?.isEmpty ?? true)
-                            ? 'FC Expiry Date'
+                            ?  context.appText.fcExpiryDate
                             : fcExpiryDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
@@ -649,13 +661,13 @@ class _MasterScreenState extends State<MasterScreen>
                         }
                       },
                       child: buildReadOnlyField(
-                        "PUC Expiry Date",
+                         context.appText.pucExpiryDate,
                         (pucExpiryDate?.isEmpty ?? true)
-                            ? 'PUC Expiry Date'
+                            ?  context.appText.pucExpiryDate
                             : pucExpiryDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
-                        textStyle: (pucExpiryDate == 'PUC Expiry Date') 
+                        textStyle: (pucExpiryDate ==  context.appText.pucExpiryDate) 
                       ? AppTextStyle.textGreyDetailColor12w400 
                       : AppTextStyle.textFiled,
                       ),

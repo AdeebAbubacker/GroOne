@@ -129,7 +129,11 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   Widget _buildBodyWidget(BuildContext context){
     return SafeArea(
       minimum: EdgeInsets.all(commonSafeAreaPadding),
-      child: _buildRecentRouteList(),
+      child: Column(children: [
+        10.height,
+        _buildSearchBarWidget(),
+         10.height,
+        Expanded(child: _buildRecentRouteList())]),
     );
   }
 
@@ -163,8 +167,7 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    10.height,
-                    _buildSearchBarWidget(), // 🔍 Always show search bar
+                     // 🔍 Always show search bar
                     20.height,
 
                     if (routes.isNotEmpty)
@@ -172,12 +175,11 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                         onNotification: (scrollInfo) {
                           if (scrollInfo.metrics.pixels ==
                               scrollInfo.metrics.maxScrollExtent) {
-                            lpHomeCubit.fetchRecentRoute(isLoading: false, isInit: false);
+                            lpHomeCubit.fetchRecentRoute(isLoading: false, isInit: false,search: searchController.text);
                           }
                           return false;
                         },
                         child: ListView.separated(
-                          shrinkWrap: true,
                           padding: EdgeInsets.only(bottom: 100),
                           itemCount: routes.length,
                           separatorBuilder: (context, index) => 20.height,
@@ -234,24 +236,26 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight).paddingSymmetric(vertical: 5),
                 10.width,
 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    // Source (Pick Up)
-                    Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                    6.height,
-                    Text(pickUpLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor)),
-
-                    commonDivider(),
-
-                    // Destination
-                    Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                    6.height,
-                    Text(destinationLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-
-                  ],
-                ).expand(),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  
+                      // Source (Pick Up)
+                      Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                      6.height,
+                      Text(pickUpLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor)),
+                  
+                      commonDivider(),
+                  
+                      // Destination
+                      Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                      6.height,
+                      Text(destinationLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                  
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
@@ -303,3 +307,4 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   }
 
 }
+
