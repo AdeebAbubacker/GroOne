@@ -40,6 +40,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -189,7 +190,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
             ],
           ).withScroll(),
         ),
-      )
+      ),
+      floatingActionButton: ChatActionButton(),
     );
   }
 
