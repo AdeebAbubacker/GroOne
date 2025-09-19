@@ -87,8 +87,6 @@ class AppRouteName {
 
 
   static const String kycUploadDocument = '/kycUploadDocument';
-  // static const String termsAndConditions = '/termsAndConditions';
-  // static const String privacyPolicy = '/privacyPolicy';
   static const String fastTagListScreen = '/fastTagListScreen';
 
 
