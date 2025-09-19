@@ -465,7 +465,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       child: buildReadOnlyField(
                         context.appText.registrationDate,
                         (registrationDate?.isEmpty ?? true)
-                            ? 'Registartion Date'
+                            ? context.appText.registrationDate
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
@@ -666,7 +666,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       child: buildReadOnlyField(
                         context.appText.insuranceValidityDate,
                         (insuranceValidityDate?.isEmpty ?? true)
-                            ? 'Insurance Validity Date'
+                            ? context.appText.insuranceValidityDate
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
@@ -719,7 +719,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           },
                           child: buildReadOnlyField(
                             context.appText.fcExpiryDate,
-                            fcExpiryDate ?? 'FC Expiry Date',
+                            fcExpiryDate ?? context.appText.fcExpiryDate,
                             fillColor: Colors.white,
                             mandatoryStar: true,
                             textStyle:
@@ -758,7 +758,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       child: buildReadOnlyField(
                         context.appText.pucExpiryDate,
                         (pucExpiryDate?.isEmpty ?? true)
-                            ? 'PUC Expiry Date'
+                            ? context.appText.pucExpiryDate
                             : pucExpiryDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
