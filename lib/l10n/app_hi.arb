@@ -1312,7 +1312,8 @@
   "waitingForLpToConfirmed": "लोड प्रोवाइडर पुष्टि की प्रतीक्षा",
   "insuranceValidityDate" : "बीमा वैधता दिनांक",
   "fcExpiryDate" : "एफसी समाप्ति दिनांक",
-  "pucExpiryDate" : "PUC समाप्ति दिनांक"
+  "pucExpiryDate" : "PUC समाप्ति दिनांक",
+  "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें"
 
 
 
