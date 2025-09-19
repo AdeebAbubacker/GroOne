@@ -442,6 +442,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                       child: ElevatedButton(
                         onPressed: () {
                           widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
+                          navigationHistoryVP.add(1);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryColor,
@@ -593,6 +594,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                 ElevatedButton(
                   onPressed: () {
                     widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 0);
+                    navigationHistoryVP.add(1);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
