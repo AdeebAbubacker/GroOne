@@ -40,6 +40,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -189,7 +190,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
             ],
           ).withScroll(),
         ),
-      )
+      ),
+      floatingActionButton: ChatActionButton(),
     );
   }
 
@@ -442,6 +444,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                       child: ElevatedButton(
                         onPressed: () {
                           widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
+                          navigationHistoryVP.add(1);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.primaryColor,
@@ -593,6 +596,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                 ElevatedButton(
                   onPressed: () {
                     widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 0);
+                    navigationHistoryVP.add(1);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,

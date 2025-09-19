@@ -31,13 +31,14 @@ class VpAllLoadMyLoadWidget extends StatefulWidget {
     required this.onClickAssignDriver,
      this.showButton=true,
      this.onBack,
+     this.onServicesTab,
   });
 
   final VpRecentLoadData data;
   final bool? showButton;
   final void Function()? onClickAssignDriver;
   final void Function()? onBack;
-
+  final bool? onServicesTab;
   @override
   State<VpAllLoadMyLoadWidget> createState() => _VpAllLoadMyLoadWidgetState();
 }
@@ -48,8 +49,11 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
   final vpHomeBloc= locator<VpHomeBloc>();
 
 
+
   @override
   Widget build(BuildContext context) {
+
+
     String amount = (widget.data.vpMaxRate??"").isNotEmpty && (widget.data.vpMaxRate??"").trim()!="0" ?
     "${PriceHelper.formatINR(widget.data.vpRate)} - ${PriceHelper.formatINR(widget.data.vpMaxRate)}":
     (widget.data.vpRate??"").isNotEmpty ? PriceHelper.formatINR(widget.data.vpRate)  : "0000 - 0000";
@@ -180,18 +184,22 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
             children: [
 
                 // Support Button
-                IconButton(
-                  onPressed: () {
-                    commonSupportDialog(context);
-                  },
-                  icon: Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.all(5),
-                    decoration: commonContainerDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(commonButtonRadius), borderColor: AppColors.primaryColor, borderWidth: 1.5),
-                    child: SvgPicture.asset(
-                      AppIcons.svg.support,
-                      width: 25,
-                      colorFilter: AppColors.svg(AppColors.primaryColor),
+
+                Visibility(
+                  visible: !(widget.onServicesTab??false),
+                  child: IconButton(
+                    onPressed: () {
+                      commonSupportDialog(context);
+                    },
+                    icon: Container(
+                      alignment: Alignment.center,
+                      padding: EdgeInsets.all(5),
+                      decoration: commonContainerDecoration(color: Colors.transparent, borderRadius: BorderRadius.circular(commonButtonRadius), borderColor: AppColors.primaryColor, borderWidth: 1.5),
+                      child: SvgPicture.asset(
+                        AppIcons.svg.support,
+                        width: 25,
+                        colorFilter: AppColors.svg(AppColors.primaryColor),
+                      ),
                     ),
                   ),
                 ),

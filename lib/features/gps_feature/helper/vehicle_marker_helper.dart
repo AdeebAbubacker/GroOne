@@ -155,8 +155,7 @@ class VehicleMarkerHelper {
       if (byteData != null) {
         return BitmapDescriptor.fromBytes(byteData.buffer.asUint8List());
       }
-    } catch (e) {
-    }
+    } catch (e) {}
 
     // Fallback to colored marker
     return getMarkerIcon(vehicleCategory, status, lastUpdate, isExpired);

@@ -8,6 +8,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 
 class EndhanCardItem extends StatefulWidget {
   final Map<String, dynamic> card;
+
   const EndhanCardItem({super.key, required this.card});
 
   @override
@@ -31,12 +32,11 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
       decoration: commonContainerDecoration(
         color: AppColors.white,
         borderRadius: BorderRadius.circular(12),
-        shadow: true
+        shadow: true,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Align(
             alignment: Alignment.centerRight,
             child: Text(
@@ -74,29 +74,46 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
                     children: [
                       Text(
                         _obscureCardNumber
-                            ? getMaskedCardNumber(widget.card['cardNumber'] ?? '')
+                            ? getMaskedCardNumber(
+                              widget.card['cardNumber'] ?? '',
+                            )
                             : (widget.card['cardNumber'] ?? ''),
-                        style: AppTextStyle.body.copyWith(fontWeight: FontWeight.w600),
+                        style: AppTextStyle.body.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    
+
                       IconButton(
-                        visualDensity: VisualDensity(horizontal: -4, vertical: -4),
-                        icon: Icon(_obscureCardNumber ? Icons.visibility_off : Icons.visibility, size: 20),
-                        tooltip: _obscureCardNumber ? context.appText.showCardNumber : context.appText.hideCardNumber,
+                        visualDensity: VisualDensity(
+                          horizontal: -4,
+                          vertical: -4,
+                        ),
+                        icon: Icon(
+                          _obscureCardNumber
+                              ? Icons.visibility_off
+                              : Icons.visibility,
+                          size: 20,
+                        ),
+                        tooltip:
+                            _obscureCardNumber
+                                ? context.appText.showCardNumber
+                                : context.appText.hideCardNumber,
                         onPressed: () {
                           setState(() {
                             _obscureCardNumber = !_obscureCardNumber;
                           });
                         },
                         padding: EdgeInsets.zero,
-                       // constraints: BoxConstraints(),
+                        // constraints: BoxConstraints(),
                       ),
                     ],
                   ),
                   //2.height,
                   Text(
                     widget.card['vehicleNumber'],
-                    style: AppTextStyle.body3.copyWith(fontWeight: FontWeight.w500),
+                    style: AppTextStyle.body3.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ).expand(),
@@ -104,13 +121,16 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
                     decoration: commonContainerDecoration(
                       color: AppColors.boxGreen,
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Text(
-                      widget.card['status'],
+                      widget.card['status'] ?? '',
                       style: AppTextStyle.body3.copyWith(
                         color: AppColors.textGreen,
                         fontWeight: FontWeight.w600,
@@ -122,10 +142,9 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
             ],
           ),
 
-
           12.height,
           Divider(),
-           Row(
+          Row(
             children: [
               /// TODO: Add amount and date time later
               // Text(
@@ -135,17 +154,20 @@ class _EndhanCardItemState extends State<EndhanCardItem> {
               //     fontWeight: FontWeight.w700,
               //   ),
               // ),
-             // 4.width,
+              // 4.width,
               // Icon(Icons.refresh, color: AppColors.textBlackColor, size: 18),
               // const Spacer(),
               Text(
                 context.appText.mobNum,
-                style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
+                style: AppTextStyle.body3.copyWith(
+                  color: AppColors.greyTextColor,
+                ),
               ),
 
-              
-               Text(
-                 widget.card['mobile'] != "" && widget.card['mobile'] != null ? widget.card['mobile']: context.appText.na,
+              Text(
+                widget.card['mobile'] != "" && widget.card['mobile'] != null
+                    ? widget.card['mobile']
+                    : context.appText.na,
                 style: AppTextStyle.body3.copyWith(
                   color: AppColors.primaryTextColor,
                   fontWeight: FontWeight.w600,

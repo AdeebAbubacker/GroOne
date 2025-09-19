@@ -20,6 +20,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -96,8 +97,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
     _loadDataByTab(index: widget.initialTabIndex); // load initial tab
     _getFilterDataEntity();
     _fetchMoreLoads();
-
-
 
   }
 
@@ -358,6 +357,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
           ],
         ),
       ),
+      floatingActionButton: ChatActionButton(),
     );
   }
 
@@ -450,6 +450,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                   } else if (_tabController.index == 1) {
                     return IgnorePointer(
                       ignoring: disabledOnTap,
+
                       child: GestureDetector(
                         onTap: () async {
                         await  context.push(AppRouteName.loadDetailsScreen,extra: {"loadId":recentLoads[index].id}).then((value) {
@@ -457,6 +458,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                         });
                         },
                         child: VpAllLoadMyLoadWidget(
+
+                          onServicesTab: disabledOnTap,
                           data: recentLoads[index],
                           onBack: () {
                             _onPullToRefresh();
@@ -472,6 +475,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                   } else {
                     return  IgnorePointer(
                       ignoring: disabledOnTap,
+
                       child: GestureDetector(
                         onTap: () async {
                           await context.push(AppRouteName.loadDetailsScreen, extra: {"loadId":recentLoads[index].id}).then((value) {
@@ -479,7 +483,9 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                           });
                         },
                         child: VpAllLoadMyLoadWidget(
+                          onServicesTab: disabledOnTap,
                           data: recentLoads[index],
+
                           showButton: _tabController.index!=3,
                           onBack: () {
                             _onPullToRefresh();

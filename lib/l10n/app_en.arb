@@ -1360,6 +1360,9 @@
   "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads",
   "insuranceValidityDate" : "Insurance Validity Date",
   "fcExpiryDate" : "FC Expiry Date",
-  "pucExpiryDate" : "PUC Expiry Date"
+  "pucExpiryDate" : "PUC Expiry Date",
+  "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads",
+  "gstNo" : "GST",
+  "kycRejected":"Your kyc is rejected"
 
 }

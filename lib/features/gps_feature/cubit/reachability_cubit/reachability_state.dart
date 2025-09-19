@@ -13,7 +13,8 @@ class ReachabilityState extends Equatable {
   final double? radius;
   final ReachabilityGeofence? selectedGeofence;
   final DateTime? selectedDate;
-  final DateTime? selectedTime;
+  final DateTime? selectedStartTime;
+  final DateTime? selectedEndTime;
   final List<NotificationMethod> notificationMethods;
   final LatLng? mapCenter;
 
@@ -30,7 +31,8 @@ class ReachabilityState extends Equatable {
     this.radius,
     this.selectedGeofence,
     this.selectedDate,
-    this.selectedTime,
+    this.selectedStartTime,
+    this.selectedEndTime,
     this.notificationMethods = const [],
     this.mapCenter,
   });
@@ -48,7 +50,8 @@ class ReachabilityState extends Equatable {
     double? radius,
     ReachabilityGeofence? selectedGeofence,
     DateTime? selectedDate,
-    DateTime? selectedTime,
+    DateTime? selectedStartTime,
+    DateTime? selectedEndTime,
     List<NotificationMethod>? notificationMethods,
     LatLng? mapCenter,
   }) {
@@ -65,7 +68,8 @@ class ReachabilityState extends Equatable {
       radius: radius ?? this.radius,
       selectedGeofence: selectedGeofence ?? this.selectedGeofence,
       selectedDate: selectedDate ?? this.selectedDate,
-      selectedTime: selectedTime ?? this.selectedTime,
+      selectedStartTime: selectedStartTime ?? this.selectedStartTime,
+      selectedEndTime: selectedEndTime ?? this.selectedEndTime,
       notificationMethods: notificationMethods ?? this.notificationMethods,
       mapCenter: mapCenter ?? this.mapCenter,
     );
@@ -85,7 +89,8 @@ class ReachabilityState extends Equatable {
     radius,
     selectedGeofence,
     selectedDate,
-    selectedTime,
+    selectedStartTime,
+    selectedEndTime,
     notificationMethods,
     mapCenter,
   ];

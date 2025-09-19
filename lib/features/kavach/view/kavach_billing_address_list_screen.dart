@@ -22,6 +22,7 @@ enum AddressListFeature { kavach, gps }
 class KavachBillingAddressListScreen extends StatelessWidget {
   final KavachAddressModel? selectedShippingAddress;
   final AddressListFeature feature;
+  final bool refresh;
   final GpsBillingAddressCubit? gpsBillingAddressCubit; // For GPS feature
   final GpsShippingAddressCubit?
   gpsShippingAddressCubit; // For GPS feature - to refresh both lists
@@ -31,6 +32,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
     super.key,
     this.selectedShippingAddress,
     this.feature = AddressListFeature.kavach,
+    this.refresh = false,
     this.gpsBillingAddressCubit,
     this.gpsShippingAddressCubit,
     this.changeShippingIndex,
@@ -62,8 +64,9 @@ class KavachBillingAddressListScreen extends StatelessWidget {
           await commonBottomSheetWithBGBlur(
             context: context,
             screen: KavachAddAddressBottomSheet(
+              refresh: refresh,
               addrType: 2, // Billing address type
-              title: context.appText.billingAddress,
+              title: context.appText.billingAddress + 'pp',
               feature: AddressFeature.kavach,
             ),
           );
@@ -76,14 +79,19 @@ class KavachBillingAddressListScreen extends StatelessWidget {
           await commonBottomSheetWithBGBlur(
             context: context,
             screen: KavachAddAddressBottomSheet(
-              addrType: 2, // Billing address type
+              addrType: 2,
+              // Billing address type
               title: context.appText.billingAddress,
               feature: AddressFeature.gps,
+              refresh: refresh,
               onAddressAdded: () {
                 // Refresh both billing and shipping address lists
-                gpsBillingAddressCubit!.fetchGpsBillingAddresses();
+                gpsBillingAddressCubit!.fetchGpsBillingAddresses(
+                  noRefresh: refresh,
+                );
                 if (gpsShippingAddressCubit != null) {
                   gpsShippingAddressCubit!.fetchGpsShippingAddresses(
+                    noRefresh: refresh,
                     changeShippingIndex:
                         changeShippingIndex != null ? changeShippingIndex! : 0,
                   );
@@ -435,18 +443,20 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                         ),
               ),
               20.height,
-              AppButton(
-                onPressed: () {
-                  final selectedAddress = gpsBillingAddressCubit!.state;
-                  if (selectedAddress is GpsBillingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress);
-                  } else {
-                    // Handle if nothing is selected (optional)
-                  }
-                },
-                title: context.appText.deliverHere,
-                style: AppButtonStyle.primary,
-              ),
+              filteredAddresses.isNotEmpty
+                  ? AppButton(
+                    onPressed: () {
+                      final selectedAddress = gpsBillingAddressCubit!.state;
+                      if (selectedAddress is GpsBillingAddressSelected) {
+                        Navigator.pop(context, selectedAddress.selectedAddress);
+                      } else {
+                        // Handle if nothing is selected (optional)
+                      }
+                    },
+                    title: context.appText.deliverHere,
+                    style: AppButtonStyle.primary,
+                  )
+                  : const SizedBox(),
               20.height,
             ],
           );

@@ -8,6 +8,7 @@ import 'package:gro_one_app/features/kavach/view/widgets/kavach_order_card_widge
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../dependency_injection/locator.dart';
@@ -308,6 +309,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
               ],
             ),
+            floatingActionButton: ChatActionButton(),
           );
         }
       },

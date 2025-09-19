@@ -15,6 +15,7 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
@@ -22,8 +23,6 @@ import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../utils/app_icons.dart';
-import '../../ai_chat/view/chat_screen.dart';
-import '../../ai_chat/cubit/chat_cubit.dart';
 
 class LpSupport extends StatefulWidget {
   const LpSupport({super.key, this.showBackButton = true, this.ticketTag});
@@ -117,49 +116,7 @@ class _LpSupportState extends State<LpSupport> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: buildAppBar(),
-      floatingActionButton: Container(
-        width: 70,
-        height: 70,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF64B5F6), // Light blue
-              Color(0xFF1976D2), // Darker blue
-            ],
-          ),
-          shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.3),
-              blurRadius: 8,
-              offset: Offset(0, 4),
-            ),
-          ],
-        ),
-        child: FloatingActionButton(
-          onPressed: () {
-            // Navigate to ChatScreen
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder:
-                    (context) => BlocProvider.value(
-                      value: locator<ChatCubit>(),
-                      child: ChatScreen(),
-                    ),
-              ),
-            );
-          },
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Image.asset('assets/icons/gif/lntAnimateLogo.gif'),
-          ),
-        ),
-      ),
+      floatingActionButton: ChatActionButton(),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(18),
