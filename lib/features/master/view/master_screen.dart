@@ -78,22 +78,29 @@ class _MasterScreenState extends State<MasterScreen>
   String? pucExpiryDate;
   String? registrationDate;
   List<LaneDetailsResponse> laneDetails=[];
+
+
+
+
+
+
   @override
-
-
   void initState() {
+
     super.initState();
     context.read<MastersCubit>().resetVehicleVerification();
     _tabController = TabController(
       initialIndex: widget.initialIndex ?? 0,
 
-      length: 4,
+      length: (kycCubit.userRole == 3 && (profileCubit.state.switchToVp??false)) ||  kycCubit.userRole==2 ?  4:3,
       vsync: this,
     );
     _tabController.addListener(() {
       if (mounted) setState(() {});
     });
     kycCubit.fetchStateList();
+
+    print("value is ${profileCubit.state.switchToVp}");
     initFunction();
   }
 
@@ -102,6 +109,42 @@ class _MasterScreenState extends State<MasterScreen>
    disposeFunction();
     super.dispose();
   }
+
+  List<Widget> getTabs(BuildContext context) {
+    if (kycCubit.userRole == 2 || (kycCubit.userRole == 3 && (profileCubit.state.switchToVp??false))) {
+      return [
+        _buildTab(context.appText.lanes, _tabController.index == 0),
+        _buildTab(context.appText.address, _tabController.index == 1),
+        _buildTab(context.appText.vehicles, _tabController.index == 2),
+        _buildTab(context.appText.drivers, _tabController.index == 3),
+      ];
+    } else {
+      return [
+        _buildTab(context.appText.address, _tabController.index == 0),
+        _buildTab(context.appText.vehicles, _tabController.index == 1),
+        _buildTab(context.appText.drivers, _tabController.index == 2),
+      ];
+    }
+
+  }
+
+  List<Widget> getTabViews() {
+    if (kycCubit.userRole == 2 || (kycCubit.userRole == 3 && (profileCubit.state.switchToVp??false))) {
+      return [
+        PreferLanesTab(),
+        BuildAddressTab(),
+        BuildVehicleTab(),
+        BuildDriverTab(),
+      ];
+    } else {
+      return [
+        BuildAddressTab(),
+        BuildVehicleTab(),
+        BuildDriverTab(),
+      ];
+    }
+  }
+
 
 
   void initFunction() => frameCallback(() async {
@@ -121,7 +164,6 @@ class _MasterScreenState extends State<MasterScreen>
     // profileDetailModel.vehicles
 
   }
-
 
 
 
@@ -247,12 +289,7 @@ class _MasterScreenState extends State<MasterScreen>
         Expanded(
               child: TabBarView(
                 controller: _tabController,
-                children: [
-                  PreferLanesTab(),
-                  BuildAddressTab(),
-                  BuildVehicleTab(),
-                  BuildDriverTab(),
-                ],
+                children:  getTabViews(),
               ),
             ),
           ],

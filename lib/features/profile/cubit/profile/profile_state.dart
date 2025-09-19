@@ -34,7 +34,7 @@ class ProfileState extends Equatable {
   final UIState<DeleteAccountModel>? deleteAccountUIState;
   final int? currentPage;
   final UIState<DocumentDetails>? documentById;
-
+  final bool? switchToVp;
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -69,6 +69,7 @@ class ProfileState extends Equatable {
     this.deleteAccountUIState,
     this.currentPage,
     this.documentById,
+    this.switchToVp
   });
 
   ProfileState copyWith({
@@ -106,10 +107,11 @@ class ProfileState extends Equatable {
     String? blueId,
     int? currentPage,
     UIState<DocumentDetails>? documentById,
-
+     bool? switchToVp
 
   }) {
     return ProfileState(
+      switchToVp: switchToVp??this.switchToVp,
       currentPage: currentPage ?? this.currentPage,
       profileDetailUIState: profileDetailUIState ?? this.profileDetailUIState,
       logoutUIState: logoutUIState ?? this.logoutUIState,
@@ -180,6 +182,7 @@ class ProfileState extends Equatable {
     licneseCategoryResponseUIState,
     deleteAccountUIState,
     currentPage,
-    documentById
+    documentById,
+    switchToVp
   ];
 }

@@ -52,6 +52,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   final LpHomeRepository _lpHomeRepository;
   final LpLoadRepository _lpLoadRepository;
   final KavachRepository kavachRepository;
+
   ProfileCubit(this._repo, this._lpHomeRepository, this._lpLoadRepository, this.kavachRepository)
     : super(ProfileState());
 
@@ -99,12 +100,18 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return userRole;
   }
 
+
+
   // Get User Id
   String? userId;
   Future<String?> fetchUserId() async {
     userId = await _repo.getUserId();
     CustomLog.debug(this, "User Id : $userId");
     return userId;
+  }
+
+  void switchToVp(bool value){
+    emit(state.copyWith(switchToVp: value));
   }
 
   // Fetch Profile Detail Api Call
