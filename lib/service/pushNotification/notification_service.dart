@@ -395,8 +395,6 @@ class NotificationService {
       );
 
 
-
-
       if (payload.route != null) {
         //// TODO: implement redirection here
         if(payload.userType=="Load Provider"){
@@ -803,8 +801,14 @@ class NotificationService {
     CustomLog.debug(this, "$consolePrint : $payload");
     if (payload.route != null) {
 
-      if(payload.route!=null){
-        navigatorKey.currentState?.pushNamed(payload.route!);
+      if (payload.route != null) {
+        //// TODO: implement redirection here
+        if(payload.userType=="Load Provider"){
+          return;
+        }
+        navigatorKey.currentContext?.go((payload.route!.trim()),extra: {
+          "loadId":payload.loadSeriesId
+        });
       }
     }
   }
