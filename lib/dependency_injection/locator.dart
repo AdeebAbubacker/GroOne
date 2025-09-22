@@ -26,6 +26,8 @@ import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/endhan_transaction_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en_dhan_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en_dhan_services.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_tab_cubit.dart';
 import 'package:gro_one_app/features/fastag/repository/fastag_repository.dart';
 import 'package:gro_one_app/features/fastag/service/fastag_service.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
@@ -642,6 +644,12 @@ void _registerBasicBlocs() {
   locator.registerLazySingleton(() => FastagCubit(locator<FastagRepository>()));
   locator.registerLazySingleton(
     () => PodDispatchCubit(locator<PodDispatchRepository>()),
+  );
+  locator.registerLazySingleton(
+    () => FastagOrderListCubit(locator<FastagRepository>()),
+  );
+  locator.registerLazySingleton(
+    () => FastagOrderListTabCubit(locator<FastagRepository>()),
   );
   locator.registerLazySingleton(
     () => DriverProfileCubit(locator<DriverProfileRepository>()),

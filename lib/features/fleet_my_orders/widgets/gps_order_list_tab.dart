@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -26,6 +27,7 @@ class _GpsOrderListTabWidgetState extends State<GpsOrderListTabWidget> {
   String? customerId;
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
+  final List<GpsOrderItem> allOrders = [];
 
   @override
   void initState() {

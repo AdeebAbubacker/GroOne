@@ -594,7 +594,7 @@ class GpsOrderApiService {
         CustomLog.debug(this, "GPS Create Order - Response: ${result.value}");
         return await _apiService.getResponseStatus(
           result.value,
-          (data)=> CreateOrderResponse.fromJson(data),
+          (data) => CreateOrderResponse.fromJson(data),
           // (data) {},
         );
       } else if (result is Error) {

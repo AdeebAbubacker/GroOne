@@ -586,7 +586,7 @@ class GpsAddress {
   /// Convert to KavachAddressModel for compatibility with existing UI
   KavachAddressModel toKavachAddressModel() {
     return KavachAddressModel(
-      id: int.tryParse(id) ?? 0,
+      id: id,
       customerName: addressName,
       mobileNumber: '',
       customerId: 851,

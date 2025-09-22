@@ -7,6 +7,8 @@ import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_loa
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/fastag/cubit/fastag_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_tab_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
@@ -53,6 +55,7 @@ import 'features/vehicle_provider/vp_trip_statement/cubit/vp_trip_statement_cubi
 
 class MultiBlocWrapper extends StatelessWidget {
   final Widget child;
+
   const MultiBlocWrapper({super.key, required this.child});
 
   @override
@@ -177,6 +180,10 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<PaymentCubit>(create: (_) => locator<PaymentCubit>()),
         BlocProvider<MastersCubit>(create: (_) => locator<MastersCubit>()),
         BlocProvider<FastagCubit>(create: (_) => locator<FastagCubit>()),
+        BlocProvider<FastagOrderListCubit>(create: (_) => locator<FastagOrderListCubit>()),
+        BlocProvider<FastagOrderListTabCubit>(
+          create: (_) => locator<FastagOrderListTabCubit>(),
+        ),
         BlocProvider<DocumentTypeCubit>(
           create: (_) => locator<DocumentTypeCubit>(),
         ),

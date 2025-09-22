@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_upload_document_screen.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_order_list_model.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_choose_your_preference_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_order_card_widget.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -42,29 +43,175 @@ class KavachOrdersListScreen extends StatefulWidget {
 class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     with TickerProviderStateMixin {
   final _ordersBloc = locator<KavachOrderListBloc>();
-  late TabController _tabController;
+  TabController? _tabController;
+  final tabScrollController = ScrollController();
+  final ScrollController _scrollController = ScrollController();
+  List<KavachOrderListOrderItem> allOrders = [];
+  bool initialBuild = true;
+  int page = 1;
+  List<String> tabLabels = [];
+  final PageStorageBucket _bucket = PageStorageBucket();
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
-    _ordersBloc.add(FetchKavachOrderList(forceRefresh: true, isRefresh: true));
-    _tabController.addListener(() {
-      if (mounted) setState(() {}); // Safe setState
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        tabLabels = [
+          context.appText.all,
+          context.appText.orderPlaced,
+          context.appText.dispatched,
+          context.appText.delivered,
+          context.appText.installed,
+        ];
+        _tabController = TabController(length: tabLabels.length, vsync: this);
+        _tabController!.addListener(() {
+          if (!_tabController!.indexIsChanging && mounted) {
+            final index = _tabController!.index;
+            _scrollTabToCenter(index);
+            allOrders.clear();
+            page = 1;
+            final status = _getStatusForIndex(_tabController!.index);
+            _ordersBloc.add(
+              FetchKavachOrderList(status: status, isRefresh: true, page: page),
+            );
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _scrollTabToCenter(_tabController!.index);
+            });
+          }
+        });
+        _scrollTabToCenter(_tabController!.index);
+      });
     });
+    _scrollController.addListener(_onScroll);
+    _ordersBloc.add(
+      FetchKavachOrderList(forceRefresh: true, isRefresh: true, page: page),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Initialize only once
+    if (!mounted || _tabController != null) return;
+
+    tabLabels = [
+      context.appText.all,
+      context.appText.orderPlaced,
+      context.appText.dispatched,
+      context.appText.delivered,
+      context.appText.installed,
+    ];
+
+    _tabController = TabController(length: tabLabels.length, vsync: this);
+
+    _tabController!.addListener(() {
+      if (!_tabController!.indexIsChanging && mounted) {
+        allOrders.clear();
+        page = 1;
+        _scrollTabToCenter(_tabController!.index);
+      }
+    });
+
+    final initialStatus = _getStatusForIndex(_tabController!.index);
+    _ordersBloc.add(FetchKavachOrderList(status: initialStatus, page: page));
+  }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //
+  //   tabLabels = [
+  //     context.appText.all,
+  //     context.appText.orderPlaced,
+  //     context.appText.dispatched,
+  //     context.appText.delivered,
+  //     context.appText.installed,
+  //   ];
+  //
+  //   _tabController = TabController(length: tabLabels.length, vsync: this);
+  //
+  //   _tabController.addListener(() {
+  //     if (mounted) {
+  //       allOrders.clear();
+  //       page = 1;
+  //       // ✅ fetch orders for the new tab
+  //       final status = _getStatusForIndex(_tabController.index);
+  //       context.read<KavachOrderListBloc>().add(
+  //         FetchKavachOrderList(status: status, isRefresh: true, page: page),
+  //       );
+  //     }
+  //   });
+  // }
+
+  int? _getStatusForIndex(int index) {
+    switch (index) {
+      case 0:
+        return null; // all
+      case 1:
+        return 5; // orderPlaced
+      case 2:
+        return 7; // dispatched
+      case 3:
+        return 8; // delivered
+      case 4:
+        return 10; // installed
+      default:
+        return null;
+    }
+  }
+
+  void _onScroll() {
+    final currentState = context.read<KavachOrderListBloc>().state;
+    if (!_scrollController.hasClients ||
+        (currentState is KavachOrderListLoaded &&
+            page == currentState.totalPage!)) {
+      return;
+    }
+
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
+      context.read<KavachOrderListBloc>().add(ResetKavachOrderList());
+      page += 1;
+      context.read<KavachOrderListBloc>().add(FetchKavachOrderList(page: page));
+    }
+    // });
+  }
+
+  bool get _isLoading {
+    final state = context.read<KavachOrderListBloc>().state;
+    return state is KavachOrderListLoading; // or use a flag in your state
+  }
+
+  bool get _isBottom {
+    if (!_scrollController.hasClients) return false;
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    final currentScroll = _scrollController.offset;
+    return currentScroll >= (maxScroll * 0.9);
   }
 
   @override
   void dispose() {
-    _tabController.dispose();
+    _tabController!.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
+    return BlocConsumer<KavachOrderListBloc, KavachOrderListState>(
+      listener: (c, state) {
+        if (state is KavachOrderListLoaded) {
+          debugPrint('dshdshsf=>${state.orders.length}');
+          initialBuild = false;
+          allOrders.addAll(state.orders);
+        } else if (state is KavachOrderListError) {
+          debugPrint('dshdshsf=>${state.message}');
+          initialBuild = false;
+        }
+      },
       builder: (context, state) {
-        if (state is KavachOrderListLoading) {
+        if (state is KavachOrderListLoading && allOrders.isEmpty) {
           return Scaffold(
             appBar: CommonAppBar(
               centreTile: false,
@@ -72,9 +219,17 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               actions: [
                 AppIconButton(
                   onPressed: () {
-                    Navigator.of(
-                      context,
-                    ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+                    Navigator.of(context)
+                        .push(commonRoute(KavachChooseYourPreferenceScreen()))
+                        .then((v) {
+                          setState(() {
+                            debugPrint('kkk 1');
+                            allOrders.clear();
+                            context.read<KavachOrderListBloc>().add(
+                              FetchKavachOrderList(page: page),
+                            );
+                          });
+                        });
                   },
                   icon: Icon(Icons.add, color: Colors.white),
                   style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -124,63 +279,9 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
             body: const Center(child: CircularProgressIndicator()),
           );
         } else if (state is KavachOrderListLoaded &&
-            (state.orders.isEmpty ||
-                (state.kycStatusUpdated != null && !state.kycStatusUpdated!))) {
+            state.kycStatusUpdated != null &&
+            !state.kycStatusUpdated!) {
           return Scaffold(
-            backgroundColor: AppColors.blackishWhite,
-            appBar: CommonAppBar(
-              title: context.appText.fuelSecurityDevice,
-              centreTile: false,
-              actions: [
-                AppIconButton(
-                  onPressed: () {
-                    navigateToNextScreen(state);
-                  },
-                  icon: Icon(Icons.add, color: Colors.white),
-                  style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-                ),
-                AppIconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      commonRoute(
-                        LpSupport(
-                          showBackButton: true,
-                          ticketTag: TicketTags.TANK_LOCK,
-                        ),
-                        isForward: true,
-                      ),
-                    );
-                  },
-                  icon: AppIcons.svg.filledSupport,
-                  iconColor: AppColors.primaryButtonColor,
-                ),
-                PopupMenuButton<String>(
-                  color: Colors.white,
-                  icon: Image.asset(AppIcons.png.moreVertical),
-                  offset: Offset(20, 50),
-                  onSelected: (value) {
-                    if (value == context.appText.transactions) {
-                      Navigator.push(
-                        context,
-                        commonRoute(KavachTransactionsScreen()),
-                      );
-                    }
-                  },
-                  itemBuilder: (BuildContext context) {
-                    return [
-                      PopupMenuItem(
-                        value: context.appText.transactions,
-                        child: Text(
-                          context.appText.transactions,
-                          style: AppTextStyle.h6,
-                        ),
-                      ),
-                    ];
-                  },
-                ),
-                5.width,
-              ],
-            ),
             body: kavachBenifitsWidget(context),
             bottomNavigationBar: buildGetYourTankLockButtonWidget(
               state,
@@ -196,10 +297,23 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               centreTile: false,
               actions: [
                 AppIconButton(
-                  onPressed: () {
-                    Navigator.of(
+                  onPressed: () async {
+                    final res = await Navigator.of(
                       context,
                     ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+                    if (!mounted) return;
+                    setState(() {
+                      page = 1;
+                      allOrders.clear();
+                      _ordersBloc.add(
+                        FetchKavachOrderList(
+                          forceRefresh: true,
+                          isRefresh: true,
+                          page: 1,
+                        ),
+                      );
+                    });
+                    debugPrint('kkk 2');
                   },
                   icon: Icon(Icons.add, color: Colors.white),
                   style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -250,25 +364,30 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               children: [
                 // Tab Bar
                 SingleChildScrollView(
+                  key: const PageStorageKey('tab-scroll'),
+                  controller: tabScrollController,
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.only(left: 16),
                   child: Row(
-                    children: List.generate(5, (index) {
-                      final tabLabels = [
-                        context.appText.all,
-                        context.appText.orderPlaced,
-                        context.appText.dispatched,
-                        context.appText.delivered,
-                        context.appText.installed,
-                      ];
-                      final isSelected = _tabController.index == index;
+                    children: List.generate(tabLabels.length, (index) {
+                      final isSelected = _tabController!.index == index;
                       return Padding(
                         padding: const EdgeInsets.symmetric(
                           horizontal: 4,
                           vertical: 12,
                         ),
                         child: GestureDetector(
-                          onTap: () => _tabController.animateTo(index),
+                          onTap: () {
+                            if (_tabController!.index != index) {
+                              // Reset pagination & fetch again
+                              setState(() {
+                                page = 1;
+                                allOrders.clear();
+                                _tabController!.animateTo(index);
+                                _scrollTabToCenter(index);
+                              });
+                            }
+                          },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 18,
@@ -316,25 +435,50 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     );
   }
 
-  navigateToNextScreen(KavachOrderListLoaded state) {
+  void _scrollTabToCenter(int index) {
+    final tabWidth = 100.0; // approximate width of one tab
+    final screenWidth = MediaQuery.of(context).size.width;
+    final offset = (tabWidth * index) - (screenWidth / 2 - tabWidth / 2);
+    tabScrollController.animateTo(
+      offset.clamp(0.0, tabScrollController.position.maxScrollExtent),
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  navigateToNextScreen(KavachOrderListLoaded state, BuildContext context) {
     if (state.kycStatusUpdated == false) {
       Navigator.push(
         context,
         commonRoute(GpsUploadDocumentScreen(fromKavachScreen: true)),
       ).then((v) {
+        debugPrint('kkk 4');
         if (!mounted) return;
+        allOrders.clear();
         context.read<KavachOrderListBloc>().add(
           FetchKavachOrderList(
             status: widget.status,
             forceRefresh: true,
             isRefresh: true,
+            page: page,
           ),
         );
       });
     } else {
       Navigator.of(
         context,
-      ).push(commonRoute(KavachChooseYourPreferenceScreen()));
+      ).push(commonRoute(KavachChooseYourPreferenceScreen())).then((v) {
+        debugPrint('kkk 5');
+        allOrders.clear();
+        context.read<KavachOrderListBloc>().add(
+          FetchKavachOrderList(
+            status: widget.status,
+            forceRefresh: true,
+            isRefresh: true,
+            page: page,
+          ),
+        );
+      });
     }
   }
 
@@ -359,7 +503,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     return AppButton(
       title: context.appText.getYourTankLockNow,
       onPressed: () {
-        navigateToNextScreen(state);
+        navigateToNextScreen(state, context);
       },
     ).bottomNavigationPadding();
   }
@@ -458,102 +602,28 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   }
 
   Widget _buildTab({int? status}) {
-    return BlocProvider(
-      create:
-          (_) => KavachOrderListBloc(
-            locator<KavachRepository>(),
-            locator<GpsOrderApiRepository>(),
-            locator<UserInformationRepository>(),
-          )..add(FetchKavachOrderList(status: status, isRefresh: true)),
-      child: _OrdersListView(status: status),
-    );
-  }
-}
-
-class _OrdersListView extends StatefulWidget {
-  final int? status;
-
-  const _OrdersListView({this.status});
-
-  @override
-  State<_OrdersListView> createState() => _OrdersListViewState();
-}
-
-class _OrdersListViewState extends State<_OrdersListView> {
-  final ScrollController _scrollController = ScrollController();
-  Timer? _debounce;
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<KavachOrderListBloc>().add(
-      FetchKavachOrderList(status: widget.status, forceRefresh: true),
-    );
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (_debounce?.isActive ?? false) return;
-    _debounce = Timer(const Duration(milliseconds: 200), () {
-      final currentState = context.read<KavachOrderListBloc>().state;
-      if (_isBottom &&
-          !_isLoading &&
-          currentState is KavachOrderListLoaded &&
-          !currentState.hasReachedMax) {
-        context.read<KavachOrderListBloc>().add(FetchKavachOrderList());
-      }
-    });
-  }
-
-  bool get _isLoading {
-    final state = context.read<KavachOrderListBloc>().state;
-    return state is KavachOrderListLoading; // or use a flag in your state
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.offset;
-    return currentScroll >= (maxScroll * 0.9);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
+    return BlocConsumer<KavachOrderListBloc, KavachOrderListState>(
+      listener: (c, s) {},
       builder: (context, state) {
-        if (state is KavachOrderListLoading) {
+        if (state is KavachOrderListLoading && (allOrders.isEmpty)) {
+          // First load
           return const Center(child: CircularProgressIndicator());
         } else if (state is KavachOrderListLoaded) {
-          if (state.orders.isEmpty) {
-            return Center(
-              child: Text(
-                context.appText.noOrdersFound,
-                style: AppTextStyle.h5,
-              ),
-            );
+          if (allOrders.isEmpty) {
+            return Center(child: Text(context.appText.noOrdersFound));
           }
-          return ListView.builder(
-            controller: _scrollController,
-            itemCount:
-                state.hasReachedMax
-                    ? state.orders.length
-                    : state.orders.length + 1,
-            itemBuilder: (context, index) {
-              if (index >= state.orders.length) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              final order = state.orders[index];
-              return KavachOrderCardWidget(order: order);
-            },
+
+          return PageStorage(
+            bucket: _bucket,
+            child: ListView.builder(
+              key: PageStorageKey('orders-tab-$status'),
+              controller: _scrollController,
+              itemCount: allOrders.length,
+              itemBuilder: (context, index) {
+                final order = allOrders[index];
+                return KavachOrderCardWidget(order: order);
+              },
+            ),
           );
         } else if (state is KavachOrderListError) {
           return Center(child: Text(state.message));
@@ -563,3 +633,53 @@ class _OrdersListViewState extends State<_OrdersListView> {
     );
   }
 }
+
+// class _OrdersListView extends StatefulWidget {
+//   final int? status;
+//
+//   const _OrdersListView({this.status});
+//
+//   @override
+//   State<_OrdersListView> createState() => _OrdersListViewState();
+// }
+//
+// class _OrdersListViewState extends State<_OrdersListView> {
+//   final ScrollController _scrollController = ScrollController();
+//   Timer? _debounce;
+//   List<KavachOrderListOrderItem> allOrders = [];
+//
+//   @override
+//   void initState() {
+//     super.initState();
+//     context.read<KavachOrderListBloc>().add(
+//       FetchKavachOrderList(status: widget.status, forceRefresh: true),
+//     );
+//   }
+//
+//   @override
+//   void dispose() {
+//     _scrollController.dispose();
+//     super.dispose();
+//   }
+//
+//   void _onScroll() {
+//     if (_debounce?.isActive ?? false) return;
+//     _debounce = Timer(const Duration(milliseconds: 200), () {
+//       final currentState = context.read<KavachOrderListBloc>().state;
+//       if (_isBottom &&
+//           !_isLoading &&
+//           currentState is KavachOrderListLoaded &&
+//           !currentState.hasReachedMax) {
+//         context.read<KavachOrderListBloc>().add(FetchKavachOrderList());
+//       }
+//     });
+//   }
+//
+
+//
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return ;
+//   }
+// }

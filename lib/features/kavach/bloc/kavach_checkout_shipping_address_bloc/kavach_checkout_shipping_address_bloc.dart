@@ -46,43 +46,67 @@ class KavachCheckoutShippingAddressBloc
       }
 
       // ✅ Keep previous selection if still valid
-      if (currentlySelectedAddress != null) {
-        final addressExists = addresses.any(
-          (address) => address.uniqueId == currentlySelectedAddress!.uniqueId,
-        );
-        if (addressExists) {
-          emit(
-            KavachCheckoutShippingAddressSelected(
-              selectedAddress:
-                  event.noRefresh ? null : currentlySelectedAddress,
-              addresses: addresses,
-            ),
-          );
-          return;
-        }
-      }
+      // if (currentlySelectedAddress != null) {
+      //   final addressExists = addresses.any(
+      //     (address) => address.uniqueId == currentlySelectedAddress!.uniqueId,
+      //   );
+      //   if (addressExists) {
+      //     emit(
+      //       KavachCheckoutShippingAddressSelected(
+      //         selectedAddress:
+      //             event.noRefresh ? null : currentlySelectedAddress,
+      //         addresses: addresses,
+      //       ),
+      //     );
+      //     return;
+      //   }
+      // }
+      //
+      // // ✅ No previous selection — auto-select first address
+      // if (event.mandatoryRefresh) {
+      //   emit(
+      //     KavachCheckoutShippingAddressSelected(
+      //       selectedAddress: addresses.first,
+      //       addresses: addresses,
+      //     ),
+      //   );
+      // } else {
+      //   emit(
+      //     KavachCheckoutShippingAddressSelected(
+      //       selectedAddress:
+      //           addresses.length == 1 || event.noRefresh
+      //               ? null
+      //               : addresses.length > 1
+      //               ? addresses[1]
+      //               : null,
+      //       addresses: addresses,
+      //     ),
+      //   );
+      // }
+      // final addressList =
+      //     addresses
+      //         .where((v) => v.id.toString() != event.billingAddressUniqueId)
+      //         .toList();
+      var selectedOne = addresses.where(
+        (v) => v.id.toString() == event.shippingAddressUniqueId,
+      );
+      debugPrint('billingAddressUniqueId--${event.billingAddressUniqueId}');
+      debugPrint('shippingAddressUniqueId--${event.shippingAddressUniqueId}');
+      debugPrint('selectedOne--$selectedOne');
 
-      // ✅ No previous selection — auto-select first address
-      if (event.mandatoryRefresh) {
-        emit(
-          KavachCheckoutShippingAddressSelected(
-            selectedAddress: addresses.first,
-            addresses: addresses,
-          ),
-        );
-      } else {
-        emit(
-          KavachCheckoutShippingAddressSelected(
-            selectedAddress:
-                addresses.length == 1 || event.noRefresh
-                    ? null
-                    : addresses.length > 1
-                    ? addresses[1]
-                    : null,
-            addresses: addresses,
-          ),
-        );
-      }
+      // 2️⃣ Otherwise auto-select first address
+      emit(
+        KavachCheckoutShippingAddressSelected(
+          selectedAddress:
+              event.billingAddressUniqueId.isEmpty &&
+                      event.shippingAddressUniqueId.isEmpty
+                  ? null
+                  : selectedOne.isNotEmpty
+                  ? selectedOne.first
+                  : null,
+          addresses: addresses,
+        ),
+      );
     } else if (result is Error<List<KavachAddressModel>>) {
       emit(KavachCheckoutShippingAddressError(result.type));
     }
