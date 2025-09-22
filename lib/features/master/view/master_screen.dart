@@ -227,11 +227,14 @@ class _MasterScreenState extends State<MasterScreen>
         color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
         borderRadius: BorderRadius.circular(30),
       ),
-      child: Text(
-        text,
-        style: AppTextStyle.h6.copyWith(
-          fontWeight: FontWeight.w600,
-          color: isSelected ? AppColors.white : AppColors.black,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(
+          text,
+          style: AppTextStyle.h6.copyWith(
+            fontWeight: FontWeight.w600,
+            color: isSelected ? AppColors.white : AppColors.black,
+          ),
         ),
       ),
     );
@@ -257,6 +260,9 @@ class _MasterScreenState extends State<MasterScreen>
           children: [
            15.height,
           TabBar(
+          isScrollable: true,
+          padding: EdgeInsets.zero,
+          labelPadding: EdgeInsets.only(right: 15),
           controller: _tabController,
           indicator: BoxDecoration(
             color: Colors.transparent, // selected tab bg
