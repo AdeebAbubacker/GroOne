@@ -13,6 +13,7 @@ import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
@@ -501,6 +502,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                   ],
                 ),
                 body: GpsOrderListWithTabs(orders: state.orderList.data.rows),
+                floatingActionButton: ChatActionButton(),
               );
             }
           }

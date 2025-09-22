@@ -35,7 +35,8 @@ class EndhanCreateCardInfoScreen extends StatefulWidget {
   const EndhanCreateCardInfoScreen({super.key});
 
   @override
-  State<EndhanCreateCardInfoScreen> createState() => _EndhanCreateCardInfoScreenState();
+  State<EndhanCreateCardInfoScreen> createState() =>
+      _EndhanCreateCardInfoScreenState();
 }
 
 class _EndhanCreateCardInfoScreenState
@@ -43,13 +44,17 @@ class _EndhanCreateCardInfoScreenState
   bool _isNavigating = false; // Flag to prevent multiple navigation attempts
   final lpHomeCubit = locator<LPHomeCubit>();
 
-
-  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+  Future<void> updatedAppEvent({
+    required String stage,
+    String? entityId,
+    Map<String, dynamic>? context,
+  }) async {
     try {
       lpHomeCubit.updatedAppEvent(
-          stage: stage,
-          entityId: entityId,
-          context: context);
+        stage: stage,
+        entityId: entityId,
+        context: context,
+      );
     } catch (e) {
       // Log error but don't show to user as it's not critical
     }
@@ -67,7 +72,7 @@ class _EndhanCreateCardInfoScreenState
             listener: (context, state) {
               // Handle success state
               if (state.customerCreationState?.status == Status.SUCCESS) {
-                _showSuccessDialog(context,);
+                _showSuccessDialog(context);
               }
             },
           ),
@@ -137,7 +142,7 @@ class _EndhanCreateCardInfoScreenState
         },
       ),
     );
-    updatedAppEvent(stage: 'end',entityId: 'CardCreated');
+    updatedAppEvent(stage: 'end', entityId: 'CardCreated');
   }
 }
 
@@ -281,24 +286,24 @@ class _EndhanCreateCardInfoContentState
         }
 
         // Validate RC book (used as RC number)
-        final rcBookValidation = Validator.rcBookNumberValidator(
-          controllers['rcBook']?.text,
-          fieldName: context.appText.rcBook,
-        );
-        if (rcBookValidation != null) {
-          isValid = false;
-          errorMessage =
-              '$rcBookValidation for ${context.appText.card} ${i + 1}';
-          break;
-        }
+        // final rcBookValidation = Validator.rcBookNumberValidator(
+        //   controllers['rcBook']?.text,
+        //   fieldName: context.appText.rcBook,
+        // );
+        // if (rcBookValidation != null) {
+        //   isValid = false;
+        //   errorMessage =
+        //       '$rcBookValidation for ${context.appText.card} ${i + 1}';
+        //   break;
+        // }
 
         // Validate RC file upload
-        if (card['rcFile'] == null) {
-          isValid = false;
-          errorMessage =
-              '${context.appText.rcDocumentUploadRequired} for ${context.appText.card} ${i + 1}';
-          break;
-        }
+        // if (card['rcFile'] == null) {
+        //   isValid = false;
+        //   errorMessage =
+        //       '${context.appText.rcDocumentUploadRequired} for ${context.appText.card} ${i + 1}';
+        //   break;
+        // }
 
         // Vehicle verification is handled automatically when selecting from list
       }
@@ -323,14 +328,9 @@ class _EndhanCreateCardInfoContentState
           vehicleType: card['vehicleType'],
           vinNumber: controllers['vinNumber']?.text ?? '',
           mobile: controllers['mobile']?.text ?? '',
-          rcNumber: controllers['rcBook']?.text ?? '',
+          rcNumber: '',
           // RC book number goes to rcNumber
-          rcDocuments:
-              card['rcFile'] != null && card['rcFile'] != 'Uploading...'
-                  ? [
-                    {'fileName': card['rcFile']},
-                  ]
-                  : [], // Uploaded URL goes to rcDocument
+          rcDocuments: [], // Uploaded URL goes to rcDocument
         );
       }
 
@@ -609,12 +609,17 @@ class _EndhanCreateCardInfoContentState
     return false;
   }
 
-  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+  Future<void> updatedAppEvent({
+    required String stage,
+    String? entityId,
+    Map<String, dynamic>? context,
+  }) async {
     try {
       lpHomeCubit.updatedAppEvent(
-          stage: stage,
-          entityId: entityId,
-          context: context);
+        stage: stage,
+        entityId: entityId,
+        context: context,
+      );
     } catch (e) {
       // Log error but don't show to user as it's not critical
     }
@@ -981,202 +986,202 @@ class _EndhanCreateCardInfoContentState
                                       },
                                     ),
                                     12.height,
-                                    Row(
-                                      children: [
-                                        Text(
-                                          '${context.appText.rcBook} *',
-                                          style: AppTextStyle.body3.copyWith(
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                        4.width,
-                                        Tooltip(
-                                          message:
-                                              context
-                                                  .appText
-                                                  .uploadRcBookDocument,
-                                          child: Icon(
-                                            Icons.info_outline,
-                                            size: 16,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    6.height,
-                                    AppTextField(
-                                      enableInteractiveSelection: true,
-                                      hintText: 'MH12AB1234',
-                                      controller: controllers['rcBook'],
-                                      textCapitalization:
-                                          TextCapitalization.characters,
-                                      onChanged: (val) {
-                                        card['rcBook'] = val;
-                                        // Sync with cubit state immediately
-                                        _syncCardFieldWithCubit(
-                                          index,
-                                          'rcBook',
-                                          val,
-                                        );
-                                      },
-                                      validator:
-                                          (value) =>
-                                              Validator.rcBookNumberValidator(
-                                                value,
-                                                fieldName:
-                                                    context.appText.rcBook,
-                                              ),
-                                    ),
-
-                                    12.height,
+                                    // Row(
+                                    //   children: [
+                                    //     Text(
+                                    //       '${context.appText.rcBook} *',
+                                    //       style: AppTextStyle.body3.copyWith(
+                                    //         fontWeight: FontWeight.bold,
+                                    //       ),
+                                    //     ),
+                                    //     4.width,
+                                    //     Tooltip(
+                                    //       message:
+                                    //           context
+                                    //               .appText
+                                    //               .uploadRcBookDocument,
+                                    //       child: Icon(
+                                    //         Icons.info_outline,
+                                    //         size: 16,
+                                    //         color: Colors.grey,
+                                    //       ),
+                                    //     ),
+                                    //   ],
+                                    // ),
+                                    // 6.height,
+                                    // AppTextField(
+                                    //   enableInteractiveSelection: true,
+                                    //   hintText: 'MH12AB1234',
+                                    //   controller: controllers['rcBook'],
+                                    //   textCapitalization:
+                                    //       TextCapitalization.characters,
+                                    //   onChanged: (val) {
+                                    //     card['rcBook'] = val;
+                                    //     // Sync with cubit state immediately
+                                    //     _syncCardFieldWithCubit(
+                                    //       index,
+                                    //       'rcBook',
+                                    //       val,
+                                    //     );
+                                    //   },
+                                    //   validator:
+                                    //       (value) =>
+                                    //           Validator.rcBookNumberValidator(
+                                    //             value,
+                                    //             fieldName:
+                                    //                 context.appText.rcBook,
+                                    //           ),
+                                    // ),
+                                    //
+                                    // 12.height,
 
                                     // Document upload widget
-                                    EndhanDocumentUploadWidget(
-                                      key: ValueKey(
-                                        'card_${index}_documents_${card['rcDocuments']?.length ?? 0}_${card['rcFile'] ?? 'null'}',
-                                      ),
-                                      feildTitle:
-                                          "${context.appText.uploadRcDocument} *",
-                                      multiFilesList: card['rcDocuments'] ?? [],
-                                      isSingleFile: true,
-                                      onFilesChanged: (newList) {
-                                        setState(() {
-                                          card['rcDocuments'] = newList;
-                                          // Reset file data if document is removed
-                                          if (newList.isEmpty) {
-                                            card['rcFile'] = null;
-                                            card['rcFileName'] = null;
-                                          }
-                                        });
-
-                                        // Sync with cubit state immediately
-                                        _syncCardDocumentsWithCubit(
-                                          index,
-                                          newList,
-                                        );
-
-                                        updatedAppEvent(stage: 'cardInformationFilled',entityId: '');
-                                      },
-                                      thenUploadFileToSever: () async {
-                                        if (card['rcDocuments'].isNotEmpty) {
-                                          final document =
-                                              card['rcDocuments'].first;
-                                          final filePath = document['path'];
-
-                                          if (filePath != null) {
-                                            try {
-                                              final uploadResponse =
-                                                  await locator<EnDhanCubit>()
-                                                      .uploadDocument(
-                                                        File(filePath),
-                                                      );
-
-                                              if (uploadResponse != null &&
-                                                  uploadResponse.data?.url !=
-                                                      null) {
-                                                final uploadedUrl =
-                                                    uploadResponse.data!.url;
-
-                                                // Update both rcFile and rcDocuments with the uploaded URL
-                                                setState(() {
-                                                  card['rcFile'] = uploadedUrl;
-                                                  card['rcFileName'] =
-                                                      document['fileName'];
-                                                  // Update the documents list with the uploaded URL
-                                                  card['rcDocuments'] = [
-                                                    {
-                                                      'fileName': uploadedUrl,
-                                                      'path': uploadedUrl,
-                                                      // Use URL as path for uploaded files
-                                                    },
-                                                  ];
-                                                });
-
-                                                // Sync with cubit state after successful upload
-                                                _syncCardDocumentsWithCubit(
-                                                  index,
-                                                  card['rcDocuments'],
-                                                );
-
-                                                // Force a rebuild of the entire widget tree
-                                                if (mounted) {
-                                                  setState(() {});
-                                                }
-                                                if (!context.mounted) return;
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      context
-                                                          .appText
-                                                          .documentUploadedSuccessfully,
-                                                    ),
-                                                  ),
-                                                );
-                                              } else {
-                                                setState(() {
-                                                  card['rcFile'] = null;
-                                                  card['rcFileName'] = null;
-                                                  card['rcDocuments'] = [];
-                                                });
-                                                if (!context.mounted) return;
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  SnackBar(
-                                                    content: Text(
-                                                      context
-                                                          .appText
-                                                          .uploadFailedNoUrl,
-                                                    ),
-                                                  ),
-                                                );
-                                              }
-                                            } catch (e) {
-                                              setState(() {
-                                                card['rcFile'] = null;
-                                                card['rcFileName'] = null;
-                                                card['rcDocuments'] = [];
-                                              });
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
-                                                    '${context.appText.uploadFailed} $e',
-                                                  ),
-                                                ),
-                                              );
-                                            }
-                                          } else {
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                  context
-                                                      .appText
-                                                      .noFilePathFound,
-                                                ),
-                                              ),
-                                            );
-                                          }
-                                        } else {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                context
-                                                    .appText
-                                                    .noDocumentsSelected,
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                      },
-                                    ),
+                                    // EndhanDocumentUploadWidget(
+                                    //   key: ValueKey(
+                                    //     'card_${index}_documents_${card['rcDocuments']?.length ?? 0}_${card['rcFile'] ?? 'null'}',
+                                    //   ),
+                                    //   feildTitle:
+                                    //       "${context.appText.uploadRcDocument} *",
+                                    //   multiFilesList: card['rcDocuments'] ?? [],
+                                    //   isSingleFile: true,
+                                    //   onFilesChanged: (newList) {
+                                    //     setState(() {
+                                    //       card['rcDocuments'] = newList;
+                                    //       // Reset file data if document is removed
+                                    //       if (newList.isEmpty) {
+                                    //         card['rcFile'] = null;
+                                    //         card['rcFileName'] = null;
+                                    //       }
+                                    //     });
+                                    //
+                                    //     // Sync with cubit state immediately
+                                    //     _syncCardDocumentsWithCubit(
+                                    //       index,
+                                    //       newList,
+                                    //     );
+                                    //
+                                    //     updatedAppEvent(stage: 'cardInformationFilled',entityId: '');
+                                    //   },
+                                    //   thenUploadFileToSever: () async {
+                                    //     if (card['rcDocuments'].isNotEmpty) {
+                                    //       final document =
+                                    //           card['rcDocuments'].first;
+                                    //       final filePath = document['path'];
+                                    //
+                                    //       if (filePath != null) {
+                                    //         try {
+                                    //           final uploadResponse =
+                                    //               await locator<EnDhanCubit>()
+                                    //                   .uploadDocument(
+                                    //                     File(filePath),
+                                    //                   );
+                                    //
+                                    //           if (uploadResponse != null &&
+                                    //               uploadResponse.data?.url !=
+                                    //                   null) {
+                                    //             final uploadedUrl =
+                                    //                 uploadResponse.data!.url;
+                                    //
+                                    //             // Update both rcFile and rcDocuments with the uploaded URL
+                                    //             setState(() {
+                                    //               card['rcFile'] = uploadedUrl;
+                                    //               card['rcFileName'] =
+                                    //                   document['fileName'];
+                                    //               // Update the documents list with the uploaded URL
+                                    //               card['rcDocuments'] = [
+                                    //                 {
+                                    //                   'fileName': uploadedUrl,
+                                    //                   'path': uploadedUrl,
+                                    //                   // Use URL as path for uploaded files
+                                    //                 },
+                                    //               ];
+                                    //             });
+                                    //
+                                    //             // Sync with cubit state after successful upload
+                                    //             _syncCardDocumentsWithCubit(
+                                    //               index,
+                                    //               card['rcDocuments'],
+                                    //             );
+                                    //
+                                    //             // Force a rebuild of the entire widget tree
+                                    //             if (mounted) {
+                                    //               setState(() {});
+                                    //             }
+                                    //             if (!context.mounted) return;
+                                    //             ScaffoldMessenger.of(
+                                    //               context,
+                                    //             ).showSnackBar(
+                                    //               SnackBar(
+                                    //                 content: Text(
+                                    //                   context
+                                    //                       .appText
+                                    //                       .documentUploadedSuccessfully,
+                                    //                 ),
+                                    //               ),
+                                    //             );
+                                    //           } else {
+                                    //             setState(() {
+                                    //               card['rcFile'] = null;
+                                    //               card['rcFileName'] = null;
+                                    //               card['rcDocuments'] = [];
+                                    //             });
+                                    //             if (!context.mounted) return;
+                                    //             ScaffoldMessenger.of(
+                                    //               context,
+                                    //             ).showSnackBar(
+                                    //               SnackBar(
+                                    //                 content: Text(
+                                    //                   context
+                                    //                       .appText
+                                    //                       .uploadFailedNoUrl,
+                                    //                 ),
+                                    //               ),
+                                    //             );
+                                    //           }
+                                    //         } catch (e) {
+                                    //           setState(() {
+                                    //             card['rcFile'] = null;
+                                    //             card['rcFileName'] = null;
+                                    //             card['rcDocuments'] = [];
+                                    //           });
+                                    //           ScaffoldMessenger.of(
+                                    //             context,
+                                    //           ).showSnackBar(
+                                    //             SnackBar(
+                                    //               content: Text(
+                                    //                 '${context.appText.uploadFailed} $e',
+                                    //               ),
+                                    //             ),
+                                    //           );
+                                    //         }
+                                    //       } else {
+                                    //         ScaffoldMessenger.of(
+                                    //           context,
+                                    //         ).showSnackBar(
+                                    //           SnackBar(
+                                    //             content: Text(
+                                    //               context
+                                    //                   .appText
+                                    //                   .noFilePathFound,
+                                    //             ),
+                                    //           ),
+                                    //         );
+                                    //       }
+                                    //     } else {
+                                    //       ScaffoldMessenger.of(
+                                    //         context,
+                                    //       ).showSnackBar(
+                                    //         SnackBar(
+                                    //           content: Text(
+                                    //             context
+                                    //                 .appText
+                                    //                 .noDocumentsSelected,
+                                    //           ),
+                                    //         ),
+                                    //       );
+                                    //     }
+                                    //   },
+                                    // ),
                                   ],
                                 ),
                               ),

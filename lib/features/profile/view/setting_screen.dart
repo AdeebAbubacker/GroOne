@@ -339,7 +339,7 @@ class _LpSettingState extends State<LpSetting> {
     double iconSize = 20,
     Color? iconColor,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Row(
         children: [

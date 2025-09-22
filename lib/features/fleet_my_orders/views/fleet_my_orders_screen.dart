@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import '../../../utils/app_application_bar.dart';
 import '../../../utils/app_colors.dart';
 import '../../../utils/app_text_style.dart';
@@ -107,7 +108,7 @@ class _FleetMyOrdersScreenState extends State<FleetMyOrdersScreen>
           ),
         ],
       ),
+      floatingActionButton: ChatActionButton(),
     );
   }
 }
-

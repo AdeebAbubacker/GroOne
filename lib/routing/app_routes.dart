@@ -226,7 +226,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
+          final data = state.extra as Map<String, dynamic>;
           final String id = data["userId"];
           final String mobileNumber = data["mobileNumber"];
           return ChooseRoleScreen(userId: id, mobileNumber: mobileNumber);
@@ -310,7 +310,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.otpVerificationScreen,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
+          final data = state.extra as Map<String, dynamic>? ?? {};
           final String mobileNumber = data["mobileNumber"];
           final String otp = data["otp"];
           final bool isDriver = data["driver"];
@@ -332,7 +332,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.loadDetailsScreen,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
+          final data = state.extra as Map<String, dynamic>? ?? {};
           final String loadId = data["loadId"].toString();
           return VpLoadDetailsScreen(
               loadId: loadId);
@@ -341,7 +341,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.viewFileWidget,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
+          final data = state.extra as Map<String, dynamic>? ?? {};
           final String url = data["url"].toString();
           final String originalFileName = data["originalFileName"].toString();
           return PdfViewer(url: url, originalFileName: originalFileName,);

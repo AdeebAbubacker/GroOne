@@ -9,6 +9,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -116,6 +117,13 @@ class _FastagListScreenState extends State<FastagListScreen> {
                         s.fastagListUIState.data != null
                             ? s.fastagListUIState.data!.totalCount
                             : 0;
+                    if (s.fastagListUIState.data != null) {
+                      if (s.fastagListUIState.data!.data.isEmpty) {
+                        stopPagination = true;
+                      } else {
+                        items.addAll(s.fastagListUIState.data!.data);
+                      }
+                    }
                   },
                   builder: (context, state) {
                     if (items.isEmpty &&
@@ -134,13 +142,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
                             (state.fastagListUIState.data!.data.isEmpty))) {
                       return Center(child: Text(context.appText.noData));
                     }
-                    if (state.fastagListUIState.data != null) {
-                      if (state.fastagListUIState.data!.data.isEmpty) {
-                        stopPagination = true;
-                      } else {
-                        items.addAll(state.fastagListUIState.data!.data);
-                      }
-                    }
+
                     return ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: items.length,
@@ -164,6 +166,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
             ],
           ),
         ),
+        floatingActionButton: ChatActionButton(),
       ),
     );
   }

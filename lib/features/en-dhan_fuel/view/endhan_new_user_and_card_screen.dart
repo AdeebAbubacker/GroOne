@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/en-dhan_fuel/widgets/endhan_card_item.dart'
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/extensions/string_extensions.dart';
@@ -37,10 +38,12 @@ class EndhanNewUserAndCardScreen extends StatefulWidget {
   const EndhanNewUserAndCardScreen({super.key});
 
   @override
-  State<EndhanNewUserAndCardScreen> createState() => _EndhanNewUserAndCardScreenState();
+  State<EndhanNewUserAndCardScreen> createState() =>
+      _EndhanNewUserAndCardScreenState();
 }
 
-class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen> {
+class _EndhanNewUserAndCardScreenState
+    extends State<EndhanNewUserAndCardScreen> {
   final TextEditingController _searchController = TextEditingController();
   bool _hasAttemptedCardsFetch = false;
   bool _isNavigating = false; // Flag to prevent multiple navigation attempts
@@ -99,27 +102,30 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
   void _navigateToDashboard(BuildContext context) {
     try {
       final userRepository = locator<UserInformationRepository>();
-      userRepository.getUserRole().then((userRole) {
-        if (!context.mounted) return;
+      userRepository
+          .getUserRole()
+          .then((userRole) {
+            if (!context.mounted) return;
 
-        String targetRoute;
-        if (userRole == 1 || userRole == 3) {
-          targetRoute = '/lpBottomNavigation';
-        } else if (userRole == 2) {
-          targetRoute = '/vpBottomNavigationBar';
-        } else {
-          targetRoute = '/lpBottomNavigation';
-        }
+            String targetRoute;
+            if (userRole == 1 || userRole == 3) {
+              targetRoute = '/lpBottomNavigation';
+            } else if (userRole == 2) {
+              targetRoute = '/vpBottomNavigationBar';
+            } else {
+              targetRoute = '/lpBottomNavigation';
+            }
 
-        if (context.mounted) {
-          context.go(targetRoute);
-        }
-      }).catchError((e) {
-        // Fallback to default route
-        if (context.mounted) {
-          context.go('/lpBottomNavigation');
-        }
-      });
+            if (context.mounted) {
+              context.go(targetRoute);
+            }
+          })
+          .catchError((e) {
+            // Fallback to default route
+            if (context.mounted) {
+              context.go('/lpBottomNavigation');
+            }
+          });
     } catch (e) {
       // Last resort fallback
       if (context.mounted) {
@@ -195,15 +201,17 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
       child: BlocProvider.value(
         value: locator<EnDhanCubit>(),
         child: BlocConsumer<EnDhanCubit, EnDhanState>(
-          listenWhen: (previous, current) =>
-          previous.kycCheckState != current.kycCheckState ||
-              previous.cardsState != current.cardsState,
+          listenWhen:
+              (previous, current) =>
+                  previous.kycCheckState != current.kycCheckState ||
+                  previous.cardsState != current.cardsState,
           listener: (context, state) {
             // Check if widget is still mounted
             if (!mounted) return;
 
             // If KYC documents exist, fetch cards and balance
-            if (state.kycCheckState?.status == Status.SUCCESS && state.hasKycDocuments &&
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                state.hasKycDocuments &&
                 !_hasAttemptedCardsFetch &&
                 state.cardsState?.status != Status.LOADING &&
                 state.cardsState?.status != Status.SUCCESS) {
@@ -263,7 +271,15 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSupport(
+                              showBackButton: true,
+                              ticketTag: TicketTags.ENDHAN,
+                            ),
+                            isForward: true,
+                          ),
+                        );
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -294,7 +310,15 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true,ticketTag: TicketTags.ENDHAN,), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSupport(
+                              showBackButton: true,
+                              ticketTag: TicketTags.ENDHAN,
+                            ),
+                            isForward: true,
+                          ),
+                        );
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -314,7 +338,8 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             }
 
             // Show benefits screen if no KYC documents found
-            if (state.kycCheckState?.status == Status.SUCCESS && !state.hasKycDocuments) {
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                !state.hasKycDocuments) {
               return Scaffold(
                 appBar: CommonAppBar(
                   title: Text(context.appText.fuelCard),
@@ -323,7 +348,15 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN,), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSupport(
+                              showBackButton: true,
+                              ticketTag: TicketTags.ENDHAN,
+                            ),
+                            isForward: true,
+                          ),
+                        );
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -331,11 +364,13 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     10.width,
                   ],
                 ),
-                body: SafeArea(child: enDhanBenifitsWidget(context, showKycScreen: true)),
+                body: SafeArea(
+                  child: enDhanBenifitsWidget(context, showKycScreen: true),
+                ),
               );
             }
 
-           // Show benefits screen if KYC documents exist but no cards found
+            // Show benefits screen if KYC documents exist but no cards found
             if (state.kycCheckState?.status == Status.SUCCESS &&
                 state.hasKycDocuments &&
                 state.cardsState?.status == Status.SUCCESS &&
@@ -348,7 +383,15 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                   actions: [
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN,), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSupport(
+                              showBackButton: true,
+                              ticketTag: TicketTags.ENDHAN,
+                            ),
+                            isForward: true,
+                          ),
+                        );
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryButtonColor,
@@ -356,7 +399,9 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     10.width,
                   ],
                 ),
-                body: SafeArea(child: enDhanBenifitsWidget(context, showKycScreen: false)),
+                body: SafeArea(
+                  child: enDhanBenifitsWidget(context, showKycScreen: false),
+                ),
               );
             }
 
@@ -368,14 +413,20 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               return Scaffold(
                 backgroundColor: AppColors.blackishWhite,
                 appBar: CommonAppBar(
-                  title: Text(context.appText.enDhanCard,style: AppTextStyle.h4.copyWith(fontWeight: FontWeight.w500),),
+                  title: Text(
+                    context.appText.enDhanCard,
+                    style: AppTextStyle.h4.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
                   centreTile: false,
                   onLeadingTap: () => _safeNavigateBack(context),
                   actions: [
                     AppIconButton(
                       onPressed: () {
                         // Check if there are already cards
-                        final cards = state.cardsState?.data?.data?.document ?? [];
+                        final cards =
+                            state.cardsState?.data?.data?.document ?? [];
                         if (cards.isNotEmpty) {
                           // Show popup if cards already exist
                           _showAlreadyAddedCardDialog(context);
@@ -385,14 +436,24 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                           // ✅ Check loading or error state first
                           if (serverStatus?.status == Status.LOADING) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(content: Text(context.appText.checkingEndhanServer)),
+                              SnackBar(
+                                content: Text(
+                                  context.appText.checkingEndhanServer,
+                                ),
+                              ),
                             );
                             return;
                           }
 
                           if (serverStatus?.status == Status.ERROR) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                               SnackBar(content: Text(context.appText.couldNotCheckEndhanServerStatus)),
+                              SnackBar(
+                                content: Text(
+                                  context
+                                      .appText
+                                      .couldNotCheckEndhanServerStatus,
+                                ),
+                              ),
                             );
                             return;
                           }
@@ -405,26 +466,41 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                               dismissible: true,
                               child: CommonDialogView(
                                 hideCloseButton: true,
-                                onTapSingleButton: () => Navigator.of(context).pop(),
+                                onTapSingleButton:
+                                    () => Navigator.of(context).pop(),
                                 onSingleButtonText: context.appText.ok,
                                 child: Text(
-                                  serverStatus?.data?["message"] ?? context.appText.endhanServerNotWorking,
-                                  style: AppTextStyle.h5.copyWith(color: Colors.red),
+                                  serverStatus?.data?["message"] ??
+                                      context.appText.endhanServerNotWorking,
+                                  style: AppTextStyle.h5.copyWith(
+                                    color: Colors.red,
+                                  ),
                                 ),
                               ),
                             );
-                          }else{
+                          } else {
                             // Navigate to create card screen if no cards exist
-                            Navigator.push(context, commonRoute(EndhanCreateCardCustomerInfoScreen()));
+                            Navigator.push(
+                              context,
+                              commonRoute(EndhanCreateCardCustomerInfoScreen()),
+                            );
                           }
-                      }
+                        }
                       },
                       icon: Icon(Icons.add, color: Colors.white),
                       style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
                     ),
                     AppIconButton(
                       onPressed: () {
-                        Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.ENDHAN), isForward: true));
+                        Navigator.of(context).push(
+                          commonRoute(
+                            LpSupport(
+                              showBackButton: true,
+                              ticketTag: TicketTags.ENDHAN,
+                            ),
+                            isForward: true,
+                          ),
+                        );
                       },
                       icon: AppIcons.svg.filledSupport,
                       iconColor: AppColors.primaryColor,
@@ -438,64 +514,87 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                     children: [
                       16.height,
                       Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${context.appText.myCards} (${context.appText.idHpcl} ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
+                                  style: AppTextStyle.h5.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                                // Show balance if available
+                                if (state.cardBalanceState?.status ==
+                                    Status.SUCCESS)
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 8.0),
+                                    child: Row(
+                                      children: [
+                                        Text(
+                                          '${context.appText.balance}: ',
+                                          style: AppTextStyle.body3.copyWith(
+                                            color: AppColors.greyTextColor,
+                                          ),
+                                        ),
+                                        Text(
+                                          state
+                                                      .cardBalanceState
+                                                      ?.data
+                                                      ?.data
+                                                      ?.balance
+                                                      ?.hasBalance ==
+                                                  true
+                                              ? '₹${state.cardBalanceState?.data?.data?.balance?.totalBalance.toStringAsFixed(2)}'
+                                              : '₹0.00',
+                                          style: AppTextStyle.body3.copyWith(
+                                            fontWeight: FontWeight.w600,
+                                            color:
+                                                state
+                                                            .cardBalanceState
+                                                            ?.data
+                                                            ?.data
+                                                            ?.balance
+                                                            ?.hasBalance ==
+                                                        true
+                                                    ? AppColors.primaryColor
+                                                    : AppColors.greyTextColor,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
 
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  commonRoute(EndhanTransactionScreen()),
+                                );
+                              },
+                              child: Row(
                                 children: [
                                   Text(
-                                    '${context.appText.myCards} (${context.appText.idHpcl} ${state.cardsState?.data?.data?.endhanCustomerId ?? ''})',
-                                    style: AppTextStyle.h5.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                  // Show balance if available
-                                  if (state.cardBalanceState?.status == Status.SUCCESS)
-                                    Padding(
-                                      padding: const EdgeInsets.only(top: 8.0),
-                                      child: Row(
-                                        children: [
-                                          Text(
-                                            '${context.appText.balance}: ',
-                                            style: AppTextStyle.body3.copyWith(
-                                              color: AppColors.greyTextColor,
-                                            ),
-                                          ),
-                                          Text(
-                                            state.cardBalanceState?.data?.data?.balance?.hasBalance == true
-                                                ? '₹${state.cardBalanceState?.data?.data?.balance?.totalBalance.toStringAsFixed(2)}'
-                                                : '₹0.00',
-                                            style: AppTextStyle.body3.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                              color: state.cardBalanceState?.data?.data?.balance?.hasBalance == true
-                                                  ? AppColors.primaryColor
-                                                  : AppColors.greyTextColor,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                ],
-                              ),
-
-                              InkWell(
-                                onTap: (){
-                                  Navigator.push(context,commonRoute(EndhanTransactionScreen()));
-                                },
-                                child:
-                                Row(children: [
-                                  Text(context.appText.transactions,
+                                    context.appText.transactions,
                                     style: TextStyle(
                                       color: AppColors.primaryColor,
-                                    ),),
-                                  Icon(Icons.arrow_forward_ios,color: AppColors.primaryColor,size: 15,),
-                                ],),
-                              )
-
-                            ],
-                          )
-
+                                    ),
+                                  ),
+                                  Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: AppColors.primaryColor,
+                                    size: 15,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       12.height,
                       AppSearchBar(
@@ -513,12 +612,11 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
                         },
                       ).paddingSymmetric(horizontal: 16.0),
                       16.height,
-                      Expanded(
-                        child: _buildCardsList(context, state),
-                      ),
+                      Expanded(child: _buildCardsList(context, state)),
                     ],
                   ),
                 ),
+                floatingActionButton: ChatActionButton(),
               );
             }
 
@@ -531,7 +629,6 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               ),
               body: const Center(child: AppLoadingWidget()),
             );
-          
           },
         ),
       ),
@@ -572,7 +669,9 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               8.height,
               Text(
                 context.appText.addYourFirstFuelCard,
-                style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
+                style: AppTextStyle.body3.copyWith(
+                  color: AppColors.greyTextColor,
+                ),
               ),
             ],
           ),
@@ -580,16 +679,18 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
       }
 
       // Filter cards based on search
-      final filteredCards = cards.where((card) {
-        if (_searchText.isEmpty) return true;
-        final cardNumber = card.cardNumber?.toString().toLowerCase() ?? '';
-        final vehicleNumber = card.vehicleNumber?.toString().toLowerCase() ?? '';
-        final mobile = card.cardMobileNo?.toString().toLowerCase() ?? '';
-        final searchLower = _searchText.toLowerCase();
-        return cardNumber.contains(searchLower) ||
-            vehicleNumber.contains(searchLower) ||
-            mobile.contains(searchLower);
-      }).toList();
+      final filteredCards =
+          cards.where((card) {
+            if (_searchText.isEmpty) return true;
+            final cardNumber = card.cardNumber?.toString().toLowerCase() ?? '';
+            final vehicleNumber =
+                card.vehicleNumber?.toString().toLowerCase() ?? '';
+            final mobile = card.cardMobileNo?.toString().toLowerCase() ?? '';
+            final searchLower = _searchText.toLowerCase();
+            return cardNumber.contains(searchLower) ||
+                vehicleNumber.contains(searchLower) ||
+                mobile.contains(searchLower);
+          }).toList();
 
       // Show "no data found" message if search returns no results
       if (_searchText.isNotEmpty && filteredCards.isEmpty) {
@@ -597,11 +698,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.search_off,
-                size: 64,
-                color: AppColors.greyTextColor,
-              ),
+              Icon(Icons.search_off, size: 64, color: AppColors.greyTextColor),
               16.height,
               Text(
                 context.appText.noCardsFound,
@@ -610,7 +707,9 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
               8.height,
               Text(
                 '${context.appText.noCardsFound} "$_searchText"',
-                style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
+                style: AppTextStyle.body3.copyWith(
+                  color: AppColors.greyTextColor,
+                ),
               ),
             ],
           ),
@@ -624,9 +723,10 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
           final card = filteredCards[index];
           // Convert EnDhanCardModel to Map for EndhanCardItem
           final cardMap = {
-            'cardNumber':card.cardNumber ?? '',
+            'cardNumber': card.cardNumber ?? '',
             // 'cardNumber': _maskCardNumber(card.cardNumber ?? ''),
-            'vehicleNumber': (card.vehicleNumber ?? '').formatVehicleNumberForDisplay,
+            'vehicleNumber':
+                (card.vehicleNumber ?? '').formatVehicleNumberForDisplay,
             'mobile': card.cardMobileNo ?? '',
             'status': 'Active', // Default status since API doesn't provide it
             'image': AppImage.png.endhanCard,
@@ -639,7 +739,10 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     return const Center(child: AppLoadingWidget());
   }
 
-  Widget enDhanBenifitsWidget(BuildContext context, {bool showKycScreen = false}){
+  Widget enDhanBenifitsWidget(
+    BuildContext context, {
+    bool showKycScreen = false,
+  }) {
     return Stack(
       children: [
         SingleChildScrollView(
@@ -663,60 +766,75 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             color: Colors.white,
             padding: const EdgeInsets.fromLTRB(10.0, 8.0, 10.0, 8.0),
             child: AppButton(
-                title: context.appText.buyNewFuelCard,
-                onPressed: (){
-                  final serverStatus = context.read<EnDhanCubit>().state.endhanServerStatusState;
-                  if (serverStatus?.status == Status.LOADING) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(content: Text(context.appText.checkingEndhanServer)),
-                    );
-                    return;
-                  }
-                  if (serverStatus?.status == Status.ERROR) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                       SnackBar(content: Text(context.appText.couldNotCheckEndhanServerStatus)),
-                    );
-                    return;
-                  }
-                  if (serverStatus?.data?["success"] == false) {
-                    AppDialog.show(
-                      context,
-                      dismissible: true,
-                      child: CommonDialogView(
-                        hideCloseButton: true,
-                        onTapSingleButton: () => Navigator.of(context).pop(),
-                        onSingleButtonText: context.appText.ok,
-                        child: Text(
-                          serverStatus?.data?["message"] ?? context.appText.endhanServerNotWorking,
-                          style: AppTextStyle.h5.copyWith(color: Colors.red),
-                        ),
-                      ),
-                    );
-                    return;
-                  }
-                  if (showKycScreen) {
-                    final kycData = context.read<EnDhanCubit>().state.kycData;
-                    final document = kycData?.document;
-
-                    Navigator.push(
-                      context,
-                      commonRoute(
-                        EndhanKycScreen(
-                          aadhaarPrefill: document?.aadhar?.replaceAll(' ', ''),
-                          panPrefill: document?.pan,
-                          isAadhaarVerified: document?.aadhar?.isNotEmpty ?? false, // or true if you add logic for it
-                          isPanVerified: document?.panImage != null && document!.panImage!.isNotEmpty,
-                          showPanUpload: document?.pan?.isEmpty ?? true,
-                          // panPrefill: 'AXSPA8900K',
-                          // isPanVerified: true,
-                        ),
-                      ),
-                    );
-                  } else {
-                    // Navigate to create card screen if user has KYC documents but no cards
-                    Navigator.push(context,commonRoute(EndhanCreateCardCustomerInfoScreen()));
-                  }
+              title: context.appText.buyNewFuelCard,
+              onPressed: () {
+                final serverStatus =
+                    context.read<EnDhanCubit>().state.endhanServerStatusState;
+                if (serverStatus?.status == Status.LOADING) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(context.appText.checkingEndhanServer),
+                    ),
+                  );
+                  return;
                 }
+                if (serverStatus?.status == Status.ERROR) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        context.appText.couldNotCheckEndhanServerStatus,
+                      ),
+                    ),
+                  );
+                  return;
+                }
+                if (serverStatus?.data?["success"] == false) {
+                  AppDialog.show(
+                    context,
+                    dismissible: true,
+                    child: CommonDialogView(
+                      hideCloseButton: true,
+                      onTapSingleButton: () => Navigator.of(context).pop(),
+                      onSingleButtonText: context.appText.ok,
+                      child: Text(
+                        serverStatus?.data?["message"] ??
+                            context.appText.endhanServerNotWorking,
+                        style: AppTextStyle.h5.copyWith(color: Colors.red),
+                      ),
+                    ),
+                  );
+                  return;
+                }
+                if (showKycScreen) {
+                  final kycData = context.read<EnDhanCubit>().state.kycData;
+                  final document = kycData?.document;
+
+                  Navigator.push(
+                    context,
+                    commonRoute(
+                      EndhanKycScreen(
+                        aadhaarPrefill: document?.aadhar?.replaceAll(' ', ''),
+                        panPrefill: document?.pan,
+                        isAadhaarVerified:
+                            document?.aadhar?.isNotEmpty ?? false,
+                        // or true if you add logic for it
+                        isPanVerified:
+                            document?.panImage != null &&
+                            document!.panImage!.isNotEmpty,
+                        showPanUpload: document?.pan?.isEmpty ?? true,
+                        // panPrefill: 'AXSPA8900K',
+                        // isPanVerified: true,
+                      ),
+                    ),
+                  );
+                } else {
+                  // Navigate to create card screen if user has KYC documents but no cards
+                  Navigator.push(
+                    context,
+                    commonRoute(EndhanCreateCardCustomerInfoScreen()),
+                  );
+                }
+              },
             ),
           ),
         ),
@@ -724,7 +842,7 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
     );
   }
 
-  Widget buildenDhanProductImageWidget(BuildContext context){
+  Widget buildenDhanProductImageWidget(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Container(
@@ -746,7 +864,9 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
             5.height,
             Text(
               subtitle,
-              style: AppTextStyle.body3.copyWith(color: AppColors.greyTextColor),
+              style: AppTextStyle.body3.copyWith(
+                color: AppColors.greyTextColor,
+              ),
             ),
           ],
         ),
@@ -790,8 +910,8 @@ class _EndhanNewUserAndCardScreenState extends State<EndhanNewUserAndCardScreen>
       ],
     ).paddingSymmetric(horizontal: commonSafeAreaPadding);
   }
-  Widget buildGroBannerImageWidget(){
+
+  Widget buildGroBannerImageWidget() {
     return Image.asset(AppImage.png.groBanner);
   }
 }
-

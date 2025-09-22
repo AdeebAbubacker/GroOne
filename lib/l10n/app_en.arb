@@ -1363,6 +1363,7 @@
   "pucExpiryDate" : "PUC Expiry Date",
   "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads",
   "gstNo" : "GST",
-  "kycRejected":"Your kyc is rejected"
+  "kycRejected":"Your kyc is rejected",
+  "pleaseSelectOneFilter":"Please select any one filter"
 
 }

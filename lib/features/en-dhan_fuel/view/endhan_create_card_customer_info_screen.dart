@@ -60,7 +60,6 @@ class _EndhanCreateCardCustomerInfoScreenState
 
   final lpHomeCubit = locator<LPHomeCubit>();
 
-
   @override
   void dispose() {
     referralCodeController.dispose();
@@ -77,7 +76,6 @@ class _EndhanCreateCardCustomerInfoScreenState
     super.dispose();
   }
 
-
   Future<void> createAppEvent({String? entityId, required String stage}) async {
     try {
       final eventRequest = await EventHelper.buildHomeViewEvent(
@@ -92,17 +90,21 @@ class _EndhanCreateCardCustomerInfoScreenState
     }
   }
 
-  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+  Future<void> updatedAppEvent({
+    required String stage,
+    String? entityId,
+    Map<String, dynamic>? context,
+  }) async {
     try {
       lpHomeCubit.updatedAppEvent(
-          stage: stage,
-          entityId: entityId,
-          context: context);
+        stage: stage,
+        entityId: entityId,
+        context: context,
+      );
     } catch (e) {
       // Log error but don't show to user as it's not critical
     }
   }
-
 
   /// Force sync all controller values to cubit state
   void _forceSyncControllersToCubit(EnDhanCubit cubit) {
@@ -496,6 +498,7 @@ class _EndhanCreateCardCustomerInfoScreenState
                             onChanged: (value) {
                               cubit.setPincode(value);
                               // Call API when pincode is 6 digits
+                              debugPrint('sfdfsdfs${value.length}');
                               if (value.length == 6) {
                                 cubit.getPincode(value);
                               }
@@ -525,24 +528,25 @@ class _EndhanCreateCardCustomerInfoScreenState
                               return EnhancedDropdownField(
                                 labelText: '${context.appText.zonalOffice} *',
                                 hintText: context.appText.selectZonalOffice,
-                                value: state.selectedZonalOfficeId?.toString(),
+                                value:
+                                    state.selectedZonalOfficeName == null ||
+                                            state
+                                                .selectedZonalOfficeName!
+                                                .isEmpty
+                                        ? ''
+                                        : state.selectedZonalOfficeId != null
+                                        ? state.selectedZonalOfficeId
+                                            ?.toString()
+                                        : '',
                                 displayText: state.selectedZonalOfficeName,
-                                options:
-                                    state.zonalOffices
-                                        .map(
-                                          (office) => {
-                                            'id': office['id'],
-                                            'name': office['zone_name'],
-                                          },
-                                        )
-                                        .toList(),
+                                options: [],
                                 onChanged: (zoneId) {
-                                  cubit.setSelectedZonalOfficeId(
-                                    int.parse(zoneId),
-                                  );
-                                  cubit.fetchRegionalOffices(int.parse(zoneId));
-                                  // Clear regional office selection when zonal office changes
-                                  regionalOfficeController.clear();
+                                  // cubit.setSelectedZonalOfficeId(
+                                  //   int.parse(zoneId),
+                                  // );
+                                  // cubit.fetchRegionalOffices(int.parse(zoneId));
+                                  // // Clear regional office selection when zonal office changes
+                                  // regionalOfficeController.clear();
                                 },
                                 isLoading:
                                     state.zonalOfficesState?.status ==
@@ -565,20 +569,19 @@ class _EndhanCreateCardCustomerInfoScreenState
                                     '${context.appText.regionalOffice} *',
                                 hintText: context.appText.selectRegionalOffice,
                                 value:
-                                    state.selectedRegionalOfficeId?.toString(),
-                                options:
-                                    state.regionalOffices
-                                        .map(
-                                          (office) => {
-                                            'id': office['id'],
-                                            'name': office['region_name'],
-                                          },
-                                        )
-                                        .toList(),
+                                    state.selectedRegionalOfficeName == null ||
+                                            state
+                                                .selectedRegionalOfficeName!
+                                                .isEmpty
+                                        ? ''
+                                        : state.selectedRegionalOfficeId
+                                            ?.toString(),
+                                displayText: state.selectedRegionalOfficeName,
+                                options: [],
                                 onChanged: (regionalId) {
-                                  cubit.setSelectedRegionalOfficeId(
-                                    int.parse(regionalId),
-                                  );
+                                  // cubit.setSelectedRegionalOfficeId(
+                                  //   int.parse(regionalId),
+                                  // );
                                 },
                                 isLoading:
                                     state.regionalOfficesState?.status ==
@@ -626,7 +629,10 @@ class _EndhanCreateCardCustomerInfoScreenState
                               return EnhancedDropdownField(
                                 labelText: '${context.appText.state} *',
                                 hintText: context.appText.selectState,
-                                value: state.selectedStateId?.toString(),
+                                value:
+                                    state.selectedStateId != null
+                                        ? state.selectedStateId?.toString()
+                                        : '',
                                 displayText: state.selectedStateName,
                                 options:
                                     state.states
@@ -659,9 +665,15 @@ class _EndhanCreateCardCustomerInfoScreenState
                           Builder(
                             builder: (context) {
                               final districtValue =
-                                  state.selectedDistrictName?.isNotEmpty == true
+                                  state.selectedDistrictId != null &&
+                                          state
+                                                  .selectedDistrictName
+                                                  ?.isNotEmpty ==
+                                              true
                                       ? state.selectedDistrictName
-                                      : state.selectedDistrictId?.toString();
+                                      : state.selectedDistrictId != null
+                                      ? state.selectedDistrictId?.toString()
+                                      : '';
                               return EnhancedDropdownField(
                                 labelText: '${context.appText.district} *',
                                 hintText: context.appText.selectDistrict,
@@ -801,7 +813,9 @@ class _EndhanCreateCardCustomerInfoScreenState
                                   ),
                                 );
 
-                                updatedAppEvent(stage: 'customerInformationFilled');
+                                updatedAppEvent(
+                                  stage: 'customerInformationFilled',
+                                );
                               }
                             },
                           ),
