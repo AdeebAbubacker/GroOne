@@ -30,8 +30,9 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class VpLoadDetailsScreen extends StatefulWidget {
   final String? loadId;
   final num? companyTypeId;
+  final String? loadSeriesID;
 
-  const VpLoadDetailsScreen({super.key, required this.loadId,this.companyTypeId});
+  const VpLoadDetailsScreen({super.key, required this.loadId,this.companyTypeId,this.loadSeriesID});
 
   @override
   State<VpLoadDetailsScreen> createState() => _VpLoadDetailsScreenState();
