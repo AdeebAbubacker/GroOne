@@ -8,6 +8,9 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/vp_lans_dropdown.dart' hide VehicleTypeSearchableDropdown, LoadTypeSearchableDropdown;
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
@@ -84,11 +87,11 @@ class _AvailableLoadsFilterScreenState
     );
   }
 
-  void _getLaneId(RouteList? selectedItem) {
+  void _getLaneId(LaneDetailsResponse? selectedItem) {
     laneId = selectedItem?.masterLaneId;
     filterCubit.setLensData(
       leneId: selectedItem?.masterLaneId,
-      value: '${selectedItem?.fromLocation?.name ?? ""} - ${selectedItem?.toLocation?.name ?? ""}',
+      value: '${selectedItem?.lane}',
     );
   }
 
@@ -164,29 +167,22 @@ class _AvailableLoadsFilterScreenState
           20.height,
 
           // Lane Type
-          BlocBuilder<LpLoadCubit, LpLoadState>(
+          BlocBuilder<ProfileCubit, ProfileState>(
             builder: (context, state) {
-              final uiState = state.lpLoadRouteDetails;
-              final routeList = uiState?.data?.data?.routeList ?? [];
-              RouteList? selectedItem=    routeList.firstWhereOrNull(
+              final uiState = state.profileDetailUIState;
+              final routeList = uiState?.data?.customer?.laneDetails;
+              LaneDetailsResponse? selectedItem=    routeList!.firstWhereOrNull(
                     (r) => r.masterLaneId == laneId,
               );
-              return RouteSearchableDropdown(
+              print("routeList is ${routeList.length}");
+              return VpRouteSearchableDropdown(
                 labelText: context.appText.route,
                 hintText: context.appText.searchRoutes,
                 fetchRoutes: (page, searchKey) async {
-                  await lpLoadLocator.getRouteDetails(
-                    search: searchKey,
-                    loadMore: page > 1,
-                  );
-                   if (lpLoadLocator.isRoutesLastPage &&
-                      page > lpLoadLocator.rootsCurrentPage) {
-                    return [];
-                  }
                   return routeList;
                 },
                 selectedRoute: selectedItem,
-                onChanged: (RouteList? value) {
+                onChanged: (LaneDetailsResponse? value) {
                   setState(() {
                     laneDropDownValue = value?.masterLaneId.toString();
                     _getLaneId(value);

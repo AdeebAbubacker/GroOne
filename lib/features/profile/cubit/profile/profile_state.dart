@@ -35,6 +35,7 @@ class ProfileState extends Equatable {
   final int? currentPage;
   final UIState<DocumentDetails>? documentById;
   final bool? switchToVp;
+
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,

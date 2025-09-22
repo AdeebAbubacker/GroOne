@@ -4,6 +4,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
 class TrackingProgress extends StatelessWidget {
   final int progressPercentage;
@@ -46,6 +47,7 @@ class TrackingProgress extends StatelessWidget {
         15.width,
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Distance
             Column(
@@ -54,6 +56,7 @@ class TrackingProgress extends StatelessWidget {
                 Text(
                   context.appText.distanceCovered,
                   style: AppTextStyle.body3SoftGrey.copyWith(color: AppColors.subtleTextGreyColor),
+                  maxLines: 1,
                 ),
                 4.height,
                 RichText(
@@ -62,16 +65,18 @@ class TrackingProgress extends StatelessWidget {
                       TextSpan(
                         text: coveredDistance,
                         style: AppTextStyle.body3.copyWith(fontWeight: FontWeight.w600, fontSize: 14),
+
                       ),
                       TextSpan(
                         text: ' / $totalDistance',
+
                         style: AppTextStyle.body4.copyWith(color: AppColors.darkDividerColor),
                       ),
                     ],
                   ),
                 ),
               ],
-            ),
+            ).expand(),
             Container(
               width: 1,
               height: 35,
@@ -85,14 +90,19 @@ class TrackingProgress extends StatelessWidget {
               children: [
                 Text(
                   context.appText.estArrivalTime,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: AppTextStyle.body3SoftGrey.copyWith(color: AppColors.subtleTextGreyColor),
+
                 ),
                 4.height,
-                Text(DateTimeHelper.getCurrentDateTimeWithAddedDuration(eta), style: AppTextStyle.body3.copyWith(fontWeight: FontWeight.bold)),
+                Text(DateTimeHelper.getCurrentDateTimeWithAddedDuration(eta), style: AppTextStyle.body3.copyWith(fontWeight: FontWeight.bold),
+                maxLines: 1,
+                ),
               ],
-            ),
+            ).expand(),
           ],
-        ),
+        ).expand(),
       ],
     );
   }

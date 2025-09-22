@@ -134,7 +134,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildHeadingText("TRIP"),
+          buildHeadingText(context.appText.trip),
           8.height,
           buildDTripStatementWidget(
             label: context.appText.loadID,
@@ -163,7 +163,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           10.height,
 
-          buildHeadingText("CREDITS"),
+          buildHeadingText( context.appText.credits),
           8.height,
 
           buildDTripStatementWidget(
@@ -186,7 +186,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
 
           20.height,
 
-          buildHeadingText("DEBITS"),
+          buildHeadingText(context.appText.debits),
           8.height,
 
           platformFeeView(
@@ -214,7 +214,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           20.height,
 
-          buildHeadingText("TOTAL"),
+          buildHeadingText(context.appText.total),
           8.height,
 
           buildDTripStatementWidget(
