@@ -922,10 +922,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                         onStateChanged: (value) {
                                           setState(() {
                                             selectedStateData = value?.name.toString();
-                                            selectedState = value?.id.toString();
+                                            selectedState = value?.name.toString();
                                             selectedCity = null;
                                           });
-                                          field.didChange(value?.name?.isNotEmpty == true ? value?.name : null);
+                                          field.didChange(value?.name.isNotEmpty == true ? value?.name : null);
                                         },
                                       ),
                                       if (field.hasError)
@@ -960,9 +960,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                             selectedState!.isNotEmpty,
                                         onCityChanged: (value) {
                                           setState(() {
-                                            selectedCity = value?.id.toString();
+                                            selectedCity = value?.city.toString();
                                           });
-                                          field.didChange(value?.city?.isNotEmpty == true ? value?.city : null);
+                                          field.didChange(value?.city.isNotEmpty == true ? value?.city : null);
 
                                         },
                                       ),
