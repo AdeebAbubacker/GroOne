@@ -56,7 +56,7 @@ class RouteSearchableDropdown extends StatelessWidget {
           child: SearchableDropdown<RouteList>.paginated(
             hintText: Text(hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
-
+            dialogOffset: 0,
             requestItemCount: 10,
             // Initial selected value
             initialValue:
@@ -157,6 +157,7 @@ class _VehicleTypeSearchableDropdownState
             color: Colors.white,
           ),
           child: SearchableDropdown<TruckTypeModel>.future(
+            dialogOffset: 0,
             hintText: Text(widget.hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
 
@@ -239,7 +240,7 @@ class LoadTypeSearchableDropdown extends StatelessWidget {
             hintText: Text(hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
             requestItemCount: 10,
-
+            dialogOffset: 0,
             /// initial selected value
             initialValue:
                 selectedLoadType != null
@@ -322,6 +323,7 @@ class LoadWeightSearchableDropdown extends StatelessWidget {
             color: Colors.white,
           ),
           child: SearchableDropdown<LoadWeightModel>.future(
+            dialogOffset: 0,
             hintText: Text(hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
 

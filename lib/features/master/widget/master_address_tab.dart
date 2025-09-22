@@ -631,6 +631,7 @@ class StateDropdown extends StatelessWidget {
             color: Colors.white,
           ),
           child: SearchableDropdown<StateModelList>.paginated(
+            dialogOffset: 0,
             hintText: Text(
               context.appText.selectState,
               style: AppTextStyle.textFieldHint,
@@ -755,6 +756,7 @@ class _CityDropdownState extends State<CityDropdown> {
             ),
             child: SearchableDropdown<CityModelList>.paginated(
               key: ValueKey(widget.selectedCityId),
+              dialogOffset: 0,
               hintText: Text(
                 context.appText.selectCity,
                 style: AppTextStyle.textFieldHint,
