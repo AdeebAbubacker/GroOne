@@ -363,6 +363,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                                   selectedStateId = value?.id.toString();
                                   selectedState = value?.name.toString();
                                   selectedStateData = value?.name.toString();
+                                  selectedCityId = null;
                                   selectedCity = null;
                                 });
                                  field.didChange(value?.id.toString());
@@ -737,6 +738,7 @@ class _CityDropdownState extends State<CityDropdown> {
               color: Colors.white,
             ),
             child: SearchableDropdown<CityModelList>.paginated(
+              key: ValueKey(widget.selectedCityId),
               hintText: Text(
                 context.appText.selectCity,
                 style: AppTextStyle.textFieldHint,
