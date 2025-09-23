@@ -535,7 +535,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         ToastMessages.alert(message: '${context.appText.pleaseUpload} $msg');
       }
       return ok;
-
     }
 
     bool checkId(String? id, String label) {
@@ -564,8 +563,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
     bool panValid() {
       final uploaded = panDoc.isNotEmpty;
-      final verified = true;
-          // kycCubit.state.verifiedPan ?? false;
+      final verified = kycCubit.state.verifiedPan ?? false;
       return need(context.appText.panDocument, uploaded) &&
           checkId(panDocId, "PAN") &
               need(
@@ -613,7 +611,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
     // LP FLOW
     if (companyId == 2) {
-      print("checking here");
       return true; // Only Aadhaar needed
     }
 
@@ -624,7 +621,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       return gstOk && panOk && tanOk;
     }
 
-    print("checking from here");
+
 
     final gstOk = gstValid();
     final panOk = panValid();
@@ -885,7 +882,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   _buildPanWidget(),
                                   25.height,
                                   if (isLP) ...[_buildTanWidget(
-                                    isRequired:  userRole==1 && (companyId==1 || companyId==3 )
+                                    isRequired: ( userRole==1 && (companyId==1 || companyId==3 )) || (userRole==3 && companyId==3 )
                                   ), 25.height],
                                   if (isVP) ...[
                                     buildTDSCertificationWidget(),
@@ -1119,7 +1116,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
-              isMandatory: userRole==1 && (companyId==1 || companyId==3 ),
+              isMandatory: (userRole==1 && (companyId==1 || companyId==3 )) || (userRole==3 && companyId==3)  ,
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },
@@ -1377,6 +1374,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                       ? context.appText.verified
                       : context.appText.unVerified,
               readOnly: verified,
+
               rightText: "PAN",
               controller: panTextController,
               suffixOnTap: () async {
