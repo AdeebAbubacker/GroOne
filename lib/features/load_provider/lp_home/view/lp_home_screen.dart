@@ -273,19 +273,28 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
       return;
     }
     if (isKycValid == 2) {
-      String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-      if (firstPostedLoadId != null) {
-        if(!context.mounted) return;
-        AppDialog.show(
-            context,
-            child: KycInProgressDialogue(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-            ),
-        );
-        return;
-      }
+      // String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+      // if (firstPostedLoadId != null) {
+      //   if(!context.mounted) return;
+      //   AppDialog.show(
+      //       context,
+      //       child: KycInProgressDialogue(
+      //           onPressed: () {
+      //             Navigator.pop(context);
+      //           },
+      //       ),
+      //   );
+      //   return;
+      // }
+      AppDialog.show(
+        context,
+        child: KycInProgressDialogue(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      );
+      return;
     }
 
     if(rateDiscoveryPrice == '00000') return;
@@ -1139,7 +1148,9 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                     // LpBottomNavigation.selectedIndexNotifier.value = 1;
                                     lpBottomNavKey.currentState?.onItemTapped(1);
                                   },
-                                  style: AppButtonStyle.primaryTextButton,
+                                  style: AppButtonStyle.primaryTextButton.copyWith(
+                                  fixedSize: WidgetStateProperty.all(const Size(130, 20)),
+                                  ),
                                   child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor, textAlign: TextAlign.center),
                                 ),
 

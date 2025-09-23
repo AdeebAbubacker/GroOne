@@ -163,7 +163,7 @@ class _VpTripStatementScreenState extends State<VpTripStatementScreen> {
           ),
           10.height,
 
-          buildHeadingText( context.appText.credits),
+          buildHeadingText(context.appText.credits),
           8.height,
 
           buildDTripStatementWidget(

@@ -262,7 +262,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
         } else {
           _setFetchAddressUIState(UIState.success(result.value));
         }
-        _addressIsLastPage = (state.addressState?.data?.addresses.length ?? 0) >= result.value.total!;
+        _addressIsLastPage = (state.addressState?.data?.addresses.length ?? 0) >= result.value.total;
       } else if (result is Error<PaginatedAddressList>) {
         _setFetchAddressUIState(UIState.error(result.type));
       }

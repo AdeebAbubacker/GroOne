@@ -158,13 +158,16 @@ class _LpSupportState extends State<LpSupport> {
   }
 
   Widget buildToggleTabs(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        toggleButton(context.appText.faqs, 0),
-        12.width,
-        toggleButton(context.appText.tickets, 1),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          toggleButton(context.appText.faqs, 0),
+          12.width,
+          toggleButton(context.appText.tickets, 1),
+        ],
+      ),
     );
   }
 
@@ -197,26 +200,30 @@ class _LpSupportState extends State<LpSupport> {
 
   Widget toggleButton(String label, int index) {
     final isSelected = selectedTabIndex == index;
-    return Expanded(
-      child: GestureDetector(
-        onTap: () async {
-          selectedTabIndex = index;
-          if (index == 0) {
-            await profileCubit.fetchFaq();
-          } else {
-            profileCubit.fetchTickets(request: TicketRequest());
-          }
-          searchController.clear();
-          FocusManager.instance.primaryFocus?.unfocus();
-          setState(() {});
-        },
-        child: Container(
-          height: 42,
-          decoration: commonContainerDecoration(
-            color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          alignment: Alignment.center,
+    return GestureDetector(
+      onTap: () async {
+        selectedTabIndex = index;
+        if (index == 0) {
+          await profileCubit.fetchFaq();
+        } else {
+          profileCubit.fetchTickets(request: TicketRequest());
+        }
+        searchController.clear();
+        FocusManager.instance.primaryFocus?.unfocus();
+        setState(() {});
+      },
+      child: Container(
+        height: 42,
+        constraints: const BoxConstraints(
+        minWidth: 150, 
+      ),
+        decoration: commonContainerDecoration(
+          color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
+          borderRadius: BorderRadius.circular(24),
+        ),
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: Text(
             label,
             style: AppTextStyle.body3.copyWith(

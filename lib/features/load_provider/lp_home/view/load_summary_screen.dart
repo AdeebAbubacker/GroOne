@@ -119,11 +119,12 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
       }
     }
 
-    if (widget.isKycValid == 3) {
-      await onSubmit(context);
-    } else {
-      await _postLoad(context);
-    }
+    // if (widget.isKycValid == 3) {
+    //   await onSubmit(context);
+    // } else {
+    //   await _postLoad(context);
+    // }
+    await _postLoad(context);
   }
 
   Future<void> _postLoad(BuildContext context) async {
@@ -254,6 +255,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
 
                 setState(() {});
               },
+              textInputAction: TextInputAction.next,
             ),
 
             // Notes Field
@@ -264,6 +266,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
               inputFormatters: [
                 LengthLimitingTextInputFormatter(240),
               ],
+              textInputAction: TextInputAction.done,
             ),
 
             10.height,
@@ -309,10 +312,10 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
               ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
             if (state is CreateLoadSuccess) {
-              final createdLoadId = state.createLoadModel.data?.loadId;
-              if (createdLoadId != null && widget.isKycValid == 2) {
-                await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
-              }
+              // final createdLoadId = state.createLoadModel.data?.loadId;
+              // if (createdLoadId != null && widget.isKycValid == 2) {
+              //   await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
+              // }
               if (context.mounted) {
                 AppDialog.show(
                   context,

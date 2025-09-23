@@ -341,44 +341,52 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     ),
                     16.height,
                     FormField<String>(
-                    initialValue: selectedStateId,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                      return context.appText.stateisRequired;
-                      }
-                      return null;
-                    },
+                      initialValue: selectedStateId,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return context.appText.stateisRequired;
+                        }
+                        return null;
+                      },
                       builder: (field) {
                         if ((field.value == null || field.value!.isEmpty) &&
-                        (selectedStateId != null && selectedStateId!.isNotEmpty)) {
-                         field.didChange(selectedStateId);
+                            (selectedStateId != null && selectedStateId!.isNotEmpty)) {
+                          field.didChange(selectedStateId);
                         }
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            StateDropdown(
-                              selectedStateId: selectedStateId,
-                              onStateChanged: (value) {
-                                setState(() {
-                                  selectedStateId = value?.id.toString();
-                                  selectedState = value?.name.toString();
-                                  selectedStateData = value?.name.toString();
-                                  selectedCity = null;
-                                });
-                                 field.didChange(value?.id.toString());
-                              },
-                            ),
-                            if (field.hasError)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4, left: 8),
-                              child: Text(
-                                field.errorText!,
-                                style: AppTextStyle.textFieldHintRedColor,
+                            AbsorbPointer(
+                              absorbing: false, 
+                              child: Listener(
+                                onPointerDown: (_) {
+                                  FocusScope.of(context).requestFocus(FocusNode());
+                                },
+                                child: StateDropdown(
+                                  selectedStateId: selectedStateId,
+                                  onStateChanged: (value) {
+                                    setState(() {
+                                      selectedStateId = value?.id.toString();
+                                      selectedState = value?.name.toString();
+                                      selectedCityId = null;
+                                      selectedCity = null;
+                                    });
+                                    field.didChange(value?.id.toString());
+                                  },
+                                ),
                               ),
                             ),
+                            if (field.hasError)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4, left: 8),
+                                child: Text(
+                                  field.errorText!,
+                                  style: AppTextStyle.textFieldHintRedColor,
+                                ),
+                              ),
                           ],
                         );
-                      }
+                      },
                     ),
                     16.height,
                     FormField<String>(
@@ -397,18 +405,27 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            CityDropdown(
-                              selectedState: selectedState,
-                              selectedCityId: selectedCityId,
-                              isStateSelected:
-                                  selectedState != null && selectedState!.isNotEmpty,
-                              onCityChanged: (value) {
-                                setState(() {
-                                  selectedCityId = value?.id.toString(); 
-                                  selectedCity = value?.city.toString();
-                                });
-                                field.didChange(value?.id.toString());
+                            AbsorbPointer(
+                              absorbing: false,
+                              child: Listener(
+                              onPointerDown: (_) {
+                                FocusScope.of(context).requestFocus(FocusNode());
                               },
+                              child: CityDropdown(
+                                selectedState: selectedState,
+                                selectedCityId: selectedCityId,
+                                isStateSelected:
+                                    selectedState != null && selectedState!.isNotEmpty,
+                                onCityChanged: (value) {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  setState(() {
+                                    selectedCityId = value?.id.toString(); 
+                                    selectedCity = value?.city.toString();
+                                  });
+                                  field.didChange(value?.id.toString());
+                                },
+                              ),
+                              ),
                             ),
                             if (field.hasError)
                             Padding(
@@ -614,6 +631,7 @@ class StateDropdown extends StatelessWidget {
             color: Colors.white,
           ),
           child: SearchableDropdown<StateModelList>.paginated(
+            dialogOffset: 0,
             hintText: Text(
               context.appText.selectState,
               style: AppTextStyle.textFieldHint,
@@ -737,6 +755,8 @@ class _CityDropdownState extends State<CityDropdown> {
               color: Colors.white,
             ),
             child: SearchableDropdown<CityModelList>.paginated(
+              key: ValueKey(widget.selectedCityId),
+              dialogOffset: 0,
               hintText: Text(
                 context.appText.selectCity,
                 style: AppTextStyle.textFieldHint,

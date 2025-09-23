@@ -59,8 +59,8 @@ class EventService {
   Future<Result<String?>> updatedAppEvent({ required String eventId, required String stage,String? entityId, Map<String, dynamic>? context}) async {
     try {
       // Use the fixed API credentials from your example
-      final xApiKey = '5f522b06263423e4cab5eb45d27f2be4';
-      final udid = '52e3dcc8-52ef-4f52-8756-3a06996757cd';
+      final xApiKey = ApiUrls.xApiKey;
+      final udid = ApiUrls.fetchUDID;
 
       // Build the URL with event ID
       final url = '${ApiUrls.createEvent}/$eventId';

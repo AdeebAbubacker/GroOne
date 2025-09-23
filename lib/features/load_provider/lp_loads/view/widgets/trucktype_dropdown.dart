@@ -54,7 +54,7 @@ class TruckTypeSearchableDropdown extends StatelessWidget {
             hintText: Text(hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
             requestItemCount: 10,
-
+            dialogOffset: 0,
             // Initial selected value
             initialValue:
                 selectedTruckType != null
