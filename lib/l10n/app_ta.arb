@@ -1322,10 +1322,10 @@
   "communicationPrefernce": "தொடர்பு விருப்பம்",
   "pleaseEnterCommPrefernce": "தயவுசெய்து தொடர்பு விருப்பத்தை உள்ளிடவும்",
   "pleaseEnterExperience": "தயவுசெய்து உங்கள் அனுபவத்தை உள்ளிடவும்",
-  "selectSpclLicense": "சிறப்பு அனுமதியைத் தேர்ந்தெடுக்கவும்"
+  "selectSpclLicense": "சிறப்பு அனுமதியைத் தேர்ந்தெடுக்கவும்",
 
 
-  "pleaseSelectLocationFromSuggestion" : "பிரஸ்தாபங்களிலிருந்து ஒரு இடத்தை தேர்ந்தெடுக்கவும்"
+  "pleaseSelectLocationFromSuggestion" : "பிரஸ்தாபங்களிலிருந்து ஒரு இடத்தை தேர்ந்தெடுக்கவும்",
   "pleaseSelectOneFilter" : "தயவுசெய்து ஏதேனும் ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்",
   "approved":"Approved",
   "rejected":"Rejected",

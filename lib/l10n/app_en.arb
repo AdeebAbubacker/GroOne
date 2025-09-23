@@ -1372,8 +1372,8 @@
   "communicationPrefernce" : "Communication Preference",
   "pleaseEnterCommPrefernce": "Please enter Communication Preference",
   "pleaseEnterExperience": "Please enter your Experience",
-  "selectSpclLicense": "Select Special License"
-  "pleaseSelectLocationFromSuggestion":"Please select a location from the suggestions"
+  "selectSpclLicense": "Select Special License",
+  "pleaseSelectLocationFromSuggestion":"Please select a location from the suggestions",
   "pleaseSelectOneFilter":"Please select any one filter",
   "approved":"Approved",
   "rejected":"Rejected",
