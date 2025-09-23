@@ -1270,7 +1270,8 @@
   "openSettings": "सेटिंग्स खोलें",
   "okay": "ठीक है",
   "postLoadPriceContent": "आराम से बैठिए, हम 30 मिनट में आपसे संपर्क करेंगे।",
-  "youCanPostOnlyOneLoad": "आप अपना KYC प्रगति पर होने के दौरान केवल एक ही लोड पोस्ट कर सकते हैं। कृपया आगे की सहायता के लिए एडमिन से संपर्क करें।",
+  "youCanPostOnlyOneLoad1": "आप अपना KYC प्रगति पर होने के दौरान केवल एक ही लोड पोस्ट कर सकते हैं। कृपया आगे की सहायता के लिए एडमिन से संपर्क करें।",
+  "youCanPostOnlyOneLoad": "KYC प्रक्रिया प्रगति में है। आगे की सहायता के लिए कृपया व्यवस्थापक से संपर्क करें।",
   "kycInProgressText": "KYC प्रगति पर",
   "showGeofenceOnMap":"मानचित्र पर जियोफेंस दिखाएँ",
   "addMoreKavach":"अधिक कवच जोड़ें",
@@ -1314,7 +1315,8 @@
   "fcExpiryDate" : "एफसी समाप्ति दिनांक",
   "pucExpiryDate" : "PUC समाप्ति दिनांक",
   "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें",
-  "platformFee":"प्लेटफ़ॉर्म शुल्क"
+  "platformFee":"प्लेटफ़ॉर्म शुल्क",
+  "pleaseSelectLocationFromSuggestion" : "कृपया सुझावों में से एक स्थान चुनें"
 
 
 

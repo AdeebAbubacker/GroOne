@@ -1315,7 +1315,8 @@
   "openSettings": "Open Settings",
   "okay": "ok",
   "postLoadPriceContent": "Sit back and relax, we will reach out in 30 min.",
-  "youCanPostOnlyOneLoad": "You can post only one load while your KYC is in progress. Please contact admin for further assistance.",
+  "youCanPostOnlyOneLoad1": "You can post only one load while your KYC is in progress. Please contact admin for further assistance.",
+  "youCanPostOnlyOneLoad": "KYC is in progress. Please contact admin for further assistance.",
   "kycInProgressText": "KYC InProgress",
   "lanes":"Lanes",
   "supportTicket":"Support Ticket",
@@ -1364,6 +1365,7 @@
   "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads",
   "gstNo" : "GST",
   "kycRejected":"Your kyc is rejected",
-  "pleaseSelectOneFilter":"Please select any one filter"
+  "pleaseSelectOneFilter":"Please select any one filter",
+  "pleaseSelectLocationFromSuggestion":"Please select a location from the suggestions"
 
 }

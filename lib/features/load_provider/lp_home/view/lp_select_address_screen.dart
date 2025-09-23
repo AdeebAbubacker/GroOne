@@ -54,6 +54,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
   List suggestions = [];
   String latLngData = '';
   Set<Marker> _markers = {};
+  bool isSuggestionSelected = false;
 
 
   @override
@@ -407,6 +408,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
           }
       ),
       onChanged: (value) {
+        isSuggestionSelected = false;
         if (value.isNotEmpty && value.length > 3) {
           lpHomeCubit.fetchAutoComplete(value);
         } else {
@@ -448,6 +450,8 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                         final type = widget.title == context.appText.pickupPoint ? 1 : 2;
                         await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationId: locationId ?? 0, selectedLocation: item.description);
 
+                        isSuggestionSelected = true;
+
                       },
                     );
                   },
@@ -469,6 +473,13 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
         if (searchTextController.text.isEmpty){
           ToastMessages.error(message: widget.title == context.appText.pickupPoint ? context.appText.selectPickupLocation : context.appText.selectDestinationLocation);
+          return;
+        }
+
+        if (!isSuggestionSelected) {
+          ToastMessages.error(
+            message: context.appText.pleaseSelectLocationFromSuggestion
+          );
           return;
         }
 
