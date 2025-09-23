@@ -484,6 +484,7 @@ class _MasterScreenState extends State<MasterScreen>
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        isEdit: isEdit,
                       ),
                     ),
 
@@ -601,6 +602,7 @@ class _MasterScreenState extends State<MasterScreen>
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        isEdit: isEdit,
                       ),
                     ),
                     16.height,
@@ -632,6 +634,7 @@ class _MasterScreenState extends State<MasterScreen>
                             : fcExpiryDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        isEdit: isEdit,
                       ),
                     ),
                     16.height,
@@ -666,6 +669,7 @@ class _MasterScreenState extends State<MasterScreen>
                         textStyle: (pucExpiryDate == 'PUC Expiry Date') 
                       ? AppTextStyle.textGreyDetailColor12w400 
                       : AppTextStyle.textFiled,
+                      isEdit: isEdit,
                       ),
                     ),
 
@@ -797,6 +801,7 @@ Widget buildReadOnlyField(
   Color? fillColor,
   TextStyle? textStyle,
   bool mandatoryStar = false,
+  bool isEdit = false,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -816,7 +821,7 @@ Widget buildReadOnlyField(
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: commonContainerDecoration(
-          color: fillColor ?? AppColors.lightGreyBackgroundColor,
+          color:   (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,    
           borderRadius: BorderRadius.circular(commonTexFieldRadius),
           borderColor: AppColors.borderColor,
         ),

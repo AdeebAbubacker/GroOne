@@ -371,6 +371,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                     ),
                     20.height,
                     buildVehicleVerificationFieldWidget(
+                      isEdit: isEdit,
                       vehicleNoController: truckNumberController,
                       onVerificationResult: (isVerified, vehicleData) {
                         setState(() {
@@ -455,6 +456,10 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       labelText: context.appText.ownerName,
                       hintText: context.appText.ownerName,
                       mandatoryStar: true,
+                      enabled: !isEdit,
+                       decoration: commonInputDecoration(
+                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white, 
+                      ),
                     ),
                     16.height,
 
@@ -466,7 +471,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           FocusScope.of(context).requestFocus(FocusNode());
                         },
                         child: InkWell(
-                          onTap: () async {
+                          onTap: !isEdit ? () async {
                             final DateTime? pickedDate = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
@@ -483,8 +488,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                 registrationDate = formattedDate;
                               });
                             }
-                          },
+                          } : (){},
                           child: buildReadOnlyField(
+                            isEdit: isEdit,
                             context.appText.registrationDate,
                             (registrationDate?.isEmpty ?? true)
                                 ? context.appText.registrationDate
@@ -503,14 +509,16 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                     ),
 
                     16.height,
-
-                    16.height,
                     AppTextField(
                       validator: (value) => Validator.fieldRequired(value),
                       controller: truckMakeModelController,
                       labelText: context.appText.truckMakeAndModel,
                       hintText: context.appText.truckMakeAndModel,
                       mandatoryStar: true,
+                      enabled: !isEdit,
+                      decoration: commonInputDecoration(
+                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white, 
+                      ),      
                     ),
                     16.height,
                     // TrucK Type
@@ -685,6 +693,10 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       labelText: context.appText.insurancePolicyNumber,
                       hintText: context.appText.insurancePolicyNumber,
                       mandatoryStar: true,
+                      enabled: !isEdit,
+                       decoration: commonInputDecoration(
+                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white, 
+                      ),
                     ),
                     16.height,
 
@@ -696,7 +708,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           FocusScope.of(context).requestFocus(FocusNode());
                         },
                         child: InkWell(
-                          onTap: () async {
+                          onTap: !isEdit ? () async {
                             final DateTime? pickedDate = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
@@ -713,8 +725,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                 insuranceValidityDate = formattedDate;
                               });
                             }
-                          },
+                          } : (){},
                           child: buildReadOnlyField(
+                            isEdit: isEdit,
                             context.appText.insuranceValidityDate,
                             (insuranceValidityDate?.isEmpty ?? true)
                                 ? context.appText.insuranceValidityDate
@@ -749,7 +762,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                       : null,
                           builder: (state) {
                             return InkWell(
-                              onTap: () async {
+                              onTap: !isEdit ? () async {
                                 final DateTime initialDate =
                                     fcExpiryDate != null
                                         ? DateFormat(
@@ -775,8 +788,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                     formattedDate,
                                   ); // Update FormField state
                                 }
-                              },
+                              } : (){},
                               child: buildReadOnlyField(
+                                isEdit: isEdit,
                                 context.appText.fcExpiryDate,
                                 fcExpiryDate ?? context.appText.fcExpiryDate,
                                 fillColor: Colors.white,
@@ -804,7 +818,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           FocusScope.of(context).requestFocus(FocusNode());
                         },
                         child: InkWell(
-                          onTap: () async {
+                          onTap: !isEdit ? () async {
                             final DateTime? pickedDate = await showDatePicker(
                               context: context,
                               initialDate: DateTime.now(),
@@ -821,8 +835,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                 pucExpiryDate = formattedDate;
                               });
                             }
-                          },
+                          } : (){},
                           child: buildReadOnlyField(
+                            isEdit: isEdit,
                             context.appText.pucExpiryDate,
                             (pucExpiryDate?.isEmpty ?? true)
                                 ? context.appText.pucExpiryDate
@@ -1072,6 +1087,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       ),
                       20.height,
                       buildVehicleVerificationFieldWidget(
+                        isEdit: isEdit,
                         vehicleNoController: truckNumberController,
                         onVerificationResult: (isVerified, vehicleData) {
                           setState(() {
@@ -1154,6 +1170,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       ),
                       16.height,
                       AppTextField(
+                        enabled: !isEdit,
                         validator: (value) => Validator.fieldRequired(value),
                         controller: owenerNameController,
                         labelText: context.appText.ownerName,
@@ -1716,6 +1733,7 @@ Widget buildVehicleVerificationFieldWidget({
   required TextEditingController vehicleNoController,
   required void Function(bool, Map<String, dynamic>?) onVerificationResult,
   String? initialVehicleNumber,
+  bool isEdit = false,
 }) {
   bool isInitiallyVerified = initialVehicleNumber != null;
   bool isVerified = isInitiallyVerified;
@@ -1729,6 +1747,7 @@ Widget buildVehicleVerificationFieldWidget({
       final isVerified = verificationState.status == Status.SUCCESS;
 
       return AppTextField(
+        enabled: !isEdit,
         onChanged: (value) {
           final verificationState =
               context.read<MastersCubit>().state.vehicleVerification;
@@ -1758,6 +1777,7 @@ Widget buildVehicleVerificationFieldWidget({
         ],
 
         decoration: commonInputDecoration(
+          fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,    
           suffixIcon:
               verificationState.status == Status.LOADING
                   ? const SizedBox(
