@@ -4,12 +4,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/fastag/model/fastag_list_response.dart';
+import 'package:gro_one_app/features/fastag/repository/fastag_repository.dart';
 import 'package:gro_one_app/features/fastag/views/fastag_list_screen.dart';
+import 'package:gro_one_app/features/fastag/views/fastag_new_user_screen.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_login_repository.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
+
 // import 'package:gro_one_app/features/gps/view/gps_order_screen.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_orders_list_screen.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
@@ -279,9 +283,36 @@ class _OurValueAddedServicesWidgetState
       _buildServicesWidget(
         title: context.appText.fastag,
         imageString: AppImage.png.buyFastTag,
-        onClick: () {
+        onClick: () async {
           // context.push(AppRouteName.buyFastag);
-          Navigator.push(context, commonRoute(FastagListScreen()));
+          // Navigator.push(context, commonRoute(FastagListScreen()));
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (BuildContext context) {
+              return const Center(child: CircularProgressIndicator());
+            },
+          );
+          final fastagRepository = locator<FastagRepository>();
+          final res = await fastagRepository.getFastagList();
+          if (res is Success<FastagListResponse>) {
+            if (res.value.data.isNotEmpty) {
+              Navigator.of(context).pop();
+              Navigator.push(context, commonRoute(FastagListScreen()));
+            } else {
+              Navigator.of(context).pop();
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const FastagNewUserScreen()),
+              );
+            }
+          } else {
+            Navigator.of(context).pop();
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const FastagNewUserScreen()),
+            );
+          }
         },
       ),
       _buildServicesWidget(
@@ -398,17 +429,23 @@ class _OurValueAddedServicesWidgetState
     return InkWell(
       onTap: onClick,
       child: Container(
-        width: 100,
+        constraints: const BoxConstraints(
+        minWidth: 120,  // 👈 always at least 100
+        maxWidth: 300,  // 👈 expand up to this if needed (you can adjust)
+      ),
         height: 90,
         decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(imageString, width: 30),
-            10.height,
-
-            Text(title, textAlign: TextAlign.center, style: AppTextStyle.h6),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 3),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(imageString, width: 30),
+              10.height,
+          
+              Text(title, textAlign: TextAlign.center, style: AppTextStyle.h6),
+            ],
+          ),
         ),
       ),
     );

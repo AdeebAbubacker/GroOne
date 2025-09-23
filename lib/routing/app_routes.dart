@@ -226,7 +226,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.chooseRoleScreen,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
+          final data = state.extra as Map<String, dynamic>;
           final String id = data["userId"];
           final String mobileNumber = data["mobileNumber"];
           return ChooseRoleScreen(userId: id, mobileNumber: mobileNumber);
@@ -310,7 +310,7 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.otpVerificationScreen,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
+          final data = state.extra as Map<String, dynamic>? ?? {};
           final String mobileNumber = data["mobileNumber"];
           final String otp = data["otp"];
           final bool isDriver = data["driver"];
@@ -332,15 +332,16 @@ class AppRoutes {
       GoRoute(
         path: AppRouteName.loadDetailsScreen,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
+          final data = state.extra as Map<String, dynamic>? ?? {};
           final String loadId = data["loadId"].toString();
-          return VpLoadDetailsScreen(loadId: loadId);
+          return VpLoadDetailsScreen(
+              loadId: loadId);
         },
       ),
       GoRoute(
         path: AppRouteName.viewFileWidget,
         builder: (BuildContext context, GoRouterState state) {
-          final data = state.extra! as Map<String, dynamic>;
+          final data = state.extra as Map<String, dynamic>? ?? {};
           final String url = data["url"].toString();
           final String originalFileName = data["originalFileName"].toString();
           return PdfViewer(url: url, originalFileName: originalFileName,);
@@ -592,6 +593,12 @@ class AppRoutes {
           );
         },
       ),
+      GoRoute(
+        path: AppRouteName.fastTagListScreen,
+        pageBuilder: (BuildContext context, GoRouterState state) {
+          return buildTransitionPage(state: state, child: FastagListScreen());
+        },
+      ),
 
       GoRoute(
         path: AppRouteName.lpSelectAddressScreen,
@@ -602,8 +609,12 @@ class AppRoutes {
           final String location = data['location'] ?? '';
           return buildTransitionPage(
             state: state,
-            child: LPSelectAddressScreen(title: title, address: address, location: location),
-            isForward: true
+            child: LPSelectAddressScreen(
+              title: title,
+              address: address,
+              location: location,
+            ),
+            isForward: true,
           );
         },
       ),
@@ -645,14 +656,19 @@ class AppRoutes {
           final data = state.extra as Map<String, dynamic>;
           final String loadId = data["loadId"].toString();
           final String vehicleId = data["vehicleId"].toString();
-          final dynamic isDamageApprovedOrReject = data["isDamageApprovedOrReject"];
+          final dynamic isDamageApprovedOrReject =
+              data["isDamageApprovedOrReject"];
           return buildTransitionPage(
             state: state,
-            child: DriverDamagesAndShortagesScreen(loadId: loadId,vehicleId: vehicleId,isDamageApprovedOrReject: isDamageApprovedOrReject,),
+            child: DriverDamagesAndShortagesScreen(
+              loadId: loadId,
+              vehicleId: vehicleId,
+              isDamageApprovedOrReject: isDamageApprovedOrReject,
+            ),
           );
         },
       ),
-       GoRoute(
+      GoRoute(
         path: AppRouteName.driverSettlementsScreen,
         pageBuilder: (BuildContext context, GoRouterState state) {
           final data = state.extra as Map<String, dynamic>;
@@ -660,7 +676,10 @@ class AppRoutes {
           final String vehicleId = data["vehicleId"].toString();
           return buildTransitionPage(
             state: state,
-            child: DriverSettlementsScreen(loadId: loadId,vehicleID: vehicleId),
+            child: DriverSettlementsScreen(
+              loadId: loadId,
+              vehicleID: vehicleId,
+            ),
           );
         },
       ),
@@ -672,7 +691,10 @@ class AppRoutes {
           final DocumentEntity? documentEntity = data["documentEntity"];
           return buildTransitionPage(
             state: state,
-            child: DriverViewOthersDocument(loadDocument: loadDocument,documentEntity: documentEntity),
+            child: DriverViewOthersDocument(
+              loadDocument: loadDocument,
+              documentEntity: documentEntity,
+            ),
           );
         },
       ),

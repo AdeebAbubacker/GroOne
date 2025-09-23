@@ -24,6 +24,7 @@ enum AddressListFeature { kavach, gps }
 class KavachShippingAddressListScreen extends StatelessWidget {
   final KavachAddressModel? selectedBillingAddress;
   final AddressListFeature feature;
+  final bool refresh;
   final GpsShippingAddressCubit? gpsShippingAddressCubit; // For GPS feature
   final GpsBillingAddressCubit?
   gpsBillingAddressCubit; // For GPS feature - to refresh both lists
@@ -33,6 +34,7 @@ class KavachShippingAddressListScreen extends StatelessWidget {
     super.key,
     this.selectedBillingAddress,
     this.feature = AddressListFeature.kavach,
+    this.refresh = false,
     this.gpsShippingAddressCubit,
     this.gpsBillingAddressCubit,
     this.changeBillingIndex,
@@ -64,6 +66,7 @@ class KavachShippingAddressListScreen extends StatelessWidget {
           await commonBottomSheetWithBGBlur(
             context: context,
             screen: KavachAddAddressBottomSheet(
+              refresh: refresh,
               addrType: 1, // Shipping address type
               title: context.appText.shippingAddress,
               feature: AddressFeature.kavach,
@@ -72,21 +75,29 @@ class KavachShippingAddressListScreen extends StatelessWidget {
           // After the bottom sheet is dismissed, refetch the shipping addresses
           if (!context.mounted) return;
           context.read<KavachCheckoutShippingAddressBloc>().add(
-            FetchKavachShippingAddresses(),
+            FetchKavachShippingAddresses(
+              noRefresh: false,
+              mandatoryRefresh: true,
+            ),
           );
         } else if (feature == AddressListFeature.gps &&
             gpsShippingAddressCubit != null) {
           await commonBottomSheetWithBGBlur(
             context: context,
             screen: KavachAddAddressBottomSheet(
-              addrType: 1, // Shipping address type
+              refresh: refresh,
+              addrType: 1,
+              // Shipping address type
               title: context.appText.shippingAddress,
               feature: AddressFeature.gps,
               onAddressAdded: () {
                 // Refresh both billing and shipping address lists
-                gpsShippingAddressCubit!.fetchGpsShippingAddresses();
+                gpsShippingAddressCubit!.fetchGpsShippingAddresses(
+                  noRefresh: refresh,
+                );
                 if (gpsBillingAddressCubit != null) {
                   gpsBillingAddressCubit!.fetchGpsBillingAddresses(
+                    noRefresh: true,
                     changeBillingIndex:
                         changeBillingIndex != null ? changeBillingIndex! : 0,
                   );
@@ -140,7 +151,10 @@ class KavachShippingAddressListScreen extends StatelessWidget {
                       AppButton(
                         onPressed: () {
                           context.read<KavachCheckoutShippingAddressBloc>().add(
-                            FetchKavachShippingAddresses(),
+                            FetchKavachShippingAddresses(
+                              noRefresh: false,
+                              mandatoryRefresh: true,
+                            ),
                           );
                         },
                         title: context.appText.retry,
@@ -156,80 +170,115 @@ class KavachShippingAddressListScreen extends StatelessWidget {
 
         if (state is KavachCheckoutShippingAddressSelected) {
           // Filter out the selected billing address from shipping address list
-          final filteredAddresses =
-              selectedBillingAddress != null
-                  ? state.addresses
-                      .where(
-                        (address) =>
-                            address.uniqueId !=
-                            selectedBillingAddress!.uniqueId,
-                      )
-                      .toList()
-                  : state.addresses;
-
-          return Column(
-            children: [
-              addVehicleButton(context),
-              Expanded(
-                child:
-                    filteredAddresses.isEmpty
-                        ? Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.location_off,
-                                color: Colors.grey,
-                                size: 48,
-                              ),
-                              10.height,
-                              Text(
-                                context.appText.noAvailableShippingAddresses,
-                                style: AppTextStyle.h5,
-                              ),
-                              5.height,
-                              Text(
-                                selectedBillingAddress != null
-                                    ? context
-                                        .appText
-                                        .allAddressesAlreadySelectedForBilling
-                                    : context
-                                        .appText
-                                        .addYourFirstShippingAddress,
-                                style: AppTextStyle.bodyGreyColor,
-                              ),
-                            ],
-                          ),
-                        )
-                        : ListView.separated(
-                          padding: const EdgeInsets.symmetric(vertical: 20),
-                          shrinkWrap: true,
-                          itemCount: filteredAddresses.length,
-                          separatorBuilder: (context, index) => 10.height,
-                          itemBuilder: (context, index) {
-                            final address = filteredAddresses[index];
-                            return KavachAddressListItem(address: address);
-                          },
+          if (state.selectedAddress == null) {
+            return Column(
+              children: [
+                addVehicleButton(context),
+                Expanded(
+                  child: Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.location_off, color: Colors.grey, size: 48),
+                        10.height,
+                        Text(
+                          context.appText.noAddressFound,
+                          style: AppTextStyle.h5,
                         ),
-              ),
-              20.height,
-              AppButton(
-                onPressed: () {
-                  final selectedAddress =
-                      context.read<KavachCheckoutShippingAddressBloc>().state;
-                  if (selectedAddress
-                      is KavachCheckoutShippingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress);
-                  } else {
-                    // Handle if nothing is selected (optional)
-                  }
-                },
-                title: context.appText.deliverHere,
-                style: AppButtonStyle.primary,
-              ),
-              20.height,
-            ],
-          );
+                        5.height,
+                        Text(
+                          context.appText.addYourFirstShippingAddress,
+                          style: AppTextStyle.bodyGreyColor,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            final filteredAddresses =
+                selectedBillingAddress != null
+                    ? state.addresses
+                        .where(
+                          (address) =>
+                              address.uniqueId !=
+                              selectedBillingAddress!.uniqueId,
+                        )
+                        .toList()
+                    : state.addresses;
+
+            return Column(
+              children: [
+                addVehicleButton(context),
+                Expanded(
+                  child:
+                      filteredAddresses.isEmpty
+                          ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.location_off,
+                                  color: Colors.grey,
+                                  size: 48,
+                                ),
+                                10.height,
+                                Text(
+                                  context.appText.noAvailableShippingAddresses,
+                                  style: AppTextStyle.h5,
+                                ),
+                                5.height,
+                                Text(
+                                  selectedBillingAddress != null
+                                      ? context
+                                          .appText
+                                          .allAddressesAlreadySelectedForBilling
+                                      : context
+                                          .appText
+                                          .addYourFirstShippingAddress,
+                                  style: AppTextStyle.bodyGreyColor,
+                                ),
+                              ],
+                            ),
+                          )
+                          : ListView.separated(
+                            padding: const EdgeInsets.symmetric(vertical: 20),
+                            shrinkWrap: true,
+                            itemCount: filteredAddresses.length,
+                            separatorBuilder: (context, index) => 10.height,
+                            itemBuilder: (context, index) {
+                              final address = filteredAddresses[index];
+                              return KavachAddressListItem(address: address);
+                            },
+                          ),
+                ),
+                20.height,
+                filteredAddresses.isEmpty
+                    ? const SizedBox()
+                    : AppButton(
+                      onPressed: () {
+                        final selectedAddress =
+                            context
+                                .read<KavachCheckoutShippingAddressBloc>()
+                                .state;
+                        if (selectedAddress
+                            is KavachCheckoutShippingAddressSelected) {
+                          Navigator.pop(
+                            context,
+                            selectedAddress.selectedAddress,
+                          );
+                        } else {
+                          // Handle if nothing is selected (optional)
+                        }
+                      },
+                      title: context.appText.deliverHere,
+                      style: AppButtonStyle.primary,
+                    ),
+                20.height,
+              ],
+            );
+          }
         }
 
         if (state is KavachCheckoutShippingAddressAvailable) {

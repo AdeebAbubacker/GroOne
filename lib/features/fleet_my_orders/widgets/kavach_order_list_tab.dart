@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_order_list_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import '../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_bloc.dart';
 import '../../kavach/bloc/kavach_order_list_bloc/kavach_order_list_event.dart';
@@ -27,9 +28,9 @@ class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
     });
 
     // Initial fetch
-    context.read<KavachOrderListBloc>().add(
-      FetchKavachOrderList(isRefresh: true),
-    );
+    // context.read<KavachOrderListBloc>().add(
+    //   FetchKavachOrderList(isRefresh: true),
+    // );
   }
 
   @override
@@ -77,11 +78,12 @@ class _OrdersListViewWithSearch extends StatefulWidget {
 class _OrdersListViewWithSearchState extends State<_OrdersListViewWithSearch> {
   final ScrollController _scrollController = ScrollController();
   Timer? _debounce;
-  final filtered = [];
+  List<KavachOrderListOrderItem> filtered = [];
 
   @override
   void initState() {
     super.initState();
+    filtered.clear();
     context.read<KavachOrderListBloc>().add(
       FetchKavachOrderList(forceRefresh: true),
     );

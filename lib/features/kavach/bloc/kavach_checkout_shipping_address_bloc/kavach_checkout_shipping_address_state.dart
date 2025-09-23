@@ -18,7 +18,7 @@ class KavachCheckoutShippingAddressError extends KavachCheckoutShippingAddressSt
 }
 
 class KavachCheckoutShippingAddressSelected extends KavachCheckoutShippingAddressState {
-  final KavachAddressModel selectedAddress;
+  final KavachAddressModel? selectedAddress;
   final List<KavachAddressModel> addresses;
   KavachCheckoutShippingAddressSelected({required this.selectedAddress, required this.addresses});
 }

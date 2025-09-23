@@ -39,6 +39,7 @@ class GpsModelsScreen extends StatefulWidget {
 
 class _GpsModelsScreenState extends State<GpsModelsScreen> {
   final TextEditingController searchController = TextEditingController();
+  final ScrollController productScroll = ScrollController();
   late final GpsProductsCubit _gpsProductsCubit;
   final lpHomeCubit = locator<LPHomeCubit>();
 
@@ -46,14 +47,16 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
   @override
   void initState() {
     super.initState();
+    productScroll.addListener(_onScroll);
+
     try {
       _gpsProductsCubit = locator<GpsProductsCubit>();
-      _gpsProductsCubit.fetchGpsProducts();
+      _gpsProductsCubit.fetchGpsProducts(refresh: true);
     } catch (e) {
       // Fallback: create a new instance directly
       final repository = locator<GpsOrderApiRepository>();
       _gpsProductsCubit = GpsProductsCubit(repository);
-      _gpsProductsCubit.fetchGpsProducts();
+      _gpsProductsCubit.fetchGpsProducts(refresh: true);
     }
 
     // Clear search field when navigating to this screen
@@ -62,6 +65,30 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     var res = widget.result;
     callBackMethodFromOrderCheckoutScreen(res);
     createAppEvent(stage: 'start');
+  }
+
+  void _onScroll() {
+    if (!productScroll.hasClients) return;
+
+    // Simple bottom detection like your example
+
+    // Simple pagination trigger - exactly like your working example
+    if (productScroll.position.pixels ==
+        productScroll.position.maxScrollExtent) {
+      debugPrint('jiooo');
+      _gpsProductsCubit.loadMoreProducts();
+    }
+  }
+
+  void _scrollToBottom() {
+    if (productScroll.hasClients) {
+      // With reverse: true, "bottom" is actually position 0
+      productScroll.animateTo(
+        0.0,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
@@ -108,13 +135,20 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
   bool? _previousShippingSameAsBilling;
   String? _previousShippingPersonInCharge;
   String? _previousShippingPersonContactNo;
+  List<KavachProduct> sortedProducts = [];
+  List<KavachProduct> outOfStockProducts = [];
+  List<KavachProduct> inStockProducts = [];
+  List<KavachProduct> products = [];
+  List<GpsProduct> saveAllProducts = [];
 
   // Filtered products based on search
   List<KavachProduct> get _filteredProducts {
-    final products =
-        _gpsProductsCubit.filteredProducts
-            .map((gpsProduct) => gpsProduct.toKavachProduct())
-            .toList();
+    products.clear();
+    products.addAll(
+      _gpsProductsCubit.filteredProducts
+          .map((gpsProduct) => gpsProduct.toKavachProduct())
+          .toList(),
+    );
 
     if (searchController.text.isEmpty) {
       return products;
@@ -131,7 +165,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
 
   // Get products that have quantities > 0
   List<KavachProduct> get _selectedProducts {
-    return _filteredProducts
+    return inStockProducts
         .where(
           (product) =>
               (_gpsProductsCubit.state.quantities[product.id] ?? 0) > 0,
@@ -154,7 +188,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
   Widget _buildProductsList(GpsProductsState state) {
     // Show loading state
     if (state.productsState?.status == Status.LOADING &&
-        state.products.isEmpty) {
+        saveAllProducts.isEmpty) {
       return const Center(child: CircularProgressIndicator());
     }
 
@@ -198,20 +232,10 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     }
 
     // Separate in-stock and out-of-stock products
-    final inStockProducts =
-        _filteredProducts
-            .where((p) => (state.availableStocks[p.id] ?? 0) > 0)
-            .toList();
-    final outOfStockProducts =
-        _filteredProducts
-            .where((p) => (state.availableStocks[p.id] ?? 0) == 0)
-            .toList();
-
-    // Combine them with in-stock first
-    final sortedProducts = [...inStockProducts, ...outOfStockProducts];
 
     // Show products list
     return ListView.separated(
+      controller: productScroll,
       separatorBuilder: (context, index) => 15.height,
       shrinkWrap: true,
       itemCount: sortedProducts.length,
@@ -220,30 +244,37 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         final quantity = state.quantities[product.id] ?? 0;
         final availableStock = state.availableStocks[product.id] ?? 0;
 
-        return GpsModelWidget(
-          product: product,
-          quantity: quantity,
-          availableStock: availableStock,
-          onQuantityChanged: (newQuantity) {
-            if (newQuantity <= 0) {
-              _gpsProductsCubit.decrementQuantity(product.id);
-            } else {
-              final currentQty = state.quantities[product.id] ?? 0;
-              if (newQuantity > currentQty) {
-                // Incrementing - check stock
-                if (newQuantity <= availableStock) {
-                  _gpsProductsCubit.incrementQuantity(product.id);
+        return Column(
+          children: [
+            GpsModelWidget(
+              product: product,
+              quantity: quantity,
+              availableStock: availableStock,
+              onQuantityChanged: (newQuantity) {
+                if (newQuantity <= 0) {
+                  _gpsProductsCubit.decrementQuantity(product.id);
                 } else {
-                  ToastMessages.alert(
-                    message: 'Cannot add more items. Stock limit reached.',
-                  );
+                  final currentQty = state.quantities[product.id] ?? 0;
+                  if (newQuantity > currentQty) {
+                    // Incrementing - check stock
+                    if (newQuantity <= availableStock) {
+                      _gpsProductsCubit.incrementQuantity(product.id);
+                      setState(() {
+                        state.refreshModelList = true;
+                      });
+                    } else {
+                      ToastMessages.alert(
+                        message: 'Cannot add more items. Stock limit reached.',
+                      );
+                    }
+                  } else {
+                    // Decrementing - no stock check needed
+                    _gpsProductsCubit.decrementQuantity(product.id);
+                  }
                 }
-              } else {
-                // Decrementing - no stock check needed
-                _gpsProductsCubit.decrementQuantity(product.id);
-              }
-            }
-          },
+              },
+            ),
+          ],
         );
       },
     );
@@ -286,13 +317,15 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     updatedAppEvent(stage: 'viewedCheckoutScreen');
 
     // Handle result from checkout screen
+    //
+    // // Handle result from checkout screen
     callBackMethodFromOrderCheckoutScreen(result);
   }
 
   callBackMethodFromOrderCheckoutScreen(var result) {
     if (result != null) {
       // Clear search text when returning from checkout (Add More or other navigation)
-      searchController.clear();
+      // searchController.clear();
       _gpsProductsCubit.searchProducts('');
 
       // Update quantities based on result from checkout
@@ -397,7 +430,35 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
       ),
       backgroundColor: AppColors.backgroundColor,
       body: SafeArea(
-        child: BlocBuilder<GpsProductsCubit, GpsProductsState>(
+        child: BlocConsumer<GpsProductsCubit, GpsProductsState>(
+          listener: (c, s) {
+            if (s.refresh) {
+              saveAllProducts.addAll(s.products);
+              debugPrint('saveAllProducts=>$saveAllProducts');
+              s.availableStocks.addAll(s.availableStocks);
+              inStockProducts.addAll(
+                s.products
+                    .map((gpsProduct) => gpsProduct.toKavachProduct())
+                    .where(
+                      (product) => (s.availableStocks[product.id] ?? 0) > 0,
+                    )
+                    .toSet(), // removes duplicates
+              );
+              outOfStockProducts.addAll(
+                s.products
+                    .map((gpsProduct) => gpsProduct.toKavachProduct())
+                    .where(
+                      (product) => (s.availableStocks[product.id] ?? 0) == 0,
+                    )
+                    .toSet(), // removes duplicates
+              );
+              sortedProducts = [...inStockProducts, ...outOfStockProducts];
+              debugPrint('sortedProducts=>${sortedProducts.length}');
+              debugPrint('outOfStockProducts=>${outOfStockProducts.length}');
+              debugPrint('inStockProducts=>${inStockProducts.length}');
+            }
+            s.refresh = false;
+          },
           bloc: _gpsProductsCubit,
           builder: (context, state) {
             return Column(
@@ -406,8 +467,22 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
                 AppSearchBar(
                   hintText: context.appText.search,
                   searchController: searchController,
+                  onClear: () {
+                    state.searchQuery = '';
+                    searchController.clear();
+                    refreshListToInitialValues(state);
+                    setState(() {});
+                  },
                   onChanged: (text) {
-                    _gpsProductsCubit.searchProducts(text);
+                    if (text.isNotEmpty) {
+                      _gpsProductsCubit.searchProducts(text);
+                      sortedProducts.clear();
+                      sortedProducts = _filteredProducts;
+                    } else {
+                      state.searchQuery = '';
+                      searchController.clear();
+                      refreshListToInitialValues(state);
+                    }
                     setState(() {
                       // Trigger rebuild to filter products
                     });
@@ -416,6 +491,20 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
                 20.height,
                 // Products list
                 Expanded(child: _buildProductsList(state)),
+                // _filteredProducts.isEmpty &&
+                        saveAllProducts.isNotEmpty &&
+                        state.productsState?.status == Status.LOADING
+                    ? Column(
+                      children: [
+                        SizedBox(height: 24),
+                        SizedBox(
+                          width: 35,
+                          height: 35,
+                          child: CircularProgressIndicator(),
+                        ),
+                      ],
+                    )
+                    : const SizedBox(),
               ],
             ).paddingAll(commonSafeAreaPadding);
           },
@@ -429,10 +518,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
             0,
             (sum, qty) => sum + qty,
           );
-          final totalPrice = _filteredProducts.fold<double>(0.0, (
-            sum,
-            product,
-          ) {
+          final totalPrice = inStockProducts.fold<double>(0.0, (sum, product) {
             final quantity = state.quantities[product.id] ?? 0;
             return sum + (product.price * quantity);
           });
@@ -484,5 +570,29 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         },
       ),
     );
+  }
+
+  refreshListToInitialValues(GpsProductsState state) {
+    sortedProducts.clear();
+    inStockProducts.clear();
+    outOfStockProducts.clear();
+    // state.availableStocks.addAll(state.availableStocks);
+    inStockProducts.addAll(
+      saveAllProducts
+          .map((gpsProduct) => gpsProduct.toKavachProduct())
+          .where((product) => (state.availableStocks[product.id] ?? 0) > 0)
+          .toSet(), // removes duplicates
+    );
+    outOfStockProducts.addAll(
+      saveAllProducts
+          .map((gpsProduct) => gpsProduct.toKavachProduct())
+          .where((product) => (state.availableStocks[product.id] ?? 0) == 0)
+          .toSet(), // removes duplicates
+    );
+    sortedProducts = [...inStockProducts, ...outOfStockProducts];
+    debugPrint('outOfStockProductsss=>$outOfStockProducts');
+    debugPrint('outOfStockProductsss=>${outOfStockProducts.length}');
+    debugPrint('sortedProducts=>$sortedProducts');
+    debugPrint('sortedProductsLength=>${sortedProducts.length}');
   }
 }

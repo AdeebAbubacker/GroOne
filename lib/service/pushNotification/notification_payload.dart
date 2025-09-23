@@ -8,23 +8,27 @@ class NotificationPayload {
   String? body;
   String? screen;
   NotificationData? notificationData;
+  String? userType;
+  String? loadSeriesId;
 
   NotificationPayload({this.route, this.eventType, this.mode, this.toUser,
-    this.osType, this.title, this.body, this.screen, this.notificationData});
+    this.osType, this.title, this.body, this.screen, this.notificationData,this.userType,this.loadSeriesId});
 
 
   factory NotificationPayload.fromJson(Map<String, dynamic> json) {
 
-    print("json is ${json}");
+  print("json is $json");
 
     return NotificationPayload(
         route: json['route'],
+        loadSeriesId:json['id'],
         eventType: json['eventType'],
         mode: json['mode'],
         title: json['title'],
         body: json['body'],
         screen: json['screen'],
         osType: json['os_type'],
+        userType:json['user_type'],
         toUser: json['to_user'],
         notificationData:json['data']!=null ?  NotificationData.fromJson(json['data']):null
     );

@@ -90,7 +90,6 @@ class _MasterScreenState extends State<MasterScreen>
     context.read<MastersCubit>().resetVehicleVerification();
     _tabController = TabController(
       initialIndex: widget.initialIndex ?? 0,
-
       length: (kycCubit.userRole == 3 && (profileCubit.state.switchToVp??false)) ||  kycCubit.userRole==2 ?  4:3,
       vsync: this,
     );
@@ -98,8 +97,6 @@ class _MasterScreenState extends State<MasterScreen>
       if (mounted) setState(() {});
     });
     kycCubit.fetchStateList();
-
-    print("value is ${profileCubit.state.switchToVp}");
     initFunction();
   }
 
@@ -230,11 +227,14 @@ class _MasterScreenState extends State<MasterScreen>
         color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
         borderRadius: BorderRadius.circular(30),
       ),
-      child: Text(
-        text,
-        style: AppTextStyle.h6.copyWith(
-          fontWeight: FontWeight.w600,
-          color: isSelected ? AppColors.white : AppColors.black,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8),
+        child: Text(
+          text,
+          style: AppTextStyle.h6.copyWith(
+            fontWeight: FontWeight.w600,
+            color: isSelected ? AppColors.white : AppColors.black,
+          ),
         ),
       ),
     );
@@ -260,6 +260,9 @@ class _MasterScreenState extends State<MasterScreen>
           children: [
            15.height,
           TabBar(
+          isScrollable: true,
+          padding: EdgeInsets.zero,
+          labelPadding: EdgeInsets.only(right: 15),
           controller: _tabController,
           indicator: BoxDecoration(
             color: Colors.transparent, // selected tab bg

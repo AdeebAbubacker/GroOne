@@ -23,6 +23,8 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
+
+final List<int> navigationHistoryVP = [0];
 class VPBottomNavigationBar extends StatefulWidget {
 
   const VPBottomNavigationBar({super.key});
@@ -45,7 +47,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   int selectedIndex = 0;
   int vpAllLoadsInitialTabIndex = 0;
   int bottomHt = 50;
-  final List<int> _navigationHistory = [0];
+
 
   @override
   void initState() {
@@ -87,7 +89,7 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
       ));
     } else {
       if (selectedIndexNotifier.value != index) {
-        _navigationHistory.add(index); // push to history
+        navigationHistoryVP.add(index); // push to history
       }
       changeTab(index, allLoadsSubTabIndex: 0);
 
@@ -155,9 +157,9 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
             return WillPopScope(
               onWillPop: () async {
 
-                if (_navigationHistory.length > 1) {
-                  _navigationHistory.removeLast();
-                  selectedIndexNotifier.value = _navigationHistory.last;
+                if (navigationHistoryVP.length > 1) {
+                  navigationHistoryVP.removeLast();
+                  selectedIndexNotifier.value = navigationHistoryVP.last;
                   return false; // prevent app exit
                 }
                 return true;
