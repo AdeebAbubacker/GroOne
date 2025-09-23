@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -225,13 +226,13 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                         name: driver.name,
                         phone: driver.mobile,
                         driverStatus: driver.driverStatus,
-                        // onEdit: () async {
-                        //   mastersCubit.resetLicenseVerification();
-                        //   await Future.delayed(
-                        //     const Duration(milliseconds: 50),
-                        //   );
-                        //   showAddDriverPopup(context, driver: driver);
-                        // },
+                        onEdit: () async {
+                          mastersCubit.resetLicenseVerification();
+                          await Future.delayed(
+                            const Duration(milliseconds: 50),
+                          );
+                          showAddDriverPopup(context, driver: driver);
+                        },
                         onDelete:
                             () => showDeletePopUp(
                               context: context,
@@ -345,6 +346,30 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
     LicenseCategoryResponseModel? selectedLicenseObj;
     selectedBloodId = driver?.bloodGroup;
     selectedLicneseId = driver?.licenseCategory;
+    if (isEdit) {
+      final profileCubit = context.read<ProfileCubit>();
+
+      final bloodGroups =
+          profileCubit.state.bloodGroupResponseUIState?.data ?? [];
+      selectedBloodObj = bloodGroups.firstWhereOrNull(
+        (bg) => bg.id == selectedBloodId,
+      );
+
+      final licenseCategories =
+          profileCubit.state.licneseCategoryResponseUIState?.data ?? [];
+      selectedLicenseObj = licenseCategories.firstWhereOrNull(
+        (lc) => lc.id == selectedLicneseId,
+      );
+    }
+    if (isEdit && driver?.licenseDocLink != null) {
+      licenseDocId = driver!.licenseDocLink;
+
+      final fileMap = createFileFromLink(driver.licenseDocLink!);
+      if (fileMap != null) {
+        licenseDoc.add(fileMap);
+      }
+    }
+
     MasterDialogueWidget.show(
       dismissible: true,
       context,
@@ -486,132 +511,148 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                   ),
                   16.height,
                   // Upload License
-                  BlocBuilder<MastersCubit, MastersState>(
-                    builder: (context, state) {
-                      return UploadAttachmentFiles(
-                        title: context.appText.uploadLicesneDocument,
-                        multiFilesList: licenseDoc,
-                        isSingleFile: true,
-                        isLoading:
-                            state.uploadlicenseDocUIState?.status ==
-                            Status.LOADING,
-                        allowedExtensions: [
-                          'jpg',
-                          'png',
-                          'heic',
-                          'pdf',
-                          'jpeg',
-                        ],
-                        thenUploadFileToSever: () async {
-                          final Result result =
-                              await uploadLicenseDocumentApiCall(licenseDoc);
-                          if (result is Success) {
-                            final licenseData =
-                                mastersCubit
-                                    .state
-                                    .uploadlicenseDocUIState
-                                    ?.data;
-                            if (licenseData != null && licenseDoc.isNotEmpty) {
-                              final apiRequest = CreateDocumentApiRequest(
-                                documentTypeId:
-                                    await DriverLicenseHelper.getDocumentTypeId(
-                                      DriverDocType.licenseDoc,
-                                      documentCubit,
-                                    ),
-                                title:
-                                    DriverLicenseHelper.getMeta(
-                                      DriverDocType.licenseDoc,
-                                    ).title,
-                                description:
-                                    DriverLicenseHelper.getMeta(
-                                      DriverDocType.licenseDoc,
-                                    ).description,
-                                originalFilename: licenseData.originalName,
-                                filePath: licenseData.filePath,
-                                fileSize: licenseData.size,
-                                mimeType: KycHelper.getMimeTypeFromExtension(
-                                  licenseDoc.first['extension'],
-                                ),
-                                fileExtension: licenseDoc.first['extension'],
-                              );
-                              await createDocumentApiCall(apiRequest);
-                              if (mastersCubit
+                  AbsorbPointer(
+                    absorbing: false,
+                    child : Listener(
+                      onPointerDown: (_){
+                        
+                      },
+                    child: BlocBuilder<MastersCubit, MastersState>(
+                      builder: (context, state) {
+                        return UploadAttachmentFiles(
+                          title: context.appText.uploadLicesneDocument,
+                          multiFilesList: licenseDoc,
+                          isSingleFile: true,
+                          isLoading:
+                              state.uploadlicenseDocUIState?.status ==
+                              Status.LOADING,
+                          allowedExtensions: [
+                            'jpg',
+                            'png',
+                            'heic',
+                            'pdf',
+                            'jpeg',
+                          ],
+                          thenUploadFileToSever: () async {
+                            final Result result =
+                                await uploadLicenseDocumentApiCall(licenseDoc);
+                            if (result is Success) {
+                              final licenseData =
+                                  mastersCubit
                                       .state
-                                      .createDocumentUIState
-                                      ?.status ==
-                                  Status.SUCCESS) {
+                                      .uploadlicenseDocUIState
+                                      ?.data;
+                              if (licenseData != null && licenseDoc.isNotEmpty) {
+                                final apiRequest = CreateDocumentApiRequest(
+                                  documentTypeId:
+                                      await DriverLicenseHelper.getDocumentTypeId(
+                                        DriverDocType.licenseDoc,
+                                        documentCubit,
+                                      ),
+                                  title:
+                                      DriverLicenseHelper.getMeta(
+                                        DriverDocType.licenseDoc,
+                                      ).title,
+                                  description:
+                                      DriverLicenseHelper.getMeta(
+                                        DriverDocType.licenseDoc,
+                                      ).description,
+                                  originalFilename: licenseData.originalName,
+                                  filePath: licenseData.filePath,
+                                  fileSize: licenseData.size,
+                                  mimeType: KycHelper.getMimeTypeFromExtension(
+                                    licenseDoc.first['extension'],
+                                  ),
+                                  fileExtension: licenseDoc.first['extension'],
+                                );
+                                await createDocumentApiCall(apiRequest);
                                 if (mastersCubit
-                                            .state
-                                            .createDocumentUIState
-                                            ?.data !=
-                                        null &&
-                                    mastersCubit
-                                            .state
-                                            .createDocumentUIState
-                                            ?.data
-                                            ?.data !=
-                                        null) {
-                                  licenseDocId =
+                                        .state
+                                        .createDocumentUIState
+                                        ?.status ==
+                                    Status.SUCCESS) {
+                                  if (mastersCubit
+                                              .state
+                                              .createDocumentUIState
+                                              ?.data !=
+                                          null &&
                                       mastersCubit
-                                          .state
-                                          .createDocumentUIState!
-                                          .data!
-                                          .data!
-                                          .documentId;
+                                              .state
+                                              .createDocumentUIState
+                                              ?.data
+                                              ?.data !=
+                                          null) {
+                                    licenseDocId =
+                                        mastersCubit
+                                            .state
+                                            .createDocumentUIState!
+                                            .data!
+                                            .data!
+                                            .documentId;
+                                  }
                                 }
                               }
                             }
-                          }
-                        },
-                        onDelete: (index) async {
-                          if (licenseDocId == null) {
-                            ToastMessages.alert(
-                              message: context.appText.errorMessage,
-                            );
-                            return;
-                          }
-                          await mastersCubit
-                              .deleteDocument(licenseDocId ?? "")
-                              .then((onValue) {
-                                licenseDocId = null;
-                              });
-                        },
-                      );
-                    },
+                          },
+                          onDelete: (index) async {
+                            if (licenseDocId == null) {
+                              ToastMessages.alert(
+                                message: context.appText.errorMessage,
+                              );
+                              return;
+                            }
+                            await mastersCubit
+                                .deleteDocument(licenseDocId ?? "")
+                                .then((onValue) {
+                                  licenseDocId = null;
+                                });
+                          },
+                        );
+                      },
+                    ),
+                  ),
                   ),
                   16.height,
 
                   ///License Expiry date
-                  InkWell(
-                    onTap: () async {
-                      final DateTime today = DateTime.now();
-                      final DateTime? pickedDate = await showDatePicker(
-                        context: context,
-                        initialDate: today,
-                        firstDate: today,
-                        lastDate: DateTime(2100),
-                      );
-                      if (pickedDate != null) {
-                        final formattedDate = DateFormat(
-                          'dd/MM/yyyy',
-                        ).format(pickedDate);
-                        setState(() {
-                          selectedlicenseExpiryDate = formattedDate;
-                        });
-                      }
-                    },
-                    child: buildReadOnlyField(
-                      context.appText.licenseExpiryDate,
-                      selectedlicenseExpiryDate ?? 'Select date',
-                      fillColor: AppColors.white,
-                      mandatoryStar: true,
-                      textStyle:
-                          (selectedlicenseExpiryDate ?? "").isEmpty
-                              ? AppTextStyle.textFieldHint
-                              : AppTextStyle.textFiled.copyWith(
-                                color: AppColors.primaryTextColor,
-                              ),
+                  AbsorbPointer(
+                    absorbing: false,
+                    child: Listener(
+                    onPointerDown: (_) {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    }, 
+                    child: InkWell(
+                      onTap: () async {
+                        final DateTime today = DateTime.now();
+                        final DateTime? pickedDate = await showDatePicker(
+                          context: context,
+                          initialDate: today,
+                          firstDate: today,
+                          lastDate: DateTime(2100),
+                        );
+                        if (pickedDate != null) {
+                          final formattedDate = DateFormat(
+                            'dd/MM/yyyy',
+                          ).format(pickedDate);
+                          setState(() {
+                            selectedlicenseExpiryDate = formattedDate;
+                          });
+                        }
+                      },
+                      child: buildReadOnlyField(
+                        context.appText.licenseExpiryDate,
+                        selectedlicenseExpiryDate ?? 'Select date',
+                        fillColor: AppColors.white,
+                        mandatoryStar: true,
+                        textStyle:
+                            (selectedlicenseExpiryDate ?? "").isEmpty
+                                ? AppTextStyle.textFieldHint
+                                : AppTextStyle.textFiled.copyWith(
+                                  color: AppColors.primaryTextColor,
+                                ),
+                      ),
                     ),
+                  ),
                   ),
                   16.height,
                   AppTextField(
@@ -637,26 +678,40 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     ),
                   ),
                   16.height,
-                  LicenseCategoryDropdown(
-                    selectedCategory:
-                        selectedLicenseObj, 
-                    onChanged: (LicenseCategoryResponseModel? category) {
-                      setState(() {
-                        selectedLicenseObj = category; 
-                        selectedLicneseId =
-                            category?.id;
-                      });
-                    },
+                  AbsorbPointer(
+                    absorbing: false,
+                    child: Listener(
+                    onPointerDown: (_) {
+                    FocusScope.of(context).requestFocus(FocusNode());
+                    },                    
+                    child: LicenseCategoryDropdown(
+                      selectedCategory: selectedLicenseObj,
+                      onChanged: (LicenseCategoryResponseModel? category) {
+                        setState(() {
+                          selectedLicenseObj = category;
+                          selectedLicneseId = category?.id;
+                        });
+                      },
+                    ),
+                  ),
                   ),
                   16.height,
-                  BloodCategoryDropdown(
-                    selectedCategory: selectedBloodObj,
-                    onChanged: (BloodGroupResponseModel? category) {
-                      setState(() {
-                        selectedBloodObj = category;
-                        selectedBloodId = category?.id;
-                      });
+                  AbsorbPointer(
+                    absorbing: false,
+                    child: Listener(
+                    onPointerDown: (_) {
+                    FocusScope.of(context).requestFocus(FocusNode());
                     },
+                    child: BloodCategoryDropdown(
+                      selectedCategory: selectedBloodObj,
+                      onChanged: (BloodGroupResponseModel? category) {
+                        setState(() {
+                          selectedBloodObj = category;
+                          selectedBloodId = category?.id;
+                        });
+                      },
+                    ),
+                  ),
                   ),
                   16.height,
                   AppTextField(
@@ -967,7 +1022,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
           children: [
             /// License No Field
             AppTextField(
-               onChanged: (value) {
+              onChanged: (value) {
                 final verificationState =
                     context.read<MastersCubit>().state.licenseVerification;
                 if (verificationState.status == Status.SUCCESS) {
@@ -1009,41 +1064,49 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
             16.height,
 
             /// Date of Birth Picker
-            InkWell(
-              onTap: () async {
-                final DateTime today = DateTime.now();
-                final DateTime eighteenYearsAgo = DateTime(
-                  today.year - 18,
-                  today.month,
-                  today.day,
-                );
-
-                final DateTime? pickedDate = await showDatePicker(
-                  context: context,
-                  initialDate: eighteenYearsAgo,
-                  firstDate: DateTime(1900),
-                  lastDate: eighteenYearsAgo,
-                );
-
-                if (pickedDate != null) {
-                  final formattedDate = DateFormat(
-                    'dd/MM/yyyy',
-                  ).format(pickedDate);
-                  onDobChanged(formattedDate);
-                }
-              },
-              child: buildReadOnlyField(
-                "Date of Birth",
-                selectedDoB.isEmpty ? 'DOB' : selectedDoB,
-                fillColor: AppColors.white,
-                mandatoryStar: true,
-                textStyle:
-                    selectedDoB.isEmpty
-                        ? AppTextStyle.textFieldHint
-                        : AppTextStyle.textFiled.copyWith(
-                          color: AppColors.primaryTextColor,
-                        ),
+            AbsorbPointer(
+              absorbing: false, 
+              child: Listener(
+              onPointerDown: (_) {
+              FocusScope.of(context).requestFocus(FocusNode());
+              },                               
+              child: InkWell(
+                onTap: () async {
+                  final DateTime today = DateTime.now();
+                  final DateTime eighteenYearsAgo = DateTime(
+                    today.year - 18,
+                    today.month,
+                    today.day,
+                  );
+              
+                  final DateTime? pickedDate = await showDatePicker(
+                    context: context,
+                    initialDate: eighteenYearsAgo,
+                    firstDate: DateTime(1900),
+                    lastDate: eighteenYearsAgo,
+                  );
+              
+                  if (pickedDate != null) {
+                    final formattedDate = DateFormat(
+                      'dd/MM/yyyy',
+                    ).format(pickedDate);
+                    onDobChanged(formattedDate);
+                  }
+                },
+                child: buildReadOnlyField(
+                  "Date of Birth",
+                  selectedDoB.isEmpty ? 'DOB' : selectedDoB,
+                  fillColor: AppColors.white,
+                  mandatoryStar: true,
+                  textStyle:
+                      selectedDoB.isEmpty
+                          ? AppTextStyle.textFieldHint
+                          : AppTextStyle.textFiled.copyWith(
+                            color: AppColors.primaryTextColor,
+                          ),
+                ),
               ),
+            ),
             ),
             16.height,
 

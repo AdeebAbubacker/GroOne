@@ -37,6 +37,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
@@ -222,6 +223,9 @@ class _MasterScreenState extends State<MasterScreen>
   Widget _buildTab(String text, bool isSelected) {
     return Container(
       height: 30,
+      constraints: const BoxConstraints(
+      minWidth: 120, 
+    ),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
@@ -260,6 +264,7 @@ class _MasterScreenState extends State<MasterScreen>
           children: [
            15.height,
           TabBar(
+          tabAlignment: TabAlignment.center,
           isScrollable: true,
           padding: EdgeInsets.zero,
           labelPadding: EdgeInsets.only(right: 15),
@@ -276,7 +281,7 @@ class _MasterScreenState extends State<MasterScreen>
           unselectedLabelStyle: AppTextStyle.h6,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
           tabs:  getTabs(context),
-        ),
+        ).paddingLeft(7),
         Expanded(
               child: TabBarView(
                 controller: _tabController,
