@@ -31,6 +31,7 @@ import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
+import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -203,6 +204,27 @@ class ProfileService {
     }
   }
 
+  /// fetch issue groups
+   Future<Result<List<IssueCategoryResponse>>> fetchIssueGroups({String? search}) async {
+    try {
+      final response = await _apiService.get("${ApiUrls.createTicket}issue-categories");
+
+      if (response is Success) {
+        final list =
+            (response.value as List)
+                .map((json) => IssueCategoryResponse.fromJson(json))
+                .toList();
+        return Success(list);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+   }
+   
   /// fetch documents
   Future<Result<KycDocumentResponse>> fetchDocuments({
     required String userId,

@@ -8,6 +8,7 @@ class MastersState {
   final UIState<CreateDocumentModel>? createDocumentUIState;
   final UIState<DeleteDocumentModel>? deleteDocumentUIState;
   final UIState<EditUserResponse>? editUserUIState;
+  final UIState<List<IssueCategoryResponse>>? issueCategoryResponseUIState;
   const MastersState({
     required this.vehicleVerification,
      required this.licenseVerification,
@@ -15,11 +16,13 @@ class MastersState {
     this.deleteDocumentUIState,
     this.uploadlicenseDocUIState,
     this.editUserUIState,
+    this.issueCategoryResponseUIState,
   });
 
   factory MastersState.initial() => MastersState(
     vehicleVerification: UIState.initial(),
     licenseVerification: UIState.initial(),
+    issueCategoryResponseUIState: UIState.initial(),
   );
 
   MastersState copyWith({
@@ -28,7 +31,8 @@ class MastersState {
     UIState<CreateDocumentModel>? createDocumentUIState,
     UIState<DeleteDocumentModel>? deleteDocumentUIState,
     UIState<UploadLicenseDocumentModel>? uploadlicenseDocUIState,
-    UIState<EditUserResponse>? editUserUIState
+    UIState<EditUserResponse>? editUserUIState,
+    UIState<List<IssueCategoryResponse>>? issueCategoryResponseUIState
   }) {
     return MastersState(
       editUserUIState: editUserUIState??this.editUserUIState,
@@ -37,6 +41,7 @@ class MastersState {
       uploadlicenseDocUIState :uploadlicenseDocUIState ?? this.uploadlicenseDocUIState,
       createDocumentUIState: createDocumentUIState ?? this.createDocumentUIState,
       deleteDocumentUIState: deleteDocumentUIState ?? this.deleteDocumentUIState,
+      issueCategoryResponseUIState: issueCategoryResponseUIState ?? this.issueCategoryResponseUIState,
     );
   }
 }

@@ -43,7 +43,7 @@ class Ticket {
   Ticket({
     required this.ticketId,
     required this.customerId,
-    required this.issueCategory,
+    required this.issueCategoryUuid,
     required this.title,
     required this.description,
     required this.attachment,
@@ -58,7 +58,7 @@ class Ticket {
 
   final String ticketId;
   final String customerId;
-  final String issueCategory;
+  final String issueCategoryUuid;
   final String title;
   final String description;
   final List<String> attachment;
@@ -73,7 +73,7 @@ class Ticket {
   Ticket copyWith({
     String? ticketId,
     String? customerId,
-    String? issueCategory,
+    String? issueCategoryUuid,
     String? title,
     String? description,
     List<String>? attachment,
@@ -88,7 +88,7 @@ class Ticket {
     return Ticket(
       ticketId: ticketId ?? this.ticketId,
       customerId: customerId ?? this.customerId,
-      issueCategory: issueCategory ?? this.issueCategory,
+      issueCategoryUuid: issueCategoryUuid ?? this.issueCategoryUuid,
       title: title ?? this.title,
       description: description ?? this.description,
       attachment: attachment ?? this.attachment,
@@ -106,7 +106,7 @@ class Ticket {
     return Ticket(
       ticketId: json["ticket_id"] ?? "",
       customerId: json["customerId"] ?? "",
-      issueCategory: json["issueCategory"] ?? "",
+      issueCategoryUuid: json["issueCategoryUuid"] ?? "",
       title: json["title"] ?? "",
       description: json["description"] ?? "",
       attachment: json["attachment"] == null ? [] : List<String>.from(json["attachment"]!.map((x) => x)),
@@ -123,7 +123,7 @@ class Ticket {
   Map<String, dynamic> toJson() => {
     "ticket_id": ticketId,
     "customerId": customerId,
-    "issueCategory": issueCategory,
+    "issueCategoryUuid": issueCategoryUuid,
     "title": title,
     "description": description,
     "attachment": attachment.map((x) => x).toList(),
