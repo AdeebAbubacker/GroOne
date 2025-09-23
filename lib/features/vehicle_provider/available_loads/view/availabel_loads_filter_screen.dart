@@ -20,13 +20,16 @@ import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown_controller.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:collection/collection.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 class AvailableLoadsFilterScreen extends StatefulWidget {
-  const AvailableLoadsFilterScreen({super.key});
+  final Function(Map<String,dynamic> data) onFilterApplied;
+  const AvailableLoadsFilterScreen({super.key,required this.onFilterApplied});
 
   @override
   State<AvailableLoadsFilterScreen> createState() =>
@@ -46,6 +49,7 @@ class _AvailableLoadsFilterScreenState
   final filterCubit = locator<LoadFilterCubit>();
 
   final SearchableDropdownController<RouteList> controller=SearchableDropdownController();
+
 
   /// Selected Data
 
@@ -123,10 +127,14 @@ class _AvailableLoadsFilterScreenState
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(
-      title: context.appText.filter,
-      isCloseButton: false,
-      body: _buildBody(context: context),
+    return Column(
+      children: [
+        Text(
+          context.appText.filter,
+          style: AppTextStyle.body1.copyWith(fontSize: 20),
+        ),
+        _buildBody(context: context),
+      ],
     );
   }
 
@@ -134,6 +142,7 @@ class _AvailableLoadsFilterScreenState
     return Form(
       key: formKey,
       child: Column(
+
         children: [
           // Vehicle Type
           BlocBuilder<LoadFilterCubit, LoadFilterState>(
@@ -174,7 +183,7 @@ class _AvailableLoadsFilterScreenState
               LaneDetailsResponse? selectedItem=    routeList!.firstWhereOrNull(
                     (r) => r.masterLaneId == laneId,
               );
-              print("routeList is ${routeList.length}");
+
               return VpRouteSearchableDropdown(
                 labelText: context.appText.route,
                 hintText: context.appText.searchRoutes,
@@ -240,12 +249,21 @@ class _AvailableLoadsFilterScreenState
               // Apply
               AppButton(
                 onPressed: () {
-                  Navigator.pop(context, {
-                    "commodityId": commodityId,
-                    "truckTypeId": truckTypeId,
-                    "lensType": laneId,
-                  });
-                  filterCubit.setIsFilterApplied(value: true);
+                  if(commodityId!=null || truckTypeId!=null || laneId!=null){
+
+                    Map<String,dynamic> body= {
+                      "commodityId": commodityId,
+                      "truckTypeId": truckTypeId,
+                      "lensType": laneId,
+                    };
+
+                    widget.onFilterApplied(body);
+                    Navigator.pop(context,);
+                    filterCubit.setIsFilterApplied(value: true);
+                  }else{
+                    ToastMessages.alert(message: context.appText.filterEmptyWarning);
+                  }
+
                 },
                 title: context.appText.apply,
                 style: AppButtonStyle.primary,
