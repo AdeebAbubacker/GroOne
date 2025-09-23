@@ -1316,6 +1316,14 @@
   "pucExpiryDate" : "PUC समाप्ति दिनांक",
   "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें",
   "platformFee":"प्लेटफ़ॉर्म शुल्क",
+  "pleaseSelectLocationFromSuggestion" : "कृपया सुझावों में से एक स्थान चुनें",
+  "specialLicense": "विशेष लाइसेंस",
+  "experience": "अनुभव",
+  "communicationPrefernce": "संचार वरीयता",
+  "pleaseEnterCommPrefernce": "कृपया संचार वरीयता दर्ज करें",
+  "pleaseEnterExperience": "कृपया अपना अनुभव दर्ज करें",
+  "selectSpclLicense": "विशेष लाइसेंस चुनें"
+
   "pleaseSelectLocationFromSuggestion" : "कृपया सुझावों में से एक स्थान चुनें"
   "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें",
   "approved":"Approved",

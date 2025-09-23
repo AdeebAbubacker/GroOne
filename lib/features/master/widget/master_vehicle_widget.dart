@@ -126,7 +126,7 @@ Widget masterVehicleInfoWidget({
                       IconButton(
                       onPressed: onEdit,
                       icon: SvgPicture.asset(
-                          AppIcons.svg.eyeOutline ,
+                          AppIcons.svg.edit ,
                           colorFilter: ColorFilter.mode(
                          AppColors.primaryColor,
                           BlendMode.srcIn,
