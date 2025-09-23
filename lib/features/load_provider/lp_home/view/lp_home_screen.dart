@@ -273,19 +273,28 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
       return;
     }
     if (isKycValid == 2) {
-      String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-      if (firstPostedLoadId != null) {
-        if(!context.mounted) return;
-        AppDialog.show(
-            context,
-            child: KycInProgressDialogue(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-            ),
-        );
-        return;
-      }
+      // String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+      // if (firstPostedLoadId != null) {
+      //   if(!context.mounted) return;
+      //   AppDialog.show(
+      //       context,
+      //       child: KycInProgressDialogue(
+      //           onPressed: () {
+      //             Navigator.pop(context);
+      //           },
+      //       ),
+      //   );
+      //   return;
+      // }
+      AppDialog.show(
+        context,
+        child: KycInProgressDialogue(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      );
+      return;
     }
 
     if(rateDiscoveryPrice == '00000') return;
