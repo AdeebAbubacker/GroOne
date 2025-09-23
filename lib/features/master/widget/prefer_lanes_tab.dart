@@ -45,7 +45,7 @@ class _PreferLanesTabState extends State<PreferLanesTab> {
     return Column(
       children: [
         15.height,
-        _buildPreferLensWidget().expand(),
+        Expanded(child: SingleChildScrollView(child: _buildPreferLensWidget())),
         _buildUpdateButtonWidget(),
         20.height,
       ],

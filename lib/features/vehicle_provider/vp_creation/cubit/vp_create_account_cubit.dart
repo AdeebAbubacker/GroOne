@@ -81,9 +81,11 @@ class VpCreateAccountCubit extends BaseCubit<VpCreateAccountState> {
   Future<void> fetchPrefLane(String? location,{bool isInit=false,List<LaneDetailsResponse>? selectedLanes}) async {
 
     if(isInit){
+
       emit(state.copyWith(currentPage: 1, prefLaneUIState: UIState.loading()));
     }
     final existingModel = state.prefLaneUIState?.data;
+
     if (!isInit && existingModel != null) {
       final total = existingModel.data?.total ?? 0;
       final limit = existingModel.data?.limit ?? 0;

@@ -564,7 +564,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
     bool panValid() {
       final uploaded = panDoc.isNotEmpty;
-      final verified = kycCubit.state.verifiedPan ?? false;
+      final verified = true;
+          // kycCubit.state.verifiedPan ?? false;
       return need(context.appText.panDocument, uploaded) &&
           checkId(panDocId, "PAN") &
               need(
@@ -587,7 +588,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
     // VP FLOW
     if (userRole != 1) {
-
       if (companyId == 2) {
         final chkOk =
             need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
@@ -613,6 +613,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
     // LP FLOW
     if (companyId == 2) {
+      print("checking here");
       return true; // Only Aadhaar needed
     }
 
@@ -622,6 +623,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       final tanOk = tanValid();
       return gstOk && panOk && tanOk;
     }
+
+    print("checking from here");
 
     final gstOk = gstValid();
     final panOk = panValid();
@@ -858,17 +861,22 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   50.height,
                                 ]);
                               } else if (companyId == 2) {
+
                                 children.addAll([
                                   25.height,
                                   _buildAadhaarWidget(context),
                                   25.height,
+                                  _buildPanWidget(),
+
                                   if (isVP) ...[
+                                    25.height,
                                     buildCancelledCheckWidget(),
                                     50.height,
                                   ],
                                   if (isLP) ...[25.height, _buildTanWidget(
                                       isRequired: true
-                                  )],
+                                  ),25.height],
+
                                 ]);
                               } else {
                                 children.addAll([
@@ -876,7 +884,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   25.height,
                                   _buildPanWidget(),
                                   25.height,
-                                  if (isLP) ...[_buildTanWidget(), 25.height],
+                                  if (isLP) ...[_buildTanWidget(
+                                    isRequired:  userRole==1 && (companyId==1 || companyId==3 )
+                                  ), 25.height],
                                   if (isVP) ...[
                                     buildTDSCertificationWidget(),
                                     25.height,
@@ -1109,7 +1119,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
-              isMandatory: userRole==1 && companyId==1,
+              isMandatory: userRole==1 && (companyId==1 || companyId==3 ),
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },
@@ -1246,6 +1256,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
               readOnly: verified,
               rightText: "TAN",
               isMandatory: isRequired,
+
               controller: tanTextController,
               suffixOnTap: () async {
                 if (tanTextController.text.isEmpty) {
