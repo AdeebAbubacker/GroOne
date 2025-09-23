@@ -37,6 +37,7 @@ class LicenseCategoryDropdown extends StatelessWidget {
             color: Colors.white,
           ),
           child: SearchableDropdown<LicenseCategoryResponseModel>.paginated(
+            dialogOffset: 0,
             hintText: Text(context.appText.selectLicenseCategory, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
             requestItemCount: 10,

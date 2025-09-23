@@ -429,17 +429,23 @@ class _OurValueAddedServicesWidgetState
     return InkWell(
       onTap: onClick,
       child: Container(
-        width: 100,
+        constraints: const BoxConstraints(
+        minWidth: 120,  // 👈 always at least 100
+        maxWidth: 300,  // 👈 expand up to this if needed (you can adjust)
+      ),
         height: 90,
         decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.asset(imageString, width: 30),
-            10.height,
-
-            Text(title, textAlign: TextAlign.center, style: AppTextStyle.h6),
-          ],
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 3),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(imageString, width: 30),
+              10.height,
+          
+              Text(title, textAlign: TextAlign.center, style: AppTextStyle.h6),
+            ],
+          ),
         ),
       ),
     );

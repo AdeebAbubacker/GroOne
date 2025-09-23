@@ -1313,7 +1313,8 @@
   "insuranceValidityDate" : "बीमा वैधता दिनांक",
   "fcExpiryDate" : "एफसी समाप्ति दिनांक",
   "pucExpiryDate" : "PUC समाप्ति दिनांक",
-  "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें"
+  "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें",
+  "platformFee":"प्लेटफ़ॉर्म शुल्क"
 
 
 

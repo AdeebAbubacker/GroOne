@@ -426,7 +426,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                   style: AppTextStyle.textFieldHint,
                 ),
                 requestItemCount: 10,
-
+                dialogOffset: 0,
                 // Initial selected value
                 initialValue:
                     selectedDriver != null
@@ -525,7 +525,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                 ),
                 isDialogExpanded: false,
                 requestItemCount: 10,
-
+                dialogOffset: 0,
                 /// Initial selected value
                 initialValue:
                     selectedTruck != null

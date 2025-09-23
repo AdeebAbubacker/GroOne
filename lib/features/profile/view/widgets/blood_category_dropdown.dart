@@ -40,7 +40,7 @@ class BloodCategoryDropdown extends StatelessWidget {
             hintText: Text(context.appText.selectbloodGroup, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
             requestItemCount: 10,
-
+            dialogOffset: 0,
             /// initial value
             initialValue: selectedCategory != null
                 ? SearchableDropdownMenuItem<BloodGroupResponseModel>(
@@ -52,34 +52,32 @@ class BloodCategoryDropdown extends StatelessWidget {
 
             /// fetch items with pagination
            paginatedRequest: (int page, String? searchKey) async {
-  final cubit = context.read<ProfileCubit>();
+          final cubit = context.read<ProfileCubit>();
 
-  // Fetch all blood groups only once if not already fetched
-  if (cubit.state.bloodGroupResponseUIState?.data == null ||
-      cubit.state.bloodGroupResponseUIState!.data!.isEmpty) {
-    await cubit.fetchBloodGroup();
-  }
+          // Fetch all blood groups only once if not already fetched
+          if (cubit.state.bloodGroupResponseUIState?.data == null ||
+              cubit.state.bloodGroupResponseUIState!.data!.isEmpty) {
+            await cubit.fetchBloodGroup();
+          }
 
-  final allGroups = cubit.state.bloodGroupResponseUIState?.data ?? [];
+          final allGroups = cubit.state.bloodGroupResponseUIState?.data ?? [];
 
-  // Apply local search
-  final filteredGroups = (searchKey == null || searchKey.isEmpty)
-      ? allGroups
-      : allGroups.where((g) =>
-          (g.groupName ?? '').toLowerCase().contains(searchKey.toLowerCase())
-        ).toList();
+          // Apply local search
+          final filteredGroups = (searchKey == null || searchKey.isEmpty)
+              ? allGroups
+              : allGroups.where((g) =>
+                  (g.groupName ?? '').toLowerCase().contains(searchKey.toLowerCase())
+                ).toList();
 
-  return filteredGroups.map((e) {
-    return SearchableDropdownMenuItem<BloodGroupResponseModel>(
-      value: e,
-      label: e.groupName ?? '',
-      child: Text(e.groupName ?? ''),
-    );
-  }).toList();
-},
-
-
-            onChanged: onChanged,
+          return filteredGroups.map((e) {
+            return SearchableDropdownMenuItem<BloodGroupResponseModel>(
+              value: e,
+              label: e.groupName ?? '',
+              child: Text(e.groupName ?? ''),
+            );
+          }).toList();
+        },
+          onChanged: onChanged,
           ),
         ),
       ],

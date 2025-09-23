@@ -1139,7 +1139,9 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                     // LpBottomNavigation.selectedIndexNotifier.value = 1;
                                     lpBottomNavKey.currentState?.onItemTapped(1);
                                   },
-                                  style: AppButtonStyle.primaryTextButton,
+                                  style: AppButtonStyle.primaryTextButton.copyWith(
+                                  fixedSize: WidgetStateProperty.all(const Size(130, 20)),
+                                  ),
                                   child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor, textAlign: TextAlign.center),
                                 ),
 
