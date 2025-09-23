@@ -29,7 +29,10 @@ class BloodCategoryDropdown extends StatelessWidget {
           children: [
             Text(context.appText.bloodGroup, style: AppTextStyle.textFiled),
             const SizedBox(width: 2),
-            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+            Text(
+              " *",
+              style: AppTextStyle.textFiled.copyWith(color: Colors.red),
+            ),
           ],
         ),
         const SizedBox(height: 6),
@@ -40,18 +43,22 @@ class BloodCategoryDropdown extends StatelessWidget {
             color: isEdit ? AppColors.lightGreyColor : Colors.white,
           ),
           child: SearchableDropdown<BloodGroupResponseModel>.paginated(
-            hintText: Text(context.appText.selectbloodGroup, style: AppTextStyle.textFieldHint),
+            hintText: Text(
+              context.appText.selectbloodGroup,
+              style: AppTextStyle.textFieldHint,
+            ),
             isDialogExpanded: false,
             requestItemCount: 10,
             dialogOffset: 0,
             /// initial value
-            initialValue: selectedCategory != null
-                ? SearchableDropdownMenuItem<BloodGroupResponseModel>(
-                    value: selectedCategory!,
-                    label: selectedCategory!.groupName ?? '',
-                    child: Text(selectedCategory!.groupName ?? ''),
-                  )
-                : null,
+            initialValue:
+                selectedCategory != null
+                    ? SearchableDropdownMenuItem<BloodGroupResponseModel>(
+                      value: selectedCategory!,
+                      label: selectedCategory!.groupName ?? '',
+                      child: Text(selectedCategory!.groupName ?? ''),
+                    )
+                    : null,
 
             /// fetch items with pagination
            paginatedRequest: (int page, String? searchKey) async {

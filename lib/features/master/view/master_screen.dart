@@ -235,6 +235,7 @@ class _MasterScreenState extends State<MasterScreen>
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Text(
           text,
+          maxLines: 1,
           style: AppTextStyle.h6.copyWith(
             fontWeight: FontWeight.w600,
             color: isSelected ? AppColors.white : AppColors.black,

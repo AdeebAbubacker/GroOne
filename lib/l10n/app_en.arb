@@ -1373,5 +1373,14 @@
   "pleaseEnterCommPrefernce": "Please enter Communication Preference",
   "pleaseEnterExperience": "Please enter your Experience",
   "selectSpclLicense": "Select Special License"
+  "pleaseSelectLocationFromSuggestion":"Please select a location from the suggestions"
+  "pleaseSelectOneFilter":"Please select any one filter",
+  "approved":"Approved",
+  "rejected":"Rejected",
+  "trip":"TRIP",
+  "credits":"CREDITS",
+  "debits":"DEBITS",
+  "total":"TOTAL",
+  "filterEmptyWarning":"Please select at least one filter."
 
 }
