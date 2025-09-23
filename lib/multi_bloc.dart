@@ -12,6 +12,7 @@ import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_tab_cubit.d
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
@@ -201,6 +202,7 @@ class MultiBlocWrapper extends StatelessWidget {
           create: (_) => locator<PrivacyPolicyBloc>(),
         ),
         BlocProvider<VpHomeCubit>(create: (_) => locator<VpHomeCubit>()),
+        BlocProvider<GpsOrderListCubit>(create: (_) => locator<GpsOrderListCubit>()),
       ],
 
       child: child,

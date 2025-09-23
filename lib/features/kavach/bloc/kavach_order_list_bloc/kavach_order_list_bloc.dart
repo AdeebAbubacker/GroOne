@@ -34,11 +34,14 @@ class KavachOrderListBloc
   }) async {
     final currentState = state;
     int nextPage = 1;
+    if (!event.isRefresh) {
+      emit(KavachOrderListLoading());
+    }
 
     if (event.isRefresh) {
       nextPage = 1;
     } else if (currentState is KavachOrderListLoaded) {
-      if (currentState.hasReachedMax) return;
+      if (currentState.hasReachedMax && event.isRefresh) return;
       nextPage = currentState.page + 1;
     }
 

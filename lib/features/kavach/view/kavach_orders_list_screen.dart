@@ -42,13 +42,14 @@ class KavachOrdersListScreen extends StatefulWidget {
 
 class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     with TickerProviderStateMixin {
-  final _ordersBloc = locator<KavachOrderListBloc>();
+  KavachOrderListBloc _ordersBloc = locator<KavachOrderListBloc>();
   TabController? _tabController;
   final tabScrollController = ScrollController();
   final ScrollController _scrollController = ScrollController();
   List<KavachOrderListOrderItem> allOrders = [];
   bool initialBuild = true;
   int page = 1;
+  bool orderHasPlaced = false;
   List<String> tabLabels = [];
   final PageStorageBucket _bucket = PageStorageBucket();
 
@@ -57,6 +58,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
+        _ordersBloc = context.read<KavachOrderListBloc>();
         tabLabels = [
           context.appText.all,
           context.appText.orderPlaced,
@@ -68,25 +70,21 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
         _tabController!.addListener(() {
           if (!_tabController!.indexIsChanging && mounted) {
             final index = _tabController!.index;
-            _scrollTabToCenter(index);
             allOrders.clear();
             page = 1;
-            final status = _getStatusForIndex(_tabController!.index);
+            final status = _getStatusForIndex(index);
             _ordersBloc.add(
               FetchKavachOrderList(status: status, isRefresh: true, page: page),
             );
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              _scrollTabToCenter(_tabController!.index);
-            });
           }
         });
         _scrollTabToCenter(_tabController!.index);
       });
     });
     _scrollController.addListener(_onScroll);
-    _ordersBloc.add(
-      FetchKavachOrderList(forceRefresh: true, isRefresh: true, page: page),
-    );
+    // _ordersBloc.add(
+    //   FetchKavachOrderList(forceRefresh: true, isRefresh: true, page: page),
+    // );
   }
 
   @override
@@ -205,6 +203,9 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           debugPrint('dshdshsf=>${state.orders.length}');
           initialBuild = false;
           allOrders.addAll(state.orders);
+          if (!orderHasPlaced) {
+            orderHasPlaced = true;
+          }
         } else if (state is KavachOrderListError) {
           debugPrint('dshdshsf=>${state.message}');
           initialBuild = false;
@@ -279,9 +280,14 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
             body: const Center(child: CircularProgressIndicator()),
           );
         } else if (state is KavachOrderListLoaded &&
-            state.kycStatusUpdated != null &&
-            !state.kycStatusUpdated!) {
+            (state.kycStatusUpdated == null ||
+                ((state.kycStatusUpdated != null && !state.kycStatusUpdated!) ||
+                    (state.kycStatusUpdated! && !orderHasPlaced)))) {
           return Scaffold(
+            appBar: CommonAppBar(
+              title: context.appText.fuelSecurityDevice,
+              centreTile: false,
+            ),
             body: kavachBenifitsWidget(context),
             bottomNavigationBar: buildGetYourTankLockButtonWidget(
               state,
@@ -378,15 +384,36 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                         ),
                         child: GestureDetector(
                           onTap: () {
-                            if (_tabController!.index != index) {
-                              // Reset pagination & fetch again
-                              setState(() {
-                                page = 1;
-                                allOrders.clear();
-                                _tabController!.animateTo(index);
-                                _scrollTabToCenter(index);
-                              });
-                            }
+                            GestureDetector(
+                              onTap: () {
+                                if (_tabController!.index != index) {
+                                  // Reset pagination
+                                  page = 1;
+
+                                  // Optionally keep current list until new data comes
+                                  // allOrders.clear(); // <- remove this line
+
+                                  // Animate tab change
+                                  _tabController!.index = index;
+
+                                  // Scroll tab bar
+                                  // WidgetsBinding.instance.addPostFrameCallback((
+                                  //   _,
+                                  // ) {
+                                  //   _scrollTabToCenter(index);
+                                  // });
+
+                                  // Fetch new orders
+                                  _ordersBloc.add(
+                                    FetchKavachOrderList(
+                                      status: _getStatusForIndex(index),
+                                      page: page,
+                                      isRefresh: true,
+                                    ),
+                                  );
+                                }
+                              },
+                            );
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
@@ -439,6 +466,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     final tabWidth = 100.0; // approximate width of one tab
     final screenWidth = MediaQuery.of(context).size.width;
     final offset = (tabWidth * index) - (screenWidth / 2 - tabWidth / 2);
+    if (!tabScrollController.hasClients) return;
     tabScrollController.animateTo(
       offset.clamp(0.0, tabScrollController.position.maxScrollExtent),
       duration: Duration(milliseconds: 300),

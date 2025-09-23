@@ -35,6 +35,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_cubit/gp
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
@@ -782,6 +783,9 @@ void _registerDeferredBlocs() {
       locator<VpHomeRepository>(),
       locator<UserInformationRepository>(),
     ),
+  );
+  locator.registerLazySingleton(
+    () => GpsOrderListCubit(locator<GpsOrderApiRepository>()),
   );
 
   // Verify GPS cubits are registered

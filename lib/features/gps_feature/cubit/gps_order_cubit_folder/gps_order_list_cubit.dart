@@ -11,11 +11,7 @@ class GetGpsOrderList extends GpsOrderListEvent {
   final int page;
   final int limit;
 
-  GetGpsOrderList({
-    required this.customerId,
-    this.page = 1,
-    this.limit = 10,
-  });
+  GetGpsOrderList({required this.customerId, this.page = 1, this.limit = 10});
 }
 
 // States
@@ -51,25 +47,28 @@ class GpsOrderListCubit extends Cubit<GpsOrderListState> {
     return super.close();
   }
 
-  /// Reset the cubit state and reopen it for use
   void resetCubit() {
     _isClosed = false;
     emit(GpsOrderListInitial());
   }
+
 
   Future<void> getOrderList({
     required String customerId,
     int page = 1,
     int limit = 10,
     bool isRefresh = false,
+    String? statusParam,
   }) async {
-    if (_isClosed) {
-      return;
-    }
+    // if (_isClosed) {
+    //   return;
+    // }
 
     if (isRefresh) {
       emit(GpsOrderListLoading());
     } else if (state is! GpsOrderListLoaded) {
+      emit(GpsOrderListLoading());
+    } else if (!isRefresh) {
       emit(GpsOrderListLoading());
     }
 
@@ -78,10 +77,10 @@ class GpsOrderListCubit extends Cubit<GpsOrderListState> {
         customerId: customerId,
         page: page,
         limit: limit,
+        statusParam: statusParam,
       );
 
-      if (_isClosed) return; // Check again after async operation
-
+      // if (_isClosed) return; // Check again after async operation
       if (result is Success<GpsOrderListResponse>) {
         emit(GpsOrderListLoaded(result.value, isRefresh: isRefresh));
       } else if (result is Error<GpsOrderListResponse>) {
@@ -102,4 +101,4 @@ class GpsOrderListCubit extends Cubit<GpsOrderListState> {
       getOrderList(customerId: customerId, isRefresh: true);
     }
   }
-} 
+}

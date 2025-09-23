@@ -646,6 +646,7 @@ class GpsOrderApiService {
     required String customerId,
     int page = 1,
     int limit = 10,
+    String? statusParam,
   }) async {
     try {
       CustomLog.debug(
@@ -658,6 +659,7 @@ class GpsOrderApiService {
         'page': page.toString(),
         'limit': limit.toString(),
         'fleetProductId': "1",
+        'status': statusParam,
       };
 
       final result = await _apiService.get(
