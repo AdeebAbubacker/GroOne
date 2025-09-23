@@ -1315,7 +1315,16 @@
   "pucExpiryDate" : "PUC காலாவதி",
   "pleaseSelectOneFilter" : "தயவுசெய்து ஏதேனும் ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்",
   "platformFee":"தளம் கட்டணம்",
-  "pleaseSelectLocationFromSuggestion" : "பிரஸ்தாபங்களிலிருந்து ஒரு இடத்தை தேர்ந்தெடுக்கவும்"
+  "pleaseSelectLocationFromSuggestion" : "பிரஸ்தாபங்களிலிருந்து ஒரு இடத்தை தேர்ந்தெடுக்கவும்",
+  "pleaseSelectLocationFromSuggestion": "தயவுசெய்து பரிந்துரைகளில் இருந்து ஒரு இடத்தைத் தேர்ந்தெடுக்கவும்",
+  "specialLicense": "சிறப்பு அனுமதி",
+  "experience": "அனுபவம்",
+  "communicationPrefernce": "தொடர்பு விருப்பம்",
+  "pleaseEnterCommPrefernce": "தயவுசெய்து தொடர்பு விருப்பத்தை உள்ளிடவும்",
+  "pleaseEnterExperience": "தயவுசெய்து உங்கள் அனுபவத்தை உள்ளிடவும்",
+  "selectSpclLicense": "சிறப்பு அனுமதியைத் தேர்ந்தெடுக்கவும்"
+
+
 
 
 
