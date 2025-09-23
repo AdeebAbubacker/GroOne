@@ -50,14 +50,15 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final tag = widget.ticketTag ??
-          (profileCubit.userRole == 1
-              ? TicketTags.LOAD_PROVIDER
-              : profileCubit.userRole == 2
-              ? TicketTags.VEHICLE_PROVIDER
-              : profileCubit.userRole == 3
-              ? TicketTags.BOTH_LP_VP
-              : '');
+      final tag = (widget.ticketTag ?? '').isNotEmpty
+          ? widget.ticketTag ?? ''
+          : (profileCubit.userRole == 1
+          ? TicketTags.LOAD_PROVIDER
+          : profileCubit.userRole == 2
+          ? TicketTags.VEHICLE_PROVIDER
+          : profileCubit.userRole == 3
+          ? TicketTags.BOTH_LP_VP
+          : '');
 
        await profileCubit.createTicket(
         request: CreateTicketRequest(

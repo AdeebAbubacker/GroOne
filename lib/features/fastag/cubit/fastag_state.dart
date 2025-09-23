@@ -2,8 +2,8 @@
 part of 'fastag_cubit.dart';
 
 class FastagState extends Equatable {
-  final List frontRcDocuments;
-  final List backRcDocuments;
+  final List<List<Map<String, String>>> frontRcDocuments;
+  final List<List<Map<String, String>>> backRcDocuments;
   final bool isFrontRcUploaded;
   final bool isBackRcUploaded;
   final UIState<DocumentUploadResponse?> documentUploadUIState;
@@ -11,10 +11,9 @@ class FastagState extends Equatable {
   final UIState<FastagListResponse?> fastagListUIState;
   final bool shouldNavigateToBuyFastag;
 
-
   const FastagState({
-    required this.frontRcDocuments,
-    required this.backRcDocuments,
+    this.frontRcDocuments = const [[]],
+    this.backRcDocuments = const [[]],
     required this.isFrontRcUploaded,
     required this.isBackRcUploaded,
     required this.documentUploadUIState,
@@ -24,8 +23,8 @@ class FastagState extends Equatable {
   });
 
   factory FastagState.initial() => FastagState(
-    frontRcDocuments: [],
-    backRcDocuments: [],
+    frontRcDocuments: [[]],
+    backRcDocuments: [[]],
     isFrontRcUploaded: false,
     isBackRcUploaded: false,
     documentUploadUIState: UIState.initial(),
@@ -35,8 +34,8 @@ class FastagState extends Equatable {
   );
 
   FastagState copyWith({
-    List? frontRcDocuments,
-    List? backRcDocuments,
+    final List<List<Map<String, String>>>? frontRcDocuments,
+    final List<List<Map<String, String>>>? backRcDocuments,
     bool? isFrontRcUploaded,
     bool? isBackRcUploaded,
     UIState<DocumentUploadResponse?>? documentUploadUIState,
@@ -49,10 +48,12 @@ class FastagState extends Equatable {
       backRcDocuments: backRcDocuments ?? this.backRcDocuments,
       isFrontRcUploaded: isFrontRcUploaded ?? this.isFrontRcUploaded,
       isBackRcUploaded: isBackRcUploaded ?? this.isBackRcUploaded,
-      documentUploadUIState: documentUploadUIState ?? this.documentUploadUIState,
+      documentUploadUIState:
+          documentUploadUIState ?? this.documentUploadUIState,
       pincodeVerifyUIState: pincodeVerifyUIState ?? this.pincodeVerifyUIState,
       fastagListUIState: fastagListUIState ?? this.fastagListUIState,
-      shouldNavigateToBuyFastag: shouldNavigateToBuyFastag ?? this.shouldNavigateToBuyFastag,
+      shouldNavigateToBuyFastag:
+          shouldNavigateToBuyFastag ?? this.shouldNavigateToBuyFastag,
     );
   }
 

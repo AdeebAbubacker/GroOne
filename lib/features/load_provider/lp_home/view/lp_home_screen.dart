@@ -50,6 +50,7 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/update_popup.dart';
@@ -344,6 +345,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     var companyId = profileCubit.state.profileDetailUIState?.data?.customer?.companyTypeId;
     commonBottomSheetWithBGBlur(
       screen: KycPendingDialogue(
+
+        isLp: true,
         onPressed: () {
           context.pop();
           if(companyId != null && (companyId == 2 || companyId == 1)) {
@@ -415,6 +418,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     return Scaffold(
       appBar: buildAppBarWidget(context, role),
       body: isLoading ? CircularProgressIndicator().center() : buildBodyWidget(context, role),
+      floatingActionButton: ChatActionButton(),
     );
   }
 
@@ -709,12 +713,12 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                           heading: context.appText.source,
                           subHeading: pickupLocation ?? context.appText.selectPickUpPoint,
                           onClick: () async {
-                            final uiState = state.recentRouteUIState;
+                            final uiState = state.recentRouteState;
 
                             if (uiState != null) {
                               switch (uiState.status) {
                                 case Status.SUCCESS:
-                                  if (uiState.data != null && uiState.data!.data.data.isNotEmpty && pickupLocation == null) {
+                                  if (uiState.data != null && uiState.data!.data.data.isNotEmpty) {
                                     navigateToRecentRouteScreen();
                                   } else {
                                     ToastMessages.alert(message: context.appText.noRecentRouteFound);
@@ -1132,7 +1136,8 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
                                 if(state.lpGetLoadUIState!.data!.data.isNotEmpty)
                                 TextButton(
                                   onPressed: () {
-                                    LpBottomNavigation.selectedIndexNotifier.value = 1;
+                                    // LpBottomNavigation.selectedIndexNotifier.value = 1;
+                                    lpBottomNavKey.currentState?.onItemTapped(1);
                                   },
                                   style: AppButtonStyle.primaryTextButton,
                                   child: Text(context.appText.seeMore, style: AppTextStyle.body3WhiteColor, textAlign: TextAlign.center),

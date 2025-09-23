@@ -852,7 +852,8 @@
   "possibleDeliveryDateValidation": "संभावित डिलीवरी तिथि आवश्यक है",
   "tonn": "टन",
   "kycPending": "केवाईसी लंबित है",
-  "completeKycAlertDescription": "लोड स्वीकार करने के लिए कृपया अपनी केवाईसी पूरी करें",
+  "completeKycAlertDescriptionLp": "कृपया लोड पोस्ट करने के लिए अपना केवाईसी पूरा करें",
+  "completeKycAlertDescriptionVp": "लोड स्वीकार करने के लिए कृपया अपना केवाईसी पूरा करें",
   "goToKyc": "केवाईसी पर जाएं",
   "blueMemberGeneratedSuccessfully": "ब्लू मेंबरशिप आईडी सफलतापूर्वक जनरेट की गई",
   "startExploringPremiumLoadOption": "आज ही प्रीमियम लोड विकल्पों की खोज शुरू करें",
@@ -1294,7 +1295,25 @@
   "engineOn":"इंजन चालू",
   "idleTime":"बेकार का समय",
   "colorCode":"रंग कोड",
-  "accountDeletedSuccessfully": "खाता सफलतापूर्वक हटा दिया गया"
+  "accountDeletedSuccessfully": "खाता सफलतापूर्वक हटा दिया गया",
+  "updateLanes" : "लेन अपडेट",
+  "stateisRequired": "राज्य आवश्यक है",
+  "cityisRequired" : "शहर आवश्यक है",
+  "gstNo" : "शहर आवश्यक है",
+  "driverIsRequired" : "ड्राइवर की आवश्यकता है",
+  "vehicleIsRequired" : "वाहन की आवश्यकता है",
+  "capacityisRequired": "क्षमता आवश्यक है",
+  "allFieldsRequired" : "सभी फ़ील्ड आवश्यक हैं",
+  "licenseCategoryRequired" : "लाइसेंस श्रेणी आवश्यक है",
+  "bloodGroupRequired" : "रक्त समूह आवश्यक है",
+  "sorryUnserveicedLoad" : "माफ़ कीजिए, लोड सेवा में नहीं है।",
+  "accountCreatedSuccessfullyVpSubHeading": "अब आप रेट्स देख सकते हैं\nऔर लोड्स स्वीकार कर सकते हैं।",
+  "lanes": "लाइनों",
+  "waitingForLpToConfirmed": "लोड प्रोवाइडर पुष्टि की प्रतीक्षा",
+  "insuranceValidityDate" : "बीमा वैधता दिनांक",
+  "fcExpiryDate" : "एफसी समाप्ति दिनांक",
+  "pucExpiryDate" : "PUC समाप्ति दिनांक",
+  "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें"
 
 
 

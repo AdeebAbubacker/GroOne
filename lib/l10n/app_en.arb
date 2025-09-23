@@ -64,9 +64,9 @@
   "vehicleType": "Vehicle Type",
   "selectVehicleType": "Select Vehicle type",
   "lane": "Lane",
-  "selectLaneType": "Select lane type",
+  "selectLaneType": "Select lane",
   "roadType": "Road Type",
-  "selectRoadType": "Select road type",
+  "selectRoadType": "Select load type",
   "cancel": "Cancel",
   "apply": "Apply",
   "tripTracking": "Trip Tracking",
@@ -832,7 +832,7 @@
   "viewFiles":"View Files",
   "days":"Days",
   "settlementRecordedSuccessfully":"Your settlement details has been recorded.",
-    "updateLanes":"Update lanes",
+  "updateLanes":"Update lanes",
 
 
   "pod":"Proof of Document",
@@ -854,7 +854,8 @@
   "possibleDeliveryDateValidation":"Possible Delivery date is required",
   "tonn":"Ton",
   "kycPending":"KYC Pending",
-  "completeKycAlertDescription":"Please complete your KYC to accept load",
+  "completeKycAlertDescriptionLp":"Please complete your KYC to post loads",
+  "completeKycAlertDescriptionVp":"Please complete your KYC to accept load",
   "goToKyc":"Go to KYC",
   "blueMemberGeneratedSuccessfully":"Blue membership ID generated Successfully",
   "startExploringPremiumLoadOption":"Start exploring premium load options today",
@@ -1345,7 +1346,24 @@
   "idleTime":"Idle Time",
   "colorCode":"Color Code",
   "filterApplied":"Filter Applied",
-  "accountDeletedSuccessfully" : "Account Deleted Successfully"
-
+  "accountDeletedSuccessfully" : "Account Deleted Successfully",
+  "stateisRequired":"State is required",
+  "cityisRequired" : "City is required",
+  "gstNo" : "GST",
+  "driverIsRequired" : "Driver is Required",
+  "vehicleIsRequired" : "Vehicle is Required",
+  "capacityisRequired": "Capacity is Required",
+  "allFieldsRequired" : "All Fields are Required",
+  "licenseCategoryRequired" : "License Category is required",
+  "bloodGroupRequired" : "Blood group is required",
+  "sorryUnserveicedLoad" : "Sorry load is unserviced",
+  "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads",
+  "insuranceValidityDate" : "Insurance Validity Date",
+  "fcExpiryDate" : "FC Expiry Date",
+  "pucExpiryDate" : "PUC Expiry Date",
+  "accountCreatedSuccessfullyVpSubHeading": "Now you can explore the rates\nand accept loads",
+  "gstNo" : "GST",
+  "kycRejected":"Your kyc is rejected",
+  "pleaseSelectOneFilter":"Please select any one filter"
 
 }

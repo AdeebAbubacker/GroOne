@@ -58,6 +58,8 @@ class CustomerAddress {
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final dynamic deletedAt;
+  final int cityId;
+  final int stateId;
 
   CustomerAddress({
     required this.preferedAddressId,
@@ -75,6 +77,8 @@ class CustomerAddress {
     required this.createdAt,
     required this.updatedAt,
     required this.deletedAt,
+    required this.cityId,
+    required this.stateId,
   });
 
   factory CustomerAddress.fromJson(Map<String, dynamic> json) {
@@ -94,6 +98,8 @@ class CustomerAddress {
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       updatedAt: DateTime.tryParse(json["updatedAt"] ?? ""),
       deletedAt: json["deletedAt"],
+      cityId: int.tryParse(json["cityId"]?.toString() ?? '') ?? 1,
+      stateId: int.tryParse(json["stateId"]?.toString() ?? '') ?? 1,
     );
   }
 

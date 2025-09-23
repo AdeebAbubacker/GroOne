@@ -23,7 +23,10 @@ import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 
+
+final List<int> navigationHistoryVP = [0];
 class VPBottomNavigationBar extends StatefulWidget {
+
   const VPBottomNavigationBar({super.key});
 
   @override
@@ -38,18 +41,20 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   late final DocumentTypeCubit documentTypeCubit;
 
   ProfileDetailModel? profileResponse;
-
+  static final ValueNotifier<int> selectedIndexNotifier = ValueNotifier<int>(0);
   String profileImage = "";
 
   int selectedIndex = 0;
   int vpAllLoadsInitialTabIndex = 0;
   int bottomHt = 50;
 
+
   @override
   void initState() {
     // Initialize profileCubit here to ensure dependency injection is ready
     profileCubit = locator<ProfileCubit>();
     documentTypeCubit = locator<DocumentTypeCubit>();
+    profileCubit.switchToVp(true);
     initFunction();
     super.initState();
   }
@@ -62,7 +67,6 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   });
 
   void onItemTapped(int index) {
-
     if(index == 3) {
       AppDialog.show(context, child: CommonDialogView(
         showYesNoButtonButtons: true,
@@ -79,11 +83,16 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
         ),
         onClickYesButton: () {
           analyticsHelper.logEvent(AnalyticEventName.SWITCH_TO_LP);
+          profileCubit.switchToVp(false);
           changeTab(index, allLoadsSubTabIndex: 0);
         },
       ));
     } else {
+      if (selectedIndexNotifier.value != index) {
+        navigationHistoryVP.add(index); // push to history
+      }
       changeTab(index, allLoadsSubTabIndex: 0);
+
     }
     if(index==0){
       analyticsHelper.logEvent(AnalyticEventName.VP_HOME);
@@ -93,19 +102,18 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
   }
 
   void changeTab(int bottomTabIndex, {int? allLoadsSubTabIndex}) {
-    setState(() {
-      selectedIndex = bottomTabIndex;
-      if (allLoadsSubTabIndex != null) {
-        vpAllLoadsInitialTabIndex = allLoadsSubTabIndex;
-      } else {
-        vpAllLoadsInitialTabIndex = 0;
-      }
-      int? role = profileCubit.userRole;
+    selectedIndexNotifier.value = bottomTabIndex;
+    if (allLoadsSubTabIndex != null) {
+      vpAllLoadsInitialTabIndex = allLoadsSubTabIndex;
+    } else {
+      vpAllLoadsInitialTabIndex = 0;
+    }
 
-      if (selectedIndex == 3 && (role != null && role == 3)) {
-        context.go(AppRouteName.lpBottomNavigationBar);
-      }
-    });
+    int? role = profileCubit.userRole;
+
+    if ( selectedIndexNotifier.value == 3 && (role != null && role == 3)) {
+      context.go(AppRouteName.lpBottomNavigationBar);
+    }
   }
 
   List<Widget> get _pages {
@@ -140,51 +148,70 @@ class _VPBottomNavigationBarState extends State<VPBottomNavigationBar> {
           _pages.add(VpHomeScreen(onViewAllOrSeeMore: changeTab));
         }
 
-        return Scaffold(
-          body: _pages[selectedIndex],
-          bottomNavigationBar: BottomNavigationBar(
-            backgroundColor: AppColors.primaryColor,
-            type: BottomNavigationBarType.fixed,
-            selectedItemColor: Colors.white,
-            unselectedItemColor: Colors.white54,
-            currentIndex: selectedIndex,
-            onTap: onItemTapped,
-            items: [
-              BottomNavigationBarItem(
-                icon: const Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: Icon(CupertinoIcons.home),
-                ),
-                label: context.appText.home,
-              ),
+        return ValueListenableBuilder(
+          valueListenable:selectedIndexNotifier ,
+          builder: (context, selectedIndex, _)  {
+            final safeIndex = selectedIndex.clamp(0, _pages.length - 1);
 
-              BottomNavigationBarItem(
-                icon: const Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: Icon(CupertinoIcons.cube),
-                ),
-                label: context.appText.myLoads,
-              ),
 
-              BottomNavigationBarItem(
-                icon: Padding(
-                  padding: EdgeInsets.only(top: 10.0),
-                  child: Icon(Icons.headset_mic_rounded),
-                ),
-                label: context.appText.support,
-              ),
+            return WillPopScope(
+              onWillPop: () async {
 
-              if (profileCubit.userRole != null && profileCubit.userRole == 3)
-                BottomNavigationBarItem(
-                  icon: Padding(
-                    padding: EdgeInsets.only(top: 10.0),
-                    child: Icon(Icons.compare_arrows_rounded),
-                    //child: SvgPicture.asset(AppIcons.svg.switchIcon),
-                  ),
-                  label: context.appText.switchAccount,
+                if (navigationHistoryVP.length > 1) {
+                  navigationHistoryVP.removeLast();
+                  selectedIndexNotifier.value = navigationHistoryVP.last;
+                  return false; // prevent app exit
+                }
+                return true;
+              },
+              child: Scaffold(
+                body: _pages[safeIndex],
+                bottomNavigationBar: BottomNavigationBar(
+                  backgroundColor: AppColors.primaryColor,
+                  type: BottomNavigationBarType.fixed,
+                  selectedItemColor: Colors.white,
+                  unselectedItemColor: Colors.white54,
+                  currentIndex: safeIndex,
+                  onTap: onItemTapped,
+                  items: [
+                    BottomNavigationBarItem(
+                      icon: const Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Icon(CupertinoIcons.home),
+                      ),
+                      label: context.appText.home,
+                    ),
+
+                    BottomNavigationBarItem(
+                      icon: const Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Icon(CupertinoIcons.cube),
+                      ),
+                      label: context.appText.myLoads,
+                    ),
+
+                    BottomNavigationBarItem(
+                      icon: Padding(
+                        padding: EdgeInsets.only(top: 10.0),
+                        child: Icon(Icons.headset_mic_rounded),
+                      ),
+                      label: context.appText.support,
+                    ),
+
+                    if (profileCubit.userRole != null && profileCubit.userRole == 3)
+                      BottomNavigationBarItem(
+                        icon: Padding(
+                          padding: EdgeInsets.only(top: 10.0),
+                          child: Icon(Icons.compare_arrows_rounded),
+                          //child: SvgPicture.asset(AppIcons.svg.switchIcon),
+                        ),
+                        label: context.appText.switchAccount,
+                      ),
+                  ],
                 ),
-            ],
-          ),
+              ),
+            );
+          }
         );
       },
     );

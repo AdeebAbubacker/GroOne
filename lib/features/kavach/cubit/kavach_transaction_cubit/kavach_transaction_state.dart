@@ -17,8 +17,9 @@ class KavachTransactionsLoading extends KavachTransactionsState {
 
 class KavachTransactionsLoaded extends KavachTransactionsState {
   final List<KavachOrderListPayment> transactions;
+  final int totalPage;
 
-  const KavachTransactionsLoaded(this.transactions);
+  const KavachTransactionsLoaded(this.transactions,this.totalPage);
 
   @override
   List<Object?> get props => [transactions];

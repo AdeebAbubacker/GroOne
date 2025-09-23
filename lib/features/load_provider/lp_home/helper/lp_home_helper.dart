@@ -208,7 +208,7 @@ class LpHomeHelper {
      final hex = colorString.replaceFirst('#', '');
      final fullHex = hex.length == 6 ? 'FF$hex' : hex;
      return Color(int.parse(fullHex, radix: 16));
-   } else if (colorString.startsWith('rgba')) {
+   } else if (colorString.startsWith('rgb')) {
      final regex = RegExp(r'rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([.\d]*)\)');
      final match = regex.firstMatch(colorString);
      if (match != null) {

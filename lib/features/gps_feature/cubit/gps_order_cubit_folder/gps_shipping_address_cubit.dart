@@ -37,7 +37,7 @@ class GpsShippingAddressAvailable extends GpsShippingAddressState {
 }
 
 class GpsShippingAddressSelected extends GpsShippingAddressState {
-  final KavachAddressModel selectedAddress;
+  final KavachAddressModel? selectedAddress;
   final List<KavachAddressModel> addresses;
 
   GpsShippingAddressSelected({
@@ -62,7 +62,14 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
   GpsShippingAddressCubit(this._repository, this._userRepository)
     : super(GpsShippingAddressInitial());
 
-  Future<void> fetchGpsShippingAddresses({int changeShippingIndex = 0}) async {
+  void reset() {
+    emit(GpsShippingAddressInitial()); // or default state
+  }
+
+  Future<void> fetchGpsShippingAddresses({
+    int changeShippingIndex = 0,
+    bool noRefresh = false,
+  }) async {
     emit(GpsShippingAddressLoading());
     try {
       final customerId = await _userRepository.getUserID();
@@ -85,17 +92,48 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
                   .map((gpsAddress) => gpsAddress.toKavachAddressModel())
                   .toList();
           // Auto-select first address
-          emit(
-            GpsShippingAddressSelected(
-              selectedAddress:
-                  addresses[changeShippingIndex == 1
-                      ? changeShippingIndex
-                      : changeShippingIndex > 1
-                      ? changeShippingIndex - 1
-                      : 0],
-              addresses: addresses,
-            ),
-          );
+          if ((changeShippingIndex == 0 && addresses.length == 1) ||
+              !noRefresh) {
+            emit(
+              GpsShippingAddressSelected(
+                selectedAddress:
+                    addresses[changeShippingIndex == 1
+                        ? changeShippingIndex
+                        : changeShippingIndex > 1
+                        ? changeShippingIndex - 1
+                        : 0],
+                addresses: addresses,
+              ),
+            );
+          } else {
+            try {
+              emit(
+                GpsShippingAddressSelected(
+                  selectedAddress:
+                      noRefresh
+                          ? null
+                          : addresses[changeShippingIndex == 1
+                              ? changeShippingIndex
+                              : changeShippingIndex > 1
+                              ? changeShippingIndex - 1
+                              : 1],
+                  addresses: addresses,
+                ),
+              );
+            } catch (e) {
+              emit(
+                GpsShippingAddressSelected(
+                  selectedAddress:
+                      addresses[changeShippingIndex == 1
+                          ? changeShippingIndex
+                          : changeShippingIndex > 1
+                          ? changeShippingIndex - 1
+                          : 0],
+                  addresses: addresses,
+                ),
+              );
+            }
+          }
         } else {
           emit(GpsShippingAddressEmpty());
         }

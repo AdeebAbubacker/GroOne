@@ -52,6 +52,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   final LpHomeRepository _lpHomeRepository;
   final LpLoadRepository _lpLoadRepository;
   final KavachRepository kavachRepository;
+
   ProfileCubit(this._repo, this._lpHomeRepository, this._lpLoadRepository, this.kavachRepository)
     : super(ProfileState());
 
@@ -99,12 +100,18 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return userRole;
   }
 
+
+
   // Get User Id
   String? userId;
   Future<String?> fetchUserId() async {
     userId = await _repo.getUserId();
     CustomLog.debug(this, "User Id : $userId");
     return userId;
+  }
+
+  void switchToVp(bool value){
+    emit(state.copyWith(switchToVp: value));
   }
 
   // Fetch Profile Detail Api Call
@@ -203,68 +210,67 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-  // Fetch address from api call
-  void _setFetchAddressUIState(
-    UIState<PaginatedAddressList>? uiState,
-    int currentPage,
-  ) {
-    emit(state.copyWith(currentPage: currentPage, addressState: uiState));
+
+
+  // Address pagination state
+  int _addressCurrentPage = 1;
+  bool _addressIsLastPage = false;
+  bool _addressIsLoadingMore = false;
+
+  void _setFetchAddressUIState(UIState<PaginatedAddressList>? uiState) {
+    emit(state.copyWith(addressState: uiState));
   }
 
   Future<void> fetchAddress({
     bool isLoading = true,
     String? search,
-    bool isInit = true,
+    bool loadMore = false,
   }) async {
-    if (isInit || isLoading) {
-      if (isLoading) _setFetchAddressUIState(UIState.loading(), 1);
+    if (_addressIsLoadingMore && loadMore) return;
+    if (!loadMore) {
+      _addressIsLastPage = false;
+    } else if (_addressIsLastPage) {
+      return;
     }
 
-    userId = await _repo.getUserId();
-
-    final oldAddressData = state.addressState?.data?.addresses ?? [];
-    final totalRecords = state.addressState?.data?.total ?? 0;
-
-    if (oldAddressData.isNotEmpty) {
-      if ((totalRecords) <= ((state.currentPage ?? 0) - 1) * 10 &&
-          oldAddressData.length >= totalRecords) {
-        return; // stop calling API
-      }
+    if (loadMore) {
+      _addressIsLoadingMore = true;
+      _addressCurrentPage++;
+    } else {
+      _addressCurrentPage = 1;
+      _addressIsLastPage = false;
+      if (isLoading) _setFetchAddressUIState(UIState.loading());
     }
 
-    dynamic result = await _repo.fetchAddress(
-      userId: userId ?? '',
-      search: search,
-      currentPage: state.currentPage,
-    );
-    if (result is Success<PaginatedAddressList>) {
-      final fetchedAddressData = result.value;
-      final oldObject = state.addressState?.data;
-
-      List<CustomerAddress> newModifiedList = [
-        ...oldObject?.addresses ?? [],
-        ...fetchedAddressData.addresses,
-      ];
-
-      PaginatedAddressList modifiedData;
-      if (oldObject != null) {
-        modifiedData = oldObject.copyWith(addresses: newModifiedList);
-      } else {
-        modifiedData = fetchedAddressData;
-      }
-
-      _setFetchAddressUIState(
-        UIState.success(modifiedData),
-        (state.currentPage ?? 0) + 1,
+    try {
+      userId = await _repo.getUserId();
+      final result = await _repo.fetchAddress(
+        userId: userId ?? '',
+        search: search,
+        currentPage: _addressCurrentPage,
       );
-    }
-    if (result is Error) {
-      _setFetchAddressUIState(
-        UIState.error(result.type),
-        state.currentPage ?? 0,
-      );
+
+      if (result is Success<PaginatedAddressList>) {
+        final newList = result.value.addresses;
+
+        if (loadMore) {
+          final existing = state.addressState?.data?.addresses ?? [];
+          final combined = [...existing, ...newList];
+          _setFetchAddressUIState(
+            UIState.success(result.value.copyWith(addresses: combined)),
+          );
+        } else {
+          _setFetchAddressUIState(UIState.success(result.value));
+        }
+        _addressIsLastPage = (state.addressState?.data?.addresses.length ?? 0) >= result.value.total!;
+      } else if (result is Error<PaginatedAddressList>) {
+        _setFetchAddressUIState(UIState.error(result.type));
+      }
+    } finally {
+      _addressIsLoadingMore = false;
     }
   }
+
 
   // Fetch address from api call
   void _setPrimaryAddressUIState(UIState<SetPrimaryAddressResponse>? uiState) {
@@ -324,7 +330,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Success) {
       fetchAddress(isLoading: false);
     } else if (result is Error) {
-      _setFetchAddressUIState(UIState.error(result.type), 0);
+      _setFetchAddressUIState(UIState.error(result.type),);
     }
     return result;
   }
@@ -656,7 +662,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Success) {
       fetchCustomerSettings();
     } else if (result is Error) {
-      _setFetchAddressUIState(UIState.error(result.type), 0);
+      _setFetchAddressUIState(UIState.error(result.type));
     }
     return result;
   }

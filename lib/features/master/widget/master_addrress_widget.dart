@@ -28,7 +28,6 @@ Widget masterInfoWidget({
         Row(
           children: [
             Text(title, style: AppTextStyle.h5).expand(),
-            Spacer(),
             IconButton(
               onPressed: onEdit,
               icon: SvgPicture.asset(
@@ -83,7 +82,7 @@ Widget masterInfoWidget({
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
                 ),
-              ),
+              ).expand(),
             ],
           ),
         ),

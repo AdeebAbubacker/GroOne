@@ -34,17 +34,19 @@ class IncompleteKycStatusWidget extends StatelessWidget {
               Image.asset(AppImage.png.alertTriangle, width: 20),
               10.width,
 
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  children: [
-
-                    TextSpan(text: context.appText.your, style: AppTextStyle.textDarkGreyColor14w500),
-
-                    TextSpan(text: "  ${context.appText.kyc}  ", style: AppTextStyle.textDarkGreyColor14w500.copyWith(color: AppColors.orangeTextColor)),
-
-                    TextSpan(text: context.appText.isIncomplete, style: AppTextStyle.textDarkGreyColor14w500,),
-                  ],
+              Flexible(
+                child: RichText(
+                  textAlign: TextAlign.center,
+                  text: TextSpan(
+                    children: [
+                
+                      TextSpan(text: context.appText.your, style: AppTextStyle.textDarkGreyColor14w500),
+                
+                      TextSpan(text: "  ${context.appText.kyc}  ", style: AppTextStyle.textDarkGreyColor14w500.copyWith(color: AppColors.orangeTextColor)),
+                
+                      TextSpan(text: context.appText.isIncomplete, style: AppTextStyle.textDarkGreyColor14w500,),
+                    ],
+                  ),
                 ),
               ),
 
@@ -77,9 +79,13 @@ class IncompleteKycStatusWidget extends StatelessWidget {
                 }
               }
             },
-            style: AppButtonStyle.primaryTextButton.copyWith(backgroundColor: WidgetStateProperty.all(AppColors.red)),
-            child: Text(context.appText.verify, style: AppTextStyle.h5WhiteColor),
+            style: AppButtonStyle.primaryTextButton.copyWith(
+              fixedSize: WidgetStateProperty.all(const Size(120, 20)),
+              backgroundColor: WidgetStateProperty.all(AppColors.red)),
+            child: Text(context.appText.verify, style: AppTextStyle.h5WhiteColor.copyWith(fontSize: 13)),
           ),
+       
+       
         ],
       ),
     );

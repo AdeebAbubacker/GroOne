@@ -36,6 +36,7 @@ enum AddressFeature { kavach, gps }
 class KavachAddAddressBottomSheet extends StatefulWidget {
   final int addrType;
   final String title;
+  final bool refresh;
   final AddressFeature feature;
   final VoidCallback? onAddressAdded; // Callback for GPS feature
 
@@ -43,6 +44,7 @@ class KavachAddAddressBottomSheet extends StatefulWidget {
     super.key,
     required this.addrType,
     required this.title,
+    this.refresh = false,
     this.feature = AddressFeature.kavach,
     this.onAddressAdded,
   });
@@ -66,6 +68,7 @@ class _KavachAddAddressBottomSheetState
   // GPS-specific dependencies
   late final GpsOrderApiRepository _gpsRepository;
   late final UserInformationRepository _userRepository;
+  bool refreshShipping = false;
 
   @override
   void initState() {
@@ -74,6 +77,7 @@ class _KavachAddAddressBottomSheetState
       _gpsRepository = locator<GpsOrderApiRepository>();
       _userRepository = locator<UserInformationRepository>();
     }
+    refreshShipping = widget.refresh;
   }
 
   Future<void> useMyCurrentLocation() async {
@@ -191,7 +195,9 @@ class _KavachAddAddressBottomSheetState
                           FetchKavachBillingAddresses(),
                         );
                         context.read<KavachCheckoutShippingAddressBloc>().add(
-                          FetchKavachShippingAddresses(),
+                          FetchKavachShippingAddresses(
+                            noRefresh: refreshShipping,
+                          ),
                         );
 
                         // ✅ Auto-select only in the list where the address was added

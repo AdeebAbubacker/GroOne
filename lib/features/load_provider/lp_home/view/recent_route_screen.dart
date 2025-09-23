@@ -129,13 +129,17 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   Widget _buildBodyWidget(BuildContext context){
     return SafeArea(
       minimum: EdgeInsets.all(commonSafeAreaPadding),
-      child: _buildRecentRouteList(),
+      child: Column(children: [
+        10.height,
+        _buildSearchBarWidget(),
+         10.height,
+        Expanded(child: _buildRecentRouteList())]),
     );
   }
 
   Widget _buildSearchBarWidget(){
     return AppSearchBar(
-        searchController: searchController,
+      searchController: searchController,
       onChanged: (val) {
         lpHomeCubit.fetchRecentRoute(isLoading: false,search: searchController.text);
       },
@@ -152,35 +156,42 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     return BlocConsumer<LPHomeCubit, LPHomeState>(
       listener: (context, state) { },
       builder: (context, state) {
-        if(state.recentRouteUIState != null && state.recentRouteUIState?.status != null){
-          switch (state.recentRouteUIState!.status){
+        if(state.recentRouteState != null && state.recentRouteState?.status != null){
+          switch (state.recentRouteState!.status){
             case Status.LOADING :
               return CircularProgressIndicator().center();
             case Status.SUCCESS :
-              if (state.recentRouteUIState?.data != null) {
-                final routes = state.recentRouteUIState!.data!.data.data;
+              if (state.recentRouteState?.data != null) {
+                final routes = state.recentRouteState!.data!.data.data;
 
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    10.height,
-                    _buildSearchBarWidget(), // 🔍 Always show search bar
+                     // 🔍 Always show search bar
                     20.height,
 
                     if (routes.isNotEmpty)
-                      ListView.separated(
-                        shrinkWrap: true,
-                        padding: EdgeInsets.only(bottom: 100),
-                        itemCount: routes.length,
-                        separatorBuilder: (context, index) => 20.height,
-                        itemBuilder: (context, index) {
-                          final route = routes[index];
-                          return GestureDetector(
-                            onTap: () => updateSelectedRouteState(index, route),
-                            child: _buildListBody(index: index, data: route),
-                          );
+                      NotificationListener<ScrollNotification>(
+                        onNotification: (scrollInfo) {
+                          if (scrollInfo.metrics.pixels ==
+                              scrollInfo.metrics.maxScrollExtent) {
+                            lpHomeCubit.fetchRecentRoute(isLoading: false, isInit: false,search: searchController.text);
+                          }
+                          return false;
                         },
-                      ).expand()
+                        child: ListView.separated(
+                          padding: EdgeInsets.only(bottom: 100),
+                          itemCount: routes.length,
+                          separatorBuilder: (context, index) => 20.height,
+                          itemBuilder: (context, index) {
+                            final route = routes[index];
+                            return GestureDetector(
+                              onTap: () => updateSelectedRouteState(index, route),
+                              child: _buildListBody(index: index, data: route),
+                            );
+                          },
+                        ).expand(),
+                      )
                     else
                       genericErrorWidget(error: NotFoundError()).expand(),
                   ],
@@ -189,8 +200,8 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
             case Status.ERROR :
-              if(state.recentRouteUIState?.errorType != null){
-                return genericErrorWidget(error: state.recentRouteUIState!.errorType, onRefresh: ()=> initFunction());
+              if(state.recentRouteState?.errorType != null){
+                return genericErrorWidget(error: state.recentRouteState!.errorType, onRefresh: ()=> initFunction());
               }else{
                 return genericErrorWidget(error: GenericError(), onRefresh: ()=> initFunction());
               }
@@ -225,24 +236,26 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
                 Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight).paddingSymmetric(vertical: 5),
                 10.width,
 
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-
-                    // Source (Pick Up)
-                    Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                    6.height,
-                    Text(pickUpLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor)),
-
-                    commonDivider(),
-
-                    // Destination
-                    Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                    6.height,
-                    Text(destinationLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-
-                  ],
-                ).expand(),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  
+                      // Source (Pick Up)
+                      Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                      6.height,
+                      Text(pickUpLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor)),
+                  
+                      commonDivider(),
+                  
+                      // Destination
+                      Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
+                      6.height,
+                      Text(destinationLocationText(data), style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
+                  
+                    ],
+                  ),
+                ),
               ],
             ),
           ],
@@ -294,3 +307,4 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
   }
 
 }
+

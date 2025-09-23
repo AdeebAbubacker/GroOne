@@ -45,11 +45,14 @@ import 'package:path/path.dart' as path;
 part 'lp_load_state.dart';
 
 class LpLoadCubit extends BaseCubit<LpLoadState> {
+  bool get isRoutesLastPage => _routesIsLastPage;
+  int get rootsCurrentPage => _routesCurrentPage;
+  bool get isTruckLastPage => _truckTypeIsLastPage;
+  int get trucksCurrentPage => _truckTypeCurrentPage;
   final LpLoadRepository _repository;
   final LpLoadPaginationController paginationController =
       LpLoadPaginationController();
   final LoadDetailsRepository _loadDetailsRepository;
-
   LpLoadCubit(this._repository, this._loadDetailsRepository)
     : super(LpLoadState());
 
@@ -749,6 +752,11 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
 
   void setDownloadingKey(String? key) {
     emit(state.copyWith(downloadingKey: key));
+  }
+
+  /// set is filter applied
+  void setIsFilterApplied({required bool value}) {
+    emit(state.copyWith(isFilterApplied: value));
   }
 }
 

@@ -319,7 +319,8 @@ class _ProfileScreenState extends BaseState<ProfileScreen> {
               final status = state.logoutUIState?.status;
 
               if (status == Status.SUCCESS) {
-                LpBottomNavigation.selectedIndexNotifier.value = 0;
+                // LpBottomNavigation.selectedIndexNotifier.value = 0;
+                lpBottomNavKey.currentState?.onItemTapped(0);
                 disposeFunction();
                 context.go(
                 AppRouteName.login,

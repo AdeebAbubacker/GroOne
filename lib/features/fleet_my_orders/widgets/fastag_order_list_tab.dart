@@ -25,7 +25,9 @@ class FastagOrderListTabWidget extends StatefulWidget {
 
 class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
   String _searchText = "";
+  int page = 1;
 
   @override
   void initState() {
@@ -34,8 +36,26 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
       setState(() => _searchText = _searchController.text.trim().toLowerCase());
     });
 
+    scrollController.addListener(_onScroll);
+
     // Trigger fetch once
-    context.read<FastagCubit>().fetchFastagList(isInitialLoad: true);
+    context.read<FastagCubit>().fetchFastagList(isInitialLoad: true, page: 2);
+  }
+
+  void _onScroll() {
+    if (!scrollController.hasClients) return;
+
+    // Simple bottom detection like your example
+
+    // Simple pagination trigger - exactly like your working example
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      page += 1;
+      context.read<FastagCubit>().fetchFastagList(
+        isInitialLoad: true,
+        page: page,
+      );
+    }
   }
 
   @override
@@ -67,6 +87,7 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
               return ListView.builder(
                 padding: const EdgeInsets.all(16),
                 itemCount: filtered.length,
+                controller: scrollController,
                 itemBuilder: (context, index) {
                   final item = filtered[index];
                   return _buildFastagCard(
