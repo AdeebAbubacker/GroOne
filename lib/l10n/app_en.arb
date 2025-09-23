@@ -1366,6 +1366,12 @@
   "gstNo" : "GST",
   "kycRejected":"Your kyc is rejected",
   "pleaseSelectOneFilter":"Please select any one filter",
-  "pleaseSelectLocationFromSuggestion":"Please select a location from the suggestions"
+  "pleaseSelectLocationFromSuggestion":"Please select a location from the suggestions",
+  "specialLicense" : "Special License",
+  "experience" : "Experience",
+  "communicationPrefernce" : "Communication Preference",
+  "pleaseEnterCommPrefernce": "Please enter Communication Preference",
+  "pleaseEnterExperience": "Please enter your Experience",
+  "selectSpclLicense": "Select Special License"
 
 }
