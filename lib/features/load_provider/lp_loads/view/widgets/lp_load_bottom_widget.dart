@@ -574,13 +574,16 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                   if(!isUpdateConsignee) {
                     ToastMessages.error(message: context.appText.pleaseEnterConsigneeDetails);
                   } else {
-                    String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-
-                    if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
-                      if(context.mounted) onSubmit(widget.loadItem, context);
-                    } else {
-                      if(context.mounted) showAdvancePaymentDialog(context,widget.loadItem, '');
-                    }
+                    // String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+                    // print('first load $firstPostedLoadId');
+                    //
+                    // if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
+                    //   print('condition true');
+                    //   if(context.mounted) onSubmit(widget.loadItem, context);
+                    // } else {
+                    //   if(context.mounted)
+                        showAdvancePaymentDialog(context,widget.loadItem, '');
+                    // }
                   }
                   }
               ),

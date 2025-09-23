@@ -7,6 +7,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/service/pushNotification/notification_helper.dart';
 import 'package:gro_one_app/service/pushNotification/notification_payload.dart';
@@ -383,6 +384,7 @@ class NotificationService {
     ReceivedAction receivedAction,
   ) async {
 
+
     try {
       NotificationPayload payload = NotificationPayload.fromJson(
         receivedAction.payload ?? {},
@@ -392,10 +394,15 @@ class NotificationService {
         "Awesome notification clicked: $payload",
       );
 
+
       if (payload.route != null) {
         //// TODO: implement redirection here
-
-        navigatorKey.currentState?.pushNamed(payload.route!);
+        if(payload.userType=="Load Provider"){
+          return;
+        }
+         navigatorKey.currentContext?.go((payload.route!.trim()),extra: {
+          "loadId":payload.loadSeriesId
+        });
       }
     } catch (e) {
       CustomLog.error(
@@ -794,8 +801,14 @@ class NotificationService {
     CustomLog.debug(this, "$consolePrint : $payload");
     if (payload.route != null) {
 
-      if(payload.route!=null){
-        navigatorKey.currentState?.pushNamed(payload.route!);
+      if (payload.route != null) {
+        //// TODO: implement redirection here
+        if(payload.userType=="Load Provider"){
+          return;
+        }
+        navigatorKey.currentContext?.go((payload.route!.trim()),extra: {
+          "loadId":payload.loadSeriesId
+        });
       }
     }
   }
