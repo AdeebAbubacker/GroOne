@@ -409,7 +409,7 @@ class ApiUrls {
       "$_baseUrl$_vendor$_path$_v1/dtplus/pincode/";
 
   /// Events API
-  static final String createEvent = "$_baseUrl$_audit$_path$_v1/events";
+  static final String createEvent = "$groServicesUrl$_audit$_path$_v1/events";
 }
 
 
