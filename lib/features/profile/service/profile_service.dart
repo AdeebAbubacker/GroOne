@@ -441,10 +441,10 @@ class ProfileService {
   }) async {
     try {
       final baseUrl =
-          '${ApiUrls.getVehicleList}$userId&page=$page&limit=$pageSize';
+          '${ApiUrls.getVehicleList}$userId?page=$page&limit=$pageSize';
       final url =
           (search != null && search.trim().isNotEmpty)
-              ? '$baseUrl?search=$search'
+              ? '$baseUrl&search=$search'
               : baseUrl;
       final response = await _apiService.get(url);
       if (response is Success) {
@@ -455,7 +455,8 @@ class ProfileService {
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
+    } 
+    catch (e) {
       return Error(DeserializationError());
     }
   }

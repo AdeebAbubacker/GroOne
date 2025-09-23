@@ -1118,7 +1118,8 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     fieldName: "License No",
                   ),
               decoration: commonInputDecoration(
-                fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,    
+                fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
+                hintText: context.appText.pleaseEnterLicenseNumber,    
                 suffixIcon:
                     verificationState.status == Status.LOADING
                         ? const SizedBox(
@@ -1189,7 +1190,8 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
               enabled: !isEdit,
               controller: nameController,
               decoration: commonInputDecoration(
-              fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white, 
+              fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
+              hintText: context.appText.pleaseEnterDriverName,   
               ),
               labelText: "Driver Name",
               hintText: "Driver Name",

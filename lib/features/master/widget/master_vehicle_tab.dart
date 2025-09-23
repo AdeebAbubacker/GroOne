@@ -458,7 +458,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       mandatoryStar: true,
                       enabled: !isEdit,
                        decoration: commonInputDecoration(
-                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white, 
+                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
+                        hintText: context.appText.ownerName,
                       ),
                     ),
                     16.height,
@@ -517,7 +518,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       mandatoryStar: true,
                       enabled: !isEdit,
                       decoration: commonInputDecoration(
-                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white, 
+                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
+                        hintText: context.appText.truckMakeAndModel 
                       ),      
                     ),
                     16.height,
@@ -696,6 +698,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       enabled: !isEdit,
                        decoration: commonInputDecoration(
                         fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white, 
+                        hintText: context.appText.insurancePolicyNumber,
                       ),
                     ),
                     16.height,
@@ -1401,6 +1404,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       //Insurance policy number
                       AppTextField(
                         validator: (value) => Validator.fieldRequired(value),
+                        decoration: InputDecoration(hintText: context.appText.insurancePolicyNumber),
                         controller: insurancePolicyNumber,
                         labelText: context.appText.insurancePolicyNumber,
                         hintText: context.appText.insurancePolicyNumber,
@@ -1777,7 +1781,8 @@ Widget buildVehicleVerificationFieldWidget({
         ],
 
         decoration: commonInputDecoration(
-          fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,    
+          fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
+          hintText: context.appText.vehicleRegNo,    
           suffixIcon:
               verificationState.status == Status.LOADING
                   ? const SizedBox(
@@ -2028,6 +2033,7 @@ class AddVehicleDialog {
                         controller: truckMakeModelController,
                         labelText: context.appText.truckMakeAndModel,
                         hintText: context.appText.truckMakeAndModel,
+                        decoration: InputDecoration(hintText: context.appText.truckMakeAndModel),
                         mandatoryStar: true,
                       ),
                       16.height,
@@ -2130,6 +2136,7 @@ class AddVehicleDialog {
                         controller: insurancePolicyNumber,
                         labelText: context.appText.insurancePolicyNumber,
                         hintText: context.appText.insurancePolicyNumber,
+                        decoration: InputDecoration(hintText: context.appText.insurancePolicyNumber),
                         mandatoryStar: true,
                       ),
                       16.height,
