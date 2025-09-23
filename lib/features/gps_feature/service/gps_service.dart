@@ -86,7 +86,7 @@ class GpsService {
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(response.value, (_) => null);
+        return await _apiService.getResponseStatus(response.value, (_) {});
       } else {
         return Error(GenericError());
       }
@@ -145,7 +145,7 @@ class GpsService {
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(response.value, (_) => null);
+        return await _apiService.getResponseStatus(response.value, (_) {});
       } else {
         return Error(GenericError());
       }
@@ -249,9 +249,18 @@ class GpsService {
     String token,
   ) async {
     try {
+      CustomLog.info(this, "Fetching parking mode list");
+
+      // Format token with Bearer prefix (same as reachability service)
+      final headers = {
+        'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
+      };
+
+      CustomLog.info(this, "Using GPS token: ${token.substring(0, 20)}...");
+
       final response = await _apiService.get(
         ApiUrls.gpsFetchParkingMode,
-        customHeaders: {'Authorization': token},
+        customHeaders: headers,
       );
 
       if (response is Success) {
@@ -298,17 +307,29 @@ class GpsService {
     final payload = {"device_id": deviceId, "parking_mode": parkingMode};
 
     try {
+      CustomLog.info(
+        this,
+        "Updating parking mode for device: $deviceId, mode: $parkingMode",
+      );
+
+      // Format token with Bearer prefix (same as reachability service)
+      final headers = {
+        'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
+      };
+
+      CustomLog.info(this, "Using GPS token: ${token.substring(0, 20)}...");
+
       final response =
           id != null && id > 0
               ? await _apiService.patch(
                 ApiUrls.gpsUpdateParkingMode(id),
                 body: payload,
-                customHeaders: {'Authorization': token},
+                customHeaders: headers,
               )
               : await _apiService.post(
                 ApiUrls.gpsFetchParkingMode,
                 body: payload,
-                customHeaders: {'Authorization': token},
+                customHeaders: headers,
               );
       if (response is Success) {
         final raw = response.value['data'];
@@ -358,14 +379,19 @@ class GpsService {
         "parking_schedule_days": parkingScheduleDays,
       };
 
+      // Format token with Bearer prefix (same as reachability service)
+      final headers = {
+        'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
+      };
+
       final response = await _apiService.patch(
         ApiUrls.gpsUpdateParkingMode(id),
         body: body,
-        customHeaders: {'Authorization': token},
+        customHeaders: headers,
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(response.value, (_) => null);
+        return await _apiService.getResponseStatus(response.value, (_) {});
       } else {
         return Error(GenericError());
       }
@@ -379,9 +405,14 @@ class GpsService {
     String token,
   ) async {
     try {
+      // Format token with Bearer prefix (same as reachability service)
+      final headers = {
+        'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
+      };
+
       final response = await _apiService.get(
         ApiUrls.getDeprecatedNotificationStatus,
-        customHeaders: {'Authorization': token},
+        customHeaders: headers,
       );
 
       if (response is Success) {
@@ -400,10 +431,15 @@ class GpsService {
     String token,
   ) async {
     try {
+      // Format token with Bearer prefix (same as reachability service)
+      final headers = {
+        'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
+      };
+
       final response = await _apiService.post(
         ApiUrls.updateDeprecatedNotificationStatus,
         body: payload,
-        customHeaders: {'Authorization': token},
+        customHeaders: headers,
       );
 
       if (response is Success) {
@@ -412,7 +448,7 @@ class GpsService {
           value['status'] = true;
         }
 
-        return await _apiService.getResponseStatus(value, (_) => null);
+        return await _apiService.getResponseStatus(value, (_) {});
       } else {
         return Error(GenericError());
       }
@@ -428,16 +464,21 @@ class GpsService {
     int userConfigurationId,
   ) async {
     try {
+      // Format token with Bearer prefix (same as reachability service)
+      final headers = {
+        'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
+      };
+
       final response = await _apiService.patch(
         ApiUrls.gpsUpdateNotificationToggle(
           userConfigurationId,
         ), // replace with user-specific ID if needed
         body: payload,
-        customHeaders: {'Authorization': token},
+        customHeaders: headers,
       );
 
       if (response is Success) {
-        return await _apiService.getResponseStatus(response.value, (_) => null);
+        return await _apiService.getResponseStatus(response.value, (_) {});
       } else {
         return Error(GenericError());
       }
