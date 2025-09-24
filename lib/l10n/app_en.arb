@@ -1381,6 +1381,8 @@
   "credits":"CREDITS",
   "debits":"DEBITS",
   "total":"TOTAL",
-  "filterEmptyWarning":"Please select at least one filter."
+  "filterEmptyWarning":"Please select at least one filter.",
+  "issueCategory" : "Issue Category",
+  "issuecategoryRequired" : "Issue Category Required"
 
 }
