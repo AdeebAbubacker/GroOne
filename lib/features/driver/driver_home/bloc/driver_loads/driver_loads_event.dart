@@ -25,8 +25,3 @@ class ChangeDriverLoadStatus extends DriverLoadsEvent {
   ChangeDriverLoadStatus({required this.loadId, required this.loadStatus,required this.customerId});
 }
 
-class FilterAppliedStatus extends DriverLoadsEvent {
-  final bool isFilterApplied;
-
-  FilterAppliedStatus({required this.isFilterApplied});
-}

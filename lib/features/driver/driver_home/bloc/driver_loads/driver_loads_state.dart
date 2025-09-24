@@ -29,7 +29,3 @@ class DriverLoadStatusChangeFailed extends DriverLoadsState {
   DriverLoadStatusChangeFailed(this.errorType);
 }
 
-class DriverFilterApplied extends DriverLoadsState {
-  final bool isFilterApplied;
-  DriverFilterApplied(this.isFilterApplied);
-}

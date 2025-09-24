@@ -84,9 +84,5 @@ class DriverLoadsBloc extends Bloc<DriverLoadsEvent, DriverLoadsState> {
         emit(DriverLoadsError("Something went wrong"));
       }
     });
-    on<FilterAppliedStatus>((event, emit) async {
-      emit(DriverFilterApplied(event.isFilterApplied));
-     }
-    );
   }
 }
