@@ -1383,6 +1383,7 @@
   "total":"TOTAL",
   "filterEmptyWarning":"Please select at least one filter.",
   "issueCategory" : "Issue Category",
-  "issuecategoryRequired" : "Issue Category Required"
+  "issuecategoryRequired" : "Issue Category Required",
+  "primaryAddressCannotBeDeleted": "Primary address cannot be deleted"
 
 }
