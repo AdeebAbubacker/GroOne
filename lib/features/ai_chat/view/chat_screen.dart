@@ -22,6 +22,7 @@ import '../../../utils/app_image.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/toast_messages.dart';
 import '../../profile/cubit/profile/profile_cubit.dart';
+import '../../vehicle_provider/vp_all_loads/view/vp_all_loads_screen.dart';
 import '../cubit/chat_cubit.dart';
 import '../cubit/chat_state.dart';
 import '../model/chat_message.dart';
@@ -556,6 +557,13 @@ class _ChatScreenState extends State<ChatScreen> {
                     _buildVoiceMessage(message.message)
                   else
                     _buildRichTextMessage(message.message, message),
+                  
+                  // Add "View Loads" button when message contains load-related content
+                  if (!isVoice && _isLoadRelatedMessage(message.message)) ...[
+                    const SizedBox(height: 8),
+                    _buildViewLoadsButton(_createLoadDataFromMessage(message.message)),
+                  ],
+                  
                   const SizedBox(height: 4),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -2107,6 +2115,121 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
+  /// Build "View Loads" button for messages with load data
+  Widget _buildViewLoadsButton(LoadData loadData) {
+    return  GestureDetector(
+      onTap: () => _navigateToVpAllLoads(loadData),
+      child: Row(
+        children: [
+          Text(
+            'View Loads',
+            style: TextStyle(
+              color: AppColors.primaryColor,
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Icon(Icons.visibility, size: 16, color: AppColors.primaryColor),
+          )
+        ],
+      ),
+
+    );
+    // return Container(
+    //   child: ElevatedButton.icon(
+    //     onPressed: () => _navigateToVpAllLoads(loadData),
+    //     icon: Icon(Icons.visibility, size: 16, color: Colors.white),
+    //     label: Text(
+    //       'View Loads',
+    //       style: TextStyle(
+    //         color: Colors.white,
+    //         fontSize: 14,
+    //         fontWeight: FontWeight.w600,
+    //       ),
+    //     ),
+    //   ),
+    // );
+  }
+
+
+  /// Check if the message content is related to loads
+  bool _isLoadRelatedMessage(String message) {
+    final lowerMessage = message.toLowerCase();
+    
+    // Check for load-related keywords
+    final loadKeywords = [
+      'load', 'loads', 'freight', 'cargo', 'shipment', 'delivery',
+      'pickup', 'transport', 'truck', 'vehicle', 'route', 'destination',
+      'source', 'commodity', 'weight', 'tonnage', 'available'
+    ];
+    
+    return loadKeywords.any((keyword) => lowerMessage.contains(keyword));
+  }
+
+  /// Extract load data from message content
+  LoadData _createLoadDataFromMessage(String message) {
+    // Try to extract source and destination from common patterns
+    String? source;
+    String? destination;
+    String? commodity;
+    String? truckType;
+    
+    // Look for common patterns like "from X to Y", "X to Y", etc.
+    final fromToPattern = RegExp(r'from\s+([^,\n]+?)\s+to\s+([^,\n]+)', caseSensitive: false);
+    final toPattern = RegExp(r'([^,\n]+?)\s+to\s+([^,\n]+)', caseSensitive: false);
+    
+    final fromToMatch = fromToPattern.firstMatch(message);
+    if (fromToMatch != null) {
+      source = fromToMatch.group(1)?.trim();
+      destination = fromToMatch.group(2)?.trim();
+    } else {
+      final toMatch = toPattern.firstMatch(message);
+      if (toMatch != null) {
+        source = toMatch.group(1)?.trim();
+        destination = toMatch.group(2)?.trim();
+      }
+    }
+    
+    // Extract commodity
+    final commodityPattern = RegExp(r'(?:for|commodity|carrying)\s+([^,\n]+?)(?:\s|,|$)', caseSensitive: false);
+    final commodityMatch = commodityPattern.firstMatch(message);
+    if (commodityMatch != null) {
+      commodity = commodityMatch.group(1)?.trim();
+    }
+    
+    // Extract truck type
+    final truckPattern = RegExp(r'(?:truck|vehicle|lorry)\s*([^,\n]+?)(?:\s|,|$)', caseSensitive: false);
+    final truckMatch = truckPattern.firstMatch(message);
+    if (truckMatch != null) {
+      truckType = truckMatch.group(1)?.trim();
+    }
+    
+    return LoadData(
+      source: source,
+      destination: destination,
+      commodity: commodity,
+      truckType: truckType,
+    );
+  }
+
+  /// Navigate to VpAllLoadsScreen with filter parameters from load data
+  void _navigateToVpAllLoads(LoadData loadData) {
+    // Navigate to VpAllLoadsScreen with filter parameters
+    // We'll use the existing navigation pattern from the app
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => VpAllLoadsScreen(
+          initialTabIndex: 0, // Start with "Available Loads" tab
+          filterData: loadData, // Pass load data for filtering
+        ),
+      ),
+    );
+  }
+
 }
 
 class _ReportFeedbackDialog extends StatefulWidget {

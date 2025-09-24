@@ -16,6 +16,7 @@ import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_available_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/vp_all_load_my_load_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
+import 'package:gro_one_app/features/ai_chat/model/chat_message.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/app_route.dart';
@@ -44,8 +45,9 @@ import '../bloc/vp_all_loads_state.dart';
 
 class VpAllLoadsScreen extends StatefulWidget {
   final int initialTabIndex;
+  final LoadData? filterData; // Optional filter data from chat
 
-  const VpAllLoadsScreen({super.key, this.initialTabIndex = 0});
+  const VpAllLoadsScreen({super.key, this.initialTabIndex = 0, this.filterData});
 
   @override
   State<VpAllLoadsScreen> createState() => _VpAllLoadsScreenState();
@@ -94,6 +96,12 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
         _loadDataByTab(index: _tabController.index);
       }
     });
+    
+    // Apply filter data from chat if present
+    if (widget.filterData != null) {
+      _applyFilterFromChat(widget.filterData!);
+    }
+    
     _loadDataByTab(index: widget.initialTabIndex); // load initial tab
     _getFilterDataEntity();
     _fetchMoreLoads();
@@ -223,6 +231,25 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
    loadFilterCubit.getPreferLens(),
      lpLoadLocator.getRouteDetails()
    ]);
+  }
+
+  /// Apply filter parameters from chat load data
+  void _applyFilterFromChat(LoadData loadData) {
+    // Set search text based on source and destination
+    if (loadData.source != null && loadData.destination != null) {
+      searchController.text = '${loadData.source} to ${loadData.destination}';
+    } else if (loadData.source != null) {
+      searchController.text = loadData.source!;
+    } else if (loadData.destination != null) {
+      searchController.text = loadData.destination!;
+    }
+    // Mark filter as applied
+    loadFilterCubit.setIsFilterApplied(value: true);
+    
+    // Refresh data with applied filters
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onPullToRefresh(forceRefresh: true);
+    });
   }
 
 

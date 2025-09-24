@@ -7,6 +7,7 @@ class ChatMessage {
   final MessageType messageType;
   bool isPlaying;
   bool reported; // New field for tracking reported messages
+  final LoadData? loadData; // New field for load data from chat responses
 
   ChatMessage({
     required this.id,
@@ -17,6 +18,7 @@ class ChatMessage {
     this.messageType = MessageType.text,
     this.isPlaying = false,
     this.reported = false, // Default to false
+    this.loadData, // Optional load data
   });
 
   ChatMessage copyWith({
@@ -28,6 +30,7 @@ class ChatMessage {
     MessageType? messageType,
     bool? isPlaying,
     bool? reported, // Add reported to copyWith
+    LoadData? loadData, // Add loadData to copyWith
   }) {
     return ChatMessage(
       id: id ?? this.id,
@@ -38,6 +41,7 @@ class ChatMessage {
       messageType: messageType ?? this.messageType,
       isPlaying: isPlaying ?? this.isPlaying, // Include isPlaying field
       reported: reported ?? this.reported, // Copy reported field
+      loadData: loadData ?? this.loadData, // Copy loadData field
     );
   }
 
@@ -51,6 +55,7 @@ class ChatMessage {
       'messageType': messageType.toString(),
       'isPlaying': isPlaying, // Include isPlaying field
       'reported': reported, // Include reported field
+      'loadData': loadData?.toJson(), // Include loadData field
     };
   }
 
@@ -67,6 +72,7 @@ class ChatMessage {
       ),
       isPlaying: json['isPlaying'] ?? false, // Parse isPlaying field with default
       reported: json['reported'] ?? false, // Parse reported field with default
+      loadData: json['loadData'] != null ? LoadData.fromJson(json['loadData']) : null, // Parse loadData field
     );
   }
 }
@@ -90,6 +96,71 @@ enum ChatLanguage {
     return ChatLanguage.values.firstWhere(
       (lang) => lang.code == code,
       orElse: () => ChatLanguage.english,
+    );
+  }
+}
+
+/// Load data extracted from chat responses for filtering loads
+class LoadData {
+  final String? source;
+  final String? destination;
+  final String? commodity;
+  final String? truckType;
+  final double? weight;
+  final String? pickupDate;
+  final String? deliveryDate;
+
+  const LoadData({
+    this.source,
+    this.destination,
+    this.commodity,
+    this.truckType,
+    this.weight,
+    this.pickupDate,
+    this.deliveryDate,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'source': source,
+      'destination': destination,
+      'commodity': commodity,
+      'truckType': truckType,
+      'weight': weight,
+      'pickupDate': pickupDate,
+      'deliveryDate': deliveryDate,
+    };
+  }
+
+  factory LoadData.fromJson(Map<String, dynamic> json) {
+    return LoadData(
+      source: json['source'],
+      destination: json['destination'],
+      commodity: json['commodity'],
+      truckType: json['truckType'],
+      weight: json['weight']?.toDouble(),
+      pickupDate: json['pickupDate'],
+      deliveryDate: json['deliveryDate'],
+    );
+  }
+
+  LoadData copyWith({
+    String? source,
+    String? destination,
+    String? commodity,
+    String? truckType,
+    double? weight,
+    String? pickupDate,
+    String? deliveryDate,
+  }) {
+    return LoadData(
+      source: source ?? this.source,
+      destination: destination ?? this.destination,
+      commodity: commodity ?? this.commodity,
+      truckType: truckType ?? this.truckType,
+      weight: weight ?? this.weight,
+      pickupDate: pickupDate ?? this.pickupDate,
+      deliveryDate: deliveryDate ?? this.deliveryDate,
     );
   }
 }
