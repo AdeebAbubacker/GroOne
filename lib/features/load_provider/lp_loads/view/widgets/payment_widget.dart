@@ -220,7 +220,7 @@ class PaymentWidget extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'View Transaction Details',
+                    context.appText.viewTransactionDetails,
                     style: AppTextStyle.body.copyWith(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
