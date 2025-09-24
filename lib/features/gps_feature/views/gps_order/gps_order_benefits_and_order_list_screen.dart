@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/login/repository/user_information_repositor
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/chat_action_button.dart';
+import 'package:gro_one_app/utils/device_activation_dialog_manager.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
@@ -37,7 +38,9 @@ import 'gps_order_detail_screen.dart';
 import 'gps_upload_document_screen.dart';
 
 class GpsOrderBenefitsAndOrderListScreen extends StatefulWidget {
-  const GpsOrderBenefitsAndOrderListScreen({super.key});
+  String authStatusCode = '';
+
+  GpsOrderBenefitsAndOrderListScreen({super.key, this.authStatusCode = ''});
 
   @override
   State<GpsOrderBenefitsAndOrderListScreen> createState() =>
@@ -67,10 +70,14 @@ class _GpsOrderBenefitsAndOrderListScreenState
     "Installed",
   ];
   int? previousIndex;
+  String authStatusCode = '';
+  bool orderHasPlaced = false;
+  bool listLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    authStatusCode = widget.authStatusCode;
     _pageController = PageController(initialPage: selectedTab);
     for (int i = 0; i < tabLabels.length; i++) {
       tabOrders[i] = [];
@@ -313,7 +320,8 @@ class _GpsOrderBenefitsAndOrderListScreenState
             // debugPrint('sfsdfsdfdfg${state.kycData}');
             // // Scenario 1: KYC not done or no documents - Show benefits screen
             if (state.kycCheckState?.status == Status.SUCCESS &&
-                (state.hasKycDocuments == false || state.kycData == null)) {
+                ((state.hasKycDocuments == false || state.kycData == null) ||
+                    (listLoaded && state.hasKycDocuments && !orderHasPlaced))) {
               return _buildBenefitsScreen(
                 context,
                 navigateToUploadDocument:
@@ -391,6 +399,23 @@ class _GpsOrderBenefitsAndOrderListScreenState
         } else if (state is GpsOrderListLoaded) {
           totalPage = state.orderList.data.meta.totalPages;
           tabOrders[selectedTab]?.addAll(state.orderList.data.rows);
+          if (!listLoaded) {
+            listLoaded = true;
+            orderHasPlaced = tabOrders[0] != null && tabOrders[0]!.isNotEmpty;
+          }
+          if (authStatusCode == '401') {
+            if (!DeviceActivationDialogManager().isDialogShowing) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (selectedTab == 0 &&
+                    tabOrders[0] != null &&
+                    tabOrders[0]!.isNotEmpty) {
+                  DeviceActivationDialogManager().showDeviceActivationDialog(
+                    context,
+                  );
+                }
+              });
+            }
+          }
           setState(() {});
         }
       },
@@ -673,6 +698,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
                                   ? ''
                                   : statusParam,
                         );
+                        _scrollTabToCenter(index);
                       },
                       itemCount: tabLabels.length,
                       itemBuilder: (context, tabIndex) {
@@ -899,12 +925,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
                 if (!context.mounted) return;
                 Future.microtask(() {
                   if (mounted) {
-                    if (customerId != null) {
-                      if (!context.mounted) return;
-                      context.read<GpsKycCheckCubit>().checkKycDocuments(
-                        customerId!,
-                      );
-                    }
+                    if (!context.mounted) return;
+                    context.read<GpsKycCheckCubit>().checkKycDocuments(
+                      customerId,
+                    );
                   }
                 });
               });
