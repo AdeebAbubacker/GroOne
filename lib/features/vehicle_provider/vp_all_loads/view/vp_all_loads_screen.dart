@@ -345,9 +345,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
 
                   buildTab(),
                   buildTab(),
-                  buildTab(
-                      disabledOnTap: true
-                  ),
+                  buildTab(disabledOnTap: true),
 
                 ],
               ),
@@ -448,7 +446,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                 } else if (_tabController.index == 1) {
                   return IgnorePointer(
                     ignoring: disabledOnTap,
-
                     child: GestureDetector(
                       onTap: () async {
                         await context.push(AppRouteName.loadDetailsScreen,
@@ -458,7 +455,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                         });
                       },
                       child: VpAllLoadMyLoadWidget(
-
                         onServicesTab: disabledOnTap,
                         data: recentLoads[index],
                         onBack: () {
@@ -477,7 +473,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen> with TickerProv
                 } else {
                   return IgnorePointer(
                     ignoring: disabledOnTap,
-
                     child: GestureDetector(
                       onTap: () async {
                         await context.push(AppRouteName.loadDetailsScreen,

@@ -61,7 +61,6 @@ class _AvailableLoadsFilterScreenState
   @override
   void initState() {
     _setInitialFilterData();
-
     super.initState();
   }
 

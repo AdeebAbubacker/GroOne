@@ -634,14 +634,18 @@ class LoadDetailsWidget extends StatelessWidget {
             SvgPicture.asset(AppIcons.svg.package, height: 24, width: 24),
             Text(
               loadDetails?.commodity?.name ?? "",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
+
                 fontWeight: FontWeight.w400,
+
               ),
-            ),
+            ).expand(),
           ],
-        ),
+        ).expand(),
 
         Row(
           spacing: 3,
@@ -656,14 +660,16 @@ class LoadDetailsWidget extends StatelessWidget {
 
             Text(
               "${loadDetails?.weight?.value} ${context.appText.ton}",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),
-            ),
+            ).expand(),
           ],
-        ),
+        ).expand(),
 
         Row(
           spacing: 3,
@@ -675,13 +681,15 @@ class LoadDetailsWidget extends StatelessWidget {
               width: 24,
             ),
             Text(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               (cubit.state.locationDistance??"").isNotEmpty ? cubit.state.locationDistance??"":  '0 KM',
               style: AppTextStyle.body3.copyWith(
                 color: AppColors.veryLightGreyColor,
               ),
-            ),
+            ).expand(),
           ],
-        ),
+        ).expand(),
       ],
     ).paddingSymmetric(horizontal: 15);
   }

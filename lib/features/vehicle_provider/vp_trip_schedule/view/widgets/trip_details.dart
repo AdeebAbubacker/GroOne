@@ -127,7 +127,7 @@ class TripDetails extends StatelessWidget {
                                     SizedBox(
                                       width:
                                           MediaQuery.of(context).size.width *
-                                          0.70,
+                                          0.68,
                                       child: Row(
                                         mainAxisAlignment:
                                             MainAxisAlignment.spaceBetween,
