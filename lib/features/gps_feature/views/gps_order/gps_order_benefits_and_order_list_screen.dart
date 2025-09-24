@@ -66,6 +66,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
     "Delivered",
     "Installed",
   ];
+  int? previousIndex;
 
   @override
   void initState() {
@@ -76,17 +77,15 @@ class _GpsOrderBenefitsAndOrderListScreenState
       tabControllers[i] = ScrollController();
       tabControllers[i]!.addListener(() {
         final controller = tabControllers[i]!;
-        if (controller.position.pixels >=
-            controller.position.maxScrollExtent - 200) {
+        if (controller.position.pixels >= controller.position.maxScrollExtent) {
           _loadMoreOrders(i);
         }
       });
     }
-    _pageController = PageController(initialPage: selectedTab);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       gpsOrderListCubit = context.read<GpsOrderListCubit>();
+      gpsOrderListCubit?.resetCubit();
     });
-    // scrollController.addListener(_onScroll);
     _getCustomerId();
   }
 
@@ -391,12 +390,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
           // Handle error if needed
         } else if (state is GpsOrderListLoaded) {
           totalPage = state.orderList.data.meta.totalPages;
-          statusParam =
-              _getTabIndexFromStatusParam(selectedTab.toString()).toString();
-          debugPrint('beftabOrders=>$tabOrders');
           tabOrders[selectedTab]?.addAll(state.orderList.data.rows);
-          debugPrint('AftabOrders=>$tabOrders');
-
           setState(() {});
         }
       },
@@ -611,16 +605,16 @@ class _GpsOrderBenefitsAndOrderListScreenState
                           ),
                           child: GestureDetector(
                             onTap: () {
-                              tabOrders[selectedTab]?.clear();
                               setState(() {
                                 selectedTab = index;
                                 page = 1;
                               });
+                              tabOrders[selectedTab]?.clear();
                               statusParam =
                                   _getStatusForIndex(selectedTab)?.toString();
                               gpsOrderListCubit?.getOrderList(
                                 customerId: customerId,
-                                page: page,
+                                page: 1,
                                 statusParam: statusParam,
                               );
                               _pageController?.animateToPage(
@@ -659,8 +653,12 @@ class _GpsOrderBenefitsAndOrderListScreenState
                     child: PageView.builder(
                       controller: _pageController,
                       onPageChanged: (index) async {
-                        debugPrint('indexindex=>$index');
                         tabOrders[selectedTab]?.clear();
+                        tabOrders[previousIndex!] = [];
+                        if (previousIndex != null) {
+                          tabOrders[previousIndex]?.clear();
+                          tabOrders[selectedTab] = [];
+                        }
                         setState(() {
                           selectedTab = index;
                           page = 1;
@@ -669,13 +667,16 @@ class _GpsOrderBenefitsAndOrderListScreenState
                             _getStatusForIndex(selectedTab).toString();
                         gpsOrderListCubit?.getOrderList(
                           customerId: customerId,
-                          page: page,
-                          statusParam: statusParam,
+                          page: 1,
+                          statusParam:
+                              statusParam.toString() == 'null'
+                                  ? ''
+                                  : statusParam,
                         );
                       },
                       itemCount: tabLabels.length,
                       itemBuilder: (context, tabIndex) {
-                        final orders = tabOrders[selectedTab] ?? [];
+                        final orders = tabOrders[tabIndex] ?? [];
                         debugPrint('orders=>$orders');
                         return orders.isEmpty
                             ? Center(
@@ -695,11 +696,12 @@ class _GpsOrderBenefitsAndOrderListScreenState
                                   vertical: 10,
                                   horizontal: 10,
                                 ),
-                                // controller: scrollController,
                                 itemCount: orders.length,
                                 separatorBuilder: (_, __) => 8.height,
                                 itemBuilder: (context, index) {
+                                  debugPrint('sdsfdfsdgs${orders.length}');
                                   final order = orders[index];
+                                  previousIndex = index;
                                   final statusColor = AppColors.greenColor;
 
                                   return Container(

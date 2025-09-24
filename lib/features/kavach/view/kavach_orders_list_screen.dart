@@ -50,6 +50,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   bool initialBuild = true;
   int page = 1;
   bool orderHasPlaced = false;
+  bool listLoaded = false;
   List<String> tabLabels = [];
   final PageStorageBucket _bucket = PageStorageBucket();
 
@@ -203,8 +204,9 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
           debugPrint('dshdshsf=>${state.orders.length}');
           initialBuild = false;
           allOrders.addAll(state.orders);
-          if (!orderHasPlaced) {
-            orderHasPlaced = true;
+          if (!listLoaded) {
+            listLoaded = true;
+            orderHasPlaced = allOrders.isNotEmpty;
           }
         } else if (state is KavachOrderListError) {
           debugPrint('dshdshsf=>${state.message}');
@@ -280,9 +282,9 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
             body: const Center(child: CircularProgressIndicator()),
           );
         } else if (state is KavachOrderListLoaded &&
-            (state.kycStatusUpdated == null ||
-                ((state.kycStatusUpdated != null && !state.kycStatusUpdated!) ||
-                    (state.kycStatusUpdated! && !orderHasPlaced)))) {
+            ((state.kycStatusUpdated == null) ||
+                (state.kycStatusUpdated != null && !state.kycStatusUpdated!) ||
+                (state.kycStatusUpdated! && !orderHasPlaced))) {
           return Scaffold(
             appBar: CommonAppBar(
               title: context.appText.fuelSecurityDevice,
@@ -384,36 +386,11 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                         ),
                         child: GestureDetector(
                           onTap: () {
-                            GestureDetector(
-                              onTap: () {
-                                if (_tabController!.index != index) {
-                                  // Reset pagination
-                                  page = 1;
-
-                                  // Optionally keep current list until new data comes
-                                  // allOrders.clear(); // <- remove this line
-
-                                  // Animate tab change
-                                  _tabController!.index = index;
-
-                                  // Scroll tab bar
-                                  // WidgetsBinding.instance.addPostFrameCallback((
-                                  //   _,
-                                  // ) {
-                                  //   _scrollTabToCenter(index);
-                                  // });
-
-                                  // Fetch new orders
-                                  _ordersBloc.add(
-                                    FetchKavachOrderList(
-                                      status: _getStatusForIndex(index),
-                                      page: page,
-                                      isRefresh: true,
-                                    ),
-                                  );
-                                }
-                              },
-                            );
+                            if (_tabController!.index != index) {
+                              page = 1;
+                              _tabController!.index = index;
+                              allOrders.clear();
+                            }
                           },
                           child: Container(
                             padding: const EdgeInsets.symmetric(

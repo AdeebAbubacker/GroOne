@@ -50,7 +50,7 @@ class GpsLoginService {
       final loginHeaders = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-API-KEY': ApiUrls.xApiKey,
+        'X-API-KEY': '63cee6fe-1c1b-4de9-af0e-ee0fab917531',
         // No Authorization header for login
       };
 
@@ -136,7 +136,7 @@ class GpsLoginService {
       final authHeaders = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'X-API-KEY': ApiUrls.xApiKey,
+        'X-API-KEY': '63cee6fe-1c1b-4de9-af0e-ee0fab917531',
         // No Authorization header for auth check
       };
 

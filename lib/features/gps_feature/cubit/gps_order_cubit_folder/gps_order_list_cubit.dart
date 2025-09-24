@@ -52,7 +52,6 @@ class GpsOrderListCubit extends Cubit<GpsOrderListState> {
     emit(GpsOrderListInitial());
   }
 
-
   Future<void> getOrderList({
     required String customerId,
     int page = 1,
@@ -68,8 +67,6 @@ class GpsOrderListCubit extends Cubit<GpsOrderListState> {
       emit(GpsOrderListLoading());
     } else if (state is! GpsOrderListLoaded) {
       emit(GpsOrderListLoading());
-    } else if (!isRefresh) {
-      emit(GpsOrderListLoading());
     }
 
     try {
@@ -80,7 +77,7 @@ class GpsOrderListCubit extends Cubit<GpsOrderListState> {
         statusParam: statusParam,
       );
 
-      // if (_isClosed) return; // Check again after async operation
+      if (_isClosed) return; // Check again after async operation
       if (result is Success<GpsOrderListResponse>) {
         emit(GpsOrderListLoaded(result.value, isRefresh: isRefresh));
       } else if (result is Error<GpsOrderListResponse>) {
