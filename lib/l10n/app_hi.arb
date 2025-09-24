@@ -1335,7 +1335,8 @@
      "filterEmptyWarning":"Please select at least one filter.",
   "issueCategory": "समस्या श्रेणी",
   "issuecategoryRequired": "समस्या श्रेणी आवश्यक है",
-  "primaryAddressCannotBeDeleted": "प्राथमिक पता हटाया नहीं जा सकता"    
+  "primaryAddressCannotBeDeleted": "प्राथमिक पता हटाया नहीं जा सकता",
+  "mobileNumberCannotStartWith1to5" : "मोबाइल नंबर 1 से 5 तक की संख्या से शुरू नहीं हो सकता" 
 
 
 

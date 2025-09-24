@@ -1384,6 +1384,7 @@
   "filterEmptyWarning":"Please select at least one filter.",
   "issueCategory" : "Issue Category",
   "issuecategoryRequired" : "Issue Category Required",
-  "primaryAddressCannotBeDeleted": "Primary address cannot be deleted"
+  "primaryAddressCannotBeDeleted": "Primary address cannot be deleted",
+  "mobileNumberCannotStartWith1to5" : "Mobile number cannot start with digits 1 to 5"
 
 }

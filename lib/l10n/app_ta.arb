@@ -1336,7 +1336,8 @@
      "filterEmptyWarning":"Please select at least one filter.",
   "issueCategory": "சிக்கல் வகை",
   "issuecategoryRequired": "சிக்கல் வகை தேவை",
-  "primaryAddressCannotBeDeleted": "முதன்மை முகவரியை நீக்க முடியாது"
+  "primaryAddressCannotBeDeleted": "முதன்மை முகவரியை நீக்க முடியாது",
+  "mobileNumberCannotStartWith1to5" : "மொபைல் எண் 1 முதல் 5 வரை உள்ள எண்களால் தொடங்கக்கூடாது"
    
 
 
