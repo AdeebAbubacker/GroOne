@@ -679,7 +679,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                     driverLoadDetails: load,
                     onClickAssignDriver: () {
                       final currentStatus = load.loadStatusId;
-                      if (currentStatus == 8) {
+                      if (currentStatus == 8 || currentStatus == 4) {
                         final extra = {"loadId": load.loadId};
                         context.push(AppRouteName.driverLoadDetails, extra: extra);
                       } else if (currentStatus <= 7) {
