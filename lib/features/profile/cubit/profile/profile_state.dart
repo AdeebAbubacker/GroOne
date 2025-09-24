@@ -30,11 +30,13 @@ class ProfileState extends Equatable {
   final UIState<CreateDocumentModel>? createDocumentUIState;
   final UIState<VehcileUpdatedStatusModel>? vehicleUpdateUIState;
   final UIState<List<BloodGroupResponseModel>>? bloodGroupResponseUIState;
+  final UIState<List<IssueCategoryResponse>>? issueCategoryResponseUIState;
   final UIState<List<LicenseCategoryResponseModel>>? licneseCategoryResponseUIState;
   final UIState<DeleteAccountModel>? deleteAccountUIState;
   final int? currentPage;
   final UIState<DocumentDetails>? documentById;
   final bool? switchToVp;
+
   const ProfileState({
     this.profileDetailUIState,
     this.logoutUIState,
@@ -65,6 +67,7 @@ class ProfileState extends Equatable {
     this.createDocumentUIState,
     this.vehicleUpdateUIState,
     this.bloodGroupResponseUIState,
+    this.issueCategoryResponseUIState,
     this.licneseCategoryResponseUIState,
     this.deleteAccountUIState,
     this.currentPage,
@@ -101,6 +104,7 @@ class ProfileState extends Equatable {
     TicketStatus? tempSelectedTicketStatus,
     UIState<VehcileUpdatedStatusModel>? vehicleStatusUpdate,
     UIState<List<BloodGroupResponseModel>>? bloodGroupResponseUIState,
+    UIState<List<IssueCategoryResponse>>? issueCategoryResponseUIState,
     UIState<List<LicenseCategoryResponseModel>>? licneseCategoryResponseUIState,
     UIState<DeleteAccountModel>? deleteAccountUIState,
     bool? showSuccessKyc,
@@ -142,6 +146,7 @@ class ProfileState extends Equatable {
       tempSelectedTicketStatus: tempSelectedTicketStatus ?? this.tempSelectedTicketStatus,
       vehicleUpdateUIState: vehicleStatusUpdate ?? vehicleUpdateUIState,
       bloodGroupResponseUIState : bloodGroupResponseUIState ?? this.bloodGroupResponseUIState,
+      issueCategoryResponseUIState : issueCategoryResponseUIState ?? this.issueCategoryResponseUIState,
       licneseCategoryResponseUIState : licneseCategoryResponseUIState ?? this.licneseCategoryResponseUIState,
       deleteAccountUIState: deleteAccountUIState ?? this.deleteAccountUIState,
       documentById: documentById ?? this.documentById,

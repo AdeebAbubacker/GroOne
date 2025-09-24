@@ -37,6 +37,7 @@ import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
+import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/validator.dart';
 import 'package:intl/intl.dart';
@@ -222,6 +223,9 @@ class _MasterScreenState extends State<MasterScreen>
   Widget _buildTab(String text, bool isSelected) {
     return Container(
       height: 30,
+      constraints: const BoxConstraints(
+      minWidth: 120, 
+    ),
       alignment: Alignment.center,
       decoration: BoxDecoration(
         color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
@@ -231,6 +235,7 @@ class _MasterScreenState extends State<MasterScreen>
         padding: const EdgeInsets.symmetric(horizontal: 8),
         child: Text(
           text,
+          maxLines: 1,
           style: AppTextStyle.h6.copyWith(
             fontWeight: FontWeight.w600,
             color: isSelected ? AppColors.white : AppColors.black,
@@ -260,6 +265,7 @@ class _MasterScreenState extends State<MasterScreen>
           children: [
            15.height,
           TabBar(
+          tabAlignment: TabAlignment.center,
           isScrollable: true,
           padding: EdgeInsets.zero,
           labelPadding: EdgeInsets.only(right: 15),
@@ -276,7 +282,7 @@ class _MasterScreenState extends State<MasterScreen>
           unselectedLabelStyle: AppTextStyle.h6,
           overlayColor: WidgetStateProperty.all(Colors.transparent),
           tabs:  getTabs(context),
-        ),
+        ).paddingLeft(7),
         Expanded(
               child: TabBarView(
                 controller: _tabController,
@@ -479,6 +485,7 @@ class _MasterScreenState extends State<MasterScreen>
                             : registrationDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        isEdit: isEdit,
                       ),
                     ),
 
@@ -596,6 +603,7 @@ class _MasterScreenState extends State<MasterScreen>
                             : insuranceValidityDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        isEdit: isEdit,
                       ),
                     ),
                     16.height,
@@ -627,6 +635,7 @@ class _MasterScreenState extends State<MasterScreen>
                             : fcExpiryDate!,
                         fillColor: Colors.white,
                         mandatoryStar: true,
+                        isEdit: isEdit,
                       ),
                     ),
                     16.height,
@@ -661,6 +670,7 @@ class _MasterScreenState extends State<MasterScreen>
                         textStyle: (pucExpiryDate == 'PUC Expiry Date') 
                       ? AppTextStyle.textGreyDetailColor12w400 
                       : AppTextStyle.textFiled,
+                      isEdit: isEdit,
                       ),
                     ),
 
@@ -792,6 +802,7 @@ Widget buildReadOnlyField(
   Color? fillColor,
   TextStyle? textStyle,
   bool mandatoryStar = false,
+  bool isEdit = false,
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -811,7 +822,7 @@ Widget buildReadOnlyField(
         width: double.infinity,
         padding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
         decoration: commonContainerDecoration(
-          color: fillColor ?? AppColors.lightGreyBackgroundColor,
+          color:   (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,    
           borderRadius: BorderRadius.circular(commonTexFieldRadius),
           borderColor: AppColors.borderColor,
         ),

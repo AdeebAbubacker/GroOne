@@ -8,6 +8,9 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/routes_dropdown.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/vp_lans_dropdown.dart' hide VehicleTypeSearchableDropdown, LoadTypeSearchableDropdown;
+import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_cubit.dart';
 import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load_filter_state.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
@@ -17,13 +20,16 @@ import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown_controller.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:collection/collection.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 class AvailableLoadsFilterScreen extends StatefulWidget {
-  const AvailableLoadsFilterScreen({super.key});
+  final Function(Map<String,dynamic> data) onFilterApplied;
+  const AvailableLoadsFilterScreen({super.key,required this.onFilterApplied});
 
   @override
   State<AvailableLoadsFilterScreen> createState() =>
@@ -43,6 +49,7 @@ class _AvailableLoadsFilterScreenState
   final filterCubit = locator<LoadFilterCubit>();
 
   final SearchableDropdownController<RouteList> controller=SearchableDropdownController();
+
 
   /// Selected Data
 
@@ -84,11 +91,11 @@ class _AvailableLoadsFilterScreenState
     );
   }
 
-  void _getLaneId(RouteList? selectedItem) {
+  void _getLaneId(LaneDetailsResponse? selectedItem) {
     laneId = selectedItem?.masterLaneId;
     filterCubit.setLensData(
       leneId: selectedItem?.masterLaneId,
-      value: '${selectedItem?.fromLocation?.name ?? ""} - ${selectedItem?.toLocation?.name ?? ""}',
+      value: '${selectedItem?.lane}',
     );
   }
 
@@ -120,10 +127,14 @@ class _AvailableLoadsFilterScreenState
 
   @override
   Widget build(BuildContext context) {
-    return AppBottomSheetBody(
-      title: context.appText.filter,
-      isCloseButton: false,
-      body: _buildBody(context: context),
+    return Column(
+      children: [
+        Text(
+          context.appText.filter,
+          style: AppTextStyle.body1.copyWith(fontSize: 20),
+        ),
+        _buildBody(context: context),
+      ],
     );
   }
 
@@ -131,6 +142,7 @@ class _AvailableLoadsFilterScreenState
     return Form(
       key: formKey,
       child: Column(
+
         children: [
           // Vehicle Type
           BlocBuilder<LoadFilterCubit, LoadFilterState>(
@@ -164,29 +176,22 @@ class _AvailableLoadsFilterScreenState
           20.height,
 
           // Lane Type
-          BlocBuilder<LpLoadCubit, LpLoadState>(
+          BlocBuilder<ProfileCubit, ProfileState>(
             builder: (context, state) {
-              final uiState = state.lpLoadRouteDetails;
-              final routeList = uiState?.data?.data?.routeList ?? [];
-              RouteList? selectedItem=    routeList.firstWhereOrNull(
+              final uiState = state.profileDetailUIState;
+              final routeList = uiState?.data?.customer?.laneDetails;
+              LaneDetailsResponse? selectedItem=    routeList!.firstWhereOrNull(
                     (r) => r.masterLaneId == laneId,
               );
-              return RouteSearchableDropdown(
+
+              return VpRouteSearchableDropdown(
                 labelText: context.appText.route,
                 hintText: context.appText.searchRoutes,
                 fetchRoutes: (page, searchKey) async {
-                  await lpLoadLocator.getRouteDetails(
-                    search: searchKey,
-                    loadMore: page > 1,
-                  );
-                   if (lpLoadLocator.isRoutesLastPage &&
-                      page > lpLoadLocator.rootsCurrentPage) {
-                    return [];
-                  }
                   return routeList;
                 },
                 selectedRoute: selectedItem,
-                onChanged: (RouteList? value) {
+                onChanged: (LaneDetailsResponse? value) {
                   setState(() {
                     laneDropDownValue = value?.masterLaneId.toString();
                     _getLaneId(value);
@@ -244,12 +249,21 @@ class _AvailableLoadsFilterScreenState
               // Apply
               AppButton(
                 onPressed: () {
-                  Navigator.pop(context, {
-                    "commodityId": commodityId,
-                    "truckTypeId": truckTypeId,
-                    "lensType": laneId,
-                  });
-                  filterCubit.setIsFilterApplied(value: true);
+                  if(commodityId!=null || truckTypeId!=null || laneId!=null){
+
+                    Map<String,dynamic> body= {
+                      "commodityId": commodityId,
+                      "truckTypeId": truckTypeId,
+                      "lensType": laneId,
+                    };
+
+                    widget.onFilterApplied(body);
+                    Navigator.pop(context,);
+                    filterCubit.setIsFilterApplied(value: true);
+                  }else{
+                    ToastMessages.alert(message: context.appText.filterEmptyWarning);
+                  }
+
                 },
                 title: context.appText.apply,
                 style: AppButtonStyle.primary,

@@ -30,6 +30,7 @@ import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
+import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -173,7 +174,7 @@ class ProfileRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
- 
+  
 
 
 
@@ -462,7 +463,14 @@ Future<Result<bool>> deleteVehicle({
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-
+/// fetch issue cat grouups
+ Future<Result<List<IssueCategoryResponse>>> fetchIssueCategoryGroups() async {
+    try {
+      return await _profileService.fetchIssueGroups();
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }  
 
     Future<Result<Map<String, dynamic>>> fetchVehicleData(BuildContext context, String vehicleNumber) async {
     try {

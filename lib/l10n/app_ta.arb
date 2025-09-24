@@ -1269,7 +1269,8 @@
   "openSettings": "அமைப்புகளைத் திறக்கவும்",
   "okay": "சரி",
   "postLoadPriceContent": "நிம்மதியாக இருங்கள், நாங்கள் 30 நிமிடங்களில் உங்களை தொடர்புகொள்வோம்.",
-  "youCanPostOnlyOneLoad": "உங்கள் கேவாய்சி நடைமுறையில் இருக்கும் போது நீங்கள் ஒரு சுமையை மட்டுமே பதிவிடலாம். மேலும் உதவிக்கு நிர்வாகியை தொடர்பு கொள்ளவும்.",
+  "youCanPostOnlyOneLoad1": "உங்கள் கேவாய்சி நடைமுறையில் இருக்கும் போது நீங்கள் ஒரு சுமையை மட்டுமே பதிவிடலாம். மேலும் உதவிக்கு நிர்வாகியை தொடர்பு கொள்ளவும்.",
+  "youCanPostOnlyOneLoad": "KYC செயல்முறை நடைபெற்று வருகிறது. மேலும் உதவிக்காக நிர்வாகியை தொடர்பு கொள்ளவும்.",
   "kycInProgressText": "கேவாய்சி நடைமுறையில்",
   "onanotherTrip": "மற்றொரு பயணத்தில்",
   "ticket": "டிக்கெட்",
@@ -1313,7 +1314,26 @@
   "fcExpiryDate" : "FC காலாவதி",
   "pucExpiryDate" : "PUC காலாவதி",
   "pleaseSelectOneFilter" : "தயவுசெய்து ஏதேனும் ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்",
-  "platformFee":"தளம் கட்டணம்" 
+  "platformFee":"தளம் கட்டணம்",
+  "pleaseSelectLocationFromSuggestion" : "பிரஸ்தாபங்களிலிருந்து ஒரு இடத்தை தேர்ந்தெடுக்கவும்",
+  "pleaseSelectLocationFromSuggestion": "தயவுசெய்து பரிந்துரைகளில் இருந்து ஒரு இடத்தைத் தேர்ந்தெடுக்கவும்",
+  "specialLicense": "சிறப்பு அனுமதி",
+  "experience": "அனுபவம்",
+  "communicationPrefernce": "தொடர்பு விருப்பம்",
+  "pleaseEnterCommPrefernce": "தயவுசெய்து தொடர்பு விருப்பத்தை உள்ளிடவும்",
+  "pleaseEnterExperience": "தயவுசெய்து உங்கள் அனுபவத்தை உள்ளிடவும்",
+  "selectSpclLicense": "சிறப்பு அனுமதியைத் தேர்ந்தெடுக்கவும்",
+
+
+  "pleaseSelectLocationFromSuggestion" : "பிரஸ்தாபங்களிலிருந்து ஒரு இடத்தை தேர்ந்தெடுக்கவும்",
+  "pleaseSelectOneFilter" : "தயவுசெய்து ஏதேனும் ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்",
+  "approved":"Approved",
+  "rejected":"Rejected",
+    "trip":"TRIP",
+    "credits":"CREDITS",
+    "debits":"DEBITS",
+    "total":"TOTAL",
+     "filterEmptyWarning":"Please select at least one filter."
 
 
 

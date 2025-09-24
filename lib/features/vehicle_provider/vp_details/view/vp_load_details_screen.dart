@@ -188,7 +188,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
           children: [
             Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
             10.width,
-            Text(context.appText.sim, style: AppTextStyle.h5 )
+            Text(context.appText.sim, style: AppTextStyle.h5, )
           ],
         ).paddingAll(8),
       ),

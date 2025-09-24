@@ -158,20 +158,20 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  FittedBox(
-                    child: Text(
-                      widget.data.loadStatusValues==LoadStatus.assigned ? context.appText.tripPrice : context.appText.acceptedPrice ,
-                      style: AppTextStyle.textBlackColor18w400,
-                      textAlign: TextAlign.center,
-                    )
-                  ),
-                  FittedBox(
-                    child: Text(
-                      amount,
-                      style: AppTextStyle.h4PrimaryColor,
-                      textAlign: TextAlign.center,
-                    ),
-                  )
+                  Text(
+                    widget.data.loadStatusValues==LoadStatus.assigned ? context.appText.tripPrice : context.appText.acceptedPrice ,
+                    style: AppTextStyle.textBlackColor18w400,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ).expand(),
+                  Text(
+                    amount,
+                    style: AppTextStyle.h4PrimaryColor,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ).expand()
                 ],
               ),
             ),
