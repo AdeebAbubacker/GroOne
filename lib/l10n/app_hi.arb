@@ -1332,7 +1332,9 @@
     "credits":"CREDITS",
     "debits":"DEBITS",
     "total":"TOTAL",
-     "filterEmptyWarning":"Please select at least one filter."
+     "filterEmptyWarning":"Please select at least one filter.",
+  "issueCategory": "समस्या श्रेणी",
+  "issuecategoryRequired": "समस्या श्रेणी आवश्यक है"    
 
 
 
