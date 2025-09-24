@@ -312,16 +312,16 @@ class _GpsOrderBenefitsAndOrderListScreenState
             // debugPrint('sfsdfsdfdfg${state.hasKycDocuments}');
             // debugPrint('sfsdfsdfdfg${state.kycData}');
             // // Scenario 1: KYC not done or no documents - Show benefits screen
-            // if (state.kycCheckState?.status == Status.SUCCESS &&
-            //     (state.hasKycDocuments == false || state.kycData == null)) {
-            //   return _buildBenefitsScreen(
-            //     context,
-            //     navigateToUploadDocument:
-            //         state.kycData != null &&
-            //         state.kycData!['documents'] != null &&
-            //         state.kycData!['documents']['panDocLink'] == null,
-            //   );
-            // }
+            if (state.kycCheckState?.status == Status.SUCCESS &&
+                (state.hasKycDocuments == false || state.kycData == null)) {
+              return _buildBenefitsScreen(
+                context,
+                navigateToUploadDocument:
+                    state.kycData != null &&
+                    state.kycData!['documents'] != null &&
+                    state.kycData!['documents']['panDocLink'] == null,
+              );
+            }
 
             // Scenario 2 & 3: KYC done and has documents - Check order list
             if (state.kycCheckState?.status == Status.SUCCESS &&
