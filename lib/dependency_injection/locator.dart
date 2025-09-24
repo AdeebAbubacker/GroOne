@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/document/repository/document_repository.dart';
 import 'package:gro_one_app/features/document/services/document_service.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/cubit/driver_home_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
 import 'package:gro_one_app/features/driver/driver_home/service/driver_load_service.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
@@ -783,6 +784,9 @@ void _registerDeferredBlocs() {
       locator<VpHomeRepository>(),
       locator<UserInformationRepository>(),
     ),
+  );
+  locator.registerLazySingleton(
+    () => DriverHomeCubit(),
   );
   locator.registerLazySingleton(
     () => GpsOrderListCubit(locator<GpsOrderApiRepository>()),
