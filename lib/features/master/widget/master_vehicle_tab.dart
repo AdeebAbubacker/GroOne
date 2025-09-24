@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/master/view/master_screen.dart';
 import 'package:gro_one_app/features/master/widget/master_vehicle_widget.dart';
 import 'package:gro_one_app/features/profile/api_request/delete_vehicle_request.dart';
 import 'package:gro_one_app/features/profile/api_request/vehicle_request.dart';
+import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
@@ -96,188 +97,199 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        20.height,
-        // Search Bar
-        AppSearchBar(
-          searchController: vehicleSearchController,
-          onChanged: (query) {
-            vehicleSearchDebounce?.cancel();
-            vehicleSearchDebounce = Timer(
-              const Duration(milliseconds: 300),
-              () {
-                profileCubit.fetchVehicle(isLoading: false, search: query);
+    return BlocListener<ProfileCubit, ProfileState>(
+      listenWhen: (previous, current) {
+      return previous.vehicleUpdateUIState?.status != current.vehicleUpdateUIState?.status;
+    },
+      listener: (context, state) {
+         final state = profileCubit.state.vehicleUpdateUIState;
+                if (state?.status == Status.SUCCESS) {
+                  profileCubit.fetchVehicle(isLoading: false);
+        } 
+      },
+      child: Column(
+          children: [
+            20.height,
+            // Search Bar
+            AppSearchBar(
+              searchController: vehicleSearchController,
+              onChanged: (query) {
+                vehicleSearchDebounce?.cancel();
+                vehicleSearchDebounce = Timer(
+                  const Duration(milliseconds: 300),
+                  () {
+                    profileCubit.fetchVehicle(isLoading: false, search: query);
+                  },
+                );
               },
-            );
-          },
-          onClear: () {
-            setState(() {
-              vehicleSearchController.text = '';
-              vehicleSearchController.clear();
-            });
-            profileCubit.fetchVehicle(search: '');
-          },
-        ).paddingSymmetric(horizontal: 20),
-        Expanded(
-          child: BlocBuilder<ProfileCubit, ProfileState>(
-            builder: (context, state) {
-              final uiState = state.vehicleState;
-
-              if (uiState == null || uiState.status == Status.LOADING) {
-                return const Center(child: CircularProgressIndicator());
-              }
-
-              if (uiState.status == Status.ERROR) {
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    context.read<ProfileCubit>().fetchVehicle(isLoading: true);
-                  },
-                  child: ListView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.7,
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              genericErrorWidget(error: uiState.errorType),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-
-              final vehicleList = uiState.data?.data ?? [];
-              final List<VehicleDetailsData> filteredVehicleList =
-                  vehicleList
-                      .where((v) => v.status == 1 || v.status == 2)
-                      .toList();
-              final isSearching = vehicleSearchController.text.isNotEmpty;
-
-              if (filteredVehicleList.isEmpty) {
-                return RefreshIndicator(
-                  onRefresh: () async {
-                    context.read<ProfileCubit>().fetchVehicle(isLoading: true);
-                  },
-                  child:
-                      isSearching
-                          ? Text(context.appText.noSearchResults).center()
-                          : ListView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            children: [
-                              SizedBox(
-                                height:
-                                    MediaQuery.of(context).size.height * 0.6,
-                                child: Center(
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      SvgPicture.asset(
-                                        AppImage.svg.noSearchFound,
-                                        height: 120,
-                                      ),
-                                      20.height,
-                                      Text(
-                                        context.appText.noVehiclesFound,
-                                        style: AppTextStyle.h5,
-                                      ),
-                                      10.height,
-                                      Text(
-                                        context
-                                            .appText
-                                            .startByAddingANewVehicle,
-                                        style: AppTextStyle.body3,
-                                      ),
-                                    ],
-                                  ),
-                                ),
+              onClear: () {
+                setState(() {
+                  vehicleSearchController.text = '';
+                  vehicleSearchController.clear();
+                });
+                profileCubit.fetchVehicle(search: '');
+              },
+            ).paddingSymmetric(horizontal: 20),
+            Expanded(
+              child: BlocBuilder<ProfileCubit, ProfileState>(
+                builder: (context, state) {
+                  final uiState = state.vehicleState;
+    
+                  if (uiState == null || uiState.status == Status.LOADING) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+    
+                  if (uiState.status == Status.ERROR) {
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<ProfileCubit>().fetchVehicle(isLoading: true);
+                      },
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          SizedBox(
+                            height: MediaQuery.of(context).size.height * 0.7,
+                            child: Center(
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  genericErrorWidget(error: uiState.errorType),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
-                );
-              }
-
-              return RefreshIndicator(
-                onRefresh: () async {
-                  context.read<ProfileCubit>().fetchVehicle(isLoading: true);
-                },
-                child: NotificationListener<ScrollNotification>(
-                  onNotification: (scrollInfo) {
-                    if (scrollInfo.metrics.pixels ==
-                        scrollInfo.metrics.maxScrollExtent) {
-                      context.read<ProfileCubit>().fetchVehicle(loadMore: true);
-                    }
-                    return false;
-                  },
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 20,
-                      vertical: 20,
-                    ),
-                    itemCount: filteredVehicleList.length,
-                    itemBuilder: (context, index) {
-                      final vehicleDetailsData = filteredVehicleList[index];
-                      return masterVehicleInfoWidget(
-                        name: vehicleDetailsData.truckNo,
-                        phone: vehicleDetailsData.companyName,
-                        driverStatus: vehicleDetailsData.status,
-                        ownerName: vehicleDetailsData.ownerName,
-                        onEdit: () async {
-                          mastersCubit.resetVehicleVerification();
-                          await Future.delayed(
-                            const Duration(milliseconds: 50),
-                          );
-                          // showViewVehiclePopup(
-                          //   context,
-                          //   vehcile: vehicleDetailsData,
-                          // );
-                          showAddVehiclePopup(
-                            context,
-                            vehcile: vehicleDetailsData,
+                        ],
+                      ),
+                    );
+                  }
+    
+                  final vehicleList = uiState.data?.data ?? [];
+                  final List<VehicleDetailsData> filteredVehicleList =
+                      vehicleList
+                          .where((v) => v.status == 1 || v.status == 2)
+                          .toList();
+                  final isSearching = vehicleSearchController.text.isNotEmpty;
+    
+                  if (filteredVehicleList.isEmpty) {
+                    return RefreshIndicator(
+                      onRefresh: () async {
+                        context.read<ProfileCubit>().fetchVehicle(isLoading: true);
+                      },
+                      child:
+                          isSearching
+                              ? Text(context.appText.noSearchResults).center()
+                              : ListView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                children: [
+                                  SizedBox(
+                                    height:
+                                        MediaQuery.of(context).size.height * 0.6,
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          SvgPicture.asset(
+                                            AppImage.svg.noSearchFound,
+                                            height: 120,
+                                          ),
+                                          20.height,
+                                          Text(
+                                            context.appText.noVehiclesFound,
+                                            style: AppTextStyle.h5,
+                                          ),
+                                          10.height,
+                                          Text(
+                                            context
+                                                .appText
+                                                .startByAddingANewVehicle,
+                                            style: AppTextStyle.body3,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                    );
+                  }
+    
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<ProfileCubit>().fetchVehicle(isLoading: true);
+                    },
+                    child: NotificationListener<ScrollNotification>(
+                      onNotification: (scrollInfo) {
+                        if (scrollInfo.metrics.pixels ==
+                            scrollInfo.metrics.maxScrollExtent) {
+                          context.read<ProfileCubit>().fetchVehicle(loadMore: true);
+                        }
+                        return false;
+                      },
+                      child: ListView.builder(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 20,
+                        ),
+                        itemCount: filteredVehicleList.length,
+                        itemBuilder: (context, index) {
+                          final vehicleDetailsData = filteredVehicleList[index];
+                          return masterVehicleInfoWidget(
+                            name: vehicleDetailsData.truckNo,
+                            phone: vehicleDetailsData.companyName,
+                            driverStatus: vehicleDetailsData.status,
+                            ownerName: vehicleDetailsData.ownerName,
+                            onEdit: () async {
+                              mastersCubit.resetVehicleVerification();
+                              await Future.delayed(
+                                const Duration(milliseconds: 50),
+                              );
+                              // showViewVehiclePopup(
+                              //   context,
+                              //   vehcile: vehicleDetailsData,
+                              // );
+                              showAddVehiclePopup(
+                                context,
+                                vehcile: vehicleDetailsData,
+                              );
+                            },
+                            onDelete:
+                                () => showDeletePopUp(
+                                  context: context,
+                                  confirmMessage:
+                                      context.appText.areYouSureToDeleteThisVehicle,
+                                  successMessage:
+                                      context.appText.vehicleDeletedSuccessfully,
+                                  onDelete:
+                                      () => profileCubit.deleteVehicle(
+                                        vehicleId: vehicleDetailsData.vehicleId,
+                                        request: DeleteVehicleRequest(status: 3),
+                                      ),
+                                ),
+                            context: context,
                           );
                         },
-                        onDelete:
-                            () => showDeletePopUp(
-                              context: context,
-                              confirmMessage:
-                                  context.appText.areYouSureToDeleteThisVehicle,
-                              successMessage:
-                                  context.appText.vehicleDeletedSuccessfully,
-                              onDelete:
-                                  () => profileCubit.deleteVehicle(
-                                    vehicleId: vehicleDetailsData.vehicleId,
-                                    request: DeleteVehicleRequest(status: 3),
-                                  ),
-                            ),
-                        context: context,
-                      );
-                    },
-                  ),
-                ),
-              );
-            },
-          ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: AppButton(
+                title: context.appText.addNewVehicle,
+                onPressed: () async {
+                  mastersCubit.resetVehicleVerification();
+                  await Future.delayed(
+                    const Duration(milliseconds: 50),
+                  ); // make sure state is cleared
+                  showAddVehiclePopup(context);
+                },
+              ),
+            ),
+          ],
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-          child: AppButton(
-            title: context.appText.addNewVehicle,
-            onPressed: () async {
-              mastersCubit.resetVehicleVerification();
-              await Future.delayed(
-                const Duration(milliseconds: 50),
-              ); // make sure state is cleared
-              showAddVehiclePopup(context);
-            },
-          ),
-        ),
-      ],
     );
   }
 
@@ -319,6 +331,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
         vehcile?.registrationDate != null
             ? DateFormat('dd/MM/yyyy').format(vehcile!.registrationDate!)
             : null;
+    bool isActive = vehcile != null ? (vehcile.status == 1) : true;        
     String? selectedWeightDropDownValue;
     selectedWeightDropDownValue = vehcile?.tonnage;
     TruckTypeModel? selectedTruckType;
@@ -858,6 +871,25 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       ),
                     ),
                     20.height,
+                    /// Active Switch
+                   isEdit ? Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(context.appText.active),
+                        Switch(
+                          value: isActive,
+                            onChanged: (val) {
+                            setState(() => isActive = val);
+                            profileCubit.vehicleupdateStatus(
+                              vehicleId: vehcile.vehicleId,
+                              request: VehicleStatusUpdateRequest(
+                                status: val ? 1 : 2,
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ) : SizedBox.shrink()
                   ],
                 ),
               ),
@@ -941,7 +973,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                   pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
                   registrationDate: convertToYMD(registrationDate.toString()),
                   insuranceValidityDate: convertToYMD(
-                    insuranceValidityDate.toString(),
+                  insuranceValidityDate.toString(),                 
                   ),
                 );
 
