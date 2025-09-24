@@ -11,7 +11,6 @@ import 'package:gro_one_app/features/profile/api_request/create_ticket_request.d
 import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
-import 'package:gro_one_app/features/profile/view/ticket_screen.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -74,7 +73,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
     if (_formKey.currentState!.validate()) {
        await profileCubit.createTicket(
         request: CreateTicketRequest(
-          issueCategoryUuid: selectedUuid.toString(),
+          issueCategoryUuid: selectedUuid,
           title: titleController.text.trim(),
           description: descriptionController.text.trim(),
           attachmentLink: ticketDocId != null ? [ticketDocId] : [],
@@ -117,14 +116,38 @@ String? selectedUuid;
                     final issueList = state.issueCategoryResponseUIState?.data ?? [];
                     final selectedCategory = issueList.firstWhereOrNull((e) => e.uuid == selectedUuid);
 
-                    return IssueCategoryDropdown(
-                      selectedCategory: selectedCategory,
-                      onChanged: (value) {
-                        setState(() {
-                          selectedUuid = value?.uuid;
-                        });
-                      },
-                      isEdit: false,
+                    return FormField<IssueCategoryResponse>(
+                      validator: (value) {
+                      if (selectedUuid == null || selectedUuid!.isEmpty) {
+                        return "Please select an issue category";
+                      }
+                      return null;
+                    },
+                      builder: (field) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            IssueCategoryDropdown(
+                              selectedCategory: selectedCategory,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedUuid = value?.uuid;
+                                });
+                                field.didChange(value); 
+                              },
+                              isEdit: false,
+                            ),
+                            if (field.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 8),
+                              child: Text(
+                                field.errorText!,
+                                style: AppTextStyle.textFieldHintRedColor,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
                     );
                   },
                 ),
@@ -277,7 +300,7 @@ class IssueCategoryDropdown extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text("Issue Category", style: AppTextStyle.textFiled),
+            Text(context.appText.issueCategory, style: AppTextStyle.textFiled),
             const SizedBox(width: 2),
             Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
           ],
@@ -291,7 +314,7 @@ class IssueCategoryDropdown extends StatelessWidget {
           ),
           child: SearchableDropdown<IssueCategoryResponse>.future(
             dialogOffset: 0,
-            hintText: Text("Select an issue category", style: AppTextStyle.textFieldHint),
+            hintText: Text(context.appText.issuecategoryRequired, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
 
             /// initial value
@@ -331,99 +354,3 @@ class IssueCategoryDropdown extends StatelessWidget {
     );
   }
 }
-
-// class IssueCategoryDropdown extends StatelessWidget {
-//   final IssueCategoryResponse? selectedCategory;
-//   final ValueChanged<IssueCategoryResponse?> onChanged;
-//   final bool isEdit;
-//   final bool isRequired;
-
-//   const IssueCategoryDropdown({
-//     super.key,
-//     required this.selectedCategory,
-//     required this.onChanged,
-//     this.isEdit = false,
-//     this.isRequired = true, // default required
-//   });
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return FormField<IssueCategoryResponse>(
-//       validator: (value) {
-//         if (isRequired && (selectedCategory == null)) {
-//           return "Please select an issue category";
-//         }
-//         return null;
-//       },
-//       builder: (fieldState) {
-//         return Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Row(
-//               children: [
-//                 Text("Issue Category", style: AppTextStyle.textFiled),
-//                 const SizedBox(width: 2),
-//                 if (isRequired)
-//                   Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
-//               ],
-//             ),
-//             const SizedBox(height: 6),
-//             Container(
-//               decoration: BoxDecoration(
-//                 border: Border.all(
-//                   color: fieldState.hasError ? Colors.red : Colors.grey.shade400,
-//                 ),
-//                 borderRadius: BorderRadius.circular(4),
-//                 color: isEdit ? AppColors.lightGreyColor : Colors.white,
-//               ),
-//               child: SearchableDropdown<IssueCategoryResponse>.future(
-//                 dialogOffset: 0,
-//                 hintText: Text("Select an issue category", style: AppTextStyle.textFieldHint),
-//                 isDialogExpanded: false,
-
-//                 /// initial value
-//                 initialValue: selectedCategory != null
-//                     ? SearchableDropdownMenuItem<IssueCategoryResponse>(
-//                         value: selectedCategory!,
-//                         label: selectedCategory!.issueCategory,
-//                         child: Text(selectedCategory!.issueCategory),
-//                       )
-//                     : null,
-
-//                 /// fetch items once
-//                 futureRequest: () async {
-//                   final cubit = context.read<MastersCubit>();
-//                   if (cubit.state.issueCategoryResponseUIState?.data == null ||
-//                       cubit.state.issueCategoryResponseUIState!.data!.isEmpty) {
-//                     await cubit.fetchIssueCategoryGroup();
-//                   }
-//                   final allCategories = cubit.state.issueCategoryResponseUIState?.data ?? [];
-//                   return allCategories.map((category) {
-//                     return SearchableDropdownMenuItem<IssueCategoryResponse>(
-//                       value: category,
-//                       label: category.issueCategory,
-//                       child: Text(category.issueCategory),
-//                     );
-//                   }).toList();
-//                 },
-
-//                 onChanged: (val) {
-//                   onChanged(val);
-//                   fieldState.didChange(val); // update form field state
-//                 },
-//               ),
-//             ),
-//             if (fieldState.hasError)
-//               Padding(
-//                 padding: const EdgeInsets.only(top: 4, left: 8),
-//                 child: Text(
-//                   fieldState.errorText!,
-//                   style: TextStyle(color: Colors.red, fontSize: 12),
-//                 ),
-//               ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-// }
