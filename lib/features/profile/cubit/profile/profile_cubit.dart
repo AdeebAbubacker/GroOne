@@ -513,7 +513,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return result;
   }
 
-  //   // Update vehicle status from api call
+  //Update vehicle status from api call
   void _setUpdateVehicleStatusUIState(
     UIState<VehcileUpdatedStatusModel>? uiState,
   ) {

@@ -1211,6 +1211,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                   width: 170,
                   height: commonButtonHeight2,
                   child: AppButton(
+                    enable: isEdit ? false : true,               
                     isLoading: isLoading,
                     title:
                         isVerified
