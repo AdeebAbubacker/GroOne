@@ -23,6 +23,12 @@ class EnvironmentVariables {
 
   }
 
+  /// Fetch Base URL
+  static String get imageBaseURL {
+    return _getEnvVariable("IMAGE_BASE_URL");
+
+  }
+
   /// Fetch X API KEY
   static String get fetchXApiKEY {
     return _getEnvVariable("X_API_KEY");
