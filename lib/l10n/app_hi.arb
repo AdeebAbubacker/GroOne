@@ -1326,14 +1326,16 @@
 
   "pleaseSelectLocationFromSuggestion" : "कृपया सुझावों में से एक स्थान चुनें",
   "pleaseSelectOneFilter" : "कृपया कोई एक फ़िल्टर चुनें",
-  "approved":"Approved",
-  "rejected":"Rejected",
-    "trip":"TRIP",
-    "credits":"CREDITS",
-    "debits":"DEBITS",
-    "total":"TOTAL",
-     "filterEmptyWarning":"Please select at least one filter.",
-     "truckTypeRequired":"Truck Type required"
+
+  "approved": "स्वीकृत",
+  "rejected": "अस्वीकृत",
+  "trip": "यात्रा",
+  "credits": "क्रेडिट",
+  "debits": "डेबिट",
+  "total": "कुल",
+  "filterEmptyWarning": "कृपया कम से कम एक फ़िल्टर चुनें।",
+  "truckTypeRequired": "ट्रक प्रकार आवश्यक है"
+
 
 
 

@@ -51,7 +51,11 @@ class VpHomeService {
         url = "$url&search=$search";
       }
 
-      final result = await _apiService.get(url);
+      final result = await _apiService.get(
+          queryParams: {
+            "status":2
+          },
+          url);
 
       if (result is Success) {
         final vehicleListResponse = VehicleListResponse.fromJson(result.value);
@@ -81,7 +85,12 @@ class VpHomeService {
       if (search != null && search.trim().isNotEmpty) {
         url = "$url&search=${Uri.encodeComponent(search)}";
       }
-      final result = await _apiService.get(url);
+      final result = await _apiService.get(
+
+          queryParams: {
+            "status":2
+          },
+          url);
 
       if (result is Success) {
         final driverResponse = DriverListResponse.fromJson(result.value);

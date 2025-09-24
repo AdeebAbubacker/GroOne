@@ -1327,14 +1327,17 @@
 
   "pleaseSelectLocationFromSuggestion" : "பிரஸ்தாபங்களிலிருந்து ஒரு இடத்தை தேர்ந்தெடுக்கவும்",
   "pleaseSelectOneFilter" : "தயவுசெய்து ஏதேனும் ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்",
-  "approved":"Approved",
-  "rejected":"Rejected",
-    "trip":"TRIP",
-    "credits":"CREDITS",
-    "debits":"DEBITS",
-    "total":"TOTAL",
-     "filterEmptyWarning":"Please select at least one filter.",
-      "truckTypeRequired":"Truck Type required"
+
+  "approved": "அனுமதிக்கப்பட்டது",
+  "rejected": "நிராகரிக்கப்பட்டது",
+  "trip": "பயணம்",
+  "credits": "கிரெடிட்கள்",
+  "debits": "டெபிட்கள்",
+  "total": "மொத்தம்",
+  "filterEmptyWarning": "தயவு செய்து குறைந்தது ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்.",
+  "truckTypeRequired": "லாரி வகை தேவை"
+
+
 
 
 
