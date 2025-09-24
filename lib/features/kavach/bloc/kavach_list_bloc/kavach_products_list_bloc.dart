@@ -7,10 +7,12 @@ import '../../repository/kavach_repository.dart';
 import 'kavach_products_list_event.dart';
 import 'kavach_products_list_state.dart';
 
-class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProductsListState> {
+class KavachProductsListBloc
+    extends Bloc<KavachProductsListEvent, KavachProductsListState> {
   final KavachRepository repository;
 
-  KavachProductsListBloc(this.repository) : super(KavachProductsListState.initial()) {
+  KavachProductsListBloc(this.repository)
+    : super(KavachProductsListState.initial()) {
     on<FetchKavachProducts>(_onFetch);
     on<FetchMastersData>(_onFetchMastersData);
     on<UpdateUserPreferences>(_onUpdateUserPreferences);
@@ -22,32 +24,46 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
   }
 
   /// Handles fetching Kavach products with optional search and preferences
-  Future<void> _onFetch(FetchKavachProducts event, Emitter<KavachProductsListState> emit) async {
+  Future<void> _onFetch(
+    FetchKavachProducts event,
+    Emitter<KavachProductsListState> emit,
+  ) async {
     if (state.loading) return;
 
     emit(state.copyWith(loading: true, error: null));
 
     final result = await repository.fetchProducts(
-      search: event.search, 
+      search: event.search,
       page: event.page,
       preferences: event.preferences,
     );
-    
+
+    final updatedProductsById =
+        state.allProductsById != null
+            ? Map<String, KavachProduct>.from(state.allProductsById!)
+            : <String, KavachProduct>{};
+
     if (result is Success<List<KavachProduct>>) {
       final products = result.value;
-      final newProductList = event.isLoadMore
-          ? [...state.products, ...products]
-          : products;
+
+      for (final product in products) {
+        updatedProductsById[product.id] = product;
+      }
+
+      final newProductList =
+          event.isLoadMore ? [...state.products, ...products] : products;
 
       final updatedQuantities = Map<String, int>.from(state.quantities);
-      final updatedAvailableStocks = Map<String, int>.from(state.availableStocks);
+      final updatedAvailableStocks = Map<String, int>.from(
+        state.availableStocks,
+      );
 
-      // Fetch available stock for each product
       for (var product in products) {
         updatedQuantities.putIfAbsent(product.id, () => 0);
-        
-        // Fetch stock for each product upon initial load
-        final stockResult = await repository.fetchAvailableStock(productId: product.id);
+
+        final stockResult = await repository.fetchAvailableStock(
+          productId: product.id,
+        );
         if (stockResult is Success<int>) {
           updatedAvailableStocks[product.id] = stockResult.value;
         } else {
@@ -55,46 +71,54 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
         }
       }
 
-      emit(state.copyWith(
-        products: newProductList,
-        quantities: updatedQuantities,
-        availableStocks: updatedAvailableStocks,
-        loading: false,
-        hasMore: products.isNotEmpty,
-        currentPage: event.page,
-      ));
+      emit(
+        state.copyWith(
+          products: newProductList,
+          quantities:
+              event.quantities != null && event.quantities!.isNotEmpty
+                  ? event.quantities
+                  : updatedQuantities,
+          availableStocks: updatedAvailableStocks,
+          loading: false,
+          hasMore: products.isNotEmpty,
+          allProductsById: updatedProductsById,
+          currentPage: event.page,
+        ),
+      );
     } else if (result is Error<List<KavachProduct>>) {
       emit(state.copyWith(error: result.type, loading: false));
     }
   }
 
   /// Fetches masters data for vehicle preferences
-  Future<void> _onFetchMastersData(FetchMastersData event, Emitter<KavachProductsListState> emit) async {
+  Future<void> _onFetchMastersData(
+    FetchMastersData event,
+    Emitter<KavachProductsListState> emit,
+  ) async {
     emit(state.copyWith(mastersLoading: true, mastersError: null));
 
     final result = await repository.getMasters();
 
     if (result is Success<KavachMastersModel>) {
-      emit(state.copyWith(
-        mastersData: result.value,
-        mastersLoading: false,
-      ));
+      emit(state.copyWith(mastersData: result.value, mastersLoading: false));
     } else if (result is Error<KavachMastersModel>) {
-      emit(state.copyWith(
-        mastersError: result.type,
-        mastersLoading: false,
-      ));
+      emit(state.copyWith(mastersError: result.type, mastersLoading: false));
     }
   }
 
   /// Updates user preferences and optionally refetches products with filters
-  void _onUpdateUserPreferences(UpdateUserPreferences event, Emitter<KavachProductsListState> emit) {
+  void _onUpdateUserPreferences(
+    UpdateUserPreferences event,
+    Emitter<KavachProductsListState> emit,
+  ) {
     emit(state.copyWith(userPreferences: event.preferences));
-
   }
 
   /// Handles incrementing product quantity
-  void _onIncrement(IncrementQuantity event, Emitter<KavachProductsListState> emit) {
+  void _onIncrement(
+    IncrementQuantity event,
+    Emitter<KavachProductsListState> emit,
+  ) {
     final updated = Map<String, int>.from(state.quantities);
     updated[event.productId] = (updated[event.productId] ?? 0) + 1;
 
@@ -102,7 +126,10 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
   }
 
   /// Handles decrementing product quantity
-  void _onDecrement(DecrementQuantity event, Emitter<KavachProductsListState> emit) {
+  void _onDecrement(
+    DecrementQuantity event,
+    Emitter<KavachProductsListState> emit,
+  ) {
     final updated = Map<String, int>.from(state.quantities);
     final currentQty = updated[event.productId] ?? 0;
 
@@ -113,7 +140,10 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
   }
 
   /// Handles trying to increment quantity with stock validation
-  Future<void> _onTryIncrementQuantity(TryIncrementQuantity event, Emitter<KavachProductsListState> emit) async {
+  Future<void> _onTryIncrementQuantity(
+    TryIncrementQuantity event,
+    Emitter<KavachProductsListState> emit,
+  ) async {
     final stockResult = await repository.fetchAvailableStock(
       productId: event.productId,
     );
@@ -135,13 +165,19 @@ class KavachProductsListBloc extends Bloc<KavachProductsListEvent, KavachProduct
   }
 
   /// Updates Kavach quantities with new values
-  void _onUpdateKavachQuantities(UpdateKavachQuantities event, Emitter<KavachProductsListState> emit) {
+  void _onUpdateKavachQuantities(
+    UpdateKavachQuantities event,
+    Emitter<KavachProductsListState> emit,
+  ) {
     // Emit updated quantities including zeros to reset them properly
     emit(state.copyWith(quantities: Map.from(event.updatedQuantities)));
   }
 
   /// Clears Kavach quantities
-  void _onClearKavachQuantities(ClearKavachQuantities event, Emitter<KavachProductsListState> emit) {
+  void _onClearKavachQuantities(
+    ClearKavachQuantities event,
+    Emitter<KavachProductsListState> emit,
+  ) {
     emit(state.copyWith(quantities: {}));
   }
 }

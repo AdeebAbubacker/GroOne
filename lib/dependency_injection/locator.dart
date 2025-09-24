@@ -26,6 +26,8 @@ import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/endhan_transaction_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en_dhan_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en_dhan_services.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_tab_cubit.dart';
 import 'package:gro_one_app/features/fastag/repository/fastag_repository.dart';
 import 'package:gro_one_app/features/fastag/service/fastag_service.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
@@ -33,6 +35,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_cubit/gp
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
@@ -644,6 +647,12 @@ void _registerBasicBlocs() {
     () => PodDispatchCubit(locator<PodDispatchRepository>()),
   );
   locator.registerLazySingleton(
+    () => FastagOrderListCubit(locator<FastagRepository>()),
+  );
+  locator.registerLazySingleton(
+    () => FastagOrderListTabCubit(locator<FastagRepository>()),
+  );
+  locator.registerLazySingleton(
     () => DriverProfileCubit(locator<DriverProfileRepository>()),
   );
   locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
@@ -774,6 +783,9 @@ void _registerDeferredBlocs() {
       locator<VpHomeRepository>(),
       locator<UserInformationRepository>(),
     ),
+  );
+  locator.registerLazySingleton(
+    () => GpsOrderListCubit(locator<GpsOrderApiRepository>()),
   );
 
   // Verify GPS cubits are registered

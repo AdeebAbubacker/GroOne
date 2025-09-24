@@ -67,9 +67,10 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
   }
 
   Future<void> fetchGpsBillingAddresses({
-    int changeBillingIndex = 0,
-    bool noRefresh = false,
+    String billingAddressUniqueId = '',
+    String shippingAddressUniqueId = '',
   }) async {
+    // debugPrint('shippingAddressUniqueId=>$shippingAddressUniqueId');
     emit(GpsBillingAddressLoading());
     try {
       final customerId = await _userRepository.getUserID();
@@ -92,16 +93,23 @@ class GpsBillingAddressCubit extends Cubit<GpsBillingAddressState> {
                   .map((gpsAddress) => gpsAddress.toKavachAddressModel())
                   .toList();
           // Auto-select first address
+          // final addressList =
+          //     addresses
+          //         .where((v) => v.id.toString() != shippingAddressUniqueId)
+          //         .toList();
+          var selectedOne = addresses.where(
+            (v) => v.id.toString() == billingAddressUniqueId,
+          );
+
           emit(
             GpsBillingAddressSelected(
               selectedAddress:
-                  noRefresh == true
+                  shippingAddressUniqueId.isEmpty &&
+                          billingAddressUniqueId.isEmpty
                       ? null
-                      : addresses[changeBillingIndex == 1
-                          ? changeBillingIndex
-                          : changeBillingIndex > 1
-                          ? changeBillingIndex - 1
-                          : 0],
+                      : selectedOne.isNotEmpty
+                      ? selectedOne.first
+                      : null,
               addresses: addresses,
             ),
           );
