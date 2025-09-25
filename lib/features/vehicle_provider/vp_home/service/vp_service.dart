@@ -53,7 +53,7 @@ class VpHomeService {
 
       final result = await _apiService.get(
           queryParams: {
-            "status":2
+            "status":1
           },
           url);
 
@@ -88,7 +88,7 @@ class VpHomeService {
       final result = await _apiService.get(
 
           queryParams: {
-            "status":2
+            "status":1
           },
           url);
 
