@@ -33,6 +33,7 @@ class KycHelper {
 
  // Get Document Type Id
  static Future<int?> getDocumentTypeId(KycDocType type,DocumentTypeCubit documentTypeCubit) async {
+  print("type is $type");
    switch (type) {
      case KycDocType.pan:
        return await documentTypeCubit.getDocumentTypeId(DocumentFileType.panDocument.documentType??"");       // "PAN Card"

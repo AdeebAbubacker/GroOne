@@ -538,7 +538,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     }
 
     bool checkId(String? id, String label) {
+
       final ok = id != null;
+
       if (!ok) {
         ToastMessages.alert(message: context.appText.errorMessage);
       }
