@@ -1335,7 +1335,7 @@
   "debits": "डेबिट",
   "total": "कुल",
   "filterEmptyWarning": "कृपया कम से कम एक फ़िल्टर चुनें।",
-  "truckTypeRequired": "ट्रक प्रकार आवश्यक है"
+  "truckTypeRequired": "ट्रक प्रकार आवश्यक है",
 
   "issueCategory": "समस्या श्रेणी",
   "issuecategoryRequired": "समस्या श्रेणी आवश्यक है",

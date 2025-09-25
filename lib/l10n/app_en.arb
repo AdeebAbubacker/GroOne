@@ -1383,8 +1383,8 @@
   "debits":"DEBITS",
   "total":"TOTAL",
   "filterEmptyWarning":"Please select at least one filter.",
-  "truckTypeRequired":"Truck Type required"
-  "filterEmptyWarning":"Please select at least one filter.",
+  "truckTypeRequired":"Truck Type required",
+
   "issueCategory" : "Issue Category",
 "issuecategoryRequired" : "Issue Category Required",
   "viewTransactionDetails" : "View Transaction Details",
