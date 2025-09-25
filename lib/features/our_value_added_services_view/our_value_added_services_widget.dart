@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/fastag/views/fastag_new_user_screen.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/gps_feature/model/gps_login_model.dart';
 import 'package:gro_one_app/features/gps_feature/repository/gps_login_repository.dart';
 import 'package:gro_one_app/features/gps_feature/views/gps_order/gps_order_benefits_and_order_list_screen.dart';
 
@@ -162,9 +163,19 @@ class _OurValueAddedServicesWidgetState
 
                       // Navigate to benefits screen (GPS auth failed)
                       if (context.mounted) {
+                        String status =
+                            (authResult is Failure)
+                                ? (authResult as Failure).statusCode == 401
+                                    ? '401'
+                                    : ''
+                                : '';
                         Navigator.push(
                           context,
-                          commonRoute(GpsOrderBenefitsAndOrderListScreen()),
+                          commonRoute(
+                            GpsOrderBenefitsAndOrderListScreen(
+                              authStatusCode: status == '401' ? '401' : '',
+                            ),
+                          ),
                         );
                       }
 
@@ -430,9 +441,9 @@ class _OurValueAddedServicesWidgetState
       onTap: onClick,
       child: Container(
         constraints: const BoxConstraints(
-        minWidth: 120,  // 👈 always at least 100
-        maxWidth: 300,  // 👈 expand up to this if needed (you can adjust)
-      ),
+          minWidth: 120, // 👈 always at least 100
+          maxWidth: 300, // 👈 expand up to this if needed (you can adjust)
+        ),
         height: 90,
         decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
         child: Padding(
@@ -442,7 +453,7 @@ class _OurValueAddedServicesWidgetState
             children: [
               Image.asset(imageString, width: 30),
               10.height,
-          
+
               Text(title, textAlign: TextAlign.center, style: AppTextStyle.h6),
             ],
           ),
