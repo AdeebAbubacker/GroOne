@@ -638,6 +638,7 @@
   "switchAccount": "Switch Account",
   "verifyEmail": "Please verify your email",
   "isIncomplete": "is incomplete",
+  "isInvalid": "is invalid",
   "selectWeight": "Select Weight",
   "selectCommodityTypes": "Select Commodity Types",
   "expectedDeliveryRateRequired": "Expected Delivery Date is required",
@@ -1382,6 +1383,8 @@
   "debits":"DEBITS",
   "total":"TOTAL",
   "filterEmptyWarning":"Please select at least one filter.",
+  "truckTypeRequired":"Truck Type required",
+
   "issueCategory" : "Issue Category",
   "issuecategoryRequired" : "Issue Category Required",
   "viewTransactionDetails" : "View Transaction Details",

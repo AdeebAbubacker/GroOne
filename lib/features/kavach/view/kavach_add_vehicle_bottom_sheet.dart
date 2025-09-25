@@ -156,7 +156,8 @@ class _KavachAddVehicleBottomSheetState
                         validator:
                             (value) => Validator.validateVehicleNumber(
                               value,
-                              fieldName: context.appText.truckNumber,
+                              fieldName: context.appText.isInvalid,
+                              errorMessage: context.appText.isInvalid,
                             ),
                         inputFormatters: [
                           FilteringTextInputFormatter.allow(
@@ -191,6 +192,8 @@ class _KavachAddVehicleBottomSheetState
                                             vehicleNumber,
                                             fieldName:
                                                 context.appText.truckNumber,
+                                            errorMessage:
+                                                context.appText.isInvalid,
                                           );
 
                                       if (validationMessage != null) {

@@ -630,23 +630,28 @@ class _GpsOrderBenefitsAndOrderListScreenState
                           ),
                           child: GestureDetector(
                             onTap: () {
-                              setState(() {
-                                selectedTab = index;
-                                page = 1;
-                              });
-                              tabOrders[selectedTab]?.clear();
-                              statusParam =
-                                  _getStatusForIndex(selectedTab)?.toString();
-                              gpsOrderListCubit?.getOrderList(
-                                customerId: customerId,
-                                page: 1,
-                                statusParam: statusParam,
-                              );
-                              _pageController?.animateToPage(
-                                index,
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeInOut,
-                              );
+                              if (selectedTab != index) {
+                                tabOrders.updateAll((key, value) => []);
+                                tabOrders[selectedTab]?.clear();
+                                if (previousIndex != null) {
+                                  tabOrders[previousIndex]?.clear();
+                                  tabOrders[selectedTab] = [];
+                                }
+                                _pageController?.jumpToPage(index);
+                                setState(() {
+                                  selectedTab = index;
+                                  page = 1;
+                                });
+                                statusParam =
+                                    _getStatusForIndex(selectedTab).toString();
+                                // gpsOrderListCubit?.getOrderList(
+                                //   customerId: customerId,
+                                //   page: 1,
+                                //   statusParam: statusParam,
+                                // );
+                                _scrollTabToCenter(index);
+                              }
+                              _pageController?.jumpToPage(index);
                             },
                             child: Container(
                               padding: const EdgeInsets.symmetric(

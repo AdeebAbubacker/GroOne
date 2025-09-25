@@ -751,7 +751,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                   controller: nameController,
                   labelText: context.appText.name,
                   hintText: context.appText.fullNameHint,
-                  mandatoryStar:  isUpdateConsignee ? false : true,
+                  mandatoryStar: !isUpdateConsignee || (isUpdateConsignee && !isEditable),
                   inputFormatters: [
                     FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
                     LengthLimitingTextInputFormatter(50)
@@ -773,7 +773,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                   controller: phoneController,
                   labelText: context.appText.contactNumber,
                    hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
-                    mandatoryStar:  isUpdateConsignee ? false : true,
+                  mandatoryStar: !isUpdateConsignee || (isUpdateConsignee && !isEditable),
             
                 ),
                 20.height,
@@ -811,13 +811,15 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                         style: AppButtonStyle.cancelShrink,
                         textStyle: AppTextStyle.buttonRedColorTextColor,
                         onPressed: () {
-                       FocusScope.of(context).unfocus();
-                          final cubit = context.read<LpLoadCubit>();
-                          cubit.emit(
-                            cubit.state.copyWith(
-                              isFieldUpdatble: true,
-                            ),
-                          );
+                          if (formKey?.currentState?.validate() ?? false) {
+                            FocusScope.of(context).unfocus();
+                            final cubit = context.read<LpLoadCubit>();
+                            cubit.emit(
+                              cubit.state.copyWith(
+                                isFieldUpdatble: true,
+                              ),
+                            );
+                          }
                         },
                       )
                     : SizedBox.shrink(),
