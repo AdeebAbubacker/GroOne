@@ -426,7 +426,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             final resRcRegisData =
                                 vehicleData['rc_registration_date'] ?? '';
                             if (insurancePolicyNo != null) {
-                              registrationDate = resRcRegisData.toString();
+                              registrationDate = DateHelper.parseDate(
+                                resRcRegisData,
+                              );
                             }
                             final capacity = vehicleData['tonnage'];
                             if (capacity != null) {
@@ -1196,7 +1198,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                               }
                               final vehicleRegData =
                                   vehicleData['rc_registration_date'] ?? '';
-                              registrationDate = vehicleRegData;
+                              registrationDate = DateHelper.parseDate(
+                                vehicleRegData,
+                              );
                               final capacity = vehicleData['tonnage'];
                               if (capacity != null) {
                                 RegExp(r'\d+').stringMatch(capacity.toString());
@@ -2004,7 +2008,9 @@ class AddVehicleDialog {
                               final resRcRegisData =
                                   vehicleData['rc_registration_date'] ?? '';
                               if (insurancePolicyNo != null) {
-                                registrationDate = resRcRegisData.toString();
+                                registrationDate = DateHelper.parseDate(
+                                  resRcRegisData,
+                                );
                               }
                               final capacity = vehicleData['tonnage'];
                               if (capacity != null) {
