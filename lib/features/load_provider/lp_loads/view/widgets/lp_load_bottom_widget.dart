@@ -56,10 +56,12 @@ class LpLoadBottomWidget extends StatefulWidget {
 }
 
 class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
- String? consigneeId;  
+ String? consigneeId;
+ List<LoadDocumentData>? othersDocument;
   @override
   void initState() {
   initFunction();
+  widget.loadItem.loadDocument;
   super.initState();
   }
 
@@ -90,6 +92,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     consigneePhoneController = TextEditingController(text: consigneePhone);
     consigneeEmailController = TextEditingController(text: consigneeEmail);
     isUpdateConsignee = widget.loadItem.consignees.isNotEmpty;
+    getOthersDocument();
 
   });
 
@@ -98,6 +101,12 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     consigneePhoneController.dispose();
     consigneeEmailController.dispose();
   });
+
+   void getOthersDocument(){
+     othersDocument=widget.loadItem.loadDocument.where((element) {
+       return vp_helper.DocumentFileType.uploadOtherDocument.documentType == (element.documentDetails?.documentType ?? '');
+     },).toList();
+   }
 
   Future<dynamic>? onSubmit(LoadData loadItem, context) async {
     await lpLoadLocator.getCreditCheck();
@@ -438,8 +447,6 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                           },
                           builder: (context, state) {
 
-
-
                             return _buildConsigneeDetail(
                               formKey: _formKey,
                               context: context,
@@ -510,13 +517,12 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                          10.height,
                          Column(
                            children: widget.loadItem.loadDocument.map((doc) {
-
-
-
                              return Column(
                                children: [
                                 if( vp_helper.DocumentFileType.uploadOtherDocument.documentType != (doc.documentDetails?.documentType ?? ''))
                                   TripDocuments(
+                                    otherDocument: [],
+                                    showViewMoreIcon: false,
                                    docName:
                                    doc.documentDetails?.documentType ?? '',
                                    docDateTime: doc.createdAt!,
@@ -529,6 +535,19 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                              );
                            }).toList(),
                          ),
+                         if((othersDocument??[]).isNotEmpty)...[
+                           TripDocuments(
+                             otherDocument: othersDocument??[],
+                             showViewMoreIcon: true,
+                             docName:
+                             othersDocument?[0].documentDetails?.documentType ?? '',
+                             docDateTime:  othersDocument![0].createdAt!,
+                             docUrl:  othersDocument?[0].documentDetails?.filePath ?? '',
+                             downloadKey:  othersDocument![0].loadDocumentId,
+                             docId:  othersDocument![0].documentId,
+                           ),
+                         ]
+
                        ],
 
                         // Feedback and Remarks
