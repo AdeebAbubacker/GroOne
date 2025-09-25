@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:gro_one_app/data/model/result.dart';
+
 GpsLoginResponseModel gpsLoginResponseModelFromJson(String str) =>
     GpsLoginResponseModel.fromJson(json.decode(str));
 
@@ -22,6 +24,14 @@ class GpsLoginResponseModel {
     "token": token,
     "refresh_token": refreshToken,
   };
+}
+
+class Failure<T> extends Result<T> {
+  final int statusCode; // HTTP status code
+  final String message; // error message
+  final T? data; // optional: raw response or other info
+
+  Failure({required this.statusCode, required this.message, this.data});
 }
 
 // Keep the old structure for backward compatibility if needed

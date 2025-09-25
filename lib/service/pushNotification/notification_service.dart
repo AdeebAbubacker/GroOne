@@ -212,33 +212,37 @@ class NotificationService {
   /// Request notification permissions
   Future<void> _requestPermissions() async {
     try {
-      // Firebase messaging permissions
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-      NotificationSettings settings = await messaging.requestPermission(
-        alert: true,
-        announcement: true,
-        badge: true,
-        carPlay: false,
-        sound: true,
-        provisional: false,
-        criticalAlert: false,
-      );
 
-      // iOS specific permissions
       if (Platform.isIOS) {
-        await FirebaseMessaging.instance.requestPermission(
+        // iOS - Firebase permissions
+        NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
           alert: true,
+          announcement: true,
           badge: true,
+          carPlay: false,
           sound: true,
+          provisional: false,
+          criticalAlert: false,
         );
+
+        // Only request AwesomeNotifications if authorized/provisional
+        if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional) {
+          await AwesomeNotifications().requestPermissionToSendNotifications();
+        }
       }
 
-      // Awesome notifications permissions
-      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-          settings.authorizationStatus == AuthorizationStatus.provisional) {
-        await AwesomeNotifications().requestPermissionToSendNotifications();
-      } else {
-        CustomLog.debug(this, 'User declined or has not accepted permission');
+      if (Platform.isAndroid) {
+        // Android - AwesomeNotifications permission
+        final isAllowed = await AwesomeNotifications().isNotificationAllowed();
+        if (!isAllowed) {
+          try {
+            await AwesomeNotifications().requestPermissionToSendNotifications();
+          } catch (e) {
+            // fallback: open settings page
+            await AwesomeNotifications().showNotificationConfigPage();
+          }
+        }
       }
 
       CustomLog.debug(this, "Notification permissions requested successfully");
@@ -246,6 +250,45 @@ class NotificationService {
       CustomLog.error(this, "Notification permission request error", e);
     }
   }
+
+
+  /// Request notification permissions
+  // Future<void> _requestPermissions() async {
+  //   try {
+  //     // Firebase messaging permissions
+  //     FirebaseMessaging messaging = FirebaseMessaging.instance;
+  //     NotificationSettings settings = await messaging.requestPermission(
+  //       alert: true,
+  //       announcement: true,
+  //       badge: true,
+  //       carPlay: false,
+  //       sound: true,
+  //       provisional: false,
+  //       criticalAlert: false,
+  //     );
+  //
+  //     // iOS specific permissions
+  //     if (Platform.isIOS) {
+  //       await FirebaseMessaging.instance.requestPermission(
+  //         alert: true,
+  //         badge: true,
+  //         sound: true,
+  //       );
+  //     }
+  //
+  //     // Awesome notifications permissions
+  //     if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+  //         settings.authorizationStatus == AuthorizationStatus.provisional) {
+  //       await AwesomeNotifications().requestPermissionToSendNotifications();
+  //     } else {
+  //       CustomLog.debug(this, 'User declined or has not accepted permission');
+  //     }
+  //
+  //     CustomLog.debug(this, "Notification permissions requested successfully");
+  //   } catch (e) {
+  //     CustomLog.error(this, "Notification permission request error", e);
+  //   }
+  // }
 
   /// Setup message handlers for different app states
   void _setupMessageHandlers() {

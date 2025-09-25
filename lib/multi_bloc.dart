@@ -3,13 +3,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_cubit.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/cubit/driver_home_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
 import 'package:gro_one_app/features/fastag/cubit/fastag_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_tab_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_info_window_details_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_type_sheet_cubit/gps_notification_type_sheet_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_parking_mode_cubit/gps_parking_mode_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_vehicle_cubit/gps_vehicle_cubit.dart';
 import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
@@ -53,6 +57,7 @@ import 'features/vehicle_provider/vp_trip_statement/cubit/vp_trip_statement_cubi
 
 class MultiBlocWrapper extends StatelessWidget {
   final Widget child;
+
   const MultiBlocWrapper({super.key, required this.child});
 
   @override
@@ -177,6 +182,10 @@ class MultiBlocWrapper extends StatelessWidget {
         BlocProvider<PaymentCubit>(create: (_) => locator<PaymentCubit>()),
         BlocProvider<MastersCubit>(create: (_) => locator<MastersCubit>()),
         BlocProvider<FastagCubit>(create: (_) => locator<FastagCubit>()),
+        BlocProvider<FastagOrderListCubit>(create: (_) => locator<FastagOrderListCubit>()),
+        BlocProvider<FastagOrderListTabCubit>(
+          create: (_) => locator<FastagOrderListTabCubit>(),
+        ),
         BlocProvider<DocumentTypeCubit>(
           create: (_) => locator<DocumentTypeCubit>(),
         ),
@@ -194,6 +203,8 @@ class MultiBlocWrapper extends StatelessWidget {
           create: (_) => locator<PrivacyPolicyBloc>(),
         ),
         BlocProvider<VpHomeCubit>(create: (_) => locator<VpHomeCubit>()),
+        BlocProvider<GpsOrderListCubit>(create: (_) => locator<GpsOrderListCubit>()),
+        BlocProvider<DriverHomeCubit>(create: (_) => locator<DriverHomeCubit>()),
       ],
 
       child: child,

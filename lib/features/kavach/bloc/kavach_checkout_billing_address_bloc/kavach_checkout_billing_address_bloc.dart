@@ -5,28 +5,33 @@ import '../../repository/kavach_repository.dart';
 import 'kavach_checkout_billing_address_event.dart';
 import 'kavach_checkout_billing_address_state.dart';
 
-class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddressEvent, KavachCheckoutBillingAddressState> {
+class KavachCheckoutBillingAddressBloc
+    extends
+        Bloc<
+          KavachCheckoutBillingAddressEvent,
+          KavachCheckoutBillingAddressState
+        > {
   final KavachRepository repository;
 
-  KavachCheckoutBillingAddressBloc(this.repository) : super(KavachCheckoutBillingAddressLoading()) {
+  KavachCheckoutBillingAddressBloc(this.repository)
+    : super(KavachCheckoutBillingAddressLoading()) {
     on<FetchKavachBillingAddresses>(_onFetchBillingAddresses);
     on<SelectKavachBillingAddress>(_onSelectBillingAddress);
     on<RestoreKavachBillingAddress>(_onRestoreBillingAddress);
     on<ClearKavachBillingAddress>((event, emit) {
       emit(KavachCheckoutBillingAddressEmpty());
     });
-
   }
 
   Future<void> _onFetchBillingAddresses(
-      FetchKavachBillingAddresses event,
-      Emitter<KavachCheckoutBillingAddressState> emit,
-      ) async {
-    KavachAddressModel? currentlySelectedAddress;
-    if (state is KavachCheckoutBillingAddressSelected) {
-      currentlySelectedAddress =
-          (state as KavachCheckoutBillingAddressSelected).selectedAddress;
-    }
+    FetchKavachBillingAddresses event,
+    Emitter<KavachCheckoutBillingAddressState> emit,
+  ) async {
+    // KavachAddressModel? currentlySelectedAddress;
+    // if (state is KavachCheckoutBillingAddressSelected) {
+    //   currentlySelectedAddress =
+    //       (state as KavachCheckoutBillingAddressSelected).selectedAddress;
+    // }
 
     emit(KavachCheckoutBillingAddressLoading());
     final result = await repository.fetchAddresses();
@@ -40,31 +45,45 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
       }
 
       // 1️⃣ If there was a previous selection, keep it
-      if (currentlySelectedAddress != null) {
-        final addressExists = addresses.any(
-              (address) => address.uniqueId == currentlySelectedAddress!.uniqueId,
-        );
-        if (addressExists) {
-          emit(KavachCheckoutBillingAddressSelected(
-            selectedAddress: currentlySelectedAddress,
-            addresses: addresses,
-          ));
-          return;
-        }
-      }
+      // if (currentlySelectedAddress != null) {
+      //   final addressExists = addresses.any(
+      //         (address) => address.uniqueId == currentlySelectedAddress!.uniqueId,
+      //   );
+      //   if (addressExists) {
+      //     emit(KavachCheckoutBillingAddressSelected(
+      //       selectedAddress: currentlySelectedAddress,
+      //       addresses: addresses,
+      //     ));
+      //     return;
+      //   }
+      // }
+
+      // Auto-select first address
+
+      // final addressList =
+      //     addresses
+      //         .where((v) => v.id.toString() != event.shippingUniqueId)
+      //         .toList();
+      var selectedOne = addresses.where(
+        (v) => v.id.toString() == event.billingUniqueId,
+      );
 
       // 2️⃣ Otherwise auto-select first address
-      emit(KavachCheckoutBillingAddressSelected(
-        selectedAddress: addresses.first,
-        addresses: addresses,
-      ));
+      emit(
+        KavachCheckoutBillingAddressSelected(
+          selectedAddress:
+              event.shippingUniqueId.isEmpty && event.billingUniqueId.isEmpty
+                  ? null
+                  : selectedOne.isNotEmpty
+                  ? selectedOne.first
+                  : null,
+          addresses: addresses,
+        ),
+      );
     } else if (result is Error<List<KavachAddressModel>>) {
       emit(KavachCheckoutBillingAddressError(result.type));
     }
   }
-
-
-
 
   // void _onSelectBillingAddress(SelectKavachBillingAddress event, Emitter<KavachCheckoutBillingAddressState> emit) {
   //   final currentState = state;
@@ -75,32 +94,45 @@ class KavachCheckoutBillingAddressBloc extends Bloc<KavachCheckoutBillingAddress
   //     ));
   //   }
   // }
-  void _onSelectBillingAddress(SelectKavachBillingAddress event, Emitter<KavachCheckoutBillingAddressState> emit) {
+  void _onSelectBillingAddress(
+    SelectKavachBillingAddress event,
+    Emitter<KavachCheckoutBillingAddressState> emit,
+  ) {
     final currentState = state;
 
     if (currentState is KavachCheckoutBillingAddressSelected) {
-      emit(KavachCheckoutBillingAddressSelected(
-        selectedAddress: event.address,
-        addresses: currentState.addresses,
-      ));
+      emit(
+        KavachCheckoutBillingAddressSelected(
+          selectedAddress: event.address,
+          addresses: currentState.addresses,
+        ),
+      );
     } else if (currentState is KavachCheckoutBillingAddressAvailable) {
-      emit(KavachCheckoutBillingAddressSelected(
-        selectedAddress: event.address,
-        addresses: currentState.addresses,
-      ));
+      emit(
+        KavachCheckoutBillingAddressSelected(
+          selectedAddress: event.address,
+          addresses: currentState.addresses,
+        ),
+      );
     } else if (currentState is KavachCheckoutBillingAddressEmpty) {
-      emit(KavachCheckoutBillingAddressSelected(
-        selectedAddress: event.address,
-        addresses: [event.address],
-      ));
+      emit(
+        KavachCheckoutBillingAddressSelected(
+          selectedAddress: event.address,
+          addresses: [event.address],
+        ),
+      );
     }
   }
 
-  void _onRestoreBillingAddress(RestoreKavachBillingAddress event, Emitter<KavachCheckoutBillingAddressState> emit) {
-    emit(KavachCheckoutBillingAddressSelected(
-      selectedAddress: event.address,
-      addresses: event.addresses,
-    ));
+  void _onRestoreBillingAddress(
+    RestoreKavachBillingAddress event,
+    Emitter<KavachCheckoutBillingAddressState> emit,
+  ) {
+    emit(
+      KavachCheckoutBillingAddressSelected(
+        selectedAddress: event.address,
+        addresses: event.addresses,
+      ),
+    );
   }
-
 }

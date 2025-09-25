@@ -636,6 +636,7 @@
   "switchAccount": "खाता बदलें",
   "verifyEmail": "कृपया अपना ईमेल सत्यापित करें",
   "isIncomplete": "अधूरा है",
+  "isInvalid": "इनवैलिड है",
   "selectWeight": "वज़न चुनें",
   "selectCommodityTypes": "वस्तु के प्रकार चुनें",
   "expectedDeliveryRateRequired": "अपेक्षित डिलीवरी तिथि आवश्यक है",
@@ -1335,6 +1336,12 @@
   "total": "कुल",
   "filterEmptyWarning": "कृपया कम से कम एक फ़िल्टर चुनें।",
   "truckTypeRequired": "ट्रक प्रकार आवश्यक है"
+
+  "issueCategory": "समस्या श्रेणी",
+  "issuecategoryRequired": "समस्या श्रेणी आवश्यक है",
+  "primaryAddressCannotBeDeleted": "प्राथमिक पता हटाया नहीं जा सकता",
+  "mobileNumberCannotStartWith1to5" : "मोबाइल नंबर 1 से 5 तक की संख्या से शुरू नहीं हो सकता",
+  "viewTransactionDetails" : "लेन-देन विवरण देखें"
 
 
 

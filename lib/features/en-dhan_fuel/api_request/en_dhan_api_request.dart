@@ -9,8 +9,6 @@ class EnDhanKycApiRequest {
   final bool? isPan;
   final bool fromFleet;
 
-
-
   const EnDhanKycApiRequest({
     required this.aadhar,
     required this.isAadhar,
@@ -147,12 +145,12 @@ class EnDhanCustomerCreationApiRequest {
       'IncomeTaxPan': incomeTaxPan,
       'ObjCardDetailsAl': objCardDetailsAl.map((e) => e.toJson()).toList(),
     };
-    
+
     // Only include referralCode if it's not null and not empty
     if (referralCode != null && referralCode!.isNotEmpty) {
       json['referralCode'] = referralCode;
     }
-    
+
     return json;
   }
 
@@ -185,11 +183,11 @@ class EnDhanCardDetailRequest {
       'VechileNo': vechileNo,
       'VehicleType': vehicleType,
       'VinNumber': vinNumber,
-      'RcDocument': rcDocument,
-      'RcNumber': rcNumber,
+      // 'RcDocument': rcDocument,
+      // 'RcNumber': rcNumber,
       'MobileNo': mobileNo, // Always include MobileNo, even if null
     };
-    
+
     return data;
   }
 
@@ -216,7 +214,7 @@ class EnDhanKycMultipartApiRequest {
   /// Get files for multipart upload
   Map<String, File> getFiles() {
     final Map<String, File> files = {};
-    
+
     if (addressProofFront != null) {
       files['addressProofFront'] = addressProofFront!;
     }
@@ -230,7 +228,7 @@ class EnDhanKycMultipartApiRequest {
       files['identityProofBack'] = identityProofBack!;
     }
     // PAN image is now handled as string URL, not as file
-    
+
     return files;
   }
 
@@ -246,16 +244,10 @@ class AadhaarSendOtpRequest {
   final String aadhaar;
   final bool force;
 
-  const AadhaarSendOtpRequest({
-    required this.aadhaar,
-    this.force = true,
-  });
+  const AadhaarSendOtpRequest({required this.aadhaar, this.force = true});
 
   Map<String, dynamic> toJson() {
-    return {
-      'aadhaar': aadhaar,
-      'force': force,
-    };
+    return {'aadhaar': aadhaar, 'force': force};
   }
 }
 
@@ -271,11 +263,7 @@ class AadhaarVerifyOtpRequest {
   });
 
   Map<String, dynamic> toJson() {
-    return {
-      'request_id': requestId,
-      'otp': otp,
-      'aadhaar': aadhaar,
-    };
+    return {'request_id': requestId, 'otp': otp, 'aadhaar': aadhaar};
   }
 }
 
@@ -283,16 +271,10 @@ class PanVerificationRequest {
   final String panNumber;
   final String name;
 
-  const PanVerificationRequest({
-    required this.panNumber,
-    required this.name,
-  });
+  const PanVerificationRequest({required this.panNumber, required this.name});
 
   Map<String, dynamic> toJson() {
-    return {
-      'pan_number': panNumber,
-      'name': name,
-    };
+    return {'pan_number': panNumber, 'name': name};
   }
 }
 
@@ -309,10 +291,8 @@ class VehicleVerificationRequest {
 
   Map<String, dynamic> toJson() {
     return {
-      'vehicle_number': vehicleNumber,  // Use snake_case
+      'vehicle_number': vehicleNumber, // Use snake_case
       'force': force,
     };
   }
 }
-
-

@@ -410,6 +410,7 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                           (value) => Validator.validateVehicleNumber(
                             value,
                             fieldName: context.appText.truckNumber,
+                            errorMessage: context.appText.isInvalid,
                           ),
                       inputFormatters: [
                         FilteringTextInputFormatter.allow(
@@ -443,6 +444,8 @@ class _AddGpsVehicleFormState extends State<AddGpsVehicleForm> {
                                           vehicleNumber,
                                           fieldName:
                                               context.appText.truckNumber,
+                                          errorMessage:
+                                              context.appText.isInvalid,
                                         );
                                     if (validationMessage != null) {
                                       ToastMessages.alert(

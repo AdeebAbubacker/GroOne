@@ -64,7 +64,7 @@ class KavachModelsListBody extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "₹ ${NumberFormat("#,##,###").format(product.price)}",
+                        "₹ ${NumberFormat("#,##,##0.00").format(product.price)}",
                         style: AppTextStyle.h4PrimaryColor,
                       ),
                       Text(

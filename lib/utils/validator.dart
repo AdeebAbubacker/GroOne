@@ -1,4 +1,3 @@
-
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/global_variables.dart';
 
@@ -10,7 +9,9 @@ class Validator {
     if (value == null || value.isEmpty) {
       return appContext.appText.emailIsRequired;
     }
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
     if (!emailRegex.hasMatch(value)) {
       return appContext.appText.validEmailAddress;
     }
@@ -18,11 +19,11 @@ class Validator {
   }
 
   /// Field Required
-  static String? fieldRequired(String? value, {String? fieldName}){
+  static String? fieldRequired(String? value, {String? fieldName}) {
     if (value == null || value.trim().isEmpty) {
-      if(fieldName != null){
+      if (fieldName != null) {
         return '$fieldName ${appContext.appText.isRequired}';
-      }else{
+      } else {
         return appContext.appText.thisFieldIsRequired;
       }
     }
@@ -30,18 +31,17 @@ class Validator {
   }
 
   /// Password
-  static String? password(String? value){
+  static String? password(String? value) {
     if (value == null || value.isEmpty) {
       return appContext.appText.passwordIsRequired;
     }
-    if(value.length < 6){
+    if (value.length < 6) {
       return appContext.appText.passwordMustBeAtLeast6Digit;
     }
     return null;
   }
 
   static String? phone(String? value) {
-
     if (value == null || value.isEmpty) {
       return appContext.appText.pleaseEnterMobileNumber;
     }
@@ -57,6 +57,11 @@ class Validator {
       return appContext.appText.mobileNumberCannotStartWith0;
     }
 
+    // Start with 1–5
+    if (RegExp(r'^[1-5]').hasMatch(value)) {
+      return appContext.appText.mobileNumberCannotStartWith1to5;
+    }
+
     // Disallow repeated digits like 0000000000, 1111111111, etc.
     if (RegExp(r'^(\d)\1*$').hasMatch(value)) {
       return appContext.appText.mobileNumberCannotHaveSameNumber;
@@ -64,10 +69,6 @@ class Validator {
 
     return null;
   }
-
-
-
-
 
   static String? pincode(String? value) {
     String pattern = r'^[1-9][0-9]{5}$'; // Reject all 0s, allow 6 digits
@@ -81,8 +82,10 @@ class Validator {
     return null;
   }
 
-
-  static String? noSpecialCharacters(String? value, {required String fieldName}) {
+  static String? noSpecialCharacters(
+    String? value, {
+    required String fieldName,
+  }) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName ${appContext.appText.isRequired}';
     }
@@ -115,7 +118,10 @@ class Validator {
     return null;
   }
 
-  static String? licenseNumberValidator(String? value, {required String fieldName}) {
+  static String? licenseNumberValidator(
+    String? value, {
+    required String fieldName,
+  }) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName  ${appContext.appText.isRequired}';
     }
@@ -131,54 +137,64 @@ class Validator {
     return null;
   }
 
-  static String? validateVehicleNumber(String? value, {required String fieldName}) {
-  if (value == null || value.trim().isEmpty) {
-    return '$fieldName ${appContext.appText.isRequired}';
-  }
-
-  // Remove spaces before validating
-  final cleaned = value.replaceAll(' ', '').toUpperCase();
-
-  // Indian vehicle number pattern (no spaces, strict alphanumeric)
-  final regex = RegExp(r'^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$');
-
-  if (!regex.hasMatch(cleaned)) {
-    return '$fieldName is invalid';
-  }
-  return null;
-}
-
-
-  static String? rcBookNumberValidator(String? value, {required String fieldName}) {
+  static String? validateVehicleNumber(
+    String? value, {
+    required String fieldName,
+    String errorMessage = '',
+  }) {
     if (value == null || value.trim().isEmpty) {
       return '$fieldName ${appContext.appText.isRequired}';
     }
-    
+
+    // Remove spaces before validating
+    final cleaned = value.replaceAll(' ', '').toUpperCase();
+
+    // Indian vehicle number pattern (no spaces, strict alphanumeric)
+    final regex = RegExp(r'^[A-Z]{2}[0-9]{2}[A-Z]{1,2}[0-9]{4}$');
+
+    if (!regex.hasMatch(cleaned)) {
+      return '$fieldName ${errorMessage.isEmpty}?"is invalid": $errorMessage';
+    }
+    return null;
+  }
+
+  static String? rcBookNumberValidator(
+    String? value, {
+    required String fieldName,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName ${appContext.appText.isRequired}';
+    }
+
     final trimmedValue = value.trim().toUpperCase();
     final regex = RegExp(r'^[A-Z]{2}\d{2}[A-Z]{1,2}\d{4}$');
-    
+
     if (!regex.hasMatch(trimmedValue)) {
       return '$fieldName should be in format: XX12AB1234 (2 letters, 2 digits, 1-2 letters, 4 digits)';
     }
-    
+
     return null;
   }
-  static String? indianLicenseNumber(String? value, {required String fieldName}) {
-  if (value == null || value.trim().isEmpty) {
-    return '$fieldName ${appContext.appText.isRequired}';
+
+  static String? indianLicenseNumber(
+    String? value, {
+    required String fieldName,
+  }) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName ${appContext.appText.isRequired}';
+    }
+
+    // final trimmedValue = value.trim().toUpperCase();
+    // final regex = RegExp(r"^([A-Z]{2})[- ]?([0-9]{2})[- ]?((19|20)[0-9]{2})[- ]?([0-9]{7})$", caseSensitive: false,);
+
+    // if (!regex.hasMatch(trimmedValue)) {
+    //   return '$fieldName is invalid.';
+    // }
+
+    return null;
   }
 
-  // final trimmedValue = value.trim().toUpperCase();
-  // final regex = RegExp(r"^([A-Z]{2})[- ]?([0-9]{2})[- ]?((19|20)[0-9]{2})[- ]?([0-9]{7})$", caseSensitive: false,);
-
-  // if (!regex.hasMatch(trimmedValue)) {
-  //   return '$fieldName is invalid.';
-  // }
-
-  return null;
-}
- 
-   /// Bank Account Number
+  /// Bank Account Number
   static String? bankAccountNumber(String? value) {
     if (value == null || value.trim().isEmpty) {
       return appContext.appText.thisFieldIsRequired;
@@ -201,24 +217,22 @@ class Validator {
 
     return null;
   }
-  
- /// IFSC Code
-static String? ifsc(String? value) {
-  if (value == null || value.trim().isEmpty) {
-    return appContext.appText.thisFieldIsRequired;
+
+  /// IFSC Code
+  static String? ifsc(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return appContext.appText.thisFieldIsRequired;
+    }
+
+    // Uppercase the value for validation
+    final code = value.toUpperCase();
+
+    // Regex validation
+    final regex = RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
+    if (!regex.hasMatch(code)) {
+      return appContext.appText.pleaseEnterValidIfscCode;
+    }
+
+    return null;
   }
-
-  // Uppercase the value for validation
-  final code = value.toUpperCase();
-
-  // Regex validation
-  final regex = RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
-  if (!regex.hasMatch(code)) {
-    return appContext.appText.pleaseEnterValidIfscCode;
-  }
-
-  return null;
 }
- 
-}
-

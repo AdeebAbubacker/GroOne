@@ -318,12 +318,14 @@ class GpsOrderListMeta {
   final int page;
   final int limit;
   final int totalPages;
+  final int? statusParam;
 
   GpsOrderListMeta({
     required this.total,
     required this.page,
     required this.limit,
     required this.totalPages,
+    required this.statusParam,
   });
 
   factory GpsOrderListMeta.fromJson(Map<String, dynamic> json) {
@@ -332,6 +334,7 @@ class GpsOrderListMeta {
       page: json['page'] ?? 1,
       limit: json['limit'] ?? 10,
       totalPages: json['totalPages'] ?? 1,
+      statusParam: json['statusParam'] ?? 0,
     );
   }
 }

@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 
 class KavachAddressModel extends Equatable {
-  final int id;
+  final String id;
   final String customerName;
   final String mobileNumber;
   final int customerId;
@@ -39,7 +39,7 @@ class KavachAddressModel extends Equatable {
 
   factory KavachAddressModel.fromJson(Map<String, dynamic> json) {
     return KavachAddressModel(
-      id: int.tryParse(json['preferedAddressId']?.toString() ?? '0') ?? 0,
+      id: json['preferedAddressId'] ?? '',
       customerName: json['customerName'] ?? '',
       mobileNumber: json['mobileNumber'] ?? '',
       customerId: int.tryParse(json['customerId']?.toString() ?? '0') ?? 0,
@@ -54,12 +54,15 @@ class KavachAddressModel extends Equatable {
       addrType: int.tryParse(json['addrType']?.toString() ?? '0') ?? 0,
       status: int.tryParse(json['status']?.toString() ?? '0') ?? 0,
       createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-      deletedAt: json['deletedAt'] != null ? DateTime.tryParse(json['deletedAt']) : null,
+      deletedAt:
+          json['deletedAt'] != null
+              ? DateTime.tryParse(json['deletedAt'])
+              : null,
     );
   }
 
   String get fullAddress => '$addr1, $city, $state, $country - $pincode';
-  
+
   // Create a unique identifier using address properties since ID might not be unique
   String get uniqueId => '$addressName-$addr1-$city-$pincode';
 
@@ -83,5 +86,3 @@ class KavachAddressModel extends Equatable {
     deletedAt,
   ];
 }
-
-

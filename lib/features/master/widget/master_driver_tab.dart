@@ -521,104 +521,107 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     // Upload License
                     AbsorbPointer(
                       absorbing: isEdit,
-                      child : Listener(
-                        onPointerDown: (_){
-                           FocusScope.of(context).requestFocus(FocusNode());
-                        },
-                      child: BlocBuilder<MastersCubit, MastersState>(
-                        builder: (context, state) {
-                          return UploadAttachmentFiles(
-                            title: context.appText.uploadLicesneDocument,
-                            multiFilesList: licenseDoc,
-                            isSingleFile: true,
-                            isLoading:
-                                state.uploadlicenseDocUIState?.status ==
-                                Status.LOADING,
-                            allowedExtensions: [
-                              'jpg',
-                              'png',
-                              'heic',
-                              'pdf',
-                              'jpeg',
-                            ],
-                            thenUploadFileToSever: () async {
-                              final Result result =
-                                  await uploadLicenseDocumentApiCall(licenseDoc);
-                              if (result is Success) {
-                                final licenseData =
-                                    mastersCubit
-                                        .state
-                                        .uploadlicenseDocUIState
-                                        ?.data;
-                                if (licenseData != null && licenseDoc.isNotEmpty) {
-                                  final apiRequest = CreateDocumentApiRequest(
-                                    documentTypeId:
-                                        await DriverLicenseHelper.getDocumentTypeId(
-                                          DriverDocType.licenseDoc,
-                                          documentCubit,
-                                        ),
-                                    title:
-                                        DriverLicenseHelper.getMeta(
-                                          DriverDocType.licenseDoc,
-                                        ).title,
-                                    description:
-                                        DriverLicenseHelper.getMeta(
-                                          DriverDocType.licenseDoc,
-                                        ).description,
-                                    originalFilename: licenseData.originalName,
-                                    filePath: licenseData.filePath,
-                                    fileSize: licenseData.size,
-                                    mimeType: KycHelper.getMimeTypeFromExtension(
-                                      licenseDoc.first['extension'],
-                                    ),
-                                    fileExtension: licenseDoc.first['extension'],
-                                  );
-                                  await createDocumentApiCall(apiRequest);
-                                  if (mastersCubit
+                      child : Opacity(
+                        opacity: isEdit ? 0.5 : 1.0,
+                        child: Listener(
+                          onPointerDown: (_){
+                             FocusScope.of(context).requestFocus(FocusNode());
+                          },
+                        child: BlocBuilder<MastersCubit, MastersState>(
+                          builder: (context, state) {
+                            return UploadAttachmentFiles(
+                              title: context.appText.uploadLicesneDocument,
+                              multiFilesList: licenseDoc,
+                              isSingleFile: true,
+                              isLoading:
+                                  state.uploadlicenseDocUIState?.status ==
+                                  Status.LOADING,
+                              allowedExtensions: [
+                                'jpg',
+                                'png',
+                                'heic',
+                                'pdf',
+                                'jpeg',
+                              ],
+                              thenUploadFileToSever: () async {
+                                final Result result =
+                                    await uploadLicenseDocumentApiCall(licenseDoc);
+                                if (result is Success) {
+                                  final licenseData =
+                                      mastersCubit
                                           .state
-                                          .createDocumentUIState
-                                          ?.status ==
-                                      Status.SUCCESS) {
+                                          .uploadlicenseDocUIState
+                                          ?.data;
+                                  if (licenseData != null && licenseDoc.isNotEmpty) {
+                                    final apiRequest = CreateDocumentApiRequest(
+                                      documentTypeId:
+                                          await DriverLicenseHelper.getDocumentTypeId(
+                                            DriverDocType.licenseDoc,
+                                            documentCubit,
+                                          ),
+                                      title:
+                                          DriverLicenseHelper.getMeta(
+                                            DriverDocType.licenseDoc,
+                                          ).title,
+                                      description:
+                                          DriverLicenseHelper.getMeta(
+                                            DriverDocType.licenseDoc,
+                                          ).description,
+                                      originalFilename: licenseData.originalName,
+                                      filePath: licenseData.filePath,
+                                      fileSize: licenseData.size,
+                                      mimeType: KycHelper.getMimeTypeFromExtension(
+                                        licenseDoc.first['extension'],
+                                      ),
+                                      fileExtension: licenseDoc.first['extension'],
+                                    );
+                                    await createDocumentApiCall(apiRequest);
                                     if (mastersCubit
-                                                .state
-                                                .createDocumentUIState
-                                                ?.data !=
-                                            null &&
-                                        mastersCubit
-                                                .state
-                                                .createDocumentUIState
-                                                ?.data
-                                                ?.data !=
-                                            null) {
-                                      licenseDocId =
+                                            .state
+                                            .createDocumentUIState
+                                            ?.status ==
+                                        Status.SUCCESS) {
+                                      if (mastersCubit
+                                                  .state
+                                                  .createDocumentUIState
+                                                  ?.data !=
+                                              null &&
                                           mastersCubit
-                                              .state
-                                              .createDocumentUIState!
-                                              .data!
-                                              .data!
-                                              .documentId;
+                                                  .state
+                                                  .createDocumentUIState
+                                                  ?.data
+                                                  ?.data !=
+                                              null) {
+                                        licenseDocId =
+                                            mastersCubit
+                                                .state
+                                                .createDocumentUIState!
+                                                .data!
+                                                .data!
+                                                .documentId;
+                                      }
                                     }
                                   }
                                 }
-                              }
-                            },
-                            onDelete: (index) async {
-                              if (licenseDocId == null) {
-                                ToastMessages.alert(
-                                  message: context.appText.errorMessage,
-                                );
-                                return;
-                              }
-                              await mastersCubit
-                                  .deleteDocument(licenseDocId ?? "")
-                                  .then((onValue) {
-                                    licenseDocId = null;
-                                  });
-                            },
-                          );
-                        },
+                              },
+                              onDelete: (index) async {
+                                if (licenseDocId == null) {
+                                  ToastMessages.alert(
+                                    message: context.appText.errorMessage,
+                                  );
+                                  return;
+                                }
+                                await mastersCubit
+                                    .deleteDocument(licenseDocId ?? "")
+                                    .then((onValue) {
+                                      licenseDocId = null;
+                                    });
+                              },
+                            );
+                          },
+                        ),
+                                            ),
                       ),
-                    ),
                     ),
                     16.height,
               
@@ -1211,6 +1214,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                   width: 170,
                   height: commonButtonHeight2,
                   child: AppButton(
+                    enable: isEdit ? false : true,               
                     isLoading: isLoading,
                     title:
                         isVerified

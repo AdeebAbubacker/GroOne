@@ -19,6 +19,7 @@ class ApiUrls {
   static String get groServicesUrl => EnvironmentVariables.groServiceUrl;
 
   static String get adminUrl => EnvironmentVariables.adminURL;
+  static String get imageBaseURL => EnvironmentVariables.imageBaseURL;
 
   /// Path
   static String get _path => "/api";
@@ -180,6 +181,7 @@ class ApiUrls {
   /// Load
   static String get _loadBaseUrl => "$_baseUrl$_load$_path$_v1";
   static final String loadCommodity = "$_loadBaseUrl/commodities";
+  static final String loadCommodityIcon = "$imageBaseURL/mobile/Commodity%20Icons/";
   static final String loadTruckType = "$_loadBaseUrl/truck-types";
   static final String truckType = "$loadTruckType/distinct/types";
   static final String getRateDiscoveryPrice =

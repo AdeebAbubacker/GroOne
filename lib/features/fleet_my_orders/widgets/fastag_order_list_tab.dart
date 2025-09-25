@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_tab_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_tab_state.dart';
+import 'package:gro_one_app/features/fastag/model/fastag_list_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -12,7 +15,6 @@ import '../../../utils/app_route.dart';
 import '../../../utils/app_text_style.dart';
 import '../../../utils/common_functions.dart';
 import '../../../utils/common_widgets.dart';
-import '../../fastag/cubit/fastag_cubit.dart';
 import '../../fastag/views/fastag_recharge_screen.dart';
 
 class FastagOrderListTabWidget extends StatefulWidget {
@@ -26,8 +28,11 @@ class FastagOrderListTabWidget extends StatefulWidget {
 class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
   final TextEditingController _searchController = TextEditingController();
   final ScrollController scrollController = ScrollController();
+  final PageStorageBucket _bucket = PageStorageBucket();
   String _searchText = "";
   int page = 1;
+  int totalPage = 1;
+  List<FastagItem> itemsFiltered = [];
 
   @override
   void initState() {
@@ -36,14 +41,57 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
       setState(() => _searchText = _searchController.text.trim().toLowerCase());
     });
 
+
     scrollController.addListener(_onScroll);
 
     // Trigger fetch once
-    context.read<FastagCubit>().fetchFastagList(isInitialLoad: true, page: 2);
+    context.read<FastagOrderListTabCubit>().fetchFastagList(
+      isInitialLoad: true,
+      page: 1,
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    scrollController.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to RouteObserver
+
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          scrollController.jumpTo(0);
+        }
+      });
+    }
+  }
+
+  void didPopNext() {
+    // Reset scroll when coming back to this screen
+    _resetScroll();
+  }
+
+  void _resetScroll() {
+    if (scrollController.hasClients) {
+      scrollController.jumpTo(0);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          scrollController.jumpTo(0);
+        }
+      });
+    }
   }
 
   void _onScroll() {
-    if (!scrollController.hasClients) return;
+    if (!scrollController.hasClients || (totalPage == itemsFiltered.length)) {
+      return;
+    }
 
     // Simple bottom detection like your example
 
@@ -51,7 +99,7 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
     if (scrollController.position.pixels ==
         scrollController.position.maxScrollExtent) {
       page += 1;
-      context.read<FastagCubit>().fetchFastagList(
+      context.read<FastagOrderListTabCubit>().fetchFastagList(
         isInitialLoad: true,
         page: page,
       );
@@ -64,42 +112,61 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
       children: [
         _buildSearchBar(context),
         Expanded(
-          child: BlocBuilder<FastagCubit, FastagState>(
+          child: BlocConsumer<FastagOrderListTabCubit, FastagOrderListTabState>(
+            listener: (c, s) {
+              if (s.fastagListUIState.data != null) {
+                totalPage =
+                    s.fastagListUIState.data != null
+                        ? s.fastagListUIState.data!.totalCount
+                        : 0;
+                if (s.fastagListUIState.data!.data.isEmpty) {
+                  // stopPagination = true;
+                } else {
+                  itemsFiltered.addAll(
+                    s.fastagListUIState.data!.data.where((f) {
+                      return f.vehicleNo.toLowerCase().contains(_searchText) ||
+                          f.id.toString().contains(_searchText);
+                    }).toList(),
+                  );
+                  debugPrint('itemsFiltered=>${itemsFiltered.length}');
+                  debugPrint('totalPage=>${totalPage}');
+                }
+              }
+            },
             builder: (context, state) {
               if (state.fastagListUIState.status == Status.LOADING) {
                 return const Center(child: CircularProgressIndicator());
               }
-              if (state.fastagListUIState.status == Status.ERROR) {
-                return Center(child: Text(context.appText.failedToLoadData));
-              }
-
-              final items = state.fastagListUIState.data?.data ?? [];
-              if (items.isEmpty) {
+              if (itemsFiltered.isEmpty &&
+                  state.fastagListUIState.status == Status.ERROR) {
                 return Center(child: Text(context.appText.noOrdersFound));
               }
 
-              final filtered =
-                  items.where((f) {
-                    return f.vehicleNo.toLowerCase().contains(_searchText) ||
-                        f.id.toString().contains(_searchText);
-                  }).toList();
+              // items = state.fastagListUIState.data?.data ?? [];
+              if (itemsFiltered.isEmpty) {
+                return Center(child: Text(context.appText.noOrdersFound));
+              }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: filtered.length,
-                controller: scrollController,
-                itemBuilder: (context, index) {
-                  final item = filtered[index];
-                  return _buildFastagCard(
-                    id: item.id.toString(),
-                    vehicleNumber: item.vehicleNo,
-                    status: _mapStatus(item.orderStatus),
-                    statusColor: _mapStatusColor(item.orderStatus),
-                    balance: "₹${item.balance}",
-                    lastUpdated: item.createdAt,
-                    context: context,
-                  );
-                },
+              return PageStorage(
+                bucket: _bucket,
+                child: ListView.builder(
+                  key: const PageStorageKey<String>('myListView'),
+                  padding: const EdgeInsets.all(16),
+                  itemCount: itemsFiltered.length,
+                  controller: scrollController,
+                  itemBuilder: (context, index) {
+                    final item = itemsFiltered[index];
+                    return _buildFastagCard(
+                      id: item.id.toString(),
+                      vehicleNumber: item.vehicleNo,
+                      status: _mapStatus(item.orderStatus),
+                      statusColor: _mapStatusColor(item.orderStatus),
+                      balance: "₹${item.balance}",
+                      lastUpdated: item.createdAt,
+                      context: context,
+                    );
+                  },
+                ),
               );
             },
           ),
@@ -113,6 +180,14 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
       padding: const EdgeInsets.all(12.0),
       child: TextField(
         controller: _searchController,
+        onChanged: (v) {
+          itemsFiltered.clear();
+          context.read<FastagOrderListTabCubit>().fetchFastagList(
+            searchTerm: _searchController.text,
+            isInitialLoad: true,
+            page: 1,
+          );
+        },
         decoration: InputDecoration(
           hintText: context.appText.search,
           prefixIcon: const Icon(Icons.search),
@@ -120,7 +195,15 @@ class _FastagOrderListTabWidgetState extends State<FastagOrderListTabWidget> {
               _searchText.isNotEmpty
                   ? IconButton(
                     icon: const Icon(Icons.clear),
-                    onPressed: () => _searchController.clear(),
+                    onPressed: () {
+                      itemsFiltered.clear();
+                      _searchController.clear();
+                      context.read<FastagOrderListTabCubit>().fetchFastagList(
+                        searchTerm: _searchController.text,
+                        isInitialLoad: true,
+                        page: 1,
+                      );
+                    },
                   )
                   : null,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),

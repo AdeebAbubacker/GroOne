@@ -11,14 +11,16 @@ class KavachOrderListLoading extends KavachOrderListState {}
 class KavachOrderListLoaded extends KavachOrderListState {
   final List<KavachOrderListOrderItem> orders;
   final bool? kycStatusUpdated;
-  final bool hasReachedMax;
+  bool hasReachedMax;
   final int page;
+  final int? totalPage;
 
   KavachOrderListLoaded({
     required this.orders,
     this.kycStatusUpdated,
     required this.hasReachedMax,
     required this.page,
+    this.totalPage,
   });
 
   KavachOrderListLoaded copyWith({

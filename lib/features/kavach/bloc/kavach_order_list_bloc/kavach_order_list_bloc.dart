@@ -22,6 +22,9 @@ class KavachOrderListBloc
   ) : super(KavachOrderListInitial()) {
     on<FetchKavachOrderList>(_onFetchOrders);
     on<DownloadInvoiceEvent>(_onDownloadInvoice);
+    on<ResetKavachOrderList>((event, emit) {
+      emit(KavachOrderListInitial());
+    });
   }
 
   Future<void> _onFetchOrders(
@@ -31,21 +34,25 @@ class KavachOrderListBloc
   }) async {
     final currentState = state;
     int nextPage = 1;
+    if (!event.isRefresh) {
+      emit(KavachOrderListLoading());
+    }
 
     if (event.isRefresh) {
       nextPage = 1;
     } else if (currentState is KavachOrderListLoaded) {
-      if (currentState.hasReachedMax) return;
+      if (currentState.hasReachedMax && event.isRefresh) return;
       nextPage = currentState.page + 1;
     }
 
     try {
       if (nextPage == 1) {
         emit(KavachOrderListLoading());
+      } else {
+        emit(KavachOrderListInitial());
       }
-
       final result = await _repository.fetchCustomerOrders(
-        page: nextPage,
+        page: event.page,
         status: event.status,
         forceRefresh: event.forceRefresh,
       );
@@ -70,14 +77,16 @@ class KavachOrderListBloc
                   checkKycUpdateRes.value.documents!.panDocLink!.isNotEmpty,
               (currentState is KavachOrderListLoaded)
                   ? KavachOrderListLoaded(
-                    orders: currentState.orders + orders,
+                    orders: orders,
                     hasReachedMax: hasReachedMax,
                     page: nextPage,
+                    totalPage: response.meta.totalPages,
                   )
                   : KavachOrderListLoaded(
                     orders: orders,
                     hasReachedMax: hasReachedMax,
                     page: nextPage,
+                    totalPage: response.meta.totalPages,
                   ),
             );
             return;
@@ -91,14 +100,17 @@ class KavachOrderListBloc
               false,
               (currentState is KavachOrderListLoaded)
                   ? KavachOrderListLoaded(
-                    orders: currentState.orders + orders,
+                    orders: orders,
                     hasReachedMax: hasReachedMax,
                     page: nextPage,
+                    totalPage: response.meta.totalPages,
                   )
                   : KavachOrderListLoaded(
                     orders: orders,
                     hasReachedMax: hasReachedMax,
                     page: nextPage,
+
+                    totalPage: response.meta.totalPages,
                   ),
             );
             return;
@@ -146,13 +158,15 @@ class KavachOrderListBloc
     List<KavachOrderListOrderItem> orders = [];
     orders = response.orders;
     final hasReachedMax = orders.length < response.meta.limit;
-    if (currentStateIsKavachOrderList && isRefresh) {
+
+    if (currentStateIsKavachOrderList) {
       emit(
         KavachOrderListLoaded(
           kycStatusUpdated: kycUpdateStatus,
-          orders: kavachOrderListLoaded.orders + orders,
+          orders: orders,
           hasReachedMax: hasReachedMax,
           page: nextPage,
+          totalPage: result.value.meta.totalPages,
         ),
       );
     } else {
@@ -162,6 +176,7 @@ class KavachOrderListBloc
           kycStatusUpdated: kycUpdateStatus,
           hasReachedMax: hasReachedMax,
           page: nextPage,
+          totalPage: response.meta.totalPages,
         ),
       );
     }

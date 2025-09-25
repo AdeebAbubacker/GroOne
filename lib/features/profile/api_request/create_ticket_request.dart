@@ -8,7 +8,7 @@ class CreateTicketRequest {
   });
 
   final String? customerId;
-  final String issueCategoryUuid;
+  final String? issueCategoryUuid;
   final String title;
   final String description;
   final List<dynamic> attachmentLink;
