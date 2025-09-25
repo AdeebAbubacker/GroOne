@@ -90,7 +90,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   }
 
   void _loadMoreOrders(int tabIndex) {
-    if (page >= totalPage) return;
+    if (page == totalPage) return;
     page += 1;
     final status = _getStatusForIndex(tabIndex)?.toString();
     _ordersBloc.add(
@@ -373,6 +373,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                                 selectedTab = index;
                                 page = 1;
                               });
+                              _pageController?.jumpToPage(index);
                               statusParam =
                                   _getStatusForIndex(selectedTab).toString();
                               _ordersBloc.add(
