@@ -617,7 +617,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     if (companyId == 1) {
       final gstOk = gstValid();
       final panOk = panValid();
-      final tanOk = tanValid();
+      final tanOk =true;
+      // tanValid();
       return gstOk && panOk && tanOk;
     }
 
