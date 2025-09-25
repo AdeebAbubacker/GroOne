@@ -2155,63 +2155,65 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
 
-  /// Check if the message content is related to loads
+  /// Check if the message content is about loads list available
   bool _isLoadRelatedMessage(String message) {
     final lowerMessage = message.toLowerCase();
     
-    // Check for load-related keywords
-    final loadKeywords = [
-      'load', 'loads', 'freight', 'cargo', 'shipment', 'delivery',
-      'pickup', 'transport', 'truck', 'vehicle', 'route', 'destination',
-      'source', 'commodity', 'weight', 'tonnage', 'available'
+    // Check for specific pattern that indicates loads list available
+    final loadsListPatterns = [
+      'loads available on the',
+      'loads available',
+      'available loads',
+      'here are the loads available',
+      'based on the provided context, here are the loads available',
+      'loads list available',
+      'available loads list'
     ];
     
-    return loadKeywords.any((keyword) => lowerMessage.contains(keyword));
+    // Check if message contains the specific pattern for loads list
+    return loadsListPatterns.any((pattern) => lowerMessage.contains(pattern));
   }
 
   /// Extract load data from message content
   LoadData _createLoadDataFromMessage(String message) {
-    // Try to extract source and destination from common patterns
     String? source;
     String? destination;
-    String? commodity;
-    String? truckType;
     
-    // Look for common patterns like "from X to Y", "X to Y", etc.
-    final fromToPattern = RegExp(r'from\s+([^,\n]+?)\s+to\s+([^,\n]+)', caseSensitive: false);
-    final toPattern = RegExp(r'([^,\n]+?)\s+to\s+([^,\n]+)', caseSensitive: false);
+    // First try to extract from the specific pattern: "loads available on the X to Y lane"
+    final loadsAvailablePattern = RegExp(r'loads available on the\s+([^,\n]+?)\s+to\s+([^,\n]+?)(?:\s+\(or\s+[^)]+\))?\s+lane', caseSensitive: false);
+    final loadsMatch = loadsAvailablePattern.firstMatch(message);
     
-    final fromToMatch = fromToPattern.firstMatch(message);
-    if (fromToMatch != null) {
-      source = fromToMatch.group(1)?.trim();
-      destination = fromToMatch.group(2)?.trim();
-    } else {
-      final toMatch = toPattern.firstMatch(message);
-      if (toMatch != null) {
-        source = toMatch.group(1)?.trim();
-        destination = toMatch.group(2)?.trim();
+    if (loadsMatch != null) {
+      source = loadsMatch.group(1)?.trim();
+      destination = loadsMatch.group(2)?.trim();
+      
+      // Clean up destination - remove "(or Bengaluru)" type text
+      if (destination != null) {
+        destination = destination.replaceAll(RegExp(r'\s*\(or\s+[^)]+\)', caseSensitive: false), '').trim();
       }
-    }
-    
-    // Extract commodity
-    final commodityPattern = RegExp(r'(?:for|commodity|carrying)\s+([^,\n]+?)(?:\s|,|$)', caseSensitive: false);
-    final commodityMatch = commodityPattern.firstMatch(message);
-    if (commodityMatch != null) {
-      commodity = commodityMatch.group(1)?.trim();
-    }
-    
-    // Extract truck type
-    final truckPattern = RegExp(r'(?:truck|vehicle|lorry)\s*([^,\n]+?)(?:\s|,|$)', caseSensitive: false);
-    final truckMatch = truckPattern.firstMatch(message);
-    if (truckMatch != null) {
-      truckType = truckMatch.group(1)?.trim();
+    } else {
+      // Fallback to general patterns
+      final fromToPattern = RegExp(r'from\s+([^,\n]+?)\s+to\s+([^,\n]+)', caseSensitive: false);
+      final toPattern = RegExp(r'([^,\n]+?)\s+to\s+([^,\n]+)', caseSensitive: false);
+      
+      final fromToMatch = fromToPattern.firstMatch(message);
+      if (fromToMatch != null) {
+        source = fromToMatch.group(1)?.trim();
+        destination = fromToMatch.group(2)?.trim();
+      } else {
+        final toMatch = toPattern.firstMatch(message);
+        if (toMatch != null) {
+          source = toMatch.group(1)?.trim();
+          destination = toMatch.group(2)?.trim();
+        }
+      }
     }
     
     return LoadData(
       source: source,
       destination: destination,
-      commodity: commodity,
-      truckType: truckType,
+      commodity: null,
+      truckType: null,
     );
   }
 
