@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_order_list_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
@@ -19,6 +20,10 @@ class KavachOrderListTabWidget extends StatefulWidget {
 class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
+  final List<KavachOrderListOrderItem> allOrders = [];
+  final ScrollController scrollController = ScrollController();
+  final PageStorageBucket _bucket = PageStorageBucket();
+  int page = 1;
 
   @override
   void initState() {
@@ -26,11 +31,65 @@ class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
     _searchController.addListener(() {
       setState(() => _searchText = _searchController.text.trim().toLowerCase());
     });
-
+    scrollController.addListener(_onScroll);
     // Initial fetch
-    // context.read<KavachOrderListBloc>().add(
-    //   FetchKavachOrderList(isRefresh: true),
-    // );
+    context.read<KavachOrderListBloc>().add(
+      FetchKavachOrderList(isRefresh: true),
+    );
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Subscribe to RouteObserver
+
+    if (ModalRoute.of(context)?.isCurrent == true) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          scrollController.jumpTo(0);
+        }
+      });
+    }
+  }
+
+  void _onScroll() {
+    final currentState = context.read<KavachOrderListBloc>().state;
+    if (!scrollController.hasClients ||
+        (currentState is KavachOrderListLoaded &&
+            page == currentState.totalPage!)) {
+      return;
+    }
+
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      context.read<KavachOrderListBloc>().add(ResetKavachOrderList());
+      page += 1;
+      context.read<KavachOrderListBloc>().add(FetchKavachOrderList(page: page));
+    }
+    // });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    super.dispose();
+  }
+
+  void didPopNext() {
+    // Reset scroll when coming back to this screen
+    _resetScroll();
+  }
+
+  void _resetScroll() {
+    if (scrollController.hasClients) {
+      scrollController.jumpTo(0);
+    } else {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (scrollController.hasClients) {
+          scrollController.jumpTo(0);
+        }
+      });
+    }
   }
 
   @override
@@ -38,7 +97,74 @@ class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
     return Column(
       children: [
         _buildSearchBar(context),
-        Expanded(child: _OrdersListViewWithSearch(searchText: _searchText)),
+        Expanded(
+          child: BlocConsumer<KavachOrderListBloc, KavachOrderListState>(
+            listener: (context, state) {
+              if (state is KavachOrderListLoaded) {
+                // Append only new items to avoid duplicates
+                final newItems = state.orders.where(
+                  (o) =>
+                      !allOrders.any(
+                        (existing) => existing.orderUniqueId == o.orderUniqueId,
+                      ),
+                );
+                debugPrint('dfdfsdgorders${state.orders.length}');
+                debugPrint('dfdfsdg${allOrders.length}');
+                debugPrint('dfdfsdgnewItems${newItems.length}');
+                // if (newItems.isNotEmpty) {
+                setState(() {
+                  allOrders.addAll(newItems);
+                });
+                // }
+              }
+            },
+            builder: (context, state) {
+              // Calculate filtered list based on search text
+              final filtered =
+                  allOrders
+                      .where(
+                        (o) =>
+                            o.orderUniqueId.toLowerCase().contains(_searchText),
+                      )
+                      .toList();
+
+              // Show loader if first page is loading and list is empty
+              if (state is KavachOrderListLoading && allOrders.isEmpty) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              // Show error if first page failed
+              if (state is KavachOrderListError && allOrders.isEmpty) {
+                return Center(child: Text(state.message));
+              }
+
+              if (filtered.isEmpty) {
+                return Center(child: Text(context.appText.noOrdersFound));
+              }
+
+              return PageStorage(
+                bucket: _bucket,
+                child: ListView.builder(
+                  key: const PageStorageKey('kavachListView'),
+                  controller: scrollController,
+                  itemCount:
+                      (state is KavachOrderListLoaded && !state.hasReachedMax)
+                          ? filtered.length + 1
+                          : filtered.length,
+                  itemBuilder: (context, index) {
+                    if (index >= filtered.length) {
+                      return const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 20),
+                        child: Center(child: CircularProgressIndicator()),
+                      );
+                    }
+                    return KavachOrderCardWidget(order: filtered[index]);
+                  },
+                ),
+              );
+            },
+          ),
+        ),
       ],
     );
   }
@@ -61,105 +187,6 @@ class _KavachOrderListTabWidgetState extends State<KavachOrderListTabWidget> {
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),
-    );
-  }
-}
-
-class _OrdersListViewWithSearch extends StatefulWidget {
-  final String searchText;
-
-  const _OrdersListViewWithSearch({required this.searchText});
-
-  @override
-  State<_OrdersListViewWithSearch> createState() =>
-      _OrdersListViewWithSearchState();
-}
-
-class _OrdersListViewWithSearchState extends State<_OrdersListViewWithSearch> {
-  final ScrollController _scrollController = ScrollController();
-  Timer? _debounce;
-  List<KavachOrderListOrderItem> filtered = [];
-
-  @override
-  void initState() {
-    super.initState();
-    filtered.clear();
-    context.read<KavachOrderListBloc>().add(
-      FetchKavachOrderList(forceRefresh: true),
-    );
-    _scrollController.addListener(_onScroll);
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-    _debounce?.cancel();
-    super.dispose();
-  }
-
-  void _onScroll() {
-    if (_debounce?.isActive ?? false) return;
-    _debounce = Timer(const Duration(milliseconds: 200), () {
-      final currentState = context.read<KavachOrderListBloc>().state;
-      if (_isBottom &&
-          !_isLoading &&
-          currentState is KavachOrderListLoaded &&
-          !currentState.hasReachedMax) {
-        context.read<KavachOrderListBloc>().add(FetchKavachOrderList());
-      }
-    });
-  }
-
-  bool get _isLoading {
-    final state = context.read<KavachOrderListBloc>().state;
-    return state is KavachOrderListLoading;
-  }
-
-  bool get _isBottom {
-    if (!_scrollController.hasClients) return false;
-    final maxScroll = _scrollController.position.maxScrollExtent;
-    final currentScroll = _scrollController.offset;
-    return currentScroll >= (maxScroll * 0.9);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<KavachOrderListBloc, KavachOrderListState>(
-      builder: (context, state) {
-        if (state is KavachOrderListLoading) {
-          // Just show loader while fetching the first page
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is KavachOrderListLoaded) {
-          if (state.orders.isEmpty) {
-            return Center(child: Text(context.appText.noOrdersFound));
-          }
-
-          // Apply search filter
-          filtered.addAll(
-            state.orders.where((o) {
-              return o.orderUniqueId.toLowerCase().contains(widget.searchText);
-            }).toList(),
-          );
-
-          return ListView.builder(
-            controller: _scrollController,
-            itemCount:
-                state.hasReachedMax ? filtered.length : filtered.length + 1,
-            itemBuilder: (context, index) {
-              if (index >= filtered.length) {
-                return const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 20),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-              return KavachOrderCardWidget(order: filtered[index]);
-            },
-          );
-        } else if (state is KavachOrderListError) {
-          return Center(child: Text(state.message));
-        }
-        return const SizedBox.shrink();
-      },
     );
   }
 }

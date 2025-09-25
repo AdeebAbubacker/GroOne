@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -82,9 +83,7 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
               childAspectRatio: 1.3, // Adjust for item width/height
             ),
             itemBuilder: (context, index) {
-              var data = widget.dataList[index].copyWith(
-                iconUrl: commodityIconsList[index],
-              );
+              var data = widget.dataList[index];
               return InkWell(
                 onTap: () {
                   widget.onSelect(index);
@@ -105,8 +104,8 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       // Icon
-                      SvgPicture.asset(
-                        data.iconUrl,
+                      SvgPicture.network(
+                        '${ApiUrls.loadCommodityIcon}${data.slug}.svg',
                         width: 25,
                         colorFilter: AppColors.svg(
                           selectedIndex == index
@@ -123,8 +122,8 @@ class _CommodityTypesScreenState extends State<CommodityTypesScreen> {
                             selectedIndex == index
                                 ? AppTextStyle.body3PrimaryColor
                                 : AppTextStyle.body3GreyColor,
-                        overflow: TextOverflow.ellipsis,
-                        maxLines: 1,
+                        maxLines: 2,
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),

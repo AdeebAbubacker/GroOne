@@ -11,7 +11,9 @@ import 'package:gro_one_app/features/kyc/model/upload_license_document_model.dar
 import 'package:gro_one_app/features/kyc/repository/kyc_repository.dart';
 import 'package:gro_one_app/features/profile/api_request/license_vahan_request.dart';
 import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
+import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
 import 'package:gro_one_app/features/profile/repository/profile_repository.dart';
+import 'package:gro_one_app/utils/custom_log.dart';
 part 'masters_state.dart';
 
 
@@ -20,7 +22,12 @@ class MastersCubit extends BaseCubit<MastersState> {
   final ProfileRepository _repository;
   final KycRepository _kycrepo;
   MastersCubit(this._repository,this._kycrepo) : super(MastersState.initial());
-
+ String? userId;
+  Future<String?> fetchUserId() async {
+    userId = await _repository.getUserId();
+    CustomLog.debug(this, "User Id : $userId");
+    return userId;
+  }
 
 
   void resetVehicleVerification() {
@@ -106,7 +113,27 @@ class MastersCubit extends BaseCubit<MastersState> {
     }
   }
 
+   /// Fetch Issue category Group from api call
+  void _setFetchIssueCategoryGroupUIState(
+    UIState<List<IssueCategoryResponse>>? uiState,
+  ) {
+    print("data emitted from cubit ${uiState?.data?.length}");
+    emit(state.copyWith(issueCategoryResponseUIState: uiState));
+  }
 
+  Future<void> fetchIssueCategoryGroup({bool isLoading = true, String? search}) async {
+    if (isLoading) _setFetchIssueCategoryGroupUIState(UIState.loading());
+    userId = await _repository.getUserId();
+
+    dynamic result = await _repository.fetchIssueCategoryGroups();
+    if (result is Success<List<IssueCategoryResponse>>) {
+      _setFetchIssueCategoryGroupUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchIssueCategoryGroupUIState(UIState.error(result.type));
+    }
+  }
+ 
   // Create Document
   void _setCreateDocumentUIState(UIState<CreateDocumentModel>? uiState){
     emit(state.copyWith(createDocumentUIState: uiState));

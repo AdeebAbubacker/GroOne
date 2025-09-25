@@ -19,7 +19,7 @@ class KavachCheckoutBillingAddressError extends KavachCheckoutBillingAddressStat
 }
 
 class KavachCheckoutBillingAddressSelected extends KavachCheckoutBillingAddressState {
-  final KavachAddressModel selectedAddress;
+  final KavachAddressModel? selectedAddress;
   final List<KavachAddressModel> addresses;
   KavachCheckoutBillingAddressSelected({
     required this.selectedAddress,

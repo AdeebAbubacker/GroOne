@@ -179,7 +179,7 @@ class GpsLoginService {
             "GPS auth check failed with status: ${response.statusCode}",
             null,
           );
-          return Error(GenericError());
+          return Failure(message: '', statusCode: response.statusCode ?? 0);
         }
       } on DioException catch (dioError) {
         // Handle 401 status specifically for GPS auth check
@@ -190,11 +190,9 @@ class GpsLoginService {
           );
 
           // Return specific error for GPS auth failure
-          return Error(
-            GpsDeviceActivationError(
-              message:
-                  "GPS authentication failed. User not found or not authorized.",
-            ),
+          return Failure(
+            message: '',
+            statusCode: dioError.response?.statusCode ?? 0,
           );
         }
 

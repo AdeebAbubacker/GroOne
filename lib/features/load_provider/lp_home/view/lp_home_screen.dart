@@ -200,6 +200,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     rateDiscoveryPrice = null;
     truckType = null;
     truckLength = null;
+    loadPostingBloc.reset();
   });
 
   void clearAllValues(){
@@ -218,6 +219,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     lpHomeCubit.state.copyWith(pickup: null);
     lpHomeCubit.state.copyWith(selectedWeight: null);
     lpHomeCubit.resetState();
+    loadPostingBloc.reset();
     setState(() {});
   }
 
@@ -273,19 +275,28 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
       return;
     }
     if (isKycValid == 2) {
-      String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-      if (firstPostedLoadId != null) {
-        if(!context.mounted) return;
-        AppDialog.show(
-            context,
-            child: KycInProgressDialogue(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-            ),
-        );
-        return;
-      }
+      // String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+      // if (firstPostedLoadId != null) {
+      //   if(!context.mounted) return;
+      //   AppDialog.show(
+      //       context,
+      //       child: KycInProgressDialogue(
+      //           onPressed: () {
+      //             Navigator.pop(context);
+      //           },
+      //       ),
+      //   );
+      //   return;
+      // }
+      AppDialog.show(
+        context,
+        child: KycInProgressDialogue(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
+      );
+      return;
     }
 
     if(rateDiscoveryPrice == '00000') return;

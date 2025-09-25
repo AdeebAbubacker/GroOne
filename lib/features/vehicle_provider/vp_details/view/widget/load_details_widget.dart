@@ -298,8 +298,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                           ),
                                           child: Text(
                                             loadDetails?.loadApproval?.damageAndShortagesApproved == true
-                                                ? "Approved"
-                                                : "Rejected",
+                                                ? context.appText.approved
+                                                : context.appText.rejected,
                                              style: AppTextStyle.h3RedLight14.copyWith( 
                                                 color: loadDetails?.loadApproval?.damageAndShortagesApproved == true
                                                   ? AppColors.greenColor
@@ -398,10 +398,12 @@ class LoadDetailsWidget extends StatelessWidget {
       child: Center(
         child: Text(
           context.appText.noSimTracking,
+          textAlign: TextAlign.center,
           style: AppTextStyle.h3w500.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w100,
             color: AppColors.iconRed,
+
           ),
         ),
       ).paddingTop(15),

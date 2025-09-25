@@ -439,7 +439,9 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                       context.appText.myLoads,
                       textAlign: TextAlign.start,
                       style: AppTextStyle.body1,
+                      overflow: TextOverflow.ellipsis,
                     ),
+                    10.width,
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () {

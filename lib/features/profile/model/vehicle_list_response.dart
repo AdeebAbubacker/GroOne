@@ -234,13 +234,19 @@ class PageMeta {
         );
     }
 
-    factory PageMeta.fromJson(Map<String, dynamic> json){ 
+    factory PageMeta.fromJson(Map<String, dynamic> json){
+      int parseInt(dynamic value) {
+      if (value == null) return 0;
+      if (value is int) return value;
+      return int.tryParse(value.toString()) ?? 0;
+    }
+ 
         return PageMeta(
-            page: json["page"] ?? 0,
-            pageCount: json["pageCount"] ?? 0,
-            nextPage: json["nextPage"] ?? 0,
-            pageSize: json["pageSize"] ?? 0,
-            total: json["total"] ?? 0,
+            page: parseInt(json["page"]),
+            pageCount: parseInt(json["pageCount"]),
+            nextPage: json["nextPage"] == null ? 0 : parseInt(json["nextPage"]),
+            pageSize: parseInt(json["pageSize"]),
+            total: parseInt(json["total"]),
         );
     }
 

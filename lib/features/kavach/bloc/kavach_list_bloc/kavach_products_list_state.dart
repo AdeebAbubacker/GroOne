@@ -8,6 +8,7 @@ class KavachProductsListState extends Equatable {
   final List<KavachProduct> products;
   final Map<String, int> quantities;
   final Map<String, int> availableStocks;
+  final Map<String, KavachProduct>? allProductsById; // master list
   final bool loading;
   final bool hasMore;
   final int currentPage;
@@ -30,6 +31,7 @@ class KavachProductsListState extends Equatable {
     this.currentPage = 1,
     this.error,
     this.mastersData,
+    this.allProductsById,
     this.mastersLoading = false,
     this.mastersError,
     this.userPreferences = const KavachChoosePreferenceModel(),
@@ -40,6 +42,7 @@ class KavachProductsListState extends Equatable {
       products: [],
       quantities: {},
       availableStocks: {},
+      allProductsById: {},
       loading: false,
       hasMore: true,
       currentPage: 1,
@@ -55,6 +58,7 @@ class KavachProductsListState extends Equatable {
     List<KavachProduct>? products,
     Map<String, int>? quantities,
     Map<String, int>? availableStocks,
+    Map<String, KavachProduct>? allProductsById,
     bool? loading,
     bool? hasMore,
     int? currentPage,
@@ -68,6 +72,7 @@ class KavachProductsListState extends Equatable {
       products: products ?? this.products,
       quantities: quantities ?? this.quantities,
       availableStocks: availableStocks ?? this.availableStocks,
+      allProductsById: allProductsById ?? this.allProductsById,
       loading: loading ?? this.loading,
       hasMore: hasMore ?? this.hasMore,
       currentPage: currentPage ?? this.currentPage,
@@ -84,6 +89,7 @@ class KavachProductsListState extends Equatable {
     products,
     quantities,
     availableStocks,
+    allProductsById,
     loading,
     hasMore,
     currentPage,

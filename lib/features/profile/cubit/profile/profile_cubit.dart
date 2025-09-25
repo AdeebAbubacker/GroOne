@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_lo
 import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
+import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_message_response.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
@@ -512,7 +513,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return result;
   }
 
-  //   // Update vehicle status from api call
+  //Update vehicle status from api call
   void _setUpdateVehicleStatusUIState(
     UIState<VehcileUpdatedStatusModel>? uiState,
   ) {
@@ -776,6 +777,27 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
     if (result is Error) {
       _setFetchBloodGroupUIState(UIState.error(result.type));
+    }
+  }
+  
+  /// Fetch Issue category Group from api call
+  void _setFetchIssueCategoryGroupUIState(
+    UIState<List<IssueCategoryResponse>>? uiState,
+  ) {
+    print("data emitted from cubit ${uiState?.data?.length}");
+    emit(state.copyWith(issueCategoryResponseUIState: uiState));
+  }
+
+  Future<void> fetchIssueCategoryGroup({bool isLoading = true, String? search}) async {
+    if (isLoading) _setFetchIssueCategoryGroupUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchIssueCategoryGroups();
+    if (result is Success<List<IssueCategoryResponse>>) {
+      _setFetchIssueCategoryGroupUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchIssueCategoryGroupUIState(UIState.error(result.type));
     }
   }
 

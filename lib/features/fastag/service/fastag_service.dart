@@ -137,7 +137,8 @@ class FastagService {
       // String url = 'https://gro-uat-api.letsgro.co/vendor/api/v1/fast-tag/card/$customerId';
       String url = ApiUrls.fastagOrderList(customerId);
       if (searchTerm.isNotEmpty) {
-        url += '?searchTerm=${Uri.encodeComponent(searchTerm)}?page=$page?limit=10';
+        url +=
+            '?searchTerm=${Uri.encodeComponent(searchTerm)}&page=$page&limit=10';
       } else {
         url += '?page=$page&limit=10';
       }

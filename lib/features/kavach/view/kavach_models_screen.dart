@@ -9,6 +9,7 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_product
 import 'package:gro_one_app/features/kavach/bloc/kavach_list_bloc/kavach_products_list_state.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_choose_preference_model.dart';
+import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
 import 'package:gro_one_app/features/kavach/view/kavach_checkout_screen.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/choose_your_preference_form.dart';
 import 'package:gro_one_app/features/kavach/view/widgets/kavach_models_list_body.dart';
@@ -73,10 +74,9 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
   KavachAddressModel? selectedShippingAddress;
   List<KavachAddressModel>? billingAddresses;
   List<KavachAddressModel>? shippingAddresses;
-
+  List<KavachProduct> sortedProducts = [];
   Timer? _debounce;
   final lpHomeCubit = locator<LPHomeCubit>();
-
 
   @override
   void initState() {
@@ -102,12 +102,17 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
     updatedAppEvent(stage: 'viewedProducts');
   }
 
-  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+  Future<void> updatedAppEvent({
+    required String stage,
+    String? entityId,
+    Map<String, dynamic>? context,
+  }) async {
     try {
       lpHomeCubit.updatedAppEvent(
-          stage: stage,
-          entityId: entityId,
-          context: context);
+        stage: stage,
+        entityId: entityId,
+        context: context,
+      );
     } catch (e) {
       // Log error but don't show to user as it's not critical
     }
@@ -151,6 +156,8 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
     return currentScroll >= (maxScroll * 0.9);
   }
 
+  Map<String, KavachProduct> allProductsById = {};
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -162,7 +169,15 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
         actions: [
           AppIconButton(
             onPressed: () {
-              Navigator.of(context).push(commonRoute(LpSupport(showBackButton: true, ticketTag: TicketTags.TANK_LOCK), isForward: true));
+              Navigator.of(context).push(
+                commonRoute(
+                  LpSupport(
+                    showBackButton: true,
+                    ticketTag: TicketTags.TANK_LOCK,
+                  ),
+                  isForward: true,
+                ),
+              );
             },
             icon: AppIcons.svg.filledSupport,
             iconColor: AppColors.primaryButtonColor,
@@ -216,17 +231,98 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
               );
               if (totalQuantity == 0) return const SizedBox.shrink();
 
-              final totalPrice = state.products.fold<double>(0.0, (
+              final totalPrice = state.quantities.entries.fold<double>(0.0, (
                 sum,
-                product,
+                entry,
               ) {
-                final quantity = state.quantities[product.id] ?? 0;
-                return sum + (product.price * quantity);
+                final productId = entry.key;
+                final quantity = entry.value;
+
+                final product =
+                    state.allProductsById?[productId]; // use master list
+                if (product == null) return sum; // product not fetched yet
+
+                final price = double.tryParse(product.price.toString()) ?? 0.0;
+                return sum + (price * quantity);
               });
 
               return buildBuyButtonWidget(totalQuantity, totalPrice);
             },
           ),
+    );
+  }
+
+  Widget buildBodyWidget(BuildContext context) {
+    return BlocConsumer<KavachProductsListBloc, KavachProductsListState>(
+      listener: (c, state) {},
+      builder: (context, state) {
+        if (state.loading && state.products.isEmpty) {
+          return const Center(child: CircularProgressIndicator());
+        }
+
+        if (state.products.isEmpty) {
+          return Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.inbox_outlined,
+                  size: 64,
+                  color: AppColors.greyTextColor,
+                ),
+                16.height,
+                Text(
+                  context.appText.noData,
+                  style: AppTextStyle.h5.copyWith(
+                    color: AppColors.greyTextColor,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+        // Separate in-stock and out-of-stock products
+        final inStockProducts =
+            state.products
+                .where((p) => (state.availableStocks[p.id] ?? 0) > 0)
+                .toList();
+        final outOfStockProducts =
+            state.products
+                .where((p) => (state.availableStocks[p.id] ?? 0) == 0)
+                .toList();
+
+        // Combine them with in-stock first
+        sortedProducts = [...inStockProducts, ...outOfStockProducts];
+
+        return ListView.separated(
+          controller: _scrollController,
+          separatorBuilder: (_, __) => const SizedBox(height: 20),
+          itemCount: sortedProducts.length + (state.loading ? 1 : 0),
+          addAutomaticKeepAlives: false,
+          addRepaintBoundaries: true,
+          itemBuilder: (context, index) {
+            if (index == sortedProducts.length) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(),
+                ),
+              );
+            }
+            final product = sortedProducts[index];
+            final qty = state.quantities[product.id] ?? 0;
+            final availableStock = state.availableStocks[product.id] ?? 0;
+
+            return RepaintBoundary(
+              child: KavachModelsListBody(
+                product: product,
+                quantity: qty,
+                availableStock: availableStock,
+              ),
+            );
+          },
+        );
+      },
     );
   }
 
@@ -271,12 +367,15 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
                       // Handle preference changes
                       bloc.add(events.UpdateUserPreferences(preferences));
                     },
+
                     onApply: () {
                       Navigator.of(context).pop(); // Close bottom sheet
+                      sortedProducts.clear();
                       bloc.add(events.ClearKavachQuantities());
                       bloc.add(
                         events.FetchKavachProducts(
                           preferences: bloc.state.userPreferences,
+                          quantities: state.quantities,
                         ),
                       );
                     },
@@ -296,79 +395,6 @@ class _KavachModelsScreenContentState extends State<KavachModelsScreenContent> {
           icon: SvgPicture.asset(AppIcons.svg.newFilter, width: 20),
         ),
       ],
-    );
-  }
-
-  Widget buildBodyWidget(BuildContext context) {
-    return BlocBuilder<KavachProductsListBloc, KavachProductsListState>(
-      builder: (context, state) {
-        if (state.loading && state.products.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
-
-        if (state.products.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.inbox_outlined,
-                  size: 64,
-                  color: AppColors.greyTextColor,
-                ),
-                16.height,
-                Text(
-                  context.appText.noData,
-                  style: AppTextStyle.h5.copyWith(
-                    color: AppColors.greyTextColor,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }
-        // Separate in-stock and out-of-stock products
-        final inStockProducts =
-            state.products
-                .where((p) => (state.availableStocks[p.id] ?? 0) > 0)
-                .toList();
-        final outOfStockProducts =
-            state.products
-                .where((p) => (state.availableStocks[p.id] ?? 0) == 0)
-                .toList();
-
-        // Combine them with in-stock first
-        final sortedProducts = [...inStockProducts, ...outOfStockProducts];
-
-        return ListView.separated(
-          controller: _scrollController,
-          separatorBuilder: (_, __) => const SizedBox(height: 20),
-          itemCount: sortedProducts.length + (state.loading ? 1 : 0),
-          addAutomaticKeepAlives: false,
-          addRepaintBoundaries: true,
-          itemBuilder: (context, index) {
-            if (index == sortedProducts.length) {
-              return const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: CircularProgressIndicator(),
-                ),
-              );
-            }
-            final product = sortedProducts[index];
-            final qty = state.quantities[product.id] ?? 0;
-            final availableStock = state.availableStocks[product.id] ?? 0;
-
-            return RepaintBoundary(
-              child: KavachModelsListBody(
-                product: product,
-                quantity: qty,
-                availableStock: availableStock,
-              ),
-            );
-          },
-        );
-      },
     );
   }
 
