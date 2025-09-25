@@ -183,9 +183,9 @@ class EnDhanCardDetailRequest {
       'VechileNo': vechileNo,
       'VehicleType': vehicleType,
       'VinNumber': vinNumber,
-      'RcDocument': rcDocument,
+      // 'RcDocument': rcDocument,
       // 'RcNumber': rcNumber,
-      // 'MobileNo': mobileNo, // Always include MobileNo, even if null
+      'MobileNo': mobileNo, // Always include MobileNo, even if null
     };
 
     return data;
