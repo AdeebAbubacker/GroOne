@@ -86,7 +86,6 @@ class VpHomeService {
         url = "$url&search=${Uri.encodeComponent(search)}";
       }
       final result = await _apiService.get(
-
           queryParams: {
             "status":1
           },
