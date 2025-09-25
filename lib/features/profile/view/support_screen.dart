@@ -158,10 +158,10 @@ class _LpSupportState extends State<LpSupport> {
   }
 
   Widget buildToggleTabs(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
+    return IntrinsicHeight(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           toggleButton(context.appText.faqs, 0),
           12.width,
@@ -200,30 +200,26 @@ class _LpSupportState extends State<LpSupport> {
 
   Widget toggleButton(String label, int index) {
     final isSelected = selectedTabIndex == index;
-    return GestureDetector(
-      onTap: () async {
-        selectedTabIndex = index;
-        if (index == 0) {
-          await profileCubit.fetchFaq();
-        } else {
-          profileCubit.fetchTickets(request: TicketRequest());
-        }
-        searchController.clear();
-        FocusManager.instance.primaryFocus?.unfocus();
-        setState(() {});
-      },
-      child: Container(
-        height: 42,
-        constraints: const BoxConstraints(
-        minWidth: 150, 
-      ),
-        decoration: commonContainerDecoration(
-          color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        alignment: Alignment.center,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 4),
+    return Expanded(
+      child: GestureDetector(
+        onTap: () async {
+          selectedTabIndex = index;
+          if (index == 0) {
+            await profileCubit.fetchFaq();
+          } else {
+            profileCubit.fetchTickets(request: TicketRequest());
+          }
+          searchController.clear();
+          FocusManager.instance.primaryFocus?.unfocus();
+          setState(() {});
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: commonContainerDecoration(
+            color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          alignment: Alignment.center,
           child: Text(
             label,
             style: AppTextStyle.body3.copyWith(

@@ -57,6 +57,11 @@ class Validator {
       return appContext.appText.mobileNumberCannotStartWith0;
     }
 
+    // Start with 1–5
+    if (RegExp(r'^[1-5]').hasMatch(value)) {
+      return appContext.appText.mobileNumberCannotStartWith1to5;
+    }
+
     // Disallow repeated digits like 0000000000, 1111111111, etc.
     if (RegExp(r'^(\d)\1*$').hasMatch(value)) {
       return appContext.appText.mobileNumberCannotHaveSameNumber;
