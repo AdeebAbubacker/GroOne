@@ -638,6 +638,7 @@
   "switchAccount": "Switch Account",
   "verifyEmail": "Please verify your email",
   "isIncomplete": "is incomplete",
+  "isInvalid": "is invalid",
   "selectWeight": "Select Weight",
   "selectCommodityTypes": "Select Commodity Types",
   "expectedDeliveryRateRequired": "Expected Delivery Date is required",

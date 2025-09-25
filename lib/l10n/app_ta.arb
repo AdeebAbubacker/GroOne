@@ -638,6 +638,7 @@
   "switchAccount": "கணக்கை மாற்று",
   "verifyEmail": "உங்கள் மின்னஞ்சலை சரிபார்க்கவும்",
   "isIncomplete": "முடிவடையவில்லை",
+  "isInvalid": "செல்லாது",
   "selectWeight": "எடையைத் தேர்வு செய்யவும்",
   "selectCommodityTypes": "சரக்குகளின் வகைகளைத் தேர்ந்தெடுக்கவும்",
   "expectedDeliveryRateRequired": "எதிர்பார்க்கப்படும் டெலிவரி தேதியை உள்ளிடவும்",

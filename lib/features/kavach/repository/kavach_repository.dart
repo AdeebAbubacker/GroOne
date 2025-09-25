@@ -120,7 +120,7 @@ class KavachRepository {
   }
 
   /// Fetches customer orders for the current user with optional filtering
-  Future<Result<KavachOrderListResponse>> fetchCustomerOrders({ int page = 1, int limit = 10, int? status, bool forceRefresh = false,int fleetProductId = 2, }) async {
+  Future<Result<KavachOrderListResponse>> fetchCustomerOrders({ int page = 1, int limit = 10, String? status, bool forceRefresh = false,int fleetProductId = 2, }) async {
     try {
       final customerId = await userInfoRepo.getUserID() ?? '';
       if (customerId.isEmpty) {

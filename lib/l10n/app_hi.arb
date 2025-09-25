@@ -636,6 +636,7 @@
   "switchAccount": "खाता बदलें",
   "verifyEmail": "कृपया अपना ईमेल सत्यापित करें",
   "isIncomplete": "अधूरा है",
+  "isInvalid": "इनवैलिड है",
   "selectWeight": "वज़न चुनें",
   "selectCommodityTypes": "वस्तु के प्रकार चुनें",
   "expectedDeliveryRateRequired": "अपेक्षित डिलीवरी तिथि आवश्यक है",
