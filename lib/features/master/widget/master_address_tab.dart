@@ -224,7 +224,15 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                             () =>
                                 showAddAddressPopup(context, address: address),
                         onDelete:
-                            () => showDeletePopUp(
+                            () {
+                               if (address.isDefault) {
+                            //  Prevent delete if primary
+                              ToastMessages.alert(
+                                message: context.appText.primaryAddressCannotBeDeleted,
+                              );
+                              return;
+                            }
+                              showDeletePopUp(
                               context: context,
                               confirmMessage:
                                   context.appText.areYouSureToDeleteThisAddress,
@@ -234,7 +242,8 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                                   () => profileCubit.deleteAddress(
                                     addressId: address.preferedAddressId,
                                   ),
-                            ),
+                            );
+                            },
                         onSetPrimary: () async {
                           await profileCubit.setPrimaryAddress(
                             addressId: address.preferedAddressId,

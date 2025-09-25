@@ -200,6 +200,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     rateDiscoveryPrice = null;
     truckType = null;
     truckLength = null;
+    loadPostingBloc.reset();
   });
 
   void clearAllValues(){
@@ -218,6 +219,7 @@ class _HomeScreenLoadProviderState extends BaseState<HomeScreenLoadProvider> {
     lpHomeCubit.state.copyWith(pickup: null);
     lpHomeCubit.state.copyWith(selectedWeight: null);
     lpHomeCubit.resetState();
+    loadPostingBloc.reset();
     setState(() {});
   }
 

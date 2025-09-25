@@ -3,7 +3,7 @@ class LoadCommodityListModel {
     required this.id,
     required this.name,
     required this.description,
-    required this.iconUrl,
+    required this.slug,
     required this.status,
     required this.createdAt,
     required this.deletedAt,
@@ -12,7 +12,7 @@ class LoadCommodityListModel {
   final int id;
   final String name;
   final dynamic description;
-  final dynamic iconUrl;
+  final String slug;
   final num status;
   final DateTime? createdAt;
   final dynamic deletedAt;
@@ -21,7 +21,7 @@ class LoadCommodityListModel {
     int? id,
     String? name,
     dynamic description,
-    dynamic iconUrl,
+    String? slug,
     int? status,
     DateTime? createdAt,
     DateTime? deletedAt,
@@ -30,7 +30,7 @@ class LoadCommodityListModel {
       id: id ?? this.id,
       name: name ?? this.name,
       description: description ?? this.description,
-      iconUrl: iconUrl ?? this.iconUrl,
+      slug: slug ?? this.slug,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       deletedAt: deletedAt ?? this.deletedAt,
@@ -42,7 +42,7 @@ class LoadCommodityListModel {
       id: json["id"] ?? 0,
       name: json["name"] ?? "",
       description: json["description"],
-      iconUrl: json["iconUrl"],
+      slug: json["slug"],
       status: json["status"] ?? 0,
       createdAt: DateTime.tryParse(json["createdAt"] ?? ""),
       deletedAt: DateTime.tryParse(json["deletedAt"] ?? ""),

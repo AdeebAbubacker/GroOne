@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/choose_language_screen/bloc/language_cubit.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/cubit/driver_home_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/email_verification/cubit/email_verification_cubit.dart';
@@ -203,6 +204,7 @@ class MultiBlocWrapper extends StatelessWidget {
         ),
         BlocProvider<VpHomeCubit>(create: (_) => locator<VpHomeCubit>()),
         BlocProvider<GpsOrderListCubit>(create: (_) => locator<GpsOrderListCubit>()),
+        BlocProvider<DriverHomeCubit>(create: (_) => locator<DriverHomeCubit>()),
       ],
 
       child: child,

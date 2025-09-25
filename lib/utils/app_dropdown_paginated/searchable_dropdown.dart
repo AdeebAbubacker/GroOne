@@ -517,6 +517,7 @@ class _DropDown<T> extends StatelessWidget {
           ),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: isDialogExpanded
                 ? CrossAxisAlignment.center
                 : CrossAxisAlignment.start,

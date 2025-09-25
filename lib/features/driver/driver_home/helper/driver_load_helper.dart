@@ -138,41 +138,13 @@ class DriverLoadHelper {
             isLoading: isLoading,
             title:  isLpagreed ? context.appText.startTrip :context.appText.waitingForLpToConfirmed,
           );
-        } else {
-          return SlideAction(
-            enabled: enable ?? true,
-            borderRadius: commonButtonRadius,
-            elevation: 0,
-            height: commonButtonHeight2,
-            innerColor: Colors.transparent,
-            outerColor:
-                (enable ?? false)
-                    ? AppColors.lightPrimaryColor3
-                    : AppColors.lightGreyE9,
-
-            sliderButtonIcon: SvgPicture.asset(
-              AppIcons.svg.swipeButtonIcon,
-              colorFilter: (enable ?? false)
-              ? null
-              : AppColors.svg(AppColors.mediumDarkGrey)
-            ).cornerRadiusWithClipRRectOnly(topLeft: 8, bottomLeft: 8),
-
-            sliderRotate: false,
-            sliderButtonYOffset: -30,
-            text: context.appText.swipeToStart,
-            textStyle: AppTextStyle.button.copyWith(
-              color:
-                  (enable ?? false)
-                      ? AppColors.primaryColor
-                      : AppColors.mediumDarkGrey,
-            ),
-            onSubmit:
-                isLoading
-                    ? () async {}
-                    : () async {
-                      onPressed();
-                    },
-          );
+        } else {          
+          return AppButton(
+          buttonHeight: commonButtonHeight2,
+          onPressed: isLoading ? () {} : onPressed,
+          isLoading: isLoading,
+          title: context.appText.startTrip,
+        );  
         }
 
       case 5:

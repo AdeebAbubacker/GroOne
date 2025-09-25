@@ -10,8 +10,18 @@ class SecuredSharedPreferences {
   }
 
   Future<String?> get(String key) async {
-    return await _secureStorage.read(key: key);
+    try {
+      return await _secureStorage.read(key: key);
+    } catch (e) {
+      print("Decryption failed for key=$key. Error: $e");
+      await _secureStorage.delete(key: key); // clear corrupted value
+      return null;
+    }
   }
+
+  // Future<String?> get(String key) async {
+  //   return await _secureStorage.read(key: key);
+  // }
 
   Future<void> deleteKey(String key) async {
     await _secureStorage.delete(key: key);
@@ -43,20 +53,45 @@ class SecuredSharedPreferences {
   }
 
   Future<int?> getInt(String key) async {
-    String? value = await _secureStorage.read(key: key);
-    if (value != null) {
-      return int.tryParse(value);
+    try {
+      String? value = await _secureStorage.read(key: key);
+      if (value != null) {
+        return int.tryParse(value);
+      }
+    } catch (e) {
+      print("Decryption failed for int key=$key. Error: $e");
+      await _secureStorage.delete(key: key);
     }
     return null;
   }
 
   Future<bool> getBooleans(String key) async {
-    String? value = await _secureStorage.read(key: key);
-    if (value != null) {
-      return true.toString() == value;
+    try {
+      String? value = await _secureStorage.read(key: key);
+      if (value != null) {
+        return value == true.toString();
+      }
+    } catch (e) {
+      print("Decryption failed for bool key=$key. Error: $e");
+      await _secureStorage.delete(key: key);
     }
     return false;
   }
 
+// Future<int?> getInt(String key) async {
+//   String? value = await _secureStorage.read(key: key);
+//   if (value != null) {
+//     return int.tryParse(value);
+//   }
+//   return null;
+// }
+
+// Future<bool> getBooleans(String key) async {
+//   String? value = await _secureStorage.read(key: key);
+//   if (value != null) {
+//     return true.toString() == value;
+//   }
+//   return false;
+// }
 
 }
