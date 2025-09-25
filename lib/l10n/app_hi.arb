@@ -1337,7 +1337,8 @@
   "issuecategoryRequired": "समस्या श्रेणी आवश्यक है",
   "primaryAddressCannotBeDeleted": "प्राथमिक पता हटाया नहीं जा सकता",
   "mobileNumberCannotStartWith1to5" : "मोबाइल नंबर 1 से 5 तक की संख्या से शुरू नहीं हो सकता", 
-  "viewTransactionDetails" : "लेन-देन विवरण देखें"
+  "viewTransactionDetails" : "लेन-देन विवरण देखें",
+  "feedbackValidation": "कृपया सबमिट करने से पहले फीडबैक या टिप्पणी दर्ज करें।"
 
 
 

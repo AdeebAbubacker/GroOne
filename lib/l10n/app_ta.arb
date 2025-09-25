@@ -1339,8 +1339,8 @@
   "primaryAddressCannotBeDeleted": "முதன்மை முகவரியை நீக்க முடியாது",
   "mobileNumberCannotStartWith1to5" : "மொபைல் எண் 1 முதல் 5 வரை உள்ள எண்களால் தொடங்கக்கூடாது",
    
-  "viewTransactionDetails" : "பரிவர்த்தனை விவரங்களை காண்க"
-
+  "viewTransactionDetails" : "பரிவர்த்தனை விவரங்களை காண்க",
+  "feedbackValidation": "சமர்ப்பிக்கும் முன் கருத்து அல்லது குறிப்பை உள்ளிடவும்."
 
 
 

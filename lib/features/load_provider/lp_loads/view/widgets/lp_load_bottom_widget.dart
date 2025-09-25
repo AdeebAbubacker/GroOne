@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_b
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart' as vp_helper;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide LoadSettlement;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
@@ -436,6 +437,9 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                             }
                           },
                           builder: (context, state) {
+
+
+
                             return _buildConsigneeDetail(
                               formKey: _formKey,
                               context: context,
@@ -506,16 +510,21 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                          10.height,
                          Column(
                            children: widget.loadItem.loadDocument.map((doc) {
+
+
+
                              return Column(
                                children: [
-                                 TripDocuments(
-                                   docName: doc.documentDetails?.documentType ?? '',
+                                if( vp_helper.DocumentFileType.uploadOtherDocument.documentType != (doc.documentDetails?.documentType ?? ''))
+                                  TripDocuments(
+                                   docName:
+                                   doc.documentDetails?.documentType ?? '',
                                    docDateTime: doc.createdAt!,
                                    docUrl: doc.documentDetails?.filePath ?? '',
                                    downloadKey: doc.loadDocumentId,
                                    docId: doc.documentId,
                                  ),
-                                 10.height,
+                                 // 10.height,
                                ],
                              );
                            }).toList(),
