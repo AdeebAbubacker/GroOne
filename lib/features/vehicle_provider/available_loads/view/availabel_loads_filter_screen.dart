@@ -1,9 +1,8 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/ai_chat/model/chat_message.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
@@ -23,7 +22,9 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:collection/collection.dart';
 
 class AvailableLoadsFilterScreen extends StatefulWidget {
-  const AvailableLoadsFilterScreen({super.key});
+  final LoadData? initialRouteData; // Route data from chat
+
+  const AvailableLoadsFilterScreen({super.key, this.initialRouteData});
 
   @override
   State<AvailableLoadsFilterScreen> createState() =>
@@ -42,7 +43,8 @@ class _AvailableLoadsFilterScreenState
   final lpLoadLocator = locator<LpLoadCubit>();
   final filterCubit = locator<LoadFilterCubit>();
 
-  final SearchableDropdownController<RouteList> controller=SearchableDropdownController();
+  final SearchableDropdownController<RouteList> controller =
+      SearchableDropdownController();
 
   /// Selected Data
 
@@ -54,7 +56,6 @@ class _AvailableLoadsFilterScreenState
   @override
   void initState() {
     _setInitialFilterData();
-
     super.initState();
   }
 
@@ -74,8 +75,8 @@ class _AvailableLoadsFilterScreenState
   void disposeFunction() => frameCallback(() {});
 
   void _getTruckType(
-      String? selectedTruckType,
-      TruckTypeModel? truckTypeModel
+    String? selectedTruckType,
+    TruckTypeModel? truckTypeModel,
   ) {
     truckTypeId = truckTypeModel?.id;
     filterCubit.setTruckTypeData(
@@ -88,7 +89,8 @@ class _AvailableLoadsFilterScreenState
     laneId = selectedItem?.masterLaneId;
     filterCubit.setLensData(
       leneId: selectedItem?.masterLaneId,
-      value: '${selectedItem?.fromLocation?.name ?? ""} - ${selectedItem?.toLocation?.name ?? ""}',
+      value:
+          '${selectedItem?.fromLocation?.name ?? ""} - ${selectedItem?.toLocation?.name ?? ""}',
     );
   }
 
@@ -98,7 +100,6 @@ class _AvailableLoadsFilterScreenState
   }
 
   Future<void> _setInitialFilterData() async {
-
     if (filterCubit.state.isFilterApplied == false) {
       return;
     }
@@ -106,16 +107,128 @@ class _AvailableLoadsFilterScreenState
     vehicleTypeDownValue = filterCubit.state.selectedTruckType?['value'];
     truckTypeId = filterCubit.state.selectedTruckType?['id'];
 
-
     laneDropDownValue = filterCubit.state.selectedLaneType?['value'];
     laneId = filterCubit.state.selectedLaneType?['id'];
 
-
     loadTypeDropDownValue = filterCubit.state.selectedCommodity?['value'];
     commodityId = filterCubit.state.selectedCommodity?['id'];
+  }
 
+  /// Handle initial route data from chat
+  Future<void> _handleInitialRouteData() async {
+    if (widget.initialRouteData?.source == null ||
+        widget.initialRouteData?.destination == null) {
+      return;
+    }
 
+    print('🎯 DEBUG: Handling initial route data from chat');
+    print(
+      '🎯 DEBUG: Source: ${widget.initialRouteData?.source}, Destination: ${widget.initialRouteData?.destination}',
+    );
 
+    // Wait for route data to load
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // Get route data from LpLoadCubit
+    final routeState = lpLoadLocator.state.lpLoadRouteDetails;
+    final routeList = routeState?.data?.data?.routeList ?? [];
+
+    print('🎯 DEBUG: Available routes count: ${routeList.length}');
+
+    if (routeList.isEmpty) {
+      print('🎯 DEBUG: No routes available, loading routes...');
+      await lpLoadLocator.getRouteDetails();
+      // Retry after loading
+      Future.delayed(const Duration(seconds: 1), () {
+        _findAndSelectMatchingRoute();
+      });
+      return;
+    }
+
+    _findAndSelectMatchingRoute();
+  }
+
+  /// Find and select matching route based on source and destination
+  void _findAndSelectMatchingRoute() {
+    if (widget.initialRouteData?.source == null ||
+        widget.initialRouteData?.destination == null) {
+      return;
+    }
+
+    final routeState = lpLoadLocator.state.lpLoadRouteDetails;
+    final routeList = routeState?.data?.data?.routeList ?? [];
+
+    print(
+      '🎯 DEBUG: Finding matching route for "${widget.initialRouteData?.source}" to "${widget.initialRouteData?.destination}"',
+    );
+
+    RouteList? matchingRoute;
+    try {
+      matchingRoute = routeList.firstWhere((route) {
+        final fromName = route.fromLocation?.name?.toLowerCase() ?? '';
+        final toName = route.toLocation?.name?.toLowerCase() ?? '';
+        final sourceLower = widget.initialRouteData!.source!.toLowerCase();
+        final destLower = widget.initialRouteData!.destination!.toLowerCase();
+
+        print('🎯 DEBUG: Checking route: "$fromName" to "$toName"');
+
+        // Check for exact match or partial match
+        final sourceMatch =
+            fromName.contains(sourceLower) ||
+            sourceLower.contains(fromName) ||
+            _isSimilarLocation(fromName, sourceLower);
+        final destMatch =
+            toName.contains(destLower) ||
+            destLower.contains(toName) ||
+            _isSimilarLocation(toName, destLower);
+
+        return sourceMatch && destMatch;
+      });
+
+      print(
+        '✅ DEBUG: Found matching route: ${matchingRoute.fromLocation?.name} to ${matchingRoute.toLocation?.name}',
+      );
+
+      // Set the route data
+      setState(() {
+        laneId = matchingRoute?.masterLaneId;
+        laneDropDownValue = matchingRoute?.masterLaneId.toString();
+      });
+
+      // Update the filter cubit
+      _getLaneId(matchingRoute);
+    } catch (e) {
+      print('❌ DEBUG: No matching route found');
+    }
+  }
+
+  /// Check if two location names are similar (handles common variations)
+  bool _isSimilarLocation(String location1, String location2) {
+    final variations = {
+      'bangalore': ['bengaluru', 'bangaluru'],
+      'bengaluru': ['bangalore', 'bangaluru'],
+      'bangaluru': ['bangalore', 'bengaluru'],
+      'mumbai': ['bombay'],
+      'bombay': ['mumbai'],
+      'kolkata': ['calcutta'],
+      'calcutta': ['kolkata'],
+      'chennai': ['madras'],
+      'madras': ['chennai'],
+      'pune': ['punekar'],
+      'delhi': ['new delhi'],
+      'new delhi': ['delhi'],
+    };
+
+    final loc1 = location1.toLowerCase();
+    final loc2 = location2.toLowerCase();
+
+    for (final group in variations.values) {
+      if (group.contains(loc1) && group.contains(loc2)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   @override
@@ -145,16 +258,13 @@ class _AvailableLoadsFilterScreenState
                   return truckTypeList;
                 },
                 selectedVehicleType: truckTypeList.firstWhereOrNull(
-                      (t) => t.id == truckTypeId,
+                  (t) => t.id == truckTypeId,
                 ),
                 onChanged: (TruckTypeModel? value) {
                   setState(() {
                     vehicleTypeDownValue = value?.id.toString();
                   });
-                  _getTruckType(
-                      "${value?.type} ${value?.subType}",
-                      value
-                  );
+                  _getTruckType("${value?.type} ${value?.subType}", value);
                 },
                 mandatoryStar: false,
               );
@@ -168,9 +278,19 @@ class _AvailableLoadsFilterScreenState
             builder: (context, state) {
               final uiState = state.lpLoadRouteDetails;
               final routeList = uiState?.data?.data?.routeList ?? [];
-              RouteList? selectedItem=    routeList.firstWhereOrNull(
-                    (r) => r.masterLaneId == laneId,
+
+              // Auto-select route from chat data if available
+              if (widget.initialRouteData?.source != null &&
+                  widget.initialRouteData?.destination != null &&
+                  laneId == null &&
+                  routeList.isNotEmpty) {
+                _findAndSelectMatchingRoute();
+              }
+
+              RouteList? selectedItem = routeList.firstWhereOrNull(
+                (r) => r.masterLaneId == laneId,
               );
+
               return RouteSearchableDropdown(
                 labelText: context.appText.route,
                 hintText: context.appText.searchRoutes,
@@ -179,7 +299,7 @@ class _AvailableLoadsFilterScreenState
                     search: searchKey,
                     loadMore: page > 1,
                   );
-                   if (lpLoadLocator.isRoutesLastPage &&
+                  if (lpLoadLocator.isRoutesLastPage &&
                       page > lpLoadLocator.rootsCurrentPage) {
                     return [];
                   }
@@ -213,7 +333,7 @@ class _AvailableLoadsFilterScreenState
                 },
 
                 selectedLoadType: loadTypeList.firstWhereOrNull(
-                      (t) => t.id == commodityId,
+                  (t) => t.id == commodityId,
                 ),
 
                 onChanged: (LoadCommodityListModel? value) {

@@ -109,6 +109,7 @@ class LoadData {
   final double? weight;
   final String? pickupDate;
   final String? deliveryDate;
+  final int? routeId; // Route ID for direct filtering
 
   const LoadData({
     this.source,
@@ -118,6 +119,7 @@ class LoadData {
     this.weight,
     this.pickupDate,
     this.deliveryDate,
+    this.routeId,
   });
 
   Map<String, dynamic> toJson() {
@@ -129,6 +131,7 @@ class LoadData {
       'weight': weight,
       'pickupDate': pickupDate,
       'deliveryDate': deliveryDate,
+      'routeId': routeId,
     };
   }
 
@@ -141,6 +144,7 @@ class LoadData {
       weight: json['weight']?.toDouble(),
       pickupDate: json['pickupDate'],
       deliveryDate: json['deliveryDate'],
+      routeId: json['routeId'],
     );
   }
 
@@ -152,6 +156,7 @@ class LoadData {
     double? weight,
     String? pickupDate,
     String? deliveryDate,
+    int? routeId,
   }) {
     return LoadData(
       source: source ?? this.source,
@@ -161,6 +166,7 @@ class LoadData {
       weight: weight ?? this.weight,
       pickupDate: pickupDate ?? this.pickupDate,
       deliveryDate: deliveryDate ?? this.deliveryDate,
+      routeId: routeId ?? this.routeId,
     );
   }
 }
