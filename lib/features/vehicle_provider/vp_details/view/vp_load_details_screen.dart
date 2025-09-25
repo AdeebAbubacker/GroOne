@@ -205,28 +205,33 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
           child: Column(
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   GestureDetector(onTap: () {
                     Navigator.pop(context);
                   },child: Icon(Icons.arrow_back)),
                   8.width,
-                  Text(
-                    "${loadDetails?.loadSeriesId}",
-                    style: TextStyle(color: AppColors.textBlackDetailColor),
+                  Expanded(
+                    child: Text(
+                      "${loadDetails?.loadSeriesId}",
+                      style: TextStyle(color: AppColors.textBlackDetailColor),
+                    ),
                   ),
-                  Spacer(),
+                 
 
                   Text(
                     DateTimeHelper.formatCustomDate(
                       loadDetails?.createdAt ?? DateTime.now(),
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  
                     style: TextStyle(
                       fontSize: 10,
                       color: AppColors.primaryColor,
                     ),
-                  ),
+                  ).align(Alignment.centerRight).expand(),
                 ],
               ),
               12.height,

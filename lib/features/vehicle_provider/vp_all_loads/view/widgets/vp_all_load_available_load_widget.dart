@@ -147,6 +147,7 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
             ),
             15.height,
             Container(
+
               alignment: Alignment.centerRight,
               padding: EdgeInsets.symmetric(vertical: 5),
               decoration: BoxDecoration(
@@ -156,21 +157,21 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  FittedBox(
-                    child: Text(
-                     context.appText.quotedPrice,
-                      style: AppTextStyle.textBlackColor18w400,
-                      textAlign: TextAlign.center,
-                    )
-                  ),
+                  Text(
+                   context.appText.quotedPrice,
+                    style: AppTextStyle.textBlackColor18w400,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ).expand(),
 
-                  FittedBox(
-                    child: Text(
-                      amount,
-                      style: AppTextStyle.h4PrimaryColor,
-                      textAlign: TextAlign.center,
-                    )
-                  ),
+                  Text(
+                    amount,
+                    style: AppTextStyle.h4PrimaryColor,
+                    textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ).expand(),
                 ],
               ),
             ),
@@ -271,7 +272,10 @@ class _VpAllLoadAvailableLoadWidgetState extends State<VpAllLoadAvailableLoadWid
           colorFilter: AppColors.svg(AppColors.black),
         ),
         10.width,
-        Text(text, style: AppTextStyle.body),
+        Text(text, style: AppTextStyle.body,
+        maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ).expand(),
       ],
     );
   }
