@@ -247,6 +247,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                         onSetPrimary: () async {
                           await profileCubit.setPrimaryAddress(
                             addressId: address.preferedAddressId,
+                            isPrimary : !address.isDefault
                           );
 
                           // Check if it succeeded

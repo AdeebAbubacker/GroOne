@@ -295,10 +295,11 @@ class ProfileService {
   /// set primary address
   Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({
     required String addressId,
+    required bool isPrimary
   }) async {
     try {
       final url = ApiUrls.setPrimaryAddress + addressId;
-      final response = await _apiService.put(url, body: {"isDefault": true});
+      final response = await _apiService.put(url, body: {"isDefault": isPrimary});
       if (response is Success) {
         final loads = SetPrimaryAddressResponse.fromJson(response.value);
         return Success(loads);
