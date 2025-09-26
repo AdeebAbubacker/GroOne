@@ -671,6 +671,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     16.height,
                     AppTextField(
                       enabled: !isEdit,
+                      mandatoryStar: true,
                       validator: (value) => Validator.phone(value),
                       controller: mobileController,
                       labelText: context.appText.phoneNumber,
