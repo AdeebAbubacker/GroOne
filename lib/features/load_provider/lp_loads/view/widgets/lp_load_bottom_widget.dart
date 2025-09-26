@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_b
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart' as vp_helper;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide LoadSettlement;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
@@ -55,10 +56,12 @@ class LpLoadBottomWidget extends StatefulWidget {
 }
 
 class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
- String? consigneeId;  
+ String? consigneeId;
+ List<LoadDocumentData>? othersDocument;
   @override
   void initState() {
   initFunction();
+  widget.loadItem.loadDocument;
   super.initState();
   }
 
@@ -89,6 +92,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     consigneePhoneController = TextEditingController(text: consigneePhone);
     consigneeEmailController = TextEditingController(text: consigneeEmail);
     isUpdateConsignee = widget.loadItem.consignees.isNotEmpty;
+    getOthersDocument();
 
   });
 
@@ -97,6 +101,12 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     consigneePhoneController.dispose();
     consigneeEmailController.dispose();
   });
+
+   void getOthersDocument(){
+     othersDocument=widget.loadItem.loadDocument.where((element) {
+       return vp_helper.DocumentFileType.uploadOtherDocument.documentType == (element.documentDetails?.documentType ?? '');
+     },).toList();
+   }
 
   Future<dynamic>? onSubmit(LoadData loadItem, context) async {
     await lpLoadLocator.getCreditCheck();
@@ -436,6 +446,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                             }
                           },
                           builder: (context, state) {
+
                             return _buildConsigneeDetail(
                               formKey: _formKey,
                               context: context,
@@ -508,18 +519,35 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                            children: widget.loadItem.loadDocument.map((doc) {
                              return Column(
                                children: [
-                                 TripDocuments(
-                                   docName: doc.documentDetails?.documentType ?? '',
+                                if( vp_helper.DocumentFileType.uploadOtherDocument.documentType != (doc.documentDetails?.documentType ?? ''))
+                                  TripDocuments(
+                                    otherDocument: [],
+                                    showViewMoreIcon: false,
+                                   docName:
+                                   doc.documentDetails?.documentType ?? '',
                                    docDateTime: doc.createdAt!,
                                    docUrl: doc.documentDetails?.filePath ?? '',
                                    downloadKey: doc.loadDocumentId,
                                    docId: doc.documentId,
                                  ),
-                                 10.height,
+                                 // 10.height,
                                ],
                              );
                            }).toList(),
                          ),
+                         if((othersDocument??[]).isNotEmpty)...[
+                           TripDocuments(
+                             otherDocument: othersDocument??[],
+                             showViewMoreIcon: true,
+                             docName:
+                             othersDocument?[0].documentDetails?.documentType ?? '',
+                             docDateTime:  othersDocument![0].createdAt!,
+                             docUrl:  othersDocument?[0].documentDetails?.filePath ?? '',
+                             downloadKey:  othersDocument![0].loadDocumentId,
+                             docId:  othersDocument![0].documentId,
+                           ),
+                         ]
+
                        ],
 
                         // Feedback and Remarks

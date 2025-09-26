@@ -1386,9 +1386,10 @@
   "truckTypeRequired":"Truck Type required",
 
   "issueCategory" : "Issue Category",
-"issuecategoryRequired" : "Issue Category Required",
+  "issuecategoryRequired" : "Issue Category Required",
   "viewTransactionDetails" : "View Transaction Details",
   "primaryAddressCannotBeDeleted": "Primary address cannot be deleted",
-  "mobileNumberCannotStartWith1to5" : "Mobile number cannot start with digits 1 to 5"
+  "mobileNumberCannotStartWith1to5" : "Mobile number cannot start with digits 1 to 5",
+  "feedbackValidation":"Please enter feedback or a remark before submitting."
 
 }
