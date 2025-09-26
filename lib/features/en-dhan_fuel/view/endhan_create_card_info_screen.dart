@@ -892,6 +892,16 @@ class _EndhanCreateCardInfoContentState
                                           'vehicleType',
                                           val ?? '',
                                         );
+
+                                        try {
+                                          lpHomeCubit.updatedAppEvent(
+                                            stage: 'cardInformationFilled',
+                                          );
+
+                                          print('updated successfully cardInformationFilled');
+                                        } catch (e) {
+                                          // Log error but don't show to user as it's not critical
+                                        }
                                       },
                                       emptyBuilder:
                                           (context, searchEntry) => Center(

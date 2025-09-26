@@ -2226,7 +2226,6 @@ class _ChatScreenState extends State<ChatScreen> {
       MaterialPageRoute(
         builder: (context) => VpAllLoadsScreen(
           initialTabIndex: 0, // Start with "Available Loads" tab
-          filterData: loadData, // Pass load data for filtering
         ),
       ),
     );
