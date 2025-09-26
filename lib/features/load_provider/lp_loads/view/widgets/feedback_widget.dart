@@ -113,7 +113,8 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                     style: AppButtonStyle.outlineShrink,
                     textStyle: AppTextStyle.buttonPrimaryColorTextColor,
                     onPressed: () async {
-                      if( feedbackController.text.isEmpty){
+
+                      if( feedbackController.text.trim().isEmpty){
                         ToastMessages.alert(message: context.appText.feedbackValidation);
                         return;
                       }
@@ -137,6 +138,10 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                     style: AppButtonStyle.outlineShrink,
                     textStyle: AppTextStyle.buttonPrimaryColorTextColor,
                     onPressed: () async {
+                      if( feedbackController.text.trim().isEmpty){
+                        ToastMessages.alert(message: context.appText.feedbackValidation);
+                        return;
+                      }
                       feedbackFocusNode.unfocus();
                       await lpLoadCubit.updateFeedback(
                         loadId: widget.loadId,
