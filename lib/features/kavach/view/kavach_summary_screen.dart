@@ -1,4 +1,5 @@
 import 'package:dotted_line/dotted_line.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/features/kavach/api_request/kavach_order_api_request.dart';
@@ -15,8 +16,10 @@ import 'package:gro_one_app/features/kavach/bloc/kavach_checkout_shipping_addres
 import 'package:gro_one_app/features/kavach/helper/kavach_helper.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_address_model.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_product_model.dart';
+import 'package:gro_one_app/features/kavach/view/kavach_orders_list_screen.dart';
 import 'package:gro_one_app/features/payments/view/payments_screen.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
+import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -234,19 +237,40 @@ class _KavachSummaryScreenState extends State<KavachSummaryScreen> {
                     // Handle any errors if blocs are not available
                   }
 
-                  Navigator.of(context).popUntil((route) {
-                    if (route.settings.name == 'KavachOrderListScreen') {
-                      if (route.navigator != null &&
-                          route.navigator!.context.mounted) {
-                        // BlocProvider.of<KavachOrderListBloc>(
-                        //   route.navigator!.context,
-                        // ).add(
-                        //   FetchKavachOrderList(forceRefresh: true, isRefresh: true),
-                        // );
+                  // Navigator.of(context).popUntil((route) {
+                  //   if (route.settings.name == 'KavachOrderListScreen') {
+                  //     if (route.navigator != null &&
+                  //         route.navigator!.context.mounted) {
+                  //       // BlocProvider.of<KavachOrderListBloc>(
+                  //       //   route.navigator!.context,
+                  //       // ).add(
+                  //       //   FetchKavachOrderList(forceRefresh: true, isRefresh: true),
+                  //       // );
+                  //     }
+                  //     return true; // Pop until this route
+                  //   }
+                  //   return false;
+                  // });
+                  Navigator.push(
+                    context,
+                    CupertinoPageRoute(
+                      builder: (context) => KavachOrdersListScreen(),
+                      settings: const RouteSettings(
+                        name: 'KavachOrderListScreen',
+                      ),
+                    ),
+                  ).then((v) async {
+                    Navigator.of(context).popUntil((route) {
+                      if (route.settings.name ==
+                              AppRouteName.lpBottomNavigationBar ||
+                          route.settings.name ==
+                              AppRouteName.lpBottomNavigationBar) {
+                        if (route.navigator != null &&
+                            route.navigator!.context.mounted) {}
+                        return true; // Pop until this route
                       }
-                      return true; // Pop until this route
-                    }
-                    return false;
+                      return false;
+                    });
                   });
                 }
               },

@@ -376,13 +376,6 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                               _pageController?.jumpToPage(index);
                               statusParam =
                                   _getStatusForIndex(selectedTab).toString();
-                              _ordersBloc.add(
-                                FetchKavachOrderList(
-                                  status: statusParam,
-                                  isRefresh: true,
-                                  page: page,
-                                ),
-                              );
                               _scrollTabToCenter(index);
                             }
                           },
