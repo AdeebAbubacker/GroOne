@@ -641,6 +641,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                             firstDate: today,
                             lastDate: DateTime(2100),
                             keyboardType: TextInputType.name,
+                            locale: const Locale('en', 'GB'),
                           );
                           if (pickedDate != null) {
                             final formattedDate = DateFormat(
@@ -1163,6 +1164,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     firstDate: DateTime(1900),
                     lastDate: eighteenYearsAgo,
                     keyboardType: TextInputType.name,
+                    locale: const Locale('en', 'GB'),
                   );
               
                   if (pickedDate != null) {

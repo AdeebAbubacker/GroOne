@@ -515,6 +515,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                           firstDate: DateTime(1900),
                                           lastDate: DateTime(2100),
                                           keyboardType: TextInputType.name,
+                                          locale: const Locale('en', 'GB'),
                                         );
 
                                     if (pickedDate != null) {
@@ -765,6 +766,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                           firstDate: DateTime.now(),
                                           lastDate: DateTime(2100),
                                           keyboardType: TextInputType.name,
+                                          locale: const Locale('en', 'GB'),
                                         );
 
                                     if (pickedDate != null) {
@@ -830,6 +832,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                           firstDate: DateTime.now(),
                                           lastDate: DateTime(2100),
                                           keyboardType: TextInputType.name,
+                                          locale: const Locale('en', 'GB'),
                                         );
 
                                         if (pickedDate != null) {
@@ -884,6 +887,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                           firstDate: DateTime.now(),
                                           lastDate: DateTime(2100),
                                           keyboardType: TextInputType.name,
+                                          locale: const Locale('en', 'GB'),
                                         );
 
                                     if (pickedDate != null) {
@@ -1276,6 +1280,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             firstDate: DateTime(1900),
                             lastDate: DateTime(2100),
                             keyboardType: TextInputType.name,
+                            locale: const Locale('en', 'GB'),
                           );
 
                           if (pickedDate != null) {
@@ -1509,6 +1514,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                             keyboardType: TextInputType.name,
+                            locale: const Locale('en', 'GB'),
                           );
 
                           if (pickedDate != null) {
@@ -1562,6 +1568,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                 firstDate: DateTime.now(),
                                 lastDate: DateTime(2100),
                                 keyboardType: TextInputType.name,
+                                locale: const Locale('en', 'GB'),
                               );
 
                               if (pickedDate != null) {
@@ -1603,6 +1610,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
                             keyboardType: TextInputType.name,
+                            locale: const Locale('en', 'GB'),
                           );
 
                           if (pickedDate != null) {
@@ -2096,6 +2104,7 @@ class AddVehicleDialog {
                                 firstDate: DateTime(1900),
                                 lastDate: DateTime(2100),
                                 keyboardType: TextInputType.name,
+                                locale: const Locale('en', 'GB'),
                               );
 
                               if (pickedDate != null) {
@@ -2255,6 +2264,7 @@ class AddVehicleDialog {
                                 firstDate: DateTime.now(),
                                 lastDate: DateTime(2100),
                                 keyboardType: TextInputType.name,
+                                locale: const Locale('en', 'GB'),
                               );
 
                               if (pickedDate != null) {
@@ -2316,6 +2326,7 @@ class AddVehicleDialog {
                                     firstDate: DateTime.now(),
                                     lastDate: DateTime(2100),
                                     keyboardType: TextInputType.name,
+                                    locale: const Locale('en', 'GB'),
                                   );
 
                                   if (pickedDate != null) {
@@ -2365,6 +2376,7 @@ class AddVehicleDialog {
                                 firstDate: DateTime.now(),
                                 lastDate: DateTime(2100),
                                 keyboardType: TextInputType.name,
+                                locale: const Locale('en', 'GB'),
                               );
 
                               if (pickedDate != null) {
