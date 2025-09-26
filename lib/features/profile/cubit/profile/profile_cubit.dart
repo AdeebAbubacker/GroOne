@@ -147,9 +147,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   Future<void> logout() async {
     _setLogoutUIState(UIState.loading());
     dynamic result = await _repo.getLogOutData();
-    dynamic isSignOut = await _repo.signOut();
-    if (result is Success<LogOutModel> && isSignOut is Success<bool>) {
-      _setLogoutUIState(UIState.success(result.value));
+    if (result is Success<LogOutModel>) {
+      dynamic isSignOut = await _repo.signOut();
+      if(isSignOut is Success<bool>) {
+        _setLogoutUIState(UIState.success(result.value));
+      }
     }
     if (result is Error) {
       _setLogoutUIState(UIState.error(result.type));
