@@ -592,12 +592,16 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         final chkOk =
             need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
             checkId(cancelledChequeDocId, "Cancelled Cheque");
-        return need(context.appText.aadhaar, true) && chkOk;
+        final panOk=panValid();
+        return need(context.appText.aadhaar, true) && chkOk && panOk;
       }
 
 
-      final gstOk = userRole==2 ? true: gstValid();
+
+      final gstOk = userRole==2 ? true:  gstValid();
+
       final panOk =  panValid();
+
 
       final chkOk =
           need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
@@ -607,30 +611,36 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           checkId(tdsDocId, "TDS");*/
 
 
+       bool isValidTan=true;
+      if(userRole==3 && companyId==3){
+        isValidTan= tanValid();
+      }
 
-      return gstOk && panOk && chkOk;
+      return userRole==3 && companyId==3 ? (gstOk && panOk && chkOk && isValidTan):( gstOk && panOk && chkOk);
+
     }
 
     // LP FLOW
     if (companyId == 2) {
-      return true; // Only Aadhaar needed
+      final panOk = panValid();
+      final tan=   tanValid();
+
+      return panOk && tan ; // Only Aadhaar needed
     }
 
     if (companyId == 1) {
       final gstOk = gstValid();
       final panOk = panValid();
-      final tanOk =true;
-      // tanValid();
+      final tanOk =tanValid();
       return gstOk && panOk && tanOk;
     }
 
-
-
-    final gstOk = gstValid();
+   final gstOk = gstValid();
     final panOk = panValid();
     final tanOk = tanValid();
     return gstOk && panOk && tanOk;
   }
+
 
   // bool validateDocs({
   //   required int userRole, // "2" for VP, anything else for LP
@@ -737,6 +747,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         city: selectedCity,
       );
       kycUserInfo = kycRequest.toJson();
+
       kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
     }
   }
@@ -861,6 +872,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   50.height,
                                 ]);
                               } else if (companyId == 2) {
+                                print("calling here");
 
                                 children.addAll([
                                   25.height,
@@ -1649,8 +1661,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           ToastMessages.error(
             message: getErrorMsg(errorType: error ?? GenericError()),
           );
-
-
         }
       },
       builder: (context, state) {
