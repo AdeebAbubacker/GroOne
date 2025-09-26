@@ -1328,19 +1328,27 @@
 
   "pleaseSelectLocationFromSuggestion" : "பிரஸ்தாபங்களிலிருந்து ஒரு இடத்தை தேர்ந்தெடுக்கவும்",
   "pleaseSelectOneFilter" : "தயவுசெய்து ஏதேனும் ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்",
-  "approved":"Approved",
-  "rejected":"Rejected",
-    "trip":"TRIP",
-    "credits":"CREDITS",
-    "debits":"DEBITS",
-    "total":"TOTAL",
-     "filterEmptyWarning":"Please select at least one filter.",
+
   "issueCategory": "சிக்கல் வகை",
   "issuecategoryRequired": "சிக்கல் வகை தேவை",
   "primaryAddressCannotBeDeleted": "முதன்மை முகவரியை நீக்க முடியாது",
   "mobileNumberCannotStartWith1to5" : "மொபைல் எண் 1 முதல் 5 வரை உள்ள எண்களால் தொடங்கக்கூடாது",
-   
-  "viewTransactionDetails" : "பரிவர்த்தனை விவரங்களை காண்க"
+
+  "viewTransactionDetails" : "பரிவர்த்தனை விவரங்களை காண்க",
+
+
+  "viewTransactionDetails" : "பரிவர்த்தனை விவரங்களை காண்க",
+  "feedbackValidation": "சமர்ப்பிக்கும் முன் கருத்து அல்லது குறிப்பை உள்ளிடவும்.",
+
+
+  "approved": "அனுமதிக்கப்பட்டது",
+  "rejected": "நிராகரிக்கப்பட்டது",
+  "trip": "பயணம்",
+  "credits": "கிரெடிட்கள்",
+  "debits": "டெபிட்கள்",
+  "total": "மொத்தம்",
+  "filterEmptyWarning": "தயவு செய்து குறைந்தது ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்.",
+  "truckTypeRequired": "லாரி வகை தேவை"
 
 
 

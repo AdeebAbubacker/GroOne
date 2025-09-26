@@ -162,6 +162,10 @@ class _VpCreationFormScreenState extends BaseState<VpCreationFormScreen> {
         ToastMessages.alert(message: context.appText.preferredLanes);
         return;
       }
+      if (selectedTruckTypeList.isEmpty) {
+        ToastMessages.alert(message: context.appText.truckTypeRequired);
+        return;
+      }
 
       final request = VpCreationApiRequest(
         customerName: nameTextController.text.trim(),

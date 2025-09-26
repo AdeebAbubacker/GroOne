@@ -192,19 +192,22 @@ class _VpDamagesAndShortagesScreenState extends BaseState<VpDamagesAndShortagesS
 
 
   // Success Damages Create Dialog
-  void showSuccessDialog(BuildContext context) => frameCallback(() {
-    AppDialog.show(
+  void showSuccessDialog(BuildContext context) => frameCallback(() async {
+   await AppDialog.show(
       context,
       child: SuccessDialogView(
         heading: context.appText.damageRecordedSuccessfully,
         message: context.appText.notifiedTheConcernTeam,
         onContinue: (){
           Navigator.of(context).pop(true);
+
           analyticsHelper.logEvent(AnalyticEventName.CREATE_DAMAGES_SUCCESSFULLY);
           cubit.fetchDamageList(widget.loadId ?? "");
         },
       ),
-    );
+    ).then((value) {
+     Navigator.of(context).pop(true);
+    },);
   });
 
 

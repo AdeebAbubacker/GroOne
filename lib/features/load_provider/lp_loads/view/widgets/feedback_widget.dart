@@ -13,6 +13,7 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 
 
@@ -112,6 +113,11 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                     style: AppButtonStyle.outlineShrink,
                     textStyle: AppTextStyle.buttonPrimaryColorTextColor,
                     onPressed: () async {
+
+                      if( feedbackController.text.trim().isEmpty){
+                        ToastMessages.alert(message: context.appText.feedbackValidation);
+                        return;
+                      }
                       feedbackFocusNode.unfocus();
                       await lpLoadCubit.updateFeedback(
                         loadId: widget.loadId,
@@ -132,6 +138,10 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                     style: AppButtonStyle.outlineShrink,
                     textStyle: AppTextStyle.buttonPrimaryColorTextColor,
                     onPressed: () async {
+                      if( feedbackController.text.trim().isEmpty){
+                        ToastMessages.alert(message: context.appText.feedbackValidation);
+                        return;
+                      }
                       feedbackFocusNode.unfocus();
                       await lpLoadCubit.updateFeedback(
                         loadId: widget.loadId,

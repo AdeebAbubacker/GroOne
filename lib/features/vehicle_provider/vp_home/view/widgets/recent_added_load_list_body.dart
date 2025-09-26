@@ -269,7 +269,10 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
           colorFilter: AppColors.svg(AppColors.black),
         ),
         10.width,
-        Text(text, style: AppTextStyle.body),
+        Text(text, style: AppTextStyle.body,
+        maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ).expand(),
       ],
     );
   }

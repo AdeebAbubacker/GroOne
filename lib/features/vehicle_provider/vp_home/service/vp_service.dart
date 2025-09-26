@@ -44,14 +44,18 @@ class VpHomeService {
     try {
       // Base URL
       String url =
-        "${ApiUrls.vehicleDetails}$userId?page=${page}&limit=${pageSize}&status=1";
+        "${ApiUrls.vehicleDetails}$userId?page=${page}&limit=${pageSize}";
 
       // Append search if provided
       if (search != null && search.trim().isNotEmpty) {
         url = "$url&search=$search";
       }
 
-      final result = await _apiService.get(url);
+      final result = await _apiService.get(
+          queryParams: {
+            "status":1
+          },
+          url);
 
       if (result is Success) {
         final vehicleListResponse = VehicleListResponse.fromJson(result.value);
@@ -75,13 +79,17 @@ class VpHomeService {
     try {
       // Base URL
       String url =
-          "${ApiUrls.driverDetails}?customerId=$userId&page=$page&limit=$pageSize&status=1";
+          "${ApiUrls.driverDetails}?customerId=$userId&page=$page&limit=$pageSize";
 
       // Append search if provided
       if (search != null && search.trim().isNotEmpty) {
         url = "$url&search=${Uri.encodeComponent(search)}";
       }
-      final result = await _apiService.get(url);
+      final result = await _apiService.get(
+          queryParams: {
+            "status":1
+          },
+          url);
 
       if (result is Success) {
         final driverResponse = DriverListResponse.fromJson(result.value);

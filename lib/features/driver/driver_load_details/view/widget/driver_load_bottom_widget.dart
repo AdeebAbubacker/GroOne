@@ -490,7 +490,8 @@ class _DriverLoadBottomWidgetState extends State<DriverLoadBottomWidget> {
                                               context: context,
                                               showAddButton:
                                                   state.loadStatus !=
-                                                      LoadStatus.completed &&
+                                                      LoadStatus.completed
+                                                      &&
                                                   loads.data?.loadSettlement ==
                                                       null,
                                               title: context.appText.settlements,
