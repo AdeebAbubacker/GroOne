@@ -640,6 +640,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                             initialDate: today,
                             firstDate: today,
                             lastDate: DateTime(2100),
+                            keyboardType: TextInputType.name,
                           );
                           if (pickedDate != null) {
                             final formattedDate = DateFormat(
@@ -1161,6 +1162,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     initialDate: eighteenYearsAgo,
                     firstDate: DateTime(1900),
                     lastDate: eighteenYearsAgo,
+                    keyboardType: TextInputType.name,
                   );
               
                   if (pickedDate != null) {
