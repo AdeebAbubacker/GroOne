@@ -39,7 +39,7 @@ class DocumentWidgetView extends StatelessWidget {
     return documentEntity?.loadDocument  != null && (documentEntity?.loadDocument??[]).isNotEmpty
         ? PreviewDocumentWidget(
         onClickViewMoreIcon: () {
-        Navigator.push(context, commonRoute(ViewOtherDocuments(
+           Navigator.push(context, commonRoute(ViewOtherDocuments(
 
           documentEntity:documentEntity ,
           cubit:loadDetailsCubit,

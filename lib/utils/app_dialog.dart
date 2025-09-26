@@ -15,13 +15,13 @@ class AppDialog extends StatefulWidget {
     this.blurBackground = false,
   });
 
-  static void show(
+  static Future<void> show(
       BuildContext context, {
         required Widget child,
         bool dismissible = false,
         bool blurBackground = false,
-      }) {
-    showDialog(
+      }) async {
+   await showDialog(
       context: context,
       barrierDismissible: dismissible,
       barrierColor: AppColors.black.withValues(alpha: 0.2),
