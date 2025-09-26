@@ -327,7 +327,8 @@ class _GpsOrderBenefitsAndOrderListScreenState
                 navigateToUploadDocument:
                     state.kycData != null &&
                     state.kycData!['documents'] != null &&
-                    state.kycData!['documents']['panDocLink'] == null,
+                    state.kycData!['documents']['panDocLink'] == null &&
+                    state.kycData!['documents']['panDocLink'] == '',
               );
             }
 
