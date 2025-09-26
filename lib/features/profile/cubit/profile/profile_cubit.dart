@@ -280,8 +280,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(primaryAddressState: uiState));
   }
 
-  Future<void> setPrimaryAddress({required String addressId}) async {
-    dynamic result = await _repo.setPrimaryAddress(addressId: addressId);
+  Future<void> setPrimaryAddress({required String addressId,required bool isPrimary}) async {
+    dynamic result = await _repo.setPrimaryAddress(addressId: addressId,isPrimary: isPrimary);
     if (result is Success<SetPrimaryAddressResponse>) {
       _setPrimaryAddressUIState(UIState.success(result.value));
     }

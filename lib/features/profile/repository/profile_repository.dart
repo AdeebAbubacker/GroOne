@@ -127,9 +127,9 @@ class ProfileRepository {
   }
 
   /// set primary address
-  Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({required String addressId}) async {
+  Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({required String addressId,required bool isPrimary}) async {
     try {
-      return await _profileService.setPrimaryAddress(addressId: addressId);
+      return await _profileService.setPrimaryAddress(addressId: addressId,isPrimary : isPrimary);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
