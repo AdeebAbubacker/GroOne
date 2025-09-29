@@ -551,7 +551,7 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
   }
 
   // Lp load update feedback
-  Future<void> updateFeedback({
+  Future<String?> updateFeedback({
     required String loadId,
     required String feedback,
   }) async {
@@ -566,9 +566,13 @@ class LpLoadCubit extends BaseCubit<LpLoadState> {
       emit(state.copyWith(isFeedbackAdded: true));
       _setLoadFeedbackState(UIState.success(result.value));
       ToastMessages.success(message: result.value.message);
+      return null;
     } else if (result is Error) {
       _setLoadFeedbackState(UIState.error(result.type));
+      String errorMessage = result.type.getText(appContext);
+      return errorMessage;
     }
+    return appContext.appText.somethingWentWrong;
   }
 
   // Updates the UI state related to Document by ID.

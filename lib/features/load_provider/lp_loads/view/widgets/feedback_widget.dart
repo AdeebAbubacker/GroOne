@@ -138,20 +138,31 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                     style: AppButtonStyle.outlineShrink,
                     textStyle: AppTextStyle.buttonPrimaryColorTextColor,
                     onPressed: () async {
-                      if( feedbackController.text.trim().isEmpty){
+                      if (feedbackController.text.trim().isEmpty) {
                         ToastMessages.alert(message: context.appText.feedbackValidation);
                         return;
                       }
                       feedbackFocusNode.unfocus();
-                      await lpLoadCubit.updateFeedback(
+
+                      final errorMessage = await lpLoadCubit.updateFeedback(
                         loadId: widget.loadId,
                         feedback: feedbackController.text,
                       );
-                      setState(() {
-                        _isEditing = false;
-                      });
-                      lpLoadCubit.emit(state.copyWith(isFeedBackUpdatble: false));
-                    },
+
+                      if (errorMessage == null) {
+                        // success
+                        setState(() {
+                          _isEditing = false;
+                          _hasSavedFeedback = true;
+                        });
+                        lpLoadCubit.emit(state.copyWith(isFeedBackUpdatble: false));
+                      } else {
+                        ToastMessages.error(message: errorMessage);
+                        setState(() {
+                          _isEditing = true;
+                        });
+                      }
+                    }
                   ),
               ],
             ),
