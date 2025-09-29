@@ -3,8 +3,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/lp_view_more_document.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -15,12 +17,16 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 
+import '../../model/lp_load_get_by_id_response.dart';
+
 class TripDocuments extends StatelessWidget {
   final String docName;
   final String docUrl;
   final String docId;
   final DateTime docDateTime;
   final String downloadKey;
+  final bool? showViewMoreIcon;
+  final List<LoadDocumentData> otherDocument;
 
   const TripDocuments({
     super.key,
@@ -29,6 +35,8 @@ class TripDocuments extends StatelessWidget {
     required this.docId,
     required this.docDateTime,
     required this.downloadKey,
+    required this.showViewMoreIcon,
+    required this.otherDocument,
   });
 
   @override
@@ -39,6 +47,12 @@ class TripDocuments extends StatelessWidget {
         final isFileLoading = state.downloadingKey == downloadKey;
         return InkWell(
           onTap: () async {
+            if(showViewMoreIcon??false){
+                Navigator.push(context, commonRoute(LpViewMoreDocument(
+                  othersDocument:otherDocument,
+                )));
+              return;
+            }
             cubit.setDownloadingKey(downloadKey);
             await cubit.getDocumentById(docId: docId);
 
@@ -95,7 +109,11 @@ class TripDocuments extends StatelessWidget {
                     ),
                   ],
                 ).expand(),
-
+                (showViewMoreIcon??false) ? Icon(
+                  Icons.remove_red_eye_outlined,
+                  size: 20,
+                  color: AppColors.primaryColor,
+                ):
                 isFileLoading
                     ? const SizedBox(height: 18, width: 18, child: CircularProgressIndicator(strokeWidth: 2))
                     : SvgPicture.asset(AppIcons.svg.download, colorFilter: AppColors.svg(AppColors.primaryColor)),

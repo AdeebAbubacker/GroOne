@@ -147,9 +147,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   Future<void> logout() async {
     _setLogoutUIState(UIState.loading());
     dynamic result = await _repo.getLogOutData();
-    dynamic isSignOut = await _repo.signOut();
-    if (result is Success<LogOutModel> && isSignOut is Success<bool>) {
-      _setLogoutUIState(UIState.success(result.value));
+    if (result is Success<LogOutModel>) {
+      dynamic isSignOut = await _repo.signOut();
+      if(isSignOut is Success<bool>) {
+        _setLogoutUIState(UIState.success(result.value));
+      }
     }
     if (result is Error) {
       _setLogoutUIState(UIState.error(result.type));
@@ -278,8 +280,8 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(state.copyWith(primaryAddressState: uiState));
   }
 
-  Future<void> setPrimaryAddress({required String addressId}) async {
-    dynamic result = await _repo.setPrimaryAddress(addressId: addressId);
+  Future<void> setPrimaryAddress({required String addressId,required bool isPrimary}) async {
+    dynamic result = await _repo.setPrimaryAddress(addressId: addressId,isPrimary: isPrimary);
     if (result is Success<SetPrimaryAddressResponse>) {
       _setPrimaryAddressUIState(UIState.success(result.value));
     }

@@ -6,7 +6,7 @@ abstract class KavachOrderListEvent {}
 // }
 class FetchKavachOrderList extends KavachOrderListEvent {
   final bool isRefresh;
-  final int? status;
+  final String? status;
   final int page;
   final bool forceRefresh;
 

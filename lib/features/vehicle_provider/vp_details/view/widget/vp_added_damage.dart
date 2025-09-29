@@ -18,6 +18,7 @@ class VpAddedDamageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print("imageList is ${imageList?.length} ${damageReport?.length}");
     return Column(
       children: List.generate(
         damageReport?.length ?? 0,
@@ -30,7 +31,7 @@ class VpAddedDamageWidget extends StatelessWidget {
               onEdit: () {},
               description: damageReportModel?.description ?? "",
               imageIDs: damageReportModel?.image ?? [],
-              imageUrl: imageList?[index] ?? "",
+              imageUrl: (index<= (imageList?.length??0)-1) ?  (imageList?[index] ?? ""):"",
               itemName: damageReportModel?.itemName ?? "",
               onDelete: () {},
               quantity: damageReportModel?.quantity.toString() ?? "",

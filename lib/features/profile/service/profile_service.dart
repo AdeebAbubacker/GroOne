@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
@@ -294,10 +295,11 @@ class ProfileService {
   /// set primary address
   Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({
     required String addressId,
+    required bool isPrimary
   }) async {
     try {
       final url = ApiUrls.setPrimaryAddress + addressId;
-      final response = await _apiService.put(url, body: {"isDefault": true});
+      final response = await _apiService.put(url, body: {"isDefault": isPrimary});
       if (response is Success) {
         final loads = SetPrimaryAddressResponse.fromJson(response.value);
         return Success(loads);
@@ -1042,11 +1044,12 @@ Future<Result<FaqResponse>> fetchFaq({
   /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {
     try {
+      String? deviceId = (await getDeviceInfo()).$2;
       final url = ApiUrls.logout;
       final result = await _apiService.post(
         url,
         body: {
-          "customerId": (await _userInformationRepository.getUserID() ?? ""),
+          "deviceId": deviceId,
         },
       );
       if (result is Success) {
@@ -1148,6 +1151,23 @@ Future<Result<FaqResponse>> fetchFaq({
     } catch (e) {
       return Error(DeserializationError());
     }
-  } 
+  }
+
+  Future<(String? deviceType, String? id)> getDeviceInfo() async {
+    try {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        return ("android", androidInfo.id);
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        return ("IOS", iosInfo.identifierForVendor);
+      }
+      return ("", "");
+    } catch (e) {
+      debugPrint('❌ Error getting device info: $e');
+      return ("", "");
+    }
+  }
 
 }

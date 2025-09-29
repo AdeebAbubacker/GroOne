@@ -79,7 +79,9 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
                 children: [
                   Row(
                     children: [
-                      Text(widget.data.loadId, style: AppTextStyle.h5),
+                      Text(widget.data.loadId, style: AppTextStyle.h5,maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      ).expand(),
                     ],
                   ),
                   Text(
@@ -247,7 +249,10 @@ class _VpAllLoadMyLoadWidgetState extends State<VpAllLoadMyLoadWidget> {
           colorFilter: AppColors.svg(AppColors.black),
         ),
         10.width,
-        Text(text, style: AppTextStyle.body),
+        Text(text, style: AppTextStyle.body,
+        overflow: TextOverflow.ellipsis,
+          maxLines: 1,
+        ).expand(),
       ],
     ).expand();
   }

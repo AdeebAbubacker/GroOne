@@ -640,6 +640,8 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                             initialDate: today,
                             firstDate: today,
                             lastDate: DateTime(2100),
+                            keyboardType: TextInputType.name,
+                            locale: const Locale('en', 'GB'),
                           );
                           if (pickedDate != null) {
                             final formattedDate = DateFormat(
@@ -669,6 +671,7 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     16.height,
                     AppTextField(
                       enabled: !isEdit,
+                      mandatoryStar: true,
                       validator: (value) => Validator.phone(value),
                       controller: mobileController,
                       labelText: context.appText.phoneNumber,
@@ -1161,6 +1164,8 @@ class _BuildDriverTabState extends BaseState<BuildDriverTab>
                     initialDate: eighteenYearsAgo,
                     firstDate: DateTime(1900),
                     lastDate: eighteenYearsAgo,
+                    keyboardType: TextInputType.name,
+                    locale: const Locale('en', 'GB'),
                   );
               
                   if (pickedDate != null) {

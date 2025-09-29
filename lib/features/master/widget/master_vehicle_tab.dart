@@ -99,197 +99,207 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
   Widget build(BuildContext context) {
     return BlocListener<ProfileCubit, ProfileState>(
       listenWhen: (previous, current) {
-      return previous.vehicleUpdateUIState?.status != current.vehicleUpdateUIState?.status;
-    },
+        return previous.vehicleUpdateUIState?.status !=
+            current.vehicleUpdateUIState?.status;
+      },
       listener: (context, state) {
-         final state = profileCubit.state.vehicleUpdateUIState;
-                if (state?.status == Status.SUCCESS) {
-                  profileCubit.fetchVehicle(isLoading: false);
-        } 
+        final state = profileCubit.state.vehicleUpdateUIState;
+        if (state?.status == Status.SUCCESS) {
+          profileCubit.fetchVehicle(isLoading: false);
+        }
       },
       child: Column(
-          children: [
-            20.height,
-            // Search Bar
-            AppSearchBar(
-              searchController: vehicleSearchController,
-              onChanged: (query) {
-                vehicleSearchDebounce?.cancel();
-                vehicleSearchDebounce = Timer(
-                  const Duration(milliseconds: 300),
-                  () {
-                    profileCubit.fetchVehicle(isLoading: false, search: query);
-                  },
-                );
-              },
-              onClear: () {
-                setState(() {
-                  vehicleSearchController.text = '';
-                  vehicleSearchController.clear();
-                });
-                profileCubit.fetchVehicle(search: '');
-              },
-            ).paddingSymmetric(horizontal: 20),
-            Expanded(
-              child: BlocBuilder<ProfileCubit, ProfileState>(
-                builder: (context, state) {
-                  final uiState = state.vehicleState;
-    
-                  if (uiState == null || uiState.status == Status.LOADING) {
-                    return const Center(child: CircularProgressIndicator());
-                  }
-    
-                  if (uiState.status == Status.ERROR) {
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        context.read<ProfileCubit>().fetchVehicle(isLoading: true);
-                      },
-                      child: ListView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        children: [
-                          SizedBox(
-                            height: MediaQuery.of(context).size.height * 0.7,
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  genericErrorWidget(error: uiState.errorType),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-    
-                  final vehicleList = uiState.data?.data ?? [];
-                  final List<VehicleDetailsData> filteredVehicleList =
-                      vehicleList
-                          .where((v) => v.status == 1 || v.status == 2)
-                          .toList();
-                  final isSearching = vehicleSearchController.text.isNotEmpty;
-    
-                  if (filteredVehicleList.isEmpty) {
-                    return RefreshIndicator(
-                      onRefresh: () async {
-                        context.read<ProfileCubit>().fetchVehicle(isLoading: true);
-                      },
-                      child:
-                          isSearching
-                              ? Text(context.appText.noSearchResults).center()
-                              : ListView(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                children: [
-                                  SizedBox(
-                                    height:
-                                        MediaQuery.of(context).size.height * 0.6,
-                                    child: Center(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        mainAxisAlignment: MainAxisAlignment.center,
-                                        children: [
-                                          SvgPicture.asset(
-                                            AppImage.svg.noSearchFound,
-                                            height: 120,
-                                          ),
-                                          20.height,
-                                          Text(
-                                            context.appText.noVehiclesFound,
-                                            style: AppTextStyle.h5,
-                                          ),
-                                          10.height,
-                                          Text(
-                                            context
-                                                .appText
-                                                .startByAddingANewVehicle,
-                                            style: AppTextStyle.body3,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                    );
-                  }
-    
+        children: [
+          20.height,
+          // Search Bar
+          AppSearchBar(
+            searchController: vehicleSearchController,
+            onChanged: (query) {
+              vehicleSearchDebounce?.cancel();
+              vehicleSearchDebounce = Timer(
+                const Duration(milliseconds: 300),
+                () {
+                  profileCubit.fetchVehicle(isLoading: false, search: query);
+                },
+              );
+            },
+            onClear: () {
+              setState(() {
+                vehicleSearchController.text = '';
+                vehicleSearchController.clear();
+              });
+              profileCubit.fetchVehicle(search: '');
+            },
+          ).paddingSymmetric(horizontal: 20),
+          Expanded(
+            child: BlocBuilder<ProfileCubit, ProfileState>(
+              builder: (context, state) {
+                final uiState = state.vehicleState;
+
+                if (uiState == null || uiState.status == Status.LOADING) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (uiState.status == Status.ERROR) {
                   return RefreshIndicator(
                     onRefresh: () async {
-                      context.read<ProfileCubit>().fetchVehicle(isLoading: true);
+                      context.read<ProfileCubit>().fetchVehicle(
+                        isLoading: true,
+                      );
                     },
-                    child: NotificationListener<ScrollNotification>(
-                      onNotification: (scrollInfo) {
-                        if (scrollInfo.metrics.pixels ==
-                            scrollInfo.metrics.maxScrollExtent) {
-                          context.read<ProfileCubit>().fetchVehicle(loadMore: true);
-                        }
-                        return false;
-                      },
-                      child: ListView.builder(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 20,
+                    child: ListView(
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      children: [
+                        SizedBox(
+                          height: MediaQuery.of(context).size.height * 0.7,
+                          child: Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                genericErrorWidget(error: uiState.errorType),
+                              ],
+                            ),
+                          ),
                         ),
-                        itemCount: filteredVehicleList.length,
-                        itemBuilder: (context, index) {
-                          final vehicleDetailsData = filteredVehicleList[index];
-                          return masterVehicleInfoWidget(
-                            name: vehicleDetailsData.truckNo,
-                            phone: vehicleDetailsData.companyName,
-                            driverStatus: vehicleDetailsData.status,
-                            ownerName: vehicleDetailsData.ownerName,
-                            onEdit: () async {
-                              mastersCubit.resetVehicleVerification();
-                              await Future.delayed(
-                                const Duration(milliseconds: 50),
-                              );
-                              // showViewVehiclePopup(
-                              //   context,
-                              //   vehcile: vehicleDetailsData,
-                              // );
-                              showAddVehiclePopup(
-                                context,
-                                vehcile: vehicleDetailsData,
-                              );
-                            },
-                            onDelete:
-                                () => showDeletePopUp(
-                                  context: context,
-                                  confirmMessage:
-                                      context.appText.areYouSureToDeleteThisVehicle,
-                                  successMessage:
-                                      context.appText.vehicleDeletedSuccessfully,
-                                  onDelete:
-                                      () => profileCubit.deleteVehicle(
-                                        vehicleId: vehicleDetailsData.vehicleId,
-                                        request: DeleteVehicleRequest(status: 3),
-                                      ),
-                                ),
-                            context: context,
-                          );
-                        },
-                      ),
+                      ],
                     ),
                   );
-                },
-              ),
+                }
+
+                final vehicleList = uiState.data?.data ?? [];
+                final List<VehicleDetailsData> filteredVehicleList =
+                    vehicleList
+                        .where((v) => v.status == 1 || v.status == 2)
+                        .toList();
+                final isSearching = vehicleSearchController.text.isNotEmpty;
+
+                if (filteredVehicleList.isEmpty) {
+                  return RefreshIndicator(
+                    onRefresh: () async {
+                      context.read<ProfileCubit>().fetchVehicle(
+                        isLoading: true,
+                      );
+                    },
+                    child:
+                        isSearching
+                            ? Text(context.appText.noSearchResults).center()
+                            : ListView(
+                              physics: const AlwaysScrollableScrollPhysics(),
+                              children: [
+                                SizedBox(
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.6,
+                                  child: Center(
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        SvgPicture.asset(
+                                          AppImage.svg.noSearchFound,
+                                          height: 120,
+                                        ),
+                                        20.height,
+                                        Text(
+                                          context.appText.noVehiclesFound,
+                                          style: AppTextStyle.h5,
+                                        ),
+                                        10.height,
+                                        Text(
+                                          context
+                                              .appText
+                                              .startByAddingANewVehicle,
+                                          style: AppTextStyle.body3,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                  );
+                }
+
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    context.read<ProfileCubit>().fetchVehicle(isLoading: true);
+                  },
+                  child: NotificationListener<ScrollNotification>(
+                    onNotification: (scrollInfo) {
+                      if (scrollInfo.metrics.pixels ==
+                          scrollInfo.metrics.maxScrollExtent) {
+                        context.read<ProfileCubit>().fetchVehicle(
+                          loadMore: true,
+                        );
+                      }
+                      return false;
+                    },
+                    child: ListView.builder(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 20,
+                      ),
+                      itemCount: filteredVehicleList.length,
+                      itemBuilder: (context, index) {
+                        final vehicleDetailsData = filteredVehicleList[index];
+                        return masterVehicleInfoWidget(
+                          name: vehicleDetailsData.truckNo,
+                          phone: vehicleDetailsData.companyName,
+                          driverStatus: vehicleDetailsData.status,
+                          ownerName: vehicleDetailsData.ownerName,
+                          onEdit: () async {
+                            mastersCubit.resetVehicleVerification();
+                            await Future.delayed(
+                              const Duration(milliseconds: 50),
+                            );
+                            // showViewVehiclePopup(
+                            //   context,
+                            //   vehcile: vehicleDetailsData,
+                            // );
+                            showAddVehiclePopup(
+                              context,
+                              vehcile: vehicleDetailsData,
+                            );
+                          },
+                          onDelete:
+                              () => showDeletePopUp(
+                                context: context,
+                                confirmMessage:
+                                    context
+                                        .appText
+                                        .areYouSureToDeleteThisVehicle,
+                                successMessage:
+                                    context.appText.vehicleDeletedSuccessfully,
+                                onDelete:
+                                    () => profileCubit.deleteVehicle(
+                                      vehicleId: vehicleDetailsData.vehicleId,
+                                      request: DeleteVehicleRequest(status: 3),
+                                    ),
+                              ),
+                          context: context,
+                        );
+                      },
+                    ),
+                  ),
+                );
+              },
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: AppButton(
-                title: context.appText.addNewVehicle,
-                onPressed: () async {
-                  mastersCubit.resetVehicleVerification();
-                  await Future.delayed(
-                    const Duration(milliseconds: 50),
-                  ); // make sure state is cleared
-                  showAddVehiclePopup(context);
-                },
-              ),
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: AppButton(
+              title: context.appText.addNewVehicle,
+              onPressed: () async {
+                mastersCubit.resetVehicleVerification();
+                await Future.delayed(
+                  const Duration(milliseconds: 50),
+                ); // make sure state is cleared
+                showAddVehiclePopup(context);
+              },
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -331,7 +341,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
         vehcile?.registrationDate != null
             ? DateFormat('dd/MM/yyyy').format(vehcile!.registrationDate!)
             : null;
-    bool isActive = vehcile != null ? (vehcile.status == 1) : true;        
+    bool isActive = vehcile != null ? (vehcile.status == 1) : true;
     String? selectedWeightDropDownValue;
     selectedWeightDropDownValue = vehcile?.tonnage;
     TruckTypeModel? selectedTruckType;
@@ -413,6 +423,13 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                               insurancePolicyNumber.text =
                                   insurancePolicyNo.toString();
                             }
+                            final resRcRegisData =
+                                vehicleData['rc_registration_date'] ?? '';
+                            if (insurancePolicyNo != null) {
+                              registrationDate = DateHelper.parseDate(
+                                resRcRegisData,
+                              );
+                            }
                             final capacity = vehicleData['tonnage'];
                             if (capacity != null) {
                               RegExp(r'\d+').stringMatch(capacity.toString());
@@ -470,8 +487,11 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       hintText: context.appText.ownerName,
                       mandatoryStar: true,
                       enabled: !isEdit,
-                       decoration: commonInputDecoration(
-                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
+                      decoration: commonInputDecoration(
+                        fillColor:
+                            (isEdit)
+                                ? AppColors.lightGreyColor
+                                : AppColors.white,
                         hintText: context.appText.ownerName,
                       ),
                     ),
@@ -485,24 +505,30 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           FocusScope.of(context).requestFocus(FocusNode());
                         },
                         child: InkWell(
-                          onTap: !isEdit ? () async {
-                            final DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime(1900),
-                              lastDate: DateTime(2100),
-                            );
+                          onTap:
+                              !isEdit
+                                  ? () async {
+                                    final DateTime? pickedDate =
+                                        await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime(1900),
+                                          lastDate: DateTime(2100),
+                                          keyboardType: TextInputType.name,
+                                          locale: const Locale('en', 'GB'),
+                                        );
 
-                            if (pickedDate != null) {
-                              final formattedDate = DateFormat(
-                                'dd/MM/yyyy',
-                              ).format(pickedDate);
+                                    if (pickedDate != null) {
+                                      final formattedDate = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(pickedDate);
 
-                              setState(() {
-                                registrationDate = formattedDate;
-                              });
-                            }
-                          } : (){},
+                                      setState(() {
+                                        registrationDate = formattedDate;
+                                      });
+                                    }
+                                  }
+                                  : () {},
                           child: buildReadOnlyField(
                             isEdit: isEdit,
                             context.appText.registrationDate,
@@ -531,9 +557,12 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       mandatoryStar: true,
                       enabled: !isEdit,
                       decoration: commonInputDecoration(
-                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
-                        hintText: context.appText.truckMakeAndModel 
-                      ),      
+                        fillColor:
+                            (isEdit)
+                                ? AppColors.lightGreyColor
+                                : AppColors.white,
+                        hintText: context.appText.truckMakeAndModel,
+                      ),
                     ),
                     16.height,
                     // TrucK Type
@@ -709,8 +738,11 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       hintText: context.appText.insurancePolicyNumber,
                       mandatoryStar: true,
                       enabled: !isEdit,
-                       decoration: commonInputDecoration(
-                        fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white, 
+                      decoration: commonInputDecoration(
+                        fillColor:
+                            (isEdit)
+                                ? AppColors.lightGreyColor
+                                : AppColors.white,
                         hintText: context.appText.insurancePolicyNumber,
                       ),
                     ),
@@ -724,24 +756,30 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           FocusScope.of(context).requestFocus(FocusNode());
                         },
                         child: InkWell(
-                          onTap: !isEdit ? () async {
-                            final DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(2100),
-                            );
+                          onTap:
+                              !isEdit
+                                  ? () async {
+                                    final DateTime? pickedDate =
+                                        await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2100),
+                                          keyboardType: TextInputType.name,
+                                          locale: const Locale('en', 'GB'),
+                                        );
 
-                            if (pickedDate != null) {
-                              final formattedDate = DateFormat(
-                                'dd/MM/yyyy',
-                              ).format(pickedDate);
+                                    if (pickedDate != null) {
+                                      final formattedDate = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(pickedDate);
 
-                              setState(() {
-                                insuranceValidityDate = formattedDate;
-                              });
-                            }
-                          } : (){},
+                                      setState(() {
+                                        insuranceValidityDate = formattedDate;
+                                      });
+                                    }
+                                  }
+                                  : () {},
                           child: buildReadOnlyField(
                             isEdit: isEdit,
                             context.appText.insuranceValidityDate,
@@ -778,33 +816,38 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                       : null,
                           builder: (state) {
                             return InkWell(
-                              onTap: !isEdit ? () async {
-                                final DateTime initialDate =
-                                    fcExpiryDate != null
-                                        ? DateFormat(
-                                          'dd/MM/yyyy',
-                                        ).parse(fcExpiryDate!)
-                                        : DateTime.now();
+                              onTap:
+                                  !isEdit
+                                      ? () async {
+                                        final DateTime initialDate =
+                                            fcExpiryDate != null
+                                                ? DateFormat(
+                                                  'dd/MM/yyyy',
+                                                ).parse(fcExpiryDate!)
+                                                : DateTime.now();
 
-                                final pickedDate = await showDatePicker(
-                                  context: context,
-                                  initialDate: initialDate,
-                                  firstDate: DateTime.now(),
-                                  lastDate: DateTime(2100),
-                                );
+                                        final pickedDate = await showDatePicker(
+                                          context: context,
+                                          initialDate: initialDate,
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2100),
+                                          keyboardType: TextInputType.name,
+                                          locale: const Locale('en', 'GB'),
+                                        );
 
-                                if (pickedDate != null) {
-                                  final formattedDate = DateFormat(
-                                    'dd/MM/yyyy',
-                                  ).format(pickedDate);
-                                  setState(() {
-                                    fcExpiryDate = formattedDate;
-                                  });
-                                  state.didChange(
-                                    formattedDate,
-                                  ); // Update FormField state
-                                }
-                              } : (){},
+                                        if (pickedDate != null) {
+                                          final formattedDate = DateFormat(
+                                            'dd/MM/yyyy',
+                                          ).format(pickedDate);
+                                          setState(() {
+                                            fcExpiryDate = formattedDate;
+                                          });
+                                          state.didChange(
+                                            formattedDate,
+                                          ); // Update FormField state
+                                        }
+                                      }
+                                      : () {},
                               child: buildReadOnlyField(
                                 isEdit: isEdit,
                                 context.appText.fcExpiryDate,
@@ -834,24 +877,30 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                           FocusScope.of(context).requestFocus(FocusNode());
                         },
                         child: InkWell(
-                          onTap: !isEdit ? () async {
-                            final DateTime? pickedDate = await showDatePicker(
-                              context: context,
-                              initialDate: DateTime.now(),
-                              firstDate: DateTime.now(),
-                              lastDate: DateTime(2100),
-                            );
+                          onTap:
+                              !isEdit
+                                  ? () async {
+                                    final DateTime? pickedDate =
+                                        await showDatePicker(
+                                          context: context,
+                                          initialDate: DateTime.now(),
+                                          firstDate: DateTime.now(),
+                                          lastDate: DateTime(2100),
+                                          keyboardType: TextInputType.name,
+                                          locale: const Locale('en', 'GB'),
+                                        );
 
-                            if (pickedDate != null) {
-                              final formattedDate = DateFormat(
-                                'dd/MM/yyyy',
-                              ).format(pickedDate);
+                                    if (pickedDate != null) {
+                                      final formattedDate = DateFormat(
+                                        'dd/MM/yyyy',
+                                      ).format(pickedDate);
 
-                              setState(() {
-                                pucExpiryDate = formattedDate;
-                              });
-                            }
-                          } : (){},
+                                      setState(() {
+                                        pucExpiryDate = formattedDate;
+                                      });
+                                    }
+                                  }
+                                  : () {},
                           child: buildReadOnlyField(
                             isEdit: isEdit,
                             context.appText.pucExpiryDate,
@@ -871,25 +920,28 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       ),
                     ),
                     20.height,
+
                     /// Active Switch
-                   isEdit ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(context.appText.active),
-                        Switch(
-                          value: isActive,
-                            onChanged: (val) {
-                            setState(() => isActive = val);
-                            profileCubit.vehicleupdateStatus(
-                              vehicleId: vehcile.vehicleId,
-                              request: VehicleStatusUpdateRequest(
-                                status: val ? 1 : 2,
-                              ),
-                            );
-                          },
-                        ),
-                      ],
-                    ) : SizedBox.shrink()
+                    isEdit
+                        ? Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(context.appText.active),
+                            Switch(
+                              value: isActive,
+                              onChanged: (val) {
+                                setState(() => isActive = val);
+                                profileCubit.vehicleupdateStatus(
+                                  vehicleId: vehcile.vehicleId,
+                                  request: VehicleStatusUpdateRequest(
+                                    status: val ? 1 : 2,
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        )
+                        : SizedBox.shrink(),
                   ],
                 ),
               ),
@@ -973,7 +1025,7 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                   pucExpiryDate: convertToYMD(pucExpiryDate.toString()),
                   registrationDate: convertToYMD(registrationDate.toString()),
                   insuranceValidityDate: convertToYMD(
-                  insuranceValidityDate.toString(),                 
+                    insuranceValidityDate.toString(),
                   ),
                 );
 
@@ -1152,6 +1204,11 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                 insurancePolicyNumber.text =
                                     insurancePolicyNo.toString();
                               }
+                              final vehicleRegData =
+                                  vehicleData['rc_registration_date'] ?? '';
+                              registrationDate = DateHelper.parseDate(
+                                vehicleRegData,
+                              );
                               final capacity = vehicleData['tonnage'];
                               if (capacity != null) {
                                 RegExp(r'\d+').stringMatch(capacity.toString());
@@ -1222,6 +1279,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             initialDate: DateTime.now(),
                             firstDate: DateTime(1900),
                             lastDate: DateTime(2100),
+                            keyboardType: TextInputType.name,
+                            locale: const Locale('en', 'GB'),
                           );
 
                           if (pickedDate != null) {
@@ -1436,7 +1495,9 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                       //Insurance policy number
                       AppTextField(
                         validator: (value) => Validator.fieldRequired(value),
-                        decoration: InputDecoration(hintText: context.appText.insurancePolicyNumber),
+                        decoration: InputDecoration(
+                          hintText: context.appText.insurancePolicyNumber,
+                        ),
                         controller: insurancePolicyNumber,
                         labelText: context.appText.insurancePolicyNumber,
                         hintText: context.appText.insurancePolicyNumber,
@@ -1452,6 +1513,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             initialDate: DateTime.now(),
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
+                            keyboardType: TextInputType.name,
+                            locale: const Locale('en', 'GB'),
                           );
 
                           if (pickedDate != null) {
@@ -1504,6 +1567,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                                 initialDate: initialDate,
                                 firstDate: DateTime.now(),
                                 lastDate: DateTime(2100),
+                                keyboardType: TextInputType.name,
+                                locale: const Locale('en', 'GB'),
                               );
 
                               if (pickedDate != null) {
@@ -1544,6 +1609,8 @@ class _BuildVehicleTabState extends BaseState<BuildVehicleTab> {
                             initialDate: DateTime.now(),
                             firstDate: DateTime.now(),
                             lastDate: DateTime(2100),
+                            keyboardType: TextInputType.name,
+                            locale: const Locale('en', 'GB'),
                           );
 
                           if (pickedDate != null) {
@@ -1804,6 +1871,7 @@ Widget buildVehicleVerificationFieldWidget({
             (value) => Validator.validateVehicleNumber(
               value,
               fieldName: "Vehicle reg no",
+              errorMessage: context.appText.isInvalid,
             ),
         inputFormatters: [
           FilteringTextInputFormatter.allow(vehicleAlphaNumSpaceRegex),
@@ -1813,8 +1881,8 @@ Widget buildVehicleVerificationFieldWidget({
         ],
 
         decoration: commonInputDecoration(
-          fillColor:  (isEdit) ?  AppColors.lightGreyColor:  AppColors.white,
-          hintText: context.appText.vehicleRegNo,    
+          fillColor: (isEdit) ? AppColors.lightGreyColor : AppColors.white,
+          hintText: context.appText.vehicleRegNo,
           suffixIcon:
               verificationState.status == Status.LOADING
                   ? const SizedBox(
@@ -1832,6 +1900,7 @@ Widget buildVehicleVerificationFieldWidget({
                       final validationMessage = Validator.validateVehicleNumber(
                         cleanVehicleNumber(vehicleNumber),
                         fieldName: "Vehicle reg no",
+                        errorMessage: context.appText.isInvalid,
                       );
 
                       if (validationMessage != null) {
@@ -1918,7 +1987,7 @@ class AddVehicleDialog {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        context.appText.addNewVehicle + 'e',
+                        context.appText.addNewVehicle,
                         style: AppTextStyle.h4,
                       ),
                       20.height,
@@ -1951,6 +2020,13 @@ class AddVehicleDialog {
                               if (insurancePolicyNo != null) {
                                 insurancePolicyNumber.text =
                                     insurancePolicyNo.toString();
+                              }
+                              final resRcRegisData =
+                                  vehicleData['rc_registration_date'] ?? '';
+                              if (insurancePolicyNo != null) {
+                                registrationDate = DateHelper.parseDate(
+                                  resRcRegisData,
+                                );
                               }
                               final capacity = vehicleData['tonnage'];
                               if (capacity != null) {
@@ -2027,6 +2103,8 @@ class AddVehicleDialog {
                                 initialDate: DateTime.now(),
                                 firstDate: DateTime(1900),
                                 lastDate: DateTime(2100),
+                                keyboardType: TextInputType.name,
+                                locale: const Locale('en', 'GB'),
                               );
 
                               if (pickedDate != null) {
@@ -2185,6 +2263,8 @@ class AddVehicleDialog {
                                 initialDate: DateTime.now(),
                                 firstDate: DateTime.now(),
                                 lastDate: DateTime(2100),
+                                keyboardType: TextInputType.name,
+                                locale: const Locale('en', 'GB'),
                               );
 
                               if (pickedDate != null) {
@@ -2245,6 +2325,8 @@ class AddVehicleDialog {
                                     initialDate: initialDate,
                                     firstDate: DateTime.now(),
                                     lastDate: DateTime(2100),
+                                    keyboardType: TextInputType.name,
+                                    locale: const Locale('en', 'GB'),
                                   );
 
                                   if (pickedDate != null) {
@@ -2293,6 +2375,8 @@ class AddVehicleDialog {
                                 initialDate: DateTime.now(),
                                 firstDate: DateTime.now(),
                                 lastDate: DateTime(2100),
+                                keyboardType: TextInputType.name,
+                                locale: const Locale('en', 'GB'),
                               );
 
                               if (pickedDate != null) {

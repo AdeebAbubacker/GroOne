@@ -19,6 +19,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown_controller.dart';
+import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
@@ -391,7 +392,7 @@ class _AvailableLoadsFilterScreenState
                     };
 
                     widget.onFilterApplied(body);
-                    Navigator.pop(context);
+                    Navigator.pop(navigatorKey.currentContext!);
                     filterCubit.setIsFilterApplied(value: true);
                   } else {
                     ToastMessages.alert(

@@ -49,100 +49,59 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
   List<KavachOrderListOrderItem> allOrders = [];
   bool initialBuild = true;
   int page = 1;
+  int totalPage = 1;
+  int selectedTab = 0;
+  Map<int, List<KavachOrderListOrderItem>> tabOrders = {};
+  int? previousIndex;
   bool orderHasPlaced = false;
   bool listLoaded = false;
-  List<String> tabLabels = [];
+  List<String> tabLabels = [
+    "All",
+    "Order placed",
+    "Dispatched",
+    "Delivered",
+    "Installed",
+  ];
+  PageController? _pageController;
+  String statusParam = '';
+  Map<int, ScrollController> tabControllers = {};
+  String customerId = '';
   final PageStorageBucket _bucket = PageStorageBucket();
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _ordersBloc = context.read<KavachOrderListBloc>();
-        tabLabels = [
-          context.appText.all,
-          context.appText.orderPlaced,
-          context.appText.dispatched,
-          context.appText.delivered,
-          context.appText.installed,
-        ];
-        _tabController = TabController(length: tabLabels.length, vsync: this);
-        _tabController!.addListener(() {
-          if (!_tabController!.indexIsChanging && mounted) {
-            final index = _tabController!.index;
-            allOrders.clear();
-            page = 1;
-            final status = _getStatusForIndex(index);
-            _ordersBloc.add(
-              FetchKavachOrderList(status: status, isRefresh: true, page: page),
-            );
-          }
-        });
-        _scrollTabToCenter(_tabController!.index);
+    _pageController = PageController(initialPage: selectedTab);
+    for (int i = 0; i < tabLabels.length; i++) {
+      tabOrders[i] = [];
+      tabControllers[i] = ScrollController();
+      tabControllers[i]!.addListener(() {
+        final controller = tabControllers[i]!;
+        if (controller.position.pixels >= controller.position.maxScrollExtent) {
+          _loadMoreOrders(i);
+        }
       });
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ordersBloc.add(
+        FetchKavachOrderList(status: null, isRefresh: true, page: page),
+      );
     });
-    _scrollController.addListener(_onScroll);
-    // _ordersBloc.add(
-    //   FetchKavachOrderList(forceRefresh: true, isRefresh: true, page: page),
-    // );
+  }
+
+  void _loadMoreOrders(int tabIndex) {
+    if (page == totalPage) return;
+    page += 1;
+    final status = _getStatusForIndex(tabIndex)?.toString();
+    _ordersBloc.add(
+      FetchKavachOrderList(status: status, isRefresh: true, page: page),
+    );
   }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-
-    // Initialize only once
-    if (!mounted || _tabController != null) return;
-
-    tabLabels = [
-      context.appText.all,
-      context.appText.orderPlaced,
-      context.appText.dispatched,
-      context.appText.delivered,
-      context.appText.installed,
-    ];
-
-    _tabController = TabController(length: tabLabels.length, vsync: this);
-
-    _tabController!.addListener(() {
-      if (!_tabController!.indexIsChanging && mounted) {
-        allOrders.clear();
-        page = 1;
-        _scrollTabToCenter(_tabController!.index);
-      }
-    });
-
-    final initialStatus = _getStatusForIndex(_tabController!.index);
-    _ordersBloc.add(FetchKavachOrderList(status: initialStatus, page: page));
   }
-
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //
-  //   tabLabels = [
-  //     context.appText.all,
-  //     context.appText.orderPlaced,
-  //     context.appText.dispatched,
-  //     context.appText.delivered,
-  //     context.appText.installed,
-  //   ];
-  //
-  //   _tabController = TabController(length: tabLabels.length, vsync: this);
-  //
-  //   _tabController.addListener(() {
-  //     if (mounted) {
-  //       allOrders.clear();
-  //       page = 1;
-  //       // ✅ fetch orders for the new tab
-  //       final status = _getStatusForIndex(_tabController.index);
-  //       context.read<KavachOrderListBloc>().add(
-  //         FetchKavachOrderList(status: status, isRefresh: true, page: page),
-  //       );
-  //     }
-  //   });
-  // }
 
   int? _getStatusForIndex(int index) {
     switch (index) {
@@ -161,22 +120,22 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     }
   }
 
-  void _onScroll() {
-    final currentState = context.read<KavachOrderListBloc>().state;
-    if (!_scrollController.hasClients ||
-        (currentState is KavachOrderListLoaded &&
-            page == currentState.totalPage!)) {
-      return;
-    }
-
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      context.read<KavachOrderListBloc>().add(ResetKavachOrderList());
-      page += 1;
-      context.read<KavachOrderListBloc>().add(FetchKavachOrderList(page: page));
-    }
-    // });
-  }
+  // void _onScroll() {
+  //   final currentState = context.read<KavachOrderListBloc>().state;
+  //   if (!_scrollController.hasClients ||
+  //       (currentState is KavachOrderListLoaded &&
+  //           page == currentState.totalPage!)) {
+  //     return;
+  //   }
+  //
+  //   if (_scrollController.position.pixels ==
+  //       _scrollController.position.maxScrollExtent) {
+  //     context.read<KavachOrderListBloc>().add(ResetKavachOrderList());
+  //     page += 1;
+  //     context.read<KavachOrderListBloc>().add(FetchKavachOrderList(page: page));
+  //   }
+  //   // });
+  // }
 
   bool get _isLoading {
     final state = context.read<KavachOrderListBloc>().state;
@@ -192,7 +151,9 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
 
   @override
   void dispose() {
-    _tabController!.dispose();
+    if (_tabController != null) {
+      _tabController!.dispose();
+    }
     super.dispose();
   }
 
@@ -201,15 +162,20 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
     return BlocConsumer<KavachOrderListBloc, KavachOrderListState>(
       listener: (c, state) {
         if (state is KavachOrderListLoaded) {
-          debugPrint('dshdshsf=>${state.orders.length}');
+          totalPage = int.parse(
+            state.totalPage != null && state.totalPage!.toString().isNotEmpty
+                ? state.totalPage.toString()
+                : '0',
+          );
           initialBuild = false;
           allOrders.addAll(state.orders);
+          tabOrders[selectedTab]!.addAll(state.orders);
           if (!listLoaded) {
             listLoaded = true;
             orderHasPlaced = allOrders.isNotEmpty;
           }
+          setState(() {});
         } else if (state is KavachOrderListError) {
-          debugPrint('dshdshsf=>${state.message}');
           initialBuild = false;
         }
       },
@@ -225,13 +191,21 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                     Navigator.of(context)
                         .push(commonRoute(KavachChooseYourPreferenceScreen()))
                         .then((v) {
+                          tabOrders.updateAll((key, value) => []);
                           setState(() {
-                            debugPrint('kkk 1');
-                            allOrders.clear();
-                            context.read<KavachOrderListBloc>().add(
-                              FetchKavachOrderList(page: page),
-                            );
+                            selectedTab = 0;
                           });
+                          statusParam =
+                              _getStatusForIndex(selectedTab).toString();
+                          context.read<KavachOrderListBloc>().add(
+                            FetchKavachOrderList(
+                              forceRefresh: true,
+                              isRefresh: true,
+                              page: page,
+                              status: statusParam,
+                            ),
+                          );
+                          _scrollTabToCenter(0);
                         });
                   },
                   icon: Icon(Icons.add, color: Colors.white),
@@ -310,18 +284,22 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                       context,
                     ).push(commonRoute(KavachChooseYourPreferenceScreen()));
                     if (!mounted) return;
+                    tabOrders.updateAll((key, value) => []);
                     setState(() {
+                      selectedTab = 0;
                       page = 1;
-                      allOrders.clear();
-                      _ordersBloc.add(
-                        FetchKavachOrderList(
-                          forceRefresh: true,
-                          isRefresh: true,
-                          page: 1,
-                        ),
-                      );
                     });
-                    debugPrint('kkk 2');
+                    debugPrint('fsdfsjhjhdg');
+                    statusParam = _getStatusForIndex(selectedTab).toString();
+                    context.read<KavachOrderListBloc>().add(
+                      FetchKavachOrderList(
+                        status: widget.status.toString(),
+                        forceRefresh: true,
+                        isRefresh: true,
+                        page: page,
+                      ),
+                    );
+                    _scrollTabToCenter(0);
                   },
                   icon: Icon(Icons.add, color: Colors.white),
                   style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
@@ -372,24 +350,33 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
               children: [
                 // Tab Bar
                 SingleChildScrollView(
-                  key: const PageStorageKey('tab-scroll'),
+                  // key: PageStorageKey('myListView_$tabIndex'),
                   controller: tabScrollController,
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.only(left: 16),
                   child: Row(
                     children: List.generate(tabLabels.length, (index) {
-                      final isSelected = _tabController!.index == index;
+                      final isSelected = selectedTab == index;
                       return Padding(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 4,
+                          horizontal: 8,
                           vertical: 12,
                         ),
                         child: GestureDetector(
                           onTap: () {
-                            if (_tabController!.index != index) {
-                              page = 1;
-                              _tabController!.index = index;
-                              allOrders.clear();
+                            if (selectedTab != index) {
+                              tabOrders[selectedTab]?.clear();
+                              if (previousIndex != null) {
+                                tabOrders[previousIndex]?.clear();
+                                tabOrders[selectedTab] = [];
+                              }
+                              setState(() {
+                                selectedTab = index;
+                                page = 1;
+                              });
+                              _pageController?.jumpToPage(index);
+                              statusParam =
+                                  _getStatusForIndex(selectedTab).toString();
+                              _scrollTabToCenter(index);
                             }
                           },
                           child: Container(
@@ -402,7 +389,7 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                                   isSelected
                                       ? AppColors.primaryColor
                                       : AppColors.greyContainerBg,
-                              borderRadius: BorderRadius.circular(25),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Text(
                               tabLabels[index],
@@ -419,15 +406,54 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
                 ),
                 15.height,
                 Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      _buildTab(status: null),
-                      _buildTab(status: 5),
-                      _buildTab(status: 7),
-                      _buildTab(status: 8),
-                      _buildTab(status: 10),
-                    ],
+                  child: PageView.builder(
+                    controller: _pageController,
+                    onPageChanged: (index) async {
+                      tabOrders[selectedTab]?.clear();
+                      if (previousIndex != null) {
+                        tabOrders[previousIndex]?.clear();
+                        tabOrders[selectedTab] = [];
+                      }
+                      setState(() {
+                        selectedTab = index;
+                        page = 1;
+                      });
+                      statusParam = _getStatusForIndex(selectedTab).toString();
+                      _ordersBloc.add(
+                        FetchKavachOrderList(
+                          status: statusParam,
+                          isRefresh: true,
+                          page: page,
+                        ),
+                      );
+                      _scrollTabToCenter(index);
+                    },
+                    itemCount: tabLabels.length,
+                    itemBuilder: (context, tabIndex) {
+                      final orders = tabOrders[selectedTab] ?? [];
+                      return state is KavachOrderListLoading
+                          ? Center(child: CircularProgressIndicator())
+                          : orders.isEmpty
+                          ? Center(
+                            child: Text(
+                              context.appText.noOrdersFound,
+                              style: AppTextStyle.h5,
+                            ),
+                          )
+                          : PageStorage(
+                            bucket: _bucket,
+                            child: ListView.builder(
+                              key: PageStorageKey('orders-tab-$tabIndex'),
+                              controller: tabControllers[tabIndex],
+                              itemCount: orders.length,
+                              itemBuilder: (context, index) {
+                                final order = orders[index];
+                                previousIndex = index;
+                                return KavachOrderCardWidget(order: order);
+                              },
+                            ),
+                          );
+                    },
                   ),
                 ),
               ],
@@ -457,32 +483,41 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
         context,
         commonRoute(GpsUploadDocumentScreen(fromKavachScreen: true)),
       ).then((v) {
-        debugPrint('kkk 4');
         if (!mounted) return;
-        allOrders.clear();
+        tabOrders.updateAll((key, value) => []);
+        setState(() {
+          selectedTab = 0;
+        });
+        statusParam = _getStatusForIndex(selectedTab).toString();
         context.read<KavachOrderListBloc>().add(
           FetchKavachOrderList(
-            status: widget.status,
+            status: selectedTab.toString(),
             forceRefresh: true,
             isRefresh: true,
             page: page,
           ),
         );
+        _scrollTabToCenter(0);
       });
     } else {
       Navigator.of(
         context,
       ).push(commonRoute(KavachChooseYourPreferenceScreen())).then((v) {
-        debugPrint('kkk 5');
-        allOrders.clear();
+        tabOrders.updateAll((key, value) => []);
+        setState(() {
+          selectedTab = 0;
+        });
+        debugPrint('fsdfsjhjhdg');
+        statusParam = _getStatusForIndex(selectedTab).toString();
         context.read<KavachOrderListBloc>().add(
           FetchKavachOrderList(
-            status: widget.status,
+            status: widget.status.toString(),
             forceRefresh: true,
             isRefresh: true,
             page: page,
           ),
         );
+        _scrollTabToCenter(0);
       });
     }
   }
@@ -604,38 +639,6 @@ class _KavachOrdersListScreenState extends State<KavachOrdersListScreen>
 
   Widget buildGroBannerImageWidget() {
     return Image.asset(AppImage.png.groBanner);
-  }
-
-  Widget _buildTab({int? status}) {
-    return BlocConsumer<KavachOrderListBloc, KavachOrderListState>(
-      listener: (c, s) {},
-      builder: (context, state) {
-        if (state is KavachOrderListLoading && (allOrders.isEmpty)) {
-          // First load
-          return const Center(child: CircularProgressIndicator());
-        } else if (state is KavachOrderListLoaded) {
-          if (allOrders.isEmpty) {
-            return Center(child: Text(context.appText.noOrdersFound));
-          }
-
-          return PageStorage(
-            bucket: _bucket,
-            child: ListView.builder(
-              key: PageStorageKey('orders-tab-$status'),
-              controller: _scrollController,
-              itemCount: allOrders.length,
-              itemBuilder: (context, index) {
-                final order = allOrders[index];
-                return KavachOrderCardWidget(order: order);
-              },
-            ),
-          );
-        } else if (state is KavachOrderListError) {
-          return Center(child: Text(state.message));
-        }
-        return const SizedBox.shrink();
-      },
-    );
   }
 }
 

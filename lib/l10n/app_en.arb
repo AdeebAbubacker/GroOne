@@ -638,6 +638,7 @@
   "switchAccount": "Switch Account",
   "verifyEmail": "Please verify your email",
   "isIncomplete": "is incomplete",
+  "isInvalid": "is invalid",
   "selectWeight": "Select Weight",
   "selectCommodityTypes": "Select Commodity Types",
   "expectedDeliveryRateRequired": "Expected Delivery Date is required",
@@ -1368,7 +1369,7 @@
   "pleaseSelectOneFilter":"Please select any one filter",
   "pleaseSelectLocationFromSuggestion":"Please select a location from the suggestions",
   "specialLicense" : "Special License",
-  "experience" : "Experience",
+  "experience" : "Experience in years",
   "communicationPrefernce" : "Communication Preference",
   "pleaseEnterCommPrefernce": "Please enter Communication Preference",
   "pleaseEnterExperience": "Please enter your Experience",
@@ -1382,10 +1383,14 @@
   "debits":"DEBITS",
   "total":"TOTAL",
   "filterEmptyWarning":"Please select at least one filter.",
+  "truckTypeRequired":"Truck Type required",
+
   "issueCategory" : "Issue Category",
-"issuecategoryRequired" : "Issue Category Required",
+  "issuecategoryRequired" : "Issue Category Required",
   "viewTransactionDetails" : "View Transaction Details",
   "primaryAddressCannotBeDeleted": "Primary address cannot be deleted",
-  "mobileNumberCannotStartWith1to5" : "Mobile number cannot start with digits 1 to 5"
+  "mobileNumberCannotStartWith1to5" : "Mobile number cannot start with digits 1 to 5",
+  "feedbackValidation":"Please enter feedback or a remark before submitting.",
+  "truckIsRequired" : "Truck is required"
 
 }

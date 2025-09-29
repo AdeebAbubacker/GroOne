@@ -785,7 +785,7 @@ class _DropDownListViewState<T> extends State<_DropDownListView<T>> {
 
   EdgeInsets listViewPadding({required bool isReversed}) {
     final itemHeight = widget.paginatedRequest != null
-        ? 48.0
+        ? 4.0
         : 0.0; // Offset to show progress indicator; Only needed on paginated dropdown
     return EdgeInsets.only(
       left: 8,

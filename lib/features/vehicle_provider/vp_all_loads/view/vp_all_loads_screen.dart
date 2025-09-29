@@ -492,11 +492,12 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
                           buildTab(),
                           buildTab(),
 
-                          buildTab(),
-                          buildTab(),
-                          buildTab(disabledOnTap: true),
-                        ],
-                      ),
+                  buildTab(),
+                  buildTab(),
+                  buildTab(disabledOnTap: true),
+
+                ],
+              ),
             ),
           ],
         ),
@@ -597,7 +598,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
                 } else if (_tabController.index == 1) {
                   return IgnorePointer(
                     ignoring: disabledOnTap,
-
                     child: GestureDetector(
                       onTap: () async {
                         await context
@@ -631,7 +631,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
                 } else {
                   return IgnorePointer(
                     ignoring: disabledOnTap,
-
                     child: GestureDetector(
                       onTap: () async {
                         await context
