@@ -156,7 +156,7 @@ class AuthRepository {
         AppString.sessionKey.userId,
         userData.driverId.toString(),
       );
-      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, 0);
+      await _securedSharedPref.saveInt(AppString.sessionKey.userRole, 5);
 
       // Save mobile number and other user details from driver profile
       await _securedSharedPref.saveKey(

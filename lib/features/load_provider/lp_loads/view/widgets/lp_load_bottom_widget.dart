@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_b
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart' as vp_helper;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide LoadSettlement;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
 import 'package:gro_one_app/helpers/price_helper.dart';
@@ -55,10 +56,12 @@ class LpLoadBottomWidget extends StatefulWidget {
 }
 
 class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
- String? consigneeId;  
+ String? consigneeId;
+ List<LoadDocumentData>? othersDocument;
   @override
   void initState() {
   initFunction();
+  widget.loadItem.loadDocument;
   super.initState();
   }
 
@@ -70,7 +73,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
   final lpLoadLocator = locator<LpLoadCubit>();
 
-
+   final _formKey = GlobalKey<FormState>();
    TextEditingController consigneeNameController = TextEditingController();
 
    TextEditingController consigneePhoneController = TextEditingController();
@@ -89,6 +92,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     consigneePhoneController = TextEditingController(text: consigneePhone);
     consigneeEmailController = TextEditingController(text: consigneeEmail);
     isUpdateConsignee = widget.loadItem.consignees.isNotEmpty;
+    getOthersDocument();
 
   });
 
@@ -97,6 +101,12 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
     consigneePhoneController.dispose();
     consigneeEmailController.dispose();
   });
+
+   void getOthersDocument(){
+     othersDocument=widget.loadItem.loadDocument.where((element) {
+       return vp_helper.DocumentFileType.uploadOtherDocument.documentType == (element.documentDetails?.documentType ?? '');
+     },).toList();
+   }
 
   Future<dynamic>? onSubmit(LoadData loadItem, context) async {
     await lpLoadLocator.getCreditCheck();
@@ -436,7 +446,9 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                             }
                           },
                           builder: (context, state) {
+
                             return _buildConsigneeDetail(
+                              formKey: _formKey,
                               context: context,
                               isTextField: true,
                               isUpdatable: true,
@@ -507,18 +519,35 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                            children: widget.loadItem.loadDocument.map((doc) {
                              return Column(
                                children: [
-                                 TripDocuments(
-                                   docName: doc.documentDetails?.documentType ?? '',
+                                if( vp_helper.DocumentFileType.uploadOtherDocument.documentType != (doc.documentDetails?.documentType ?? ''))
+                                  TripDocuments(
+                                    otherDocument: [],
+                                    showViewMoreIcon: false,
+                                   docName:
+                                   doc.documentDetails?.documentType ?? '',
                                    docDateTime: doc.createdAt!,
                                    docUrl: doc.documentDetails?.filePath ?? '',
                                    downloadKey: doc.loadDocumentId,
                                    docId: doc.documentId,
                                  ),
-                                 10.height,
+                                 // 10.height,
                                ],
                              );
                            }).toList(),
                          ),
+                         if((othersDocument??[]).isNotEmpty)...[
+                           TripDocuments(
+                             otherDocument: othersDocument??[],
+                             showViewMoreIcon: true,
+                             docName:
+                             othersDocument?[0].documentDetails?.documentType ?? '',
+                             docDateTime:  othersDocument![0].createdAt!,
+                             docUrl:  othersDocument?[0].documentDetails?.filePath ?? '',
+                             downloadKey:  othersDocument![0].loadDocumentId,
+                             docId:  othersDocument![0].documentId,
+                           ),
+                         ]
+
                        ],
 
                         // Feedback and Remarks
@@ -552,7 +581,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                       ],
 
                     // Timeline
-                    if(widget.loadStatus.index >= LoadStatus.confirmed.index)
+                    if(widget.loadStatus.index >= LoadStatus.assigned.index)
                       ...[
                         Text(context.appText.timeline, style: AppTextStyle.h4),
                         20.height,
@@ -573,13 +602,16 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                   if(!isUpdateConsignee) {
                     ToastMessages.error(message: context.appText.pleaseEnterConsigneeDetails);
                   } else {
-                    String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
-
-                    if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
-                      if(context.mounted) onSubmit(widget.loadItem, context);
-                    } else {
-                      if(context.mounted) showAdvancePaymentDialog(context,widget.loadItem, '');
-                    }
+                    // String? firstPostedLoadId = await lpLoadLocator.getFirstPostedLoadId();
+                    // print('first load $firstPostedLoadId');
+                    //
+                    // if (firstPostedLoadId != null && firstPostedLoadId == widget.loadItem.loadId.toString()) {
+                    //   print('condition true');
+                    //   if(context.mounted) onSubmit(widget.loadItem, context);
+                    // } else {
+                    //   if(context.mounted)
+                        showAdvancePaymentDialog(context,widget.loadItem, '');
+                    // }
                   }
                   }
               ),
@@ -649,7 +681,7 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
 
 // Consignee Details
 
-Widget _buildConsigneeDetail({
+ Widget _buildConsigneeDetail({
   required BuildContext context,
   String? name,
   String? phoneNo,
@@ -661,6 +693,7 @@ Widget _buildConsigneeDetail({
   TextEditingController? phoneController,
   TextEditingController? emailController,
   VoidCallback? onUpdate,
+  GlobalKey<FormState>? formKey
 }) {
   final isEditable = context.read<LpLoadCubit>().state.isFieldUpdatble;
   return GestureDetector(
@@ -702,101 +735,116 @@ Widget _buildConsigneeDetail({
           ],
         ),
         if (isTextField)
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              
-              20.height,
-              AppTextField(
+          Form(
+            key: formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                
+                20.height,
+                AppTextField(
+                  decoration: commonInputDecoration(
+                  fillColor:  (isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),     
+                  readOnly: isUpdateConsignee ? isEditable : false,
+                   enabled: isUpdateConsignee ? !isEditable : true,
+                  validator: (value) => Validator.fieldRequired(value),
+                  controller: nameController,
+                  labelText: context.appText.name,
+                  hintText: context.appText.fullNameHint,
+                  mandatoryStar: !isUpdateConsignee || (isUpdateConsignee && !isEditable),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
+                    LengthLimitingTextInputFormatter(50)
+                  ],
+                ),
+                20.height,
+                AppTextField(
                 decoration: commonInputDecoration(
-                fillColor:  (isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),     
-                readOnly: isUpdateConsignee ? isEditable : false,
-                 enabled: isUpdateConsignee ? !isEditable : true,
-                validator: (value) => Validator.fieldRequired(value),
-                controller: nameController,
-                labelText: context.appText.name,
-                hintText: context.appText.fullNameHint,
-                mandatoryStar:  isUpdateConsignee ? false : true,
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r"[a-zA-Z\s'\-]")),
-                  LengthLimitingTextInputFormatter(50)
-                ],
-              ),
-              20.height,
-              AppTextField(
-              decoration: commonInputDecoration(
-                fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),    
-              readOnly: isUpdateConsignee ? isEditable : false,
-              enabled: isUpdateConsignee ? !isEditable : true,
-               validator: (value) => Validator.phone(value),
-                          maxLength: 10,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                            LengthLimitingTextInputFormatter(10),
-                          ],
-                          keyboardType: iosNumberKeyboard,
-                controller: phoneController,
-                labelText: context.appText.contactNumber,
-                 hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
-                  mandatoryStar:  isUpdateConsignee ? false : true,
-
-              ),
-              20.height,
-              AppTextField(   
-                decoration: commonInputDecoration(
-                fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),           
+                  fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),    
                 readOnly: isUpdateConsignee ? isEditable : false,
                 enabled: isUpdateConsignee ? !isEditable : true,
-                validator: (value) => Validator.email(value),
-                keyboardType: TextInputType.emailAddress,
-                controller: emailController,
-                labelText: context.appText.emailId,
-                hintText: context.appText.emailHint,
-                inputFormatters: [
-                  LengthLimitingTextInputFormatter(50),
-                ],
-              ),
-              16.height,
+                 validator: (value) => Validator.phone(value),
+                            maxLength: 10,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                              LengthLimitingTextInputFormatter(10),
+                            ],
+                            keyboardType: iosNumberKeyboard,
+                  controller: phoneController,
+                  labelText: context.appText.contactNumber,
+                   hintText: "${context.appText.enter} ${context.appText.your} ${context.appText.phoneNumber}",
+                  mandatoryStar: !isUpdateConsignee || (isUpdateConsignee && !isEditable),
+            
+                ),
+                20.height,
+                AppTextField(   
+                  decoration: commonInputDecoration(
+                  fillColor:(isUpdateConsignee && isEditable) ?  AppColors.lightGreyColor:  AppColors.white,),           
+                  readOnly: isUpdateConsignee ? isEditable : false,
+                  enabled: isUpdateConsignee ? !isEditable : true,
+                  validator: (value) {
+                  if (value != null && value.isNotEmpty) {
+                    return Validator.email(value); 
+                  }
+                  return null; 
+                },
+                  keyboardType: TextInputType.emailAddress,
+                  controller: emailController,
+                  labelText: context.appText.emailId,
+                  hintText: context.appText.emailHint,
+                  inputFormatters: [
+                    LengthLimitingTextInputFormatter(50),
+                  ],
+                ),
+                16.height,
+               
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                   ((!isUpdateConsignee || (isUpdateConsignee && !isEditable)) &&
+                    ((name?.isNotEmpty ?? false) || 
+                      (emailController?.text.isNotEmpty ?? false) || 
+                      (phoneController?.text.isNotEmpty ?? false)))
+                    ?  AppButton(
+                        buttonHeight: 40,
+                        title:  context.appText.cancel,
+                        style: AppButtonStyle.cancelShrink,
+                        textStyle: AppTextStyle.buttonRedColorTextColor,
+                        onPressed: () {
+                          if (formKey?.currentState?.validate() ?? false) {
+                            FocusScope.of(context).unfocus();
+                            final cubit = context.read<LpLoadCubit>();
+                            cubit.emit(
+                              cubit.state.copyWith(
+                                isFieldUpdatble: true,
+                              ),
+                            );
+                          }
+                        },
+                      )
+                    : SizedBox.shrink(),
+                    12.width,  
+                    (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
+                    ? AppButton(
+                        buttonHeight: 40,
+                        title: isUpdateConsignee ? context.appText.update : context.appText.add,
+                        style: AppButtonStyle.outlineShrink,
+                        textStyle: AppTextStyle.buttonPrimaryColorTextColor,
+                        onPressed: () {
+                              if (formKey?.currentState?.validate() ?? false) {
+                                FocusScope.of(context).unfocus();
+                                onUpdate?.call();
+                              }
+                        },
+                      )
+                    : SizedBox.shrink()
+                   
              
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                 ((!isUpdateConsignee || (isUpdateConsignee && !isEditable)) &&
-                  ((name?.isNotEmpty ?? false) || 
-                    (emailController?.text.isNotEmpty ?? false) || 
-                    (phoneController?.text.isNotEmpty ?? false)))
-                  ?  AppButton(
-                      buttonHeight: 40,
-                      title:  context.appText.cancel,
-                      style: AppButtonStyle.cancelShrink,
-                      textStyle: AppTextStyle.buttonRedColorTextColor,
-                      onPressed: () {
-                     FocusScope.of(context).unfocus();
-                        final cubit = context.read<LpLoadCubit>();
-                        cubit.emit(
-                          cubit.state.copyWith(
-                            isFieldUpdatble: true,
-                          ),
-                        );
-                      },
-                    )
-                  : SizedBox.shrink(),
-                  12.width,  
-                  (!isUpdateConsignee || (isUpdateConsignee && !isEditable))
-                  ? AppButton(
-                      buttonHeight: 40,
-                      title: isUpdateConsignee ? context.appText.update : context.appText.add,
-                      style: AppButtonStyle.outlineShrink,
-                      textStyle: AppTextStyle.buttonPrimaryColorTextColor,
-                      onPressed: onUpdate ?? () {},
-                    )
-                  : SizedBox.shrink()
-                 
-           
-                ],
-              ),
-                  
-            ],
+                  ],
+                ),
+                    
+              ],
+            ),
           )
         else
           Column(
@@ -820,7 +868,6 @@ Widget _buildConsigneeDetail({
     ),
   );
 }
-
 
 
 // Detail Widget

@@ -29,6 +29,7 @@ import '../../../utils/app_text_style.dart';
 import '../../../utils/common_widgets.dart';
 import '../../../utils/constant_variables.dart';
 import '../../../utils/validator.dart';
+import '../../load_provider/lp_home/cubit/lp_home_cubit.dart';
 import '../../profile/view/support_screen.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_bloc.dart';
 import '../bloc/kavach_checkout_billing_address_bloc/kavach_checkout_billing_address_event.dart';
@@ -106,6 +107,10 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
 
   // Store previous shipping address for restoration when checkbox is toggled
   KavachAddressModel? _previousShippingAddress;
+  int changeBillingIndex = 0;
+  int changeShippingIndex = 0;
+
+  final lpHomeCubit = locator<LPHomeCubit>();
 
   void loadVehicleSelection() {
     for (var product in _products) {
@@ -325,7 +330,9 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       );
     } else {
       // Only fetch if we don't have addresses to restore
-      kavachCheckoutBillingAddressBloc.add(FetchKavachBillingAddresses());
+      kavachCheckoutBillingAddressBloc.add(
+        FetchKavachBillingAddresses(shippingUniqueId: '', billingUniqueId: ''),
+      );
     }
 
     if (selectedShippingAddress != null && shippingAddresses != null) {
@@ -338,7 +345,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       );
     } else {
       // Only fetch if we don't have addresses to restore
-      kavachCheckoutShippingAddressBloc.add(FetchKavachShippingAddresses());
+      // kavachCheckoutShippingAddressBloc.add(FetchKavachShippingAddresses(billingAddressUniqueId: '',shippingAddressUniqueId: ''));
     }
 
     // Listen to address states to store selected addresses
@@ -346,6 +353,12 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
       if (state is KavachCheckoutBillingAddressSelected) {
         selectedBillingAddress = state.selectedAddress;
         billingAddresses = state.addresses;
+        kavachCheckoutShippingAddressBloc.add(
+          FetchKavachShippingAddresses(
+            billingAddressUniqueId: selectedBillingAddress?.id ?? '',
+            shippingAddressUniqueId: selectedShippingAddress?.id ?? '',
+          ),
+        );
       }
     });
 
@@ -360,68 +373,113 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
         }
       }
     });
+    updatedAppEvent(stage: 'viewedCheckoutScreen');
+  }
+
+  Future<void> updatedAppEvent({
+    required String stage,
+    String? entityId,
+    Map<String, dynamic>? context,
+  }) async {
+    try {
+      lpHomeCubit.updatedAppEvent(
+        stage: stage,
+        entityId: entityId,
+        context: context,
+      );
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: CommonAppBar(
-        centreTile: false,
-        title: context.appText.checkout,
-        leading: IconButton(
-          onPressed: () {
-            Navigator.of(context).pop({
-              'quantities': _quantities,
-              'vehicles': vehicleControllersPerProduct.map(
-                (key, value) => MapEntry(
-                  key,
-                  value.map((controller) => controller.text.trim()).toList(),
-                ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (bool didPop, Object? result) {
+        if (!didPop) {
+          final result1 = {
+            'quantities': _quantities,
+            'vehicles': vehicleControllersPerProduct.map(
+              (key, value) => MapEntry(
+                key,
+                value.map((controller) => controller.text.trim()).toList(),
               ),
-              'referralCode': referralCodeController.text.trim(),
-              'shippingPersonInCharge':
-                  shippingPersonInChargeController.text.trim(),
-              'shippingPersonContactNo':
-                  shippingPersonContactNoController.text.trim(),
-              'shippingSameAsBilling': shippingSameAsBilling,
-              'selectedBillingAddress': selectedBillingAddress,
-              'selectedShippingAddress': selectedShippingAddress,
-              'billingAddresses': billingAddresses,
-              'shippingAddresses': shippingAddresses,
-            });
-          },
-          icon: SvgPicture.asset(
-            AppIcons.svg.goBack,
-            colorFilter: AppColors.svg(Colors.black),
-          ),
-        ),
-
-        actions: [
-          AppIconButton(
+            ),
+            'referralCode': referralCodeController.text.trim(),
+            'shippingPersonInCharge':
+                shippingPersonInChargeController.text.trim(),
+            'shippingPersonContactNo':
+                shippingPersonContactNoController.text.trim(),
+            'shippingSameAsBilling': shippingSameAsBilling,
+            'selectedBillingAddress': selectedBillingAddress,
+            'selectedShippingAddress': selectedShippingAddress,
+            'billingAddresses': billingAddresses,
+            'shippingAddresses': shippingAddresses,
+          };
+          Navigator.of(context).pop(result1);
+        }
+      },
+      child: Scaffold(
+        appBar: CommonAppBar(
+          centreTile: false,
+          title: context.appText.checkout,
+          leading: IconButton(
             onPressed: () {
-              Navigator.of(context).push(
-                commonRoute(
-                  LpSupport(
-                    showBackButton: true,
-                    ticketTag: TicketTags.TANK_LOCK,
+              Navigator.of(context).pop({
+                'quantities': _quantities,
+                'vehicles': vehicleControllersPerProduct.map(
+                  (key, value) => MapEntry(
+                    key,
+                    value.map((controller) => controller.text.trim()).toList(),
                   ),
-                  isForward: true,
                 ),
-              );
+                'referralCode': referralCodeController.text.trim(),
+                'shippingPersonInCharge':
+                    shippingPersonInChargeController.text.trim(),
+                'shippingPersonContactNo':
+                    shippingPersonContactNoController.text.trim(),
+                'shippingSameAsBilling': shippingSameAsBilling,
+                'selectedBillingAddress': selectedBillingAddress,
+                'selectedShippingAddress': selectedShippingAddress,
+                'billingAddresses': billingAddresses,
+                'shippingAddresses': shippingAddresses,
+              });
             },
-            icon: AppIcons.svg.filledSupport,
-            iconColor: AppColors.primaryButtonColor,
+            icon: SvgPicture.asset(
+              AppIcons.svg.goBack,
+              colorFilter: AppColors.svg(Colors.black),
+            ),
           ),
-          5.width,
-        ],
+
+          actions: [
+            AppIconButton(
+              onPressed: () {
+                Navigator.of(context).push(
+                  commonRoute(
+                    LpSupport(
+                      showBackButton: true,
+                      ticketTag: TicketTags.TANK_LOCK,
+                    ),
+                    isForward: true,
+                  ),
+                );
+              },
+              icon: AppIcons.svg.filledSupport,
+              iconColor: AppColors.primaryButtonColor,
+            ),
+            5.width,
+          ],
+        ),
+        bottomNavigationBar: buildPlaceOrderButtonWidget(),
+        body: buildBodyWidget(context),
       ),
-      bottomNavigationBar: buildPlaceOrderButtonWidget(),
-      body: buildBodyWidget(context),
     );
   }
 
   // Helper function to get current selected addresses from blocs
   KavachAddressModel? _getCurrentShippingAddress(BuildContext context) {
+    changeBillingIndex = 0;
     final shippingState =
         context.read<KavachCheckoutShippingAddressBloc>().state;
     if (shippingState is KavachCheckoutShippingAddressSelected) {
@@ -431,6 +489,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
   }
 
   KavachAddressModel? _getCurrentBillingAddress(BuildContext context) {
+    changeShippingIndex = 0;
     final billingState = context.read<KavachCheckoutBillingAddressBloc>().state;
     if (billingState is KavachCheckoutBillingAddressSelected) {
       return billingState.selectedAddress;
@@ -559,12 +618,65 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                           }
                           if (state is KavachCheckoutBillingAddressSelected) {
                             final address = state.selectedAddress;
+                            if (address == null) {
+                              return AppTextField(
+                                readOnly: true,
+                                autofocus: false,
+                                labelText: context.appText.billingAddress,
+                                mandatoryStar: true,
+                                decoration: kavachInputDecoration(
+                                  suffixIcon: Icon(
+                                    Icons.chevron_right,
+                                    color: AppColors.chevronGreyColor,
+                                  ),
+                                ),
+                                onTextFieldTap: () {
+                                  changeShippingIndex += 1;
+                                  commonBottomSheetWithBGBlur(
+                                    context: context,
+                                    screen: KavachBillingAddressListScreen(
+                                      billingAddressUniqueId:
+                                          _getCurrentBillingAddress(context) !=
+                                                  null
+                                              ? _getCurrentBillingAddress(
+                                                context,
+                                              )!.id.toString()
+                                              : '',
+                                      shippingAddressUniqueId:
+                                          _getCurrentShippingAddress(context) !=
+                                                  null
+                                              ? _getCurrentShippingAddress(
+                                                context,
+                                              )!.id.toString()
+                                              : '',
+                                      selectedShippingAddress:
+                                          _getCurrentShippingAddress(context),
+                                    ),
+                                  );
+                                },
+                              );
+                            }
                             return addressWidget(
                               address: address,
                               onChangeTap: () {
+                                changeShippingIndex += 1;
                                 commonBottomSheetWithBGBlur(
                                   context: context,
                                   screen: KavachBillingAddressListScreen(
+                                    billingAddressUniqueId:
+                                        _getCurrentBillingAddress(context) !=
+                                                null
+                                            ? _getCurrentBillingAddress(
+                                              context,
+                                            )!.id.toString()
+                                            : '',
+                                    shippingAddressUniqueId:
+                                        _getCurrentShippingAddress(context) !=
+                                                null
+                                            ? _getCurrentShippingAddress(
+                                              context,
+                                            )!.id.toString()
+                                            : '',
                                     selectedShippingAddress:
                                         _getCurrentShippingAddress(context),
                                   ),
@@ -589,9 +701,24 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                 ),
                               ),
                               onTextFieldTap: () {
+                                changeShippingIndex += 1;
                                 commonBottomSheetWithBGBlur(
                                   context: context,
                                   screen: KavachBillingAddressListScreen(
+                                    billingAddressUniqueId:
+                                        _getCurrentBillingAddress(context) !=
+                                                null
+                                            ? _getCurrentBillingAddress(
+                                              context,
+                                            )!.id.toString()
+                                            : '',
+                                    shippingAddressUniqueId:
+                                        _getCurrentShippingAddress(context) !=
+                                                null
+                                            ? _getCurrentShippingAddress(
+                                              context,
+                                            )!.id.toString()
+                                            : '',
                                     selectedShippingAddress:
                                         _getCurrentShippingAddress(context),
                                   ),
@@ -612,9 +739,24 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                 ),
                               ),
                               onTextFieldTap: () {
+                                changeShippingIndex += 1;
                                 commonBottomSheetWithBGBlur(
                                   context: context,
                                   screen: KavachBillingAddressListScreen(
+                                    billingAddressUniqueId:
+                                        _getCurrentBillingAddress(context) !=
+                                                null
+                                            ? _getCurrentBillingAddress(
+                                              context,
+                                            )!.id.toString()
+                                            : '',
+                                    shippingAddressUniqueId:
+                                        _getCurrentShippingAddress(context) !=
+                                                null
+                                            ? _getCurrentShippingAddress(
+                                              context,
+                                            )!.id.toString()
+                                            : '',
                                     selectedShippingAddress:
                                         _getCurrentShippingAddress(context),
                                   ),
@@ -635,9 +777,24 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                 ),
                               ),
                               onTextFieldTap: () {
+                                changeShippingIndex += 1;
                                 commonBottomSheetWithBGBlur(
                                   context: context,
                                   screen: KavachBillingAddressListScreen(
+                                    billingAddressUniqueId:
+                                        _getCurrentBillingAddress(context) !=
+                                                null
+                                            ? _getCurrentBillingAddress(
+                                              context,
+                                            )!.id.toString()
+                                            : '',
+                                    shippingAddressUniqueId:
+                                        _getCurrentShippingAddress(context) !=
+                                                null
+                                            ? _getCurrentShippingAddress(
+                                              context,
+                                            )!.id.toString()
+                                            : '',
                                     selectedShippingAddress:
                                         _getCurrentShippingAddress(context),
                                   ),
@@ -695,48 +852,128 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                           }
                           if (state is KavachCheckoutShippingAddressSelected) {
                             final address = state.selectedAddress;
-                            return Column(
-                              children: [
-                                Visibility(
-                                  visible: shippingSameAsBilling,
-                                  child: Row(
-                                    children: [
-                                      Text(
-                                        context.appText.shippingAddress,
-                                        style: AppTextStyle.textFiled,
-                                      ).paddingLeft(3),
-                                      Text(
-                                        " *",
-                                        style: AppTextStyle.textFiled.copyWith(
-                                          color: Colors.red,
+                            return state.selectedAddress == null
+                                ? Column(
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Text(
+                                          context.appText.shippingAddress,
+                                          style: AppTextStyle.textFiled,
+                                        ).paddingLeft(3),
+                                        Text(
+                                          " *",
+                                          style: AppTextStyle.textFiled
+                                              .copyWith(color: Colors.red),
                                         ),
+                                      ],
+                                    ),
+                                    5.height,
+                                    Visibility(
+                                      visible: shippingSameAsBilling == false,
+                                      child: AppTextField(
+                                        readOnly: true,
+                                        autofocus: false,
+                                        decoration: kavachInputDecoration(
+                                          suffixIcon: Icon(
+                                            Icons.chevron_right,
+                                            color: AppColors.chevronGreyColor,
+                                          ),
+                                        ),
+                                        onTextFieldTap: () {
+                                          changeBillingIndex += 1;
+                                          commonBottomSheetWithBGBlur(
+                                            context: context,
+                                            screen: KavachShippingAddressListScreen(
+                                              shippingAddressUniqueId:
+                                                  _getCurrentShippingAddress(
+                                                            context,
+                                                          ) !=
+                                                          null
+                                                      ? _getCurrentShippingAddress(
+                                                        context,
+                                                      )!.id.toString()
+                                                      : '',
+                                              billingAddressUniqueId:
+                                                  _getCurrentBillingAddress(
+                                                            context,
+                                                          ) !=
+                                                          null
+                                                      ? _getCurrentBillingAddress(
+                                                        context,
+                                                      )!.id.toString()
+                                                      : '',
+                                              selectedBillingAddress:
+                                                  selectedBillingAddress,
+                                            ),
+                                          );
+                                        },
+                                        // validator: (value) => Validator.fieldRequired(value,fieldName: context.appText.addressName),
                                       ),
-                                    ],
-                                  ),
-                                ),
-                                5.height,
-                                Visibility(
-                                  visible: shippingSameAsBilling == false,
-                                  child: addressWidget(
-                                    address: address,
-                                    onChangeTap: () {
-                                      commonBottomSheetWithBGBlur(
-                                        context: context,
-                                        screen: KavachShippingAddressListScreen(
-                                          selectedBillingAddress:
-                                              _getCurrentBillingAddress(
-                                                context,
-                                              ),
-                                        ),
-                                      );
-                                    },
-                                    title: context.appText.shippingAddress,
-                                  ),
-                                ),
-                                5.height,
-                                checkBoxSameAsShipping(),
-                              ],
-                            );
+                                    ),
+                                    checkBoxSameAsShipping(),
+                                  ],
+                                )
+                                : Column(
+                                  children: [
+                                    Visibility(
+                                      visible: shippingSameAsBilling,
+                                      child: Row(
+                                        children: [
+                                          Text(
+                                            context.appText.shippingAddress,
+                                            style: AppTextStyle.textFiled,
+                                          ).paddingLeft(3),
+                                          Text(
+                                            " *",
+                                            style: AppTextStyle.textFiled
+                                                .copyWith(color: Colors.red),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    5.height,
+                                    Visibility(
+                                      visible: shippingSameAsBilling == false,
+                                      child: addressWidget(
+                                        address: address,
+                                        onChangeTap: () {
+                                          changeBillingIndex += 1;
+                                          commonBottomSheetWithBGBlur(
+                                            context: context,
+                                            screen: KavachShippingAddressListScreen(
+                                              shippingAddressUniqueId:
+                                                  _getCurrentShippingAddress(
+                                                            context,
+                                                          ) !=
+                                                          null
+                                                      ? _getCurrentShippingAddress(
+                                                        context,
+                                                      )!.id.toString()
+                                                      : '',
+                                              billingAddressUniqueId:
+                                                  _getCurrentBillingAddress(
+                                                            context,
+                                                          ) !=
+                                                          null
+                                                      ? _getCurrentBillingAddress(
+                                                        context,
+                                                      )!.id.toString()
+                                                      : '',
+                                              selectedBillingAddress:
+                                                  _getCurrentBillingAddress(
+                                                    context,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                        title: context.appText.shippingAddress,
+                                      ),
+                                    ),
+                                    5.height,
+                                    checkBoxSameAsShipping(),
+                                  ],
+                                );
                           }
 
                           // if (state is KavachCheckoutShippingAddressEmpty ||
@@ -772,9 +1009,28 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                       ),
                                     ),
                                     onTextFieldTap: () {
+                                      changeBillingIndex += 1;
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen: KavachShippingAddressListScreen(
+                                          shippingAddressUniqueId:
+                                              _getCurrentShippingAddress(
+                                                        context,
+                                                      ) !=
+                                                      null
+                                                  ? _getCurrentShippingAddress(
+                                                    context,
+                                                  )!.id.toString()
+                                                  : '',
+                                          billingAddressUniqueId:
+                                              _getCurrentBillingAddress(
+                                                        context,
+                                                      ) !=
+                                                      null
+                                                  ? _getCurrentBillingAddress(
+                                                    context,
+                                                  )!.id.toString()
+                                                  : '',
                                           selectedBillingAddress:
                                               selectedBillingAddress,
                                         ),
@@ -817,9 +1073,28 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                       ),
                                     ),
                                     onTextFieldTap: () {
+                                      changeBillingIndex += 1;
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen: KavachShippingAddressListScreen(
+                                          shippingAddressUniqueId:
+                                              _getCurrentShippingAddress(
+                                                        context,
+                                                      ) !=
+                                                      null
+                                                  ? _getCurrentShippingAddress(
+                                                    context,
+                                                  )!.id.toString()
+                                                  : '',
+                                          billingAddressUniqueId:
+                                              _getCurrentBillingAddress(
+                                                        context,
+                                                      ) !=
+                                                      null
+                                                  ? _getCurrentBillingAddress(
+                                                    context,
+                                                  )!.id.toString()
+                                                  : '',
                                           selectedBillingAddress:
                                               _getCurrentBillingAddress(
                                                 context,
@@ -863,9 +1138,28 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                                       ),
                                     ),
                                     onTextFieldTap: () {
+                                      changeBillingIndex += 1;
                                       commonBottomSheetWithBGBlur(
                                         context: context,
                                         screen: KavachShippingAddressListScreen(
+                                          shippingAddressUniqueId:
+                                              _getCurrentShippingAddress(
+                                                        context,
+                                                      ) !=
+                                                      null
+                                                  ? _getCurrentShippingAddress(
+                                                    context,
+                                                  )!.id.toString()
+                                                  : '',
+                                          billingAddressUniqueId:
+                                              _getCurrentBillingAddress(
+                                                        context,
+                                                      ) !=
+                                                      null
+                                                  ? _getCurrentBillingAddress(
+                                                    context,
+                                                  )!.id.toString()
+                                                  : '',
                                           selectedBillingAddress:
                                               _getCurrentBillingAddress(
                                                 context,
@@ -1231,22 +1525,22 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 shippingPersonContactNoController.text.trim(),
             customerInfo: customerInfo,
             billingAddress: {
-              "addressLine1": billingState.selectedAddress.addressName,
-              "addressLine2": billingState.selectedAddress.addr1,
-              "city": billingState.selectedAddress.city,
-              "state": billingState.selectedAddress.state,
-              "postalCode": billingState.selectedAddress.pincode,
+              "addressLine1": billingState.selectedAddress?.addressName ?? '',
+              "addressLine2": billingState.selectedAddress?.addr1 ?? '',
+              "city": billingState.selectedAddress?.city ?? '',
+              "state": billingState.selectedAddress?.state ?? '',
+              "postalCode": billingState.selectedAddress?.pincode ?? '',
               "country": 'India',
-              "gstId": billingState.selectedAddress.gstin ?? "",
+              "gstId": billingState.selectedAddress?.gstin ?? "",
             },
             shippingAddress: {
-              "addressLine1": shippingState.selectedAddress.addressName,
-              "addressLine2": shippingState.selectedAddress.addr1,
-              "city": shippingState.selectedAddress.city,
-              "state": shippingState.selectedAddress.state,
-              "postalCode": shippingState.selectedAddress.pincode,
+              "addressLine1": shippingState.selectedAddress?.addressName,
+              "addressLine2": shippingState.selectedAddress?.addr1,
+              "city": shippingState.selectedAddress?.city,
+              "state": shippingState.selectedAddress?.state,
+              "postalCode": shippingState.selectedAddress?.pincode,
               "country": 'India',
-              "gstId": shippingState.selectedAddress.gstin ?? "",
+              "gstId": shippingState.selectedAddress?.gstin ?? "",
             },
             orders:
                 _products.map((product) {
@@ -1326,7 +1620,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
 
           if (billingState is KavachCheckoutBillingAddressSelected) {
             shippingBloc.add(
-              SelectKavachShippingAddress(billingState.selectedAddress),
+              SelectKavachShippingAddress(billingState.selectedAddress!),
             );
           } else {
             ToastMessages.alert(
@@ -1343,7 +1637,24 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
           } else {
             // If no previous address, just clear the selection
             shippingBloc.add(ClearKavachShippingAddress());
-            shippingBloc.add(FetchKavachShippingAddresses());
+            shippingBloc.add(
+              FetchKavachShippingAddresses(
+                shippingAddressUniqueId:
+                    (_getCurrentBillingAddress(context) != null &&
+                            _getCurrentShippingAddress(context) != null &&
+                            _getCurrentBillingAddress(context)!.id.isNotEmpty &&
+                            _getCurrentBillingAddress(context)!.id !=
+                                _getCurrentShippingAddress(context)!.id)
+                        ? _getCurrentShippingAddress(context) != null
+                            ? _getCurrentShippingAddress(context)!.id
+                            : ''
+                        : '',
+                billingAddressUniqueId:
+                    _getCurrentBillingAddress(context) != null
+                        ? _getCurrentBillingAddress(context)!.id
+                        : '',
+              ),
+            );
           }
         }
 
@@ -1423,7 +1734,7 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      address.addressName,
+                      address?.addressName ?? '',
                       style: AppTextStyle.blackColor14w400,
                     ),
                   ),
@@ -1436,19 +1747,19 @@ class _KavachCheckoutScreenState extends State<KavachCheckoutScreen> {
                   ),
                 ],
               ),
-              Text(address.addr1, style: AppTextStyle.blackColor14w400),
+              Text(address?.addr1 ?? '', style: AppTextStyle.blackColor14w400),
               Text(
-                "${address.city}, ${address.state}",
+                "${address?.city ?? ''}, ${address?.state ?? ''}",
                 style: AppTextStyle.blackColor14w400,
               ),
               Text(
-                "${address.country}- ${address.pincode}",
+                "${address?.country ?? ''}- ${address?.pincode ?? ''}",
                 style: AppTextStyle.blackColor14w400,
               ),
               Visibility(
-                visible: address.gstin != null && address.gstin!.isNotEmpty,
+                visible: address?.gstin != null && address?.gstin!.isNotEmpty,
                 child: Text(
-                  "${context.appText.gstKavach} - ${address.gstin}",
+                  "${context.appText.gstKavach} - ${address?.gstin}",
                   style: AppTextStyle.blackColor14w400,
                 ),
               ),

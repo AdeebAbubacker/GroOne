@@ -25,7 +25,8 @@ class KavachBillingAddressListScreen extends StatelessWidget {
   final GpsBillingAddressCubit? gpsBillingAddressCubit; // For GPS feature
   final GpsShippingAddressCubit?
   gpsShippingAddressCubit; // For GPS feature - to refresh both lists
-  int? changeShippingIndex;
+  String shippingAddressUniqueId;
+  String billingAddressUniqueId;
 
   KavachBillingAddressListScreen({
     super.key,
@@ -33,7 +34,8 @@ class KavachBillingAddressListScreen extends StatelessWidget {
     this.feature = AddressListFeature.kavach,
     this.gpsBillingAddressCubit,
     this.gpsShippingAddressCubit,
-    this.changeShippingIndex,
+    required this.shippingAddressUniqueId,
+    required this.billingAddressUniqueId,
   });
 
   @override
@@ -62,30 +64,58 @@ class KavachBillingAddressListScreen extends StatelessWidget {
           await commonBottomSheetWithBGBlur(
             context: context,
             screen: KavachAddAddressBottomSheet(
-              addrType: 2, // Billing address type
+              addrType: 2,
+              // Billing address type
               title: context.appText.billingAddress,
               feature: AddressFeature.kavach,
+              billingAddressUniqueId: billingAddressUniqueId,
+              shippingAddressUniqueId: shippingAddressUniqueId,
             ),
           );
           if (!context.mounted) return;
           context.read<KavachCheckoutBillingAddressBloc>().add(
-            FetchKavachBillingAddresses(),
+            FetchKavachBillingAddresses(
+              billingUniqueId: billingAddressUniqueId,
+              shippingUniqueId: shippingAddressUniqueId,
+            ),
           );
         } else if (feature == AddressListFeature.gps &&
             gpsBillingAddressCubit != null) {
           await commonBottomSheetWithBGBlur(
             context: context,
             screen: KavachAddAddressBottomSheet(
-              addrType: 2, // Billing address type
+              billingAddressUniqueId: billingAddressUniqueId,
+              shippingAddressUniqueId: shippingAddressUniqueId,
+              addrType: 2,
+              // Billing address type
               title: context.appText.billingAddress,
               feature: AddressFeature.gps,
               onAddressAdded: () {
                 // Refresh both billing and shipping address lists
-                gpsBillingAddressCubit!.fetchGpsBillingAddresses();
-                if (gpsShippingAddressCubit != null) {
-                  gpsShippingAddressCubit!.fetchGpsShippingAddresses(
-                    changeShippingIndex:
-                        changeShippingIndex != null ? changeShippingIndex! : 0,
+                if (billingAddressUniqueId.isNotEmpty) {
+                  gpsBillingAddressCubit!.fetchGpsBillingAddresses(
+                    billingAddressUniqueId: billingAddressUniqueId,
+                    shippingAddressUniqueId: shippingAddressUniqueId,
+                  );
+
+                  if (gpsShippingAddressCubit != null) {
+                    gpsShippingAddressCubit!.fetchGpsShippingAddresses(
+                      'hello 4',
+                      shippingAddressUniqueId,
+                      billingAddressUniqueId: billingAddressUniqueId,
+                    );
+                  }
+                } else {
+                  if (gpsShippingAddressCubit != null) {
+                    gpsShippingAddressCubit!.fetchGpsShippingAddresses(
+                      'hello 4',
+                      shippingAddressUniqueId,
+                      billingAddressUniqueId: billingAddressUniqueId,
+                    );
+                  }
+                  gpsBillingAddressCubit!.fetchGpsBillingAddresses(
+                    billingAddressUniqueId: billingAddressUniqueId,
+                    shippingAddressUniqueId: shippingAddressUniqueId,
                   );
                 }
               },
@@ -137,7 +167,10 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                       AppButton(
                         onPressed: () {
                           context.read<KavachCheckoutBillingAddressBloc>().add(
-                            FetchKavachBillingAddresses(),
+                            FetchKavachBillingAddresses(
+                              shippingUniqueId: shippingAddressUniqueId,
+                              billingUniqueId: billingAddressUniqueId,
+                            ),
                           );
                         },
                         title: context.appText.retry,
@@ -153,16 +186,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
         if (state is KavachCheckoutBillingAddressSelected) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses =
-              selectedShippingAddress != null
-                  ? state.addresses
-                      .where(
-                        (address) =>
-                            address.uniqueId !=
-                            selectedShippingAddress!.uniqueId,
-                      )
-                      .toList()
-                  : state.addresses;
+          final filteredAddresses = state.addresses;
 
           return Column(
             children: [
@@ -210,19 +234,24 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                         ),
               ),
               20.height,
-              AppButton(
-                onPressed: () {
-                  final selectedAddress =
-                      context.read<KavachCheckoutBillingAddressBloc>().state;
-                  if (selectedAddress is KavachCheckoutBillingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress);
-                  } else {
-                    // Handle if nothing is selected (optional)
-                  }
-                },
-                title: context.appText.deliverHere,
-                style: AppButtonStyle.primary,
-              ),
+              filteredAddresses.isNotEmpty
+                  ? AppButton(
+                    onPressed: () {
+                      final selectedAddress =
+                          context
+                              .read<KavachCheckoutBillingAddressBloc>()
+                              .state;
+                      if (selectedAddress
+                          is KavachCheckoutBillingAddressSelected) {
+                        Navigator.pop(context, selectedAddress.selectedAddress);
+                      } else {
+                        // Handle if nothing is selected (optional)
+                      }
+                    },
+                    title: context.appText.deliverHere,
+                    style: AppButtonStyle.primary,
+                  )
+                  : SizedBox(),
               20.height,
             ],
           );
@@ -230,16 +259,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
         if (state is KavachCheckoutBillingAddressAvailable) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses =
-              selectedShippingAddress != null
-                  ? state.addresses
-                      .where(
-                        (address) =>
-                            address.uniqueId !=
-                            selectedShippingAddress!.uniqueId,
-                      )
-                      .toList()
-                  : state.addresses;
+          final filteredAddresses = state.addresses;
 
           return Column(
             children: [
@@ -360,7 +380,10 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                       10.height,
                       AppButton(
                         onPressed: () {
-                          gpsBillingAddressCubit!.fetchGpsBillingAddresses();
+                          gpsBillingAddressCubit!.fetchGpsBillingAddresses(
+                            billingAddressUniqueId: billingAddressUniqueId,
+                            shippingAddressUniqueId: shippingAddressUniqueId,
+                          );
                         },
                         title: context.appText.retry,
                         style: AppButtonStyle.outline,
@@ -375,16 +398,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
         if (state is GpsBillingAddressSelected) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses =
-              selectedShippingAddress != null
-                  ? state.addresses
-                      .where(
-                        (address) =>
-                            address.uniqueId !=
-                            selectedShippingAddress!.uniqueId,
-                      )
-                      .toList()
-                  : state.addresses;
+          final filteredAddresses = state.addresses;
 
           return Column(
             children: [
@@ -435,18 +449,35 @@ class KavachBillingAddressListScreen extends StatelessWidget {
                         ),
               ),
               20.height,
-              AppButton(
-                onPressed: () {
-                  final selectedAddress = gpsBillingAddressCubit!.state;
-                  if (selectedAddress is GpsBillingAddressSelected) {
-                    Navigator.pop(context, selectedAddress.selectedAddress);
-                  } else {
-                    // Handle if nothing is selected (optional)
-                  }
-                },
-                title: context.appText.deliverHere,
-                style: AppButtonStyle.primary,
-              ),
+              filteredAddresses.isNotEmpty
+                  ? AppButton(
+                    onPressed: () {
+                      final selectedAddress = gpsBillingAddressCubit!.state;
+
+                      if (gpsShippingAddressCubit != null) {
+                        gpsShippingAddressCubit!.fetchGpsShippingAddresses(
+                          'hello 5',
+                          shippingAddressUniqueId,
+                          selectedBillingUniqueID:
+                              selectedAddress is GpsBillingAddressSelected
+                                  ? selectedAddress.selectedAddress?.id ?? ''
+                                  : '',
+                          billingAddressUniqueId:
+                              selectedAddress is GpsBillingAddressSelected
+                                  ? selectedAddress.selectedAddress?.id ?? ''
+                                  : '',
+                        );
+                      }
+                      if (selectedAddress is GpsBillingAddressSelected) {
+                        Navigator.pop(context, selectedAddress.selectedAddress);
+                      } else {
+                        // Handle if nothing is selected (optional)
+                      }
+                    },
+                    title: context.appText.deliverHere,
+                    style: AppButtonStyle.primary,
+                  )
+                  : const SizedBox(),
               20.height,
             ],
           );
@@ -454,16 +485,7 @@ class KavachBillingAddressListScreen extends StatelessWidget {
 
         if (state is GpsBillingAddressAvailable) {
           // Filter out the selected shipping address from billing address list
-          final filteredAddresses =
-              selectedShippingAddress != null
-                  ? state.addresses
-                      .where(
-                        (address) =>
-                            address.uniqueId !=
-                            selectedShippingAddress!.uniqueId,
-                      )
-                      .toList()
-                  : state.addresses;
+          final filteredAddresses = state.addresses;
 
           return Column(
             children: [

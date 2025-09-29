@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_commodity_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_route_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
@@ -16,7 +18,7 @@ class RouteSearchableDropdown extends StatelessWidget {
 
   final Future<List<RouteList>> Function(int page, String? searchKey)fetchRoutes;
 
-  const RouteSearchableDropdown({
+  RouteSearchableDropdown({
     super.key,
     required this.selectedRoute,
     required this.onChanged,
@@ -26,7 +28,7 @@ class RouteSearchableDropdown extends StatelessWidget {
     this.mandatoryStar = false,
 
   });
-
+ final lpLoadLocator = locator<LpLoadCubit>();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -54,7 +56,7 @@ class RouteSearchableDropdown extends StatelessWidget {
           child: SearchableDropdown<RouteList>.paginated(
             hintText: Text(hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
-
+            dialogOffset: 0,
             requestItemCount: 10,
             // Initial selected value
             initialValue:
@@ -72,6 +74,9 @@ class RouteSearchableDropdown extends StatelessWidget {
             // Called whenever dropdown needs more items
             paginatedRequest: (int page, String? searchKey) async {
               final routes = await fetchRoutes(page, searchKey);
+               if (lpLoadLocator.isRoutesLastPage && page > lpLoadLocator.rootsCurrentPage) {
+              return [];
+            }
               return routes.map((route) {
                 final from = route.fromLocation?.name ?? '';
                 final to = route.toLocation?.name ?? '';
@@ -117,7 +122,6 @@ class VehicleTypeSearchableDropdown extends StatefulWidget {
 class _VehicleTypeSearchableDropdownState
     extends State<VehicleTypeSearchableDropdown> {
   List<TruckTypeModel> _allVehicleTypes = [];
-
   bool _isFetched = false;
 
   Future<List<TruckTypeModel>> _getVehicleTypes() async {
@@ -130,6 +134,8 @@ class _VehicleTypeSearchableDropdownState
 
   @override
   Widget build(BuildContext context) {
+    final initialTruck = widget.selectedVehicleType;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -151,20 +157,21 @@ class _VehicleTypeSearchableDropdownState
             color: Colors.white,
           ),
           child: SearchableDropdown<TruckTypeModel>.future(
+            dialogOffset: 0,
             hintText: Text(widget.hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
 
-            initialValue:
-                widget.selectedVehicleType != null
-                    ? SearchableDropdownMenuItem<TruckTypeModel>(
-                      value: widget.selectedVehicleType!,
-                      label:
-                          "${widget.selectedVehicleType?.type ?? ''} ${widget.selectedVehicleType?.subType ?? ''}",
-                      child: Text(
-                        "${widget.selectedVehicleType?.type ?? ''} ${widget.selectedVehicleType?.subType ?? ''}",
-                      ),
-                    )
-                    : null,
+            // ✅ Pre-select value if ID matches
+            initialValue: initialTruck != null
+                ? SearchableDropdownMenuItem<TruckTypeModel>(
+                    value: initialTruck,
+                    label:
+                        "${initialTruck.type ?? ''} ${initialTruck.subType ?? ''}",
+                    child: Text(
+                      "${initialTruck.type ?? ''} ${initialTruck.subType ?? ''}",
+                    ),
+                  )
+                : null,
 
             futureRequest: () async {
               final allVehicleTypes = await _getVehicleTypes();
@@ -233,7 +240,7 @@ class LoadTypeSearchableDropdown extends StatelessWidget {
             hintText: Text(hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
             requestItemCount: 10,
-
+            dialogOffset: 0,
             /// initial selected value
             initialValue:
                 selectedLoadType != null
@@ -316,6 +323,7 @@ class LoadWeightSearchableDropdown extends StatelessWidget {
             color: Colors.white,
           ),
           child: SearchableDropdown<LoadWeightModel>.future(
+            dialogOffset: 0,
             hintText: Text(hintText, style: AppTextStyle.textFieldHint),
             isDialogExpanded: false,
 

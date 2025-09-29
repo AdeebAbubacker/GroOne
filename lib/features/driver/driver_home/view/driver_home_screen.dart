@@ -7,6 +7,7 @@ import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/cubit/driver_home_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/view/widgets/driver_load_widget.dart';
 import 'package:gro_one_app/features/driver/driver_profile/cubit/driver_profile_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/bloc/load_commodity/load_commodity_bloc.dart';
@@ -46,6 +47,7 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:collection/collection.dart';
 import 'package:gro_one_app/utils/common_dialog_view/update_popup.dart';
+import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 
 class DriverHomeScreen extends StatefulWidget {
   final int initialTabIndex;
@@ -67,6 +69,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   final loadCommodityBloc = locator<LoadCommodityBloc>();
   final splashViewModel = locator<SplashViewModel>();
   final lpLoadLocator = locator<LpLoadCubit>();
+  final driverHomeCubitlocator = locator<DriverHomeCubit>();
   late DriverLoadsBloc driverLoadBloc;
   String? truckTypeDropDownValue;
   String? selectedDropDownValueId;
@@ -101,6 +104,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   }
 
   void initFunction() => frameCallback(() async {
+    await splashViewModel.checkAppUpdate();
       final updateState = splashViewModel.appUpdateUIState;
     if (updateState != null && updateState.status == Status.SUCCESS) {
       final updateType = parseUpdateType(updateState.data!);
@@ -284,6 +288,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                       search: searchKey,
                       loadMore: page > 1, 
                     );
+                     if (lpLoadLocator.isRoutesLastPage &&
+                      page > lpLoadLocator.rootsCurrentPage) {
+                    return [];
+                  }
                     return lpLoadLocator
                             .state
                             .lpLoadRouteDetails
@@ -344,6 +352,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           ],
         ),
         onClickYesButton: () {
+          if(truckTypeDropDownValue.isNull && routeDropDownValue.isNull && selectedCommodity.isNull) {
+            ToastMessages.alert(message: context.appText.pleaseSelectOneFilter);
+          }else{
+          driverHomeCubitlocator.setIsFilterApplied(value: true);
           Navigator.pop(context);
           driverLoadBloc.add(
             FetchDriverLoads(
@@ -353,6 +365,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               commodityTypeId: selectedCommodityId,
             ),
           );
+          }  
         },
         onClickNoButton: () {
           Navigator.pop(context);
@@ -568,30 +581,61 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
 
   /// Search and Filter
   Widget buildSearchBarAndFilterWidget(BuildContext context) {
-    return Row(
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        AppSearchBar(
-          searchController: searchController,
-          onChanged: _onSearchChanged,
-          onClear: () {
-            searchController.clear();
-            commonHideKeyboard(context);
-            final currentIndex = _tabController?.index;
-            int? loadStatus =
-                (currentIndex! < tabLabels.length)
-                    ? tabLabels[currentIndex].id
-                    : null;
-            driverLoadBloc.add(
-              FetchDriverLoads(forceRefresh: true, loadStatus: loadStatus),
-            );
-          },
-        ).expand(),
-        8.width,
-        AppIconButton(
-          onPressed: filterPopUp,
-          style: AppButtonStyle.primaryIconButtonStyle,
-          icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
+        Row(
+          children: [
+            AppSearchBar(
+              searchController: searchController,
+              onChanged: _onSearchChanged,
+              onClear: () {
+                searchController.clear();
+                commonHideKeyboard(context);
+                final currentIndex = _tabController?.index;
+                int? loadStatus =
+                    (currentIndex! < tabLabels.length)
+                        ? tabLabels[currentIndex].id
+                        : null;
+                driverLoadBloc.add(
+                  FetchDriverLoads(forceRefresh: true, loadStatus: loadStatus),
+                );
+              },
+            ).expand(),
+            8.width,
+            AppIconButton(
+              onPressed: filterPopUp,
+              style: AppButtonStyle.primaryIconButtonStyle,
+              icon: SvgPicture.asset(AppIcons.svg.filter, width: 20),
+            ),
+          ],
         ),
+          BlocBuilder<DriverHomeCubit, DriverHomeState>(
+            buildWhen: (previous, current) =>
+            previous.isFilterApplied != current.isFilterApplied,
+            builder: (context, state) {
+              return Visibility(
+                visible: driverHomeCubitlocator.state.isFilterApplied ?? false,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(context.appText.filterApplied),
+                      GestureDetector(
+                        onTap: () {
+                          clearAllFilterValues();
+                          driverHomeCubitlocator.setIsFilterApplied(value: false);
+                          _onPullToRefresh();
+                        },
+                        child: Icon(Icons.cancel_outlined),
+                      )
+                    ],
+                  ),
+                ),
+              );
+            })
       ],
     ).paddingOnly(
       left: commonSafeAreaPadding,
@@ -674,7 +718,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                     driverLoadDetails: load,
                     onClickAssignDriver: () {
                       final currentStatus = load.loadStatusId;
-                      if (currentStatus == 8) {
+                      if (currentStatus == 8 || currentStatus == 4) {
                         final extra = {"loadId": load.loadId};
                         context.push(AppRouteName.driverLoadDetails, extra: extra);
                       } else if (currentStatus <= 7) {

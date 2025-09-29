@@ -15,6 +15,7 @@ class PathReplayCubit extends Cubit<PathReplayState> {
   Timer? _playbackTimer;
   Timer? _markerAnimationTimer;
   int? _lastAnimatedIndex;
+  double? _lastBearing; // Track previous bearing for smooth rotation
 
   // Store parameters for retry functionality
   String? _token;
@@ -93,46 +94,135 @@ class PathReplayCubit extends Cubit<PathReplayState> {
         math.cos(lat1) * math.sin(lat2) -
         math.sin(lat1) * math.cos(lat2) * math.cos(dLon);
 
-    return (math.atan2(y, x) * 180.0 / math.pi + 360.0) % 360.0;
+    // Calculate bearing and normalize to 0-360 range
+    final bearing = math.atan2(y, x) * 180.0 / math.pi;
+    return (bearing + 360.0) % 360.0;
+  }
+
+  // Calculate bearing with smoothing to avoid jittery rotation
+  double _calculateSmoothBearing(
+    LatLng start,
+    LatLng end,
+    double? previousBearing,
+  ) {
+    final newBearing = _calculateBearing(start, end);
+
+    if (previousBearing == null) return newBearing;
+
+    // Calculate the shortest rotation angle
+    double diff = newBearing - previousBearing;
+    if (diff > 180) {
+      diff -= 360;
+    } else if (diff < -180) {
+      diff += 360;
+    }
+
+    // Apply smoothing factor to reduce jitter
+    const double smoothingFactor = 0.3;
+    final smoothedBearing = previousBearing + (diff * smoothingFactor);
+
+    return (smoothedBearing + 360.0) % 360.0;
   }
 
   void _animateMarker(LatLng from, LatLng to, {int durationMs = 400}) {
     _markerAnimationTimer?.cancel();
 
-    // Increase steps for smoother animation and adjust based on distance
+    // Calculate distance-based duration like native Android
     final distance = _calculateDistance(from, to);
-    final int baseSteps = 30; // Increased from 20
-    final int steps = (baseSteps + (distance * 10)).clamp(20, 60).toInt();
+    final int calculatedDuration = _getAnimationDuration(distance);
+    final int finalDuration = calculatedDuration.clamp(100, 3000);
 
-    int currentStep = 0;
+    // Use 60 FPS for smooth animation (16ms per frame)
+    const int frameRate = 60;
+    final int totalFrames = (finalDuration / (1000 / frameRate)).round();
+    final int frameDuration = (1000 / frameRate).round();
+
+    int currentFrame = 0;
     emit(state.copyWith(animatedMarkerPosition: from));
 
     _markerAnimationTimer = Timer.periodic(
-      Duration(milliseconds: (durationMs / steps).round()),
+      Duration(milliseconds: frameDuration),
       (timer) {
-        currentStep++;
+        currentFrame++;
 
-        // Use easing function for smoother movement
-        final double t = _easeInOutCubic(currentStep / steps);
-        final double lat = from.latitude + (to.latitude - from.latitude) * t;
-        final double lng = from.longitude + (to.longitude - from.longitude) * t;
-        emit(state.copyWith(animatedMarkerPosition: LatLng(lat, lng)));
+        // Calculate progress (0.0 to 1.0)
+        final double progress = currentFrame / totalFrames;
+        final double t = progress.clamp(0.0, 1.0);
 
-        if (currentStep >= steps) {
+        // Use spherical interpolation like native Android
+        final newPosition = _interpolateSpherical(from, to, t);
+
+        // Emit position update
+        emit(state.copyWith(animatedMarkerPosition: newPosition));
+
+        if (currentFrame >= totalFrames) {
           timer.cancel();
+          // Ensure final position is exactly on target GPS point
           emit(state.copyWith(animatedMarkerPosition: to));
+
+          // Continue to next position if playing (like native Android)
+          if (state.isPlaying) {
+            _startAnimationSequence();
+          }
         }
       },
     );
   }
 
-  // Add easing function for smoother animation
-  double _easeInOutCubic(double t) {
-    if (t < 0.5) {
-      return 4 * t * t * t;
-    } else {
-      return 1 - 4 * (1 - t) * (1 - t) * (1 - t);
+  // Spherical interpolation exactly like native Android LatLngInterpolator.Spherical
+  LatLng _interpolateSpherical(LatLng from, LatLng to, double fraction) {
+    // Convert to radians
+    final fromLat = from.latitude * math.pi / 180.0;
+    final fromLng = from.longitude * math.pi / 180.0;
+    final toLat = to.latitude * math.pi / 180.0;
+    final toLng = to.longitude * math.pi / 180.0;
+
+    final cosFromLat = math.cos(fromLat);
+    final cosToLat = math.cos(toLat);
+
+    // Computes Spherical interpolation coefficients
+    final angle = _computeAngleBetween(fromLat, fromLng, toLat, toLng);
+    final sinAngle = math.sin(angle);
+
+    if (sinAngle < 1E-6) {
+      return from;
     }
+
+    final a = math.sin((1 - fraction) * angle) / sinAngle;
+    final b = math.sin(fraction * angle) / sinAngle;
+
+    // Converts from polar to vector and interpolate
+    final x =
+        a * cosFromLat * math.cos(fromLng) + b * cosToLat * math.cos(toLng);
+    final y =
+        a * cosFromLat * math.sin(fromLng) + b * cosToLat * math.sin(toLng);
+    final z = a * math.sin(fromLat) + b * math.sin(toLat);
+
+    // Converts interpolated vector back to polar
+    final lat = math.atan2(z, math.sqrt(x * x + y * y));
+    final lng = math.atan2(y, x);
+
+    return LatLng(lat * 180.0 / math.pi, lng * 180.0 / math.pi);
+  }
+
+  // Haversine's formula for angle calculation (from native Android)
+  double _computeAngleBetween(
+    double fromLat,
+    double fromLng,
+    double toLat,
+    double toLng,
+  ) {
+    final dLat = fromLat - toLat;
+    final dLng = fromLng - toLng;
+    return 2 *
+        math.asin(
+          math.sqrt(
+            math.pow(math.sin(dLat / 2), 2) +
+                math.cos(fromLat) *
+                    math.cos(toLat) *
+                    math.pow(math.sin(dLng / 2), 2),
+          ),
+        );
   }
 
   // Add distance calculation helper
@@ -153,6 +243,56 @@ class PathReplayCubit extends Cubit<PathReplayState> {
     final c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
 
     return earthRadius * c / 1000; // Return distance in kilometers
+  }
+
+  // Distance-based animation duration calculation exactly like native Android
+  int _getAnimationDuration(double distanceKm) {
+    // Convert km to meters for calculation
+    final distanceM = distanceKm * 1000;
+
+    // Speed multipliers based on playback speed (exactly like native Android)
+    final speedMultipliers = _getSpeedMultipliers();
+
+    int time;
+
+    if (distanceM < 100) {
+      time = (distanceM * speedMultipliers[0]).round();
+    } else if (distanceM < 500) {
+      time = (distanceM * speedMultipliers[1]).round();
+    } else if (distanceM < 1000) {
+      time = (distanceM * speedMultipliers[2]).round();
+    } else if (distanceM < 2000) {
+      time = (distanceM * speedMultipliers[3]).round();
+    } else {
+      time =
+          3000; // Max 3 seconds for very long distances (like native Android)
+    }
+
+    return time;
+  }
+
+  // Speed multipliers based on playback speed (exactly like native Android)
+  List<double> _getSpeedMultipliers() {
+    final speed = state.playbackSpeed;
+
+    if (speed <= 1.0) {
+      return [
+        10.0,
+        5.0,
+        2.0,
+        1.0,
+      ]; // 1x speed (multiply1, multiply2, multiply3, multiply4)
+    } else if (speed <= 2.0) {
+      return [5.0, 3.0, 1.0, 1.0]; // 2x speed
+    } else if (speed <= 3.0) {
+      return [2.0, 1.0, 1.0, 1.0]; // 3x speed
+    } else if (speed <= 4.0) {
+      return [1.0, 1.0, 1.0, 1.0]; // 4x speed
+    } else if (speed <= 8.0) {
+      return [0.5, 1.0, 1.0, 1.0]; // 8x speed
+    } else {
+      return [0.25, 0.5, 0.5, 1.0]; // 16x+ speed
+    }
   }
 
   void seek(int index) {
@@ -183,28 +323,46 @@ class PathReplayCubit extends Cubit<PathReplayState> {
 
     final currentIndex = state.currentIndex.clamp(0, pathPoints.length - 1);
     final currentPosition = pathPoints[currentIndex];
-    final previousPosition =
-        currentIndex > 0 ? pathPoints[currentIndex - 1] : currentPosition;
 
     // Update address
     _getAddress(currentPosition).then((address) {
       emit(state.copyWith(currentAddress: address));
     });
 
-    // Animate marker if index changed
+    // Animate marker if index changed or if not playing (for seek operations)
     if (_lastAnimatedIndex != currentIndex) {
       _lastAnimatedIndex = currentIndex;
 
-      // Better duration calculation for smoother movement
-      // Use 80% of the playback interval to ensure animation completes before next position
-      final playbackInterval = (1000 / state.playbackSpeed);
-      final int durationMs = (playbackInterval * 0.8).clamp(200, 800).toInt();
+      // For playing state, animate from current animated position to next position
+      // For non-playing state (seek), immediately set position
+      if (state.isPlaying && state.animatedMarkerPosition != null) {
+        // Calculate distance-based duration for smoother movement
+        final distance = _calculateDistance(
+          state.animatedMarkerPosition!,
+          currentPosition,
+        );
 
-      _animateMarker(
-        state.animatedMarkerPosition ?? previousPosition,
-        currentPosition,
-        durationMs: durationMs,
-      );
+        // Only animate if distance is significant to avoid unnecessary animations
+        if (distance > 0.001) {
+          // More than 1 meter
+          final int durationMs = _getAnimationDuration(distance);
+          _animateMarker(
+            state.animatedMarkerPosition!,
+            currentPosition,
+            durationMs: durationMs,
+          );
+        } else {
+          // For very short distances, set position immediately and continue
+          emit(state.copyWith(animatedMarkerPosition: currentPosition));
+          if (state.isPlaying) {
+            _startAnimationSequence();
+          }
+        }
+      } else {
+        // For seek operations or when not playing, set position immediately
+        // Ensure exact GPS point positioning
+        emit(state.copyWith(animatedMarkerPosition: currentPosition));
+      }
     }
   }
 
@@ -218,28 +376,46 @@ class PathReplayCubit extends Cubit<PathReplayState> {
 
     final currentIndex = state.currentIndex.clamp(0, pathPoints.length - 1);
     final currentPosition = pathPoints[currentIndex];
-    final previousPosition =
-        currentIndex > 0 ? pathPoints[currentIndex - 1] : currentPosition;
 
     // Update address
     _getAddress(currentPosition).then((address) {
       emit(state.copyWith(currentAddress: address));
     });
 
-    // Animate marker if index changed
+    // Animate marker if index changed or if not playing (for seek operations)
     if (_lastAnimatedIndex != currentIndex) {
       _lastAnimatedIndex = currentIndex;
 
-      // Better duration calculation for smoother movement
-      // Use 80% of the playback interval to ensure animation completes before next position
-      final playbackInterval = (1000 / state.playbackSpeed);
-      final int durationMs = (playbackInterval * 0.8).clamp(200, 800).toInt();
+      // For playing state, animate from current animated position to next position
+      // For non-playing state (seek), immediately set position
+      if (state.isPlaying && state.animatedMarkerPosition != null) {
+        // Calculate distance-based duration for smoother movement
+        final distance = _calculateDistance(
+          state.animatedMarkerPosition!,
+          currentPosition,
+        );
 
-      _animateMarker(
-        state.animatedMarkerPosition ?? previousPosition,
-        currentPosition,
-        durationMs: durationMs,
-      );
+        // Only animate if distance is significant to avoid unnecessary animations
+        if (distance > 0.001) {
+          // More than 1 meter
+          final int durationMs = _getAnimationDuration(distance);
+          _animateMarker(
+            state.animatedMarkerPosition!,
+            currentPosition,
+            durationMs: durationMs,
+          );
+        } else {
+          // For very short distances, set position immediately and continue
+          emit(state.copyWith(animatedMarkerPosition: currentPosition));
+          if (state.isPlaying) {
+            _startAnimationSequence();
+          }
+        }
+      } else {
+        // For seek operations or when not playing, set position immediately
+        // Ensure exact GPS point positioning
+        emit(state.copyWith(animatedMarkerPosition: currentPosition));
+      }
     }
   }
 
@@ -294,12 +470,21 @@ class PathReplayCubit extends Cubit<PathReplayState> {
         ),
       );
 
+      // Reset bearing for new path
+      _lastBearing = null;
+
       if (pathPositions.isNotEmpty) {
         if (isDailyPath) {
           // For daily path, just fit to path without starting animation
           _getPathBoundsForRegularPath();
         } else {
-          // For regular path replay, start with first position
+          // For regular path replay, initialize animated position and start with first position
+          final firstPosition = LatLng(
+            pathPositions.first.latitude!,
+            pathPositions.first.longitude!,
+          );
+          // Ensure exact GPS point positioning from the start
+          emit(state.copyWith(animatedMarkerPosition: firstPosition));
           _updateAddressAndAnimation();
         }
       }
@@ -346,8 +531,17 @@ class PathReplayCubit extends Cubit<PathReplayState> {
         ),
       );
 
+      // Reset bearing for new path
+      _lastBearing = null;
+
       if (tripPathPositions.isNotEmpty) {
-        // For ignition path, just fit to path without starting animation
+        // For ignition path, initialize animated position and fit to path
+        final firstPosition = LatLng(
+          tripPathPositions.first.latitude!,
+          tripPathPositions.first.longitude!,
+        );
+        // Ensure exact GPS point positioning from the start
+        emit(state.copyWith(animatedMarkerPosition: firstPosition));
         _getPathBoundsForTripPath();
       }
     } catch (e) {
@@ -382,27 +576,48 @@ class PathReplayCubit extends Cubit<PathReplayState> {
 
     emit(state.copyWith(isPlaying: true));
 
-    // Improved playback timing for smoother movement
-    // Ensure minimum interval for smooth animation at high speeds
-    final baseInterval = (1000 / state.playbackSpeed);
-    final playbackInterval =
-        baseInterval.clamp(100, 2000).round(); // Min 100ms, Max 2s
+    // Initialize animated position if not set
+    if (state.animatedMarkerPosition == null) {
+      final pathPoints =
+          state.pathType == 'ignition'
+              ? state.tripPathPositions
+                  .map((pos) => LatLng(pos.latitude!, pos.longitude!))
+                  .toList()
+              : state.pathPositions
+                  .map((pos) => LatLng(pos.latitude!, pos.longitude!))
+                  .toList();
 
-    _playbackTimer = Timer.periodic(Duration(milliseconds: playbackInterval), (
-      timer,
-    ) {
-      if (state.currentIndex < maxIndex) {
-        emit(state.copyWith(currentIndex: state.currentIndex + 1));
-        _updateAddressAndAnimation();
-      } else {
-        pause();
+      if (pathPoints.isNotEmpty) {
+        final currentIndex = state.currentIndex.clamp(0, pathPoints.length - 1);
+        emit(state.copyWith(animatedMarkerPosition: pathPoints[currentIndex]));
       }
-    });
+    }
+
+    // Start the animation sequence like native Android
+    _startAnimationSequence();
   }
 
   void pause() {
     _playbackTimer?.cancel();
+    _markerAnimationTimer?.cancel();
     emit(state.copyWith(isPlaying: false));
+  }
+
+  // Animation sequence like native Android (recursive approach)
+  void _startAnimationSequence() {
+    final maxIndex =
+        state.pathType == 'ignition'
+            ? state.tripPathPositions.length - 1
+            : state.pathPositions.length - 1;
+
+    if (state.currentIndex < maxIndex) {
+      // Move to next position
+      emit(state.copyWith(currentIndex: state.currentIndex + 1));
+      _updateAddressAndAnimation();
+    } else {
+      // Animation complete
+      pause();
+    }
   }
 
   void changeSpeed(double speed) {
@@ -435,10 +650,14 @@ class PathReplayCubit extends Cubit<PathReplayState> {
 
     if (state.currentIndex >= pathPoints.length) return 0;
 
-    return _calculateBearing(
+    final newBearing = _calculateSmoothBearing(
       pathPoints[state.currentIndex - 1],
       pathPoints[state.currentIndex],
+      _lastBearing,
     );
+
+    _lastBearing = newBearing;
+    return newBearing;
   }
 
   double _getCurrentRotationForTripPath() {
@@ -451,10 +670,14 @@ class PathReplayCubit extends Cubit<PathReplayState> {
 
     if (state.currentIndex >= pathPoints.length) return 0;
 
-    return _calculateBearing(
+    final newBearing = _calculateSmoothBearing(
       pathPoints[state.currentIndex - 1],
       pathPoints[state.currentIndex],
+      _lastBearing,
     );
+
+    _lastBearing = newBearing;
+    return newBearing;
   }
 
   LatLngBounds? getPathBounds() {

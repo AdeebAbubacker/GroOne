@@ -145,7 +145,9 @@ class _DriverProfileSettingScreenState
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        headingText(section),
+                        Visibility(
+                            visible: section!="Notification",
+                            child: headingText(section)),
                         ...settings.map((setting) {
                           final key = setting.key;
                           final value = DriverCustomerSettingsMapper.getValue(
@@ -159,21 +161,24 @@ class _DriverProfileSettingScreenState
                                 setting.key == 'payment_alerts') {
                               return const SizedBox.shrink();
                             }
-                            return toggleRow(setting.label, value == 'true', (
-                              bool newVal,
-                            ) {
-                              final request =
-                                  DriverCustomerSettingsMapper.buildRequest(
-                                    key,
-                                    newVal.toString(),
+                            return Visibility(
+                              visible: section!="Notification",
+                              child: toggleRow(setting.label, value == 'true', (
+                                bool newVal,
+                              ) {
+                                final request =
+                                    DriverCustomerSettingsMapper.buildRequest(
+                                      key,
+                                      newVal.toString(),
+                                    );
+                              
+                                if (request != null) {
+                                  profileCubit.updateCustomerSettings(
+                                    request: request,
                                   );
-
-                              if (request != null) {
-                                profileCubit.updateCustomerSettings(
-                                  request: request,
-                                );
-                              }
-                            });
+                                }
+                              }),
+                            );
                           } else if (setting.type == 'radio') {
                             final options = setting.options.split(',');
                             return Padding(
@@ -218,17 +223,27 @@ class _DriverProfileSettingScreenState
                                     listener: (context, state) {
                                       final status =
                                           state.deleteAccountUIState?.status;
-
                                       if (status == Status.SUCCESS) {
-                                        LpBottomNavigation
-                                            .selectedIndexNotifier
-                                            .value = 0;
-                                        disposeFunction();
-                                        context.go(
-                                        AppRouteName.login,
-                                        extra: {"showBackButton": false},
-                                      );
-                                      }
+                                          // Show toast first
+                                          ToastMessages.success(
+                                            message: context.appText.accountDeletedSuccessfully,
+                                            duration: Duration(milliseconds: 1000)
+                                            
+                                          );
+                                          driverProfileCubit.restState();
+                                          // Delay navigation so user can see toast
+                                          Future.delayed(const Duration(milliseconds: 1200), () {
+                                            if (!mounted) return; 
+                                            disposeFunction();
+                                            LpBottomNavigation.selectedIndexNotifier.value = 0;
+                                            if(!context.mounted) return;
+                                            // Navigate to login screen
+                                            context.go(
+                                              AppRouteName.login,
+                                              extra: {"showBackButton": false},
+                                            );
+                                          });
+                                        }
 
                                       if (status == Status.ERROR) {
                                         final error =
@@ -262,7 +277,9 @@ class _DriverProfileSettingScreenState
                             return const SizedBox();
                           }
                         }),
-                        dividerWidget(),
+                       Visibility(
+                         visible: section!="Notification",
+                         child:  dividerWidget(),),
                         10.height,
                       ],
                     );

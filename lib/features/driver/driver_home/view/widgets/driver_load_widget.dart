@@ -113,6 +113,9 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        if (widget.driverLoadDetails.loadStatusDetails?.loadStatus.toLowerCase() == "unserviced" ){
+          return;
+        }
         context.push(
           AppRouteName.driverLoadDetails,
           extra: {"loadId": widget.driverLoadDetails.loadId},
@@ -383,6 +386,7 @@ class _DriverLoadWidgetState extends State<DriverLoadWidget> {
                     widget.onClickAssignDriver?.call();
                   },
                 ).expand(),
+              
               ],
             ),
           ],

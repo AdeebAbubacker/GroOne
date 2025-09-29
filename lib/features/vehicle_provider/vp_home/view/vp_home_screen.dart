@@ -40,6 +40,7 @@ import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/blue_membership_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
 import 'package:gro_one_app/utils/common_dialog_view/success_dialog_view.dart';
@@ -189,7 +190,8 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
             ],
           ).withScroll(),
         ),
-      )
+      ),
+      floatingActionButton: ChatActionButton(),
     );
   }
 
@@ -388,15 +390,13 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
           };
 
           isKycValid = customer.isKyc.toInt();
-          logKycStatusEvent(customer.isKyc.toInt(), customerDetails);
+          //logKycStatusEvent(customer.isKyc.toInt(), customerDetails);
           if (customer.isKyc == 3) {
             return (state.showSuccessKyc && sessionBlueId == null) ? kycSuccessStatusWidget().paddingTop(10) :  0.width;
           } else if (customer.isKyc == 2) {
             return kycInProgressStatusWidget().paddingTop(10);
           } else if (customer.isKyc == 1) {
-            return
-
-              IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
+            return IncompleteKycStatusWidget(companyId: companyId).paddingTop(10);
           }
         }
         return  20.width;
@@ -439,23 +439,30 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                       context.appText.myLoads,
                       textAlign: TextAlign.start,
                       style: AppTextStyle.body1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    ElevatedButton(
-                      onPressed: () {
-                        widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.primaryColor,
-                        minimumSize: Size(68, 30),
-                        padding: EdgeInsets.symmetric(horizontal: 10),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
+                    10.width,
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 1);
+                          navigationHistoryVP.add(1);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          minimumSize: Size(68, 30),
+                          padding: EdgeInsets.symmetric(horizontal: 10),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        context.appText.viewAll,
-                        style: AppTextStyle.h5WhiteColor,
-                      ),
+                        child: Text(
+                          context.appText.viewAll,
+                          style: AppTextStyle.h5WhiteColor,
+                          overflow: TextOverflow.ellipsis,
+
+                        ),
+                      ).align(Alignment.centerRight),
                     ),
                     // TextButton(
                     //   onPressed: () {
@@ -591,6 +598,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
                 ElevatedButton(
                   onPressed: () {
                     widget.onViewAllOrSeeMore(1, allLoadsSubTabIndex: 0);
+                    navigationHistoryVP.add(1);
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,

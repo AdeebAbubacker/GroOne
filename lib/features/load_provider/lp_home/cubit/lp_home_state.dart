@@ -11,9 +11,12 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
 
+
+
 class LPHomeState extends Equatable {
   final UIState<LoadTruckTypeListModel>? truckTypeUIState;
-  final UIState<RecentRoutesModel>? recentRouteUIState;
+  final UIState<RecentRoutesModel>? recentRouteState;
+  final int? recentPage;
   final UIState<AutoCompleteModel>? autoCompleteUIState;
   final UIState<VerifyLocationModel>? verifyLocationUIState;
   final UIState<RateDiscoveryModel>? rateDiscoveryUIState;
@@ -30,10 +33,12 @@ class LPHomeState extends Equatable {
   final String? matchingText;
   final String? blueId;
   final UIState? isBluIdShown;
+  final bool isFetchingRecent;
 
   const LPHomeState({
     this.truckTypeUIState,
-    this.recentRouteUIState,
+    this.recentRouteState,
+    this.recentPage,
     this.autoCompleteUIState,
     this.verifyLocationUIState,
     this.rateDiscoveryUIState,
@@ -50,11 +55,13 @@ class LPHomeState extends Equatable {
     this.matchingText,
     this.blueId,
     this.isBluIdShown,
+    this.isFetchingRecent = false,
   });
 
   LPHomeState copyWith({
-    UIState<RecentRoutesModel>? recentRouteState,
     UIState<LoadTruckTypeListModel>? truckTypeState,
+    UIState<RecentRoutesModel>? recentRouteState,
+    int? recentPage,
     UIState<AutoCompleteModel>? autoCompleteUIState,
     UIState<VerifyLocationModel>? verifyLocationUIState,
     UIState<RateDiscoveryModel>? rateDiscoveryUIState,
@@ -71,10 +78,12 @@ class LPHomeState extends Equatable {
     String? matchingText,
     String? blueId,
     UIState? isBluIdShown,
+    bool? isFetchingRecent,
   }) {
     return LPHomeState(
       truckTypeUIState: truckTypeState ?? truckTypeUIState,
-      recentRouteUIState: recentRouteState ?? recentRouteUIState,
+      recentRouteState: recentRouteState ?? this.recentRouteState,
+      recentPage: recentPage ?? this.recentPage,
       autoCompleteUIState: autoCompleteUIState ?? this.autoCompleteUIState,
       verifyLocationUIState: verifyLocationUIState ?? this.verifyLocationUIState,
       rateDiscoveryUIState: rateDiscoveryUIState ?? this.rateDiscoveryUIState,
@@ -91,28 +100,31 @@ class LPHomeState extends Equatable {
       matchingText: matchingText ?? this.matchingText,
       blueId: blueId ?? this.blueId,
       isBluIdShown: isBluIdShown ?? this.isBluIdShown,
+      isFetchingRecent: isFetchingRecent ?? this.isFetchingRecent,
     );
   }
 
   @override
   List<Object?> get props => [
-    truckTypeUIState,
-    recentRouteUIState,
-    autoCompleteUIState,
-    verifyLocationUIState,
-    rateDiscoveryUIState,
-    loadWeightUIState,
-    profileDetailUIState,
-    lpGetLoadUIState,
-    showSuccessKyc,
-    destination,
-    pickup,
-    pickupLocationId,
-    destinationLocationId,
-    laneId,
-    selectedWeight,
-    matchingText,
-    blueId,
-    isBluIdShown,
-  ];
+        truckTypeUIState,
+        recentRouteState,
+        recentPage,
+        autoCompleteUIState,
+        verifyLocationUIState,
+        rateDiscoveryUIState,
+        loadWeightUIState,
+        profileDetailUIState,
+        lpGetLoadUIState,
+        showSuccessKyc,
+        destination,
+        pickup,
+        pickupLocationId,
+        destinationLocationId,
+        laneId,
+        selectedWeight,
+        matchingText,
+        blueId,
+        isBluIdShown,
+        isFetchingRecent
+      ];
 }

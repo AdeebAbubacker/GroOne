@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_lo
 import 'package:gro_one_app/features/profile/api_request/vehicle_status_update_request.dart';
 import 'package:gro_one_app/features/profile/model/blood_group_response.dart';
 import 'package:gro_one_app/features/profile/model/delete_account_response.dart';
+import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/ticket_message_response.dart';
 import 'package:gro_one_app/features/profile/model/upload_ticket_response.dart';
@@ -52,6 +53,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   final LpHomeRepository _lpHomeRepository;
   final LpLoadRepository _lpLoadRepository;
   final KavachRepository kavachRepository;
+
   ProfileCubit(this._repo, this._lpHomeRepository, this._lpLoadRepository, this.kavachRepository)
     : super(ProfileState());
 
@@ -99,12 +101,18 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return userRole;
   }
 
+
+
   // Get User Id
   String? userId;
   Future<String?> fetchUserId() async {
     userId = await _repo.getUserId();
     CustomLog.debug(this, "User Id : $userId");
     return userId;
+  }
+
+  void switchToVp(bool value){
+    emit(state.copyWith(switchToVp: value));
   }
 
   // Fetch Profile Detail Api Call
@@ -139,9 +147,11 @@ class ProfileCubit extends BaseCubit<ProfileState> {
   Future<void> logout() async {
     _setLogoutUIState(UIState.loading());
     dynamic result = await _repo.getLogOutData();
-    dynamic isSignOut = await _repo.signOut();
-    if (result is Success<LogOutModel> && isSignOut is Success<bool>) {
-      _setLogoutUIState(UIState.success(result.value));
+    if (result is Success<LogOutModel>) {
+      dynamic isSignOut = await _repo.signOut();
+      if(isSignOut is Success<bool>) {
+        _setLogoutUIState(UIState.success(result.value));
+      }
     }
     if (result is Error) {
       _setLogoutUIState(UIState.error(result.type));
@@ -203,76 +213,75 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
   }
 
-  // Fetch address from api call
-  void _setFetchAddressUIState(
-    UIState<PaginatedAddressList>? uiState,
-    int currentPage,
-  ) {
-    emit(state.copyWith(currentPage: currentPage, addressState: uiState));
+
+
+  // Address pagination state
+  int _addressCurrentPage = 1;
+  bool _addressIsLastPage = false;
+  bool _addressIsLoadingMore = false;
+
+  void _setFetchAddressUIState(UIState<PaginatedAddressList>? uiState) {
+    emit(state.copyWith(addressState: uiState));
   }
 
   Future<void> fetchAddress({
     bool isLoading = true,
     String? search,
-    bool isInit = true,
+    bool loadMore = false,
   }) async {
-    if (isInit || isLoading) {
-      if (isLoading) _setFetchAddressUIState(UIState.loading(), 1);
+    if (_addressIsLoadingMore && loadMore) return;
+    if (!loadMore) {
+      _addressIsLastPage = false;
+    } else if (_addressIsLastPage) {
+      return;
     }
 
-    userId = await _repo.getUserId();
-
-    final oldAddressData = state.addressState?.data?.addresses ?? [];
-    final totalRecords = state.addressState?.data?.total ?? 0;
-
-    if (oldAddressData.isNotEmpty) {
-      if ((totalRecords) <= ((state.currentPage ?? 0) - 1) * 10 &&
-          oldAddressData.length >= totalRecords) {
-        return; // stop calling API
-      }
+    if (loadMore) {
+      _addressIsLoadingMore = true;
+      _addressCurrentPage++;
+    } else {
+      _addressCurrentPage = 1;
+      _addressIsLastPage = false;
+      if (isLoading) _setFetchAddressUIState(UIState.loading());
     }
 
-    dynamic result = await _repo.fetchAddress(
-      userId: userId ?? '',
-      search: search,
-      currentPage: state.currentPage,
-    );
-    if (result is Success<PaginatedAddressList>) {
-      final fetchedAddressData = result.value;
-      final oldObject = state.addressState?.data;
-
-      List<CustomerAddress> newModifiedList = [
-        ...oldObject?.addresses ?? [],
-        ...fetchedAddressData.addresses,
-      ];
-
-      PaginatedAddressList modifiedData;
-      if (oldObject != null) {
-        modifiedData = oldObject.copyWith(addresses: newModifiedList);
-      } else {
-        modifiedData = fetchedAddressData;
-      }
-
-      _setFetchAddressUIState(
-        UIState.success(modifiedData),
-        (state.currentPage ?? 0) + 1,
+    try {
+      userId = await _repo.getUserId();
+      final result = await _repo.fetchAddress(
+        userId: userId ?? '',
+        search: search,
+        currentPage: _addressCurrentPage,
       );
-    }
-    if (result is Error) {
-      _setFetchAddressUIState(
-        UIState.error(result.type),
-        state.currentPage ?? 0,
-      );
+
+      if (result is Success<PaginatedAddressList>) {
+        final newList = result.value.addresses;
+
+        if (loadMore) {
+          final existing = state.addressState?.data?.addresses ?? [];
+          final combined = [...existing, ...newList];
+          _setFetchAddressUIState(
+            UIState.success(result.value.copyWith(addresses: combined)),
+          );
+        } else {
+          _setFetchAddressUIState(UIState.success(result.value));
+        }
+        _addressIsLastPage = (state.addressState?.data?.addresses.length ?? 0) >= result.value.total;
+      } else if (result is Error<PaginatedAddressList>) {
+        _setFetchAddressUIState(UIState.error(result.type));
+      }
+    } finally {
+      _addressIsLoadingMore = false;
     }
   }
+
 
   // Fetch address from api call
   void _setPrimaryAddressUIState(UIState<SetPrimaryAddressResponse>? uiState) {
     emit(state.copyWith(primaryAddressState: uiState));
   }
 
-  Future<void> setPrimaryAddress({required String addressId}) async {
-    dynamic result = await _repo.setPrimaryAddress(addressId: addressId);
+  Future<void> setPrimaryAddress({required String addressId,required bool isPrimary}) async {
+    dynamic result = await _repo.setPrimaryAddress(addressId: addressId,isPrimary: isPrimary);
     if (result is Success<SetPrimaryAddressResponse>) {
       _setPrimaryAddressUIState(UIState.success(result.value));
     }
@@ -324,7 +333,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Success) {
       fetchAddress(isLoading: false);
     } else if (result is Error) {
-      _setFetchAddressUIState(UIState.error(result.type), 0);
+      _setFetchAddressUIState(UIState.error(result.type),);
     }
     return result;
   }
@@ -506,7 +515,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     return result;
   }
 
-  //   // Update vehicle status from api call
+  //Update vehicle status from api call
   void _setUpdateVehicleStatusUIState(
     UIState<VehcileUpdatedStatusModel>? uiState,
   ) {
@@ -656,7 +665,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     if (result is Success) {
       fetchCustomerSettings();
     } else if (result is Error) {
-      _setFetchAddressUIState(UIState.error(result.type), 0);
+      _setFetchAddressUIState(UIState.error(result.type));
     }
     return result;
   }
@@ -770,6 +779,27 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     }
     if (result is Error) {
       _setFetchBloodGroupUIState(UIState.error(result.type));
+    }
+  }
+  
+  /// Fetch Issue category Group from api call
+  void _setFetchIssueCategoryGroupUIState(
+    UIState<List<IssueCategoryResponse>>? uiState,
+  ) {
+    print("data emitted from cubit ${uiState?.data?.length}");
+    emit(state.copyWith(issueCategoryResponseUIState: uiState));
+  }
+
+  Future<void> fetchIssueCategoryGroup({bool isLoading = true, String? search}) async {
+    if (isLoading) _setFetchIssueCategoryGroupUIState(UIState.loading());
+    userId = await _repo.getUserId();
+
+    dynamic result = await _repo.fetchIssueCategoryGroups();
+    if (result is Success<List<IssueCategoryResponse>>) {
+      _setFetchIssueCategoryGroupUIState(UIState.success(result.value));
+    }
+    if (result is Error) {
+      _setFetchIssueCategoryGroupUIState(UIState.error(result.type));
     }
   }
 
@@ -985,6 +1015,7 @@ class ProfileCubit extends BaseCubit<ProfileState> {
     emit(
       state.copyWith(
         logoutUIState: resetUIState<LogOutModel>(state.logoutUIState),
+        deleteAccountUIState: resetUIState(state.deleteAccountUIState),
         profileDetailUIState: resetUIState<ProfileDetailModel>(
           state.profileDetailUIState,
         ),

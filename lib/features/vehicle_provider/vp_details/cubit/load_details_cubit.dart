@@ -521,10 +521,11 @@ class LoadDetailsCubit extends BaseCubit<LoadDetailsState> {
         documentId: documentId,
       ).then((result) {
         if (result is Success<ViewDocumentResponse>) {
-
           downloadAndOpenFile(result.value.filePath ?? "",
               originalFileName: result.value.originalFilename);
 
+
+          print("this is here success");
           uploadLoadingStatus(index, null);
         }
         if (result is Error) {

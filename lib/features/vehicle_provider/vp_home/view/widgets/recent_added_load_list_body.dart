@@ -217,7 +217,7 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
                           commonBottomSheetWithBGBlur(
                             context: context,
                             screen: KycPendingDialogue(
-                              hideButton:widget.kycStatus==2 ,
+                              hideButton:widget.kycStatus==2  ,
                               onPressed: () async {
                                 context.pop();
                                 bool isAadharVerified=await securePrefs.getBooleans(AppString.sessionKey.aadharVerified);
@@ -269,7 +269,10 @@ class _RecentAddedLoadListBodyState extends State<RecentAddedLoadListBody> {
           colorFilter: AppColors.svg(AppColors.black),
         ),
         10.width,
-        Text(text, style: AppTextStyle.body),
+        Text(text, style: AppTextStyle.body,
+        maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ).expand(),
       ],
     );
   }

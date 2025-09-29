@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
@@ -15,7 +16,6 @@ import '../../gps_feature/views/gps_order/gps_order_detail_screen.dart';
 import '../../kavach/helper/kavach_helper.dart';
 import '../../login/repository/user_information_repository.dart';
 
-
 class GpsOrderListTabWidget extends StatefulWidget {
   const GpsOrderListTabWidget({super.key});
 
@@ -27,6 +27,7 @@ class _GpsOrderListTabWidgetState extends State<GpsOrderListTabWidget> {
   String? customerId;
   final TextEditingController _searchController = TextEditingController();
   String _searchText = "";
+  final List<GpsOrderItem> allOrders = [];
 
   @override
   void initState() {
@@ -50,8 +51,10 @@ class _GpsOrderListTabWidgetState extends State<GpsOrderListTabWidget> {
     }
 
     return BlocProvider(
-      create: (_) => GpsOrderListCubit(locator<GpsOrderApiRepository>())
-        ..getOrderList(customerId: customerId!),
+      create:
+          (_) =>
+              GpsOrderListCubit(locator<GpsOrderApiRepository>())
+                ..getOrderList(customerId: customerId!),
       child: Column(
         children: [
           _buildSearchBar(context),
@@ -65,10 +68,13 @@ class _GpsOrderListTabWidgetState extends State<GpsOrderListTabWidget> {
                     return Center(child: Text(context.appText.noOrdersFound));
                   }
 
-                  final filtered = state.orderList.data.rows.where((o) {
-                    return o.orderUniqueId.toLowerCase().contains(_searchText) ||
-                        o.productNames.toLowerCase().contains(_searchText);
-                  }).toList();
+                  final filtered =
+                      state.orderList.data.rows.where((o) {
+                        return o.orderUniqueId.toLowerCase().contains(
+                              _searchText,
+                            ) ||
+                            o.productNames.toLowerCase().contains(_searchText);
+                      }).toList();
 
                   return ListView.separated(
                     separatorBuilder: (context, index) => 10.height,
@@ -135,7 +141,11 @@ class _GpsOrderListTabWidgetState extends State<GpsOrderListTabWidget> {
                               children: [
                                 InkWell(
                                   onTap: () {
-                                    Navigator.of(context).push(commonRoute(GpsOrderDetailScreen(order: order,)));
+                                    Navigator.of(context).push(
+                                      commonRoute(
+                                        GpsOrderDetailScreen(order: order),
+                                      ),
+                                    );
                                   },
                                   child: Text(
                                     context.appText.viewDetails,
@@ -144,7 +154,7 @@ class _GpsOrderListTabWidgetState extends State<GpsOrderListTabWidget> {
                                 ),
                                 15.width,
                                 Text(
-                                  '${context.appText.purchasedOn} ${formatDateTimeKavach(order.orderDate)}',
+                                  '${context.appText.purchasedOn} ${order.orderDate}',
                                   style: AppTextStyle.textGreyColor14w300,
                                   maxLines: 1,
                                 ).expand(),
@@ -175,12 +185,13 @@ class _GpsOrderListTabWidgetState extends State<GpsOrderListTabWidget> {
         decoration: InputDecoration(
           hintText: context.appText.search,
           prefixIcon: const Icon(Icons.search),
-          suffixIcon: _searchText.isNotEmpty
-              ? IconButton(
-            icon: const Icon(Icons.clear),
-            onPressed: () => _searchController.clear(),
-          )
-              : null,
+          suffixIcon:
+              _searchText.isNotEmpty
+                  ? IconButton(
+                    icon: const Icon(Icons.clear),
+                    onPressed: () => _searchController.clear(),
+                  )
+                  : null,
           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         ),
       ),

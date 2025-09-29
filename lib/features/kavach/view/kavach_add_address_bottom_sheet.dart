@@ -36,6 +36,8 @@ enum AddressFeature { kavach, gps }
 class KavachAddAddressBottomSheet extends StatefulWidget {
   final int addrType;
   final String title;
+  final String shippingAddressUniqueId;
+  final String billingAddressUniqueId;
   final AddressFeature feature;
   final VoidCallback? onAddressAdded; // Callback for GPS feature
 
@@ -43,6 +45,8 @@ class KavachAddAddressBottomSheet extends StatefulWidget {
     super.key,
     required this.addrType,
     required this.title,
+    required this.billingAddressUniqueId,
+    required this.shippingAddressUniqueId,
     this.feature = AddressFeature.kavach,
     this.onAddressAdded,
   });
@@ -187,13 +191,34 @@ class _KavachAddAddressBottomSheetState
                         if (!context.mounted) return;
 
                         // ✅ Always refresh both lists
-                        context.read<KavachCheckoutBillingAddressBloc>().add(
-                          FetchKavachBillingAddresses(),
-                        );
-                        context.read<KavachCheckoutShippingAddressBloc>().add(
-                          FetchKavachShippingAddresses(),
-                        );
-
+                        //if check which needs to update first
+                        if (widget.billingAddressUniqueId.isNotEmpty) {
+                          debugPrint('checkss eehh 2');
+                          context.read<KavachCheckoutBillingAddressBloc>().add(
+                            FetchKavachBillingAddresses(
+                              billingUniqueId: widget.billingAddressUniqueId,
+                              shippingUniqueId: widget.shippingAddressUniqueId,
+                            ),
+                          );
+                          context.read<KavachCheckoutShippingAddressBloc>().add(
+                            FetchKavachShippingAddresses(
+                              billingAddressUniqueId:
+                                  widget.billingAddressUniqueId,
+                              shippingAddressUniqueId:
+                                  widget.shippingAddressUniqueId,
+                            ),
+                          );
+                        } else {
+                          debugPrint('checkss eehh 1');
+                          context.read<KavachCheckoutShippingAddressBloc>().add(
+                            FetchKavachShippingAddresses(
+                              billingAddressUniqueId:
+                                  widget.billingAddressUniqueId,
+                              shippingAddressUniqueId:
+                                  widget.shippingAddressUniqueId,
+                            ),
+                          );
+                        }
                         // ✅ Auto-select only in the list where the address was added
                         if (widget.addrType == 2) {
                           context.read<KavachCheckoutBillingAddressBloc>().add(

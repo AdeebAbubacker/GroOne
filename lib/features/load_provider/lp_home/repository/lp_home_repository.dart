@@ -15,6 +15,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_event_api_request.dart';
 
 class LpHomeRepository{
   final LpHomeService _lpHomeService;
@@ -59,6 +60,10 @@ class LpHomeRepository{
     }
   }
 
+  /// Get Show Blue
+  Future<String?> getUserId() async {
+    return await _userInformationRepository.getUserID();
+  }
 
   /// Get Truck Type data Repo
   Future<Result<CreateLoadModel>> getCreateLoadData(CreateLoadApiRequest request) async {
@@ -82,9 +87,9 @@ class LpHomeRepository{
 
 
   /// Get Recent Route data Repo
-  Future<Result<RecentRoutesModel>> getRecentRouteData(String search) async {
+  Future<Result<RecentRoutesModel>> getRecentRouteData(String? search, int? currentPage) async {
     try {
-      return await _lpHomeService.fetchRecentRouteData(await _userInformationRepository.getUserID() ?? "", search: search);
+      return await _lpHomeService.fetchRecentRouteData(await _userInformationRepository.getUserID() ?? "", search: search,currentPage: currentPage);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -125,6 +130,23 @@ class LpHomeRepository{
     try {
       String userId = await _userInformationRepository.getUserID() ?? '';
       return await _lpHomeService.setBluIDFlag(userId);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+
+  /// Create Event
+  Future<Result<String?>> createEvent(CreateEventApiRequest request) async {
+    try {
+      return await _lpHomeService.createEvent(request);
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }
+  /// updated App Event
+  Future<Result<String?>> updatedAppEvent({ required String eventId, required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    try {
+      return await _lpHomeService.updatedAppEvent(stage: stage,eventId: eventId,entityId: entityId,context: context);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }

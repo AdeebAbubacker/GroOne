@@ -17,6 +17,10 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/rate_discovery_
 import 'package:gro_one_app/features/load_provider/lp_home/model/recent_routes_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/verify_location.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/api_request/create_event_api_request.dart';
+import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/utils/app_string.dart';
+import 'package:gro_one_app/dependency_injection/locator.dart';
 
 
 class LPHomeCubit extends BaseCubit<LPHomeState> {
@@ -24,7 +28,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   LPHomeCubit(this._repo) : super(LPHomeState());
 
   Timer? _matchTimer;
-
+  final securePrefs = locator<SecuredSharedPreferences>();
   @override
   Future<void> close() {
     _matchTimer?.cancel();
@@ -118,19 +122,72 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
 
 
   // Fetch Recent Route
-  void _setRecentUIState(UIState<RecentRoutesModel>? uiState){
-    emit(state.copyWith(recentRouteState: uiState));
+  void _setRecentUIState(UIState<RecentRoutesModel>? uiState, int page) {
+    emit(
+      state.copyWith(
+        recentRouteState: uiState,
+        recentPage: page,
+      ),
+    );
   }
-  Future<void> fetchRecentRoute({bool isLoading = true,String search = ''}) async {
-   if(isLoading)  _setRecentUIState(UIState.loading());
-    dynamic result = await _repo.getRecentRouteData(search);
+
+  Future<void> fetchRecentRoute({
+    bool isLoading = true,
+    String? search,
+    bool isInit = true,
+  }) async {
+    if (state.isFetchingRecent) return;
+
+    emit(state.copyWith(isFetchingRecent: true));
+
+    final isSearching = search != null && search.trim().isNotEmpty;
+
+    // Reset UI when search changes or initial load
+    if (isSearching || isInit || isLoading) {
+      if (isLoading) _setRecentUIState(UIState.loading(), 1);
+    }
+
+    // Determine current page
+    final currentPage = isSearching ? 1 : (state.recentPage ?? 1);
+
+    // Old data only for non-search
+    final oldData = (!isSearching) ? state.recentRouteState?.data?.data.data ?? [] : [];
+    final totalRecords = (!isSearching) ? state.recentRouteState?.data?.data.total ?? 0 : 0;
+
+    // Stop pagination if all data loaded (only for non-search)
+    if (!isSearching && oldData.length >= totalRecords && totalRecords > 0) {
+      emit(state.copyWith(isFetchingRecent: false));
+      return;
+    }
+
+    // Fetch data from repository
+    final result = await _repo.getRecentRouteData(search, currentPage);
+
     if (result is Success<RecentRoutesModel>) {
-      _setRecentUIState(UIState.success(result.value));
+      final fetchedData = result.value;
+
+      // Merge old + new data for non-search
+      final List<RecentRouteData> mergedList = [
+        ...oldData,
+        ...fetchedData.data.data,
+      ];
+
+      final modifiedData = RecentRoutesModel(
+        message: fetchedData.message,
+        data: fetchedData.data.copyWith(data: mergedList),
+      );
+
+      _setRecentUIState(
+        UIState.success(modifiedData),
+        currentPage + 1,
+      );
+    } else if (result is Error<RecentRoutesModel>) {
+      _setRecentUIState(UIState.error(result.type), currentPage);
     }
-    if (result is Error) {
-      _setRecentUIState(UIState.error(result.type));
-    }
+
+    emit(state.copyWith(isFetchingRecent: false));
   }
+
 
 
   // Fetch Auto Complete Api Call
@@ -238,7 +295,7 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
   // Reset Complete UI State
   void resetState(){
     emit(state.copyWith(
-      recentRouteState: resetUIState<RecentRoutesModel>(state.recentRouteUIState),
+      recentRouteState: resetUIState<RecentRoutesModel>(state.recentRouteState),
       autoCompleteUIState: resetUIState<AutoCompleteModel>(state.autoCompleteUIState),
       verifyLocationUIState: resetUIState<VerifyLocationModel>(state.verifyLocationUIState),
       loadWeightUIState: resetUIState<List<LoadWeightModel>>(state.loadWeightUIState),
@@ -246,6 +303,39 @@ class LPHomeCubit extends BaseCubit<LPHomeState> {
       truckTypeState: resetUIState<LoadTruckTypeListModel>(state.truckTypeUIState),
       profileDetailUIState: resetUIState<ProfileDetailModel>(state.profileDetailUIState),
     ));
+  }
+
+  /// Create Event
+  Future<void> createEvent(CreateEventApiRequest request) async {
+    dynamic result = await _repo.createEvent(request);
+    // No need to emit state for this API as it's just for tracking
+    if (result is Success<String?>) {
+      await securePrefs.deleteKey(AppString.sessionKey.eventId);
+      final eventId = result.value;
+      if (eventId != null && eventId.isNotEmpty) {
+        // Store event_id in SharedPreferences
+        try {
+          await securePrefs.saveKey(AppString.sessionKey.eventId, eventId);
+        } catch (e) {
+          // Log error but don't show to user as it's not critical
+        }
+      }
+    }
+    if (result is Error) {
+      // Log error but don't show to user as it's not critical
+    }
+  }
+
+  /// update Event
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
+    final eventId = await securePrefs.get(AppString.sessionKey.eventId);
+    dynamic result = await _repo.updatedAppEvent(stage: stage,eventId: eventId ??'',entityId: entityId,context: context);
+    // No need to emit state for this API as it's just for tracking
+    if (result is Success<String?>) {
+    }
+    if (result is Error) {
+      // Log error but don't show to user as it's not critical
+    }
   }
 
 

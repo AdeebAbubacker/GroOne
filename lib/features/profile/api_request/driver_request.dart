@@ -10,6 +10,9 @@ class DriverRequest {
     this.licenseCategory,
     this.licenseDocLink,
     this.bloodGroup,
+    this.specialLicense,
+    this.experience,
+    this.communicationPreference,
     required this.driverStatus,
   });
 
@@ -24,6 +27,9 @@ class DriverRequest {
   final int? licenseCategory; 
   final int? bloodGroup; 
   final int driverStatus;
+  final int? specialLicense; 
+  final String? communicationPreference; 
+  final String? experience;
 
   DriverRequest copyWith({
     String? customerId,
@@ -37,6 +43,9 @@ class DriverRequest {
     int? licenseCategory,
     int? bloodGroup,
     int? driverStatus,
+    int? specialLicense,
+    String? communicationPreference,
+    String? experience
   }) {
     return DriverRequest(
       customerId: customerId ?? this.customerId,
@@ -50,6 +59,9 @@ class DriverRequest {
       bloodGroup: bloodGroup ?? this.bloodGroup,
       driverStatus: driverStatus ?? this.driverStatus,
       licenseDocLink : licenseDocLink ?? this.licenseDocLink,
+      specialLicense : specialLicense ?? this.specialLicense,
+      experience : experience ?? this.experience,
+      communicationPreference: communicationPreference ?? this.communicationPreference,
     );
   }
 
@@ -65,6 +77,9 @@ class DriverRequest {
       bloodGroup: json["bloodGroup"], 
       licenseCategory: json["licenseCategory"],
       licenseDocLink: json["licenseDocLink"],
+      communicationPreference: json["communicationPreference"],
+      specialLicense: json["specialLicense"],
+      experience: json["experience"],
       driverStatus: json["driverStatus"] ?? 1,
     );
   }
@@ -84,6 +99,9 @@ class DriverRequest {
     if (dateOfBirth.isNotEmpty) data["dateOfBirth"] = dateOfBirth;
     if (licenseCategory != null) data["licenseCategory"] = licenseCategory;
     if (bloodGroup != null) data["bloodGroup"] = bloodGroup;
+    if (specialLicense != null) data["specialLicense"] = specialLicense;
+    if (experience != null) data["experience"] = experience;
+    if (communicationPreference != null) data["communicationPreference"] = communicationPreference;
 
     data["driverStatus"] = driverStatus;
 

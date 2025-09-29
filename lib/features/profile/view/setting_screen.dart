@@ -139,7 +139,9 @@ class _LpSettingState extends State<LpSetting> {
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        headingText(section),
+                        Visibility(
+                          visible:section!="Notification",
+                            child: headingText(section)),
                         ...settings.map((setting) {
                           final key = setting.key;
                           final value = CustomerSettingsMapper.getValue(
@@ -152,22 +154,27 @@ class _LpSettingState extends State<LpSetting> {
                             if (setting.key == 'offers_promotions') {
                               return const SizedBox.shrink();
                             }
-                            return toggleRow(setting.label, value == 'true', (
-                              bool newVal,
-                            ) {
-                              final request =
-                                  CustomerSettingsMapper.buildRequest(
-                                    key,
-                                    newVal.toString(),
-                                  );
+                            return Visibility(
+                              visible: setting.section!="Notification",
+                              child: toggleRow(setting.label, value == 'true', (
+                                bool newVal,
+                              ) {
+                                final request =
+                                    CustomerSettingsMapper.buildRequest(
+                                      key,
+                                      newVal.toString(),
+                                    );
 
-                              if (request != null) {
-                                profileCubit.updateCustomerSettings(
-                                  request: request,
-                                );
-                              }
-                            });
-                          } else if (setting.type == 'radio') {
+                                if (request != null) {
+                                  profileCubit.updateCustomerSettings(
+                                    request: request,
+                                  );
+                                }
+                              }),
+                            );
+                          }
+
+                           if (setting.type == 'radio') {
                             final options = setting.options.split(',');
                             return Padding(
                               padding: const EdgeInsets.symmetric(vertical: 15),
@@ -205,21 +212,31 @@ class _LpSettingState extends State<LpSetting> {
                                 /// Delete Account not from api - appending from ui (Todo from api list)
                                 if (setting.key == 'privacy_policy')
                                   BlocConsumer<ProfileCubit, ProfileState>(
-                                    listener: (context, state) {
+                                    listener: (context, state) async{
                                       final status =
                                           state.deleteAccountUIState?.status;
-
-                                      if (status == Status.SUCCESS) {
-                                        LpBottomNavigation
-                                            .selectedIndexNotifier
-                                            .value = 0;
-                                        disposeFunction();
-                                        context.go(
-                                        AppRouteName.login,
-                                        extra: {"showBackButton": false},
-                                      );
-                                      }
-
+                                        if (status == Status.SUCCESS) {
+                                          // Show toast first
+                                          ToastMessages.success(
+                                            message: context.appText.accountDeletedSuccessfully,
+                                            duration: Duration(milliseconds: 1000)
+                                            
+                                          );
+                                          profileCubit.resetState();
+                                          // Delay navigation so user can see toast
+                                          Future.delayed(const Duration(milliseconds: 1200), () {
+                                            if (!mounted) return; 
+                                            disposeFunction();
+                                            // LpBottomNavigation.selectedIndexNotifier.value = 0;
+                                            lpBottomNavKey.currentState?.onItemTapped(0);
+                                            if(!context.mounted) return;
+                                            // Navigate to login screen
+                                            context.go(
+                                              AppRouteName.login,
+                                              extra: {"showBackButton": false},
+                                            );
+                                          });
+                                        }
                                       if (status == Status.ERROR) {
                                         final error =
                                             state
@@ -252,7 +269,10 @@ class _LpSettingState extends State<LpSetting> {
                             return const SizedBox();
                           }
                         }),
-                        dividerWidget(),
+
+                        Visibility(
+                          visible:section!="Notification",
+                          child: dividerWidget(),),
                         10.height,
                       ],
                     );
@@ -319,7 +339,7 @@ class _LpSettingState extends State<LpSetting> {
     double iconSize = 20,
     Color? iconColor,
   }) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
       child: Row(
         children: [

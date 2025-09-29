@@ -11,7 +11,7 @@ part 'driver_profile_state.dart';
 
 class DriverProfileCubit extends BaseCubit<DriverProfileState> {
   final DriverProfileRepository _repo;
-  DriverProfileCubit(this._repo): super(DriverProfileState());
+  DriverProfileCubit(this._repo) : super(DriverProfileState());
 
   // Get User Id
   String? userId;
@@ -21,14 +21,17 @@ class DriverProfileCubit extends BaseCubit<DriverProfileState> {
     return userId;
   }
 
-
   // Fetch Profile Detail Api Call
-  void _setProfileDetailUIState(UIState<DriverProfileDetailsModel>? uiState){
+  void _setProfileDetailUIState(UIState<DriverProfileDetailsModel>? uiState) {
     emit(state.copyWith(profileDetailUIState: uiState));
   }
+
   Future<void> fetchProfileDetail({Object? instance}) async {
     userId = await _repo.getUserId();
-    CustomLog.debug(instance ?? this, "Profile Detail Api Call : UserId $userId");
+    CustomLog.debug(
+      instance ?? this,
+      "Profile Detail Api Call : UserId $userId",
+    );
     if (userId == null) {
       return;
     }
@@ -41,7 +44,6 @@ class DriverProfileCubit extends BaseCubit<DriverProfileState> {
       _setProfileDetailUIState(UIState.error(result.type));
     }
   }
-  
 
   /// Set Delete Account UI State
   void _setDeleteAccountUIState(UIState<DeleteAccountModel>? uiState) {
@@ -64,10 +66,11 @@ class DriverProfileCubit extends BaseCubit<DriverProfileState> {
     }
   }
 
-   // Logout Api Call
-  void _setLogoutUIState(UIState<DriverlogoutModel>? uiState){
+  // Logout Api Call
+  void _setLogoutUIState(UIState<DriverlogoutModel>? uiState) {
     emit(state.copyWith(logoutUIState: uiState));
   }
+
   Future<void> logout() async {
     _setLogoutUIState(UIState.loading());
     dynamic result = await _repo.getLogOutData();
@@ -79,8 +82,8 @@ class DriverProfileCubit extends BaseCubit<DriverProfileState> {
       _setLogoutUIState(UIState.error(result.type));
     }
   }
- 
- void resetLogoutUIState() {
+
+  void resetLogoutUIState() {
     emit(
       state.copyWith(
         logoutUIState: resetUIState<DriverlogoutModel>(state.logoutUIState),
@@ -88,4 +91,12 @@ class DriverProfileCubit extends BaseCubit<DriverProfileState> {
     );
   }
 
+  void restState() {
+    emit(
+      state.copyWith(
+        logoutUIState: resetUIState(state.logoutUIState),
+        deleteAccountUIState: resetUIState(state.deleteAccountUIState),
+      ),
+    );
+  }
 }

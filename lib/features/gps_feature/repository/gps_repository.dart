@@ -1,10 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+
 import '../../../data/model/result.dart';
 import '../../../utils/custom_log.dart';
-import '../../load_provider/lp_home/api_request/verify_location_api_request.dart';
 import '../../load_provider/lp_home/model/auto_complete_model.dart';
-import '../../load_provider/lp_home/model/verify_location.dart';
 import '../model/gps_user_config_model.dart';
 import '../models/gps_geofence_model.dart';
 import '../models/gps_notification_model.dart';
@@ -16,7 +14,6 @@ class GpsRepository {
   final GpsService _service;
   final GpsLoginRepository _loginRepository;
   int? _cachedUserId;
-
 
   GpsRepository(this._service, this._loginRepository);
 
@@ -30,8 +27,6 @@ class GpsRepository {
       final config = await _loginRepository.getStoredUserConfig();
       if (config?.data == null) return null;
 
-      for (var user in config!.data!) {
-      }
       final matchedData = config!.data!.firstWhere(
         (element) => element.userId == userId,
         orElse: () => GpsUserConfigData(), // Empty instance if not found
@@ -58,7 +53,6 @@ class GpsRepository {
 
     return null;
   }
-
 
   Future<Result<List<GpsGeofenceModel>>> fetchGeofences() async {
     try {
@@ -130,13 +124,15 @@ class GpsRepository {
     }
   }
 
-
   Future<Result<List<GpsNotificationModel>>> fetchNotifications() async {
     try {
       final token = await _getToken();
       final userId = await _getUserId();
       if (token == null || userId == null) return Error(GenericError());
-      return await _service.fetchNotifications(token: token, userId: userId.toString());
+      return await _service.fetchNotifications(
+        token: token,
+        userId: userId.toString(),
+      );
     } catch (e) {
       CustomLog.error(this, "Failed to fetch notifications in repository", e);
       return Error(ErrorWithMessage(message: e.toString()));
@@ -145,29 +141,44 @@ class GpsRepository {
 
   Future<Result<List<GpsParkingModeModel>>> fetchParkingModes() async {
     try {
-      final token = await _getToken();
-      if (token == null) return Error(GenericError());
-      return await _service.fetchParkingModeList(token);
+      // Get GPS token from secure storage (not regular access token)
+      final gpsToken = await _loginRepository.getStoredGpsToken();
+      if (gpsToken == null) {
+        CustomLog.error(this, "No GPS token found for parking mode API", null);
+        return Error(
+          UnauthenticatedError(message: "GPS authentication required"),
+        );
+      }
+      return await _service.fetchParkingModeList(gpsToken);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch parking modes", e);
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
 
-
   Future<Result<GpsParkingModeModel>> updateParkingMode({
     required int? id,
     required int deviceId,
     required bool parkingMode,
   }) async {
-    final token = await _getToken();
-    if (token == null) return Error(GenericError());
+    // Get GPS token from secure storage (not regular access token)
+    final gpsToken = await _loginRepository.getStoredGpsToken();
+    if (gpsToken == null) {
+      CustomLog.error(
+        this,
+        "No GPS token found for parking mode update API",
+        null,
+      );
+      return Error(
+        UnauthenticatedError(message: "GPS authentication required"),
+      );
+    }
 
     return await _service.updateParkingMode(
       id: id,
       deviceId: deviceId,
       parkingMode: parkingMode,
-      token: token,
+      token: gpsToken,
     );
   }
 
@@ -179,8 +190,18 @@ class GpsRepository {
     required String parkingScheduleEndUtc,
     required List<String> parkingScheduleDays,
   }) async {
-    final token = await _getToken();
-    if (token == null) return Error(GenericError());
+    // Get GPS token from secure storage (not regular access token)
+    final gpsToken = await _loginRepository.getStoredGpsToken();
+    if (gpsToken == null) {
+      CustomLog.error(
+        this,
+        "No GPS token found for parking mode schedule API",
+        null,
+      );
+      return Error(
+        UnauthenticatedError(message: "GPS authentication required"),
+      );
+    }
 
     return await _service.updateParkingModeSchedule(
       id: id,
@@ -189,7 +210,7 @@ class GpsRepository {
       parkingScheduleStartUtc: parkingScheduleStartUtc,
       parkingScheduleEndUtc: parkingScheduleEndUtc,
       parkingScheduleDays: parkingScheduleDays,
-      token: token,
+      token: gpsToken,
     );
   }
 
@@ -232,5 +253,4 @@ class GpsRepository {
   Future<Result<LatLng>> fetchLatLngFromPlaceId(String placeId) async {
     return await _service.fetchLatLngFromPlaceId(placeId);
   }
-
 }

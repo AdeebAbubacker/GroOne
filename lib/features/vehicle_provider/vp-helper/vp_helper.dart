@@ -52,7 +52,7 @@ class VpHelper {
       final hex = colorString.replaceFirst('#', '');
       final fullHex = hex.length == 6 ? 'FF$hex' : hex;
       return Color(int.parse(fullHex, radix: 16));
-    } else if (colorString.startsWith('rgba')) {
+    } else if (colorString.startsWith('rgb')) {
       final regex = RegExp(r'rgba?\((\d+),\s*(\d+),\s*(\d+),?\s*([.\d]*)\)');
       final match = regex.firstMatch(colorString);
       if (match != null) {
@@ -127,6 +127,8 @@ String getSwipeButtonTitle(
 }
 
 Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
+  print("starting downloading");
+
   try {
     final directory = Platform.isAndroid
         ? await getExternalStorageDirectory()
@@ -137,6 +139,10 @@ Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
     } else {
       final uri = Uri.parse(url);
       final lastSegment = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : "downloaded_file.pdf";
+
+
+      print("lastSegment is ${lastSegment}");
+
       fileName = lastSegment.contains(".") ? lastSegment : "$lastSegment.pdf";
     }
 
@@ -146,9 +152,14 @@ Future<void> downloadAndOpenFile(String url, {String? originalFileName}) async {
     await dio.download(url, filePath);
 
     debugPrint("Saved file path: $filePath");
+    if(filePath.split(".").last=="pdf"){
+      final result = await OpenFilex.open(filePath, type: "application/pdf",);
+    }else{
+      final result = await OpenFilex.open(filePath);
+    }
 
-    final result = await OpenFilex.open(filePath, type: "application/pdf",);
-    debugPrint("OpenFilex result: ${result.message}");
+
+
   } catch (e) {
     debugPrint("Error downloading/opening file: $e");
   }

@@ -19,6 +19,7 @@ import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
@@ -29,8 +30,9 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class VpLoadDetailsScreen extends StatefulWidget {
   final String? loadId;
   final num? companyTypeId;
+  final String? loadSeriesID;
 
-  const VpLoadDetailsScreen({super.key, required this.loadId,this.companyTypeId});
+  const VpLoadDetailsScreen({super.key, required this.loadId,this.companyTypeId,this.loadSeriesID});
 
   @override
   State<VpLoadDetailsScreen> createState() => _VpLoadDetailsScreenState();
@@ -131,6 +133,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
           }
           ),
       ),
+      floatingActionButton: ChatActionButton(),
     );
   }
 
@@ -185,7 +188,7 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
           children: [
             Container(decoration: BoxDecoration(shape: BoxShape.circle, color: isTrackingAllowed ? AppColors.activeDarkGreenColor : AppColors.red), height: 12, width: 12),
             10.width,
-            Text(context.appText.sim, style: AppTextStyle.h5 )
+            Text(context.appText.sim, style: AppTextStyle.h5, )
           ],
         ).paddingAll(8),
       ),
@@ -202,28 +205,33 @@ class _VpLoadDetailsScreenState extends State<VpLoadDetailsScreen> {
           child: Column(
             children: [
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   GestureDetector(onTap: () {
                     Navigator.pop(context);
                   },child: Icon(Icons.arrow_back)),
                   8.width,
-                  Text(
-                    "${loadDetails?.loadSeriesId}",
-                    style: TextStyle(color: AppColors.textBlackDetailColor),
+                  Expanded(
+                    child: Text(
+                      "${loadDetails?.loadSeriesId}",
+                      style: TextStyle(color: AppColors.textBlackDetailColor),
+                    ),
                   ),
-                  Spacer(),
+                 
 
                   Text(
                     DateTimeHelper.formatCustomDate(
                       loadDetails?.createdAt ?? DateTime.now(),
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  
                     style: TextStyle(
                       fontSize: 10,
                       color: AppColors.primaryColor,
                     ),
-                  ),
+                  ).align(Alignment.centerRight).expand(),
                 ],
               ),
               12.height,

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
 import 'package:gro_one_app/features/kavach/model/kavach_vehicle_document_upload_model.dart';
@@ -29,6 +30,7 @@ import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
+import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -125,9 +127,9 @@ class ProfileRepository {
   }
 
   /// set primary address
-  Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({required String addressId}) async {
+  Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({required String addressId,required bool isPrimary}) async {
     try {
-      return await _profileService.setPrimaryAddress(addressId: addressId);
+      return await _profileService.setPrimaryAddress(addressId: addressId,isPrimary : isPrimary);
     } catch (e) {
       return Error(ErrorWithMessage(message: e.toString()));
     }
@@ -172,7 +174,7 @@ class ProfileRepository {
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
- 
+  
 
 
 
@@ -461,20 +463,27 @@ Future<Result<bool>> deleteVehicle({
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }
-
-
-    Future<Result<Map<String, dynamic>>> fetchVehicleData(String vehicleNumber) async {
+/// fetch issue cat grouups
+ Future<Result<List<IssueCategoryResponse>>> fetchIssueCategoryGroups() async {
     try {
-      return await _profileService.fetchVehicleData(vehicleNumber);
+      return await _profileService.fetchIssueGroups();
+    } catch (e) {
+      return Error(ErrorWithMessage(message: e.toString()));
+    }
+  }  
+
+    Future<Result<Map<String, dynamic>>> fetchVehicleData(BuildContext context, String vehicleNumber) async {
+    try {
+      return await _profileService.fetchVehicleData(context, vehicleNumber);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch vehicle data in repository", e);
       return Error(GenericError());
     }
   }
 
-     Future<Result<Map<String, dynamic>>> fetchLicenseData({required LicenseVahanRequest  licensereq}) async {
+     Future<Result<Map<String, dynamic>>> fetchLicenseData({required BuildContext context, required LicenseVahanRequest  licensereq}) async {
     try {
-      return await _profileService.fetchLicenseExcistence(request: licensereq);
+      return await _profileService.fetchLicenseExcistence(context: context, request: licensereq);
     } catch (e) {
       CustomLog.error(this, "Failed to fetch vehicle data in repository", e);
       return Error(GenericError());

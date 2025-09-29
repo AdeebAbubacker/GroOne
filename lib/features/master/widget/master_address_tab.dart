@@ -47,6 +47,7 @@ class BuildAddressTab extends StatefulWidget {
 class _BuildAddressTabState extends State<BuildAddressTab> {
   List<String> selectedCommodities = [];
   final profileCubit = locator<ProfileCubit>();
+  final kycCubit = locator<KycCubit>();
   final vehicleSearchController = TextEditingController();
   final addressSearchController = TextEditingController();
   final driverSearchController = TextEditingController();
@@ -83,12 +84,16 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
           searchController: addressSearchController,
           onChanged: (query) {
             addressSearchDebounce?.cancel();
-            addressSearchDebounce = Timer(
-              const Duration(milliseconds: 300),
-              () {
-                profileCubit.fetchAddress(isLoading: false, search: query);
-              },
-            );
+            // addressSearchDebounce = Timer(
+            //   const Duration(milliseconds: 300),
+            //   () async{
+            //     print("searching for $query");
+            //  await profileCubit.fetchAddress(isLoading: false, search: query);
+            //   },
+            // );
+             addressSearchDebounce = Timer(const Duration(milliseconds: 300), () {
+              profileCubit.fetchAddress(isLoading: false, search: query);
+            });
           },
           onClear: () {
             setState(() {
@@ -116,12 +121,13 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     physics: const AlwaysScrollableScrollPhysics(),
                     children: [
                       SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.5,
+                        height: MediaQuery.of(context).size.height * 0.7,
                         child: Column(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             genericErrorWidget(error: uiState.errorType),
                           ],
-                        ),
+                        ).center(),
                       ),
                     ],
                   ),
@@ -145,7 +151,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                             children: [
                               SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.5,
+                                    MediaQuery.of(context).size.height * 0.6,
                                 child: Center(
                                   child: Column(
                                     mainAxisAlignment: MainAxisAlignment.center,
@@ -194,8 +200,7 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                     if (scrollInfo.metrics.pixels ==
                         scrollInfo.metrics.maxScrollExtent) {
                       profileCubit.fetchAddress(
-                        isLoading: false,
-                        isInit: false,
+                        loadMore: true
                       );
                     }
                     return false;
@@ -219,7 +224,15 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                             () =>
                                 showAddAddressPopup(context, address: address),
                         onDelete:
-                            () => showDeletePopUp(
+                            () {
+                               if (address.isDefault) {
+                            //  Prevent delete if primary
+                              ToastMessages.alert(
+                                message: context.appText.primaryAddressCannotBeDeleted,
+                              );
+                              return;
+                            }
+                              showDeletePopUp(
                               context: context,
                               confirmMessage:
                                   context.appText.areYouSureToDeleteThisAddress,
@@ -229,10 +242,12 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                                   () => profileCubit.deleteAddress(
                                     addressId: address.preferedAddressId,
                                   ),
-                            ),
+                            );
+                            },
                         onSetPrimary: () async {
                           await profileCubit.setPrimaryAddress(
                             addressId: address.preferedAddressId,
+                            isPrimary : !address.isDefault
                           );
 
                           // Check if it succeeded
@@ -274,15 +289,18 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
             onPressed: () => showAddAddressPopup(context),
           ),
         ),
-        20.height,
       ],
     );
   }
 
   /// Add Address Popup
-  void showAddAddressPopup(BuildContext context, {CustomerAddress? address}) {
+  void showAddAddressPopup(BuildContext context, {CustomerAddress? address}) async{
     final formKey = GlobalKey<FormState>();
     final isEdit = address != null;
+    if (isEdit) {
+    await kycCubit.fetchStateList(search: address.state);
+    await kycCubit.fetchCityList(address.state,search: address.city);
+    }
 
     final addressNameController = TextEditingController(
       text: address?.addrName ?? '',
@@ -293,7 +311,8 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
     );
     String? selectedState = address?.state;
     String? selectedCity = address?.city;
-
+    String? selectedStateId = address?.stateId.toString();
+    String? selectedCityId = address?.cityId.toString();
     AppDialog.show(
       context,
       child: StatefulBuilder(
@@ -323,38 +342,112 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
                       context,
                       addressNameController,
                       context.appText.addressName,
-                      alphanumericWithSpaceRegex,
                     ),
                     16.height,
                     _buildTextField(
                       context,
                       addressController,
                       context.appText.address,
-                      alphanumericWithSpaceRegex,
                     ),
                     16.height,
-                    StateDropdown(
-                      selectedStateId: selectedState,
-                      onStateChanged: (value) {
-                        setState(() {
-                          selectedState = value?.name.toString();
-                          selectedStateData = value?.name.toString();
-                          selectedCity = null;
-                        });
+                    FormField<String>(
+                      initialValue: selectedStateId,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return context.appText.stateisRequired;
+                        }
+                        return null;
+                      },
+                      builder: (field) {
+                        if ((field.value == null || field.value!.isEmpty) &&
+                            (selectedStateId != null && selectedStateId!.isNotEmpty)) {
+                          field.didChange(selectedStateId);
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AbsorbPointer(
+                              absorbing: false, 
+                              child: Listener(
+                                onPointerDown: (_) {
+                                  FocusScope.of(context).requestFocus(FocusNode());
+                                },
+                                child: StateDropdown(
+                                  selectedStateId: selectedStateId,
+                                  onStateChanged: (value) {
+                                    setState(() {
+                                      selectedStateId = value?.id.toString();
+                                      selectedState = value?.name.toString();
+                                      selectedCityId = null;
+                                      selectedCity = null;
+                                    });
+                                    field.didChange(value?.id.toString());
+                                  },
+                                ),
+                              ),
+                            ),
+                            if (field.hasError)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4, left: 8),
+                                child: Text(
+                                  field.errorText!,
+                                  style: AppTextStyle.textFieldHintRedColor,
+                                ),
+                              ),
+                          ],
+                        );
                       },
                     ),
                     16.height,
-                    CityDropdown(
-                      selectedState: selectedStateData,
-                      selectedCityId: selectedCity,
-                      isStateSelected:
-                          selectedState != null && selectedState!.isNotEmpty,
-                      onCityChanged: (value) {
-                        setState(() {
-                          selectedCity = value?.city.toString();
-                          print('Selected City: $selectedCity');
-                        });
-                      },
+                    FormField<String>(
+                    initialValue: selectedCityId,  
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                      return context.appText.cityisRequired;
+                      }
+                      return null;
+                    },
+                      builder: (field) {
+                        if ((field.value == null || field.value!.isEmpty) &&
+                        (selectedCityId != null && selectedCityId!.isNotEmpty)) {
+                        field.didChange(selectedCityId);
+                        }
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            AbsorbPointer(
+                              absorbing: false,
+                              child: Listener(
+                              onPointerDown: (_) {
+                                FocusScope.of(context).requestFocus(FocusNode());
+                              },
+                              child: CityDropdown(
+                                selectedState: selectedState,
+                                selectedCityId: selectedCityId,
+                                isStateSelected:
+                                    selectedState != null && selectedState!.isNotEmpty,
+                                onCityChanged: (value) {
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  setState(() {
+                                    selectedCityId = value?.id.toString(); 
+                                    selectedCity = value?.city.toString();
+                                  });
+                                  field.didChange(value?.id.toString());
+                                },
+                              ),
+                              ),
+                            ),
+                            if (field.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 8),
+                              child: Text(
+                                field.errorText!,
+                                style: AppTextStyle.textFieldHintRedColor,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
                     ),
                     16.height,
                     AppTextField(
@@ -374,6 +467,36 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
               ),
             ),
             onClickYesButton: () async {
+            //missing fields
+            final missingFields = <String>[];
+
+            if (addressNameController.text.trim().isEmpty) {
+              missingFields.add(context.appText.addressName);
+            }
+            if (addressController.text.trim().isEmpty) {
+              missingFields.add(context.appText.address);
+            }
+            if (selectedState == null || selectedState!.isEmpty) {
+              missingFields.add(context.appText.state);
+            }
+            if (selectedCity == null || selectedCity!.isEmpty) {
+              missingFields.add(context.appText.city);
+            }
+            if (pinCodeController.text.trim().isEmpty) {
+              missingFields.add(context.appText.pincode);
+            }
+          if (missingFields.length == 5) {
+            ToastMessages.alert(message: context.appText.allFieldsRequired);
+            return;
+          }
+          if (missingFields.isNotEmpty) {
+            for (var field in missingFields) {
+              ToastMessages.alert(message: "$field ${context.appText.isRequired}");
+            }
+            return;
+          }
+
+
               if (formKey.currentState!.validate()) {
                 final existingAddresses =
                     profileCubit.state.addressState?.data?.addresses ?? [];
@@ -469,7 +592,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
     BuildContext context,
     TextEditingController controller,
     String label,
-    RegExp pattern,
   ) {
     return AppTextField(
       mandatoryStar: true,
@@ -477,7 +599,6 @@ class _BuildAddressTabState extends State<BuildAddressTab> {
       controller: controller,
       labelText: label,
       inputFormatters: [
-        FilteringTextInputFormatter.allow(pattern),
         LengthLimitingTextInputFormatter(100),
       ],
     );
@@ -520,6 +641,7 @@ class StateDropdown extends StatelessWidget {
             color: Colors.white,
           ),
           child: SearchableDropdown<StateModelList>.paginated(
+            dialogOffset: 0,
             hintText: Text(
               context.appText.selectState,
               style: AppTextStyle.textFieldHint,
@@ -552,23 +674,21 @@ class StateDropdown extends StatelessWidget {
                       ),
                     )
                     : null,
-
-            // Pagination request
             paginatedRequest: (int page, String? searchKey) async {
-              await stateCubit.fetchStateList(
-                search: searchKey,
-                loadMore: page > 1,
-              );
-              final stateList = stateCubit.state.stateUIState?.data ?? [];
-              return stateList.map((state) {
-                return SearchableDropdownMenuItem<StateModelList>(
-                  value: state,
-                  label: state.name,
-                  child: Text(state.name),
-                );
-              }).toList();
-            },
+            await stateCubit.fetchStateList(search: searchKey, loadMore: page > 1);
 
+            final stateList = stateCubit.state.stateUIState?.data ?? [];
+            if (stateList.isEmpty) return [];
+            final itemsForThisPage = stateList.skip((page - 1) * 10).take(10).toList();
+
+            return itemsForThisPage.map((state) {
+              return SearchableDropdownMenuItem<StateModelList>(
+                value: state,
+                label: state.name,
+                child: Text(state.name),
+              );
+            }).toList();
+           },
             onChanged: (StateModelList? newState) {
               // Pass the ID to parent callback
               onStateChanged(newState);
@@ -599,12 +719,25 @@ class CityDropdown extends StatefulWidget {
     required this.isStateSelected,
     required this.onCityChanged,
   });
-
+  
   @override
   State<CityDropdown> createState() => _CityDropdownState();
 }
 
 class _CityDropdownState extends State<CityDropdown> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Preload city list if state + cityId are already given
+    if (widget.selectedState != null && widget.selectedCityId != null) {
+      Future.microtask(() {
+        context.read<KycCubit>().fetchCityList(
+              widget.selectedState!,
+            );
+      });
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final kycCubit = context.read<KycCubit>();
@@ -632,6 +765,8 @@ class _CityDropdownState extends State<CityDropdown> {
               color: Colors.white,
             ),
             child: SearchableDropdown<CityModelList>.paginated(
+              key: ValueKey(widget.selectedCityId),
+              dialogOffset: 0,
               hintText: Text(
                 context.appText.selectCity,
                 style: AppTextStyle.textFieldHint,
@@ -677,9 +812,13 @@ class _CityDropdownState extends State<CityDropdown> {
                     loadMore: page > 1,
                   );
                 }
-
+                // Stop scrolling when last page reached
+                if (kycCubit.isCityLastPage && page > kycCubit.cityCurrentPage) {
+                return [];
+                }
                 final cityList = kycCubit.state.cityUIState?.data ?? [];
-                return cityList.map((city) {
+                final itemsForThisPage = cityList.skip((page - 1) * 10).take(10).toList();
+                return itemsForThisPage.map((city) {
                   return SearchableDropdownMenuItem<CityModelList>(
                     value: city,
                     label: city.city,

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_state.dart';
+import 'package:gro_one_app/features/fastag/model/fastag_list_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
@@ -8,6 +11,7 @@ import 'package:gro_one_app/utils/app_colors.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
+import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
@@ -15,7 +19,6 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../data/ui_state/status.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_search_bar.dart';
-import '../cubit/fastag_cubit.dart';
 import 'buy_new_fastag_screen.dart';
 import 'fastag_new_user_screen.dart';
 import 'fastag_recharge_screen.dart';
@@ -29,26 +32,46 @@ class FastagListScreen extends StatefulWidget {
 
 class _FastagListScreenState extends State<FastagListScreen> {
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
+  int page = 1;
+  List<FastagItem> items = [];
+  bool stopPagination = false;
+  int totalPage = 0;
 
   @override
   void initState() {
-    context.read<FastagCubit>().fetchFastagList(isInitialLoad: true);
     super.initState();
+    context.read<FastagOrderListCubit>().fetchFastagList(isInitialLoad: true, page: 1);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController.jumpTo(0);
+    });
+    scrollController.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    if (!scrollController.hasClients || (totalPage == items.length)) return;
+    // Simple bottom detection like your example
+
+    // Simple pagination trigger - exactly like your working example
+    if (!stopPagination &&
+        scrollController.position.pixels ==
+            scrollController.position.maxScrollExtent) {
+      debugPrint('jiooo');
+      page += 1;
+      context.read<FastagOrderListCubit>().fetchFastagList(
+        isInitialLoad: true,
+        page: page,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<FastagCubit, FastagState>(
-      listenWhen:
-          (previous, current) =>
-              current.shouldNavigateToBuyFastag &&
-              !previous.shouldNavigateToBuyFastag,
-      listener: (context, state) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const FastagNewUserScreen()),
-        );
+    return BlocListener<FastagOrderListCubit, FastagState1>(
+      listenWhen: (previous, current) {
+        return true;
       },
+      listener: (context, state) {},
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: CommonAppBar(
@@ -86,26 +109,42 @@ class _FastagListScreenState extends State<FastagListScreen> {
                 ),
               ).paddingSymmetric(horizontal: 16.0),
               Expanded(
-                child: BlocBuilder<FastagCubit, FastagState>(
+                child: BlocConsumer<FastagOrderListCubit, FastagState1>(
+                  listener: (c, s) {
+                    totalPage =
+                        s.fastagListUIState.data != null
+                            ? s.fastagListUIState.data!.totalCount
+                            : 0;
+                    if (s.fastagListUIState.data != null) {
+                      if (s.fastagListUIState.data!.data.isEmpty) {
+                        stopPagination = true;
+                      } else {
+                        items.addAll(s.fastagListUIState.data!.data);
+                      }
+                    }
+                  },
                   builder: (context, state) {
-                    if (state.fastagListUIState.status == Status.LOADING) {
+                    if (items.isEmpty &&
+                        state.fastagListUIState.status == Status.LOADING) {
                       return const Center(child: CircularProgressIndicator());
                     }
-                    if (state.fastagListUIState.status == Status.ERROR) {
+                    if (items.isEmpty &&
+                        state.fastagListUIState.status == Status.ERROR) {
                       return Center(
                         child: Text(context.appText.failedToLoadData),
                       );
                     }
 
-                    if (state.fastagListUIState.data == null ||
-                        (state.fastagListUIState.data!.data.isEmpty)) {
+                    if (items.isEmpty &&
+                        (state.fastagListUIState.data == null ||
+                            (state.fastagListUIState.data!.data.isEmpty))) {
                       return Center(child: Text(context.appText.noData));
                     }
 
-                    final items = state.fastagListUIState.data!.data;
                     return ListView.builder(
                       padding: const EdgeInsets.all(16),
                       itemCount: items.length,
+                      controller: scrollController,
                       itemBuilder: (context, index) {
                         final item = items[index];
                         return _buildFastagCard(
@@ -125,6 +164,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
             ],
           ),
         ),
+        floatingActionButton: ChatActionButton(),
       ),
     );
   }
@@ -134,11 +174,13 @@ class _FastagListScreenState extends State<FastagListScreen> {
       searchController: _searchController,
       hintText: context.appText.search,
       onChanged: (val) {
-        context.read<FastagCubit>().fetchFastagList(searchTerm: val.trim());
+        items.clear();
+        context.read<FastagOrderListCubit>().fetchFastagList(searchTerm: val.trim());
       },
       onClear: () {
         _searchController.clear();
-        context.read<FastagCubit>().fetchFastagList();
+        items.clear();
+        context.read<FastagOrderListCubit>().fetchFastagList(page: 1);
       },
     ).paddingSymmetric(horizontal: 16.0);
   }

@@ -1,4 +1,6 @@
 import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
@@ -30,6 +32,7 @@ import 'package:gro_one_app/features/profile/model/driver_new_response.dart';
 import 'package:gro_one_app/features/profile/model/edit_user_response.dart';
 import 'package:gro_one_app/features/profile/model/faq_response.dart';
 import 'package:gro_one_app/features/profile/model/get_master_response.dart';
+import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
 import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/features/profile/model/license_category_response.dart';
 import 'package:gro_one_app/features/profile/model/log_out_model.dart';
@@ -45,8 +48,10 @@ import 'package:gro_one_app/features/profile/model/vehicle_list_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_new_response.dart';
 import 'package:gro_one_app/features/profile/model/vehicle_updated_status_model.dart';
 import 'package:gro_one_app/features/profile/model/verified_license_vahan_response.dart';
+import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 class ProfileService {
   final ApiService _apiService;
@@ -200,6 +205,27 @@ class ProfileService {
     }
   }
 
+  /// fetch issue groups
+   Future<Result<List<IssueCategoryResponse>>> fetchIssueGroups({String? search}) async {
+    try {
+      final response = await _apiService.get("${ApiUrls.createTicket}issue-categories");
+
+      if (response is Success) {
+        final list =
+            (response.value as List)
+                .map((json) => IssueCategoryResponse.fromJson(json))
+                .toList();
+        return Success(list);
+      } else if (response is Error) {
+        return Error(response.type);
+      } else {
+        return Error(GenericError());
+      }
+    } catch (e) {
+      return Error(DeserializationError());
+    }
+   }
+   
   /// fetch documents
   Future<Result<KycDocumentResponse>> fetchDocuments({
     required String userId,
@@ -246,14 +272,13 @@ class ProfileService {
   }) async {
     try {
       final baseUrl = ApiUrls.getAddress + userId;
-      final url =
-          (search != null && search.trim().isNotEmpty)
-              ? '$baseUrl?search=$search'
-              : baseUrl;
-      final response = await _apiService.get(url,queryParams: {
-        "limit":10,
-        "page":currentPage
-      });
+      final queryParams = {
+      "limit": 10,
+      "page": currentPage ?? 1,
+      if (search != null && search.trim().isNotEmpty) "search": search,
+    };
+
+    final response = await _apiService.get(baseUrl, queryParams: queryParams);
       if (response is Success) {
         final loads = PaginatedAddressList.fromJson(response.value);
         return Success(loads);
@@ -270,10 +295,11 @@ class ProfileService {
   /// set primary address
   Future<Result<SetPrimaryAddressResponse>> setPrimaryAddress({
     required String addressId,
+    required bool isPrimary
   }) async {
     try {
       final url = ApiUrls.setPrimaryAddress + addressId;
-      final response = await _apiService.put(url, body: {"isDefault": true});
+      final response = await _apiService.put(url, body: {"isDefault": isPrimary});
       if (response is Success) {
         final loads = SetPrimaryAddressResponse.fromJson(response.value);
         return Success(loads);
@@ -417,10 +443,10 @@ class ProfileService {
   }) async {
     try {
       final baseUrl =
-          '${ApiUrls.getVehicleList}$userId&page=$page&limit=$pageSize';
+          '${ApiUrls.getVehicleList}$userId?page=$page&limit=$pageSize';
       final url =
           (search != null && search.trim().isNotEmpty)
-              ? '$baseUrl?search=$search'
+              ? '$baseUrl&search=$search'
               : baseUrl;
       final response = await _apiService.get(url);
       if (response is Success) {
@@ -431,7 +457,8 @@ class ProfileService {
       } else {
         return Error(GenericError());
       }
-    } catch (e) {
+    } 
+    catch (e) {
       return Error(DeserializationError());
     }
   }
@@ -906,6 +933,7 @@ Future<Result<FaqResponse>> fetchFaq({
   }
 
   Future<Result<Map<String, dynamic>>> fetchVehicleData(
+    BuildContext context,
     String vehicleNumber,
   ) async {
     try {
@@ -939,14 +967,27 @@ Future<Result<FaqResponse>> fetchFaq({
           api1Response.value['success'] != false) {
         return Success(api1Response.value['data']);
       }
+      else if (api1Response is Error) {
+        if (!context.mounted) {
+          return Error(GenericError());
+        }
+      final errorType = api1Response.type;
+      final errorMessage = errorType.getText(context);
 
-      return Error(GenericError());
+      ToastMessages.alert(
+        message: errorMessage.isNotEmpty
+            ? errorMessage
+            : context.appText.vehicleVerificationFailed,
+      );
+    }
+     return Error(GenericError());
     } catch (e) {
       return Error(GenericError());
     }
   }
 
   Future<Result<Map<String, dynamic>>> fetchLicenseExcistence({
+    required BuildContext context,
     required LicenseVahanRequest request,
   }) async {
     try {
@@ -981,6 +1022,19 @@ Future<Result<FaqResponse>> fetchFaq({
         return Success(api1Response.value['data']);
       }
 
+      else if (api1Response is Error) {
+      if (!context.mounted) {
+        return Error(GenericError());
+      }
+      final errorType = api1Response.type;
+      final errorMessage = errorType.getText(context);
+
+      ToastMessages.alert(
+          message: errorMessage.isNotEmpty
+              ? errorMessage
+              : context.appText.licenseVerificationFailed,
+      );
+    }
       return Error(GenericError());
     } catch (e) {
       return Error(GenericError());
@@ -990,11 +1044,12 @@ Future<Result<FaqResponse>> fetchFaq({
   /// Log out repo
   Future<Result<LogOutModel>> fetchLogOutData() async {
     try {
+      String? deviceId = (await getDeviceInfo()).$2;
       final url = ApiUrls.logout;
       final result = await _apiService.post(
         url,
         body: {
-          "customerId": (await _userInformationRepository.getUserID() ?? ""),
+          "deviceId": deviceId,
         },
       );
       if (result is Success) {
@@ -1096,6 +1151,23 @@ Future<Result<FaqResponse>> fetchFaq({
     } catch (e) {
       return Error(DeserializationError());
     }
-  } 
+  }
+
+  Future<(String? deviceType, String? id)> getDeviceInfo() async {
+    try {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        return ("android", androidInfo.id);
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        return ("IOS", iosInfo.identifierForVendor);
+      }
+      return ("", "");
+    } catch (e) {
+      debugPrint('❌ Error getting device info: $e');
+      return ("", "");
+    }
+  }
 
 }

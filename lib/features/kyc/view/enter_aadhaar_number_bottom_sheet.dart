@@ -141,6 +141,7 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
     String verifiedStatus=kycInitResponse?.status??"";
     String pdfData=kycInitResponse?.dataPdf??"";
 
+
     if(verifiedStatus.isNotEmpty && verifiedStatus=="VERIFIED"){
       _checkKycVerification(null,pdfData);
       return;

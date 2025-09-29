@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -7,14 +8,21 @@ import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/kyc/api_request/create_document_api_request.dart';
 import 'package:gro_one_app/features/profile/api_request/create_ticket_request.dart';
+import 'package:gro_one_app/features/profile/cubit/masters/masters_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/profile/model/issue_category_response.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_details/entitiy/document_entity.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
 import 'package:gro_one_app/utils/app_button.dart';
+import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/model/searchable_dropdown_menu_item.dart';
+import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown.dart';
 import 'package:gro_one_app/utils/app_text_field.dart';
+import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:gro_one_app/utils/upload_attachment_files.dart';
 import 'package:gro_one_app/utils/validator.dart';
@@ -35,10 +43,23 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
   final issueCategoryController = TextEditingController();
   final titleController = TextEditingController();
   final descriptionController = TextEditingController();
-
+  final masterLocator = locator<MastersCubit>();
   final _formKey = GlobalKey<FormState>();
   final List<dynamic> ticketList = [];
   String? ticketDocId;
+  String? selectedIssueCategory;
+
+   @override
+  void initState() {
+    initFunction();
+    super.initState();
+  
+  }
+
+  void initFunction() => frameCallback(() async {
+   masterLocator.fetchIssueCategoryGroup();
+    setState(() {});
+  });
 
   @override
   void dispose() {
@@ -50,32 +71,20 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
 
   void _submitForm() async {
     if (_formKey.currentState!.validate()) {
-      final tag = widget.ticketTag ??
-          (profileCubit.userRole == 1
-              ? TicketTags.LOAD_PROVIDER
-              : profileCubit.userRole == 2
-              ? TicketTags.VEHICLE_PROVIDER
-              : profileCubit.userRole == 3
-              ? TicketTags.BOTH_LP_VP
-              : '');
-
        await profileCubit.createTicket(
         request: CreateTicketRequest(
-          issueCategory: issueCategoryController.text.trim(),
+          issueCategoryUuid: selectedUuid,
           title: titleController.text.trim(),
           description: descriptionController.text.trim(),
           attachmentLink: ticketDocId != null ? [ticketDocId] : [],
-          ticketTag: tag,
         ),
       );
 
        var uiState = profileCubit.state.createTicketState;
 
        if (uiState?.status == Status.SUCCESS) {
-         WidgetsBinding.instance.addPostFrameCallback((_) {
            Navigator.pop(context);
            ToastMessages.success(message: context.appText.ticketCreatedSuccess);
-         });
        }
 
 
@@ -84,7 +93,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
        }
     }
   }
-
+String? selectedUuid;
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -102,13 +111,50 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppTextField(
-                  labelText: context.appText.issueCategory,
-                  controller: issueCategoryController,
-                  validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.issueCategory),
+                  BlocBuilder<MastersCubit, MastersState>(
+                  builder: (context, state) {
+                    final issueList = state.issueCategoryResponseUIState?.data ?? [];
+                    final selectedCategory = issueList.firstWhereOrNull((e) => e.uuid == selectedUuid);
+
+                    return FormField<IssueCategoryResponse>(
+                      validator: (value) {
+                      if (selectedUuid == null || selectedUuid!.isEmpty) {
+                        return "Please select an issue category";
+                      }
+                      return null;
+                    },
+                      builder: (field) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            IssueCategoryDropdown(
+                              selectedCategory: selectedCategory,
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedUuid = value?.uuid;
+                                });
+                                field.didChange(value); 
+                              },
+                              isEdit: false,
+                            ),
+                            if (field.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 8),
+                              child: Text(
+                                field.errorText!,
+                                style: AppTextStyle.textFieldHintRedColor,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+                    );
+                  },
                 ),
+
                 12.height,
                 AppTextField(
+                  mandatoryStar: true,
                   labelText: context.appText.title,
                   controller: titleController,
                   inputFormatters: [
@@ -120,6 +166,7 @@ class _AddNewTicketScreenState extends State<AddNewTicketScreen> {
                 12.height,
                 AppTextField(
                   maxLines: 3,
+                  mandatoryStar: true,
                   labelText: context.appText.description,
                   controller: descriptionController,
                   validator: (val) => Validator.fieldRequired(val,fieldName: context.appText.description),
@@ -231,4 +278,79 @@ class TicketTags {
   static const GPS = 'GPS related';
   static const TANK_LOCK = 'Tank lock related';
   static const DRIVER = 'Driver related';
+}
+
+
+class IssueCategoryDropdown extends StatelessWidget {
+  final IssueCategoryResponse? selectedCategory;
+  final ValueChanged<IssueCategoryResponse?> onChanged;
+  final bool isEdit;
+
+  const IssueCategoryDropdown({
+    super.key,
+    required this.selectedCategory,
+    required this.onChanged,
+    this.isEdit = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Text(context.appText.issueCategory, style: AppTextStyle.textFiled),
+            const SizedBox(width: 2),
+            Text(" *", style: AppTextStyle.textFiled.copyWith(color: Colors.red)),
+          ],
+        ),
+        const SizedBox(height: 6),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey.shade400),
+            borderRadius: BorderRadius.circular(4),
+            color: isEdit ? AppColors.lightGreyColor : Colors.white,
+          ),
+          child: SearchableDropdown<IssueCategoryResponse>.future(
+            dialogOffset: 0,
+            hintText: Text(context.appText.issuecategoryRequired, style: AppTextStyle.textFieldHint),
+            isDialogExpanded: false,
+
+            /// initial value
+            initialValue: selectedCategory != null
+                ? SearchableDropdownMenuItem<IssueCategoryResponse>(
+                    value: selectedCategory!,
+                    label: selectedCategory!.issueCategory,
+                    child: Text(selectedCategory!.issueCategory),
+                  )
+                : null,
+
+            /// fetch items once (no pagination)
+            futureRequest: () async {
+              final cubit = context.read<MastersCubit>();
+
+              // Fetch only if not already fetched
+              if (cubit.state.issueCategoryResponseUIState?.data == null ||
+                  cubit.state.issueCategoryResponseUIState!.data!.isEmpty) {
+                await cubit.fetchIssueCategoryGroup();
+              }
+
+              final allCategories = cubit.state.issueCategoryResponseUIState?.data ?? [];
+
+              return allCategories.map((category) {
+                return SearchableDropdownMenuItem<IssueCategoryResponse>(
+                  value: category,
+                  label: category.issueCategory,
+                  child: Text(category.issueCategory),
+                );
+              }).toList();
+            },
+
+            onChanged: onChanged,
+          ),
+        ),
+      ],
+    );
+  }
 }

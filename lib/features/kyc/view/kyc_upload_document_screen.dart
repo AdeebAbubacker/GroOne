@@ -947,28 +947,77 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 ],
                               ),
                               16.height,
-                              StateDropdown(
-                                selectedStateId: selectedState,
-                                onStateChanged: (value) {
-                                  setState(() {
-                                    selectedStateData = value?.name.toString();
-                                    selectedState = value?.id.toString();
-                                    selectedCity = null;
-                                  });
-                                },
+                              FormField<String>(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                return context.appText.stateisRequired;
+                                }
+                                return null;
+                               },
+                                builder: (field) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      StateDropdown(
+                                        selectedStateId: selectedState,
+                                        onStateChanged: (value) {
+                                          setState(() {
+                                            selectedStateData = value?.name.toString();
+                                            selectedState = value?.name.toString();
+                                            selectedCity = null;
+                                          });
+                                          field.didChange(value?.name.isNotEmpty == true ? value?.name : null);
+                                        },
+                                      ),
+                                      if (field.hasError)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4, left: 8),
+                                        child: Text(
+                                          field.errorText!,
+                                          style: AppTextStyle.textFieldHintRedColor,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
                               ),
                               16.height,
-                              CityDropdown(
-                                selectedState: selectedStateData,
-                                selectedCityId: selectedCity,
-                                isStateSelected:
-                                    selectedState != null &&
-                                    selectedState!.isNotEmpty,
-                                onCityChanged: (value) {
-                                  setState(() {
-                                    selectedCity = value?.id.toString();
-                                  });
-                                },
+                              FormField<String>(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                return context.appText.cityisRequired;
+                                }
+                                return null;
+                               },
+                                builder: (field) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      CityDropdown(
+                                        selectedState: selectedStateData,
+                                        selectedCityId: selectedCity,
+                                        isStateSelected:
+                                            selectedState != null &&
+                                            selectedState!.isNotEmpty,
+                                        onCityChanged: (value) {
+                                          setState(() {
+                                            selectedCity = value?.city.toString();
+                                          });
+                                          field.didChange(value?.city.isNotEmpty == true ? value?.city : null);
+
+                                        },
+                                      ),
+                                       if (field.hasError)
+                                      Padding(
+                                        padding: const EdgeInsets.only(top: 4, left: 8),
+                                        child: Text(
+                                          field.errorText!,
+                                          style: AppTextStyle.textFieldHintRedColor,
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
                               ),
                               16.height,
                               AppTextField(

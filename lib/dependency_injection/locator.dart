@@ -11,6 +11,7 @@ import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/document/repository/document_repository.dart';
 import 'package:gro_one_app/features/document/services/document_service.dart';
 import 'package:gro_one_app/features/driver/driver_home/bloc/driver_loads/driver_loads_bloc.dart';
+import 'package:gro_one_app/features/driver/driver_home/cubit/driver_home_cubit.dart';
 import 'package:gro_one_app/features/driver/driver_home/repository/driver_load_repository.dart';
 import 'package:gro_one_app/features/driver/driver_home/service/driver_load_service.dart';
 import 'package:gro_one_app/features/driver/driver_load_details/cubit/driver_load_details_cubit.dart';
@@ -26,6 +27,8 @@ import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/endhan_transaction_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/repository/en_dhan_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/service/en_dhan_services.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_tab_cubit.dart';
 import 'package:gro_one_app/features/fastag/repository/fastag_repository.dart';
 import 'package:gro_one_app/features/fastag/service/fastag_service.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_geofence_cubit/gps_geofence_cubit.dart';
@@ -33,6 +36,7 @@ import 'package:gro_one_app/features/gps_feature/cubit/gps_notification_cubit/gp
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_billing_address_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_kyc_check_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_cubit.dart';
+import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_order_list_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_products_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_shipping_address_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/cubit/gps_order_cubit_folder/gps_upload_document_cubit.dart';
@@ -71,6 +75,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/bloc/lp_home/lp_home_
 import 'package:gro_one_app/features/load_provider/lp_home/cubit/lp_home_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_home_repository.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/repository/lp_select_address_repository.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/service/event_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/service/lp_home_service.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/repository/lp_all_loads_repository.dart';
@@ -237,7 +242,10 @@ void _registerAuthServices() {
       locator<AuthRepository>(),
     ),
   );
-  locator.registerLazySingleton(() => LpHomeService(locator<ApiService>()));
+  locator.registerLazySingleton(() => EventService(locator<ApiService>()));
+  locator.registerLazySingleton(
+    () => LpHomeService(locator<ApiService>(), locator<EventService>()),
+  );
   locator.registerLazySingleton(() => VpHomeService(locator<ApiService>()));
   locator.registerLazySingleton(
     () => KavachService(
@@ -640,6 +648,12 @@ void _registerBasicBlocs() {
     () => PodDispatchCubit(locator<PodDispatchRepository>()),
   );
   locator.registerLazySingleton(
+    () => FastagOrderListCubit(locator<FastagRepository>()),
+  );
+  locator.registerLazySingleton(
+    () => FastagOrderListTabCubit(locator<FastagRepository>()),
+  );
+  locator.registerLazySingleton(
     () => DriverProfileCubit(locator<DriverProfileRepository>()),
   );
   locator.registerLazySingleton<PaymentCubit>(() => PaymentCubit());
@@ -747,9 +761,12 @@ void _registerDeferredBlocs() {
 
   // Reachability Service and Cubit
   locator.registerLazySingleton(
-    () => ReachabilityService(locator<ApiService>()),
+    () => ReachabilityService(
+      locator<ApiService>(),
+      locator<UserInformationRepository>(),
+    ),
   );
-  locator.registerLazySingleton(
+  locator.registerFactory(
     () => ReachabilityCubit(
       service: locator<ReachabilityService>(),
       loginRepository: locator<GpsLoginRepository>(),
@@ -767,6 +784,12 @@ void _registerDeferredBlocs() {
       locator<VpHomeRepository>(),
       locator<UserInformationRepository>(),
     ),
+  );
+  locator.registerLazySingleton(
+    () => DriverHomeCubit(),
+  );
+  locator.registerLazySingleton(
+    () => GpsOrderListCubit(locator<GpsOrderApiRepository>()),
   );
 
   // Verify GPS cubits are registered
@@ -792,5 +815,15 @@ Future<void> initializeGpsServices() async {
     CustomLog.info(locator, "GPS services initialized successfully");
   } catch (e) {
     CustomLog.error(locator, "ERROR: GPS services initialization failed", e);
+  }
+}
+
+/// Clear all registered instances (for debugging)
+void clearAllInstances() {
+  try {
+    locator.reset();
+    CustomLog.info(locator, "All instances cleared from GetIt");
+  } catch (e) {
+    CustomLog.error(locator, "ERROR: Failed to clear instances", e);
   }
 }

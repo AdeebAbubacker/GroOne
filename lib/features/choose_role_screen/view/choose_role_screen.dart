@@ -28,102 +28,110 @@ class ChooseRoleScreen extends StatelessWidget {
 
     final analytics = locator<AnalyticsService>();
 
-    return Scaffold(
-      appBar: CommonOnboardingAppbar(),
-      body: BlocBuilder<RoleBloc, RoleState>(
-        builder: (context, state) {
-          return Padding(
-            padding: EdgeInsets.all(commonSafeAreaPadding),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              spacing: 10,
-              children: [
-                20.height,
-                Text(
-                  context.appText.chooseRoleText,
-                  style: AppTextStyle.textBlackColors20w400,
-                ),
-                Column(
-                  key: AppKeys.tile('role'),
-                  children: [
-                    buildRoleSelectionTileWidget(
-                      isSelected: state.index == 0 ? true : false,
-                      text1: context.appText.loadProvider,
-                      text2: context.appText.lpText,
-                      onTap: () {
-                        context.read<RoleBloc>().add(const ChangeIndex(index: 0));
-                      },
-                      imageString: AppImage.png.lp,
-                    ),
-                    buildRoleSelectionTileWidget(
-                      isSelected: state.index == 1 ? true : false,
-                      text1: context.appText.truckProvider,
-                      text2: context.appText.vpText,
-                      onTap: () {
-                        context.read<RoleBloc>().add(const ChangeIndex(index: 1));
-                      },
-                      imageString: AppImage.png.vp,
-                    ),
-                    buildRoleSelectionTileWidget(
-                      isSelected: state.index == 2 ? true : false,
-                      text1: context.appText.vpLpHeading,
-                      text2: context.appText.vpLp,
-                      onTap: () {
-                        context.read<RoleBloc>().add(const ChangeIndex(index: 2));
-                      },
-                      imageString: AppImage.png.lpVp,
-                    ),
-                    buildRoleSelectionTileWidget(
-                      isSelected: state.index == 3 ? true : false,
-                      text1:  context.appText.fleetHeading,
-                      text2: context.appText.fleet,
-                      onTap: () {
-                        context.read<RoleBloc>().add(const ChangeIndex(index: 3));
-                      },
-                      imageString: AppImage.png.fleet,
-                    ),
-                  ],
-                ),
-                30.height,
-
-                AppButton(
-                  key: AppKeys.btn('next'),
-                  title: context.appText.next,
-                  onPressed: () {
-
-                    final roleId = state.index + 1;
-                    final extra = {
-                      "userId": userId,
-                      "mobileNumber": mobileNumber,
-                      "roleId": roleId.toString(),
-                    };
-
-                    switch (roleId) {
-                      case 1: // Load Provider
-                       context.push(AppRouteName.lpCreateAccount, extra: extra);
-                       break;
-                      case 2:
-                        context.push(AppRouteName.vpCreateAccount, extra: extra);
-                        break;
-                      case 3: // Both
-                        context.push(AppRouteName.vpCreateAccount, extra: extra);
-                        break;
-                      case 4: // Fleet Products
-                        context.push(AppRouteName.lpCreateAccount, extra: extra);
+    return WillPopScope(
+      onWillPop: () async {
+        context.go(AppRouteName.login, extra: {"showBackButton": false});
+        return false; // Prevent default back action
+      },
+      child: Scaffold(
+        appBar: CommonOnboardingAppbar(onLeadingTap: () {
+          context.go(AppRouteName.login, extra: {"showBackButton": false});
+        }),
+        body: BlocBuilder<RoleBloc, RoleState>(
+          builder: (context, state) {
+            return Padding(
+              padding: EdgeInsets.all(commonSafeAreaPadding),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: 10,
+                children: [
+                  20.height,
+                  Text(
+                    context.appText.chooseRoleText,
+                    style: AppTextStyle.textBlackColors20w400,
+                  ),
+                  Column(
+                    key: AppKeys.tile('role'),
+                    children: [
+                      buildRoleSelectionTileWidget(
+                        isSelected: state.index == 0 ? true : false,
+                        text1: context.appText.loadProvider,
+                        text2: context.appText.lpText,
+                        onTap: () {
+                          context.read<RoleBloc>().add(const ChangeIndex(index: 0));
+                        },
+                        imageString: AppImage.png.lp,
+                      ),
+                      buildRoleSelectionTileWidget(
+                        isSelected: state.index == 1 ? true : false,
+                        text1: context.appText.truckProvider,
+                        text2: context.appText.vpText,
+                        onTap: () {
+                          context.read<RoleBloc>().add(const ChangeIndex(index: 1));
+                        },
+                        imageString: AppImage.png.vp,
+                      ),
+                      buildRoleSelectionTileWidget(
+                        isSelected: state.index == 2 ? true : false,
+                        text1: context.appText.vpLpHeading,
+                        text2: context.appText.vpLp,
+                        onTap: () {
+                          context.read<RoleBloc>().add(const ChangeIndex(index: 2));
+                        },
+                        imageString: AppImage.png.lpVp,
+                      ),
+                      buildRoleSelectionTileWidget(
+                        isSelected: state.index == 3 ? true : false,
+                        text1:  context.appText.fleetHeading,
+                        text2: context.appText.fleet,
+                        onTap: () {
+                          context.read<RoleBloc>().add(const ChangeIndex(index: 3));
+                        },
+                        imageString: AppImage.png.fleet,
+                      ),
+                    ],
+                  ),
+                  30.height,
+      
+                  AppButton(
+                    key: AppKeys.btn('next'),
+                    title: context.appText.next,
+                    onPressed: () {
+      
+                      final roleId = state.index + 1;
+                      final extra = {
+                        "userId": userId,
+                        "mobileNumber": mobileNumber,
+                        "roleId": roleId.toString(),
+                      };
+      
+                      switch (roleId) {
+                        case 1: // Load Provider
+                         context.push(AppRouteName.lpCreateAccount, extra: extra);
+                         break;
+                        case 2:
+                          context.push(AppRouteName.vpCreateAccount, extra: extra);
                           break;
-                    }
-                    analytics.logScreenView("RoleSelectionScreen");
-                    analytics.logEvent(AnalyticEventName.ONBOARD_ROLE_SELECTED, extra);
-                  },
-                ),
-                 50.height,
-
-                Text(context.appText.poweredByHindujagroup, style: AppTextStyle.bodyPrimaryColor).center()
-
-              ],
-            ),
-          ).withScroll();
-        },
+                        case 3: // Both
+                          context.push(AppRouteName.vpCreateAccount, extra: extra);
+                          break;
+                        case 4: // Fleet Products
+                          context.push(AppRouteName.lpCreateAccount, extra: extra);
+                            break;
+                      }
+                      analytics.logScreenView("RoleSelectionScreen");
+                      analytics.logEvent(AnalyticEventName.ONBOARD_ROLE_SELECTED, extra);
+                    },
+                  ),
+                   50.height,
+      
+                  Text(context.appText.poweredByHindujagroup, style: AppTextStyle.bodyPrimaryColor).center()
+      
+                ],
+              ),
+            ).withScroll();
+          },
+        ),
       ),
     );
   }

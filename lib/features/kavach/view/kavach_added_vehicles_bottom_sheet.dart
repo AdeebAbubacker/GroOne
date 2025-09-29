@@ -42,12 +42,15 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
   }
 
   /// Helper method to get truck type display text using API data
-  String _getTruckTypeDisplayText(KavachVehicleModel vehicle, [Map<String, List<TruckLengthModel>>? truckTypeData]) {
+  String _getTruckTypeDisplayText(
+    KavachVehicleModel vehicle, [
+    Map<String, List<TruckLengthModel>>? truckTypeData,
+  ]) {
     // First try to use truckTypeInfo if available (from vehicle API response)
     if (vehicle.truckTypeInfo != null) {
       final type = vehicle.truckTypeInfo!.type;
       final subType = vehicle.truckTypeInfo!.subType;
-      
+
       // Format similar to GPS: "Type - Length"
       if (type.isNotEmpty && subType.isNotEmpty) {
         return '$type - $subType';
@@ -57,17 +60,20 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
         return 'Truck - $subType';
       }
     }
-    
+
     // Try to get truck type data from truck-types API using truckTypeId
     if (vehicle.truckType != null && truckTypeData != null) {
       return _getTruckTypeAndLengthFromApi(vehicle.truckType!, truckTypeData);
     }
-    
+
     // Fallback to individual truckType and truckLength fields
     final truckType = vehicle.truckType;
     final truckLength = vehicle.truckLength;
-    
-    if (truckType != null && truckType > 0 && truckLength != null && truckLength > 0) {
+
+    if (truckType != null &&
+        truckType > 0 &&
+        truckLength != null &&
+        truckLength > 0) {
       final typeText = _getTruckTypeName(truckType);
       return '$typeText Truck - ${truckLength}ft';
     } else if (truckType != null && truckType > 0) {
@@ -76,7 +82,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
     } else if (truckLength != null && truckLength > 0) {
       return 'Truck - ${truckLength}ft';
     }
-    
+
     return 'Truck type not available';
   }
 
@@ -95,7 +101,10 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
   }
 
   /// Get truck type and length from API data based on truckTypeId
-  String _getTruckTypeAndLengthFromApi(int truckTypeId, Map<String, List<TruckLengthModel>> truckTypeData) {
+  String _getTruckTypeAndLengthFromApi(
+    int truckTypeId,
+    Map<String, List<TruckLengthModel>> truckTypeData,
+  ) {
     // Find the truck type by matching the ID directly with the API data
     for (final entry in truckTypeData.entries) {
       final truckTypes = entry.value;
@@ -106,7 +115,7 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
         }
       }
     }
-    
+
     // If no match found, fallback to old mapping
     final truckTypeName = _getTruckTypeName(truckTypeId);
     return '$truckTypeName Truck';
@@ -136,15 +145,18 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
     }
   }
 
-  Widget vehicleCard(KavachVehicleModel vehicle, Map<String, List<TruckLengthModel>> truckTypeData) {
+  Widget vehicleCard(
+    KavachVehicleModel vehicle,
+    Map<String, List<TruckLengthModel>> truckTypeData,
+  ) {
     return InkWell(
       onTap: () {
-        if (vehicle.vehicleStatus==1) {
-          Navigator.of(
-                    context,
-                  ).pop(vehicle.vehicleNumber);
+        if (vehicle.vehicleStatus == 1) {
+          Navigator.of(context).pop(vehicle.vehicleNumber);
         } else {
-          ToastMessages.alert(message: context.appText.vehicleIsCurrentlyInactive);
+          ToastMessages.alert(
+            message: context.appText.vehicleIsCurrentlyInactive,
+          );
         }
       },
       child: Container(
@@ -221,98 +233,105 @@ class _KavachAddedVehiclesScreenState extends State<KavachAddedVehiclesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.65,
-      child: Material(
-        color: Colors.white,
-        child: Column(
-          children: [
-            10.height,
-            Row(
-              children: [
-                Expanded(
-                  child: Text(
-                    context.appText.addedVehicle,
-                    style: AppTextStyle.appBar.copyWith(
-                      color: AppColors.primaryTextColor,
+    return Focus(
+      onFocusChange: (hasFocus) {
+        if (!hasFocus) {
+          FocusScope.of(context).unfocus();
+        }
+      },
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.65,
+        child: Material(
+          color: Colors.white,
+          child: Column(
+            children: [
+              10.height,
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      context.appText.addedVehicle,
+                      style: AppTextStyle.appBar.copyWith(
+                        color: AppColors.primaryTextColor,
+                      ),
                     ),
                   ),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    // await commonBottomSheetWithBGBlur<String?>(
-                    //   context: context,
-                    //   screen: const KavachAddVehicleBottomSheet(),
-                    // );
-                    AddVehicleDialog.show(context: context);
-                    kavachCheckoutVehicleBloc.add(FetchKavachVehicles());
-                  },
-                  child: Text(
-                    '+ ${context.appText.addVehicle}',
-                    style: AppTextStyle.primaryColor14w700,
+                  TextButton(
+                    onPressed: () async {
+                      // await commonBottomSheetWithBGBlur<String?>(
+                      //   context: context,
+                      //   screen: const KavachAddVehicleBottomSheet(),
+                      // );
+                      AddVehicleDialog.show(context: context);
+                      kavachCheckoutVehicleBloc.add(FetchKavachVehicles());
+                    },
+                    child: Text(
+                      '+ ${context.appText.addVehicle}',
+                      style: AppTextStyle.primaryColor14w700,
+                    ),
                   ),
-                ),
-              ],
-            ),
-            AppSearchBar(
-              hintText: context.appText.search,
-              searchController: searchController,
-              onChanged: (text) {
-                setState(() {});
-              },
-            ),
-            Expanded(
-              child: BlocBuilder<
-                KavachCheckoutVehicleBloc,
-                KavachCheckoutVehicleState
-              >(
-                builder: (context, state) {
-                  if (state is KavachCheckoutVehicleLoading) {
-                    return const Center(child: CircularProgressIndicator());
-                  } else if (state is KavachCheckoutVehicleLoaded) {
-                    final searchText = searchController.text.toLowerCase();
-
-                    // Filter the list based on search text
-                    final filteredVehicles =
-                        state.vehicles.where((vehicle) {
-                          return vehicle.vehicleNumber.toLowerCase().contains(
-                                searchText,
-                              ) ||
-                              vehicle.rcNumber.toLowerCase().contains(
-                                searchText,
-                              ) ||
-                              vehicle.capacity.toLowerCase().contains(
-                                searchText,
-                              );
-                        }).toList();
-
-                    if (filteredVehicles.isEmpty) {
-                      return Center(
-                        child: Text(context.appText.noVehiclesFound),
-                      );
-                    }
-
-                    // Fetch all truck type data from API
-                    _fetchAllTruckTypes();
-
-                    return ListView.separated(
-                      itemCount: filteredVehicles.length,
-                      padding: EdgeInsets.symmetric(vertical: 10),
-                      separatorBuilder: (_, __) => 12.height,
-                      itemBuilder: (_, index) {
-                        final vehicle = filteredVehicles[index];
-                        return vehicleCard(vehicle, _truckTypeData);
-                      },
-                    );
-                  } else if (state is KavachCheckoutVehicleError) {
-                    return Center(child: Text("Error: ${state.error}"));
-                  }
-                  return const SizedBox();
+                ],
+              ),
+              AppSearchBar(
+                hintText: context.appText.search,
+                searchController: searchController,
+                onChanged: (text) {
+                  setState(() {});
                 },
               ),
-            ),
-          ],
-        ).paddingSymmetric(horizontal: commonSafeAreaPadding),
+              Expanded(
+                child: BlocBuilder<
+                  KavachCheckoutVehicleBloc,
+                  KavachCheckoutVehicleState
+                >(
+                  builder: (context, state) {
+                    if (state is KavachCheckoutVehicleLoading) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (state is KavachCheckoutVehicleLoaded) {
+                      final searchText = searchController.text.toLowerCase();
+
+                      // Filter the list based on search text
+                      final filteredVehicles =
+                          state.vehicles.where((vehicle) {
+                            return vehicle.vehicleNumber.toLowerCase().contains(
+                                  searchText,
+                                ) ||
+                                vehicle.rcNumber.toLowerCase().contains(
+                                  searchText,
+                                ) ||
+                                vehicle.capacity.toLowerCase().contains(
+                                  searchText,
+                                );
+                          }).toList();
+
+                      if (filteredVehicles.isEmpty) {
+                        return Center(
+                          child: Text(context.appText.noVehiclesFound),
+                        );
+                      }
+
+                      // Fetch all truck type data from API
+                      _fetchAllTruckTypes();
+
+                      return ListView.separated(
+                        itemCount: filteredVehicles.length,
+                        padding: EdgeInsets.symmetric(vertical: 10),
+                        separatorBuilder: (_, __) => 12.height,
+                        itemBuilder: (_, index) {
+                          final vehicle = filteredVehicles[index];
+                          return vehicleCard(vehicle, _truckTypeData);
+                        },
+                      );
+                    } else if (state is KavachCheckoutVehicleError) {
+                      return Center(child: Text("Error: ${state.error}"));
+                    }
+                    return const SizedBox();
+                  },
+                ),
+              ),
+            ],
+          ).paddingSymmetric(horizontal: commonSafeAreaPadding),
+        ),
       ),
     );
   }

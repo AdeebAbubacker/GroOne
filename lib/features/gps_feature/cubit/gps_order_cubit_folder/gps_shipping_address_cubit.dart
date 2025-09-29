@@ -37,7 +37,7 @@ class GpsShippingAddressAvailable extends GpsShippingAddressState {
 }
 
 class GpsShippingAddressSelected extends GpsShippingAddressState {
-  final KavachAddressModel selectedAddress;
+  final KavachAddressModel? selectedAddress;
   final List<KavachAddressModel> addresses;
 
   GpsShippingAddressSelected({
@@ -62,7 +62,16 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
   GpsShippingAddressCubit(this._repository, this._userRepository)
     : super(GpsShippingAddressInitial());
 
-  Future<void> fetchGpsShippingAddresses({int changeShippingIndex = 0}) async {
+  void reset() {
+    emit(GpsShippingAddressInitial()); // or default state
+  }
+
+  Future<void> fetchGpsShippingAddresses(
+    String navigateFrom,
+    String shippingAddressUniqueId, {
+    String selectedBillingUniqueID = "",
+    String billingAddressUniqueId = "",
+  }) async {
     emit(GpsShippingAddressLoading());
     try {
       final customerId = await _userRepository.getUserID();
@@ -84,15 +93,24 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
               rows
                   .map((gpsAddress) => gpsAddress.toKavachAddressModel())
                   .toList();
-          // Auto-select first address
+          // var selectedShipAddress =
+          //     addresses
+          //         .where((e) => e.id.toString() == selectedBillingUniqueID)
+          //         .toList();
+          var previouslySelectedShippingAddress = addresses.where(
+            (e) => e.id.toString() == shippingAddressUniqueId,
+          );
           emit(
             GpsShippingAddressSelected(
               selectedAddress:
-                  addresses[changeShippingIndex == 1
-                      ? changeShippingIndex
-                      : changeShippingIndex > 1
-                      ? changeShippingIndex - 1
-                      : 0],
+                  shippingAddressUniqueId.isEmpty &&
+                          billingAddressUniqueId.isEmpty
+                      ? null
+                      : previouslySelectedShippingAddress.isNotEmpty
+                      ? previouslySelectedShippingAddress.first
+                      : previouslySelectedShippingAddress.isNotEmpty
+                      ? previouslySelectedShippingAddress.first
+                      : null,
               addresses: addresses,
             ),
           );
@@ -107,7 +125,11 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
     }
   }
 
-  void selectGpsShippingAddress(KavachAddressModel address) {
+  void selectGpsShippingAddress(
+    KavachAddressModel address, {
+    String billingAddressUniqueId = '',
+    String shippingAddressUniqueId = '',
+  }) {
     // Get current addresses from state
     List<KavachAddressModel> addresses = [];
     if (state is GpsShippingAddressAvailable) {
@@ -130,7 +152,7 @@ class GpsShippingAddressCubit extends Cubit<GpsShippingAddressState> {
         this,
         "GPS Shipping - No addresses available, fetching addresses first",
       );
-      fetchGpsShippingAddresses().then((_) {
+      fetchGpsShippingAddresses('hello1 ', '').then((_) {
         // After fetching, try to select the address again
         if (state is GpsShippingAddressAvailable) {
           final loadedAddresses =

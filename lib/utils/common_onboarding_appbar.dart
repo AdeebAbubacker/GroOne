@@ -6,14 +6,14 @@ import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_image.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
-import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 
 
 class CommonOnboardingAppbar extends StatelessWidget implements PreferredSizeWidget {
   final bool? showBackButton;
   final bool? showTranslateButton;
   final bool? isCrossLeadingIcon;
-  const CommonOnboardingAppbar({super.key,  this.showBackButton = true, this.showTranslateButton = true, this.isCrossLeadingIcon = false});
+  final void Function()? onLeadingTap;
+  const CommonOnboardingAppbar({super.key,  this.showBackButton = true, this.showTranslateButton = true, this.isCrossLeadingIcon = false, this.onLeadingTap});
 
   @override
   Widget build(BuildContext context) {
@@ -37,14 +37,13 @@ class CommonOnboardingAppbar extends StatelessWidget implements PreferredSizeWid
           onPressed: ()=> commonSupportDialog(context),
           icon: AppIcons.svg.support,
         ),
-        20.width,
 
         InkWell(
           onTap: (){},
-          child: Image.asset(AppImage.png.appIcon, width: 80),
+          child: Image.asset(AppImage.png.appIcon, width: 80, height: 30),
         ),
-        20.width,
       ],
+      onLeadingTap: onLeadingTap,
     );
   }
 
