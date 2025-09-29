@@ -645,6 +645,12 @@ class ChatCubit extends Cubit<ChatState> {
     final language = messageData['language'] ?? 'en';
     final messageType = MessageType.text; // Default to text for now
     final reported = messageData['is_reported'] ?? false; // Parse new is_reported field
+    
+    // Parse load data if present in the response
+    LoadData? loadData;
+    if (messageData['load_data'] != null) {
+      loadData = _parseLoadData(messageData['load_data']);
+    }
 
     return ChatMessage(
       id: id,
@@ -654,7 +660,27 @@ class ChatCubit extends Cubit<ChatState> {
       language: language,
       messageType: messageType,
       reported: reported, // Include reported field
+      loadData: loadData, // Include load data if present
     );
+  }
+
+  /// Parse load data from API response
+  LoadData? _parseLoadData(Map<String, dynamic> loadDataJson) {
+    try {
+      final loadData = LoadData(
+        source: loadDataJson['source']?.toString(),
+        destination: loadDataJson['destination']?.toString(),
+      );
+      
+      // Only return load data if it has meaningful content
+      final hasValidData = (loadData.source != null && loadData.source!.isNotEmpty) ||
+                          (loadData.destination != null && loadData.destination!.isNotEmpty);
+      
+      return hasValidData ? loadData : null;
+    } catch (e) {
+      // If parsing fails, return null
+      return null;
+    }
   }
 
   void clearChat() {

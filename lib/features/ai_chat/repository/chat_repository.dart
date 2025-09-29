@@ -27,6 +27,25 @@ class ChatRepository {
     }
   }
 
+  /// Parse load data from API response
+  LoadData? _parseLoadData(Map<String, dynamic> loadDataJson) {
+    try {
+      final loadData = LoadData(
+        source: loadDataJson['source']?.toString(),
+        destination: loadDataJson['destination']?.toString(),
+      );
+      
+      // Only return load data if it has meaningful content
+      final hasValidData = (loadData.source != null && loadData.source!.isNotEmpty) ||
+                          (loadData.destination != null && loadData.destination!.isNotEmpty);
+      
+      return hasValidData ? loadData : null;
+    } catch (e) {
+      // If parsing fails, return null
+      return null;
+    }
+  }
+
   /// Send text message and get AI response
   /// Returns a Map with 'message' and 'rate_limit' keys
   Future<Map<String, dynamic>> sendTextMessage({
@@ -44,6 +63,12 @@ class ChatRepository {
       // Ensure response is properly typed
       final Map<String, dynamic> responseMap = response as Map<String, dynamic>;
 
+      // Parse load data if present in the response
+      LoadData? loadData;
+      if (responseMap['load_data'] != null) {
+        loadData = _parseLoadData(responseMap['load_data']);
+      }
+
       final chatMessage = ChatMessage(
         id: responseMap['assistant_message_id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
         message: responseMap['message'] ?? 'No response received',
@@ -52,6 +77,7 @@ class ChatRepository {
         language: responseMap['language'] ?? language, // Use detected language
         messageType: MessageType.text,
         reported: false, // New messages are not reported
+        loadData: loadData, // Include load data if present
       );
 
       return {

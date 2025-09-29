@@ -89,5 +89,7 @@ class AppRouteName {
   static const String kycUploadDocument = '/kycUploadDocument';
   static const String fastTagListScreen = '/fastTagListScreen';
 
+  static const String chaBotScreen = '/chaBotScreen';
+
 
 }
