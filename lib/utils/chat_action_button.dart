@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/ai_chat/cubit/chat_cubit.dart';
 import 'package:gro_one_app/features/ai_chat/view/chat_screen.dart';
+
+import '../routing/app_route_name.dart';
 
 class ChatActionButton extends StatelessWidget {
   const ChatActionButton({super.key});
@@ -32,15 +35,16 @@ class ChatActionButton extends StatelessWidget {
       ),
       child: FloatingActionButton(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BlocProvider.value(
-                value: locator<ChatCubit>(),
-                child: const ChatScreen(),
-              ),
-            ),
-          );
+          context.push(AppRouteName.chaBotScreen);
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute(
+          //     builder: (context) => BlocProvider.value(
+          //       value: locator<ChatCubit>(),
+          //       child: const ChatScreen(),
+          //     ),
+          //   ),
+          // );
         },
         backgroundColor: Colors.transparent,
         elevation: 0,

@@ -516,7 +516,9 @@ class _ChatScreenState extends State<ChatScreen> {
                       GestureDetector(
                         onLongPress: () => _showMessageOptions(message),
                         child: RichText(
-                          text: _buildTextSpanWithLinksForUser(message.message),
+                          text: _buildTextSpanWithLinksForUser(
+                            _cleanMessageForDisplay(message.message),
+                          ),
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -1891,8 +1893,21 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildRichTextMessage(String text, ChatMessage message) {
     return GestureDetector(
       onLongPress: () => _showMessageOptions(message),
-      child: RichText(text: _buildTextSpanWithLinks(text)),
+      child: RichText(
+        text: _buildTextSpanWithLinks(_cleanMessageForDisplay(text)),
+      ),
     );
+  }
+
+  /// Clean message text by removing reference details for display
+  String _cleanMessageForDisplay(String text) {
+    // Remove reference details pattern: "Reference Details: lane_id: X, from_loc: Y, to_loc: Z"
+    final referencePattern = RegExp(
+      r'\n?\s*Reference Details:\s*lane_id:\s*\d+,\s*from_loc:\s*[^,]+,\s*to_loc:\s*[^,\n]+',
+      caseSensitive: false,
+    );
+
+    return text.replaceAll(referencePattern, '').trim();
   }
 
   /// Build TextSpan with clickable links for user messages (white text)
@@ -2056,7 +2071,7 @@ class _ChatScreenState extends State<ChatScreen> {
                   leading: Icon(Icons.copy, color: AppColors.primaryColor),
                   title: const Text('Copy Text'),
                   onTap: () {
-                    _copyToClipboard(message.message);
+                    _copyToClipboard(_cleanMessageForDisplay(message.message));
                     Navigator.pop(context);
                   },
                 ),
