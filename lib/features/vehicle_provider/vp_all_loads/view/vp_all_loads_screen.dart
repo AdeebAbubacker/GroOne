@@ -128,6 +128,10 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
 
   void _clearFilter() {
     loadFilterCubit.setIsFilterApplied(value: false);
+    loadFilterCubit.setLensData(leneId: null, value: null);
+    loadFilterCubit.setCommodityData(commodityId: null, value: null);
+    loadFilterCubit.setTruckTypeData(truckTypeId: null, value: null);
+
     commodityID = null;
     leneId = null;
     truckTypeId = null;
@@ -150,8 +154,11 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
     _lastAppliedDestination = null;
     _lastAppliedRouteId = null;
 
-    // Clear filter cubit state
+    // Clear filter cubit state completely
     loadFilterCubit.setIsFilterApplied(value: false);
+    loadFilterCubit.setLensData(leneId: null, value: null);
+    loadFilterCubit.setCommodityData(commodityId: null, value: null);
+    loadFilterCubit.setTruckTypeData(truckTypeId: null, value: null);
 
     // Clear search text
     searchController.clear();
@@ -291,8 +298,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
     leneId = null;
     truckTypeId = null;
 
-    // Wait for route data to load
-    await Future.delayed(const Duration(milliseconds: 1000));
+    // Wait for filter state to clear and route data to load
+    await Future.delayed(const Duration(milliseconds: 1500));
 
     // Get route data from ProfileCubit
     final profileCubit = locator<ProfileCubit>();
@@ -351,8 +358,11 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
         _lastAppliedSource = currentSource;
         _lastAppliedDestination = currentDestination;
         _lastAppliedRouteId = currentRouteId;
+        // Force UI update to show new filter immediately
+        setState(() {});
+
         // Add a small delay to ensure filter is properly set before refreshing
-        Future.delayed(const Duration(milliseconds: 100), () {
+        Future.delayed(const Duration(milliseconds: 200), () {
           if (mounted) {
             // Refresh loads with applied filter
             _onPullToRefresh(forceRefresh: true);
@@ -492,12 +502,11 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
                           buildTab(),
                           buildTab(),
 
-                  buildTab(),
-                  buildTab(),
-                  buildTab(disabledOnTap: true),
-
-                ],
-              ),
+                          buildTab(),
+                          buildTab(),
+                          buildTab(disabledOnTap: true),
+                        ],
+                      ),
             ),
           ],
         ),
