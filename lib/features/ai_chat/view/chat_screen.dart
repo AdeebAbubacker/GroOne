@@ -42,18 +42,16 @@ class _ChatScreenState extends State<ChatScreen> {
   String? _currentPlayingPath;
   bool _isLoadingHistory = false;
   bool _showLanguageOptions =
-  false; // Flag to prevent multiple pagination calls
+      false; // Flag to prevent multiple pagination calls
   final profileCubit = locator<ProfileCubit>();
   final LocationService _locationService = LocationService();
   String? _currentLocation; // Store current city and state
   String? _loadingTTSMessageId; // Track which message is loading TTS
 
-
   // Scroll position tracking - simplified
   // Simple scroll tracking like your working example
   bool _isAtBottom = true;
   int _lastMessageCount = 0;
-
 
   @override
   void initState() {
@@ -114,7 +112,8 @@ class _ChatScreenState extends State<ChatScreen> {
     _isAtBottom = _scrollController.position.pixels <= 50;
 
     // Simple pagination trigger - exactly like your working example
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+    if (_scrollController.position.pixels ==
+        _scrollController.position.maxScrollExtent) {
       final chatCubit = context.read<ChatCubit>();
 
       if (chatCubit.state.hasMoreMessages && !_isLoadingHistory) {
@@ -130,38 +129,43 @@ class _ChatScreenState extends State<ChatScreen> {
   Future<void> _getCurrentCity() async {
     try {
       final positionResult = await _locationService.getCurrentLatLong();
-      
+
       if (positionResult is Success) {
         final successResult = positionResult as Success;
         final position = successResult.value;
-        
+
         try {
           List<Placemark> placemarks = await placemarkFromCoordinates(
-            position.latitude, 
-            position.longitude
+            position.latitude,
+            position.longitude,
           );
-          
+
           if (placemarks.isNotEmpty) {
             final placemark = placemarks.first;
 
             // Build full address in the format: Area, Subarea, City, State Pincode
             List<String> addressParts = [];
-            if (placemark.subThoroughfare != null && placemark.subThoroughfare!.isNotEmpty) {
+            if (placemark.subThoroughfare != null &&
+                placemark.subThoroughfare!.isNotEmpty) {
               addressParts.add(placemark.subThoroughfare!);
             }
-            if (placemark.thoroughfare != null && placemark.thoroughfare!.isNotEmpty) {
+            if (placemark.thoroughfare != null &&
+                placemark.thoroughfare!.isNotEmpty) {
               addressParts.add(placemark.thoroughfare!);
             }
-            if (placemark.subLocality != null && placemark.subLocality!.isNotEmpty) {
+            if (placemark.subLocality != null &&
+                placemark.subLocality!.isNotEmpty) {
               addressParts.add(placemark.subLocality!);
             }
             if (placemark.locality != null && placemark.locality!.isNotEmpty) {
               addressParts.add(placemark.locality!);
             }
-            if (placemark.administrativeArea != null && placemark.administrativeArea!.isNotEmpty) {
+            if (placemark.administrativeArea != null &&
+                placemark.administrativeArea!.isNotEmpty) {
               addressParts.add(placemark.administrativeArea!);
             }
-            if (placemark.postalCode != null && placemark.postalCode!.isNotEmpty) {
+            if (placemark.postalCode != null &&
+                placemark.postalCode!.isNotEmpty) {
               addressParts.add(placemark.postalCode!);
             }
 
@@ -184,7 +188,6 @@ class _ChatScreenState extends State<ChatScreen> {
       }
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -252,9 +255,7 @@ class _ChatScreenState extends State<ChatScreen> {
             return Column(
               children: [
                 // Messages List
-                Expanded(
-                  child: _buildMessagesList(state.messages),
-                ),
+                Expanded(child: _buildMessagesList(state.messages)),
                 // Recording Indicator or Audio Preview
                 if (state.isRecording) _buildRecordingIndicator(state),
                 if (state.recordedAudioPath != null) _buildAudioPreview(state),
@@ -308,11 +309,7 @@ class _ChatScreenState extends State<ChatScreen> {
       padding: const EdgeInsets.all(10.0),
       child: Row(
         children: [
-          Icon(
-            Icons.info_outline,
-            color: AppColors.grayColor,
-            size: 18,
-          ),
+          Icon(Icons.info_outline, color: AppColors.grayColor, size: 18),
           const SizedBox(width: 2),
           Expanded(
             child: Text(
@@ -329,69 +326,70 @@ class _ChatScreenState extends State<ChatScreen> {
       ),
     );
   }
+
   Widget _buildChatLimit() {
     return BlocListener<ChatCubit, ChatState>(
       listenWhen: (previous, current) {
-        final changed = previous.todaysChatCount != current.todaysChatCount || 
-                       previous.dailyChatLimit != current.dailyChatLimit;
-        if (changed) {
-        }
+        final changed =
+            previous.todaysChatCount != current.todaysChatCount ||
+            previous.dailyChatLimit != current.dailyChatLimit;
+        if (changed) {}
         return changed;
       },
-      listener: (context, state) {
-      },
+      listener: (context, state) {},
       child: BlocBuilder<ChatCubit, ChatState>(
         buildWhen: (previous, current) {
-          final shouldRebuild = previous.todaysChatCount != current.todaysChatCount || previous.dailyChatLimit != current.dailyChatLimit;
+          final shouldRebuild =
+              previous.todaysChatCount != current.todaysChatCount ||
+              previous.dailyChatLimit != current.dailyChatLimit;
           return shouldRebuild;
         },
         builder: (context, state) {
           // Show 0/0 initially until data is loaded from API
           final todaysCount = state.todaysChatCount;
           final dailyLimit = state.dailyChatLimit;
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 6.0),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: 'Chats Today : ',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.primaryColor,
-                          fontWeight: FontWeight.w500,
-                          height: 1.3,
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 6.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text.rich(
+                    TextSpan(
+                      children: [
+                        TextSpan(
+                          text: 'Chats Today : ',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.primaryColor,
+                            fontWeight: FontWeight.w500,
+                            height: 1.3,
+                          ),
                         ),
-                      ),
-                      TextSpan(
-                        text: '$todaysCount',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.black,
-                          fontWeight: FontWeight.bold,
-                          height: 1.3,
+                        TextSpan(
+                          text: '$todaysCount',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.black,
+                            fontWeight: FontWeight.bold,
+                            height: 1.3,
+                          ),
                         ),
-                      ),
-                      TextSpan(
-                        text: ' / $dailyLimit',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: AppColors.grayColor,
-                          fontWeight: FontWeight.w500,
-                          height: 1.3,
+                        TextSpan(
+                          text: ' / $dailyLimit',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: AppColors.grayColor,
+                            fontWeight: FontWeight.w500,
+                            height: 1.3,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-
-              ),
-            ],
-          ),
-        );
+              ],
+            ),
+          );
         },
       ),
     );
@@ -407,35 +405,36 @@ class _ChatScreenState extends State<ChatScreen> {
 
         // Show default greeting only if no messages and not loading
         List<ChatMessage> displayMessages =
-        messages.isEmpty && !state.isLoading
-            ? [
-          ChatMessage(
-            id: 'greeting',
-            message: 'Hello! How Can i Help you?',
-            isUser: false,
-            timestamp: DateTime.now(),
-            language: 'en',
-            messageType: MessageType.text,
-            reported: false, // Default greeting is not reported
-          ),
-        ]
-            : messages.reversed.toList();
+            messages.isEmpty && !state.isLoading
+                ? [
+                  ChatMessage(
+                    id: 'greeting',
+                    message: 'Hello! How Can i Help you?',
+                    isUser: false,
+                    timestamp: DateTime.now(),
+                    language: 'en',
+                    messageType: MessageType.text,
+                    reported: false, // Default greeting is not reported
+                  ),
+                ]
+                : messages.reversed.toList();
 
         return ListView.builder(
-          reverse: true, // Important for chat-like behavior - like working example
+          reverse:
+              true, // Important for chat-like behavior - like working example
           key: const PageStorageKey('chat-list'),
           controller: _scrollController,
           physics: const AlwaysScrollableScrollPhysics(),
           padding: const EdgeInsets.all(16),
           itemCount:
-          displayMessages.length +
+              displayMessages.length +
               (state.isTyping ? 1 : 0) +
               (state.hasMoreMessages ? 1 : 0) +
               (state.isProcessingVoice ? 2 : 0),
           itemBuilder: (context, index) {
             // With reverse: true, indicators should appear at the top (index 0)
             int currentIndex = 0;
-            
+
             // Voice processing indicators (appear first at top)
             if (state.isProcessingVoice) {
               if (index == currentIndex) {
@@ -443,14 +442,14 @@ class _ChatScreenState extends State<ChatScreen> {
                 return _buildTypingIndicator();
               }
               currentIndex++;
-              
+
               if (index == currentIndex) {
                 // Show "Transcribing..." message (user side) - appears second
                 return _buildTranscribingMessage();
               }
               currentIndex++;
             }
-            
+
             // Typing indicator (for text messages)
             if (state.isTyping && !state.isProcessingVoice) {
               if (index == currentIndex) {
@@ -458,18 +457,19 @@ class _ChatScreenState extends State<ChatScreen> {
               }
               currentIndex++;
             }
-            
+
             // Messages
             final messageIndex = index - currentIndex;
             if (messageIndex >= 0 && messageIndex < displayMessages.length) {
               return _buildMessageBubble(displayMessages[messageIndex]);
             }
-            
+
             // Loading indicator at bottom (when loading more history)
-            if (state.hasMoreMessages && index == displayMessages.length + currentIndex) {
+            if (state.hasMoreMessages &&
+                index == displayMessages.length + currentIndex) {
               return _buildTopLoadingIndicator();
             }
-            
+
             return const SizedBox.shrink();
           },
         );
@@ -485,200 +485,208 @@ class _ChatScreenState extends State<ChatScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
         mainAxisAlignment:
-        isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+            isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (!isUser) ...[_buildAvatarIcon(false), const SizedBox(width: 8)],
 
           isUser
               ? IntrinsicWidth(
-            child: Container(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.75,
-              ),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.primaryColor,
-                borderRadius: BorderRadius.circular(16).copyWith(
-                  bottomRight: const Radius.circular(4),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  GestureDetector(
-                    onLongPress: () => _showMessageOptions(message),
-                    child: RichText(
-                      text: _buildTextSpanWithLinksForUser(message.message),
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    _formatTime(message.timestamp),
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: AppColors.white,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          )
-              : Flexible(
-            child: Container(
-              constraints: BoxConstraints(
-                maxWidth: MediaQuery.of(context).size.width * 0.75,
-              ),
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16).copyWith(
-                  bottomLeft: const Radius.circular(4),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isVoice)
-                    _buildVoiceMessage(message.message)
-                  else
-                    _buildRichTextMessage(message.message, message),
-                  
-                  // Add "View Loads" button when message contains load-related content
-                  if (!isVoice && _isLoadRelatedMessage(message.message)) ...[
-                    const SizedBox(height: 8),
-                    _buildViewLoadsButton(_createLoadDataFromMessage(message.message)),
-                  ],
-                  
-                  const SizedBox(height: 4),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Left side: timestamp, language, and report icon
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            _formatTime(message.timestamp),
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.grayColor,
-                            ),
-                          ),
-                          if (!isVoice) ...[
-                            const SizedBox(width: 8),
-                            // Language indicator
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.grayColor.withValues(alpha: 0.2),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Text(
-                                _getLanguageDisplayName(message.language),
-                                style: TextStyle(
-                                  fontSize: 10,
-                                  color: AppColors.grayColor,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            // Report icon for AI text responses
-                            if (!message.reported)
-                              GestureDetector(
-                                onTap: () {
-                                  // Show confirmation dialog before reporting
-                                  _showReportConfirmationDialog(message.id);
-                                },
-                                child: Icon(
-                                  Icons.thumb_down_off_alt_outlined,
-                                  size: 16,
-                                  color: AppColors.grayColor,
-                                ),
-                              )
-                            else
-                            // Show "Reported" label when message is already reported
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFE31B25).withValues(alpha: 0.1),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(
-                                  Icons.thumb_down_off_alt_outlined,
-                                  size: 16,
-                                  color: AppColors.red,
-                                ),
-                              ),
-                          ],
-                        ],
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: AppColors.primaryColor,
+                    borderRadius: BorderRadius.circular(
+                      16,
+                    ).copyWith(bottomRight: const Radius.circular(4)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
                       ),
-                      // Right side: speaker icon positioned on far right of the card
-                      if (!isVoice)
-                        GestureDetector(
-                          onTap: () {
-                            // Don't allow tap if this message is loading TTS
-                            if (_loadingTTSMessageId == message.id) return;
-                            
-                            if (message.isPlaying) {
-                              // Stop current audio if this message is playing
-                              _audioPlayer.stop();
-                              setState(() {
-                                message.isPlaying = false;
-                                _isPlayingPreview = false;
-                              });
-                            } else {
-                              // Play audio for this message
-                              _playTextToSpeech(message);
-                            }
-                          },
-                          child: _loadingTTSMessageId == message.id
-                              ? SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.primaryColor,
-                                    ),
-                                  ),
-                                )
-                              : Icon(
-                                  message.isPlaying ? Icons.stop : Icons.volume_up,
-                                  size: 20,
-                                  color:
-                                  message.isPlaying
-                                      ? const Color(0xFFE31B25)
-                                      : AppColors.grayColor,
-                                ),
-                        ),
                     ],
                   ),
-                ],
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onLongPress: () => _showMessageOptions(message),
+                        child: RichText(
+                          text: _buildTextSpanWithLinksForUser(message.message),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        _formatTime(message.timestamp),
+                        style: TextStyle(fontSize: 12, color: AppColors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              : Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(
+                      16,
+                    ).copyWith(bottomLeft: const Radius.circular(4)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.1),
+                        blurRadius: 2,
+                        offset: const Offset(0, 1),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (isVoice)
+                        _buildVoiceMessage(message.message)
+                      else
+                        _buildRichTextMessage(message.message, message),
+
+                      // Add "View Loads" button when message contains load-related content
+                      if (!isVoice &&
+                          _isLoadRelatedMessage(message.message)) ...[
+                        const SizedBox(height: 8),
+                        _buildViewLoadsButton(
+                          _createLoadDataFromMessage(message.message),
+                        ),
+                      ],
+
+                      const SizedBox(height: 4),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          // Left side: timestamp, language, and report icon
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                _formatTime(message.timestamp),
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.grayColor,
+                                ),
+                              ),
+                              if (!isVoice) ...[
+                                const SizedBox(width: 8),
+                                // Language indicator
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.grayColor.withValues(
+                                      alpha: 0.2,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    _getLanguageDisplayName(message.language),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      color: AppColors.grayColor,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                // Report icon for AI text responses
+                                if (!message.reported)
+                                  GestureDetector(
+                                    onTap: () {
+                                      // Show confirmation dialog before reporting
+                                      _showReportConfirmationDialog(message.id);
+                                    },
+                                    child: Icon(
+                                      Icons.thumb_down_off_alt_outlined,
+                                      size: 16,
+                                      color: AppColors.grayColor,
+                                    ),
+                                  )
+                                else
+                                  // Show "Reported" label when message is already reported
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(
+                                        0xFFE31B25,
+                                      ).withValues(alpha: 0.1),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Icon(
+                                      Icons.thumb_down_off_alt_outlined,
+                                      size: 16,
+                                      color: AppColors.red,
+                                    ),
+                                  ),
+                              ],
+                            ],
+                          ),
+                          // Right side: speaker icon positioned on far right of the card
+                          if (!isVoice)
+                            GestureDetector(
+                              onTap: () {
+                                // Don't allow tap if this message is loading TTS
+                                if (_loadingTTSMessageId == message.id) return;
+
+                                if (message.isPlaying) {
+                                  // Stop current audio if this message is playing
+                                  _audioPlayer.stop();
+                                  setState(() {
+                                    message.isPlaying = false;
+                                    _isPlayingPreview = false;
+                                  });
+                                } else {
+                                  // Play audio for this message
+                                  _playTextToSpeech(message);
+                                }
+                              },
+                              child:
+                                  _loadingTTSMessageId == message.id
+                                      ? SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                AppColors.primaryColor,
+                                              ),
+                                        ),
+                                      )
+                                      : Icon(
+                                        message.isPlaying
+                                            ? Icons.stop
+                                            : Icons.volume_up,
+                                        size: 20,
+                                        color:
+                                            message.isPlaying
+                                                ? const Color(0xFFE31B25)
+                                                : AppColors.grayColor,
+                                      ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            ),
-          ),
 
           if (isUser) ...[const SizedBox(width: 8), _buildAvatarIcon(true)],
         ],
@@ -713,32 +721,32 @@ class _ChatScreenState extends State<ChatScreen> {
               ),
               child: Center(
                 child:
-                isUser
-                    ? Text(
-                  getInitialsFromName(
-                    this,
-                    name:
-                    state
-                        .profileDetailUIState!
-                        .data!
-                        .customer!
-                        .companyName,
-                  ),
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                )
-                    : SvgPicture.asset(
-                  'assets/icons/svg/chatIcon.svg',
-                  width: 24,
-                  height: 24,
-                  colorFilter: const ColorFilter.mode(
-                    Colors.white,
-                    BlendMode.srcIn,
-                  ),
-                ),
+                    isUser
+                        ? Text(
+                          getInitialsFromName(
+                            this,
+                            name:
+                                state
+                                    .profileDetailUIState!
+                                    .data!
+                                    .customer!
+                                    .companyName,
+                          ),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                        : SvgPicture.asset(
+                          'assets/icons/svg/chatIcon.svg',
+                          width: 24,
+                          height: 24,
+                          colorFilter: const ColorFilter.mode(
+                            Colors.white,
+                            BlendMode.srcIn,
+                          ),
+                        ),
               ),
             );
           }
@@ -811,9 +819,9 @@ class _ChatScreenState extends State<ChatScreen> {
               final duration = _audioPlayer.duration ?? Duration.zero;
               final isCurrentPlaying = _currentPlayingPath == audioPath;
               final progress =
-              isCurrentPlaying && duration.inMilliseconds > 0
-                  ? position.inMilliseconds / duration.inMilliseconds
-                  : 0.0;
+                  isCurrentPlaying && duration.inMilliseconds > 0
+                      ? position.inMilliseconds / duration.inMilliseconds
+                      : 0.0;
 
               return Row(
                 children: [
@@ -859,7 +867,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           if (isCurrentPlaying) {
                             final seekPosition = Duration(
                               milliseconds:
-                              (value * duration.inMilliseconds).round(),
+                                  (value * duration.inMilliseconds).round(),
                             );
                             _audioPlayer.seek(seekPosition);
                           }
@@ -933,20 +941,22 @@ class _ChatScreenState extends State<ChatScreen> {
                   '${state.recordingDuration}s / 15s${state.recordingDuration >= 12 ? ' (stopping soon)' : ''}',
                   style: TextStyle(
                     color:
-                    state.recordingDuration >= 12
-                        ? const Color(0xFFB71C1C) // Dark red
-                        : const Color(0xFFD32F2F), // Medium red
+                        state.recordingDuration >= 12
+                            ? const Color(0xFFB71C1C) // Dark red
+                            : const Color(0xFFD32F2F), // Medium red
                     fontSize: 12,
                     fontWeight:
-                    state.recordingDuration >= 12
-                        ? FontWeight.bold
-                        : FontWeight.normal,
+                        state.recordingDuration >= 12
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                   ),
                 ),
                 const SizedBox(height: 8),
                 LinearProgressIndicator(
                   value: state.recordingDuration / 15.0,
-                  backgroundColor: const Color(0xFFFFCDD2), // Light red background
+                  backgroundColor: const Color(
+                    0xFFFFCDD2,
+                  ), // Light red background
                   valueColor: AlwaysStoppedAnimation<Color>(
                     state.recordingDuration >= 12
                         ? const Color(0xFFB71C1C) // Dark red
@@ -1002,9 +1012,9 @@ class _ChatScreenState extends State<ChatScreen> {
               final position = snapshot.data ?? Duration.zero;
               final duration = _audioPlayer.duration ?? Duration.zero;
               final progress =
-              duration.inMilliseconds > 0
-                  ? position.inMilliseconds / duration.inMilliseconds
-                  : 0.0;
+                  duration.inMilliseconds > 0
+                      ? position.inMilliseconds / duration.inMilliseconds
+                      : 0.0;
 
               return Row(
                 children: [
@@ -1027,7 +1037,7 @@ class _ChatScreenState extends State<ChatScreen> {
                         onChanged: (value) {
                           final seekPosition = Duration(
                             milliseconds:
-                            (value * duration.inMilliseconds).round(),
+                                (value * duration.inMilliseconds).round(),
                           );
                           _audioPlayer.seek(seekPosition);
                         },
@@ -1073,7 +1083,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 },
                 icon: Icon(
                   (_isPlayingPreview &&
-                      _currentPlayingPath == state.recordedAudioPath)
+                          _currentPlayingPath == state.recordedAudioPath)
                       ? Icons.pause
                       : Icons.play_arrow,
                   color: Colors.blue[600],
@@ -1103,9 +1113,14 @@ class _ChatScreenState extends State<ChatScreen> {
                   _textController.clear();
                   setState(() {}); // Force UI refresh
                 },
-                icon: const Icon(Icons.delete, color: Color(0xFFE31B25)), // Red delete icon
+                icon: const Icon(
+                  Icons.delete,
+                  color: Color(0xFFE31B25),
+                ), // Red delete icon
                 style: IconButton.styleFrom(
-                  backgroundColor: const Color(0xFFFFCDD2), // Light red background
+                  backgroundColor: const Color(
+                    0xFFFFCDD2,
+                  ), // Light red background
                   shape: const CircleBorder(),
                 ),
               ),
@@ -1119,21 +1134,21 @@ class _ChatScreenState extends State<ChatScreen> {
 
                   return ElevatedButton.icon(
                     onPressed:
-                    canSend
-                        ? () {
-                      context.read<ChatCubit>().sendRecordedAudio(
-                        currentLocation: _currentLocation,
-                      );
-                      // Reset audio player state
-                      if (_isPlayingPreview) {
-                        _audioPlayer.stop();
-                        setState(() {
-                          _isPlayingPreview = false;
-                          _currentPlayingPath = null;
-                        });
-                      }
-                    }
-                        : null, // Disable when waiting for response
+                        canSend
+                            ? () {
+                              context.read<ChatCubit>().sendRecordedAudio(
+                                currentLocation: _currentLocation,
+                              );
+                              // Reset audio player state
+                              if (_isPlayingPreview) {
+                                _audioPlayer.stop();
+                                setState(() {
+                                  _isPlayingPreview = false;
+                                  _currentPlayingPath = null;
+                                });
+                              }
+                            }
+                            : null, // Disable when waiting for response
                     icon: Icon(
                       isWaitingForResponse ? Icons.hourglass_empty : Icons.send,
                       size: 18,
@@ -1141,7 +1156,7 @@ class _ChatScreenState extends State<ChatScreen> {
                     label: Text(isWaitingForResponse ? 'Sending...' : 'Send'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor:
-                      canSend ? AppColors.primaryColor : Colors.grey[400],
+                          canSend ? AppColors.primaryColor : Colors.grey[400],
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
@@ -1173,54 +1188,55 @@ class _ChatScreenState extends State<ChatScreen> {
               _showLanguageOptions
                   ? Expanded(child: _buildFloatingLanguageOptions())
                   : Expanded(
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF5F5F5),
-                    borderRadius: BorderRadius.circular(25),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: BlocBuilder<ChatCubit, ChatState>(
-                    builder: (context, chatState) {
-                      final isWaitingForResponse =
-                          chatState.isTyping || chatState.isLoading;
-                      final isDisabled =
-                          state.isRecording ||
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(25),
+                        border: Border.all(color: Colors.grey[300]!),
+                      ),
+                      child: BlocBuilder<ChatCubit, ChatState>(
+                        builder: (context, chatState) {
+                          final isWaitingForResponse =
+                              chatState.isTyping || chatState.isLoading;
+                          final isDisabled =
+                              state.isRecording ||
                               state.recordedAudioPath != null ||
                               isWaitingForResponse;
-                      return TextField(
-                        minLines: 1,
-                        maxLines: 3,
-                        controller: _textController,
-                        enabled: !isDisabled,
-                        // Disable when recording, preview, or waiting for response
-                        decoration: InputDecoration(
-                          hintText:
-                          state.isRecording
-                              ? 'Recording...'
-                              : state.recordedAudioPath != null
-                              ? 'Audio recorded'
-                              : isWaitingForResponse
-                              ? (state.isProcessingVoice
-                              ? 'Transcribing...'
-                              : 'AI is responding...')
-                              : 'Type here',
-                          hintStyle: TextStyle(
-                            color: isDisabled ? Colors.grey[400] : Colors.grey,
-                          ),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
-                        ),
-                        onChanged: (text) {
-                          setState(() {}); // Update send button state
+                          return TextField(
+                            minLines: 1,
+                            maxLines: 3,
+                            controller: _textController,
+                            enabled: !isDisabled,
+                            // Disable when recording, preview, or waiting for response
+                            decoration: InputDecoration(
+                              hintText:
+                                  state.isRecording
+                                      ? 'Recording...'
+                                      : state.recordedAudioPath != null
+                                      ? 'Audio recorded'
+                                      : isWaitingForResponse
+                                      ? (state.isProcessingVoice
+                                          ? 'Transcribing...'
+                                          : 'AI is responding...')
+                                      : 'Type here',
+                              hintStyle: TextStyle(
+                                color:
+                                    isDisabled ? Colors.grey[400] : Colors.grey,
+                              ),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 12,
+                              ),
+                            ),
+                            onChanged: (text) {
+                              setState(() {}); // Update send button state
+                            },
+                          );
                         },
-                      );
-                    },
+                      ),
+                    ),
                   ),
-                ),
-              ),
 
               const SizedBox(width: 8),
 
@@ -1231,42 +1247,43 @@ class _ChatScreenState extends State<ChatScreen> {
                       chatState.isTyping || chatState.isLoading;
                   final canRecord =
                       !isWaitingForResponse &&
-                          state.recordedAudioPath == null &&
-                          !state.isProcessingVoice;
+                      state.recordedAudioPath == null &&
+                      !state.isProcessingVoice;
 
                   return GestureDetector(
                     onTap:
-                    canRecord
-                        ? () {
-                      if (state.isRecording) {
-                        context.read<ChatCubit>().stopRecording();
-                      } else if (_showLanguageOptions) {
-                        // Hide language options (cancel)
-                        setState(() {
-                          _showLanguageOptions = false;
-                        });
-                      } else {
-                        // Show floating language options
+                        canRecord
+                            ? () {
+                              if (state.isRecording) {
+                                context.read<ChatCubit>().stopRecording();
+                              } else if (_showLanguageOptions) {
+                                // Hide language options (cancel)
+                                setState(() {
+                                  _showLanguageOptions = false;
+                                });
+                              } else {
+                                // Show floating language options
 
-                        setState(() {
-                          _showLanguageOptions = true;
-                        });
-                      }
-                    }
-                        : null,
+                                setState(() {
+                                  _showLanguageOptions = true;
+                                });
+                              }
+                            }
+                            : null,
                     // Disable when waiting for response or when audio is recorded
                     child: Container(
                       width: 48,
                       height: 48,
                       decoration: BoxDecoration(
                         color:
-                        state.isRecording
-                            ? const Color(0xFFE31B25) // Red when recording
-                            : state.recordedAudioPath != null
-                            ? Colors.blue[300]
-                            : canRecord
-                            ? Colors.grey[400]
-                            : Colors.grey[300], // Lighter grey when disabled
+                            state.isRecording
+                                ? const Color(0xFFE31B25) // Red when recording
+                                : state.recordedAudioPath != null
+                                ? Colors.blue[300]
+                                : canRecord
+                                ? Colors.grey[400]
+                                : Colors
+                                    .grey[300], // Lighter grey when disabled
                         shape: BoxShape.circle,
                       ),
                       child: Icon(
@@ -1296,31 +1313,33 @@ class _ChatScreenState extends State<ChatScreen> {
 
                     return GestureDetector(
                       onTap:
-                      canSend
-                          ? () {
-                        final text = _textController.text.trim();
-                        if (text.isNotEmpty) {
-                          context.read<ChatCubit>().sendTextMessage(
-                            text,
-                            currentLocation: _currentLocation,
-                          );
-                          _textController.clear();
-                          setState(() {}); // Update UI
-                        }
-                      }
-                          : null, // Disable when waiting for response
+                          canSend
+                              ? () {
+                                final text = _textController.text.trim();
+                                if (text.isNotEmpty) {
+                                  context.read<ChatCubit>().sendTextMessage(
+                                    text,
+                                    currentLocation: _currentLocation,
+                                  );
+                                  _textController.clear();
+                                  setState(() {}); // Update UI
+                                }
+                              }
+                              : null, // Disable when waiting for response
                       child: Container(
                         width: 48,
                         height: 48,
                         decoration: BoxDecoration(
                           color:
-                          canSend
-                              ? AppColors.primaryColor
-                              : Colors.grey[400], // Grey when disabled
+                              canSend
+                                  ? AppColors.primaryColor
+                                  : Colors.grey[400], // Grey when disabled
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          isWaitingForResponse ? Icons.hourglass_empty : Icons.send,
+                          isWaitingForResponse
+                              ? Icons.hourglass_empty
+                              : Icons.send,
                           color: Colors.white,
                           size: 24,
                         ),
@@ -1383,11 +1402,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// Build individual floating language button
   Widget _buildFloatingLanguageButton(
-      ChatLanguage language,
-      String label,
-      IconData icon,
-      Color color,
-      ) {
+    ChatLanguage language,
+    String label,
+    IconData icon,
+    Color color,
+  ) {
     return GestureDetector(
       onTap: () {
         // Hide options
@@ -1705,7 +1724,7 @@ class _ChatScreenState extends State<ChatScreen> {
       case 'ta-in':
         return 'ta-IN';
       default:
-      // For any other language, default to English
+        // For any other language, default to English
         return 'en-IN';
     }
   }
@@ -1780,7 +1799,7 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         _loadingTTSMessageId = null;
       });
-      
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -1872,9 +1891,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget _buildRichTextMessage(String text, ChatMessage message) {
     return GestureDetector(
       onLongPress: () => _showMessageOptions(message),
-      child: RichText(
-        text: _buildTextSpanWithLinks(text),
-      ),
+      child: RichText(text: _buildTextSpanWithLinks(text)),
     );
   }
 
@@ -1884,15 +1901,12 @@ class _ChatScreenState extends State<ChatScreen> {
       r'https?://[^\s<>"{}|\\^`\[\]]+',
       caseSensitive: false,
     );
-    
+
     final matches = urlPattern.allMatches(text);
     if (matches.isEmpty) {
       return TextSpan(
         text: text,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.white,
-        ),
+        style: const TextStyle(fontSize: 16, color: Colors.white),
       );
     }
 
@@ -1902,41 +1916,40 @@ class _ChatScreenState extends State<ChatScreen> {
     for (final match in matches) {
       // Add text before the URL
       if (match.start > lastIndex) {
-        spans.add(TextSpan(
-          text: text.substring(lastIndex, match.start),
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.white,
+        spans.add(
+          TextSpan(
+            text: text.substring(lastIndex, match.start),
+            style: const TextStyle(fontSize: 16, color: Colors.white),
           ),
-        ));
+        );
       }
 
       // Add the clickable URL
       final url = match.group(0)!;
-      spans.add(TextSpan(
-        text: url,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.white,
-          decoration: TextDecoration.underline,
-          decorationColor: Colors.white,
+      spans.add(
+        TextSpan(
+          text: url,
+          style: const TextStyle(
+            fontSize: 16,
+            color: Colors.white,
+            decoration: TextDecoration.underline,
+            decorationColor: Colors.white,
+          ),
+          recognizer: TapGestureRecognizer()..onTap = () => _launchUrl(url),
         ),
-        recognizer: TapGestureRecognizer()
-          ..onTap = () => _launchUrl(url),
-      ));
+      );
 
       lastIndex = match.end;
     }
 
     // Add remaining text after the last URL
     if (lastIndex < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastIndex),
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.white,
+      spans.add(
+        TextSpan(
+          text: text.substring(lastIndex),
+          style: const TextStyle(fontSize: 16, color: Colors.white),
         ),
-      ));
+      );
     }
 
     return TextSpan(children: spans);
@@ -1948,15 +1961,12 @@ class _ChatScreenState extends State<ChatScreen> {
       r'https?://[^\s<>"{}|\\^`\[\]]+',
       caseSensitive: false,
     );
-    
+
     final matches = urlPattern.allMatches(text);
     if (matches.isEmpty) {
       return TextSpan(
         text: text,
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.black,
-        ),
+        style: const TextStyle(fontSize: 16, color: Colors.black),
       );
     }
 
@@ -1966,41 +1976,40 @@ class _ChatScreenState extends State<ChatScreen> {
     for (final match in matches) {
       // Add text before the URL
       if (match.start > lastIndex) {
-        spans.add(TextSpan(
-          text: text.substring(lastIndex, match.start),
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.black,
+        spans.add(
+          TextSpan(
+            text: text.substring(lastIndex, match.start),
+            style: const TextStyle(fontSize: 16, color: Colors.black),
           ),
-        ));
+        );
       }
 
       // Add the clickable URL
       final url = match.group(0)!;
-      spans.add(TextSpan(
-        text: url,
-        style: TextStyle(
-          fontSize: 16,
-          color: AppColors.primaryColor,
-          decoration: TextDecoration.underline,
-          decorationColor: AppColors.primaryColor,
+      spans.add(
+        TextSpan(
+          text: url,
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.primaryColor,
+            decoration: TextDecoration.underline,
+            decorationColor: AppColors.primaryColor,
+          ),
+          recognizer: TapGestureRecognizer()..onTap = () => _launchUrl(url),
         ),
-        recognizer: TapGestureRecognizer()
-          ..onTap = () => _launchUrl(url),
-      ));
+      );
 
       lastIndex = match.end;
     }
 
     // Add remaining text after the last URL
     if (lastIndex < text.length) {
-      spans.add(TextSpan(
-        text: text.substring(lastIndex),
-        style: const TextStyle(
-          fontSize: 16,
-          color: Colors.black,
+      spans.add(
+        TextSpan(
+          text: text.substring(lastIndex),
+          style: const TextStyle(fontSize: 16, color: Colors.black),
         ),
-      ));
+      );
     }
 
     return TextSpan(children: spans);
@@ -2028,63 +2037,73 @@ class _ChatScreenState extends State<ChatScreen> {
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
-      builder: (context) => Container(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ListTile(
-              leading: Icon(Icons.copy, color: AppColors.primaryColor),
-              title: const Text('Copy Text'),
-              onTap: () {
-                _copyToClipboard(message.message);
-                Navigator.pop(context);
-              },
-            ),
-            if (!message.isUser && message.messageType != MessageType.voice) ...[
-              ListTile(
-                leading: _loadingTTSMessageId == message.id
-                    ? SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            AppColors.primaryColor,
-                          ),
-                        ),
-                      )
-                    : Icon(Icons.volume_up, color: AppColors.primaryColor),
-                title: const Text('Play Audio'),
-                onTap: _loadingTTSMessageId == message.id
-                    ? null // Disable tap when loading
-                    : () {
-                        Navigator.pop(context);
-                        _playTextToSpeech(message);
-                      },
-              ),
-              if (!message.reported)
+      builder:
+          (context) => Container(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 ListTile(
-                  leading: Icon(Icons.thumb_down_off_alt_outlined, color: AppColors.grayColor),
-                  title: const Text('Report Message'),
+                  leading: Icon(Icons.copy, color: AppColors.primaryColor),
+                  title: const Text('Copy Text'),
                   onTap: () {
+                    _copyToClipboard(message.message);
                     Navigator.pop(context);
-                    _showReportConfirmationDialog(message.id);
                   },
                 ),
-            ],
-          ],
-        ),
-      ),
+                if (!message.isUser &&
+                    message.messageType != MessageType.voice) ...[
+                  ListTile(
+                    leading:
+                        _loadingTTSMessageId == message.id
+                            ? SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  AppColors.primaryColor,
+                                ),
+                              ),
+                            )
+                            : Icon(
+                              Icons.volume_up,
+                              color: AppColors.primaryColor,
+                            ),
+                    title: const Text('Play Audio'),
+                    onTap:
+                        _loadingTTSMessageId == message.id
+                            ? null // Disable tap when loading
+                            : () {
+                              Navigator.pop(context);
+                              _playTextToSpeech(message);
+                            },
+                  ),
+                  if (!message.reported)
+                    ListTile(
+                      leading: Icon(
+                        Icons.thumb_down_off_alt_outlined,
+                        color: AppColors.grayColor,
+                      ),
+                      title: const Text('Report Message'),
+                      onTap: () {
+                        Navigator.pop(context);
+                        _showReportConfirmationDialog(message.id);
+                      },
+                    ),
+                ],
+              ],
+            ),
+          ),
     );
   }
 
@@ -2118,7 +2137,7 @@ class _ChatScreenState extends State<ChatScreen> {
 
   /// Build "View Loads" button for messages with load data
   Widget _buildViewLoadsButton(LoadData loadData) {
-    return  GestureDetector(
+    return GestureDetector(
       onTap: () => _navigateToVpAllLoads(loadData),
       child: Row(
         children: [
@@ -2132,11 +2151,14 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Icon(Icons.visibility, size: 16, color: AppColors.primaryColor),
-          )
+            child: Icon(
+              Icons.visibility,
+              size: 16,
+              color: AppColors.primaryColor,
+            ),
+          ),
         ],
       ),
-
     );
     // return Container(
     //   child: ElevatedButton.icon(
@@ -2154,11 +2176,10 @@ class _ChatScreenState extends State<ChatScreen> {
     // );
   }
 
-
   /// Check if the message content is about loads list available
   bool _isLoadRelatedMessage(String message) {
     final lowerMessage = message.toLowerCase();
-    
+
     // Check for specific pattern that indicates loads list available
     final loadsListPatterns = [
       'loads available on the',
@@ -2167,9 +2188,9 @@ class _ChatScreenState extends State<ChatScreen> {
       'here are the loads available',
       'based on the provided context, here are the loads available',
       'loads list available',
-      'available loads list'
+      'available loads list',
     ];
-    
+
     // Check if message contains the specific pattern for loads list
     return loadsListPatterns.any((pattern) => lowerMessage.contains(pattern));
   }
@@ -2178,24 +2199,40 @@ class _ChatScreenState extends State<ChatScreen> {
   LoadData _createLoadDataFromMessage(String message) {
     String? source;
     String? destination;
-    
+    int? routeId;
+
     // First try to extract from the specific pattern: "loads available on the X to Y lane"
-    final loadsAvailablePattern = RegExp(r'loads available on the\s+([^,\n]+?)\s+to\s+([^,\n]+?)(?:\s+\(or\s+[^)]+\))?\s+lane', caseSensitive: false);
+    final loadsAvailablePattern = RegExp(
+      r'loads available on the\s+([^,\n]+?)\s+to\s+([^,\n]+?)(?:\s+\(or\s+[^)]+\))?\s+lane',
+      caseSensitive: false,
+    );
     final loadsMatch = loadsAvailablePattern.firstMatch(message);
-    
+
     if (loadsMatch != null) {
       source = loadsMatch.group(1)?.trim();
       destination = loadsMatch.group(2)?.trim();
-      
+
       // Clean up destination - remove "(or Bengaluru)" type text
       if (destination != null) {
-        destination = destination.replaceAll(RegExp(r'\s*\(or\s+[^)]+\)', caseSensitive: false), '').trim();
+        destination =
+            destination
+                .replaceAll(
+                  RegExp(r'\s*\(or\s+[^)]+\)', caseSensitive: false),
+                  '',
+                )
+                .trim();
       }
     } else {
       // Fallback to general patterns
-      final fromToPattern = RegExp(r'from\s+([^,\n]+?)\s+to\s+([^,\n]+)', caseSensitive: false);
-      final toPattern = RegExp(r'([^,\n]+?)\s+to\s+([^,\n]+)', caseSensitive: false);
-      
+      final fromToPattern = RegExp(
+        r'from\s+([^,\n]+?)\s+to\s+([^,\n]+)',
+        caseSensitive: false,
+      );
+      final toPattern = RegExp(
+        r'([^,\n]+?)\s+to\s+([^,\n]+)',
+        caseSensitive: false,
+      );
+
       final fromToMatch = fromToPattern.firstMatch(message);
       if (fromToMatch != null) {
         source = fromToMatch.group(1)?.trim();
@@ -2208,12 +2245,32 @@ class _ChatScreenState extends State<ChatScreen> {
         }
       }
     }
-    
+
+    // Try to extract route ID from the message
+    // Look for patterns like "Route ID: 123", "route id: 123", "ID: 123", etc.
+    final routeIdPatterns = [
+      RegExp(r'route\s+id\s*:?\s*(\d+)', caseSensitive: false),
+      RegExp(r'id\s*:?\s*(\d+)', caseSensitive: false),
+      RegExp(r'route\s*:?\s*(\d+)', caseSensitive: false),
+      RegExp(r'lane\s+id\s*:?\s*(\d+)', caseSensitive: false),
+    ];
+
+    for (final pattern in routeIdPatterns) {
+      final match = pattern.firstMatch(message);
+      if (match != null) {
+        routeId = int.tryParse(match.group(1) ?? '');
+        if (routeId != null) {
+          break;
+        }
+      }
+    }
+
     return LoadData(
       source: source,
       destination: destination,
       commodity: null,
       truckType: null,
+      routeId: routeId,
     );
   }
 
@@ -2224,13 +2281,15 @@ class _ChatScreenState extends State<ChatScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => VpAllLoadsScreen(
-          initialTabIndex: 0, // Start with "Available Loads" tab
-        ),
+        builder:
+            (context) => VpAllLoadsScreen(
+              initialTabIndex: 0, // Start with "Available Loads" tab
+              filterData:
+                  loadData, // Pass the extracted load data for filtering
+            ),
       ),
     );
   }
-
 }
 
 class _ReportFeedbackDialog extends StatefulWidget {
@@ -2248,7 +2307,8 @@ class _ReportFeedbackDialog extends StatefulWidget {
 
 class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
   String? _selectedFeedbackType;
-  final TextEditingController _additionalFeedbackController = TextEditingController();
+  final TextEditingController _additionalFeedbackController =
+      TextEditingController();
 
   final List<String> _feedbackOptions = [
     'Not factually correct',
@@ -2269,9 +2329,7 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
         padding: const EdgeInsets.all(24),
@@ -2320,7 +2378,9 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
               const SizedBox(height: 24),
 
               // Feedback Options
-              ...(_feedbackOptions.map((option) => _buildFeedbackOption(option))),
+              ...(_feedbackOptions.map(
+                (option) => _buildFeedbackOption(option),
+              )),
 
               // Additional feedback input for "Other" option
               if (_selectedFeedbackType == 'Other') ...[
@@ -2356,7 +2416,9 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
-                            borderSide: BorderSide(color: AppColors.primaryColor),
+                            borderSide: BorderSide(
+                              color: AppColors.primaryColor,
+                            ),
                           ),
                           filled: true,
                           fillColor: Colors.white,
@@ -2373,20 +2435,25 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: _selectedFeedbackType != null
-                      ? () {
-                    String feedbackType = _selectedFeedbackType!;
+                  onPressed:
+                      _selectedFeedbackType != null
+                          ? () {
+                            String feedbackType = _selectedFeedbackType!;
 
-                    // If "Other" is selected, combine with additional feedback if available
-                    if (feedbackType == 'Other') {
-                      final additionalText = _additionalFeedbackController.text.trim();
-                      feedbackType = additionalText.isNotEmpty ? 'other-$additionalText' : 'other';
-                    }
+                            // If "Other" is selected, combine with additional feedback if available
+                            if (feedbackType == 'Other') {
+                              final additionalText =
+                                  _additionalFeedbackController.text.trim();
+                              feedbackType =
+                                  additionalText.isNotEmpty
+                                      ? 'other-$additionalText'
+                                      : 'other';
+                            }
 
-                    widget.onReport(feedbackType);
-                    Navigator.of(context).pop();
-                  }
-                      : null,
+                            widget.onReport(feedbackType);
+                            Navigator.of(context).pop();
+                          }
+                          : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.primaryColor,
                     foregroundColor: Colors.white,
@@ -2398,10 +2465,7 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
                   ),
                   child: const Text(
                     'Submit',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -2428,19 +2492,25 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? AppColors.primaryColor.withValues(alpha: 0.1) : Colors.grey[100],
+            color:
+                isSelected
+                    ? AppColors.primaryColor.withValues(alpha: 0.1)
+                    : Colors.grey[100],
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
               color: isSelected ? AppColors.primaryColor : Colors.grey[300]!,
               width: isSelected ? 2 : 1,
             ),
-            boxShadow: isSelected ? [
-              BoxShadow(
-                color: AppColors.primaryColor.withValues(alpha: 0.2),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
-              ),
-            ] : null,
+            boxShadow:
+                isSelected
+                    ? [
+                      BoxShadow(
+                        color: AppColors.primaryColor.withValues(alpha: 0.2),
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                    : null,
           ),
           child: Row(
             children: [
@@ -2450,7 +2520,10 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
-                    color: isSelected ? AppColors.primaryColor : const Color(0xFF1F1F1F),
+                    color:
+                        isSelected
+                            ? AppColors.primaryColor
+                            : const Color(0xFF1F1F1F),
                   ),
                 ),
               ),
@@ -2470,18 +2543,4 @@ class _ReportFeedbackDialogState extends State<_ReportFeedbackDialog> {
       ),
     );
   }
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

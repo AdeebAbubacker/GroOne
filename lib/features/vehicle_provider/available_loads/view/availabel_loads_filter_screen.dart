@@ -16,7 +16,6 @@ import 'package:gro_one_app/features/vehicle_provider/available_loads/cubit/load
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_pref_lane_model.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp_creation/model/truck_type_model.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
-import 'package:gro_one_app/utils/app_bottom_sheet_body.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
 import 'package:gro_one_app/utils/app_dropdown_paginated/searchable_dropdown_controller.dart';
@@ -71,9 +70,8 @@ class _AvailableLoadsFilterScreenState
     // Trigger auto-selection after a delay to ensure data is loaded
     if (widget.initialRouteData?.source != null &&
         widget.initialRouteData?.destination != null) {
-      Future.delayed(const Duration(milliseconds: 500), () {
+      Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) {
-          print('🚀 DEBUG: Triggering auto-selection from initState');
           _triggerAutoSelection();
         }
       });
@@ -136,109 +134,6 @@ class _AvailableLoadsFilterScreenState
     commodityId = filterCubit.state.selectedCommodity?['id'];
   }
 
-  /// Check if two location names are similar (handles common variations)
-  bool _isSimilarLocation(String location1, String location2) {
-    final variations = {
-      'bangalore': ['bengaluru', 'bangaluru'],
-      'bengaluru': ['bangalore', 'bangaluru'],
-      'bangaluru': ['bangalore', 'bengaluru'],
-      'mumbai': ['bombay'],
-      'bombay': ['mumbai'],
-      'kolkata': ['calcutta'],
-      'calcutta': ['kolkata'],
-      'chennai': ['madras'],
-      'madras': ['chennai'],
-      'pune': ['punekar'],
-      'delhi': ['new delhi'],
-      'new delhi': ['delhi'],
-    };
-
-    final loc1 = location1.toLowerCase();
-    final loc2 = location2.toLowerCase();
-
-    for (final group in variations.values) {
-      if (group.contains(loc1) && group.contains(loc2)) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /// Find and select matching route based on source and destination
-  void _findAndSelectMatchingRoute(List<LaneDetailsResponse> routeList) {
-    if (widget.initialRouteData?.source == null ||
-        widget.initialRouteData?.destination == null) {
-      return;
-    }
-
-    print(
-      '🎯 DEBUG: Finding matching route for "${widget.initialRouteData?.source}" to "${widget.initialRouteData?.destination}"',
-    );
-
-    LaneDetailsResponse? matchingRoute;
-    try {
-      matchingRoute = routeList.firstWhere((route) {
-        final laneText = route.lane?.toLowerCase() ?? '';
-        final sourceLower = widget.initialRouteData!.source!.toLowerCase();
-        final destLower = widget.initialRouteData!.destination!.toLowerCase();
-
-        print('🎯 DEBUG: Checking route: "$laneText"');
-
-        // Check if the lane text contains both source and destination
-        // More flexible matching - check for partial matches
-        final sourceMatch =
-            laneText.contains(sourceLower) ||
-            sourceLower.contains(laneText) ||
-            _isSimilarLocation(laneText, sourceLower);
-        final destMatch =
-            laneText.contains(destLower) ||
-            destLower.contains(laneText) ||
-            _isSimilarLocation(laneText, destLower);
-
-        print('🎯 DEBUG: Source match: $sourceMatch, Dest match: $destMatch');
-
-        return sourceMatch && destMatch;
-      });
-
-      print('✅ DEBUG: Found matching route: ${matchingRoute.lane}');
-
-      // Set the route data
-      setState(() {
-        laneId = matchingRoute?.masterLaneId;
-        laneDropDownValue = matchingRoute?.masterLaneId.toString();
-      });
-
-      // Update the filter cubit
-      _getLaneId(matchingRoute);
-
-      print(
-        '✅ DEBUG: Route selected successfully with ID: ${matchingRoute?.masterLaneId}',
-      );
-    } catch (e) {
-      print('❌ DEBUG: No exact matching route found, trying fallback...');
-
-      // Try to find any route that contains either source or destination
-      try {
-        final fallbackRoute = routeList.firstWhere((route) {
-          final laneText = route.lane?.toLowerCase() ?? '';
-          final sourceLower = widget.initialRouteData!.source!.toLowerCase();
-          final destLower = widget.initialRouteData!.destination!.toLowerCase();
-
-          return laneText.contains(sourceLower) || laneText.contains(destLower);
-        });
-
-        print('🔄 DEBUG: Using fallback route: ${fallbackRoute.lane}');
-        setState(() {
-          laneId = fallbackRoute.masterLaneId;
-          laneDropDownValue = fallbackRoute.masterLaneId.toString();
-        });
-        _getLaneId(fallbackRoute);
-      } catch (e2) {
-        print('❌ DEBUG: No fallback route found either');
-      }
-    }
-  }
 
   /// Trigger auto-selection when data is available
   void _triggerAutoSelection() {
@@ -251,12 +146,12 @@ class _AvailableLoadsFilterScreenState
     if (routeList.isNotEmpty) {
       _autoSelectFirstMatchingRoute(routeList);
     } else {
-      print('⚠️ DEBUG: Route list is empty, retrying in 1 second...');
       Future.delayed(const Duration(seconds: 1), () {
         if (mounted) {
           _triggerAutoSelection();
         }
-      });
+      }
+      );
     }
   }
 
@@ -264,20 +159,10 @@ class _AvailableLoadsFilterScreenState
   void _autoSelectFirstMatchingRoute(List<LaneDetailsResponse> routeList) {
     if (widget.initialRouteData?.source == null ||
         widget.initialRouteData?.destination == null) {
-      print('❌ DEBUG: No chat data available for auto-selection');
       return;
     }
-
-    print(
-      '🎯 DEBUG: Starting auto-selection with ${routeList.length} routes available',
-    );
-    print(
-      '🎯 DEBUG: Chat data - Source: ${widget.initialRouteData!.source}, Destination: ${widget.initialRouteData!.destination}',
-    );
-
     final searchTerm =
         '${widget.initialRouteData!.source} ${widget.initialRouteData!.destination}';
-    print('🎯 DEBUG: Searching for routes containing: "$searchTerm"');
 
     // Find routes that match the search term
     final matchingRoutes =
@@ -285,39 +170,23 @@ class _AvailableLoadsFilterScreenState
           final laneText = route.lane?.toLowerCase() ?? '';
           final searchLower = searchTerm.toLowerCase();
           final matches = laneText.contains(searchLower);
-          if (matches) {
-            print(
-              '✅ DEBUG: Found matching route: "${route.lane}" (ID: ${route.masterLaneId})',
-            );
-          }
           return matches;
         }).toList();
 
-    print('🎯 DEBUG: Found ${matchingRoutes.length} matching routes');
-
     if (matchingRoutes.isNotEmpty) {
       final firstRoute = matchingRoutes.first;
-      print(
-        '✅ DEBUG: Auto-selecting first route: ${firstRoute.lane} (ID: ${firstRoute.masterLaneId})',
-      );
-
       setState(() {
         laneId = firstRoute.masterLaneId;
         laneDropDownValue = firstRoute.masterLaneId.toString();
       });
-
       _getLaneId(firstRoute);
-      print('✅ DEBUG: Route selection completed, laneId set to: $laneId');
-
       // Force a rebuild to ensure dropdown shows the selection
       if (mounted) {
         setState(() {});
       }
-
       // Automatically apply the filter after selection
-      Future.delayed(const Duration(milliseconds: 200), () {
+      Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted) {
-          print('🚀 DEBUG: Auto-applying filter with laneId: $laneId');
           widget.onFilterApplied({
             "commodityId": commodityId,
             "truckTypeId": truckTypeId,
@@ -327,12 +196,6 @@ class _AvailableLoadsFilterScreenState
           filterCubit.setIsFilterApplied(value: true);
         }
       });
-    } else {
-      print('❌ DEBUG: No matching routes found for: "$searchTerm"');
-      print('❌ DEBUG: Available routes:');
-      for (final route in routeList.take(5)) {
-        print('   - ${route.lane}');
-      }
     }
   }
 
@@ -405,17 +268,13 @@ class _AvailableLoadsFilterScreenState
 
                 if (matchingRoutes.isNotEmpty) {
                   final firstRoute = matchingRoutes.first;
-                  print(
-                    '🎯 DEBUG: Immediate auto-selection: ${firstRoute.lane}',
-                  );
-
                   // Set the selection immediately
                   laneId = firstRoute.masterLaneId;
                   laneDropDownValue = firstRoute.masterLaneId.toString();
                   _getLaneId(firstRoute);
 
                   // Auto-apply filter after a short delay
-                  Future.delayed(const Duration(milliseconds: 300), () {
+                  Future.delayed(const Duration(milliseconds: 100), () {
                     if (mounted) {
                       widget.onFilterApplied({
                         "commodityId": commodityId,
@@ -435,16 +294,6 @@ class _AvailableLoadsFilterScreenState
                 selectedItem = routeList.firstWhereOrNull(
                   (r) => r.masterLaneId == laneId,
                 );
-                print(
-                  '🎯 DEBUG: Looking for selected item with laneId: $laneId',
-                );
-                if (selectedItem != null) {
-                  print('✅ DEBUG: Found selected item: ${selectedItem.lane}');
-                } else {
-                  print(
-                    '❌ DEBUG: Selected item not found in current route list',
-                  );
-                }
               }
 
               return VpRouteSearchableDropdown(
@@ -458,9 +307,6 @@ class _AvailableLoadsFilterScreenState
                       searchKey == null) {
                     searchTerm =
                         '${widget.initialRouteData!.source} ${widget.initialRouteData!.destination}';
-                    print(
-                      '🔍 DEBUG: Using chat data as search term: "$searchTerm"',
-                    );
                   }
 
                   // Filter routes based on search term
@@ -471,10 +317,6 @@ class _AvailableLoadsFilterScreenState
                           final searchLower = searchTerm.toLowerCase();
                           return laneText.contains(searchLower);
                         }).toList();
-
-                    print(
-                      '🔍 DEBUG: Found ${filteredRoutes.length} matching routes for "$searchTerm"',
-                    );
                     return filteredRoutes;
                   }
 

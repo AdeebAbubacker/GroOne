@@ -19,7 +19,6 @@ import 'package:gro_one_app/features/vehicle_provider/vp_all_loads/view/widgets/
 import 'package:gro_one_app/features/vehicle_provider/vp_home/model/vp_recent_load_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
-import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
@@ -84,6 +83,11 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
   int? truckTypeId;
   int? previousFilter;
 
+  // Store last applied filter data to avoid re-applying same filter
+  String? _lastAppliedSource;
+  String? _lastAppliedDestination;
+  int? _lastAppliedRouteId;
+
   @override
   void initState() {
     super.initState();
@@ -106,6 +110,8 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
 
     // Auto-apply filter if coming from chat
     if (widget.filterData != null) {
+      // Force clear any existing filter state first
+      _forceClearFilterState();
       _autoApplyFilterFromChat();
     }
   }
@@ -125,6 +131,30 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
     commodityID = null;
     leneId = null;
     truckTypeId = null;
+
+    // Clear stored filter data
+    _lastAppliedSource = null;
+    _lastAppliedDestination = null;
+    _lastAppliedRouteId = null;
+  }
+
+  /// Force clear all filter state - used when coming from chat screen
+  void _forceClearFilterState() {
+    // Clear filter variables
+    commodityID = null;
+    leneId = null;
+    truckTypeId = null;
+
+    // Clear stored filter data
+    _lastAppliedSource = null;
+    _lastAppliedDestination = null;
+    _lastAppliedRouteId = null;
+
+    // Clear filter cubit state
+    loadFilterCubit.setIsFilterApplied(value: false);
+
+    // Clear search text
+    searchController.clear();
   }
 
   void _onStatusChanged(state) {
@@ -188,6 +218,9 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
     final type = index + 1;
     final search = searchController.text;
     vpLoadBloc.fetchVpLoads(
+      truckTypeId: truckTypeId,
+      landId: leneId,
+      commodityId: commodityID,
       isInit: true,
       type: type,
       search: search,
@@ -240,10 +273,23 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
       return;
     }
 
-    print('🚀 DEBUG: Auto-applying filter from chat');
-    print(
-      '🚀 DEBUG: Source: ${widget.filterData?.source}, Destination: ${widget.filterData?.destination}',
-    );
+    // Check if this is the same filter data as last time
+    final currentSource = widget.filterData!.source!;
+    final currentDestination = widget.filterData!.destination!;
+    final currentRouteId = widget.filterData!.routeId;
+
+    if (_lastAppliedSource == currentSource &&
+        _lastAppliedDestination == currentDestination &&
+        _lastAppliedRouteId == currentRouteId) {
+      return;
+    }
+    // Clear existing filter state first
+    _clearFilter();
+
+    // Reset filter variables
+    commodityID = null;
+    leneId = null;
+    truckTypeId = null;
 
     // Wait for route data to load
     await Future.delayed(const Duration(milliseconds: 1000));
@@ -254,49 +300,65 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
         profileCubit.state.profileDetailUIState?.data?.customer?.laneDetails ??
         [];
 
-    print('🚀 DEBUG: Available routes count: ${routeList.length}');
-
     if (routeList.isNotEmpty) {
-      // Find matching route
-      final searchTerm =
-          '${widget.filterData!.source} ${widget.filterData!.destination}';
-      final matchingRoutes =
-          routeList.where((route) {
-            final laneText = route.lane?.toLowerCase() ?? '';
-            final searchLower = searchTerm.toLowerCase();
-            return laneText.contains(searchLower);
-          }).toList();
+      LaneDetailsResponse? matchingRoute;
 
-      if (matchingRoutes.isNotEmpty) {
-        final firstRoute = matchingRoutes.first;
-        print(
-          '✅ DEBUG: Found matching route: ${firstRoute.lane} (ID: ${firstRoute.masterLaneId})',
-        );
+      // First priority: Try to match by route ID if available
+      if (widget.filterData?.routeId != null) {
+        try {
+          matchingRoute = routeList.firstWhere((route) {
+            return route.masterLaneId == widget.filterData!.routeId;
+          });
+        } catch (e) {
+          if (kDebugMode) {
+            print(
+              '❌ DEBUG: No route found with ID: ${widget.filterData?.routeId}',
+            );
+          }
+        }
+      }
 
+      // Second priority: Try to match by source and destination text
+      if (matchingRoute == null) {
+        final searchTerm =
+            '${widget.filterData!.source} ${widget.filterData!.destination}';
+        final matchingRoutes =
+            routeList.where((route) {
+              final laneText = route.lane?.toLowerCase() ?? '';
+              final searchLower = searchTerm.toLowerCase();
+              return laneText.contains(searchLower);
+            }).toList();
+
+        if (matchingRoutes.isNotEmpty) {
+          matchingRoute = matchingRoutes.first;
+        }
+      }
+
+      if (matchingRoute != null) {
         // Set the filter parameters
-        leneId = firstRoute.masterLaneId;
-
-        // Set search text
-        searchController.text = searchTerm;
+        leneId = matchingRoute.masterLaneId;
 
         // Mark filter as applied
         loadFilterCubit.setIsFilterApplied(value: true);
 
         // Update filter cubit
         loadFilterCubit.setLensData(
-          leneId: firstRoute.masterLaneId,
-          value: firstRoute.lane ?? '',
+          leneId: matchingRoute.masterLaneId,
+          value: matchingRoute.lane ?? '',
         );
 
-        print('✅ DEBUG: Filter applied automatically with laneId: $leneId');
-
-        // Refresh loads with applied filter
-        _onPullToRefresh(forceRefresh: true);
-      } else {
-        print('❌ DEBUG: No matching route found for: $searchTerm');
+        // Store the applied filter data to avoid re-applying
+        _lastAppliedSource = currentSource;
+        _lastAppliedDestination = currentDestination;
+        _lastAppliedRouteId = currentRouteId;
+        // Add a small delay to ensure filter is properly set before refreshing
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) {
+            // Refresh loads with applied filter
+            _onPullToRefresh(forceRefresh: true);
+          }
+        });
       }
-    } else {
-      print('❌ DEBUG: No routes available');
     }
   }
 
@@ -404,8 +466,9 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
                                                 .appText
                                                 .loadAcceptedSuccessfully,
                                         afterDismiss: () {
-                                          if (context.mounted)
+                                          if (context.mounted) {
                                             Navigator.pop(context);
+                                          }
                                         },
                                       ),
                                     );
