@@ -91,6 +91,15 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
 
     // Fetch order summary
     _fetchOrderSummary();
+
+    try {
+      lpHomeCubit.updatedAppEvent(
+        stage: 'viewedSummary',
+      );
+    } catch (e) {
+      // Log error but don't show to user as it's not critical
+    }
+
   }
 
   Future<void> _fetchOrderSummary() async {

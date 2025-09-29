@@ -367,7 +367,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
                     ),
                   ),
                 );
-                createAppEvent(stage: 'end',entityId: state.createLoadModel.data?.loadSeriesId);
+                updatedAppEvent(stage: 'end',entityId: state.createLoadModel.data?.loadSeriesId);
               }
               lpHomeCubit.fetchGetLoadList();
               lpHomeCubit.clearPickUpAndDestination();
@@ -416,15 +416,12 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
     );
   }
 
-  Future<void> createAppEvent({String? entityId, required String stage}) async {
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
     try {
-      final eventRequest = await EventHelper.buildHomeViewEvent(
-        entity: 'loadProvider',
-        subEntity: 'loadSummary',
-        stage: stage,
-        entityId: entityId ?? '',
-      );
-      lpHomeCubit.createEvent(eventRequest);
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
     } catch (e) {
       // Log error but don't show to user as it's not critical
     }
