@@ -45,8 +45,6 @@ import 'package:gro_one_app/utils/extensions/string_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/validator.dart';
 
-
-
 class LoadDetailsWidget extends StatelessWidget {
   final LoadDetailsCubit cubit;
   final LPHomeCubit lpHomeCubit;
@@ -179,10 +177,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                 return TrackingProgress(
                                   progressPercentage:
                                       trackingData.coverPercentage ?? 0,
-                                  coveredDistance:
-                                      trackingData.covereddistance,
-                                  totalDistance:
-                                      trackingData.overalldistance,
+                                  coveredDistance: trackingData.covereddistance,
+                                  totalDistance: trackingData.overalldistance,
                                   eta: trackingData.durationValue,
                                 ).paddingSymmetric(horizontal: 15);
                               },
@@ -236,6 +232,8 @@ class LoadDetailsWidget extends StatelessWidget {
                               context,
                               loadDetails?.loadId,
                               state,
+                                loadDetails
+
                             ),
 
                             _buildDispatchedDetails(
@@ -246,10 +244,10 @@ class LoadDetailsWidget extends StatelessWidget {
                             if ((loadDetails?.loadStatusId ?? 0) >= 7) ...[
                               20.height,
                               _buildAdableSectionHeader(
-                                showAddButton:
-                                    state.loadStatus != LoadStatus.completed &&
-                                    state.loadStatus !=
-                                        LoadStatus.podDispatched,
+                                showAddButton:state.loadStatus != LoadStatus.completed && loadDetails
+                                            ?.loadApproval
+                                            ?.damageAndShortagesApproved ==
+                                        null,
                                 context: context,
                                 title: context.appText.damageAndShortage,
                                 onAdd: () async {
@@ -262,8 +260,11 @@ class LoadDetailsWidget extends StatelessWidget {
                                                 ?.scheduleTripDetails
                                                 ?.vehicleId,
                                         loadId: loadDetails?.loadId,
-                                       isDamageApprovedOrReject: 
-                                       loadDetails?.loadApproval?.damageAndShortagesApproved ?? "",
+                                        isDamageApprovedOrReject:
+                                            loadDetails
+                                                ?.loadApproval
+                                                ?.damageAndShortagesApproved ??
+                                            "",
                                       ),
                                     ),
                                   ).then((value) {
@@ -273,7 +274,7 @@ class LoadDetailsWidget extends StatelessWidget {
                                   });
                                 },
                               ),
-                
+
                               Visibility(
                                 visible:
                                     (loadDetails?.damageShortage ?? [])
@@ -283,45 +284,89 @@ class LoadDetailsWidget extends StatelessWidget {
                                   children: [
                                     4.height,
                                     Visibility(
-                                    visible: loadDetails?.loadApproval?.damageAndShortagesApproved == true ||
-                                        loadDetails?.loadApproval?.damageAndShortagesApproved == false,
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                          decoration: BoxDecoration(
-                                            color: loadDetails?.loadApproval?.damageAndShortagesApproved == true
-                                                ? AppColors.greenColor.withValues(alpha: 0.2) 
-                                                : AppColors.red.withValues(alpha : 0.2),  
-                                            borderRadius: BorderRadius.circular(8),
-                                          ),
-                                          child: Text(
-                                            loadDetails?.loadApproval?.damageAndShortagesApproved == true
-                                                ? context.appText.approved
-                                                : context.appText.rejected,
-                                             style: AppTextStyle.h3RedLight14.copyWith( 
-                                                color: loadDetails?.loadApproval?.damageAndShortagesApproved == true
-                                                  ? AppColors.greenColor
-                                                  : AppColors.red,
-                                                  fontWeight: FontWeight.w900,
-                                                  fontSize: 12
-                                                  ),        
+                                      visible:
+                                          loadDetails
+                                                  ?.loadApproval
+                                                  ?.damageAndShortagesApproved ==
+                                              true ||
+                                          loadDetails
+                                                  ?.loadApproval
+                                                  ?.damageAndShortagesApproved ==
+                                              false,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 12,
+                                              vertical: 6,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color:
+                                                  loadDetails
+                                                              ?.loadApproval
+                                                              ?.damageAndShortagesApproved ==
+                                                          true
+                                                      ? AppColors.greenColor
+                                                          .withValues(
+                                                            alpha: 0.2,
+                                                          )
+                                                      : AppColors.red
+                                                          .withValues(
+                                                            alpha: 0.2,
+                                                          ),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              loadDetails
+                                                          ?.loadApproval
+                                                          ?.damageAndShortagesApproved ==
+                                                      true
+                                                  ? context.appText.approved
+                                                  : context.appText.rejected,
+                                              style: AppTextStyle.h3RedLight14
+                                                  .copyWith(
+                                                    color:
+                                                        loadDetails
+                                                                    ?.loadApproval
+                                                                    ?.damageAndShortagesApproved ==
+                                                                true
+                                                            ? AppColors
+                                                                .greenColor
+                                                            : AppColors.red,
+                                                    fontWeight: FontWeight.w900,
+                                                    fontSize: 12,
+                                                  ),
                                             ),
                                           ),
-                                        Visibility(
-                                          visible: loadDetails?.loadApproval?.damageAndShortagesRejectionReason != null &&
-                                          (loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? "").isNotEmpty,
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              8.height,
-                                              Text("(${loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? ""})",
-                                              style:AppTextStyle.h3RedLight14,),
-                                            ],
-                                          ))
-                                      ],
-                                    ),
+                                          Visibility(
+                                            visible:
+                                                loadDetails
+                                                        ?.loadApproval
+                                                        ?.damageAndShortagesRejectionReason !=
+                                                    null &&
+                                                (loadDetails
+                                                            ?.loadApproval
+                                                            ?.damageAndShortagesRejectionReason ??
+                                                        "")
+                                                    .isNotEmpty,
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                8.height,
+                                                Text(
+                                                  "(${loadDetails?.loadApproval?.damageAndShortagesRejectionReason ?? ""})",
+                                                  style:
+                                                      AppTextStyle.h3RedLight14,
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
                                     ),
                                     20.height,
                                     VpAddedDamageWidget(
@@ -332,29 +377,86 @@ class LoadDetailsWidget extends StatelessWidget {
                                 ).paddingSymmetric(horizontal: 20),
                               ),
 
-                              _approvedDamageInformation(loadDetails?.loadSettlement,context),
+                              _approvedDamageInformation(
+                                loadDetails?.loadSettlement,
+                                context,
+                              ),
 
                               20.height,
-                              _buildAdableSectionHeader(
-                                context: context,
-                                showAddButton: state.loadStatus != LoadStatus.completed
-                                    &&
-                                    loadDetails?.loadSettlement == null,
-                                title: context.appText.settlement,
-                                onAdd: () async {
-                                  await Navigator.push(
-                                    context,
-                                    commonRoute(
-                                      VpSettlementsScreen(
-                                        loadId: loadDetails?.loadId,
-                                        vehicleID:
+                              Visibility(
+                                child: _buildAdableSectionHeader(
+                                  context: context,
+                                  showAddButton:  state.loadStatus != LoadStatus.completed &&
+                                      loadDetails?.loadSettlement == null && loadDetails
+                                          ?.loadApproval
+                                          ?.settlementApproved ==
+                                          null ,
+                                  title: context.appText.settlement,
+                                  onAdd: () async {
+                                    await Navigator.push(
+                                      context,
+                                      commonRoute(
+                                        VpSettlementsScreen(
+                                          loadId: loadDetails?.loadId,
+                                          vehicleID:
+                                              loadDetails
+                                                  ?.scheduleTripDetails
+                                                  ?.vehicleId,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              Visibility(
+                                visible:
+                                    loadDetails
+                                        ?.loadApproval
+                                        ?.settlementApproved !=
+                                    null,
+                                child: Visibility(
+                                  child: Container(
+                                    margin: EdgeInsets.only(left: 20,top: 10),
+                                    padding:
+                                        const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 6,
+                                        ).copyWith(),
+                                    decoration: BoxDecoration(
+                                      color:
+                                          loadDetails
+                                                      ?.loadApproval
+                                                      ?.settlementApproved ==
+                                                  true
+                                              ? AppColors.greenColor.withValues(
+                                                alpha: 0.2,
+                                              )
+                                              : AppColors.red.withValues(
+                                                alpha: 0.2,
+                                              ),
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: Text(
+                                      loadDetails
+                                                  ?.loadApproval
+                                                  ?.settlementApproved ==
+                                              true
+                                          ? context.appText.approved
+                                          : context.appText.rejected,
+                                      style: AppTextStyle.h3RedLight14.copyWith(
+                                        color:
                                             loadDetails
-                                                ?.scheduleTripDetails
-                                                ?.vehicleId,
+                                                        ?.loadApproval
+                                                        ?.settlementApproved ==
+                                                    true
+                                                ? AppColors.greenColor
+                                                : AppColors.red,
+                                        fontWeight: FontWeight.w900,
+                                        fontSize: 12,
                                       ),
                                     ),
-                                  );
-                                },
+                                  ),
+                                ),
                               ),
                               _submittedSettlementInfoWidget(
                                 loadDetails?.loadSettlement,
@@ -404,7 +506,6 @@ class LoadDetailsWidget extends StatelessWidget {
             fontSize: 14,
             fontWeight: FontWeight.w100,
             color: AppColors.iconRed,
-
           ),
         ),
       ).paddingTop(15),
@@ -545,7 +646,8 @@ class LoadDetailsWidget extends StatelessWidget {
 
     /// This is for advanced Payment
     final advancedPayment = paymentEntity?.payableAdvancePaid ?? "";
-    final advancedPaymentPercentage = paymentEntity?.payableAdvancePercentage ?? "";
+    final advancedPaymentPercentage =
+        paymentEntity?.payableAdvancePercentage ?? "";
     final isAdvancedPaid = paymentEntity?.payableAdvancedPaidFlag ?? false;
 
     /// This is for balance Payment
@@ -589,14 +691,16 @@ class LoadDetailsWidget extends StatelessWidget {
             5.height,
             _buildLoadProviderAdvancePaymentCardViewOnly(
               context: context,
-              showViewMore: paymentEntity?.vpLogs?.isNotEmpty ??false,
-              advancePayment: isAdvancedPaid ? PriceHelper.formatINR(advancedPayment) : "",
+              showViewMore: paymentEntity?.vpLogs?.isNotEmpty ?? false,
+              advancePayment:
+                  isAdvancedPaid ? PriceHelper.formatINR(advancedPayment) : "",
               agreedPrice:
                   agreedPrice.isNotEmpty
                       ? PriceHelper.formatINR(agreedPrice)
                       : "",
               advancedPaymentPer: advancedPaymentPercentage,
-              balancePayment:isBalancePaid ?   PriceHelper.formatINR(balancePayment):"",
+              balancePayment:
+                  isBalancePaid ? PriceHelper.formatINR(balancePayment) : "",
               onViewTap: () {
                 showPaymentView(
                   vpLogs: paymentEntity?.vpLogs,
@@ -642,7 +746,6 @@ class LoadDetailsWidget extends StatelessWidget {
                 fontSize: 12,
 
                 fontWeight: FontWeight.w400,
-
               ),
             ).expand(),
           ],
@@ -684,7 +787,9 @@ class LoadDetailsWidget extends StatelessWidget {
             Text(
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              (cubit.state.locationDistance??"").isNotEmpty ? cubit.state.locationDistance??"":  '0 KM',
+              (cubit.state.locationDistance ?? "").isNotEmpty
+                  ? cubit.state.locationDistance ?? ""
+                  : '0 KM',
               style: AppTextStyle.body3.copyWith(
                 color: AppColors.veryLightGreyColor,
               ),
@@ -783,33 +888,35 @@ class LoadDetailsWidget extends StatelessWidget {
                   padding: 0,
                   price: 0,
                   loadId: "",
-                  enable:
-                  cubit.isNextProcessButtonEnabled(
-                    isAgreed:loadDetails?.isAgreed==1 ,
+                  enable: cubit.isNextProcessButtonEnabled(
+                    isAgreed: loadDetails?.isAgreed == 1,
                     documentEntity: state.tripDocumentList ?? [],
                     driverConsent: loadDetails?.driverConsent ?? 0,
                     loadStatus: state.loadStatus,
                     memo: loadDetails?.loadMemo,
+
                     // isDocumentApproved: loadDetails?.loadApproval?.documentApproved??false,
                     // isPodApproved: loadDetails?.loadApproval?.podApproved
-
                   ),
                   text: getSwipeButtonTitle(
                     state.loadStatus ?? LoadStatus.matching,
                     loadDetails?.podDispatch,
-                    isPodSkip: state.iPodSkip??false,
-                    isMemoGenerated: loadDetails?.loadMemo!=null && loadDetails?.isAgreed==1
-
+                    isPodSkip: state.iPodSkip ?? false,
+                    isMemoGenerated:
+                        loadDetails?.loadMemo != null &&
+                        loadDetails?.isAgreed == 1,
                   ),
                   onSubmit: () async {
-                    if (state.loadStatus == LoadStatus.podDispatched && loadDetails?.podDispatch==null && (state.iPodSkip??false)==false) {
-                      await  Navigator.push(
+                    if (state.loadStatus == LoadStatus.podDispatched &&
+                        loadDetails?.podDispatch == null &&
+                        (state.iPodSkip ?? false) == false) {
+                      await Navigator.push(
                         context,
                         commonRoute(
                           VpPodDispatchScreen(loadId: loadDetails?.loadId),
                         ),
                       );
-                      getLoadDetails(loadDetails?.loadId??"");
+                      getLoadDetails(loadDetails?.loadId ?? "");
                       return;
                     }
 
@@ -827,43 +934,49 @@ class LoadDetailsWidget extends StatelessWidget {
     );
   }
 
-   showPaymentView(
+  showPaymentView(
     BuildContext context, {
     String? advancePercentage,
     String? advanceAmount,
-    String? tripCost, List<VpLog>? vpLogs,
+    String? tripCost,
+    List<VpLog>? vpLogs,
   }) {
-    Navigator.push(context, commonRoute(PaymentSummary(
-      vpLogs: vpLogs,
-      tripCost: tripCost,
-    ),));
+    Navigator.push(
+      context,
+      commonRoute(PaymentSummary(vpLogs: vpLogs, tripCost: tripCost)),
+    );
   }
 
   Widget buildAttachmentView(
     BuildContext context,
     String? loadId,
     LoadDetailsState state,
+      LoadDetailModelData? loadDetailsModelData,
   ) {
     final tripDocumentList = state.tripDocumentList ?? [];
+
     return Column(
       children: List.generate(
         tripDocumentList.length,
-        (index) => DocumentWidgetView(
-          index: index,
-          loadDetailsCubit: cubit,
-          hintText: tripDocumentList[index].title,
-          documentEntity: tripDocumentList[index],
-          onGetFile: (p0) {
-            cubit.uploadDocument(
-              File(p0),
-              tripDocumentList[index].fileType ?? "",
-              tripDocumentList[index].title,
-              tripDocumentList[index].documentTypeId,
-              loadId ?? "",
-              index,
-            );
-          },
-        ).paddingSymmetric(horizontal: 15),
+        (index) {
+         return DocumentWidgetView(
+            index: index,
+            loadDetailsModelData:loadDetailsModelData ,
+            loadDetailsCubit: cubit,
+            hintText: tripDocumentList[index].title,
+            documentEntity: tripDocumentList[index],
+            onGetFile: (p0) {
+              cubit.uploadDocument(
+                File(p0),
+                tripDocumentList[index].fileType ?? "",
+                tripDocumentList[index].title,
+                tripDocumentList[index].documentTypeId,
+                loadId ?? "",
+                index,
+              );
+            },
+          ).paddingSymmetric(horizontal: 15);
+        }
       ),
     );
   }
@@ -907,7 +1020,6 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
   VoidCallback? onViewTap,
   String? advancedPaymentPer,
   bool? showViewMore,
-
 }) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
@@ -919,15 +1031,15 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
           context,
           highlight: true,
         ),
-      if ((advancePayment ?? "" ).isNotEmpty) ...[
+      if ((advancePayment ?? "").isNotEmpty) ...[
         8.height,
         _buildPriceRow(
           context.appText.advancedReceived,
-          advancePayment??"",
+          advancePayment ?? "",
           context,
           highlight: true,
           showPercentage: true,
-          percentage: advancedPaymentPer
+          percentage: advancedPaymentPer,
         ),
       ],
 
@@ -939,7 +1051,6 @@ Widget _buildLoadProviderAdvancePaymentCardViewOnly({
           context,
           highlight: true,
         ),
-
       ],
 
       if (showViewMore ?? false)
@@ -981,8 +1092,8 @@ Widget _buildPriceRow(
 
   BuildContext context, {
   bool highlight = false,
-      bool ? showPercentage,
-      String? percentage,
+  bool? showPercentage,
+  String? percentage,
 }) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -997,15 +1108,14 @@ Widget _buildPriceRow(
               color: AppColors.textBlackColor,
             ),
           ),
-          if(showPercentage??false)
+          if (showPercentage ?? false)
             Text(
-             " (${percentage??""}%)",
+              " (${percentage ?? ""}%)",
               style: AppTextStyle.body1GreyColor.copyWith(
                 fontSize: 10,
                 fontStyle: FontStyle.italic,
                 fontWeight: FontWeight.w300,
-                color:AppColors.textBlackColor,
-
+                color: AppColors.textBlackColor,
               ),
             ),
         ],
@@ -1092,39 +1202,35 @@ Widget _buildConsigneeDetail({
         else
           Column(
             children: [
-
               // Contact Name
-              if((name??"").isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: _buildDetailWidget(
-                  text1: context.appText.name,
-                  text2: name ?? "",
+              if ((name ?? "").isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: _buildDetailWidget(
+                    text1: context.appText.name,
+                    text2: name ?? "",
+                  ),
                 ),
-              ),
-
-
 
               // Contact Number
-              if((phoneNo??"").isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: _buildDetailWidget(
-                  text1: context.appText.contactNo,
-                  text2: phoneNo ?? "",
+              if ((phoneNo ?? "").isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: _buildDetailWidget(
+                    text1: context.appText.contactNo,
+                    text2: phoneNo ?? "",
+                  ),
                 ),
-              ),
-
 
               // Email Id
-              if((email??"").isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.only(top: 20),
-                child: _buildDetailWidget(
-                  text1: context.appText.emailId,
-                  text2: email ?? "",
+              if ((email ?? "").isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: _buildDetailWidget(
+                    text1: context.appText.emailId,
+                    text2: email ?? "",
+                  ),
                 ),
-              ),
             ],
           ),
       ],
@@ -1175,7 +1281,6 @@ Widget _submittedSettlementInfoWidget(
   final amount = loadSettlement.amountPerDay ?? 1;
   final detentionsAmount = PriceHelper.formatINR(
     (amount * numberOfDays).toString(),
-
   );
 
   return Padding(
@@ -1183,30 +1288,31 @@ Widget _submittedSettlementInfoWidget(
     child: Column(
       spacing: 15,
       children: [
-        if(numberOfDays!=0 && amount!=0 )
-        InformationView(
-          title:
-              "${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays ?? 1} ${context.appText.days})",
-          amount: detentionsAmount,
-        ),
+        if (numberOfDays != 0 && amount != 0)
+          InformationView(
+            title:
+                "${context.appText.detentions.capitalizeFirst} (${loadSettlement.noOfDays ?? 1} ${context.appText.days})",
+            amount: detentionsAmount,
+          ),
 
-        if(loadSettlement.loadingCharge!=0)
-        InformationView(
-          title: context.appText.loadingCharges,
-          amount:
-              PriceHelper.formatINR(loadSettlement.loadingCharge).toString(),
-        ),
-        if(loadSettlement.loadingCharge!=0)
-        InformationView(
-          title: context.appText.unloadingCharges,
-          amount:
-              PriceHelper.formatINR(loadSettlement.unLoadingCharge).toString(),
-        ),
+        if (loadSettlement.loadingCharge != 0)
+          InformationView(
+            title: context.appText.loadingCharges,
+            amount:
+                PriceHelper.formatINR(loadSettlement.loadingCharge).toString(),
+          ),
+        if (loadSettlement.loadingCharge != 0)
+          InformationView(
+            title: context.appText.unloadingCharges,
+            amount:
+                PriceHelper.formatINR(
+                  loadSettlement.unLoadingCharge,
+                ).toString(),
+          ),
       ],
     ).paddingSymmetric(horizontal: 15),
   );
 }
-
 
 /// damage information
 Widget _approvedDamageInformation(
@@ -1216,33 +1322,39 @@ Widget _approvedDamageInformation(
   if (loadSettlement == null) {
     return SizedBox.shrink();
   }
-  String debitDamages =  (loadSettlement.debitDamages??"").isNotEmpty && loadSettlement.debitDamages!.trim()!="0" ?  PriceHelper.formatINR(loadSettlement.debitDamages ?? "",):"";
-  String debitShortage =  (loadSettlement.debitShortages ?? "").isNotEmpty  && loadSettlement.debitShortages!.trim() !="0" ?  PriceHelper.formatINR(loadSettlement.debitShortages ?? ""):"";
-  String debitPenalties=  (loadSettlement.debitPenalities ?? "").isNotEmpty && loadSettlement.debitPenalities!.trim()!="0" ?  PriceHelper.formatINR(loadSettlement.debitPenalities ?? ""):"";
-
+  String debitDamages =
+      (loadSettlement.debitDamages ?? "").isNotEmpty &&
+              loadSettlement.debitDamages!.trim() != "0"
+          ? PriceHelper.formatINR(loadSettlement.debitDamages ?? "")
+          : "";
+  String debitShortage =
+      (loadSettlement.debitShortages ?? "").isNotEmpty &&
+              loadSettlement.debitShortages!.trim() != "0"
+          ? PriceHelper.formatINR(loadSettlement.debitShortages ?? "")
+          : "";
+  String debitPenalties =
+      (loadSettlement.debitPenalities ?? "").isNotEmpty &&
+              loadSettlement.debitPenalities!.trim() != "0"
+          ? PriceHelper.formatINR(loadSettlement.debitPenalities ?? "")
+          : "";
 
   return Column(
     spacing: 15,
     children: [
-      if(debitDamages.isNotEmpty || debitShortage.isNotEmpty || debitPenalties.isNotEmpty)
-      ...[
+      if (debitDamages.isNotEmpty ||
+          debitShortage.isNotEmpty ||
+          debitPenalties.isNotEmpty) ...[
         10.height,
       ],
-      if(debitDamages.isNotEmpty)
-      InformationView(
-        title: context.appText.damage,
-        amount: debitDamages,
-      ),
-      if(debitShortage.isNotEmpty)
-      InformationView(
-        title: context.appText.shortage,
-        amount: debitShortage
-      ),
-      if(debitPenalties.isNotEmpty)
-      InformationView(
-        title:context.appText.penalties,
-        amount: debitPenalties
-      ),
+      if (debitDamages.isNotEmpty)
+        InformationView(title: context.appText.damage, amount: debitDamages),
+      if (debitShortage.isNotEmpty)
+        InformationView(title: context.appText.shortage, amount: debitShortage),
+      if (debitPenalties.isNotEmpty)
+        InformationView(
+          title: context.appText.penalties,
+          amount: debitPenalties,
+        ),
     ],
   ).paddingSymmetric(horizontal: 15);
 }
