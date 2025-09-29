@@ -145,7 +145,9 @@ class _DriverProfileSettingScreenState
                     return Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        headingText(section),
+                        Visibility(
+                            visible: section!="Notification",
+                            child: headingText(section)),
                         ...settings.map((setting) {
                           final key = setting.key;
                           final value = DriverCustomerSettingsMapper.getValue(
@@ -159,21 +161,24 @@ class _DriverProfileSettingScreenState
                                 setting.key == 'payment_alerts') {
                               return const SizedBox.shrink();
                             }
-                            return toggleRow(setting.label, value == 'true', (
-                              bool newVal,
-                            ) {
-                              final request =
-                                  DriverCustomerSettingsMapper.buildRequest(
-                                    key,
-                                    newVal.toString(),
+                            return Visibility(
+                              visible: section!="Notification",
+                              child: toggleRow(setting.label, value == 'true', (
+                                bool newVal,
+                              ) {
+                                final request =
+                                    DriverCustomerSettingsMapper.buildRequest(
+                                      key,
+                                      newVal.toString(),
+                                    );
+                              
+                                if (request != null) {
+                                  profileCubit.updateCustomerSettings(
+                                    request: request,
                                   );
-
-                              if (request != null) {
-                                profileCubit.updateCustomerSettings(
-                                  request: request,
-                                );
-                              }
-                            });
+                                }
+                              }),
+                            );
                           } else if (setting.type == 'radio') {
                             final options = setting.options.split(',');
                             return Padding(
@@ -272,7 +277,9 @@ class _DriverProfileSettingScreenState
                             return const SizedBox();
                           }
                         }),
-                        dividerWidget(),
+                       Visibility(
+                         visible: section!="Notification",
+                         child:  dividerWidget(),),
                         10.height,
                       ],
                     );

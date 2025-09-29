@@ -298,8 +298,8 @@ class LoadDetailsWidget extends StatelessWidget {
                                           ),
                                           child: Text(
                                             loadDetails?.loadApproval?.damageAndShortagesApproved == true
-                                                ? "Approved"
-                                                : "Rejected",
+                                                ? context.appText.approved
+                                                : context.appText.rejected,
                                              style: AppTextStyle.h3RedLight14.copyWith( 
                                                 color: loadDetails?.loadApproval?.damageAndShortagesApproved == true
                                                   ? AppColors.greenColor
@@ -337,7 +337,8 @@ class LoadDetailsWidget extends StatelessWidget {
                               20.height,
                               _buildAdableSectionHeader(
                                 context: context,
-                                showAddButton: state.loadStatus != LoadStatus.completed &&
+                                showAddButton: state.loadStatus != LoadStatus.completed
+                                    &&
                                     loadDetails?.loadSettlement == null,
                                 title: context.appText.settlement,
                                 onAdd: () async {
@@ -398,10 +399,12 @@ class LoadDetailsWidget extends StatelessWidget {
       child: Center(
         child: Text(
           context.appText.noSimTracking,
+          textAlign: TextAlign.center,
           style: AppTextStyle.h3w500.copyWith(
             fontSize: 14,
             fontWeight: FontWeight.w100,
             color: AppColors.iconRed,
+
           ),
         ),
       ).paddingTop(15),
@@ -632,14 +635,18 @@ class LoadDetailsWidget extends StatelessWidget {
             SvgPicture.asset(AppIcons.svg.package, height: 24, width: 24),
             Text(
               loadDetails?.commodity?.name ?? "",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
+
                 fontWeight: FontWeight.w400,
+
               ),
-            ),
+            ).expand(),
           ],
-        ),
+        ).expand(),
 
         Row(
           spacing: 3,
@@ -654,14 +661,16 @@ class LoadDetailsWidget extends StatelessWidget {
 
             Text(
               "${loadDetails?.weight?.value} ${context.appText.ton}",
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               style: AppTextStyle.bodyGreyColorW500.copyWith(
                 color: AppColors.veryLightGreyColor,
                 fontSize: 12,
                 fontWeight: FontWeight.w400,
               ),
-            ),
+            ).expand(),
           ],
-        ),
+        ).expand(),
 
         Row(
           spacing: 3,
@@ -673,13 +682,15 @@ class LoadDetailsWidget extends StatelessWidget {
               width: 24,
             ),
             Text(
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
               (cubit.state.locationDistance??"").isNotEmpty ? cubit.state.locationDistance??"":  '0 KM',
               style: AppTextStyle.body3.copyWith(
                 color: AppColors.veryLightGreyColor,
               ),
-            ),
+            ).expand(),
           ],
-        ),
+        ).expand(),
       ],
     ).paddingSymmetric(horizontal: 15);
   }

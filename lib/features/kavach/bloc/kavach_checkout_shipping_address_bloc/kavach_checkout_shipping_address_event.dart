@@ -3,12 +3,12 @@ import '../../model/kavach_address_model.dart';
 abstract class KavachCheckoutShippingAddressEvent {}
 
 class FetchKavachShippingAddresses extends KavachCheckoutShippingAddressEvent {
-  bool noRefresh;
-  bool mandatoryRefresh;
+  String billingAddressUniqueId;
+  String shippingAddressUniqueId;
 
   FetchKavachShippingAddresses({
-    this.noRefresh = false,
-    this.mandatoryRefresh = false,
+    required this.billingAddressUniqueId,
+    required this.shippingAddressUniqueId,
   });
 }
 

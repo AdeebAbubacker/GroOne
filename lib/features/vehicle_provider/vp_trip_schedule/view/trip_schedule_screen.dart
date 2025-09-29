@@ -158,23 +158,46 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 8,
                       children: [
-                        truckNoSearchableDropdown(
-                          context,
-                          truckType,
-                          (truckId) {
-                            setState(() {
-                              truckType = truckId;
-                            });
+                        FormField<String>(
+                           validator: (value) {
+                          if (truckType == null || truckType!.isEmpty) {
+                            return context.appText.truckIsRequired;
+                          }
+                          return null;
                           },
-                          selectedTruck:
-                              (() {
-                                final currentState =
-                                    context.read<VpHomeCubit>().state;
-                                return currentState.vehicleUIState?.data?.data
-                                    .firstWhereOrNull(
-                                      (v) => v.vehicleId == truckType,
-                                    );
-                              })(),
+                          builder: (field) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                               truckNoSearchableDropdown(
+                              context,
+                              truckType,
+                              (truckId) {
+                                setState(() {
+                                  truckType = truckId;
+                                });
+                              },
+                              selectedTruck:
+                                  (() {
+                                    final currentState =
+                                        context.read<VpHomeCubit>().state;
+                                    return currentState.vehicleUIState?.data?.data
+                                        .firstWhereOrNull(
+                                          (v) => v.vehicleId == truckType,
+                                        );
+                                  })(),
+                            ),
+                            if (field.hasError)
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, left: 8),
+                              child: Text(
+                                field.errorText!,
+                                style: AppTextStyle.textFieldHintRedColor,
+                              ),
+                            ),      
+                            ],);
+                           
+                          }
                         ),
 
                         GestureDetector(
@@ -194,26 +217,49 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       spacing: 8,
                       children: [
-                        driverDropdown(
-                          context,
-                          driverType,
-                          (driverId) {
-                            setState(() {
-                              driverType = driverId;
-                            });
+                        FormField<String>(
+                          validator: (value) {
+                          if (driverType == null || driverType!.isEmpty) {
+                            return context.appText.driverIsRequired;
+                          }
+                          return null;
                           },
-                          vpHomeScreenBloc,
-                          selectedDriver:
-                              (() {
-                                final currentState = vpHomeScreenBloc.state;
-                                if (currentState is VpDriverListSuccess) {
-                                  return currentState.driverListResponse.data
-                                      .firstWhereOrNull(
-                                        (d) => d.driverStatus == driverType,
-                                      );
-                                }
-                                return null;
-                              })(),
+                          builder: (field) {
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children:[
+                                driverDropdown(
+                                context,
+                                driverType,
+                                (driverId) {
+                                  setState(() {
+                                    driverType = driverId;
+                                  });
+                                },
+                                vpHomeScreenBloc,
+                                selectedDriver:
+                                    (() {
+                                      final currentState = vpHomeScreenBloc.state;
+                                      if (currentState is VpDriverListSuccess) {
+                                        return currentState.driverListResponse.data
+                                            .firstWhereOrNull(
+                                              (d) => d.driverStatus == driverType,
+                                            );
+                                      }
+                                      return null;
+                                    })(),
+                              ),
+                              if (field.hasError)
+                              Padding(
+                                padding: const EdgeInsets.only(top: 4, left: 8),
+                                child: Text(
+                                  field.errorText!,
+                                  style: AppTextStyle.textFieldHintRedColor,
+                                ),
+                              ),      
+                              ],
+                            );
+                          }
                         ),
 
                         GestureDetector(
@@ -426,7 +472,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                   style: AppTextStyle.textFieldHint,
                 ),
                 requestItemCount: 10,
-
+                dialogOffset: 0,
                 // Initial selected value
                 initialValue:
                     selectedDriver != null
@@ -525,7 +571,7 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                 ),
                 isDialogExpanded: false,
                 requestItemCount: 10,
-
+                dialogOffset: 0,
                 /// Initial selected value
                 initialValue:
                     selectedTruck != null

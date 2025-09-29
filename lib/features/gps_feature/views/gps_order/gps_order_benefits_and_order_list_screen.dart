@@ -14,6 +14,7 @@ import 'package:gro_one_app/features/login/repository/user_information_repositor
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/routing/app_route_name.dart';
 import 'package:gro_one_app/utils/chat_action_button.dart';
+import 'package:gro_one_app/utils/device_activation_dialog_manager.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/widgets/app_error_widget.dart';
@@ -37,7 +38,9 @@ import 'gps_order_detail_screen.dart';
 import 'gps_upload_document_screen.dart';
 
 class GpsOrderBenefitsAndOrderListScreen extends StatefulWidget {
-  const GpsOrderBenefitsAndOrderListScreen({super.key});
+  String authStatusCode = '';
+
+  GpsOrderBenefitsAndOrderListScreen({super.key, this.authStatusCode = ''});
 
   @override
   State<GpsOrderBenefitsAndOrderListScreen> createState() =>
@@ -45,14 +48,111 @@ class GpsOrderBenefitsAndOrderListScreen extends StatefulWidget {
 }
 
 class _GpsOrderBenefitsAndOrderListScreenState
-    extends State<GpsOrderBenefitsAndOrderListScreen> {
+    extends State<GpsOrderBenefitsAndOrderListScreen>
+    with TickerProviderStateMixin {
   final GlobalKey menuKey = GlobalKey();
-  String? customerId;
+  String customerId = '';
+  final PageStorageBucket _bucket = PageStorageBucket();
+  Map<int, List<GpsOrderItem>> tabOrders = {};
+  Map<int, ScrollController> tabControllers = {};
+  int selectedTab = 0;
+  int totalPage = 1;
+  int page = 1;
+  String? statusParam;
+  final tabScrollController = ScrollController();
+  GpsOrderListCubit? gpsOrderListCubit;
+  PageController? _pageController;
+  List<String> tabLabels = [
+    "All",
+    "Order placed",
+    "Dispatched",
+    "Delivered",
+    "Installed",
+  ];
+  int? previousIndex;
+  String authStatusCode = '';
+  bool orderHasPlaced = false;
+  bool listLoaded = false;
 
   @override
   void initState() {
     super.initState();
+    authStatusCode = widget.authStatusCode;
+    _pageController = PageController(initialPage: selectedTab);
+    for (int i = 0; i < tabLabels.length; i++) {
+      tabOrders[i] = [];
+      tabControllers[i] = ScrollController();
+      tabControllers[i]!.addListener(() {
+        final controller = tabControllers[i]!;
+        if (controller.position.pixels >= controller.position.maxScrollExtent) {
+          _loadMoreOrders(i);
+        }
+      });
+    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      gpsOrderListCubit = context.read<GpsOrderListCubit>();
+      gpsOrderListCubit?.resetCubit();
+    });
     _getCustomerId();
+  }
+
+  void _scrollTabToCenter(int index) {
+    final tabWidth = 100.0; // approximate width of one tab
+    final screenWidth = MediaQuery.of(context).size.width;
+    final offset = (tabWidth * index) - (screenWidth / 2 - tabWidth / 2);
+    tabScrollController.animateTo(
+      offset.clamp(0.0, tabScrollController.position.maxScrollExtent),
+      duration: Duration(milliseconds: 300),
+      curve: Curves.easeInOut,
+    );
+  }
+
+  void _loadMoreOrders(int tabIndex) {
+    if (page >= totalPage) return;
+    page += 1;
+
+    final status = _getStatusForIndex(tabIndex)?.toString();
+    gpsOrderListCubit?.getOrderList(
+      customerId: customerId,
+      page: page,
+      statusParam: status,
+    );
+  }
+
+  // void _onScroll() async {
+  //   if (!scrollController.hasClients || (page == totalPage)) {
+  //     return;
+  //   }
+  //
+  //   // Simple bottom detection like your example
+  //   // Simple pagination trigger - exactly like your working example
+  //   if (scrollController.position.pixels ==
+  //       scrollController.position.maxScrollExtent) {
+  //     if (customerId.isNotEmpty) {
+  //       Future.microtask(() {
+  //         if (mounted) {
+  //           page += 1;
+  //           if (!context.mounted) return;
+  //           gpsOrderListCubit = context.read<GpsOrderListCubit>();
+  //           if (gpsOrderListCubit != null) {
+  //             // final initialStatus = _getStatusForIndex(_tabController!.index);
+  //             // debugPrint('initialStatus=>$initialStatus');
+  //             gpsOrderListCubit?.getOrderList(
+  //               customerId: customerId,
+  //               page: page,
+  //               // statusParam: initialStatus.toString(),
+  //             );
+  //           }
+  //         }
+  //       });
+  //     }
+  //   }
+  // }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _pageController!.dispose();
   }
 
   @override
@@ -74,7 +174,7 @@ class _GpsOrderBenefitsAndOrderListScreenState
     final userRepository = locator<UserInformationRepository>();
     final id = await userRepository.getUserID();
     setState(() {
-      customerId = id;
+      customerId = id ?? '';
     });
   }
 
@@ -150,8 +250,11 @@ class _GpsOrderBenefitsAndOrderListScreenState
           _navigateBackSynchronously();
         }
       },
-      child: BlocProvider.value(
-        value: GpsKycCheckCubit(locator<GpsOrderApiRepository>())..resetCubit(),
+      child: BlocProvider(
+        create:
+            (_) =>
+                GpsKycCheckCubit(locator<GpsOrderApiRepository>())
+                  ..resetCubit(),
         child: BlocConsumer<GpsKycCheckCubit, GpsKycCheckState>(
           listenWhen:
               (previous, current) =>
@@ -165,10 +268,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
             if (state.kycCheckState == null) {
               Future.microtask(() {
                 if (mounted) {
-                  if (customerId != null) {
+                  if (customerId.isNotEmpty) {
                     if (!context.mounted) return;
                     context.read<GpsKycCheckCubit>().checkKycDocuments(
-                      customerId!,
+                      customerId,
                     );
                   }
                 }
@@ -203,9 +306,9 @@ class _GpsOrderBenefitsAndOrderListScreenState
                   child: AppErrorWidget(
                     error: GenericError(),
                     onRetry: () {
-                      if (customerId != null) {
+                      if (customerId.isNotEmpty) {
                         context.read<GpsKycCheckCubit>().checkKycDocuments(
-                          customerId!,
+                          customerId,
                         );
                       }
                     },
@@ -213,16 +316,19 @@ class _GpsOrderBenefitsAndOrderListScreenState
                 ),
               );
             }
-
-            // Scenario 1: KYC not done or no documents - Show benefits screen
+            // debugPrint('sfsdfsdfdfg${state.hasKycDocuments}');
+            // debugPrint('sfsdfsdfdfg${state.kycData}');
+            // // Scenario 1: KYC not done or no documents - Show benefits screen
             if (state.kycCheckState?.status == Status.SUCCESS &&
-                (state.hasKycDocuments == false || state.kycData == null)) {
+                ((state.hasKycDocuments == false || state.kycData == null) ||
+                    (listLoaded && state.hasKycDocuments && !orderHasPlaced))) {
               return _buildBenefitsScreen(
                 context,
                 navigateToUploadDocument:
                     state.kycData != null &&
                     state.kycData!['documents'] != null &&
-                    state.kycData!['documents']['panDocLink'] == null,
+                    state.kycData!['documents']['panDocLink'] == null &&
+                    state.kycData!['documents']['panDocLink'] == '',
               );
             }
 
@@ -287,227 +393,48 @@ class _GpsOrderBenefitsAndOrderListScreenState
 
   // Build order list screen with dynamic title based on content
   Widget _buildOrderListScreen(BuildContext context) {
-    return BlocProvider.value(
-      value: GpsOrderListCubit(locator<GpsOrderApiRepository>())..resetCubit(),
-      child: BlocConsumer<GpsOrderListCubit, GpsOrderListState>(
-        key: ValueKey(
-          'gps_order_list_${DateTime.now().millisecondsSinceEpoch}',
-        ),
-        listener: (context, state) {
-          if (state is GpsOrderListError) {
-            // Handle error if needed
+    return BlocConsumer<GpsOrderListCubit, GpsOrderListState>(
+      listener: (context, state) {
+        if (state is GpsOrderListError) {
+          // Handle error if needed
+        } else if (state is GpsOrderListLoaded) {
+          totalPage = state.orderList.data.meta.totalPages;
+          tabOrders[selectedTab]?.addAll(state.orderList.data.rows);
+          if (!listLoaded) {
+            listLoaded = true;
+            orderHasPlaced = tabOrders[0] != null && tabOrders[0]!.isNotEmpty;
           }
-        },
-        builder: (context, state) {
-          // Initialize order list on first build
-          if (state is GpsOrderListInitial && customerId != null) {
-            Future.microtask(() {
-              if (mounted) {
-                if (!context.mounted) return;
-                context.read<GpsOrderListCubit>().getOrderList(
-                  customerId: customerId!,
-                );
-              }
-            });
-          }
-
-          // Show loading while fetching orders
-          if (state is GpsOrderListLoading) {
-            return Scaffold(
-              backgroundColor: AppColors.blackishWhite,
-              appBar: CommonAppBar(
-                title: Text(
-                  context.appText.gpsModel,
-                  style: AppTextStyle.appBar,
-                ),
-                centreTile: false,
-                isLeading: true,
-                onLeadingTap: _handleBackNavigation,
-              ),
-              body: const Center(child: CircularProgressIndicator()),
-            );
-          }
-
-          // Show error state
-          if (state is GpsOrderListError) {
-            return Scaffold(
-              backgroundColor: AppColors.blackishWhite,
-              appBar: CommonAppBar(
-                title: Text(
-                  context.appText.gpsModel,
-                  style: AppTextStyle.appBar,
-                ),
-                centreTile: false,
-                isLeading: true,
-                onLeadingTap: _handleBackNavigation,
-              ),
-              body: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      context.appText.failedToLoadOrders,
-                      style: AppTextStyle.h5,
-                    ),
-                    Text(state.message, style: AppTextStyle.body3),
-                    20.height,
-                    AppButton(
-                      title: context.appText.retry,
-                      onPressed: () {
-                        if (customerId != null) {
-                          context.read<GpsOrderListCubit>().getOrderList(
-                            customerId: customerId!,
-                          );
-                        }
-                      },
-                      style: AppButtonStyle.primary,
-                    ).paddingSymmetric(horizontal: 40),
-                  ],
-                ),
-              ),
-            );
-          }
-
-          // Show orders list or benefits based on order count
-          if (state is GpsOrderListLoaded) {
-            if (state.orderList.data.rows.isEmpty) {
-              // Scenario 2: KYC done but no orders - show benefits screen with GPS title
-              return Scaffold(
-                backgroundColor: AppColors.blackishWhite,
-                appBar: CommonAppBar(
-                  title: Text(context.appText.gps, style: AppTextStyle.appBar),
-                  centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
-                  actions: [
-                    AppIconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          commonRoute(
-                            LpSupport(
-                              showBackButton: true,
-                              ticketTag: TicketTags.GPS,
-                            ),
-                            isForward: true,
-                          ),
-                        );
-                      },
-                      icon: AppIcons.svg.filledSupport,
-                      iconColor: AppColors.primaryButtonColor,
-                    ),
-                    4.width,
-                  ],
-                ),
-                body: gpsBenifitsWidget(
-                  context,
-                  navigateToUploadDocument: false,
-                ),
-              );
-            } else {
-              // Scenario 3: KYC done and has orders - show order list with GPS Model title
-              return Scaffold(
-                backgroundColor: AppColors.blackishWhite,
-                appBar: CommonAppBar(
-                  title: Text(
-                    context.appText.gpsModel,
-                    style: AppTextStyle.appBar,
-                  ),
-                  centreTile: false,
-                  isLeading: true,
-                  onLeadingTap: _handleBackNavigation,
-                  actions: [
-                    AppIconButton(
-                      onPressed: () {
-                        Navigator.of(
-                          context,
-                        ).push(commonRoute(GpsModelsScreen()));
-                      },
-                      icon: Icon(Icons.add, color: Colors.white),
-                      style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
-                    ),
-                    4.width,
-                    AppIconButton(
-                      onPressed: () {
-                        Navigator.of(context).push(
-                          commonRoute(
-                            LpSupport(
-                              showBackButton: true,
-                              ticketTag: TicketTags.GPS,
-                            ),
-                            isForward: true,
-                          ),
-                        );
-                      },
-                      icon: AppIcons.svg.filledSupport,
-                      iconColor: AppColors.primaryButtonColor,
-                    ),
-                    4.width,
-                    AppIconButton(
-                      key: menuKey,
-                      onPressed: () async {
-                        final RenderBox button =
-                            menuKey.currentContext!.findRenderObject()
-                                as RenderBox;
-                        final RenderBox overlay =
-                            Overlay.of(context).context.findRenderObject()
-                                as RenderBox;
-                        final Offset position = button.localToGlobal(
-                          Offset.zero,
-                          ancestor: overlay,
-                        );
-
-                        final selected = await showMenu(
-                          context: context,
-                          position: RelativeRect.fromLTRB(
-                            position.dx - 100,
-                            position.dy,
-                            position.dx,
-                            overlay.size.height - position.dy,
-                          ),
-                          items: [
-                            PopupMenuItem(
-                              value: 'transaction',
-                              child: Row(
-                                children: [
-                                  Icon(Icons.receipt_long, color: Colors.black),
-                                  SizedBox(width: 10),
-                                  Text(context.appText.transaction),
-                                ],
-                              ),
-                            ),
-                          ],
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          color: Colors.white,
-                        );
-
-                        if (selected == 'transaction') {
-                          if (!context.mounted) return;
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder:
-                                  (_) => KavachTransactionsScreen(
-                                    fleetProductId: 1,
-                                  ),
-                            ),
-                          );
-                        }
-                      },
-                      icon: Icons.more_vert,
-                      iconColor: AppColors.primaryButtonColor,
-                    ),
-                    4.width,
-                  ],
-                ),
-                body: GpsOrderListWithTabs(orders: state.orderList.data.rows),
-                floatingActionButton: ChatActionButton(),
-              );
+          if (authStatusCode == '401') {
+            if (!DeviceActivationDialogManager().isDialogShowing) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (selectedTab == 0 &&
+                    tabOrders[0] != null &&
+                    tabOrders[0]!.isNotEmpty) {
+                  DeviceActivationDialogManager().showDeviceActivationDialog(
+                    context,
+                  );
+                }
+              });
             }
           }
+          setState(() {});
+        }
+      },
+      builder: (context, state) {
+        // Initialize order list on first build
+        if (state is GpsOrderListInitial) {
+          Future.microtask(() {
+            if (mounted) {
+              if (!context.mounted) return;
+              context.read<GpsOrderListCubit>().getOrderList(
+                customerId: customerId,
+              );
+            }
+          });
+        }
 
-          // Default loading state
+        // Show loading while fetching orders
+        if (state is GpsOrderListLoading) {
           return Scaffold(
             backgroundColor: AppColors.blackishWhite,
             appBar: CommonAppBar(
@@ -518,9 +445,457 @@ class _GpsOrderBenefitsAndOrderListScreenState
             ),
             body: const Center(child: CircularProgressIndicator()),
           );
-        },
-      ),
+        }
+
+        // Show error state
+        if (state is GpsOrderListError) {
+          return Scaffold(
+            backgroundColor: AppColors.blackishWhite,
+            appBar: CommonAppBar(
+              title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+              centreTile: false,
+              isLeading: true,
+              onLeadingTap: _handleBackNavigation,
+            ),
+            body: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    context.appText.failedToLoadOrders,
+                    style: AppTextStyle.h5,
+                  ),
+                  Text(state.message, style: AppTextStyle.body3),
+                  20.height,
+                  AppButton(
+                    title: context.appText.retry,
+                    onPressed: () {
+                      if (customerId.isNotEmpty) {
+                        context.read<GpsOrderListCubit>().getOrderList(
+                          customerId: customerId,
+                        );
+                      }
+                    },
+                    style: AppButtonStyle.primary,
+                  ).paddingSymmetric(horizontal: 40),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Show orders list or benefits based on order count
+        if (state is GpsOrderListLoaded) {
+          if (tabOrders.isEmpty) {
+            debugPrint('cscsdsds');
+            // Scenario 2: KYC done but no orders - show benefits screen with GPS title
+            return Scaffold(
+              backgroundColor: AppColors.blackishWhite,
+              appBar: CommonAppBar(
+                title: Text(context.appText.gps, style: AppTextStyle.appBar),
+                centreTile: false,
+                isLeading: true,
+                onLeadingTap: _handleBackNavigation,
+                actions: [
+                  AppIconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        commonRoute(
+                          LpSupport(
+                            showBackButton: true,
+                            ticketTag: TicketTags.GPS,
+                          ),
+                          isForward: true,
+                        ),
+                      );
+                    },
+                    icon: AppIcons.svg.filledSupport,
+                    iconColor: AppColors.primaryButtonColor,
+                  ),
+                  4.width,
+                ],
+              ),
+              body: gpsBenifitsWidget(context, navigateToUploadDocument: false),
+            );
+          } else {
+            // Scenario 3: KYC done and has orders - show order list with GPS Model title
+            return Scaffold(
+              backgroundColor: AppColors.blackishWhite,
+              appBar: CommonAppBar(
+                title: Text(
+                  context.appText.gpsModel,
+                  style: AppTextStyle.appBar,
+                ),
+                centreTile: false,
+                isLeading: true,
+                onLeadingTap: _handleBackNavigation,
+                actions: [
+                  AppIconButton(
+                    onPressed: () {
+                      Navigator.of(
+                        context,
+                      ).push(commonRoute(GpsModelsScreen()));
+                    },
+                    icon: Icon(Icons.add, color: Colors.white),
+                    style: AppButtonStyle.circularPrimaryColorIconButtonStyle,
+                  ),
+                  4.width,
+                  AppIconButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        commonRoute(
+                          LpSupport(
+                            showBackButton: true,
+                            ticketTag: TicketTags.GPS,
+                          ),
+                          isForward: true,
+                        ),
+                      );
+                    },
+                    icon: AppIcons.svg.filledSupport,
+                    iconColor: AppColors.primaryButtonColor,
+                  ),
+                  4.width,
+                  AppIconButton(
+                    key: menuKey,
+                    onPressed: () async {
+                      final RenderBox button =
+                          menuKey.currentContext!.findRenderObject()
+                              as RenderBox;
+                      final RenderBox overlay =
+                          Overlay.of(context).context.findRenderObject()
+                              as RenderBox;
+                      final Offset position = button.localToGlobal(
+                        Offset.zero,
+                        ancestor: overlay,
+                      );
+
+                      final selected = await showMenu(
+                        context: context,
+                        position: RelativeRect.fromLTRB(
+                          position.dx - 100,
+                          position.dy,
+                          position.dx,
+                          overlay.size.height - position.dy,
+                        ),
+                        items: [
+                          PopupMenuItem(
+                            value: 'transaction',
+                            child: Row(
+                              children: [
+                                Icon(Icons.receipt_long, color: Colors.black),
+                                SizedBox(width: 10),
+                                Text(context.appText.transaction),
+                              ],
+                            ),
+                          ),
+                        ],
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        color: Colors.white,
+                      );
+
+                      if (selected == 'transaction') {
+                        if (!context.mounted) return;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder:
+                                (_) =>
+                                    KavachTransactionsScreen(fleetProductId: 1),
+                          ),
+                        );
+                      }
+                    },
+                    icon: Icons.more_vert,
+                    iconColor: AppColors.primaryButtonColor,
+                  ),
+                  4.width,
+                ],
+              ),
+              body: Column(
+                children: [
+                  // Tab Bar
+                  SingleChildScrollView(
+                    // key: PageStorageKey('myListView_$tabIndex'),
+                    controller: tabScrollController,
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: List.generate(tabLabels.length, (index) {
+                        final isSelected = selectedTab == index;
+                        return Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 12,
+                          ),
+                          child: GestureDetector(
+                            onTap: () {
+                              if (selectedTab != index) {
+                                tabOrders.updateAll((key, value) => []);
+                                tabOrders[selectedTab]?.clear();
+                                if (previousIndex != null) {
+                                  tabOrders[previousIndex]?.clear();
+                                  tabOrders[selectedTab] = [];
+                                }
+                                _pageController?.jumpToPage(index);
+                                setState(() {
+                                  selectedTab = index;
+                                  page = 1;
+                                });
+                                statusParam =
+                                    _getStatusForIndex(selectedTab).toString();
+                                // gpsOrderListCubit?.getOrderList(
+                                //   customerId: customerId,
+                                //   page: 1,
+                                //   statusParam: statusParam,
+                                // );
+                                _scrollTabToCenter(index);
+                              }
+                              _pageController?.jumpToPage(index);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 18,
+                                vertical: 8,
+                              ),
+                              decoration: commonContainerDecoration(
+                                color:
+                                    isSelected
+                                        ? AppColors.primaryColor
+                                        : AppColors.greyContainerBg,
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                tabLabels[index],
+                                style: TextStyle(
+                                  color:
+                                      isSelected ? Colors.white : Colors.black,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  Expanded(
+                    child: PageView.builder(
+                      controller: _pageController,
+                      onPageChanged: (index) async {
+                        tabOrders[selectedTab]?.clear();
+                        tabOrders[previousIndex!] = [];
+                        if (previousIndex != null) {
+                          tabOrders[previousIndex]?.clear();
+                          tabOrders[selectedTab] = [];
+                        }
+                        setState(() {
+                          selectedTab = index;
+                          page = 1;
+                        });
+                        statusParam =
+                            _getStatusForIndex(selectedTab).toString();
+                        gpsOrderListCubit?.getOrderList(
+                          customerId: customerId,
+                          page: 1,
+                          statusParam:
+                              statusParam.toString() == 'null'
+                                  ? ''
+                                  : statusParam,
+                        );
+                        _scrollTabToCenter(index);
+                      },
+                      itemCount: tabLabels.length,
+                      itemBuilder: (context, tabIndex) {
+                        final orders = tabOrders[tabIndex] ?? [];
+                        debugPrint('orders=>$orders');
+                        return orders.isEmpty
+                            ? Center(
+                              child: Text(
+                                context.appText.noOrdersFound,
+                                style: AppTextStyle.h5,
+                              ),
+                            )
+                            : PageStorage(
+                              bucket: _bucket,
+                              child: ListView.separated(
+                                key: PageStorageKey<String>(
+                                  'myListView_$tabIndex',
+                                ),
+                                controller: tabControllers[tabIndex],
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 10,
+                                  horizontal: 10,
+                                ),
+                                itemCount: orders.length,
+                                separatorBuilder: (_, __) => 8.height,
+                                itemBuilder: (context, index) {
+                                  debugPrint('sdsfdfsdgs${orders.length}');
+                                  final order = orders[index];
+                                  previousIndex = index;
+                                  final statusColor = AppColors.greenColor;
+
+                                  return Container(
+                                    decoration: commonContainerDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(14),
+                                      shadow: true,
+                                      borderColor: AppColors.borderColor,
+                                    ),
+                                    padding: const EdgeInsets.all(14),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text(
+                                              '${context.appText.orderId}: ${order.orderUniqueId}',
+                                              style: AppTextStyle.h4PrimaryColor
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.w600,
+                                                    fontSize: 15,
+                                                  ),
+                                            ).expand(),
+                                            Container(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 8,
+                                                    vertical: 4,
+                                                  ),
+                                              decoration:
+                                                  commonContainerDecoration(
+                                                    color: statusColor
+                                                        .withValues(
+                                                          alpha: 0.09,
+                                                        ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          6,
+                                                        ),
+                                                  ),
+                                              child: Text(
+                                                order.currentStatus,
+                                                style: TextStyle(
+                                                  color: statusColor,
+                                                  fontWeight: FontWeight.w600,
+                                                  fontSize: 12,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        6.height,
+                                        Row(
+                                          children: [
+                                            Text(
+                                              order.productNames,
+                                              style:
+                                                  AppTextStyle
+                                                      .textGreyColor14w300,
+                                            ).expand(),
+                                            Text(
+                                              '₹${KavachHelper.formatCurrency(order.totalPrice.toStringAsFixed(0))}',
+                                              style: AppTextStyle.h4,
+                                            ),
+                                          ],
+                                        ),
+                                        8.height,
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 4,
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          children: [
+                                            InkWell(
+                                              onTap: () {
+                                                Navigator.of(context).push(
+                                                  commonRoute(
+                                                    GpsOrderDetailScreen(
+                                                      order: order,
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Text(
+                                                context.appText.viewDetails,
+                                                style:
+                                                    AppTextStyle
+                                                        .primaryColor16w400,
+                                              ),
+                                            ),
+                                            Text(
+                                              '${context.appText.purchasedOn} ${order.orderDate}',
+                                              style:
+                                                  AppTextStyle
+                                                      .textGreyColor14w300,
+                                            ),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              ),
+                            );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              floatingActionButton: ChatActionButton(),
+            );
+          }
+        }
+
+        // Default loading state
+        return Scaffold(
+          backgroundColor: AppColors.blackishWhite,
+          appBar: CommonAppBar(
+            title: Text(context.appText.gpsModel, style: AppTextStyle.appBar),
+            centreTile: false,
+            isLeading: true,
+            onLeadingTap: _handleBackNavigation,
+          ),
+          body: const Center(child: CircularProgressIndicator()),
+        );
+      },
     );
+  }
+
+  int? _getTabIndexFromStatusParam(String? statusParam) {
+    switch (statusParam) {
+      case '0':
+        return 0; // all
+      case '5':
+        return 1; // orderPlaced
+      case '7':
+        return 2; // dispatched
+      case '8':
+        return 3; // delivered
+      case '10':
+        return 4; // installed
+      default:
+        return null;
+    }
+  }
+
+  int? _getStatusForIndex(int index) {
+    switch (index) {
+      case 0:
+        return null; // all
+      case 1:
+        return 5; // orderPlaced
+      case 2:
+        return 7; // dispatched
+      case 3:
+        return 8; // delivered
+      case 4:
+        return 10; // installed
+      default:
+        return null;
+    }
   }
 
   // --- Benefits Section (unchanged) ---
@@ -556,12 +931,10 @@ class _GpsOrderBenefitsAndOrderListScreenState
                 if (!context.mounted) return;
                 Future.microtask(() {
                   if (mounted) {
-                    if (customerId != null) {
-                      if (!context.mounted) return;
-                      context.read<GpsKycCheckCubit>().checkKycDocuments(
-                        customerId!,
-                      );
-                    }
+                    if (!context.mounted) return;
+                    context.read<GpsKycCheckCubit>().checkKycDocuments(
+                      customerId,
+                    );
                   }
                 });
               });
@@ -656,239 +1029,239 @@ class _GpsOrderBenefitsAndOrderListScreenState
 }
 
 // Separate widget for order list with tabs to avoid full screen refresh
-class GpsOrderListWithTabs extends StatefulWidget {
-  final List<GpsOrderItem> orders;
-
-  const GpsOrderListWithTabs({super.key, required this.orders});
-
-  @override
-  State<GpsOrderListWithTabs> createState() => _GpsOrderListWithTabsState();
-}
-
-class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
-  int selectedTab = 0;
-  int listCount = 7;
-  final ScrollController scrollController = ScrollController();
-  String customerId = '';
-  int page = 1;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    scrollController.addListener(_onScroll);
-    _getCustomerId();
-  }
-
-  Future<void> _getCustomerId() async {
-    final userRepository = locator<UserInformationRepository>();
-    final id = await userRepository.getUserID() ?? '';
-    setState(() {
-      customerId = id;
-    });
-  }
-
-  void _onScroll() async {
-    if (!scrollController.hasClients) return;
-
-    // Simple bottom detection like your example
-
-    // Simple pagination trigger - exactly like your working example
-    if (scrollController.position.pixels ==
-        scrollController.position.maxScrollExtent) {
-      if (customerId.isNotEmpty) {
-        Future.microtask(() {
-          if (mounted) {
-            page += 1;
-            if (!context.mounted) return;
-            context.read<GpsOrderListCubit>().getOrderList(
-              customerId: customerId,
-              page: page,
-            );
-          }
-        });
-        await Future.delayed(Duration(seconds: 10));
-        setState(() {
-          listCount = 35;
-        });
-      }
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final tabLabels = [
-      context.appText.all,
-      context.appText.orderPlaced,
-      context.appText.dispatched,
-      context.appText.delivered,
-      context.appText.installed,
-    ];
-
-    final statusKeys = [
-      "ALL", // pseudo key
-      "Order Placed",
-      "Dispatched",
-      "Delivered",
-      "Installed",
-    ];
-
-    // Filter orders based on selected tab
-    List<GpsOrderItem> filteredOrders =
-        selectedTab == 0
-            ? widget.orders
-            : widget.orders
-                .where(
-                  (order) => order.currentStatus == statusKeys[selectedTab],
-                )
-                .toList();
-
-    return Column(
-      children: [
-        // Tab Bar
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: List.generate(tabLabels.length, (index) {
-              final isSelected = selectedTab == index;
-              return Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 12,
-                ),
-                child: GestureDetector(
-                  onTap: () => setState(() => selectedTab = index),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 18,
-                      vertical: 8,
-                    ),
-                    decoration: commonContainerDecoration(
-                      color:
-                          isSelected
-                              ? AppColors.primaryColor
-                              : AppColors.greyContainerBg,
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      tabLabels[index],
-                      style: TextStyle(
-                        color: isSelected ? Colors.white : Colors.black,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                ),
-              );
-            }),
-          ),
-        ),
-        Expanded(
-          child:
-              filteredOrders.isEmpty
-                  ? Center(
-                    child: Text(
-                      context.appText.noOrdersFound,
-                      style: AppTextStyle.h5,
-                    ),
-                  )
-                  : ListView.separated(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 10,
-                    ),
-                    controller: scrollController,
-                    itemCount: filteredOrders.length,
-                    separatorBuilder: (_, __) => 8.height,
-                    itemBuilder: (context, index) {
-                      final order = filteredOrders[index];
-                      final statusColor = AppColors.greenColor;
-
-                      return Container(
-                        decoration: commonContainerDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(14),
-                          shadow: true,
-                          borderColor: AppColors.borderColor,
-                        ),
-                        padding: const EdgeInsets.all(14),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Text(
-                                  '${context.appText.orderId}: ${order.orderUniqueId}',
-                                  style: AppTextStyle.h4PrimaryColor.copyWith(
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 15,
-                                  ),
-                                ).expand(),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
-                                    vertical: 4,
-                                  ),
-                                  decoration: commonContainerDecoration(
-                                    color: statusColor.withValues(alpha: 0.09),
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    order.currentStatus,
-                                    style: TextStyle(
-                                      color: statusColor,
-                                      fontWeight: FontWeight.w600,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            6.height,
-                            Row(
-                              children: [
-                                Text(
-                                  order.productNames,
-                                  style: AppTextStyle.textGreyColor14w300,
-                                ).expand(),
-                                Text(
-                                  '₹${KavachHelper.formatCurrency(order.totalPrice.toStringAsFixed(0))}',
-                                  style: AppTextStyle.h4,
-                                ),
-                              ],
-                            ),
-                            8.height,
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 4,
-                              crossAxisAlignment: WrapCrossAlignment.center,
-                              children: [
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.of(context).push(
-                                      commonRoute(
-                                        GpsOrderDetailScreen(order: order),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    context.appText.viewDetails,
-                                    style: AppTextStyle.primaryColor16w400,
-                                  ),
-                                ),
-                                Text(
-                                  '${context.appText.purchasedOn} ${order.orderDate}',
-                                  style: AppTextStyle.textGreyColor14w300,
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-        ),
-      ],
-    );
-  }
-}
+// class GpsOrderListWithTabs extends StatefulWidget {
+//   final List<GpsOrderItem> orders;
+//
+//   const GpsOrderListWithTabs({super.key, required this.orders});
+//
+//   @override
+//   State<GpsOrderListWithTabs> createState() => _GpsOrderListWithTabsState();
+// }
+//
+// class _GpsOrderListWithTabsState extends State<GpsOrderListWithTabs> {
+//   int selectedTab = 0;
+//   int listCount = 7;
+//   final ScrollController scrollController = ScrollController();
+//   String customerId = '';
+//   int page = 1;
+//
+//   @override
+//   void initState() {
+//     // TODO: implement initState
+//     super.initState();
+//     scrollController.addListener(_onScroll);
+//     _getCustomerId();
+//   }
+//
+//   Future<void> _getCustomerId() async {
+//     final userRepository = locator<UserInformationRepository>();
+//     final id = await userRepository.getUserID() ?? '';
+//     setState(() {
+//       customerId = id;
+//     });
+//   }
+//
+//   void _onScroll() async {
+//     if (!scrollController.hasClients) return;
+//
+//     // Simple bottom detection like your example
+//
+//     // Simple pagination trigger - exactly like your working example
+//     if (scrollController.position.pixels ==
+//         scrollController.position.maxScrollExtent) {
+//       if (customerId.isNotEmpty) {
+//         Future.microtask(() {
+//           if (mounted) {
+//             page += 1;
+//             if (!context.mounted) return;
+//             context.read<GpsOrderListCubit>().getOrderList(
+//               customerId: customerId,
+//               page: page,
+//             );
+//           }
+//         });
+//         await Future.delayed(Duration(seconds: 10));
+//         setState(() {
+//           listCount = 35;
+//         });
+//       }
+//     }
+//   }
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     final tabLabels = [
+//       context.appText.all,
+//       context.appText.orderPlaced,
+//       context.appText.dispatched,
+//       context.appText.delivered,
+//       context.appText.installed,
+//     ];
+//
+//     final statusKeys = [
+//       "ALL", // pseudo key
+//       "Order Placed",
+//       "Dispatched",
+//       "Delivered",
+//       "Installed",
+//     ];
+//
+//     // Filter orders based on selected tab
+//     List<GpsOrderItem> filteredOrders =
+//         selectedTab == 0
+//             ? widget.orders
+//             : widget.orders
+//                 .where(
+//                   (order) => order.currentStatus == statusKeys[selectedTab],
+//                 )
+//                 .toList();
+//
+//     return Column(
+//       children: [
+//         // Tab Bar
+//         SingleChildScrollView(
+//           scrollDirection: Axis.horizontal,
+//           child: Row(
+//             children: List.generate(tabLabels.length, (index) {
+//               final isSelected = selectedTab == index;
+//               return Padding(
+//                 padding: const EdgeInsets.symmetric(
+//                   horizontal: 8,
+//                   vertical: 12,
+//                 ),
+//                 child: GestureDetector(
+//                   onTap: () => setState(() => selectedTab = index),
+//                   child: Container(
+//                     padding: const EdgeInsets.symmetric(
+//                       horizontal: 18,
+//                       vertical: 8,
+//                     ),
+//                     decoration: commonContainerDecoration(
+//                       color:
+//                           isSelected
+//                               ? AppColors.primaryColor
+//                               : AppColors.greyContainerBg,
+//                       borderRadius: BorderRadius.circular(20),
+//                     ),
+//                     child: Text(
+//                       tabLabels[index],
+//                       style: TextStyle(
+//                         color: isSelected ? Colors.white : Colors.black,
+//                         fontWeight: FontWeight.w500,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               );
+//             }),
+//           ),
+//         ),
+//         Expanded(
+//           child:
+//               filteredOrders.isEmpty
+//                   ? Center(
+//                     child: Text(
+//                       context.appText.noOrdersFound,
+//                       style: AppTextStyle.h5,
+//                     ),
+//                   )
+//                   : ListView.separated(
+//                     padding: const EdgeInsets.symmetric(
+//                       vertical: 10,
+//                       horizontal: 10,
+//                     ),
+//                     controller: scrollController,
+//                     itemCount: filteredOrders.length,
+//                     separatorBuilder: (_, __) => 8.height,
+//                     itemBuilder: (context, index) {
+//                       final order = filteredOrders[index];
+//                       final statusColor = AppColors.greenColor;
+//
+//                       return Container(
+//                         decoration: commonContainerDecoration(
+//                           color: Colors.white,
+//                           borderRadius: BorderRadius.circular(14),
+//                           shadow: true,
+//                           borderColor: AppColors.borderColor,
+//                         ),
+//                         padding: const EdgeInsets.all(14),
+//                         child: Column(
+//                           crossAxisAlignment: CrossAxisAlignment.start,
+//                           children: [
+//                             Row(
+//                               children: [
+//                                 Text(
+//                                   '${context.appText.orderId}: ${order.orderUniqueId}',
+//                                   style: AppTextStyle.h4PrimaryColor.copyWith(
+//                                     fontWeight: FontWeight.w600,
+//                                     fontSize: 15,
+//                                   ),
+//                                 ).expand(),
+//                                 Container(
+//                                   padding: const EdgeInsets.symmetric(
+//                                     horizontal: 8,
+//                                     vertical: 4,
+//                                   ),
+//                                   decoration: commonContainerDecoration(
+//                                     color: statusColor.withValues(alpha: 0.09),
+//                                     borderRadius: BorderRadius.circular(6),
+//                                   ),
+//                                   child: Text(
+//                                     order.currentStatus,
+//                                     style: TextStyle(
+//                                       color: statusColor,
+//                                       fontWeight: FontWeight.w600,
+//                                       fontSize: 12,
+//                                     ),
+//                                   ),
+//                                 ),
+//                               ],
+//                             ),
+//                             6.height,
+//                             Row(
+//                               children: [
+//                                 Text(
+//                                   order.productNames,
+//                                   style: AppTextStyle.textGreyColor14w300,
+//                                 ).expand(),
+//                                 Text(
+//                                   '₹${KavachHelper.formatCurrency(order.totalPrice.toStringAsFixed(0))}',
+//                                   style: AppTextStyle.h4,
+//                                 ),
+//                               ],
+//                             ),
+//                             8.height,
+//                             Wrap(
+//                               spacing: 8,
+//                               runSpacing: 4,
+//                               crossAxisAlignment: WrapCrossAlignment.center,
+//                               children: [
+//                                 InkWell(
+//                                   onTap: () {
+//                                     Navigator.of(context).push(
+//                                       commonRoute(
+//                                         GpsOrderDetailScreen(order: order),
+//                                       ),
+//                                     );
+//                                   },
+//                                   child: Text(
+//                                     context.appText.viewDetails,
+//                                     style: AppTextStyle.primaryColor16w400,
+//                                   ),
+//                                 ),
+//                                 Text(
+//                                   '${context.appText.purchasedOn} ${order.orderDate}',
+//                                   style: AppTextStyle.textGreyColor14w300,
+//                                 ),
+//                               ],
+//                             ),
+//                           ],
+//                         ),
+//                       );
+//                     },
+//                   ),
+//         ),
+//       ],
+//     );
+//   }
+// }

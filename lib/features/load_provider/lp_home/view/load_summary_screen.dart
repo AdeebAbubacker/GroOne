@@ -30,6 +30,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
 import 'package:lottie/lottie.dart';
@@ -67,6 +68,17 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
   String? dateAndTime;
   String? sendDateAndTimeInApi;
   String? handlingChargesRaw;
+
+
+  @override
+  void dispose() {
+    disposeFunction(context);
+    super.dispose();
+  }
+
+  void disposeFunction(BuildContext context) => frameCallback(() {
+    loadPostingBloc.reset();
+  });
 
   Future<dynamic>? onSubmit(context) async {
     await lpLoadLocator.getCreditCheck();
@@ -119,14 +131,16 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
       }
     }
 
-    if (widget.isKycValid == 3) {
-      await onSubmit(context);
-    } else {
-      await _postLoad(context);
-    }
+    // if (widget.isKycValid == 3) {
+    //   await onSubmit(context);
+    // } else {
+    //   await _postLoad(context);
+    // }
+    await _postLoad(context);
   }
 
   Future<void> _postLoad(BuildContext context) async {
+    FocusManager.instance.primaryFocus?.unfocus();
     final req = widget.apiRequest.copyWith(
       note: noteTextController.text,
       handlingCharges: handlingChargesRaw?.isNotEmpty == true
@@ -161,113 +175,120 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
 
 ///  buildBodyWidget:
   Widget buildBodyWidget(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: EdgeInsets.all(commonSafeAreaPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          spacing: 20,
-          children: [
+    final isFormLoading = loadPostingBloc.state is CreateLoadLoading;
 
-            // Suggested Price Box
-            Container(
-              width: double.infinity,
-              padding: EdgeInsets.symmetric(vertical: 16),
-              decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
-              child: Column(
-                children: [
-                  Text(context.appText.suggestedPrice, style: AppTextStyle.h3PrimaryColor),
-                  5.height,
-                  Text(
-                    PriceHelper.formatINRRange(widget.price),
-                    style: AppTextStyle.h4.copyWith(
-                      color: AppColors.primaryColor,
-                      fontWeight: FontWeight.bold,
+    return AbsorbPointer(
+      absorbing: isFormLoading,
+      child: SafeArea(
+        child: SingleChildScrollView(
+          padding: EdgeInsets.all(commonSafeAreaPadding),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 20,
+            children: [
+
+              // Suggested Price Box
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.symmetric(vertical: 16),
+                decoration: commonContainerDecoration(color: AppColors.lightBlueColor),
+                child: Column(
+                  children: [
+                    Text(context.appText.suggestedPrice, style: AppTextStyle.h3PrimaryColor),
+                    5.height,
+                    Text(
+                      PriceHelper.formatINRRange(widget.price),
+                      style: AppTextStyle.h4.copyWith(
+                        color: AppColors.primaryColor,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            // Form-style details using TextFields
-            buildReadOnlyField(context.appText.loadingPoint, LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.pickupAddress, location: widget.pickupLocation)),
-            buildReadOnlyField(context.appText.unLoadingPoint, LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.destinationAddress, location: widget.destinationLocation)),
-            buildReadOnlyField(context.appText.vehicleType, widget.vehicleType),
-            buildReadOnlyField(context.appText.vehicleLength, widget.vehicleLength),
-            buildReadOnlyField(context.appText.consignmentWeight, "${widget.approxWeight} MT"),
-            buildReadOnlyField(context.appText.commodity, widget.category),
-            buildReadOnlyField(context.appText.pickupDateAndTime, DateTimeHelper.getDateTimeFormat(DateTime.parse(widget.apiRequest.pickUpDateTime ?? ''))),
+              // Form-style details using TextFields
+              buildReadOnlyField(context.appText.loadingPoint, LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.pickupAddress, location: widget.pickupLocation)),
+              buildReadOnlyField(context.appText.unLoadingPoint, LpHomeHelper.getPickUpAndDropLocationDisplay(address: widget.destinationAddress, location: widget.destinationLocation)),
+              buildReadOnlyField(context.appText.vehicleType, widget.vehicleType),
+              buildReadOnlyField(context.appText.vehicleLength, widget.vehicleLength),
+              buildReadOnlyField(context.appText.consignmentWeight, "${widget.approxWeight} MT"),
+              buildReadOnlyField(context.appText.commodity, widget.category),
+              buildReadOnlyField(context.appText.pickupDateAndTime, DateTimeHelper.getDateTimeFormat(DateTime.parse(widget.apiRequest.pickUpDateTime ?? ''))),
 
-            InkWell(
-                onTap: () async {
-                  final DateTime? pickupDate = DateTimeHelper.convertStringToDateTime(widget.date);
+              InkWell(
+                  onTap: () async {
+                    final DateTime? pickupDate = DateTimeHelper.convertStringToDateTime(widget.date);
 
-                  final String? date = await commonDatePicker(
-                    context,
-                    firstDate: pickupDate,
-                    initialDate: pickupDate,
+                    final String? date = await commonDatePicker(
+                      context,
+                      firstDate: pickupDate,
+                      initialDate: pickupDate,
+                    );
+
+                    if(!context.mounted) return;
+                    final String? time = await commonTimePicker(context);
+
+                    if (date != null && time != null) {
+                      dateAndTime = "$date - $time";
+                      sendDateAndTimeInApi =  DateTimeHelper.convertToApiDateTime(date, time);
+                      debugPrint(sendDateAndTimeInApi);
+                    }
+                    setState(() {});
+                  },
+                child: buildReadOnlyField(context.appText.expectedDeliveryDateAndTime , dateAndTime ?? context.appText.pleaseSelectSDateAndTime, fillColor: AppColors.white, mandatoryStar: true)
+              ),
+
+              AppTextField(
+                controller: handlingChargesTextController,
+                hintText: context.appText.enterHandlingCharges,
+                labelText: context.appText.handlingCharges,
+                keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(8),
+                ],
+                onChanged: (value) {
+                  handlingChargesRaw = value;
+
+                  final formatted = PriceHelper.formatINR(value,addDecimal:false);
+                  handlingChargesTextController.value = TextEditingValue(
+                    text: formatted,
+                    selection: TextSelection.collapsed(offset: formatted.length),
                   );
 
-                  if(!context.mounted) return;
-                  final String? time = await commonTimePicker(context);
+                  if (value.isNotEmpty) {
+                    final enteredValue = int.tryParse(value) ?? 0;
+                    final maxAllowed = int.tryParse(
+                      LpHomeHelper.calculateTenPercentOfAverage(widget.price),
+                    ) ?? 0;
 
-                  if (date != null && time != null) {
-                    dateAndTime = "$date - $time";
-                    sendDateAndTimeInApi =  DateTimeHelper.convertToApiDateTime(date, time);
-                    debugPrint(sendDateAndTimeInApi);
+                    if (enteredValue > maxAllowed) {
+                      ToastMessages.alert(
+                          message: context.appText.handlingChargeLessTenPercent);
+                      return;
+                    }
                   }
+
                   setState(() {});
                 },
-              child: buildReadOnlyField(context.appText.expectedDeliveryDateAndTime , dateAndTime ?? context.appText.pleaseSelectSDateAndTime, fillColor: AppColors.white, mandatoryStar: true)
-            ),
+                textInputAction: TextInputAction.next,
+              ),
 
-            AppTextField(
-              controller: handlingChargesTextController,
-              hintText: context.appText.enterHandlingCharges,
-              labelText: context.appText.handlingCharges,
-              keyboardType: isAndroid ? TextInputType.number : iosNumberKeyboard,
-              inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
-                LengthLimitingTextInputFormatter(8),
-              ],
-              onChanged: (value) {
-                handlingChargesRaw = value;
+              // Notes Field
+              AppTextField(
+                controller: noteTextController,
+                labelText: context.appText.notesOrInstruction,
+                maxLines: 2,
+                inputFormatters: [
+                  LengthLimitingTextInputFormatter(240),
+                ],
+                textInputAction: TextInputAction.done,
+              ),
 
-                final formatted = PriceHelper.formatINR(value,addDecimal:false);
-                handlingChargesTextController.value = TextEditingValue(
-                  text: formatted,
-                  selection: TextSelection.collapsed(offset: formatted.length),
-                );
-
-                if (value.isNotEmpty) {
-                  final enteredValue = int.tryParse(value) ?? 0;
-                  final maxAllowed = int.tryParse(
-                    LpHomeHelper.calculateTenPercentOfAverage(widget.price),
-                  ) ?? 0;
-
-                  if (enteredValue > maxAllowed) {
-                    ToastMessages.alert(
-                        message: context.appText.handlingChargeLessTenPercent);
-                    return;
-                  }
-                }
-
-                setState(() {});
-              },
-            ),
-
-            // Notes Field
-            AppTextField(
-              controller: noteTextController,
-              labelText: context.appText.notesOrInstruction,
-              maxLines: 2,
-              inputFormatters: [
-                LengthLimitingTextInputFormatter(240),
-              ],
-            ),
-
-            10.height,
-          ],
+              10.height,
+            ],
+          ),
         ),
       ),
     );
@@ -309,10 +330,10 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
               ToastMessages.error(message: getErrorMsg(errorType: state.errorType));
             }
             if (state is CreateLoadSuccess) {
-              final createdLoadId = state.createLoadModel.data?.loadId;
-              if (createdLoadId != null && widget.isKycValid == 2) {
-                await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
-              }
+              // final createdLoadId = state.createLoadModel.data?.loadId;
+              // if (createdLoadId != null && widget.isKycValid == 2) {
+              //   await lpLoadLocator.setFirstPostedLoadIdIfAbsent(createdLoadId.toString());
+              // }
               if (context.mounted) {
                 AppDialog.show(
                   context,
@@ -346,7 +367,7 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
                     ),
                   ),
                 );
-                createAppEvent(stage: 'end',entityId: state.createLoadModel.data?.loadSeriesId);
+                updatedAppEvent(stage: 'end',entityId: state.createLoadModel.data?.loadSeriesId);
               }
               lpHomeCubit.fetchGetLoadList();
               lpHomeCubit.clearPickUpAndDestination();
@@ -364,7 +385,8 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
             builder: (context, loadState) {
               final isPosting = loadState is CreateLoadLoading;
 
-              final isLoading = creditLoading || isPosting;
+              // final isLoading = creditLoading || isPosting;
+              final isLoading = isPosting;
 
               return Row(
                 children: [
@@ -394,15 +416,12 @@ class _LoadSummaryScreenState extends BaseState<LoadSummaryScreen> {
     );
   }
 
-  Future<void> createAppEvent({String? entityId, required String stage}) async {
+  Future<void> updatedAppEvent({required String stage,String? entityId, Map<String, dynamic>? context}) async {
     try {
-      final eventRequest = await EventHelper.buildHomeViewEvent(
-        entity: 'loadProvider',
-        subEntity: 'loadSummary',
-        stage: stage,
-        entityId: entityId ?? '',
-      );
-      lpHomeCubit.createEvent(eventRequest);
+      lpHomeCubit.updatedAppEvent(
+          stage: stage,
+          entityId: entityId,
+          context: context);
     } catch (e) {
       // Log error but don't show to user as it's not critical
     }

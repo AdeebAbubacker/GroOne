@@ -24,6 +24,11 @@ class LoadPostingBloc extends Cubit<LoadPostingState> {
     return _userId;
   }
 
+  // Reset state
+  void reset() {
+    emit(CreateLoadPostInitial());
+  }
+
 
   //  Create Load Posting API call
   Future<void> loadPostingApiCall(CreateLoadPostingEvent event) async {

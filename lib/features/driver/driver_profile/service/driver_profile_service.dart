@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/material.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
@@ -65,10 +69,10 @@ class DriverProfileService {
   Future<Result<DriverlogoutModel>> fetchLogOutData() async {
     try {
       final url = ApiUrls.logout;
-      final customerId = await _userInformationRepository.getUserID();
+       String? deviceId = (await getDeviceInfo()).$2;
       final result = await _apiService.post(
         url,
-        body: {"customerId": customerId ?? "", "isDriver": true},
+        body: {"deviceId": deviceId},
       );
       if (result is Success) {
         final logOutModel = DriverlogoutModel.fromJson(result.value);
@@ -118,6 +122,23 @@ class DriverProfileService {
         stackTrace,
       );
       return Error(DeserializationError());
+    }
+  }
+
+    Future<(String? deviceType, String? id)> getDeviceInfo() async {
+    try {
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      if (Platform.isAndroid) {
+        AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+        return ("android", androidInfo.id);
+      } else if (Platform.isIOS) {
+        IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+        return ("IOS", iosInfo.identifierForVendor);
+      }
+      return ("", "");
+    } catch (e) {
+      debugPrint('❌ Error getting device info: $e');
+      return ("", "");
     }
   }
 }

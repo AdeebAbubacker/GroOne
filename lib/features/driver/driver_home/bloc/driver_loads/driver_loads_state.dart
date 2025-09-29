@@ -28,3 +28,4 @@ class DriverLoadStatusChangeFailed extends DriverLoadsState {
   final ErrorType errorType;
   DriverLoadStatusChangeFailed(this.errorType);
 }
+

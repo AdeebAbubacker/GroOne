@@ -158,13 +158,16 @@ class _LpSupportState extends State<LpSupport> {
   }
 
   Widget buildToggleTabs(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        toggleButton(context.appText.faqs, 0),
-        12.width,
-        toggleButton(context.appText.tickets, 1),
-      ],
+    return IntrinsicHeight(
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          toggleButton(context.appText.faqs, 0),
+          12.width,
+          toggleButton(context.appText.tickets, 1),
+        ],
+      ),
     );
   }
 
@@ -211,7 +214,7 @@ class _LpSupportState extends State<LpSupport> {
           setState(() {});
         },
         child: Container(
-          height: 42,
+          padding: const EdgeInsets.all(10),
           decoration: commonContainerDecoration(
             color: isSelected ? AppColors.primaryColor : AppColors.greyContainerBg,
             borderRadius: BorderRadius.circular(24),

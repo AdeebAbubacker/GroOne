@@ -607,6 +607,10 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
             UIState.error(ErrorWithMessage(message: 'PAN verification failed')),
           );
         }
+      } else {
+        _setPanVerificationUIState(
+          UIState.error(ErrorWithMessage(message: 'PAN verification failed')),
+        );
       }
     } catch (e) {
       if (!_isClosed) {

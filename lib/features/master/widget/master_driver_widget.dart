@@ -11,7 +11,7 @@ Widget masterDriverInfoWidget({
   required String name,
   required String phone,
   required int driverStatus,
-  //required VoidCallback onEdit,
+  required VoidCallback onEdit,
   required VoidCallback onDelete,
   required BuildContext context,
 }) {
@@ -107,7 +107,18 @@ Widget masterDriverInfoWidget({
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: [                      
+                    children: [
+                      IconButton(
+                      onPressed: onEdit,
+                      icon: SvgPicture.asset(
+                          AppIcons.svg.edit ,
+                          colorFilter: ColorFilter.mode(
+                         AppColors.primaryColor,
+                          BlendMode.srcIn,
+                        ),
+                        ),
+                      splashRadius: 20,
+                    ),                      
                       IconButton(
                         onPressed: onDelete,
                         icon: SvgPicture.asset(

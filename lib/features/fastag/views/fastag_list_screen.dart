@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_cubit.dart';
+import 'package:gro_one_app/features/fastag/cubit/fasttag_order_list_state.dart';
 import 'package:gro_one_app/features/fastag/model/fastag_list_response.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -17,7 +19,6 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import '../../../data/ui_state/status.dart';
 import '../../../utils/app_route.dart';
 import '../../../utils/app_search_bar.dart';
-import '../cubit/fastag_cubit.dart';
 import 'buy_new_fastag_screen.dart';
 import 'fastag_new_user_screen.dart';
 import 'fastag_recharge_screen.dart';
@@ -40,12 +41,15 @@ class _FastagListScreenState extends State<FastagListScreen> {
   @override
   void initState() {
     super.initState();
-    context.read<FastagCubit>().fetchFastagList(isInitialLoad: true, page: 1);
+    context.read<FastagOrderListCubit>().fetchFastagList(isInitialLoad: true, page: 1);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollController.jumpTo(0);
+    });
     scrollController.addListener(_onScroll);
   }
 
   void _onScroll() {
-    if (!scrollController.hasClients || !(totalPage > items.length)) return;
+    if (!scrollController.hasClients || (totalPage == items.length)) return;
     // Simple bottom detection like your example
 
     // Simple pagination trigger - exactly like your working example
@@ -54,7 +58,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
             scrollController.position.maxScrollExtent) {
       debugPrint('jiooo');
       page += 1;
-      context.read<FastagCubit>().fetchFastagList(
+      context.read<FastagOrderListCubit>().fetchFastagList(
         isInitialLoad: true,
         page: page,
       );
@@ -63,17 +67,11 @@ class _FastagListScreenState extends State<FastagListScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<FastagCubit, FastagState>(
-      listenWhen:
-          (previous, current) =>
-              current.shouldNavigateToBuyFastag &&
-              !previous.shouldNavigateToBuyFastag,
-      listener: (context, state) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const FastagNewUserScreen()),
-        );
+    return BlocListener<FastagOrderListCubit, FastagState1>(
+      listenWhen: (previous, current) {
+        return true;
       },
+      listener: (context, state) {},
       child: Scaffold(
         backgroundColor: AppColors.backgroundColor,
         appBar: CommonAppBar(
@@ -111,7 +109,7 @@ class _FastagListScreenState extends State<FastagListScreen> {
                 ),
               ).paddingSymmetric(horizontal: 16.0),
               Expanded(
-                child: BlocConsumer<FastagCubit, FastagState>(
+                child: BlocConsumer<FastagOrderListCubit, FastagState1>(
                   listener: (c, s) {
                     totalPage =
                         s.fastagListUIState.data != null
@@ -176,11 +174,13 @@ class _FastagListScreenState extends State<FastagListScreen> {
       searchController: _searchController,
       hintText: context.appText.search,
       onChanged: (val) {
-        context.read<FastagCubit>().fetchFastagList(searchTerm: val.trim());
+        items.clear();
+        context.read<FastagOrderListCubit>().fetchFastagList(searchTerm: val.trim());
       },
       onClear: () {
         _searchController.clear();
-        context.read<FastagCubit>().fetchFastagList(page: 1);
+        items.clear();
+        context.read<FastagOrderListCubit>().fetchFastagList(page: 1);
       },
     ).paddingSymmetric(horizontal: 16.0);
   }

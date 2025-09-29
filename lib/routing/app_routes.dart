@@ -68,6 +68,8 @@ import 'package:gro_one_app/utils/app_global_variables.dart';
 import 'package:gro_one_app/utils/default_screen.dart';
 
 import '../dependency_injection/locator.dart';
+import '../features/ai_chat/cubit/chat_cubit.dart';
+import '../features/ai_chat/view/chat_screen.dart';
 import '../features/en-dhan_fuel/view/endhan_new_user_and_card_screen.dart';
 import '../features/fastag/views/fastag_list_screen.dart';
 import '../features/fastag/views/fastag_new_user_screen.dart';
@@ -334,7 +336,8 @@ class AppRoutes {
         builder: (BuildContext context, GoRouterState state) {
           final data = state.extra as Map<String, dynamic>? ?? {};
           final String loadId = data["loadId"].toString();
-          return VpLoadDetailsScreen(loadId: loadId);
+          return VpLoadDetailsScreen(
+              loadId: loadId);
         },
       ),
       GoRoute(
@@ -743,6 +746,16 @@ class AppRoutes {
           return buildTransitionPage(
               state: state,
               child: KycUploadDocumentScreen(aadhaarNumber: aadhaarNumber, pdfPath: pdfPath)
+          );
+        },
+      ),
+
+      GoRoute(
+        path: AppRouteName.chaBotScreen,
+        builder: (BuildContext context, GoRouterState state) {
+          return BlocProvider.value(
+            value: locator<ChatCubit>(),
+            child: ChatScreen(),
           );
         },
       ),

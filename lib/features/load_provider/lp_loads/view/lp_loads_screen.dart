@@ -28,7 +28,6 @@ import 'package:gro_one_app/utils/app_dialog.dart';
 import 'package:gro_one_app/utils/app_icon_button.dart';
 import 'package:gro_one_app/utils/app_icons.dart';
 import 'package:gro_one_app/utils/app_search_bar.dart';
-import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/chat_action_button.dart';
 import 'package:gro_one_app/utils/common_dialog_view/common_dialog_view.dart';
@@ -36,6 +35,7 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/extensions/nullable_extensions.dart';
 import 'package:gro_one_app/utils/extensions/state_extension.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/toast_messages.dart';
@@ -77,6 +77,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void initFunction() => frameCallback(() async {
+    lpLoadLocator.setIsFilterApplied(value: false);
     analytics.logEvent(AnalyticEventName.LP_MY_LOAD);
     lpLoadLocator.updateSelectedTabIndex(0);
     paginationController = lpLoadLocator.paginationController;
@@ -297,7 +298,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
                 ],
               ),
               onClickYesButton: () {
-                if(truckTypeDropDownValue == '' && routeDropDownValue == "" && loadPostedDateController.text.isEmpty) {
+                if(truckTypeDropDownValue.isNull && routeDropDownValue.isNull && loadPostedDateController.text.isEmpty) {
                   ToastMessages.alert(message: context.appText.pleaseSelectOneFilter);
                 } else {
                   lpLoadLocator.setIsFilterApplied(value: true);

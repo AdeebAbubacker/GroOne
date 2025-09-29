@@ -65,6 +65,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
     var res = widget.result;
     callBackMethodFromOrderCheckoutScreen(res);
     createAppEvent(stage: 'start');
+    updatedAppEvent(stage: 'viewedProducts');
   }
 
   void _onScroll() {
@@ -314,7 +315,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
         ),
       ),
     );
-    updatedAppEvent(stage: 'viewedCheckoutScreen');
+    //updatedAppEvent(stage: 'viewedCheckoutScreen');
 
     // Handle result from checkout screen
     //
@@ -522,7 +523,7 @@ class _GpsModelsScreenState extends State<GpsModelsScreen> {
             final quantity = state.quantities[product.id] ?? 0;
             return sum + (product.price * quantity);
           });
-          updatedAppEvent(stage: 'productAdded');
+          // updatedAppEvent(stage: 'viewedProducts');
           return totalQuantity > 0
               ? Container(
                 decoration: BoxDecoration(

@@ -13,6 +13,7 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 
 
@@ -112,6 +113,11 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                     style: AppButtonStyle.outlineShrink,
                     textStyle: AppTextStyle.buttonPrimaryColorTextColor,
                     onPressed: () async {
+
+                      if( feedbackController.text.trim().isEmpty){
+                        ToastMessages.alert(message: context.appText.feedbackValidation);
+                        return;
+                      }
                       feedbackFocusNode.unfocus();
                       await lpLoadCubit.updateFeedback(
                         loadId: widget.loadId,
@@ -132,16 +138,31 @@ class _FeedbackWidgetState extends State<FeedbackWidget> {
                     style: AppButtonStyle.outlineShrink,
                     textStyle: AppTextStyle.buttonPrimaryColorTextColor,
                     onPressed: () async {
+                      if (feedbackController.text.trim().isEmpty) {
+                        ToastMessages.alert(message: context.appText.feedbackValidation);
+                        return;
+                      }
                       feedbackFocusNode.unfocus();
-                      await lpLoadCubit.updateFeedback(
+
+                      final errorMessage = await lpLoadCubit.updateFeedback(
                         loadId: widget.loadId,
                         feedback: feedbackController.text,
                       );
-                      setState(() {
-                        _isEditing = false;
-                      });
-                      lpLoadCubit.emit(state.copyWith(isFeedBackUpdatble: false));
-                    },
+
+                      if (errorMessage == null) {
+                        // success
+                        setState(() {
+                          _isEditing = false;
+                          _hasSavedFeedback = true;
+                        });
+                        lpLoadCubit.emit(state.copyWith(isFeedBackUpdatble: false));
+                      } else {
+                        ToastMessages.error(message: errorMessage);
+                        setState(() {
+                          _isEditing = true;
+                        });
+                      }
+                    }
                   ),
               ],
             ),

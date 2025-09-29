@@ -24,3 +24,4 @@ class ChangeDriverLoadStatus extends DriverLoadsEvent {
 
   ChangeDriverLoadStatus({required this.loadId, required this.loadStatus,required this.customerId});
 }
+

@@ -7,12 +7,16 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gro_one_app/data/storage/secured_shared_preferences.dart';
+import 'package:gro_one_app/features/driver/driver_load_details/view/driver_load_details_screen.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/view/vp_load_details_screen.dart';
 import 'package:gro_one_app/service/pushNotification/notification_helper.dart';
 import 'package:gro_one_app/service/pushNotification/notification_payload.dart';
 import 'package:gro_one_app/service/pushNotification/notification_session_manager.dart';
 import 'package:gro_one_app/service/pushNotification/notification_view.dart';
 import 'package:gro_one_app/utils/app_colors.dart';
+import 'package:gro_one_app/utils/app_route.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 
@@ -208,33 +212,37 @@ class NotificationService {
   /// Request notification permissions
   Future<void> _requestPermissions() async {
     try {
-      // Firebase messaging permissions
-      FirebaseMessaging messaging = FirebaseMessaging.instance;
-      NotificationSettings settings = await messaging.requestPermission(
-        alert: true,
-        announcement: true,
-        badge: true,
-        carPlay: false,
-        sound: true,
-        provisional: false,
-        criticalAlert: false,
-      );
 
-      // iOS specific permissions
       if (Platform.isIOS) {
-        await FirebaseMessaging.instance.requestPermission(
+        // iOS - Firebase permissions
+        NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
           alert: true,
+          announcement: true,
           badge: true,
+          carPlay: false,
           sound: true,
+          provisional: false,
+          criticalAlert: false,
         );
+
+        // Only request AwesomeNotifications if authorized/provisional
+        if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+            settings.authorizationStatus == AuthorizationStatus.provisional) {
+          await AwesomeNotifications().requestPermissionToSendNotifications();
+        }
       }
 
-      // Awesome notifications permissions
-      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-          settings.authorizationStatus == AuthorizationStatus.provisional) {
-        await AwesomeNotifications().requestPermissionToSendNotifications();
-      } else {
-        CustomLog.debug(this, 'User declined or has not accepted permission');
+      if (Platform.isAndroid) {
+        // Android - AwesomeNotifications permission
+        final isAllowed = await AwesomeNotifications().isNotificationAllowed();
+        if (!isAllowed) {
+          try {
+            await AwesomeNotifications().requestPermissionToSendNotifications();
+          } catch (e) {
+            // fallback: open settings page
+            await AwesomeNotifications().showNotificationConfigPage();
+          }
+        }
       }
 
       CustomLog.debug(this, "Notification permissions requested successfully");
@@ -242,6 +250,45 @@ class NotificationService {
       CustomLog.error(this, "Notification permission request error", e);
     }
   }
+
+
+  /// Request notification permissions
+  // Future<void> _requestPermissions() async {
+  //   try {
+  //     // Firebase messaging permissions
+  //     FirebaseMessaging messaging = FirebaseMessaging.instance;
+  //     NotificationSettings settings = await messaging.requestPermission(
+  //       alert: true,
+  //       announcement: true,
+  //       badge: true,
+  //       carPlay: false,
+  //       sound: true,
+  //       provisional: false,
+  //       criticalAlert: false,
+  //     );
+  //
+  //     // iOS specific permissions
+  //     if (Platform.isIOS) {
+  //       await FirebaseMessaging.instance.requestPermission(
+  //         alert: true,
+  //         badge: true,
+  //         sound: true,
+  //       );
+  //     }
+  //
+  //     // Awesome notifications permissions
+  //     if (settings.authorizationStatus == AuthorizationStatus.authorized ||
+  //         settings.authorizationStatus == AuthorizationStatus.provisional) {
+  //       await AwesomeNotifications().requestPermissionToSendNotifications();
+  //     } else {
+  //       CustomLog.debug(this, 'User declined or has not accepted permission');
+  //     }
+  //
+  //     CustomLog.debug(this, "Notification permissions requested successfully");
+  //   } catch (e) {
+  //     CustomLog.error(this, "Notification permission request error", e);
+  //   }
+  // }
 
   /// Setup message handlers for different app states
   void _setupMessageHandlers() {
@@ -383,6 +430,7 @@ class NotificationService {
     ReceivedAction receivedAction,
   ) async {
 
+
     try {
       NotificationPayload payload = NotificationPayload.fromJson(
         receivedAction.payload ?? {},
@@ -391,11 +439,13 @@ class NotificationService {
         NotificationService,
         "Awesome notification clicked: $payload",
       );
+      print("correct screen");
+
 
       if (payload.route != null) {
         //// TODO: implement redirection here
 
-        navigatorKey.currentState?.pushNamed(payload.route!);
+        _notificationRouting(payload);
       }
     } catch (e) {
       CustomLog.error(
@@ -794,8 +844,9 @@ class NotificationService {
     CustomLog.debug(this, "$consolePrint : $payload");
     if (payload.route != null) {
 
-      if(payload.route!=null){
-        navigatorKey.currentState?.pushNamed(payload.route!);
+      if (payload.route != null) {
+        _notificationRouting(payload);
+
       }
     }
   }
@@ -956,6 +1007,19 @@ class NotificationService {
             : "Command result received";
       default:
         return defaultMessage;
+    }
+
+  }
+
+
+ static void _notificationRouting(NotificationPayload notification ){
+    switch((notification.route??"").trim()){
+      case "/loadDetailsScreen":
+        Navigator.push(navigatorKey.currentContext!, commonRoute(VpLoadDetailsScreen(loadId:notification.loadSeriesId)));
+      break;
+      case "/driverLoadDetailsScreen":
+        Navigator.push(navigatorKey.currentContext!, commonRoute(DriverLoadsLocationDetailsScreen(loadId:notification.loadSeriesId??"")));
+        break;
     }
   }
 }

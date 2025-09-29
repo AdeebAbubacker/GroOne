@@ -15,9 +15,6 @@ import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 
-
-
-
 class TripDetails extends StatelessWidget {
   const TripDetails({super.key});
 
@@ -27,12 +24,16 @@ class TripDetails extends StatelessWidget {
   }
 
   Widget _tripDetailsWidget(BuildContext context) {
-    return BlocBuilder<LoadDetailsCubit,LoadDetailsState>(
-      builder: (context, state)  {
-        LoadDetailModelData? loadDetails=state.loadDetailsUIState?.data?.data;
-        String amount=(loadDetails?.loadPrice?.vpMaxRate??"").isNotEmpty && (loadDetails?.loadPrice?.vpMaxRate??"").trim()!="0" ?
-        "${PriceHelper.formatINR(loadDetails?.loadPrice?.vpRate)} - ${PriceHelper.formatINR(loadDetails?.loadPrice?.vpMaxRate)}":
-        (loadDetails?.loadPrice?.vpRate??"").isNotEmpty ? PriceHelper.formatINR(loadDetails?.loadPrice?.vpRate) : "0000 - 0000";
+    return BlocBuilder<LoadDetailsCubit, LoadDetailsState>(
+      builder: (context, state) {
+        LoadDetailModelData? loadDetails = state.loadDetailsUIState?.data?.data;
+        String amount =
+            (loadDetails?.loadPrice?.vpMaxRate ?? "").isNotEmpty &&
+                    (loadDetails?.loadPrice?.vpMaxRate ?? "").trim() != "0"
+                ? "${PriceHelper.formatINR(loadDetails?.loadPrice?.vpRate)} - ${PriceHelper.formatINR(loadDetails?.loadPrice?.vpMaxRate)}"
+                : (loadDetails?.loadPrice?.vpRate ?? "").isNotEmpty
+                ? PriceHelper.formatINR(loadDetails?.loadPrice?.vpRate)
+                : "0000 - 0000";
 
         return Container(
           decoration: BoxDecoration(
@@ -54,7 +55,9 @@ class TripDetails extends StatelessWidget {
                       color: Color(0xffDFE6FF),
                       shape: BoxShape.circle,
                     ),
-                    child: Center(child: SvgPicture.asset(AppIcons.svg.orderBox)),
+                    child: Center(
+                      child: SvgPicture.asset(AppIcons.svg.orderBox),
+                    ),
                   ),
                   Expanded(
                     child: Column(
@@ -68,14 +71,14 @@ class TripDetails extends StatelessWidget {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  loadDetails?.loadSeriesId??"",
+                                  loadDetails?.loadSeriesId ?? "",
                                   style: AppTextStyle.h5w500.copyWith(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
                                 GestureDetector(
-                                  onTap: () =>  commonSupportDialog(context),
+                                  onTap: () => commonSupportDialog(context),
                                   child: Container(
                                     height: 30,
                                     width: 30,
@@ -86,7 +89,9 @@ class TripDetails extends StatelessWidget {
                                         color: AppColors.primaryColor,
                                       ),
                                     ),
-                                    child: SvgPicture.asset(AppImage.svg.support),
+                                    child: SvgPicture.asset(
+                                      AppImage.svg.support,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -107,36 +112,45 @@ class TripDetails extends StatelessWidget {
                                       ),
                                     ),
                                     Text(
-                                      DateTimeHelper.getFormattedDate(loadDetails?.createdAt??DateTime.now()),
-                                      style: AppTextStyle.h3PrimaryColor.copyWith(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w100,
-                                        color: AppColors.primaryColor,
+                                      DateTimeHelper.getFormattedDate(
+                                        loadDetails?.createdAt ??
+                                            DateTime.now(),
                                       ),
+                                      style: AppTextStyle.h3PrimaryColor
+                                          .copyWith(
+                                            fontSize: 10,
+                                            fontWeight: FontWeight.w100,
+                                            color: AppColors.primaryColor,
+                                          ),
                                     ),
                                     5.height,
                                     SizedBox(
-                                      width: MediaQuery.of(context).size.width * 0.70,
+                                      width:
+                                          MediaQuery.of(context).size.width *
+                                          0.68,
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
                                         children: [
-                                          Text("${loadDetails?.loadRoute?.pickUpLocation.split(",").first} ",maxLines: 1,overflow: TextOverflow.ellipsis,).expand(),
+                                          Text(
+                                            "${loadDetails?.loadRoute?.pickUpLocation.split(",").first} ",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ).expand(),
                                           Icon(Icons.arrow_forward, size: 12),
                                           Text(
-                                            "${loadDetails?.loadRoute?.dropLocation.split(",").first}",maxLines: 1,overflow: TextOverflow.ellipsis,
+                                            "${loadDetails?.loadRoute?.dropLocation.split(",").first}",
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                             textAlign: TextAlign.end,
-
-
                                           ).expand(),
                                         ],
                                       ),
                                     ),
                                   ],
                                 ),
-
                               ],
                             ),
-
                           ],
                         ),
                       ],
@@ -144,28 +158,36 @@ class TripDetails extends StatelessWidget {
                   ),
                 ],
               ).paddingSymmetric(horizontal: 15, vertical: 10),
-                Divider(
-                  indent: 30,
-                  endIndent: 30,
-                  thickness: 0.5),
+              Divider(indent: 30, endIndent: 30, thickness: 0.5),
 
               10.height,
               Column(
                 spacing: 15,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-
                   Row(
                     children: [
-                      _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,loadDetails?.truckType?.type??"").expand(),
-                      _buildTripEntityTiles(AppIcons.svg.deliveryTruckSpeed,"${loadDetails?.truckType?.subType}").expand(),
+                      _buildTripEntityTiles(
+                        AppIcons.svg.deliveryTruckSpeed,
+                        loadDetails?.truckType?.type ?? "",
+                      ).expand(),
+                      _buildTripEntityTiles(
+                        AppIcons.svg.deliveryTruckSpeed,
+                        "${loadDetails?.truckType?.subType}",
+                      ).expand(),
                     ],
                   ),
 
                   Row(
                     children: [
-                      _buildTripEntityTiles(AppIcons.svg.package,"${loadDetails?.commodity?.name}").expand(),
-                      _buildTripEntityTiles(AppIcons.svg.weight,"${loadDetails?.weight?.value} Ton").expand(),
+                      _buildTripEntityTiles(
+                        AppIcons.svg.package,
+                        "${loadDetails?.commodity?.name}",
+                      ).expand(),
+                      _buildTripEntityTiles(
+                        AppIcons.svg.weight,
+                        "${loadDetails?.weight?.value} Ton",
+                      ).expand(),
                     ],
                   ),
                 ],
@@ -174,15 +196,18 @@ class TripDetails extends StatelessWidget {
 
               Container(
                 padding: EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppColors.lightBlueColor,
-                borderRadius: BorderRadius.circular(8)
-              ),
+                decoration: BoxDecoration(
+                  color: AppColors.lightBlueColor,
+                  borderRadius: BorderRadius.circular(8),
+                ),
                 child: Column(
                   spacing: 12,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    _buildPriceBreakDownWidget(context.appText.acceptedPrice,amount),
+                    _buildPriceBreakDownWidget(
+                      context.appText.acceptedPrice,
+                      amount,
+                    ),
                     // _buildPriceBreakDownWidget("Advance Amount","65,000"),
                     // _buildPriceBreakDownWidget("Balance Amount","8000"),
                   ],
@@ -192,43 +217,43 @@ class TripDetails extends StatelessWidget {
             ],
           ),
         );
-      }
+      },
     );
   }
 
-  Widget _buildTripEntityTiles(String icon,String title){
+  Widget _buildTripEntityTiles(String icon, String title) {
     return Row(
       spacing: 5,
       mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        SvgPicture.asset(icon),
-        Text(title).expand()
-      ],
+      children: [SvgPicture.asset(icon), Text(title).expand()],
     );
   }
 
+  Widget _buildPriceBreakDownWidget(String title, String price) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: AppTextStyle.h5.copyWith(
+            fontSize: 16,
+            color: AppColors.textBlackColor,
+            fontWeight: FontWeight.w200,
 
-  Widget _buildPriceBreakDownWidget(String title,String price){
-return Row(
-  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  children: [
-    Text(title,style: AppTextStyle.h5.copyWith(
-      fontSize: 16,
-      color: AppColors.textBlackColor,
-      fontWeight: FontWeight.w200
-
-    ),),
-    Text(price,style:  AppTextStyle.h5.copyWith(
-        fontSize: 16,
-        color: AppColors.primaryColor,
-        fontWeight: FontWeight.w200
-
-    ),)
-  ],
-);
+          ),
+        ).expand(),
+        Text(
+          price,
+          maxLines: 1,
+          style: AppTextStyle.h5.copyWith(
+            fontSize: 16,
+            color: AppColors.primaryColor,
+            fontWeight: FontWeight.w200,
+          ),
+        ).align(Alignment.centerRight).expand(),
+      ],
+    );
   }
-
-
-
-
 }

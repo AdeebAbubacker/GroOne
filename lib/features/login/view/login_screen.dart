@@ -172,35 +172,6 @@ class _LoginScreenState extends BaseState<LoginScreen>
                             setState(() {});
                           },
                         ),
-                        20.height,
-      
-                        // Get Otp Button
-                        AppButton(
-                          key: AppKeys.btn('get_otp'),
-                          isLoading: isLoading,
-                          title: context.appText.getOtp,
-                          style:
-                              (phoneNumber.text.length == 10 &&
-                                      checkBoxBool == true)
-                                  ? AppButtonStyle.primary
-                                  : AppButtonStyle.disableButton,
-                          onPressed: () {
-                            if (!formKey.currentState!.validate()) {
-                              return;
-                            }
-                            if (phoneNumber.text.length == 10 &&
-                                checkBoxBool == true) {
-                              loginBloc.add(
-                                LoginInRequested(
-                                  apiRequest: LoginApiRequest(
-                                    mobile: int.parse(phoneNumber.text.toInt),
-                                    type: 1,
-                                  ),
-                                ),
-                              );
-                            }
-                          },
-                        ),
       
                         20.height,
       
@@ -250,6 +221,36 @@ class _LoginScreenState extends BaseState<LoginScreen>
                             safeSetState(() {}); // ✅ Safe setState
                           },
                           selected: checkBoxBool,
+                        ),
+
+                        20.height,
+
+                        // Get Otp Button
+                        AppButton(
+                          key: AppKeys.btn('get_otp'),
+                          isLoading: isLoading,
+                          title: context.appText.getOtp,
+                          style:
+                          (phoneNumber.text.length == 10 &&
+                              checkBoxBool == true)
+                              ? AppButtonStyle.primary
+                              : AppButtonStyle.disableButton,
+                          onPressed: () {
+                            if (!formKey.currentState!.validate()) {
+                              return;
+                            }
+                            if (phoneNumber.text.length == 10 &&
+                                checkBoxBool == true) {
+                              loginBloc.add(
+                                LoginInRequested(
+                                  apiRequest: LoginApiRequest(
+                                    mobile: int.parse(phoneNumber.text.toInt),
+                                    type: 1,
+                                  ),
+                                ),
+                              );
+                            }
+                          },
                         ),
                       ],
                     ),
