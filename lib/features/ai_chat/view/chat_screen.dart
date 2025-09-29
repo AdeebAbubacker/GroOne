@@ -2292,18 +2292,21 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Navigate to VpAllLoadsScreen with filter parameters from load data
   void _navigateToVpAllLoads(LoadData loadData) {
     // Navigate to VpAllLoadsScreen with filter parameters
-    // We'll use the existing navigation pattern from the app
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder:
-            (context) => VpAllLoadsScreen(
-              initialTabIndex: 0, // Start with "Available Loads" tab
-              filterData:
-                  loadData, // Pass the extracted load data for filtering
-            ),
-      ),
-    );
+    // Use pushAndRemoveUntil to avoid navigation conflicts
+    if (mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => VpAllLoadsScreen(
+                initialTabIndex: 0, // Start with "Available Loads" tab
+                filterData:
+                    loadData, // Pass the extracted load data for filtering
+              ),
+        ),
+        (route) => route.isFirst, // Keep only the first route (home screen)
+      );
+    }
   }
 }
 

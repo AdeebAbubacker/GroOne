@@ -35,16 +35,21 @@ class ChatActionButton extends StatelessWidget {
       ),
       child: FloatingActionButton(
         onPressed: () {
-          context.push(AppRouteName.chaBotScreen);
-          // Navigator.push(
-          //   context,
-          //   MaterialPageRoute(
-          //     builder: (context) => BlocProvider.value(
-          //       value: locator<ChatCubit>(),
-          //       child: const ChatScreen(),
-          //     ),
-          //   ),
-          // );
+          // Use pushAndRemoveUntil to avoid navigation conflicts and stack buildup
+          if (context.mounted) {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder:
+                    (context) => BlocProvider.value(
+                      value: locator<ChatCubit>(),
+                      child: const ChatScreen(),
+                    ),
+              ),
+              (route) =>
+                  route.isFirst, // Keep only the first route (home screen)
+            );
+          }
         },
         backgroundColor: Colors.transparent,
         elevation: 0,
