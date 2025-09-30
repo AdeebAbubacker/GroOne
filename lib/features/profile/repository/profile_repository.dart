@@ -104,6 +104,7 @@ class ProfileRepository {
     try {
       return await _profileService.fetchDocuments(userId: userId);
     } catch (e) {
+      print("e user : ${e.toString()}");
       return Error(ErrorWithMessage(message: e.toString()));
     }
   }

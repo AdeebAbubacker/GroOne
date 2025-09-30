@@ -76,8 +76,8 @@ class Documents {
   final bool isTan;
   final String chequeDocLink;
   final NDocLinkDetails? chequeDocLinkDetails;
-  final String tdsDocLink;
-  final NDocLinkDetails? tdsDocLinkDetails;
+  final List tdsDocLink;
+  final List? tdsDocLinkDetails;
   final NDocLinkDetails? aadharDocDetails;
 
   Documents copyWith({
@@ -97,8 +97,8 @@ class Documents {
     bool? isTan,
     String? chequeDocLink,
     NDocLinkDetails? chequeDocLinkDetails,
-    String? tdsDocLink,
-    NDocLinkDetails? tdsDocLinkDetails,
+    List? tdsDocLink,
+    List? tdsDocLinkDetails,
     NDocLinkDetails? aadharDocDetails,
   }) {
     return Documents(
@@ -144,7 +144,7 @@ class Documents {
       chequeDocLink: json["chequeDocLink"] ?? "",
       chequeDocLinkDetails: json["chequeDocLinkDetails"] == null || json["chequeDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["chequeDocLinkDetails"]),
       tdsDocLink: json["tdsDocLink"] ?? "",
-      tdsDocLinkDetails: json["tdsDocLinkDetails"] == null || json["tdsDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["tdsDocLinkDetails"]),
+      tdsDocLinkDetails: json["tdsDocLinkDetails"] == null || json["tdsDocLinkDetails"] == '' ? null : json["tdsDocLinkDetails"],
 
     );
   }
