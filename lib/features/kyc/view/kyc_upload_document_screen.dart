@@ -705,7 +705,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         bankName: bankNameTextController.text.trim(),
         branchName: branchNameTextController.text.trim(),
         chequeDocLink: cancelledChequeDocId ?? "",
-        tdsDocLink: tdsDocId ?? "",
+        tdsDocLink: [tdsDocId ?? ""],
         gstin: gstInTextController.text,
         gstinDocLink: gstDocId ?? "",
         ifscCode: ifscCodeTextController.text,

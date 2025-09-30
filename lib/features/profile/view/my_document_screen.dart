@@ -8,6 +8,7 @@ import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/cubit/lp_load_cubit.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
 import 'package:gro_one_app/features/profile/helper/master_helper.dart';
+import 'package:gro_one_app/features/profile/model/kyc_document_response.dart';
 import 'package:gro_one_app/helpers/date_helper.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_application_bar.dart';
@@ -85,18 +86,17 @@ class _MyDocumentScreenState extends State<MyDocumentScreen> {
             addTile(docs.chequeDocLink, true, docs.chequeDocLinkDetails);
             addTile(docs.aadhar, true, docs.aadharDocDetails);
 
-            for(var item in docs.tdsDocLink){
-              print("item is ");
-              tiles.add(docTile("TDS" , "", "",  item.toString().split(".").first));
+
+
+            for(NDocLinkDetails item in docs.tdsDocLinkDetails??[]){
+              tiles.add(docTile(item.title , DateTimeHelper.formatCustomDateTimeIST(item.createdAt),  item.documentId ?? '', item.fileExtension ?? ''));
             }
 
             if (tiles.isEmpty) {
               return genericErrorWidget(error: NotFoundError(message: context.appText.noDocumentsFound));
             }
 
-
-
-            return Stack(
+             return Stack(
               children: [
                 ListView(
                   padding: const EdgeInsets.all(20),
