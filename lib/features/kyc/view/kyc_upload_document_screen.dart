@@ -671,7 +671,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   // Verify KYC Api Call
   Future verifyKycApiCall() async {
-
     if (_formKey.currentState!.validate()) {
       final ok = validateDocs(
         userRole: kycCubit.userRole ?? 0,
@@ -777,7 +776,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   // Build Body
-  Widget  _buildBodyWidget() {
+  Widget _buildBodyWidget() {
     return SafeArea(
       bottom: false,
       child: SingleChildScrollView(
@@ -910,50 +909,63 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               ),
                               16.height,
                               FormField<String>(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                return context.appText.stateisRequired;
-                                }
-                                return null;
-                               },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return context.appText.stateisRequired;
+                                  }
+                                  return null;
+                                },
                                 builder: (field) {
                                   return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       StateDropdown(
                                         selectedStateId: selectedState,
                                         onStateChanged: (value) {
                                           setState(() {
-                                            selectedStateData = value?.name.toString();
-                                            selectedState = value?.name.toString();
+                                            selectedStateData =
+                                                value?.name.toString();
+                                            selectedState =
+                                                value?.name.toString();
                                             selectedCity = null;
                                           });
-                                          field.didChange(value?.name.isNotEmpty == true ? value?.name : null);
+                                          field.didChange(
+                                            value?.name.isNotEmpty == true
+                                                ? value?.name
+                                                : null,
+                                          );
                                         },
                                       ),
                                       if (field.hasError)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 4, left: 8),
-                                        child: Text(
-                                          field.errorText!,
-                                          style: AppTextStyle.textFieldHintRedColor,
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 4,
+                                            left: 8,
+                                          ),
+                                          child: Text(
+                                            field.errorText!,
+                                            style:
+                                                AppTextStyle
+                                                    .textFieldHintRedColor,
+                                          ),
                                         ),
-                                      ),
                                     ],
                                   );
-                                }
+                                },
                               ),
                               16.height,
                               FormField<String>(
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                return context.appText.cityisRequired;
-                                }
-                                return null;
-                               },
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return context.appText.cityisRequired;
+                                  }
+                                  return null;
+                                },
                                 builder: (field) {
                                   return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       CityDropdown(
                                         selectedState: selectedStateData,
@@ -963,24 +975,34 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                             selectedState!.isNotEmpty,
                                         onCityChanged: (value) {
                                           setState(() {
-                                            selectedCity = value?.city.toString();
-                                            selectedCityID=value?.id.toString();
+                                            selectedCity =
+                                                value?.city.toString();
+                                            selectedCityID =
+                                                value?.id.toString();
                                           });
-                                          field.didChange(value?.city.isNotEmpty == true ? value?.city : null);
-
+                                          field.didChange(
+                                            value?.city.isNotEmpty == true
+                                                ? value?.city
+                                                : null,
+                                          );
                                         },
                                       ),
-                                       if (field.hasError)
-                                      Padding(
-                                        padding: const EdgeInsets.only(top: 4, left: 8),
-                                        child: Text(
-                                          field.errorText!,
-                                          style: AppTextStyle.textFieldHintRedColor,
+                                      if (field.hasError)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 4,
+                                            left: 8,
+                                          ),
+                                          child: Text(
+                                            field.errorText!,
+                                            style:
+                                                AppTextStyle
+                                                    .textFieldHintRedColor,
+                                          ),
                                         ),
-                                      ),
                                     ],
                                   );
-                                }
+                                },
                               ),
                               16.height,
                               AppTextField(
@@ -1143,7 +1165,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
-              isMandatory: companyId!=1,
+              isMandatory: companyId != 1,
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },
@@ -1385,7 +1407,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
           children: [
             // Enter PAN number
             buildTextFieldWithLabelWidget(
-
               onChanged: (text) {
                 setPanIntoLocal(text ?? "");
               },
@@ -1727,7 +1748,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     bool? isMandatory,
     Function(String? text)? onChanged,
   }) {
-
     return Column(
       children: [
         Row(
@@ -1759,7 +1779,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         ),
         6.height,
         AppTextField(
-
           maxLength: maxLength,
           validator:
               (value) =>
