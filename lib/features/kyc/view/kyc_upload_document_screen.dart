@@ -955,9 +955,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                     children: [
                                       CityDropdown(
                                         selectedState: selectedStateData,
-                                        selectedCityId: selectedCityID,
+                                        selectedCityId: selectedCity,
                                         isStateSelected:
                                         selectedState != null &&
+                                            selectedState != null &&
                                             selectedState!.isNotEmpty,
                                         onCityChanged: (value) {
                                           setState(() {
