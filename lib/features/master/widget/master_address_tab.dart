@@ -727,6 +727,7 @@ class CityDropdown extends StatefulWidget {
 class _CityDropdownState extends State<CityDropdown> {
   @override
   void initState() {
+
     super.initState();
 
     // Preload city list if state + cityId are already given
@@ -741,6 +742,7 @@ class _CityDropdownState extends State<CityDropdown> {
   @override
   Widget build(BuildContext context) {
     final kycCubit = context.read<KycCubit>();
+
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -780,7 +782,10 @@ class _CityDropdownState extends State<CityDropdown> {
                       ? SearchableDropdownMenuItem<CityModelList>(
                         value: kycCubit.state.cityUIState?.data
                             ?.firstWhereOrNull(
-                              (e) => e.id.toString() == widget.selectedCityId,
+                              (e) {
+
+                              return  e.id.toString() == widget.selectedCityId;
+                              }
                             ),
                         label:
                             kycCubit.state.cityUIState?.data

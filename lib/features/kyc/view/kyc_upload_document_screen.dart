@@ -117,6 +117,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   dynamic companyId;
   dynamic kycUserInfo;
 
+
+  String? selectedCityID;
+
   @override
   void initState() {
     initFunction();
@@ -954,13 +957,14 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                     children: [
                                       CityDropdown(
                                         selectedState: selectedStateData,
-                                        selectedCityId: selectedCity,
+                                        selectedCityId: selectedCityID,
                                         isStateSelected:
                                             selectedState != null &&
                                             selectedState!.isNotEmpty,
                                         onCityChanged: (value) {
                                           setState(() {
                                             selectedCity = value?.city.toString();
+                                            selectedCityID=value?.id.toString();
                                           });
                                           field.didChange(value?.city.isNotEmpty == true ? value?.city : null);
 
