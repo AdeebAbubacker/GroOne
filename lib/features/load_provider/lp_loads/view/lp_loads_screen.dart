@@ -77,6 +77,7 @@ class _LpLoadsScreenState extends State<LpLoadsScreen>
   }
 
   void initFunction() => frameCallback(() async {
+    lpLoadLocator.setIsFilterApplied(value: false);
     analytics.logEvent(AnalyticEventName.LP_MY_LOAD);
     lpLoadLocator.updateSelectedTabIndex(0);
     paginationController = lpLoadLocator.paginationController;

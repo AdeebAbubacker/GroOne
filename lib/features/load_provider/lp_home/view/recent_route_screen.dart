@@ -141,11 +141,11 @@ class _RecentRouteScreenState extends State<RecentRouteScreen> {
     return AppSearchBar(
       searchController: searchController,
       onChanged: (val) {
-        lpHomeCubit.fetchRecentRoute(isLoading: false,search: searchController.text);
+        lpHomeCubit.fetchRecentRoute(isLoading: true,search: searchController.text);
       },
       onClear: () {
-          searchController.clear();
-        lpHomeCubit.fetchRecentRoute(isLoading: false);
+        searchController.clear();
+        lpHomeCubit.fetchRecentRoute(isLoading: true);
       },
     );
   }
