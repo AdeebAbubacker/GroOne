@@ -98,9 +98,11 @@ class _ChooseLanguageScreenState extends State<ChooseLanguageScreen> {
                     },
                   ).expand(),
                 Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(
                       context.appText.chooseLanguage,
+                      textAlign: TextAlign.center,
                       style: AppTextStyle.textDarkGreyColor14w400,
                     ).align(Alignment.center),
                     10.height,
