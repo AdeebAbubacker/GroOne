@@ -751,8 +751,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         city: selectedCity,
       );
       kycUserInfo = kycRequest.toJson();
-      print("kyc submitted");
-      // kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
+      kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
     }
   }
 
