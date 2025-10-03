@@ -99,11 +99,6 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
       initialIndex: widget.initialTabIndex,
     );
     _vpLoadSub = vpLoadBloc.stream.listen(_onStatusChanged);
-    _tabController.addListener(() {
-      if (_tabController.indexIsChanging) {
-        _loadDataByTab(index: _tabController.index);
-      }
-    });
     _loadDataByTab(index: widget.initialTabIndex); // load initial tab
     _getFilterDataEntity();
     _fetchMoreLoads();
@@ -125,6 +120,42 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
     _clearFilter();
     super.dispose();
   }
+    /// Updates tab controller when new tab labels arrive
+void _updateTabs(List<LoadStatusResponse> newTabs) {
+  if (!mounted) return;
+
+  if (!listEquals(tabLabels, newTabs)) {
+    tabLabels = newTabs;
+
+    // Dispose old controller
+    _tabController.dispose();
+    _tabController = TabController(
+      length: tabLabels.length,
+      vsync: this,
+      initialIndex: widget.initialTabIndex.clamp(0, tabLabels.length - 1),
+    );
+
+    // Add listener to update UI on both tap and swipe
+    _tabController.addListener(() {
+      if (!mounted) return;
+      setState(() {}); // refresh TabBar highlight
+
+      // Optional: fetch data only on tab tap (indexIsChanging = true)
+      if (!_tabController.indexIsChanging) {
+        _loadDataByTab(index: _tabController.index);
+      }
+    });
+   _tabController.addListener(() {
+    if (!mounted) return;
+    setState(() {}); 
+  });
+  _tabController.animation!.addListener(() {
+    if (!mounted) return;
+    setState(() {}); 
+  });
+  setState(() {}); // rebuild tabs
+  }
+}
 
   void _clearFilter() {
     loadFilterCubit.setIsFilterApplied(value: false);
@@ -164,7 +195,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
     searchController.clear();
   }
 
-  void _onStatusChanged(state) {
+   void _onStatusChanged(state) {
     if (!mounted) return;
 
     final loadStatusState = state.statuses;
@@ -173,29 +204,10 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
     if (status == Status.SUCCESS) {
       final newLength = loadStatusState?.data?.length ?? 0;
       if (_tabController.length != newLength) {
-        _tabController.dispose();
-        _tabController = TabController(
-          length: newLength,
-          vsync: this,
-          initialIndex: widget.initialTabIndex,
-        );
-        _tabController.addListener(() {
-          if (_tabController.indexIsChanging) {
-            _loadDataByTab(index: _tabController.index);
-          }
-        });
-      }
-
-      if (tabLabels.isEmpty) {
-        _loadDataByTab(index: widget.initialTabIndex);
-      }
-
       final newTabs = loadStatusState?.data ?? [];
-      if (!listEquals(tabLabels, newTabs)) {
-        setState(() {
-          tabLabels = newTabs;
-        });
-      }
+
+    // Use the helper method
+    _updateTabs(newTabs);
 
       // Scroll adjustment
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -203,7 +215,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
           _tabScrollController.jumpTo(50);
         }
       });
-    }
+      }}
   }
 
   void _onSearchChanged(String query) {
@@ -409,7 +421,9 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
                         indicator: const BoxDecoration(),
                         splashFactory: NoSplash.splashFactory,
                         tabs: List.generate(tabLabels.length, (index) {
-                          final isSelected = _tabController.index == index;
+                          double animationValue =
+                          _tabController.animation?.value ?? _tabController.index.toDouble();
+                          bool isSelected = (animationValue - index).abs() < 0.5;
                           return Tab(
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -457,7 +471,7 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
                       ? const SizedBox()
                       : TabBarView(
                         controller: _tabController,
-                        physics: const NeverScrollableScrollPhysics(),
+                        physics: const BouncingScrollPhysics(),
                         children: [
                           BlocListener<VpAcceptLoadBloc, VpAcceptLoadState>(
                             bloc: locator<VpAcceptLoadBloc>(),
@@ -493,18 +507,18 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
                                 );
                               }
                             },
-                            child: buildTab(),
+                            child: buildTab(tabIndex: 0),
                           ),
-                          buildTab(),
-                          buildTab(),
-                          buildTab(),
-                          buildTab(),
-                          buildTab(),
-                          buildTab(),
+                          buildTab(tabIndex: 1),
+                          buildTab(tabIndex: 2),
+                          buildTab(tabIndex: 3),
+                          buildTab(tabIndex: 4),
+                          buildTab(tabIndex: 5),
+                          buildTab(tabIndex: 6),
 
-                          buildTab(),
-                          buildTab(),
-                          buildTab(disabledOnTap: true),
+                          buildTab(tabIndex: 7),
+                          buildTab(tabIndex: 8),
+                          buildTab(tabIndex: 9, disabledOnTap: true),
                         ],
                       ),
             ),
@@ -579,10 +593,14 @@ class _VpAllLoadsScreenState extends BaseState<VpAllLoadsScreen>
     );
   }
 
-  Widget buildTab({bool disabledOnTap = false}) {
+  Widget buildTab({bool disabledOnTap = false,required int tabIndex}) {
     return BlocBuilder<VpLoadCubit, VpLoadState>(
       bloc: vpLoadBloc,
       builder: (context, state) {
+         if (_tabController.index != tabIndex || state.loads?.status == null) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
         Status? status = state.loads?.status;
         if (status == Status.LOADING) {
           return const Center(child: CircularProgressIndicator());
