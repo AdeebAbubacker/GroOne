@@ -593,7 +593,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             need(context.appText.cancelledCheque, checkDocLink.isNotEmpty) &&
             checkId(cancelledChequeDocId, "Cancelled Cheque");
         final panOk=panValid();
-        return need(context.appText.aadhaar, true) && chkOk && panOk;
+        bool isValidTan=true;
+        if(userRole==3){
+          isValidTan= tanValid();
+        }
+        return need(context.appText.aadhaar, true) && chkOk && panOk && isValidTan;
       }
 
 
@@ -612,11 +616,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
 
        bool isValidTan=true;
-      if(userRole==3 && companyId>2){
-        isValidTan= tanValid();
-      }
+       if(userRole==3){
+         isValidTan= tanValid();
+       }
 
-      return userRole==3 && companyId>2 ? (gstOk && panOk && chkOk && isValidTan):( gstOk && panOk && chkOk);
+      return userRole==3 ? (gstOk && panOk && chkOk && isValidTan):( gstOk && panOk && chkOk);
 
     }
 
@@ -747,8 +751,8 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         city: selectedCity,
       );
       kycUserInfo = kycRequest.toJson();
-
-      kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
+      print("kyc submitted");
+      // kycCubit.submitKyc(kycRequest, "${await kycCubit.fetchUserId()}");
     }
   }
 
@@ -852,6 +856,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                               CustomLog.debug(this, "User Role: $userRole and company id $companyId");
 
                               List<Widget> children = [];
+                              print("isLP $isLP");
 
                               if (companyId == 1) {
                                 children.addAll([
@@ -861,6 +866,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   25.height,
                                   _buildPanWidget(),
                                   25.height,
+
                                   if (isVP) ...[
                                     buildCancelledCheckWidget(),
                                     25.height,
@@ -873,7 +879,6 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                 ]);
                               } else if (companyId == 2) {
 
-
                                 children.addAll([
                                   25.height,
                                   _buildAadhaarWidget(context),
@@ -883,7 +888,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   if (isVP) ...[
                                     25.height,
                                     buildCancelledCheckWidget(),
-                                    50.height,
+
                                   ],
                                   if (isLP) ...[25.height, _buildTanWidget(
                                       isRequired: true
@@ -1180,7 +1185,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
-              isMandatory: (userRole==1 && (companyId==1 || companyId>2 )) || (userRole==3 && companyId>2)  ,
+              isMandatory: (userRole==1 && (companyId==1 || companyId>2 )) || (userRole==3 && companyId>2) || (userRole==3 &&companyId==1)  ,
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },
