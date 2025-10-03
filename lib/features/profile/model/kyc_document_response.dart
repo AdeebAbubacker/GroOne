@@ -76,8 +76,8 @@ class Documents {
   final bool isTan;
   final String chequeDocLink;
   final NDocLinkDetails? chequeDocLinkDetails;
-  final String tdsDocLink;
-  final NDocLinkDetails? tdsDocLinkDetails;
+  final List tdsDocLink;
+  final List<NDocLinkDetails>? tdsDocLinkDetails;
   final NDocLinkDetails? aadharDocDetails;
 
   Documents copyWith({
@@ -97,8 +97,8 @@ class Documents {
     bool? isTan,
     String? chequeDocLink,
     NDocLinkDetails? chequeDocLinkDetails,
-    String? tdsDocLink,
-    NDocLinkDetails? tdsDocLinkDetails,
+    List? tdsDocLink,
+    List<NDocLinkDetails>? tdsDocLinkDetails,
     NDocLinkDetails? aadharDocDetails,
   }) {
     return Documents(
@@ -125,6 +125,7 @@ class Documents {
   }
 
   factory Documents.fromJson(Map<String, dynamic> json){
+    print("tds is ${json["tdsDocLinkDetails"]}");
     return Documents(
       aadharDocDetails:    json["aadharDocLinkDetails"] == null  || json["aadharDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["aadharDocLinkDetails"]),
       aadhar: json["aadhar"] ?? "",
@@ -144,7 +145,7 @@ class Documents {
       chequeDocLink: json["chequeDocLink"] ?? "",
       chequeDocLinkDetails: json["chequeDocLinkDetails"] == null || json["chequeDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["chequeDocLinkDetails"]),
       tdsDocLink: json["tdsDocLink"] ?? "",
-      tdsDocLinkDetails: json["tdsDocLinkDetails"] == null || json["tdsDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["tdsDocLinkDetails"]),
+      tdsDocLinkDetails: json["tdsDocLinkDetails"] == null  ? [] : List<NDocLinkDetails>.from(json['tdsDocLinkDetails'].map((x)=>NDocLinkDetails.fromJson(x))).toList()
 
     );
   }
@@ -208,6 +209,7 @@ class NDocLinkDetails {
   }
 
   factory NDocLinkDetails.fromJson(Map<String, dynamic> json){
+
     return NDocLinkDetails(
       documentId: json["documentId"] ?? "",
       title: json["title"] ?? "",

@@ -40,7 +40,7 @@ class SubmitKycApiRequest extends Serializable<SubmitKycApiRequest>{
   final String? adharDocLink;
   final bool? isTan;
   final String? chequeDocLink;
-  final String? tdsDocLink;
+  final List? tdsDocLink;
   final String? addressName;
   final String? fullAddress;
   final String? pincode;
@@ -67,7 +67,7 @@ class SubmitKycApiRequest extends Serializable<SubmitKycApiRequest>{
     "tanDocLink": tanDocLink ?? "",
     "isTan": isTan ?? false,
     "chequeDocLink": chequeDocLink ?? "",
-    "tdsDocLink": [tdsDocLink ?? ""],
+    "tdsDocLink": tdsDocLink ?? [],
     "addressName": addressName ?? "",
     "fullAddress": fullAddress ?? "",
     "pincode": pincode ?? "",
