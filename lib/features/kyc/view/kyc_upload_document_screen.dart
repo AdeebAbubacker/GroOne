@@ -1526,9 +1526,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         final cancelledCheckUploadState = state.uploadCancelledUIState?.status;
         if (kycCubit.userRole != null && kycCubit.userRole != 1) {
           return UploadAttachmentFiles(
-            title: "${context.appText.cancelledCheque} *",
+            title: "${context.appText.cancelledCheque} ",
             multiFilesList: checkDocLink,
             isSingleFile: true,
+            isMandatory: true,
             isLoading: cancelledCheckUploadState == Status.LOADING,
             allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
             thenUploadFileToSever: () async {
@@ -1603,8 +1604,9 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
         final tdsUploadState = state.uploadTDSDocUIState?.status;
         if (kycCubit.userRole != null && kycCubit.userRole != 1) {
           return UploadAttachmentFiles(
-            title: "${context.appText.tdsCertificate} *",
+            title: context.appText.tdsCertificate,
             multiFilesList: tdsDocLink,
+            isMandatory: true,
             isSingleFile: true,
             isLoading: tdsUploadState == Status.LOADING,
             allowedExtensions: ['jpg', 'png', 'heic', 'pdf', 'jpeg'],
