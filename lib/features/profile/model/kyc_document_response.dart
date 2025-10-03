@@ -126,12 +126,12 @@ class Documents {
 
   factory Documents.fromJson(Map<String, dynamic> json){
     return Documents(
-      aadharDocDetails:    json["aadharDocLinkDetails"] == null  || json["aadharDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["aadharDocLinkDetails"]),
+      aadharDocDetails:    json["aadharDocLinkDetails"] == null  || json["aadharDocLinkDetails"] == '' || json["aadharDocLinkDetails"] is String ? null : NDocLinkDetails.fromJson(json["aadharDocLinkDetails"]),
       aadhar: json["aadhar"] ?? "",
       isAadhar: json["isAadhar"] ?? false,
       pan: json["pan"] ?? "",
       panDocLink: json["panDocLink"] ?? "",
-      panDocLinkDetails: json["panDocLinkDetails"] == null  || json["panDocLinkDetails"] == '' ? null : NDocLinkDetails.fromJson(json["panDocLinkDetails"]),
+      panDocLinkDetails: json["panDocLinkDetails"] == null  || json["panDocLinkDetails"] == '' || json["panDocLinkDetails"] is String ? null : NDocLinkDetails.fromJson(json["panDocLinkDetails"]),
       isPan: json["isPan"] ?? false,
       gstin: json["gstin"] ?? "",
       gstinDocLink: json["gstinDocLink"] ?? "",

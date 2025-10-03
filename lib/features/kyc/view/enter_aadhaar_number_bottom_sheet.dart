@@ -83,9 +83,20 @@ class _EnterAadhaarNumberBottomSheetState extends BaseState<EnterAadhaarNumberBo
     aadhaarNumberOtpTextController.clear();
     requestID = '';
     aadhaarValue = null;
+    autoPopulateAadhar();
     // Reset Cubit state (important)
     kycBloc.resetState();
   });
+
+
+  void autoPopulateAadhar(){
+    if(profileCubit.state.documentState?.data!=null && (profileCubit.state.documentState?.data?.documents?.aadhar??"").isNotEmpty){
+      aadhaarNumberTextController.text=KycHelper.formatAadharNumber(profileCubit.state.documentState?.data?.documents?.aadhar??"");
+      final aadhaar =   aadhaarNumberTextController.text.replaceAll(' ', '');
+      aadhaarValue = aadhaar;
+      aadhaarValueForDocID=  aadhaarNumberTextController.text;
+    }
+  }
 
 
   void setAadharDocumentToLocal(String? aadharPdf,String? aadharNumber)=>frameCallback(() async{

@@ -124,6 +124,7 @@ class _VpHomeScreenState extends BaseState<VpHomeScreen> with WidgetsBindingObse
     vpRecentLoadListBloc.add(VpRecentLoadEvent());
     vpHomeScreenBloc.add(VpMyLoadListRequested());
     profileCubit.fetchCompanyTypeId();
+    profileCubit.fetchDocuments();
     await profileCubit.fetchProfileDetail(instance: this);
   });
 
