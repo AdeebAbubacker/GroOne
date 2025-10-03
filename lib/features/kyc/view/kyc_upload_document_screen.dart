@@ -612,11 +612,11 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
 
        bool isValidTan=true;
-      if(userRole==3 && companyId==3){
+      if(userRole==3 && companyId>2){
         isValidTan= tanValid();
       }
 
-      return userRole==3 && companyId==3 ? (gstOk && panOk && chkOk && isValidTan):( gstOk && panOk && chkOk);
+      return userRole==3 && companyId>2 ? (gstOk && panOk && chkOk && isValidTan):( gstOk && panOk && chkOk);
 
     }
 
@@ -872,7 +872,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   50.height,
                                 ]);
                               } else if (companyId == 2) {
-                                print("calling here");
+
 
                                 children.addAll([
                                   25.height,
@@ -897,7 +897,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
                                   _buildPanWidget(),
                                   25.height,
                                   if (isLP) ...[_buildTanWidget(
-                                    isRequired: ( userRole==1 && (companyId==1 || companyId==3 )) || (userRole==3 && companyId==3 )
+                                    isRequired: ( userRole==1 && (companyId==1 || companyId>2 )) || (userRole==3 && companyId>2 )
                                   ), 25.height],
                                   if (isVP) ...[
                                     buildTDSCertificationWidget(),
@@ -1180,7 +1180,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
             // Enter GST Number
             buildTextFieldWithLabelWidget(
               maxLength: 15,
-              isMandatory: (userRole==1 && (companyId==1 || companyId==3 )) || (userRole==3 && companyId==3)  ,
+              isMandatory: (userRole==1 && (companyId==1 || companyId>2 )) || (userRole==3 && companyId>2)  ,
               onChanged: (text) {
                 setGstNumberIntoLocal(text ?? "");
               },

@@ -67,7 +67,7 @@ class SubmitKycApiRequest extends Serializable<SubmitKycApiRequest>{
     "tanDocLink": tanDocLink ?? "",
     "isTan": isTan ?? false,
     "chequeDocLink": chequeDocLink ?? "",
-    "tdsDocLink": tdsDocLink ?? "",
+    "tdsDocLink": [tdsDocLink ?? ""],
     "addressName": addressName ?? "",
     "fullAddress": fullAddress ?? "",
     "pincode": pincode ?? "",
