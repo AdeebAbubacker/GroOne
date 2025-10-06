@@ -20,6 +20,7 @@ import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/swipe_b
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/tracking_progress_widget.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/view/widgets/trip_documents.dart';
 import 'package:gro_one_app/features/trip_tracking/widgets/load_timeline_widget.dart';
+import 'package:gro_one_app/features/trip_tracking/widgets/source_destination_widget.dart';
 import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart' as vp_helper;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart' hide LoadSettlement;
 import 'package:gro_one_app/features/vehicle_provider/vp_details/view/widget/vp_added_damage.dart';
@@ -279,50 +280,11 @@ class _LpLoadBottomWidgetState extends State<LpLoadBottomWidget> {
                     25.height,
 
                     // Source & Destination card
-                    Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: commonContainerDecoration(
-                        color: AppColors.lightPrimaryColor2,
-                        borderColor: AppColors.borderColor,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-
-                          Image.asset(AppImage.png.bookAShipment, width: 18, fit: BoxFit.fitHeight),
-                          10.width,
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              // Source (Pick Up)
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(context.appText.source, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                                  6.height,
-                                  Text(widget.loadItem.loadRoute?.pickUpWholeAddr ?? '', style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                                ],
-                              ),
-
-                              commonDivider(),
-
-                              // Destination
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(context.appText.destination, style: AppTextStyle.body3.copyWith(fontSize: 14, color: AppColors.textBlackColor)),
-                                  6.height,
-                                  Text(widget.loadItem.loadRoute?.dropWholeAddr ?? '', style: AppTextStyle.body3.copyWith(fontSize: 12, color: AppColors.textBlackColor))
-                                ],
-                              ),
-
-                            ],
-                          ).expand()
-                        ],
-                      ),
-                    ),
+                    SourceDestinationWidget(
+                            pickUpLocation:
+                                widget.loadItem.loadRoute?.pickUpWholeAddr,
+                            dropLocation: widget.loadItem.loadRoute?.dropWholeAddr,
+                          ),
                     16.height,
 
                     if(widget.loadStatus.index <= LoadStatus.assigned.index)
