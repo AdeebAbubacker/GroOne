@@ -77,7 +77,6 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
   bool isLoadingSummary = true;
   final lpHomeCubit = locator<LPHomeCubit>();
 
-
   @override
   void initState() {
     super.initState();
@@ -93,13 +92,10 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
     _fetchOrderSummary();
 
     try {
-      lpHomeCubit.updatedAppEvent(
-        stage: 'viewedSummary',
-      );
+      lpHomeCubit.updatedAppEvent(stage: 'viewedSummary');
     } catch (e) {
       // Log error but don't show to user as it's not critical
     }
-
   }
 
   Future<void> _fetchOrderSummary() async {
@@ -213,9 +209,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
       listener: (context, state) async {
         if (state is GpsPaymentSuccess) {
           try {
-            lpHomeCubit.updatedAppEvent(
-              stage: 'enteredPaymentScreen',
-            );
+            lpHomeCubit.updatedAppEvent(stage: 'enteredPaymentScreen');
           } catch (e) {
             // Log error but don't show to user as it's not critical
           }
@@ -299,10 +293,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
             ),
           );
           try {
-            lpHomeCubit.updatedAppEvent(
-              stage: 'end',
-              entityId: state.orderID
-            );
+            lpHomeCubit.updatedAppEvent(stage: 'end', entityId: state.orderID);
           } catch (e) {
             // Log error but don't show to user as it's not critical
           }
@@ -489,7 +480,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 if (summaryItem.discount > 0)
                   _buildDetailRow(
                     "Discount",
-                    "₹${KavachHelper.formatCurrency(summaryItem.discount.toStringAsFixed(2))}",
+                    "₹${KavachHelper.formatCurrency(summaryItem.discount.toStringAsFixed(2), withoutDecimal: true)}",
                   ),
                 _buildDetailRow(
                   context.appText.igst,
@@ -518,7 +509,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                 5.height,
                 _buildDetailRow(
                   context.appText.totalAmount,
-                  "₹${KavachHelper.formatCurrency(summaryItem.totalAmount)}",
+                  "₹${KavachHelper.formatCurrency(summaryItem.totalAmount, withoutDecimal: true)}",
                 ),
                 15.height,
               ],
@@ -559,7 +550,7 @@ class _GpsOrderSummaryScreenState extends State<GpsOrderSummaryScreen> {
                     style: AppTextStyle.blackColor14w400,
                   ),
                   Text(
-                    "₹${KavachHelper.formatCurrencyRoundOf(totalAmount.toStringAsFixed(2))}",
+                    "₹${KavachHelper.formatCurrency(totalAmount.toStringAsFixed(2), withoutDecimal: true)}",
                     style: AppTextStyle.primaryColor16w900,
                   ),
                 ],
