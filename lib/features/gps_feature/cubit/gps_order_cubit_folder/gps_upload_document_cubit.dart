@@ -3,23 +3,38 @@ import 'package:bloc/bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_request/gps_order_api_request.dart';
 import 'package:gro_one_app/features/gps_feature/gps_order_repo/gps_order_api_repository.dart';
+import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
+import 'package:gro_one_app/features/kyc/helper/kyc_helper.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
 import 'package:gro_one_app/data/network/api_service.dart';
 
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp-helper/vp_helper.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/load_details_response_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:mime/mime.dart';
 import 'gps_upload_document_state.dart';
-
-
 
 class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
   final GpsOrderApiRepository _repository;
+  final LoadDetailsRepository _loadDetailsRepository;
+  String adhaarDocId = '';
+
   bool _isClosed = false;
 
-  GpsUploadDocumentCubit(this._repository) : super(GpsUploadDocumentState.initial());
+  GpsUploadDocumentCubit(this._repository, this._loadDetailsRepository)
+    : super(GpsUploadDocumentState.initial());
 
   @override
   Future<void> close() {
@@ -32,7 +47,6 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     _isClosed = false;
     emit(GpsUploadDocumentState.initial());
   }
-
 
   // ==================== Aadhaar Logic ====================
 
@@ -72,7 +86,9 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     }
   }
 
-  void _setAadhaarVerifyOtpUIState(UIState<GpsAadhaarVerifyOtpResponse> uiState) {
+  void _setAadhaarVerifyOtpUIState(
+    UIState<GpsAadhaarVerifyOtpResponse> uiState,
+  ) {
     if (!_isClosed) {
       emit(state.copyWith(aadhaarVerifyOtpState: uiState));
     }
@@ -105,7 +121,10 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       if (result is Success<GpsAadhaarSendOtpResponse>) {
         final response = result.value;
         // Use actual request ID from API response, fallback to static if not provided
-        final requestId = response.requestId?.isNotEmpty == true ? response.requestId! : 'static_request_id_123';
+        final requestId =
+            response.requestId?.isNotEmpty == true
+                ? response.requestId!
+                : 'static_request_id_123';
         emit(state.copyWith(aadhaarRequestId: requestId));
         _setAadhaarSendOtpUIState(UIState.success(response));
       } else if (result is Error) {
@@ -172,7 +191,10 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
       emit(state.copyWith(isPanValid: isValid));
 
       // Auto-verify PAN when input is valid and complete (10 characters) and not empty
-      if (isValid && value.isNotEmpty && value.length == 10 && !state.isPanVerified) {
+      if (isValid &&
+          value.isNotEmpty &&
+          value.length == 10 &&
+          !state.isPanVerified) {
         // Add a small delay to avoid too many API calls
         Future.delayed(Duration(milliseconds: 500), () {
           if (!_isClosed && state.pan == value) {
@@ -236,7 +258,6 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
         }
       }
 
-
       final request = GpsPanVerificationRequest(
         panNumber: state.pan,
         name: customerName,
@@ -284,7 +305,9 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     final customerId = await userRepository.getUserID();
 
     if (customerId == null || customerId.isEmpty) {
-      _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Unable to get customer ID')));
+      _setUploadKycUIState(
+        UIState.error(ErrorWithMessage(message: 'Unable to get customer ID')),
+      );
       return;
     }
 
@@ -312,22 +335,21 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
     }
   }
 
-
-  Future<void> uploadKycDocuments() async {
+  Future<void> uploadKycDocuments(DocumentTypeCubit documentCubit) async {
     if (_isClosed) {
       return;
     }
 
-    // Get customer ID
+    // // Get customer ID
     final userRepository = locator<UserInformationRepository>();
-    final customerId = await userRepository.getUserID();
-    
-    if (customerId == null || customerId.isEmpty) {
-      _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Unable to get customer ID')));
-      return;
-    }
-
-    // Validate required fields
+    final customerId = await userRepository.getUserID() ?? '';
+    //
+    // if (customerId == null || customerId.isEmpty) {
+    //   _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Unable to get customer ID')));
+    //   return;
+    // }
+    //
+    // // Validate required fields
     // if (state.aadhaar.isEmpty) {
     //   return;
     // }
@@ -339,46 +361,69 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
 
     try {
       String? panDocLink;
-      
+
       // Upload PAN document if provided
-      if (state.panDocuments.isNotEmpty && state.pan.isNotEmpty) {
-        final document = state.panDocuments.first;
-        if (document['path'] != null) {
-          final panImageFile = File(document['path']);
-          
-          // Upload the PAN document first to get the URL
-          final uploadResult = await _uploadDocument(panImageFile, customerId);
-          if (uploadResult is Success<String>) {
-            panDocLink = uploadResult.value;
-          } else {
-            _setUploadKycUIState(UIState.error(ErrorWithMessage(message: 'Failed to upload PAN document')));
-            return;
-          }
+      // if (state.panDocuments.isNotEmpty && state.pan.isNotEmpty) {
+      final document = state.panDocuments.first;
+      if (document['path'] != null) {
+        final panImageFile = File(document['path']);
+        int panDocumentTypeId =
+            await KycHelper.getDocumentTypeId(KycDocType.pan, documentCubit) ??
+            1;
+        String panImageFileType = PAN_FILE_TYPE;
+        // Upload the PAN document first to get the URL
+        Result uploadDocumentResult = await _loadDetailsRepository
+            .uploadDocument(panImageFile, panImageFileType);
+        if (uploadDocumentResult is Success<UploadDamageFileModel>) {
+          // panDocLink = uploadDocumentResult.value.filePath;
+
+          ///Create Document
+          await createDocument(
+            KycHelper.getMeta(KycDocType.pan).title,
+            panDocumentTypeId,
+            uploadDocumentResult.value,
+          ).then((value) async {
+            if (value != null) {
+              panDocLink = value.documentId;
+            } else {}
+          });
+        } else {
+          _setUploadKycUIState(
+            UIState.error(
+              ErrorWithMessage(message: 'Failed to upload PAN document'),
+            ),
+          );
+          return;
         }
-      }
+        // }
+        // }
 
-      // Create KYC upload request
-      final request = GpsKycUploadRequest(
-        aadhar: state.aadhaar,
-        isAadhar: true,
-        pan: state.pan.isNotEmpty ? state.pan : null,
-        panDocLink: panDocLink,
-        isPan: state.pan.isNotEmpty ? true : null,
-        aadharDocLink: state.aadhaarDocLink,
-        fromFleet: true
-      );
+        // Create KYC upload request
+        final request = GpsKycUploadRequest(
+          aadhar: state.aadhaar,
+          isAadhar: true,
+          pan: state.pan.isNotEmpty ? state.pan : null,
+          panDocLink: panDocLink,
+          isPan: state.pan.isNotEmpty ? true : null,
+          aadharDocLink: adhaarDocId,
+          fromFleet: true,
+        );
 
-      final result = await _repository.uploadKycDocuments(request, customerId);
+        final result = await _repository.uploadKycDocuments(
+          request,
+          customerId,
+        );
 
-      if (_isClosed) {
-        return;
-      }
+        if (_isClosed) {
+          return;
+        }
 
-      if (result is Success<GpsKycUploadResponseModel>) {
-        final response = result.value;
-        _setUploadKycUIState(UIState.success(response));
-      } else if (result is Error) {
-        _setUploadKycUIState(UIState.error((result as Error).type));
+        if (result is Success<GpsKycUploadResponseModel>) {
+          final response = result.value;
+          _setUploadKycUIState(UIState.success(response));
+        } else if (result is Error) {
+          _setUploadKycUIState(UIState.error((result as Error).type));
+        }
       }
     } catch (e) {
       if (!_isClosed) {
@@ -409,7 +454,9 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
             return Success(responseData['url']);
           }
         }
-        return Error(ErrorWithMessage(message: 'Invalid upload response format'));
+        return Error(
+          ErrorWithMessage(message: 'Invalid upload response format'),
+        );
       } else {
         return Error(result is Error ? result.type : GenericError());
       }
@@ -423,8 +470,7 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
   void markFormSubmitted() {
     if (!_isClosed) {
       emit(state.copyWith(hasAttemptedSubmit: true));
-    } else {
-    }
+    } else {}
   }
 
   // ==================== Reset Methods ====================
@@ -439,18 +485,115 @@ class GpsUploadDocumentCubit extends Cubit<GpsUploadDocumentState> {
   /// Reset only verification states
   void resetVerificationStates() {
     if (!_isClosed) {
-      emit(state.copyWith(
-        isAadhaarVerified: false,
-        isPanVerified: false,
-        aadhaarRequestId: null,
-        aadhaarSendOtpState: UIState.initial(),
-        aadhaarVerifyOtpState: UIState.initial(),
-        panVerificationState: UIState.initial(),
-      ));
+      emit(
+        state.copyWith(
+          isAadhaarVerified: false,
+          isPanVerified: false,
+          aadhaarRequestId: null,
+          aadhaarSendOtpState: UIState.initial(),
+          aadhaarVerifyOtpState: UIState.initial(),
+          panVerificationState: UIState.initial(),
+        ),
+      );
     }
   }
 
   void markAadhaarVerified() {
     emit(state.copyWith(isAadhaarVerified: true));
   }
-} 
+
+  Future<UploadDamageFileModel?> uploadDocument(
+    File file,
+    String fileType,
+    String? title,
+    int documentTypeId,
+  ) async {
+    /// upload document = > Create Document = > Map Document with load
+    try {
+      Result result = await _loadDetailsRepository.uploadDocument(
+        file,
+        fileType,
+      );
+      if (result is Success<UploadDamageFileModel>) {
+        ///Create Document
+        await createDocument(title ?? "", documentTypeId, result.value).then((
+          value,
+        ) async {
+          if (value != null) {
+            adhaarDocId = value.documentId ?? '';
+          } else {}
+        });
+        _setDocumentUploadUIState(UIState.success(result.value));
+        return result.value;
+      }
+      if (result is Error) {
+        _setDocumentUploadUIState(UIState.error(GenericError()));
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  void _setDocumentUploadUIState(UIState<UploadDamageFileModel>? uiState) {
+    if (!_isClosed) {
+      emit(state.copyWith(documentUploadState: uiState));
+    }
+  }
+
+  Future<CreateDocumentResponse?> createDocument(
+    String title,
+    int documentTypeId,
+    UploadDamageFileModel uploadImage,
+  ) async {
+    try {
+      final mimeType = lookupMimeType(uploadImage.filePath);
+      return await _loadDetailsRepository
+          .createNewDocument(
+            CreateDocumentRequest(
+              title: title,
+              description: title,
+              documentTypeId: documentTypeId,
+              filePath: uploadImage.filePath,
+              fileSize: uploadImage.size,
+              mimeType: mimeType,
+              originalFilename: uploadImage.originalName,
+              fileExtension: uploadImage.originalName.split(".").last,
+            ),
+          )
+          .then((value) {
+            if (value is Success<CreateDocumentResponse>) {
+              return value.value;
+            } else if (value is Error<CreateDocumentResponse>) {
+              ToastMessages.error(message: getErrorMsg(errorType: value.type));
+            }
+            return null;
+          });
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<LoadDocument?> saveDocument(
+    CreateDocumentResponse createDocumentResponse,
+    String loadId,
+    String fileType,
+  ) async {
+    try {
+      return await _loadDetailsRepository
+          .saveLoadDocument(
+            documentId: createDocumentResponse.documentId ?? "",
+            loadId: loadId,
+          )
+          .then((value) {
+            if (value is Success<LoadDocument>) {
+              VpHelper.logDocumentUploadedEvent(fileType);
+              return value.value;
+            }
+            return null;
+          });
+    } catch (e) {
+      return null;
+    }
+  }
+}

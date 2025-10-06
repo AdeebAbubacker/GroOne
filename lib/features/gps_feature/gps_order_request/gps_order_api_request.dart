@@ -457,7 +457,7 @@ class GpsKycDocuments {
   final String? tanDocLink;
   final bool? isTan;
   final String? chequeDocLink;
-  final String? tdsDocLink;
+  final List<dynamic>? tdsDocLink;
 
   const GpsKycDocuments({
     this.aadhar,
@@ -489,7 +489,7 @@ class GpsKycDocuments {
       tanDocLink: json['tanDocLink'],
       isTan: json['isTan'],
       chequeDocLink: json['chequeDocLink'],
-      tdsDocLink: json['tdsDocLink'],
+      tdsDocLink: json['tdsDocLink'] ?? [],
     );
   }
 
@@ -1134,7 +1134,6 @@ class GpsOrderApiRequest {
 
   /// Verify vehicle
   Future<Result<bool>> verifyVehicle(String vehicleNumber) async {
-
     try {
       // Custom headers for the new vehicle verification API
       final customHeaders = {
