@@ -230,14 +230,14 @@ class GpsRepository {
   }
 
   Future<Result<void>> updateNotificationToggle({
-    required String deviceToken,
+    required String fcmToken,
     Map<String, dynamic>? deviceDetails,
     String? deviceType,
   }) async {
     final token = await _getToken();
     if (token == null) return Error(GenericError());
 
-    final Map<String, dynamic> payload = {"device_token": deviceToken};
+    final Map<String, dynamic> payload = {"device_token": fcmToken};
 
     if (deviceDetails != null) {
       payload["device_details"] = deviceDetails;
@@ -252,5 +252,16 @@ class GpsRepository {
 
   Future<Result<LatLng>> fetchLatLngFromPlaceId(String placeId) async {
     return await _service.fetchLatLngFromPlaceId(placeId);
+  }
+
+  /// Patch FCM token to GPS backend
+  Future<Result<void>> patchFcmToken(String fcmToken) async {
+    final token = await _getToken();
+    if (token == null) return Error(GenericError());
+
+    final userId = await _getUserId();
+    if (userId == null) return Error(GenericError());
+
+    return await _loginRepository.patchFcmToken(token, userId, fcmToken);
   }
 }

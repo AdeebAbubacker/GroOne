@@ -679,10 +679,7 @@ void _registerDeferredServices() {
   // GPS Services - Register but don't initialize yet
   locator.registerLazySingleton(() => GpsService(locator<ApiService>()));
   locator.registerLazySingleton(
-    () => GpsLoginService(
-      locator<ApiService>(),
-      locator<UserInformationRepository>(),
-    ),
+    () => GpsLoginService(locator<UserInformationRepository>()),
   );
   locator.registerLazySingleton(() => GpsRealmService());
   locator.registerLazySingleton(() => GpsDataRefreshService());
