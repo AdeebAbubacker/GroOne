@@ -13,10 +13,12 @@ import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 class DriverViewOthersDocument extends StatelessWidget {
   final List<LoadDocument>? loadDocument;
   final DocumentEntity? documentEntity;
+  final bool showDeleteIcon;
   DriverViewOthersDocument({
     super.key,
     required this.loadDocument,
     this.documentEntity,
+    this.showDeleteIcon=true,
   });
   final cubit = locator<DriverLoadDetailsCubit>();
   List<LoadDocument> getOthersDocument(DriverLoadDetailsState state) {
@@ -51,8 +53,7 @@ class DriverViewOthersDocument extends StatelessWidget {
                     showViewMoreButton: false,
                     onClickViewMoreIcon: () {},
                     showAddMoreButton: false,
-                    showDeleteIcon:
-                        cubit.state.loadStatus == LoadStatus.loading,
+                     showDeleteIcon: showDeleteIcon ? true : cubit?.state.loadStatus != LoadStatus.loading,
                     showDeleteLoader: false,
                     onClickDeleteIcon: () {
                       cubit.deleteLoadDocument(
