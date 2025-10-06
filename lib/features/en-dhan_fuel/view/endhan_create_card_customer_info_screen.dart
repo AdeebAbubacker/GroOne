@@ -496,11 +496,14 @@ class _EndhanCreateCardCustomerInfoScreenState
                               FilteringTextInputFormatter.digitsOnly,
                             ],
                             onChanged: (value) {
+                              state.disableRegionlDropDown = false;
                               cubit.setPincode(value);
                               // Call API when pincode is 6 digits
                               debugPrint('sfdfsdfs${value.length}');
                               if (value.length == 6) {
                                 cubit.getPincode(value);
+                              } else {
+                                cubit.clearZonalRegionalValues();
                               }
                             },
                             validator: (value) {
@@ -528,25 +531,28 @@ class _EndhanCreateCardCustomerInfoScreenState
                               return EnhancedDropdownField(
                                 labelText: '${context.appText.zonalOffice} *',
                                 hintText: context.appText.selectZonalOffice,
-                                value:
-                                    state.selectedZonalOfficeName == null ||
-                                            state
-                                                .selectedZonalOfficeName!
-                                                .isEmpty
-                                        ? ''
-                                        : state.selectedZonalOfficeId != null
-                                        ? state.selectedZonalOfficeId
-                                            ?.toString()
-                                        : '',
+                                value: state.selectedZonalOfficeId?.toString(),
                                 displayText: state.selectedZonalOfficeName,
-                                options: [],
+                                options:
+                                    state.disableRegionlDropDown != null &&
+                                            state.disableRegionlDropDown!
+                                        ? []
+                                        : state.zonalOffices
+                                            .map(
+                                              (office) => {
+                                                'id': office['id'],
+                                                'name': office['zone_name'],
+                                              },
+                                            )
+                                            .toList(),
                                 onChanged: (zoneId) {
-                                  // cubit.setSelectedZonalOfficeId(
-                                  //   int.parse(zoneId),
-                                  // );
-                                  // cubit.fetchRegionalOffices(int.parse(zoneId));
-                                  // // Clear regional office selection when zonal office changes
-                                  // regionalOfficeController.clear();
+                                  state.selectedRegionalOfficeId = null;
+                                  cubit.setSelectedZonalOfficeId(
+                                    int.parse(zoneId),
+                                  );
+                                  cubit.fetchRegionalOffices(int.parse(zoneId));
+                                  // Clear regional office selection when zonal office changes
+                                  regionalOfficeController.clear();
                                 },
                                 isLoading:
                                     state.zonalOfficesState?.status ==
@@ -569,19 +575,26 @@ class _EndhanCreateCardCustomerInfoScreenState
                                     '${context.appText.regionalOffice} *',
                                 hintText: context.appText.selectRegionalOffice,
                                 value:
-                                    state.selectedRegionalOfficeName == null ||
-                                            state
-                                                .selectedRegionalOfficeName!
-                                                .isEmpty
-                                        ? ''
-                                        : state.selectedRegionalOfficeId
-                                            ?.toString(),
-                                displayText: state.selectedRegionalOfficeName,
-                                options: [],
+                                    state.selectedRegionalOfficeId?.toString(),
+                                displayText:
+                                    state.selectedRegionalOfficeName
+                                        ?.toString(),
+                                options:
+                                    state.disableRegionlDropDown != null &&
+                                            state.disableRegionlDropDown!
+                                        ? []
+                                        : state.regionalOffices
+                                            .map(
+                                              (office) => {
+                                                'id': office['id'],
+                                                'name': office['region_name'],
+                                              },
+                                            )
+                                            .toList(),
                                 onChanged: (regionalId) {
-                                  // cubit.setSelectedRegionalOfficeId(
-                                  //   int.parse(regionalId),
-                                  // );
+                                  cubit.setSelectedRegionalOfficeId(
+                                    int.parse(regionalId),
+                                  );
                                 },
                                 isLoading:
                                     state.regionalOfficesState?.status ==
@@ -644,6 +657,7 @@ class _EndhanCreateCardCustomerInfoScreenState
                                         )
                                         .toList(),
                                 onChanged: (stateId) {
+                                  state.selectedDistrictId = null;
                                   cubit.setSelectedStateId(int.parse(stateId));
                                   cubit.fetchDistricts(int.parse(stateId));
                                   // Clear district selection when state changes
