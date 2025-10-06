@@ -452,7 +452,7 @@ class GpsKycDocuments {
   final String? aadharDocLinkDetails;
   final String? pan;
   final String? panDocLink;
-  final String? panDocLinkDetails;
+  final Map<String, dynamic>? panDocLinkDetails;
   final bool? isPan;
   final String? gstin;
   final String? gstinDocLink;

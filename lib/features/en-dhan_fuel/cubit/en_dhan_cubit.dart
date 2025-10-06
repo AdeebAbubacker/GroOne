@@ -15,6 +15,13 @@ import 'package:gro_one_app/features/en-dhan_fuel/repository/en_dhan_repository.
 import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/model/pincode_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/api_request/create_document_request.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/create_document_response.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
+import 'package:gro_one_app/utils/common_functions.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
+import 'package:mime/mime.dart';
 import '../../../data/network/api_service.dart';
 import '../../../dependency_injection/locator.dart';
 import 'package:gro_one_app/features/profile/cubit/profile/profile_cubit.dart';
@@ -26,10 +33,15 @@ part 'en_dhan_state.dart';
 class EnDhanCubit extends BaseCubit<EnDhanState> {
   final EnDhanRepository _repository;
   final UserInformationRepository _userInformationRepository;
+  final LoadDetailsRepository _loadDetailsRepository;
+
   bool _isClosed = false;
 
-  EnDhanCubit(this._repository, this._userInformationRepository)
-    : super(EnDhanState.initial());
+  EnDhanCubit(
+    this._repository,
+    this._userInformationRepository,
+    this._loadDetailsRepository,
+  ) : super(EnDhanState.initial());
   final AnalyticsService analyticsHelper = locator<AnalyticsService>();
 
   @override
@@ -1903,6 +1915,72 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
           ),
         );
       }
+    }
+  }
+
+  Future<UploadDamageFileModel?> uploadDocumentWithoutRc(
+    File file,
+    String fileType,
+    String? title,
+    int documentTypeId,
+  ) async {
+    /// upload document = > Create Document = > Map Document with load
+    try {
+      Result result = await _loadDetailsRepository.uploadDocument(
+        file,
+        fileType,
+      );
+      if (result is Success<UploadDamageFileModel>) {
+        ///Create Document
+        await createDocument(title ?? "", documentTypeId, result.value).then((
+          value,
+        ) async {
+          if (value != null) {
+            // adhaarDocId = value.documentId;
+          } else {}
+        });
+        // _setDocumentUploadWithoutRcUIState(UIState.success(result.value));
+        return result.value;
+      }
+      if (result is Error) {
+        _setDocumentUploadUIState(UIState.error(GenericError()));
+      }
+    } catch (e) {
+      return null;
+    }
+    return null;
+  }
+
+  Future<CreateDocumentResponse?> createDocument(
+    String title,
+    int documentTypeId,
+    UploadDamageFileModel uploadImage,
+  ) async {
+    try {
+      final mimeType = lookupMimeType(uploadImage.filePath);
+      return await _loadDetailsRepository
+          .createNewDocument(
+            CreateDocumentRequest(
+              title: title,
+              description: title,
+              documentTypeId: documentTypeId,
+              filePath: uploadImage.filePath,
+              fileSize: uploadImage.size,
+              mimeType: mimeType,
+              originalFilename: uploadImage.originalName,
+              fileExtension: uploadImage.originalName.split(".").last,
+            ),
+          )
+          .then((value) {
+            if (value is Success<CreateDocumentResponse>) {
+              return value.value;
+            } else if (value is Error<CreateDocumentResponse>) {
+              ToastMessages.error(message: getErrorMsg(errorType: value.type));
+            }
+            return null;
+          });
+    } catch (e) {
+      return null;
     }
   }
 }

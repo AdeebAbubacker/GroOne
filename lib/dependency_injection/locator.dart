@@ -476,6 +476,7 @@ void _registerBasicBlocs() {
   locator.registerLazySingleton(
     () => DocumentTypeCubit(
       locator<DocumentRepository>(),
+      locator<LoadDetailsRepository>(),
       locator<LoadDetailsCubit>(),
       locator<DriverLoadDetailsCubit>(),
     ),
@@ -580,6 +581,7 @@ void _registerBasicBlocs() {
     () => EnDhanCubit(
       locator<EnDhanRepository>(),
       locator<UserInformationRepository>(),
+      locator<LoadDetailsRepository>(),
     ),
   );
   locator.registerLazySingleton(
@@ -603,7 +605,10 @@ void _registerBasicBlocs() {
     () => VpCreateAccountCubit(locator<VpCreationRepository>()),
   );
   locator.registerLazySingleton(
-    () => GpsUploadDocumentCubit(locator<GpsOrderApiRepository>()),
+    () => GpsUploadDocumentCubit(
+      locator<GpsOrderApiRepository>(),
+      locator<LoadDetailsRepository>(),
+    ),
   );
   locator.registerLazySingleton(
     () => GpsProductsCubit(locator<GpsOrderApiRepository>()),
@@ -782,9 +787,7 @@ void _registerDeferredBlocs() {
       locator<UserInformationRepository>(),
     ),
   );
-  locator.registerLazySingleton(
-    () => DriverHomeCubit(),
-  );
+  locator.registerLazySingleton(() => DriverHomeCubit());
   locator.registerLazySingleton(
     () => GpsOrderListCubit(locator<GpsOrderApiRepository>()),
   );

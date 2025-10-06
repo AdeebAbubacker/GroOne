@@ -6,8 +6,11 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
 import 'package:gro_one_app/dependency_injection/locator.dart';
+import 'package:gro_one_app/features/document/cubit/document_type_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/cubit/en_dhan_cubit.dart';
 import 'package:gro_one_app/features/en-dhan_fuel/view/endhan_create_card_customer_info_screen.dart';
+import 'package:gro_one_app/features/kyc/enum/kyc_document_type.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/repository/load_details_repository.dart';
 import 'package:gro_one_app/l10n/extensions/app_localizations_extensions.dart';
 import 'package:gro_one_app/utils/app_button.dart';
 import 'package:gro_one_app/utils/app_button_style.dart';
@@ -16,6 +19,7 @@ import 'package:gro_one_app/utils/app_text_field.dart';
 import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/common_widgets.dart';
+import 'package:gro_one_app/utils/constant_variables.dart';
 import 'package:gro_one_app/utils/extensions/int_extensions.dart';
 import 'package:gro_one_app/utils/extensions/widget_extensions.dart';
 import 'package:gro_one_app/utils/textFieldInputFormatter/upper_case_formatter.dart';
@@ -78,8 +82,13 @@ class _EndhanKycScreenState extends State<EndhanKycScreen> {
         // Create a completely fresh cubit instance with new dependencies
         final repository = locator<EnDhanRepository>();
         final userInfoRepository = locator<UserInformationRepository>();
+        final loadDetailsRepository = locator<LoadDetailsRepository>();
         // return EnDhanCubit(repository, userInfoRepository);
-        return EnDhanCubit(repository, userInfoRepository)..setInitialKycData(
+        return EnDhanCubit(
+          repository,
+          userInfoRepository,
+          loadDetailsRepository,
+        )..setInitialKycData(
           aadhaar: widget.aadhaarPrefill,
           pan: widget.panPrefill,
           isAadhaarVerified: widget.isAadhaarVerified,
@@ -100,6 +109,7 @@ class _EndhanKycScreenContent extends StatelessWidget {
 
   final kycCubit = locator<KycCubit>(); // For KYC flow
   final aadharRequestId = ValueNotifier<String?>(null);
+  final documentCubit = locator<DocumentTypeCubit>();
 
   void _showSuccessDialog(BuildContext context) {
     AppDialog.show(
@@ -175,13 +185,22 @@ class _EndhanKycScreenContent extends StatelessWidget {
         final pdfPath = await KycHelper.saveBase64PdfToFile(
           data?.dataPdf ?? "",
         );
-        final file = File(pdfPath);
-        final uploadResponse = await cubit.uploadDocument(
-          file,
+        int documentId =
+            await KycHelper.getDocumentTypeId(
+              KycDocType.aadharCard,
+              documentCubit,
+            ) ??
+            1;
+        String fileType = AADHAAR_CARD;
+        final uploadResponse = await cubit.uploadDocumentWithoutRc(
+          File(pdfPath),
+          fileType,
+          KycHelper.getMeta(KycDocType.aadharCard).title,
+          documentId,
         ); // This function already exists in your cubit
 
-        if (uploadResponse?.data?.url != null) {
-          final url = uploadResponse!.data!.url;
+        if (uploadResponse?.url != null) {
+          final url = uploadResponse!.url;
           cubit.setAadhaarDocUrl(
             url,
           ); // You’ll create this method and update the state
@@ -495,11 +514,23 @@ class _EndhanKycScreenContent extends StatelessWidget {
                                         ? newList.first['path']
                                         : null;
                                 if (filePath != null) {
+                                  int documentId =
+                                      await KycHelper.getDocumentTypeId(
+                                        KycDocType.pan,
+                                        documentCubit,
+                                      ) ??
+                                      1;
+                                  String fileType = PAN_FILE_TYPE;
                                   final uploadResult = await cubit
-                                      .uploadDocument(File(filePath));
-                                  if (uploadResult?.success ?? false) {
-                                    final fileUrl =
-                                        uploadResult?.data?.url ?? '';
+                                      .uploadDocumentWithoutRc(
+                                        File(filePath),
+                                        fileType,
+                                        KycHelper.getMeta(KycDocType.pan).title,
+                                        documentId,
+                                      );
+                                  if (uploadResult != null &&
+                                      uploadResult.url.isNotEmpty) {
+                                    final fileUrl = uploadResult.url ?? '';
                                     final updatedDocs = [
                                       {
                                         'path': fileUrl,

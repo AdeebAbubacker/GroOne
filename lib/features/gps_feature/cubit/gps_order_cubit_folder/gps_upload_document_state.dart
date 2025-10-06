@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:gro_one_app/data/ui_state/ui_state.dart';
 import 'package:gro_one_app/features/gps_feature/models/gps_document_models.dart';
+import 'package:gro_one_app/features/vehicle_provider/vp_details/model/upload_damage_file_model.dart';
 
 import '../../gps_order_request/gps_order_api_request.dart';
 
@@ -73,6 +74,7 @@ class GpsUploadDocumentState extends Equatable {
     List<Map<String, dynamic>>? panDocuments,
     UIState<GpsKycUploadResponseModel>? uploadKycState,
     String? aadhaarDocLink,
+    UIState<UploadDamageFileModel>? documentUploadState,
   }) {
     return GpsUploadDocumentState(
       aadhaar: aadhaar ?? this.aadhaar,
