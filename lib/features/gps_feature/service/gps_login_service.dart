@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:gro_one_app/data/model/result.dart';
-import 'package:gro_one_app/data/network/api_service.dart';
 import 'package:gro_one_app/data/network/api_urls.dart';
 import 'package:gro_one_app/features/login/repository/user_information_repository.dart';
 import 'package:gro_one_app/helpers/map_helper.dart';
@@ -8,7 +7,6 @@ import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
 import 'package:intl/intl.dart';
 
-import '../constants/app_constants.dart';
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_device_fuel_model.dart';
 import '../model/gps_devices_expiry_model.dart';
@@ -22,10 +20,9 @@ import '../models/gps_device_distance_model.dart';
 import '../models/gps_geofence_model.dart';
 
 class GpsLoginService {
-  final ApiService _apiService;
   final UserInformationRepository _userInformationRepository;
 
-  GpsLoginService(this._apiService, this._userInformationRepository);
+  GpsLoginService(this._userInformationRepository);
 
   Future<Result<GpsLoginResponseModel>> login() async {
     try {
@@ -366,26 +363,121 @@ class GpsLoginService {
     }
   }
 
+  /// Patch FCM token to GPS backend
+  Future<Result<void>> patchFcmToken(
+    String token,
+    int userId,
+    String fcmToken,
+  ) async {
+    try {
+      CustomLog.info(this, "Patching FCM token for user ID: $userId");
+      CustomLog.info(this, "FCM token: ${fcmToken.substring(0, 20)}...");
+      CustomLog.info(this, "API URL: ${ApiUrls.gpsPatchFcmToken(userId)}");
+      CustomLog.info(this, "Auth token: ${token.substring(0, 20)}...");
+
+      const String fcmSenderId = "311939151127";
+
+      final body = {"fcm_sender_id": fcmSenderId, "device_token": fcmToken};
+      CustomLog.info(this, "Request body: $body");
+
+      // Use PATCH method (endpoint only supports PATCH)
+      CustomLog.info(
+        this,
+        "Making PATCH request to: ${ApiUrls.gpsPatchFcmToken(userId)}",
+      );
+      final result = await _makeAuthenticatedRequest(
+        ApiUrls.gpsPatchFcmToken(userId),
+        'PATCH',
+        body: body,
+        token: token,
+      );
+
+      if (result is Success) {
+        CustomLog.info(this, "FCM token patched successfully");
+        return Success(null);
+      } else if (result is Error) {
+        final errorType = result.type;
+        CustomLog.error(
+          this,
+          "FCM token patch failed with error type: ${errorType.runtimeType}",
+          null,
+        );
+
+        // Log specific error details
+        if (errorType is UnauthenticatedError) {
+          CustomLog.error(
+            this,
+            "FCM token patch failed: Unauthenticated (401)",
+            null,
+          );
+        } else if (errorType is NotFoundError) {
+          CustomLog.error(
+            this,
+            "FCM token patch failed: Not Found (404)",
+            null,
+          );
+        } else if (errorType is InternalServerError) {
+          CustomLog.error(
+            this,
+            "FCM token patch failed: Server Error (5xx)",
+            null,
+          );
+        } else if (errorType is InternetNetworkError) {
+          CustomLog.error(this, "FCM token patch failed: Network Error", null);
+        } else if (errorType is ErrorWithMessage) {
+          CustomLog.error(
+            this,
+            "FCM token patch failed: ${errorType.message}",
+            null,
+          );
+        } else {
+          CustomLog.error(
+            this,
+            "FCM token patch failed: ${errorType.runtimeType}",
+            null,
+          );
+        }
+
+        return Error(errorType);
+      } else {
+        CustomLog.error(
+          this,
+          "FCM token patch failed: Unknown result type",
+          null,
+        );
+        return Error(GenericError());
+      }
+    } catch (e) {
+      CustomLog.error(this, "Error patching FCM token: ${e.toString()}", e);
+      return Error(DeserializationError());
+    }
+  }
+
   Future<Result<GpsDeviceFuelModel>> getDeviceFuel(String token) async {
     try {
       CustomLog.info(this, "Getting device fuel data...");
 
-      // Make a direct API call with better error handling for this non-critical endpoint
+      // Use direct HTTP call for non-critical API to handle 404 gracefully
       final headers = {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
         'Authorization': token.startsWith('Bearer ') ? token : 'Bearer $token',
       };
 
-      final result = await _apiService.get(
+      final dio = Dio();
+      final response = await dio.get(
         '${ApiUrls.gpsBase}/device_fuel',
-        customHeaders: headers,
+        options: Options(
+          headers: headers,
+          sendTimeout: const Duration(seconds: 30),
+          receiveTimeout: const Duration(seconds: 30),
+        ),
       );
 
-      if (result is Success) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         CustomLog.info(this, "Device fuel API call successful");
         try {
-          final deviceFuel = GpsDeviceFuelModel.fromJson(result.value);
+          final deviceFuel = GpsDeviceFuelModel.fromJson(response.data);
           return Success(deviceFuel);
         } catch (e) {
           CustomLog.info(
@@ -394,20 +486,32 @@ class GpsLoginService {
           );
           return Error(DeserializationError());
         }
-      } else if (result is Error) {
-        // Device fuel endpoint is not critical - log as info, not error
+      } else {
         CustomLog.info(
           this,
-          "Device fuel API not available (non-critical feature)",
+          "Device fuel API returned status ${response.statusCode} (non-critical feature)",
         );
-        return Error(result.type);
+        return Error(GenericError());
+      }
+    } on DioException catch (dioError) {
+      // Handle 404 as expected behavior for non-critical fuel API
+      if (dioError.response?.statusCode == 404) {
+        CustomLog.info(
+          this,
+          "Device fuel API not available (404 - non-critical feature)",
+        );
+        return Error(NotFoundError());
       } else {
+        CustomLog.info(
+          this,
+          "Device fuel API error: ${dioError.message} (non-critical feature)",
+        );
         return Error(GenericError());
       }
     } catch (e) {
       CustomLog.info(
         this,
-        "Device fuel API not available (non-critical feature)",
+        "Device fuel API exception: ${e.toString()} (non-critical feature)",
       );
       return Error(DeserializationError());
     }
@@ -603,112 +707,78 @@ class GpsLoginService {
       };
 
       CustomLog.info(this, "Making $method request to: $url");
+      if (body != null) {
+        CustomLog.info(this, "Request body: $body");
+      }
+      CustomLog.info(this, "Request headers: $headers");
 
-      Result<dynamic> result;
+      // Use direct HTTP calls for GPS API (not main app API service)
+      final dio = Dio();
+      Response response;
+
       if (method == 'GET') {
-        result = await _apiService.get(
+        response = await dio.get(
           url,
-          queryParams: queryParams,
-          customHeaders: headers,
+          queryParameters: queryParams,
+          options: Options(
+            headers: headers,
+            sendTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+          ),
         );
       } else if (method == 'POST') {
-        result = await _apiService.post(
+        response = await dio.post(
           url,
-          body: body,
-          queryParams: queryParams,
-          customHeaders: headers,
+          data: body,
+          queryParameters: queryParams,
+          options: Options(
+            headers: headers,
+            sendTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+          ),
+        );
+      } else if (method == 'PATCH') {
+        CustomLog.info(this, "Making PATCH request with body: $body");
+        response = await dio.patch(
+          url,
+          data: body,
+          queryParameters: queryParams,
+          options: Options(
+            headers: headers,
+            sendTimeout: const Duration(seconds: 30),
+            receiveTimeout: const Duration(seconds: 30),
+          ),
+        );
+        CustomLog.info(
+          this,
+          "PATCH request completed with status: ${response.statusCode}",
         );
       } else {
         throw Exception('Unsupported HTTP method: $method');
       }
 
-      // Handle 401 errors specifically for GPS tokens
-      if (result is Error && result.type is UnauthenticatedError) {
+      // Handle response
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 204) {
         CustomLog.info(
           this,
-          "Received 401 error, attempting GPS token refresh...",
+          "Request successful with status: ${response.statusCode}",
         );
-
-        // Try to refresh the GPS token
-        final refreshResult = await _refreshGpsToken();
-        if (refreshResult is Success<String>) {
-          final newToken = refreshResult.value;
-          CustomLog.info(
-            this,
-            "GPS token refreshed successfully, retrying request...",
-          );
-
-          // Update the token in AppConstants
-          AppConstants.token = newToken;
-
-          // Retry the request with the new token
-          final retryHeaders = {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Authorization':
-                newToken.startsWith('Bearer ') ? newToken : 'Bearer $newToken',
-          };
-
-          if (method == 'GET') {
-            result = await _apiService.get(
-              url,
-              queryParams: queryParams,
-              customHeaders: retryHeaders,
-            );
-          } else if (method == 'POST') {
-            result = await _apiService.post(
-              url,
-              body: body,
-              queryParams: queryParams,
-              customHeaders: retryHeaders,
-            );
-          }
-        } else {
-          CustomLog.error(this, "Failed to refresh GPS token", null);
-          return Error(UnauthenticatedError(message: "Token refresh failed"));
-        }
-      }
-
-      if (result is Success) {
-        CustomLog.info(this, "Request successful");
-        return result;
+        return Success(response.data);
       } else {
-        return result;
+        CustomLog.error(
+          this,
+          "Request failed with status: ${response.statusCode}",
+          null,
+        );
+        return Error(GenericError());
       }
+    } on DioException catch (dioError) {
+      CustomLog.error(this, "Dio error making request to $url", dioError);
+      return Error(GenericError());
     } catch (e) {
       CustomLog.error(this, "Error making authenticated request to $url", e);
-      return Error(GenericError());
-    }
-  }
-
-  // Method to refresh GPS token by re-logging in
-  Future<Result<String>> _refreshGpsToken() async {
-    try {
-      CustomLog.info(this, "Refreshing GPS token...");
-
-      // Perform a fresh login to get a new token
-      final loginResult = await login();
-
-      if (loginResult is Success<GpsLoginResponseModel>) {
-        final newToken = loginResult.value.token;
-        if (newToken != null) {
-          // Update the stored token in Realm
-          await _userInformationRepository.saveGpsToken(newToken);
-
-          CustomLog.info(this, "GPS token refreshed successfully");
-          return Success(newToken);
-        } else {
-          CustomLog.error(this, "No token received from GPS login", null);
-          return Error(GenericError());
-        }
-      } else {
-        CustomLog.error(this, "GPS login failed during token refresh", null);
-        return Error(
-          loginResult is Error ? (loginResult as Error).type : GenericError(),
-        );
-      }
-    } catch (e) {
-      CustomLog.error(this, "Error refreshing GPS token", e);
       return Error(GenericError());
     }
   }
@@ -773,12 +843,15 @@ class GpsLoginService {
         CustomLog.info(this, "User config retrieved successfully");
       }
 
-      // Step 2.6: Get device fuel data
+      // Step 2.6: Get device fuel data (non-critical)
       CustomLog.info(this, "Step 2.6: Getting device fuel data...");
       final deviceFuelResult = await getDeviceFuel(authToken);
       if (deviceFuelResult is Error) {
-        CustomLog.error(this, "Failed to get device fuel data", null);
-        // Continue anyway as this is not critical
+        // Device fuel is optional - log as info, not error
+        CustomLog.info(
+          this,
+          "Device fuel data not available (non-critical feature)",
+        );
       } else {
         CustomLog.info(this, "Device fuel data retrieved successfully");
       }

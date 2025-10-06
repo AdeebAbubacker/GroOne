@@ -1,3 +1,4 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:gro_one_app/core/reset_cubit_state.dart';
 import 'package:gro_one_app/data/model/result.dart';
 import 'package:gro_one_app/data/ui_state/status.dart';
@@ -6,6 +7,7 @@ import 'package:gro_one_app/features/gps_feature/constants/app_constants.dart';
 
 import '../model/gps_combined_vehicle_model.dart';
 import '../model/gps_login_model.dart';
+import '../model/gps_user_config_model.dart';
 import '../model/gps_user_details_model.dart';
 import '../repository/gps_login_repository.dart';
 import '../service/gps_realm_service.dart';
@@ -85,7 +87,31 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
         );
       }
 
-      // Step 2.5: Get user configuration (requires user ID)
+      // Step 2.5: Get user configuration first (to get user config ID)
+      int? userConfigId;
+      if (userDetails is Success<GpsUserDetailsModel> &&
+          userDetails.value.firstUser?.id != null) {
+        final userConfigResult = await _repository.getUserConfig(token);
+        if (userConfigResult is Success<GpsUserConfigModel> &&
+            userConfigResult.value.data?.isNotEmpty == true) {
+          userConfigId = userConfigResult.value.data!.first.id;
+          await _repository.saveUserConfig(userConfigResult.value);
+        }
+      }
+
+      // Step 2.6: Update FCM token (requires user config ID, not user ID)
+      if (userConfigId != null) {
+        try {
+          final fcmToken = await FirebaseMessaging.instance.getToken();
+          if (fcmToken != null && fcmToken.isNotEmpty) {
+            await _repository.patchFcmToken(token, userConfigId, fcmToken);
+          }
+        } catch (e) {
+          // FCM token update is not critical - continue with other operations
+        }
+      }
+
+      // Step 2.7: Get user configuration for tools (called after FCM token patch, like Android)
       if (userDetails is Success<GpsUserDetailsModel> &&
           userDetails.value.firstUser?.id != null) {
         await _repository.fetchAndStoreUserConfiguration(
@@ -94,7 +120,7 @@ class GpsLoginCubit extends BaseCubit<GpsLoginState> {
         );
       }
 
-      // Step 2.6: Get all vehicle data (includes devices and positions)
+      // Step 2.7: Get all vehicle data (includes devices and positions)
       final vehicleDataResult = await _repository.getAllVehicleData(token);
 
       if (vehicleDataResult is Success<List<GpsCombinedVehicleData>>) {

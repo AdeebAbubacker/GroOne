@@ -249,6 +249,15 @@ class GpsLoginRepository {
     return await _realmService.getUserConfiguration();
   }
 
+  /// Patch FCM token to GPS backend
+  Future<Result<void>> patchFcmToken(
+    String token,
+    int userId,
+    String fcmToken,
+  ) async {
+    return await _gpsLoginService.patchFcmToken(token, userId, fcmToken);
+  }
+
   /// Fetch and store user configuration after login
   Future<void> fetchAndStoreUserConfiguration(String token, int userId) async {
     try {
