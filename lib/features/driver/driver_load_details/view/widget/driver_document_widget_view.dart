@@ -48,7 +48,12 @@ class DriverDocumentWidgetView extends StatelessWidget {
           PreviewDocumentWidget(
             showViewMoreButton: documentEntity?.documentType == DocumentFileType.uploadOtherDocument.documentType,
             showAddMoreButton:    documentEntity?.documentType==DocumentFileType.uploadOtherDocument.documentType && (driverLoadDetailsCubit?.canAddMoreOtherDocuments()??false) && driverLoadDetailsCubit?.state.loadStatus==LoadStatus.loading,
-            showDeleteIcon:  driverLoadDetailsCubit?.state.loadStatus==LoadStatus.unloading && documentEntity?.documentType== DocumentFileType.proofOfDelivery.documentType || driverLoadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=DocumentFileType.uploadOtherDocument.documentType,
+            // showDeleteIcon:  driverLoadDetailsCubit?.state.loadStatus==LoadStatus.unloading && documentEntity?.documentType== DocumentFileType.proofOfDelivery.documentType || driverLoadDetailsCubit?.state.loadStatus==LoadStatus.loading && documentEntity?.documentType!=DocumentFileType.uploadOtherDocument.documentType,
+            showDeleteIcon: (driverLoadDetailsCubit?.state.loadStatus == LoadStatus.unloading 
+                  && documentEntity?.documentType == DocumentFileType.proofOfDelivery.documentType 
+                  && driverLoadDetailsCubit?.state?.lpLoadById?.data?.data?.loadApproval?.podApproved  != true) 
+                || (driverLoadDetailsCubit?.state.loadStatus == LoadStatus.loading 
+                    && documentEntity?.documentType != DocumentFileType.uploadOtherDocument.documentType  && (driverLoadDetailsCubit?.state.lpLoadById?.data?.data?.loadApproval?.documentApproved != true)),
             showDeleteLoader: documentEntity?.deleteLoading,
             onClickDeleteIcon: () {
               // Delete first document; extend if needed to delete specific doc
@@ -70,6 +75,10 @@ class DriverDocumentWidgetView extends StatelessWidget {
                 extra: {
                   "loadDocument": documentEntity!.loadDocument,
                   "documentEntity": documentEntity,
+                  "showDeleteIcon": (
+                    documentEntity?.documentType == DocumentFileType.uploadOtherDocument.documentType &&
+                    driverLoadDetailsCubit?.state.lpLoadById?.data?.data?.loadApproval?.documentApproved != true
+                  )
                 },
               );  
             },

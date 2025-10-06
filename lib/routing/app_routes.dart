@@ -691,11 +691,13 @@ class AppRoutes {
           final data = state.extra as Map<String, dynamic>;
           final List<LoadDocument>? loadDocument = data["loadDocument"];
           final DocumentEntity? documentEntity = data["documentEntity"];
+          final bool showDeleteIcon = data["showDeleteIcon"];
           return buildTransitionPage(
             state: state,
             child: DriverViewOthersDocument(
               loadDocument: loadDocument,
               documentEntity: documentEntity,
+              showDeleteIcon: showDeleteIcon,
             ),
           );
         },
