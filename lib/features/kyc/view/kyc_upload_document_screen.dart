@@ -122,6 +122,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
 
   @override
   void initState() {
+    setAadharNumber();
     initFunction();
     super.initState();
   }
@@ -133,6 +134,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
   }
 
   void initFunction() => frameCallback(() async {
+
     getKycDetailsFromLocal();
     getKycVerified();
     getAllDocs();
@@ -142,13 +144,17 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     await kycCubit.fetchCompanyTypeId();
     await kycCubit.fetchStateList();
     await endhancubit.fetchStates();
+
+    uploadAadharDocument();
+  });
+
+  void setAadharNumber(){
     if (widget.aadhaarNumber != null) {
       aadhaarNumberTextController.text = widget.aadhaarNumber!;
     } else {
       aadhaarNumberTextController.text = "";
     }
-    uploadAadharDocument();
-  });
+  }
 
   void getKycDetailsFromLocal() => frameCallback(() async {
     gstInTextController.text =
