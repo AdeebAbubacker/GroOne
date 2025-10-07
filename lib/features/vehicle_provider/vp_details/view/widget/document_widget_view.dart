@@ -49,6 +49,7 @@ class DocumentWidgetView extends StatelessWidget {
               context,
               commonRoute(
                 ViewOtherDocuments(
+                  vpLoadApproval:  loadDetailsModelData?.loadApproval,
                   documentEntity: documentEntity,
                   cubit: loadDetailsCubit,
                 ),
