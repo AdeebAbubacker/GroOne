@@ -144,7 +144,7 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     await kycCubit.fetchCompanyTypeId();
     await kycCubit.fetchStateList();
     await endhancubit.fetchStates();
-
+    autoPopulatePan();
     uploadAadharDocument();
   });
 
@@ -155,6 +155,10 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
       aadhaarNumberTextController.text = "";
     }
   }
+
+
+
+
 
   void getKycDetailsFromLocal() => frameCallback(() async {
     gstInTextController.text =
@@ -197,6 +201,13 @@ class _KycUploadDocumentScreenState extends BaseState<KycUploadDocumentScreen> {
     securePrefs.saveKey(AppString.sessionKey.tanDocUrl, url);
     securePrefs.saveKey(AppString.sessionKey.tanDocID, docID);
   });
+
+  // auto populate aadhar
+  void autoPopulatePan(){
+    if((profileCubit.state.documentState?.data?.documents?.pan ?? "").isNotEmpty){
+      panTextController.text=profileCubit.state.documentState?.data?.documents?.pan ?? "";
+    }
+  }
 
   // get all from local
   Future getAllDocs() async {
