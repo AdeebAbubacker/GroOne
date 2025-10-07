@@ -15,7 +15,8 @@ import '../../../vp-helper/vp_helper.dart';
 class ViewOtherDocuments extends StatelessWidget {
   final LoadDetailsCubit? cubit;
   final DocumentEntity? documentEntity;
-  const ViewOtherDocuments({super.key,this.cubit,this.documentEntity});
+  final VpLoadApproval? vpLoadApproval;
+  const ViewOtherDocuments({super.key,this.cubit,this.documentEntity,this.vpLoadApproval});
 
 
   List<LoadDocument> getOthersDocument(LoadDetailsState state){
@@ -45,7 +46,7 @@ class ViewOtherDocuments extends StatelessWidget {
                     showViewMoreButton: false,
                       onClickViewMoreIcon: () {},
                       showAddMoreButton:false ,
-                      showDeleteIcon: cubit?.state.loadStatus==LoadStatus.loading ,
+                      showDeleteIcon: cubit?.state.loadStatus==LoadStatus.loading && vpLoadApproval?.documentApproved != true ,
                       showDeleteLoader: false,
                       onClickDeleteIcon: () {
                          cubit?.deleteLoadDocument(loadDocumentObj.loadDocumentId??"",index,otherDocument: true);

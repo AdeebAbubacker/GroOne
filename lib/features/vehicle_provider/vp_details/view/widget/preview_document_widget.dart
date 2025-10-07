@@ -8,7 +8,6 @@ import 'package:gro_one_app/utils/app_text_style.dart';
 import 'package:gro_one_app/utils/common_functions.dart';
 import 'package:gro_one_app/utils/constant_variables.dart';
 
-
 import '../../../../../utils/app_icons.dart';
 
 class PreviewDocumentWidget extends StatelessWidget {
@@ -40,17 +39,15 @@ class PreviewDocumentWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
     return buildUploadedDocPreviewItem(
-      onClickViewMoreIcon:onClickViewMoreIcon ,
+      onClickViewMoreIcon: onClickViewMoreIcon,
       showDeleteIcon: showDeleteIcon,
-
       onClickDeleteIcon: onClickDeleteIcon,
       isLoading: isLoading ?? false,
       onClickDownload: onClickDownload,
       fileTitle: documentEntity.documentType ?? "",
       context: context,
-      onClickAddMoreButton:onClickAddMoreButton ,
+      onClickAddMoreButton: onClickAddMoreButton,
       showViewButton: showViewMoreButton,
       dateTime: formatDateTimeKavach(
         loadDocument.createdAt?.toString() ?? DateTime.now().toString(),
@@ -58,7 +55,7 @@ class PreviewDocumentWidget extends StatelessWidget {
       fileUrl: "",
       isDownloadable: true,
       isFileAvailable: true,
-      showAddMoreButton: showAddMoreButton??true,
+      showAddMoreButton: showAddMoreButton ?? true,
       showDeleteLoader: showDeleteLoader ?? false,
     );
   }
@@ -85,20 +82,17 @@ Widget buildUploadedDocPreviewItem({
   final bool shouldShowDelete = showDeleteIcon ?? false;
   final bool shouldShowView = showViewButton ?? false;
 
-
-
-
   final Widget loader = SizedBox(
-  height: 48,
-  width: 48,
-  child: Center(
-    child: SizedBox(
-      height: 24, 
-      width: 24,
-      child: CircularProgressIndicator(strokeWidth: 2),
+    height: 48,
+    width: 48,
+    child: Center(
+      child: SizedBox(
+        height: 24,
+        width: 24,
+        child: CircularProgressIndicator(strokeWidth: 2),
+      ),
     ),
-  ),
-);
+  );
 
   return Container(
     height: 55,
@@ -127,15 +121,16 @@ Widget buildUploadedDocPreviewItem({
               Text(
                 isFileAvailable
                     ? (fileTitle == context.appText.pod
-                    ? context.appText.profOfDelivery
-                    : fileTitle)
+                        ? context.appText.profOfDelivery
+                        : fileTitle)
                     : context.appText.fileNotFound,
                 style: AppTextStyle.body.copyWith(
                   fontWeight: FontWeight.w400,
                   fontSize: 12,
-                  color: isFileAvailable
-                      ? AppColors.textBlackColor
-                      : AppColors.iconRed,
+                  color:
+                      isFileAvailable
+                          ? AppColors.textBlackColor
+                          : AppColors.iconRed,
                 ),
               ),
               const SizedBox(height: 4),
@@ -150,56 +145,56 @@ Widget buildUploadedDocPreviewItem({
             ],
           ),
         ),
-       Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-             // Add more button
-        if (shouldShowAdd)
-          IconButton(
-            icon: Icon(
-              Icons.add_circle_outline,
-              color: AppColors.primaryColor,
-            ),
-            onPressed: onClickAddMoreButton,
-          ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            // Add more button
+            if (shouldShowAdd)
+              IconButton(
+                icon: Icon(
+                  Icons.add_circle_outline,
+                  color: AppColors.primaryColor,
+                ),
+                onPressed: onClickAddMoreButton,
+              ),
 
-        // Delete icon or loader
-        if (shouldShowDelete)
-          showDeleteLoader
-              ? loader
-              : IconButton(
-            icon: Icon(
-              Icons.delete_outline,
-              size: 20,
-              color: AppColors.primaryColor,
-            ),
-            onPressed: onClickDeleteIcon,
-          ),
+            // Delete icon or loader
+            if (shouldShowDelete)
+              showDeleteLoader
+                  ? loader
+                  : IconButton(
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 20,
+                      color: AppColors.primaryColor,
+                    ),
+                    onPressed: onClickDeleteIcon,
+                  ),
 
-        // View or download button
-        if (isFileAvailable && isDownloadable)
-          isLoading
-              ? loader
-              : shouldShowView
-              ? IconButton(
-            onPressed: onClickViewMoreIcon,
-            icon: Icon(
-              Icons.remove_red_eye_outlined,
-              size: 20,
-              color: AppColors.primaryColor,
-            ),
-          )
-              : IconButton(
-            icon: Icon(
-              Icons.file_download_outlined,
-              size: 20,
-              color: AppColors.primaryColor,
-            ),
-            onPressed: onClickDownload,
-          ),
-       ],),
-   
+            // View or download button
+            if (isFileAvailable && isDownloadable)
+              isLoading
+                  ? loader
+                  : shouldShowView
+                  ? IconButton(
+                    onPressed: onClickViewMoreIcon,
+                    icon: Icon(
+                      Icons.remove_red_eye_outlined,
+                      size: 20,
+                      color: AppColors.primaryColor,
+                    ),
+                  )
+                  : IconButton(
+                    icon: Icon(
+                      Icons.file_download_outlined,
+                      size: 20,
+                      color: AppColors.primaryColor,
+                    ),
+                    onPressed: onClickDownload,
+                  ),
+          ],
+        ),
       ],
     ),
   );
