@@ -305,10 +305,10 @@ class _TripScheduleScreenState extends State<TripScheduleScreen> {
                             Duration(days: 1),
                           ),
                         );
-                        if (!context.mounted) return;
+                        if(!context.mounted || date == null) return;
                         final String? time = await commonTimePicker(context);
 
-                        if (date != null && time != null) {
+                        if (time != null) {
                           cubit.updatePossibleDeliveryDateDate("$date, $time");
                           possibleDeliveryDate =
                               DateTimeHelper.convertToApiDateTime(date, time);
