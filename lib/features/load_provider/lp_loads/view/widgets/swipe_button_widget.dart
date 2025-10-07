@@ -33,7 +33,7 @@ class CustomSwipeButton extends StatelessWidget {
       text: text ?? context.appText.swipeToAgree,
 
       textStyle: AppTextStyle.body2.copyWith(
-
+          fontSize: 13,
           color:enable?  AppColors.primaryColor:AppColors.disableColor),
       onSubmit: onSubmit,
 

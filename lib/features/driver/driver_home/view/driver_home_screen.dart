@@ -119,13 +119,43 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         return;
       }
     }
+      void updateTabs(List<LoadStatusResponse> statuses) {
+        if (!mounted) return;
+
+        tabLabels = statuses;
+
+        _tabController?.dispose();
+        _tabController = TabController(
+          length: tabLabels.length,
+          vsync: this,
+          initialIndex: widget.initialTabIndex.clamp(0, tabLabels.length - 1),
+        );
+
+        _tabController!.addListener(() {
+          if (!_tabController!.indexIsChanging) {
+            final index = _tabController!.index;
+            selectedTabIndex = index;
+            clearAllFilterValues();
+            _loadDataByTab(index: index);
+          }
+        });
+        _tabController?.addListener(() {
+          if (!mounted) return;
+          setState(() {}); 
+        });
+      _tabController?.animation!.addListener(() {
+        if (!mounted) return;
+        setState(() {}); 
+      });
+        setState(() {});
+      }
       vpLoadBloc = locator<VpLoadCubit>();
-    vpLoadBloc.fetchLoadStatus();
-    _tabController = TabController(
+      vpLoadBloc.fetchLoadStatus();
+      _tabController = TabController(
       length: 0,
       vsync: this,
       initialIndex: widget.initialTabIndex,
-    );
+      );
     // Listen for load status loaded to update tabs
     vpLoadBloc.stream.listen((state) {
       if (!mounted) return;
@@ -141,11 +171,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
               final index = loadStatusResponse.indexOf(status);
               return index != 1 && index != 2;
             }).toList();
-        _tabController = TabController(
-          length: filteredStatuses.length,
-          vsync: this,
-          initialIndex: widget.initialTabIndex,
-        );
+         updateTabs(filteredStatuses);
 
         _tabController?.addListener(() {
           if (_tabController!.indexIsChanging) {
@@ -161,6 +187,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
         });
       }
     });
+
+
     driverProfileCubit.fetchProfileDetail();
     lpLoadLocator.getTruckType();
     lpLoadLocator.getRouteDetails();
@@ -436,7 +464,8 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
                         indicator: const BoxDecoration(),
                         splashFactory: NoSplash.splashFactory,
                         tabs: List.generate(tabLabels.length, (index) {
-                          final isSelected = _tabController?.index == index;
+                          double animationValue = _tabController!.animation?.value ?? _tabController!.index.toDouble();
+                          bool isSelected = (animationValue - index).abs() < 0.5;
                           return Tab(
                             child: Container(
                               padding: const EdgeInsets.symmetric(
@@ -648,7 +677,7 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
   Widget buildLoadListWidget() {
     return Expanded(
       child: TabBarView(
-        physics: NeverScrollableScrollPhysics(),
+        physics: BouncingScrollPhysics(),
         controller: _tabController,
         children: List.generate(tabLabels.length, (index) {
           return BlocListener<DriverLoadsBloc, DriverLoadsState>(
@@ -687,6 +716,10 @@ class _DriverHomeScreenState extends State<DriverHomeScreen>
           }
         },
         builder: (context, state) {
+          if (_tabController?.index != tabIndex) {
+          return const Center(child: CircularProgressIndicator());
+          }
+
           if (state is DriverLoadsLoading) {
             return const Center(child: CircularProgressIndicator());
           }

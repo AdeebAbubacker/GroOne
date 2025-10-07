@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:bloc/bloc.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../../../../data/model/result.dart';
@@ -16,15 +15,13 @@ class GpsSettingsCubit extends Cubit<GpsSettingsState> {
 
   GpsSettingsCubit(this._repository) : super(GpsSettingsInitial());
 
-
   Future<void> toggleNotification(bool isEnabled) async {
     emit(GpsSettingsLoading());
 
-    String? deviceToken = "";
+    String? fcmToken = "";
     try {
-      deviceToken = isEnabled ? await FirebaseMessaging.instance.getToken() : "";
-    } catch (e) {
-    }
+      fcmToken = isEnabled ? await FirebaseMessaging.instance.getToken() : "";
+    } catch (e) {}
 
     Map<String, dynamic>? deviceDetails;
     String? deviceType;
@@ -60,7 +57,7 @@ class GpsSettingsCubit extends Cubit<GpsSettingsState> {
     }
 
     final result = await _repository.updateNotificationToggle(
-      deviceToken: deviceToken ?? '',
+      fcmToken: fcmToken ?? '',
       deviceDetails: deviceDetails,
       deviceType: deviceType,
     );
@@ -74,7 +71,4 @@ class GpsSettingsCubit extends Cubit<GpsSettingsState> {
       emit(GpsSettingsError("Unknown error occurred"));
     }
   }
-
-
-
 }

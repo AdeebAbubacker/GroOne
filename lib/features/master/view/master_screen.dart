@@ -113,16 +113,16 @@ class _MasterScreenState extends State<MasterScreen>
   List<Widget> getTabs(BuildContext context) {
     if (kycCubit.userRole == 2 || (kycCubit.userRole == 3 && (profileCubit.state.switchToVp??false))) {
       return [
-        _buildTab(context.appText.lanes, _tabController.index == 0),
-        _buildTab(context.appText.address, _tabController.index == 1),
-        _buildTab(context.appText.vehicles, _tabController.index == 2),
-        _buildTab(context.appText.drivers, _tabController.index == 3),
+        _buildTab(context.appText.lanes, _tabController.index == 0,0),
+        _buildTab(context.appText.address, _tabController.index == 1,1),
+        _buildTab(context.appText.vehicles, _tabController.index == 2,2),
+        _buildTab(context.appText.drivers, _tabController.index == 3,3),
       ];
     } else {
       return [
-        _buildTab(context.appText.address, _tabController.index == 0),
-        _buildTab(context.appText.vehicles, _tabController.index == 1),
-        _buildTab(context.appText.drivers, _tabController.index == 2),
+        _buildTab(context.appText.address, _tabController.index == 0,0),
+        _buildTab(context.appText.vehicles, _tabController.index == 1,1),
+        _buildTab(context.appText.drivers, _tabController.index == 2,2),
       ];
     }
 
@@ -153,6 +153,9 @@ class _MasterScreenState extends State<MasterScreen>
     await vpCreationCubit.fetchPrefLane(null,isInit: true);
     _autoSelectPreSelectLanes();
     lpHomeCubit.fetchLoadWeight();
+     _tabController.animation!.addListener(() {
+    setState(() {}); 
+  });
   });
 
   void _autoSelectPreSelectLanes()  {
@@ -223,7 +226,12 @@ class _MasterScreenState extends State<MasterScreen>
     );
   }
 
-  Widget _buildTab(String text, bool isSelected) {
+  Widget _buildTab(String text, bool isSelected,int tabIndex) {
+    double animationValue = _tabController.animation?.value ?? _tabController.index.toDouble();
+  
+  // The closer the tab is to the animation index, the more selected it appears
+  bool isSelected = (animationValue - tabIndex).abs() < 0.5;
+
     return Container(
       height: 30,
       constraints: const BoxConstraints(
