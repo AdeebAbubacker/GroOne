@@ -775,6 +775,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
                 selectedZonalOfficeId: finalZonalOfficeId,
                 selectedRegionalOfficeId: finalRegionalOfficeId,
                 selectedRegionalOfficeName: data.region?.name ?? '',
+                disableRegionlDropDown: data.region?.name.isNotEmpty,
                 selectedStateId: finalStateId,
                 selectedDistrictId: finalDistrictId,
                 selectedDistrictName: finalDistrictName,
@@ -793,6 +794,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
               selectedZonalOfficeId: null,
               selectedRegionalOfficeId: null,
               selectedRegionalOfficeName: '',
+              disableRegionlDropDown: false,
               selectedStateId: null,
               selectedDistrictId: null,
               selectedDistrictName: '',
@@ -809,6 +811,7 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
             selectedZonalOfficeId: null,
             selectedRegionalOfficeId: null,
             selectedRegionalOfficeName: '',
+            disableRegionlDropDown: false,
             selectedStateId: null,
             selectedDistrictId: null,
             selectedDistrictName: '',
@@ -818,6 +821,21 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
         );
       }
     }
+  }
+
+  void clearZonalRegionalValues() {
+    emit(
+      state.copyWith(
+        clearSelectedZonalOfficeId: true,
+        clearSelectedRegionalOfficeId: true,
+        clearSelectedZonalOfficeName: true,
+        clearSelectedRegionalOfficeName: true,
+        clearSelectedStateName: true,
+        clearSelectedStateId: true,
+        clearSelectedDistrictName: true,
+        clearSelectedDistrictId: true,
+      ),
+    );
   }
 
   /// Set Pincode UI State
@@ -1406,8 +1424,11 @@ class EnDhanCubit extends BaseCubit<EnDhanState> {
     emit(
       state.copyWith(
         selectedZonalOfficeId: value,
-        regionalOffices: [], // Clear regional offices when zonal office changes
-        selectedRegionalOfficeId: null, // Clear selected regional office
+        regionalOffices: [],
+        // Clear regional offices when zonal office changes
+        selectedRegionalOfficeId: null,
+        // Clear selected regional office
+        selectedRegionalOfficeName: '',
       ),
     );
   }

@@ -16,6 +16,7 @@ import 'package:gro_one_app/features/fastag/model/fastag_pincode_verify_model.da
 import 'package:gro_one_app/features/kavach/model/kavach_user_model.dart';
 import 'package:gro_one_app/utils/app_string.dart';
 import 'package:gro_one_app/utils/custom_log.dart';
+import 'package:gro_one_app/utils/toast_messages.dart';
 
 class EnDhanService {
   final ApiService _apiService;
@@ -1017,13 +1018,13 @@ class EnDhanService {
             );
             return Success(pincodeResponse);
           } else {
+            ToastMessages.alert(message: result.value['message'].toString());
             return Error(ErrorWithMessage(message: pincodeResponse.message));
           }
         } catch (parseError) {
+          ToastMessages.alert(message: result.value['message'].toString());
           CustomLog.error(this, "Error parsing pincode response", parseError);
-          return Error(
-            ErrorWithMessage(message: 'Error parsing pincode response data'),
-          );
+          return Error(ErrorWithMessage(message: result.value['message']));
         }
       } else if (result is Error) {
         return Error(result.type);

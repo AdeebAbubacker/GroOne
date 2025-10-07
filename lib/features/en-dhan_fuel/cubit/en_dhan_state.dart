@@ -22,6 +22,7 @@ class EnDhanState extends Equatable {
   final String? aadhaarDocLink;
   final UIState<Map<String, dynamic>>? endhanServerStatusState;
   final UIState<FleetPincodeVerifyModel?>? pincodeVerifyUIState;
+  bool? disableRegionlDropDown;
 
   // KYC Form fields
   final String aadhaar;
@@ -84,15 +85,15 @@ class EnDhanState extends Equatable {
   final String roState;
   final String roDistrict;
   final int? selectedStateId;
-  final int? selectedDistrictId;
+  int? selectedDistrictId;
   final String?
   selectedDistrictName; // For displaying district name from pincode API
-  final int? selectedZonalOfficeId;
-  final int? selectedRegionalOfficeId;
+  int? selectedZonalOfficeId;
+  int? selectedRegionalOfficeId;
   final List<CardFormData> cards;
   final String? selectedStateName; // For showing state name in UI
-  final String? selectedZonalOfficeName; // For showing zonal name in UI
-  final String? selectedRegionalOfficeName; // Optional, if you want same for RO
+  String? selectedZonalOfficeName; // For showing zonal name in UI
+  String? selectedRegionalOfficeName; // Optional, if you want same for RO
 
   // Master Data
   final List<dynamic> states;
@@ -101,7 +102,7 @@ class EnDhanState extends Equatable {
   final List<dynamic> regionalOffices;
   final List<String> vehicleTypes;
 
-  const EnDhanState({
+  EnDhanState({
     this.uploadKycState,
     this.endhanServerStatusState,
     this.kycCheckState,
@@ -178,6 +179,7 @@ class EnDhanState extends Equatable {
     this.selectedZonalOfficeName,
     this.selectedRegionalOfficeName,
     this.pincodeVerifyUIState,
+    this.disableRegionlDropDown,
   });
 
   /// Factory constructor for initial state with mutable document lists
@@ -304,6 +306,15 @@ class EnDhanState extends Equatable {
     String? selectedStateName,
     String? selectedZonalOfficeName,
     String? selectedRegionalOfficeName,
+    bool? disableRegionlDropDown,
+    bool clearSelectedZonalOfficeId = false,
+    bool clearSelectedRegionalOfficeId = false,
+    bool clearSelectedZonalOfficeName = false,
+    bool clearSelectedRegionalOfficeName = false,
+    bool clearSelectedStateName = false,
+    bool clearSelectedStateId = false,
+    bool clearSelectedDistrictName = false,
+    bool clearSelectedDistrictId = false,
   }) {
     return EnDhanState(
       uploadKycState: uploadKycState ?? this.uploadKycState,
@@ -378,13 +389,24 @@ class EnDhanState extends Equatable {
       roAddress2: roAddress2 ?? this.roAddress2,
       roState: roState ?? this.roState,
       roDistrict: roDistrict ?? this.roDistrict,
-      selectedStateId: selectedStateId ?? this.selectedStateId,
-      selectedDistrictId: selectedDistrictId ?? this.selectedDistrictId,
-      selectedDistrictName: selectedDistrictName ?? this.selectedDistrictName,
+      selectedStateId:
+          clearSelectedStateId ? null : selectedStateId ?? this.selectedStateId,
+      selectedDistrictId:
+          clearSelectedDistrictId
+              ? null
+              : selectedDistrictId ?? this.selectedDistrictId,
+      selectedDistrictName:
+          clearSelectedDistrictName
+              ? ''
+              : selectedDistrictName ?? this.selectedDistrictName,
       selectedZonalOfficeId:
-          selectedZonalOfficeId ?? this.selectedZonalOfficeId,
+          clearSelectedZonalOfficeId
+              ? null
+              : selectedZonalOfficeId ?? this.selectedZonalOfficeId,
       selectedRegionalOfficeId:
-          selectedRegionalOfficeId ?? this.selectedRegionalOfficeId,
+          clearSelectedRegionalOfficeId
+              ? null
+              : selectedRegionalOfficeId ?? this.selectedRegionalOfficeId,
       cards: cards ?? this.cards,
       states: states ?? this.states,
       districts: districts ?? this.districts,
@@ -394,12 +416,21 @@ class EnDhanState extends Equatable {
       aadhaarDocLink: aadhaarDocLink ?? this.aadhaarDocLink,
       endhanServerStatusState:
           endhanServerStatusState ?? this.endhanServerStatusState,
-      selectedStateName: selectedStateName ?? this.selectedStateName,
+      selectedStateName:
+          clearSelectedStateName
+              ? ''
+              : selectedStateName ?? this.selectedStateName,
       selectedZonalOfficeName:
-          selectedZonalOfficeName ?? this.selectedZonalOfficeName,
+          clearSelectedZonalOfficeName
+              ? ''
+              : selectedZonalOfficeName ?? this.selectedZonalOfficeName,
       selectedRegionalOfficeName:
-          selectedRegionalOfficeName ?? this.selectedRegionalOfficeName,
+          clearSelectedRegionalOfficeName
+              ? ''
+              : selectedRegionalOfficeName ?? this.selectedRegionalOfficeName,
       pincodeVerifyUIState: pincodeVerifyUIState ?? this.pincodeVerifyUIState,
+      disableRegionlDropDown:
+          disableRegionlDropDown ?? this.disableRegionlDropDown,
     );
   }
 
@@ -490,6 +521,7 @@ class EnDhanState extends Equatable {
     selectedZonalOfficeName,
     selectedRegionalOfficeName,
     pincodeVerifyUIState,
+    disableRegionlDropDown,
   ];
 }
 
