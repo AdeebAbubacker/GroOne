@@ -1111,7 +1111,7 @@ class LoadPrice {
             vpMaxRate: json["vpMaxRate"] ?? 0,
             margin:  parseInt(json["margin"]),
             maxMargin: parseInt(json["maxMargin"]),
-            marginPercentage: json["marginPercentage"] ?? 0,
+            marginPercentage: parseInt(json["marginPercentage"]),
             handlingCharges: json["handlingCharges"] ?? 0,
             status: json["status"] ?? 0,
             createAt: DateTime.tryParse(json["createAt"] ?? ""),
