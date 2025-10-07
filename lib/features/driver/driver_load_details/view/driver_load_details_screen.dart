@@ -152,10 +152,8 @@ class _DriverLoadsLocationDetailsScreenState
                       dropLocation: loadItem?.data?.loadRoute?.dropLocation,
                       pickUpLatLong: loadItem?.data?.loadRoute?.pickUpLatlon,
                       dropLatLong: loadItem?.data?.loadRoute?.dropLatlon,
-                      driverLat:
-                          loadItem?.data?.trackingDetails?.currentLat ?? 0.0,
-                      driverLong:
-                          loadItem?.data?.trackingDetails?.currentLong ?? 0.0,
+                      driverLat: loadItem?.data?.trackingDetails?.currentLat,
+                      driverLong: loadItem?.data?.trackingDetails?.currentLong,
                     ),
                   ),
                   buildTopLocationWidget(loadItem!),
