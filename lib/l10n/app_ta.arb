@@ -1349,10 +1349,6 @@
   "total": "மொத்தம்",
   "filterEmptyWarning": "தயவு செய்து குறைந்தது ஒரு வடிகட்டியைத் தேர்ந்தெடுக்கவும்.",
   "truckTypeRequired": "லாரி வகை தேவை",
-  "truckIsRequired" : "லாரி தேவை"
-
-
-
-
-
+  "truckIsRequired" : "லாரி தேவை",
+  "loadingMemo": "லோடிங் மெமோ்"
 }

@@ -4,6 +4,7 @@ import 'package:gro_one_app/features/load_provider/lp_home/model/auto_complete_m
 import 'package:gro_one_app/features/load_provider/lp_home/model/destination_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_truck_type_list_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/load_weight_model.dart';
+import 'package:gro_one_app/features/load_provider/lp_home/model/location_address_response.dart';
 import 'package:gro_one_app/features/load_provider/lp_home/model/pick_up_model.dart';
 import 'package:gro_one_app/features/load_provider/lp_loads/model/lp_load_response.dart';
 import 'package:gro_one_app/features/profile/model/profile_detail_model.dart';
@@ -22,6 +23,7 @@ class LPHomeState extends Equatable {
   final UIState<RateDiscoveryModel>? rateDiscoveryUIState;
   final UIState<List<LoadWeightModel>>? loadWeightUIState;
   final UIState<ProfileDetailModel>? profileDetailUIState;
+  final UIState<LocationAddressResponse>? locationAddressState;
   final UIState<LpLoadResponse>? lpGetLoadUIState;
   final bool showSuccessKyc;
   final UIState<DestinationModel>? destination;
@@ -44,6 +46,7 @@ class LPHomeState extends Equatable {
     this.rateDiscoveryUIState,
     this.loadWeightUIState,
     this.profileDetailUIState,
+    this.locationAddressState,
     this.lpGetLoadUIState,
     this.showSuccessKyc = false,
     this.destination,
@@ -68,6 +71,7 @@ class LPHomeState extends Equatable {
     UIState<List<LoadWeightModel>>? loadWeightUIState,
     UIState<ProfileDetailModel>? profileDetailUIState,
     UIState<LpLoadResponse>? getLoadListUIState,
+    UIState<LocationAddressResponse>? locationAddressState,
     bool? showSuccessKyc,
     UIState<DestinationModel>? destination,
     UIState<PickUpModel>? pickup,
@@ -101,6 +105,7 @@ class LPHomeState extends Equatable {
       blueId: blueId ?? this.blueId,
       isBluIdShown: isBluIdShown ?? this.isBluIdShown,
       isFetchingRecent: isFetchingRecent ?? this.isFetchingRecent,
+      locationAddressState: locationAddressState ?? this.locationAddressState,
     );
   }
 
@@ -125,6 +130,7 @@ class LPHomeState extends Equatable {
         matchingText,
         blueId,
         isBluIdShown,
-        isFetchingRecent
+        isFetchingRecent,
+        locationAddressState
       ];
 }

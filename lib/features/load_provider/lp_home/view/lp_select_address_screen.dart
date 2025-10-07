@@ -193,13 +193,28 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
 
 // Helper method to update map camera and marker
-  void _updateMapToLocation(LatLng pos) {
+  void _updateMapToLocation(LatLng pos, {bool isMarker = false}) async {
     _centerLatLng ??= pos;
     latLngData = "${pos.latitude},${pos.longitude}";
     _setMarker(pos);
     if (_mapController != null) {
       MapHelper.animateTo(_mapController!, pos);
     }
+    // fetch and update address
+    if(isMarker || widget.title == context.appText.pickupPoint) {
+      lpHomeCubit.fetchLocationAddress(lat: pos.latitude, lng: pos.longitude).then((val) async {
+        var locationAddressState =lpHomeCubit.state.locationAddressState?.data?.fetchedResults[0];
+        final state = lpHomeCubit.state;
+        // final item =  state.autoCompleteUIState!.data!.predictions[0];
+
+        searchTextController.text = locationAddressState?.formattedAddress ?? '';
+        final locationId = widget.title == context.appText.pickupPoint ? state.destinationLocationId : state.pickupLocationId;
+        final type = widget.title == context.appText.pickupPoint ? 1 : 2;
+        await verifyLocationApiCall(placeId: locationAddressState?.placeId ?? '', type: type, locationId: locationId ?? 0, selectedLocation: searchTextController.text);
+        isSuggestionSelected = true;
+      });
+    }
+
     setState(() {});
   }
 
@@ -233,7 +248,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
 
 
   // Verify Location api call
-  Future verifyLocationApiCall({required BuildContext context,required String placeId, required int type, required int locationId, required String selectedLocation}) async {
+  Future verifyLocationApiCall({required String placeId, required int type, required int locationId, required String selectedLocation}) async {
     final apiRequest = VerifyLocationApiRequest(
         placeId: placeId,
         locationId: locationId,
@@ -383,10 +398,8 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
           _centerLatLng = position.target;
           latLngData = "${position.target.latitude},${position.target.longitude}";
         },
-        onCameraIdle: () {
-          if (_centerLatLng != null) {
-            _updateAddress(_centerLatLng!);
-          }
+        onTap: (LatLng pos) {
+          _updateMapToLocation(pos, isMarker: true);
         },
         markers: _markers,
         zoomControlsEnabled: false,
@@ -448,7 +461,7 @@ class _LPSelectAddressScreenState extends State<LPSelectAddressScreen> {
                       onTap: () async {
                         final locationId = widget.title == context.appText.pickupPoint ? state.destinationLocationId : state.pickupLocationId;
                         final type = widget.title == context.appText.pickupPoint ? 1 : 2;
-                        await verifyLocationApiCall(context: context, placeId: item.placeId, type: type, locationId: locationId ?? 0, selectedLocation: item.description);
+                        await verifyLocationApiCall(placeId: item.placeId, type: type, locationId: locationId ?? 0, selectedLocation: item.description);
 
                         isSuggestionSelected = true;
 
